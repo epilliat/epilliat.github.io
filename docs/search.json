@@ -21,6 +21,69 @@
     "text": "Vitae\n\nResearch\n\nSep 2024 - Present: assistant professor in statistics at ENSAI\n2024: Postdoctoral researcher at ENS Lyon\nFeb 2020 - Apr 2022 and Oct 2022 - Dec 2023: PhD Student at Université de Montpellier and INRAE\n2019: Research Project at Ecole Normale Supérieure Paris Saclay with Vianney Perchet on Optimal Order Selection for an Online Reward Maximization problem\nApr 2019: Research Project at OVGU Magdeburg with Alexandra Carpentier on Signal Detection and Change-Point Detection\n2018: Research Internship at the University of Cambridge on Gaussian Free Field\n\nExperience\n\nApr 2022 - Oct 2022: Quantitative Intern at QRT\n\nEducation\n\n2016-2020: Student at Ecole Normale Supérieure de Lyon\n2013-2016: Preparatory School of Mathematics and Physics (CPGE MPSI/MP*) in Strasbourg\n\nTeaching\n\n2020-2022: Teaching assistant at Université de Montpellier."
   },
   {
+    "objectID": "teaching/hypothesis_testing/slides/chi-squared-stats.html#multinomials",
+    "href": "teaching/hypothesis_testing/slides/chi-squared-stats.html#multinomials",
+    "title": "Multi-dimensional Tests",
+    "section": "Multinomials",
+    "text": "Multinomials\n\n\n\n\n\n\nBinomial Distribution\n\n\n\nDraw \\(n\\) balls, blue or red.\n\\(p_1, (1-p_1)\\): proportion of blues/red\n\\(X\\), \\(Y\\): counts of blues/red\n\\(X \\sim \\mathrm{Bin}(n,p_1)\\)\n\\(\\mathbb P((X,Y) = (k_1,k_2)) = \\binom{n}{k_1}p_1^k(1-p_1)^{k_2}\\)\nif \\(k_1 +k_2 = n\\)\n\n\n\n\n\n\n\n\n\n\nMultinomial Distribution\n\n\n\nDraw \\(n\\) balls, \\(m\\) potential colors.\n\\((p_1, \\dots, p_m)\\): proportions of each color: \\(\\sum_{i=1}^m p_i = 1\\)\n\\(X_1, \\dots, X_m\\): count of each color\n\\((X_1, \\dots, X_m) \\sim \\mathrm{Mult}(n,(p_1, \\dots, p_m))\\)\n\\(\\mathbb P((X_1, \\dots, X_m)=(k_1, \\dots, k_m)) = \\frac{n!}{k_1!\\dots k_m!}p_1^{k_1} \\dots p_m^{k_m}\\)\nif \\(k_1 + \\dots + k_m = n\\)\n\n\n\n\n\n\n\n\\(\\frac{n!}{k_1!\\dots k_m!} = \\binom{n}{k_1,\\dots, k_m}\\) is a multinomial coefficient\nIn this course: \\(n \\gg m\\).\n\\(m \\gg n\\) corresponds to a high-dimensional setting."
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/chi-squared-stats.html#goodness-of-fit-test",
+    "href": "teaching/hypothesis_testing/slides/chi-squared-stats.html#goodness-of-fit-test",
+    "title": "Multi-dimensional Tests",
+    "section": "Goodness of Fit Test",
+    "text": "Goodness of Fit Test\n\nWe observe \\((X_1, \\dots, X_m) \\sim \\mathrm{Mult}(n, q)\\) This corresponds to \\(n\\) counts: \\(X_1 + \\dots + X_m = n\\)\n\\(q = (q_1, \\dots, q_m)\\) corresponds to probabilities of getting color \\(1, \\dots, m\\)\nLet \\(p = (p_1, \\dots, p_m)\\) be a known vector s.t. \\(p_1 + \\dots + p_m = 1\\).\n\\(H_0:~ q = p ~~~\\text{or}~~~ H_1: q \\neq p \\; .\\)\n\n\n\n\n\n\n\nGoodness of Fit Test (Adéquation)\n\n\n\nChi-Squared Test Statistic: \\[\\psi(X) = \\sum_{i=1}^m\\frac{(X_i-n_i)^2}{n_i} \\; ,\\] where \\(n_i = np_i = \\mathbb E[X_i]\\) is the expected number of counts for color \\(i.\\)\nWhen \\(np_i = n_i\\) are large, under \\(H_0\\), we approximate the distribution of \\(\\psi(X)\\) as \\(\\psi(X) \\sim \\chi^2(m-1)\\)\nReject if \\(\\psi(X) &gt; t_{1- \\alpha}\\) (right-tail of \\(\\chi^2(m-1)\\))"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/chi-squared-stats.html#example-bag-of-sweets",
+    "href": "teaching/hypothesis_testing/slides/chi-squared-stats.html#example-bag-of-sweets",
+    "title": "Multi-dimensional Tests",
+    "section": "Example: Bag of Sweets",
+    "text": "Example: Bag of Sweets\n\nWe observe a bag of sweets containing \\(n=100\\) sweets of \\(m=3\\) different colors: red, green, and yellow.\nManufacturer: \\(p_1= 40\\%\\) red, \\(p_2=35\\%\\) green, and \\(p_3=25\\%\\) yellow.\n\\(H_0: q=p\\) (manufacturer’s claim is correct)\n\\(H_1: q\\neq p\\) (manufacturer’s claim is incorrect)\n\n\n\n\n\n\n\nColor\nObserved Counts\n\n\n\n\nRed\n\\(X_1=50\\)\n\n\nGreen\n\\(X_2=30\\)\n\n\nYellow\n\\(X_3=20\\)\n\n\n\n\n\n\n\n\n\nExpected Counts\n\n\n\n\n\\(n_1=40\\)\n\n\n\\(n_2=35\\)\n\n\n\\(n_3=25\\)\n\n\n\n\n\n\n\\(\\psi(X) = \\sum_{i=1}^m\\frac{(X_i-n_i)^2}{n_i} \\approx 2.5 +0.71+1 \\approx 4.21\\)\n\\(\\mathrm{cdf}(\\chi^2(2), 4.21) \\approx 0.878\\) (\\(p_{value} \\approx 0.222\\))\nConclusion: do not reject \\(H_0\\)"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/chi-squared-stats.html#homogeneity-test",
+    "href": "teaching/hypothesis_testing/slides/chi-squared-stats.html#homogeneity-test",
+    "title": "Multi-dimensional Tests",
+    "section": "Homogeneity Test",
+    "text": "Homogeneity Test\n\n\\(d\\) different bags, each containing \\(m\\) colors.\nIf \\(d = 3\\) and \\(m=2\\), we observe the following \\(2\\times 3\\) matrix:\n\n\n\n\n\n\nbag 1\nbag 2\nbag 3\nTotal\n\n\n\n\ncolor 1\n\\(X_{11}\\)\n\\(X_{12}\\)\n\\(X_{13}\\)\n\\(R_1\\)\n\n\ncolor 2\n\\(X_{21}\\)\n\\(X_{22}\\)\n\\(X_{23}\\)\n\\(R_2\\)\n\n\nTotal\n\\(N_1\\)\n\\(N_2\\)\n\\(N_3\\)\n\\(N\\)\n\n\n\n\n\n\n\n\n\n\n\nBag \\(j\\): \\((X_{1j}, X_{2j}) \\sim \\mathrm{Mult}(N_j, (p_{1j}, p_{2j}))\\)\nThe parameters \\(p_{ij}\\) are unknown\n\\(H_0\\): \\(p_{i1} = p_{i2}=p_{i3}\\) for all \\(i\\) (bags are homogeneous)\n\\(H_1\\): bags are heterogeneous\n\\(\\sum_{i=1}^m\\sum_{j=1}^d \\frac{(X_{ij}- N_jp_{ij})^2}{N_jp_{ij}}\\) not a test statistic\n\n\n\n\n\n\n\n\n\n\nChi-Squared Homogeneity Test Statistic\n\n\n\n\\(\\hat p_{i} = \\tfrac{1}{N}\\sum_{j=1}^{d}X_{ij} = \\frac{R_i}{N}\\)\n\\(\\psi(X) = \\sum_{i=1}^m\\sum_{j=1}^d \\frac{(X_{ij}- N_j\\hat p_{i})^2}{N_j\\hat p_{i}}\\)\nApproximation: \\(\\psi(X) \\sim \\chi^2((m-1)(d-1))\\)"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/chi-squared-stats.html#example-soft-drink-preferences",
+    "href": "teaching/hypothesis_testing/slides/chi-squared-stats.html#example-soft-drink-preferences",
+    "title": "Multi-dimensional Tests",
+    "section": "Example: Soft drink preferences",
+    "text": "Example: Soft drink preferences\n\n\nSplit population into \\(3\\) categories: Young Adults (18-30), Middle-Aged Adults (31-50), and Seniors (51 and above).\n\\(H_0\\): The groups are homogeneous in terms of soft drink preferences\n\n\n\n\n\nAge Group\nYoung Adults\nMiddle-Aged\nSeniors\nTotal\n\n\n\n\nCoke\n60\n40\n30\n130\n\n\nPepsi\n50\n55\n25\n130\n\n\nSprite\n30\n45\n55\n130\n\n\nTotal\n140\n140\n110\n390\n\n\n\n\n\n\\(N_1 \\hat p_1 = 140*\\frac{130}{390} \\approx 46.7\\)\n\n\n\\[\n\\begin{aligned}\n\\psi(X) &= \\frac{(60-46.7)^2}{46.7}&+ \\frac{(40-46.7)^2}{46.7}&+\\frac{(30-36.7)^2}{36.7} \\\\\n&+\\frac{(50-46.7)^2}{46.7}&+ \\frac{(55-46.7)^2}{46.7}&+\\frac{(25-36.7)^2}{36.7}\\\\\n&+\\frac{(30-46.7)^2}{46.7}&+ \\frac{(45-46.7)^2}{46.7}&+\\frac{(55-36.7)^2}{36.7}\\\\\n    &\\approx 26.57\n\\end{aligned}\n\\]\n\n\n\n1-cdf(Chisq(4), 26.57) # 2.4e-5, reject H_0"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/chi-squared-stats.html#histograms",
+    "href": "teaching/hypothesis_testing/slides/chi-squared-stats.html#histograms",
+    "title": "Multi-dimensional Tests",
+    "section": "Histograms",
+    "text": "Histograms\n\n\n\n\n\n\nhistogram\n\n\n\nWe observe \\((X_1, \\dots, X_n) \\in \\mathbb R^n\\)\n\n\\(\\mathrm{counts}(I) = \\sum \\mathbf 1\\{X_i \\in I\\} \\in \\{1, \\dots, n\\}\\; .\\)\n\\(\\mathrm{freq}(I) = \\mathrm{counts}(I)/n\\)\n\\(\\mathrm{hist}(a,b,k) = (\\mathrm{counts}(I_1), \\dots,\\mathrm{counts}(I_k))\\)\nwhere \\(I_l = \\big[a + (l-1)\\tfrac{b-a}{k},a + l\\tfrac{b-a}{k}\\big)\\)\n\n\n\n\n\n\n\n\n\n\n\n\nNormalization\n\n\nCan be normalized in counts (default), frequency, or density (area under the curve = 1)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nLaw of Large Number, Monte Carlo (Informal)\n\n\n\nAssume that \\((X_1, \\dots, X_n)\\) are iid of distrib \\(P\\), and that \\(a\\),\\(b\\), \\(k\\) are fixed\nThe histogram \\(\\mathrm{hist}(a,b,k)\\) converges to the histogram of the density \\(P\\)"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/chi-squared-stats.html#goodness-of-fit-to-a-given-distribution",
+    "href": "teaching/hypothesis_testing/slides/chi-squared-stats.html#goodness-of-fit-to-a-given-distribution",
+    "title": "Multi-dimensional Tests",
+    "section": "Goodness of Fit to a given distribution",
+    "text": "Goodness of Fit to a given distribution\n\nWe observe \\((X_1, \\dots, X_n) \\in \\mathbb R^n\\), iid with unknown distrib \\(P\\)\n\\(H_0\\): \\(P = P_0\\), where \\(P_0\\) is known\n\\(H_1\\): \\(P \\neq P_0\\)\nIdea: Under \\(H_0\\), the counts in the intervals \\([a_0, a_1), [a_1, a_2), \\dots, [a_{k-1}, a_k)\\) follow a multinomial distribution \\(\\mathrm{Mult}(n, (p_1, \\dots, p_{k}))\\) where \\(p_1 = P_0([a_0, a_1)), \\dots, p_{k} = P_0([a_{k-1}, a_k))\\)\n\n\n\n\n\nReduction to Chi-Squared Statistic Test\n\n\n\nCount the number of data \\((c_1, \\dots, c_k)\\) falling in \\(I_1, \\dots, I_k\\)\nCompare the counts the theoretical \\(nP_0(I_1) \\dots, nP_0(I_k)\\) with a chi-squared statistic: \\[ \\sum_{j=1}^k \\frac{(c_j - nP_0(I_j))^2}{nP_0(I_1)}\\]\nDecide using an \\(\\alpha\\)-quantile of a \\(\\chi^2(k-1)\\) distribution"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/chi-squared-stats.html#example-goodness-of-fit-to-a-poisson-distribution",
+    "href": "teaching/hypothesis_testing/slides/chi-squared-stats.html#example-goodness-of-fit-to-a-poisson-distribution",
+    "title": "Multi-dimensional Tests",
+    "section": "Example: Goodness of Fit to a Poisson distribution",
+    "text": "Example: Goodness of Fit to a Poisson distribution\n\\(H_0\\): \\(X_i\\) iid \\(\\mathcal P(2)\\)\nX = [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 3, 0, 1, 1, 2, 3, 0, 1, 0, 0, 2, 1, 0, 1, 0, 0, 2, 0, 0]\n\n\n\n\n\n\\(0\\)\n\\(1\\)\n\\(2\\) \n\\(\\geq 3\\)\nTotal\n\n\n\n\nCounts\n16\n8\n3\n3\n30\n\n\nTheoretical Counts\n4.06\n8.1\n8.1\n9.7\n\n\n\n\n\n\nTo get \\(9.7\\), we compute (1-cdf(Poisson(2),2))*30\nchi square stat \\(\\gtrsim \\frac{(16-4)^2}{4} = 36\\)\n(1-cdf(Chisq(3),36)) is very small: Reject"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/chi-squared-stats.html#comparison-with-qq-plots",
+    "href": "teaching/hypothesis_testing/slides/chi-squared-stats.html#comparison-with-qq-plots",
+    "title": "Multi-dimensional Tests",
+    "section": "Comparison with QQ-Plots",
+    "text": "Comparison with QQ-Plots\n\nWe observe \\((X_1, \\dots, X_n)\\) of unknown CDF \\(F\\)\n\\(H_0\\): \\(F = F_0\\) where \\(F_0\\) is known\n\\(H_1\\): \\(F \\neq F_0\\)\nWe write \\(X_{(1)} \\leq \\dots \\leq X_{(n)}\\) for the ordered data\nempirical \\(\\frac{k}{n}\\)-quantile: \\(X_{(k)}\\)\n\\(\\frac{k}{n}\\)-quantile: \\(x\\) such that \\(F(x) = \\frac{k}{n}\\)\n\n\n\n\n\n\n\nQQ-Plot\n\n\n\nRepresent the empirical quantiles in function of the theoretical quantiles.\nCompare the scatter plot with \\(y=x\\)"
+  },
+  {
     "objectID": "teaching/hypothesis_testing/slides/gaussian_populations.html#testing-mean-with-known-variance",
     "href": "teaching/hypothesis_testing/slides/gaussian_populations.html#testing-mean-with-known-variance",
     "title": "Gaussian Populations",
@@ -49,11 +112,11 @@
     "text": "Chi-Square and Student Distributions\n\n\n\n\n\n\nChi-Squared Distribution \\(\\chi^2(k)\\)\n\n\n\n\\(k\\): degree of freedom\nDistrib of \\(\\sum_{i=1}^k Z_i^2\\)\nwhere the \\(Z_i\\)’s are iid \\(\\mathcal N(0,1)\\).\n\\(\\mathbb E[Z_i^4] - \\mathbb E[Z_i^2]=2\\)\n\\(\\chi^2(k) \\sim k + \\sqrt{2k}\\mathcal N(0,1)\\) when \\(k \\to +\\infty\\)\n\n\n\n\n\n\n\n\n\n\nStudent Distribution \\(\\mathcal T(k)\\)\n\n\n\n\\(k\\): degree of freedom\nDistrib of \\(\\tfrac{Z}{\\sqrt{U/k}}\\)\n\\(Z\\), \\(U\\) are independent and follow resp. \\(\\mathcal N(0,1)\\) and a \\(\\chi^2(k)\\)\n\n\n\n\n\n\n\n\n\nTheorem\n\n\nAssume \\(X_i\\) are iid \\(\\mathcal N(\\mu_0, \\sigma)\\).\n\nThe Test Statistic \\(\\psi(X) = \\frac{\\sqrt{n}(\\overline X-\\mu_0)}{\\hat \\sigma}\\) pivotal (indep. of \\(\\sigma\\)).\nIt follows a Student Distribution \\(\\mathcal T(n-1)\\).\n\n\n\n\n\nProof idea: \\(\\overline X \\cdot (1, \\dots, 1)\\) and \\((X_1 - \\overline X, \\dots, X_n - \\overline X)\\) are orthogonal in \\(\\mathbb R^n\\)."
   },
   {
-    "objectID": "teaching/hypothesis_testing/slides/gaussian_populations.html#t-test",
-    "href": "teaching/hypothesis_testing/slides/gaussian_populations.html#t-test",
+    "objectID": "teaching/hypothesis_testing/slides/gaussian_populations.html#student-t-test",
+    "href": "teaching/hypothesis_testing/slides/gaussian_populations.html#student-t-test",
     "title": "Gaussian Populations",
-    "section": "T-Test",
-    "text": "T-Test\n\nMultiple VS Multiple Test Problem \\(X=(X_1, \\dots, X_n)\\): \\[\nH_0: \\{\\mu_0,\\sigma &gt; 0\\} \\text{ or } H_1: \\{\\mu \\neq \\mu_0,\\sigma &gt; 0\\} \\;.\n\\]\n(Student) T-Test Statistic: \\[\\psi(X) = \\frac{\\sqrt{n}(\\overline X-\\mu_0)}{\\hat \\sigma(X)} \\sim \\mathcal T(n-1)\\]"
+    "section": "Student T-Test",
+    "text": "Student T-Test\n\nMultiple VS Multiple Test Problem \\(X=(X_1, \\dots, X_n)\\): \\[\nH_0: \\{\\mu_0,\\sigma &gt; 0\\} \\text{ or } H_1: \\{\\mu \\neq \\mu_0,\\sigma &gt; 0\\} \\;.\n\\]\n(Student) T-Test Statistic: \\[\\psi(X) = \\frac{\\sqrt{n}(\\overline X-\\mu_0)}{\\hat \\sigma(X)} \\sim \\mathcal T(n-1)\\]"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/gaussian_populations.html#testing-means-known-variances",
@@ -77,18 +140,18 @@
     "text": "Fisher Distribution\n\n\n\n\n\n\nFisher Distribution \\(\\mathcal F(k_1,k_2)\\)\n\n\n\n\\((k_1, k_2)\\): degrees of freedom\nDistribution of \\(\\frac{U_1/k_1}{U_2/k_2}\\)\nWhere \\(U_1\\), \\(U_2\\) are indep. and follow \\(\\chi^2(k_1)\\), \\(\\chi^2(k_2)\\). wiki\n\\(\\mathcal F(k_1,k_2) \\approx 1 + \\sqrt{\\frac{2}{k_1} + \\frac{2}{k_2}}\\mathcal N\\left(0, 1\\right)\\) when \\(k_1,k_2 \\to +\\infty\\)\nExample: \\(\\frac{Z_1^2+Z_2^2}{2Z_3^2} \\sim \\mathcal F(2,1)\\) if \\(Z_i \\sim \\mathcal N(0,1)\\)\n\n\n\n\n\n\n\n\n\nProposition\n\n\n\n\\(\\psi(X,Y)=\\frac{\\hat \\sigma^2_1}{\\hat \\sigma_2^2}\\) is independent of \\(\\mu_1\\), \\(\\mu_2\\), \\(\\sigma_1\\), \\(\\sigma_2\\). It is pivotal\nIt follow distribution \\(\\mathcal F(n_1-1, n_2-1)\\)\n\n\n\n\n\n\n\n\nTwo-Sided Test: \\[ \\frac{\\hat \\sigma^2_1}{\\hat \\sigma_2^2} \\not \\in [t_{\\alpha/2}, t_{1-\\alpha/2}] ~~~\\text{(quantile of Fisher)}\\]"
   },
   {
-    "objectID": "teaching/hypothesis_testing/slides/gaussian_populations.html#equality-means-equal-variances",
-    "href": "teaching/hypothesis_testing/slides/gaussian_populations.html#equality-means-equal-variances",
+    "objectID": "teaching/hypothesis_testing/slides/gaussian_populations.html#testing-means-equal-variances",
+    "href": "teaching/hypothesis_testing/slides/gaussian_populations.html#testing-means-equal-variances",
     "title": "Gaussian Populations",
-    "section": "Equality Means, Equal Variances",
-    "text": "Equality Means, Equal Variances\n\nWe observe \\((X_1, \\dots, X_{n_1})\\) iid \\(\\mathcal N(\\mu_1, \\sigma_1)\\) and \\((Y_1, \\dots, Y_{n_2})\\) iid \\(\\mathcal N(\\mu_2, \\sigma_2)\\).\n\\(\\sigma_1\\), \\(\\sigma_2\\), \\(\\mu_1\\), \\(\\mu_2\\) are unknown, but we know that \\(\\sigma_1=\\sigma_2\\)\nEquality of Mean Testing Problem: \\[\nH_0: \\mu_1 = \\mu_2 ~~~~ \\text{ or } ~~~~ H_1: \\mu_1 \\neq \\mu_2\n\\]\nFormally, \\(H_0 = \\{(\\mu,\\sigma, \\mu, \\sigma), \\mu \\in \\mathbb R, \\sigma &gt; 0\\}\\).\n\n\nEstimate \\(\\sigma\\): \\(\\hat \\sigma^2 = \\frac{1}{n_1 + n_2 - 2}\\left(\\sum_{i=1}^{n_1}(X_i - \\overline X)^2 + \\sum_{i=1}^{n_2}(Y_i - \\overline Y)^2 \\right)\\)\nNormalize \\(\\overline X - \\overline Y\\) to get the T-Statistic: \\(\\psi(X,Y) = \\frac{\\overline X - \\overline Y}{\\sqrt{\\hat \\sigma^2\\left(\\frac{1}{n_1} + \\frac{1}{n_2}\\right)}} \\; .\\)\n\n\n\\(\\psi(X,Y)\\) is pivotal because \\(\\sigma_1 = \\sigma_2\\)."
+    "section": "Testing Means, Equal Variances",
+    "text": "Testing Means, Equal Variances\n\nWe observe \\((X_1, \\dots, X_{n_1})\\) iid \\(\\mathcal N(\\mu_1, \\sigma_1)\\) and \\((Y_1, \\dots, Y_{n_2})\\) iid \\(\\mathcal N(\\mu_2, \\sigma_2)\\).\n\\(\\sigma_1\\), \\(\\sigma_2\\), \\(\\mu_1\\), \\(\\mu_2\\) are unknown, but we know that \\(\\sigma_1=\\sigma_2\\)\nEquality of Mean Testing Problem: \\[\nH_0: \\mu_1 = \\mu_2 ~~~~ \\text{ or } ~~~~ H_1: \\mu_1 \\neq \\mu_2\n\\]\nFormally, \\(H_0 = \\{(\\mu,\\sigma, \\mu, \\sigma), \\mu \\in \\mathbb R, \\sigma &gt; 0\\}\\).\n\n\n\n\n\nStudent T-Test for two populations with equal variance\n\n\n\n\\(\\hat \\sigma^2 = \\frac{1}{n_1 + n_2 - 2}\\left(\\sum_{i=1}^{n_1}(X_i - \\overline X)^2 + \\sum_{i=1}^{n_2}(Y_i - \\overline Y)^2 \\right)\\)\nNormalize \\(\\overline X - \\overline Y\\):\n\n\\[\\psi(X,Y) = \\frac{\\overline X - \\overline Y}{\\sqrt{\\hat \\sigma^2\\left(\\frac{1}{n_1} + \\frac{1}{n_2}\\right)}} \\sim \\mathcal T(n_1+n_2 - 2) \\; .\\]\n\n\\(\\psi(X,Y)\\) is pivotal because \\(\\sigma_1 = \\sigma_2\\)."
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/gaussian_populations.html#equality-means-unequal-variances",
     "href": "teaching/hypothesis_testing/slides/gaussian_populations.html#equality-means-unequal-variances",
     "title": "Gaussian Populations",
     "section": "Equality Means, Unequal Variances",
-    "text": "Equality Means, Unequal Variances\n\nWe observe \\((X_1, \\dots, X_{n_1})\\) iid \\(\\mathcal N(\\mu_1, \\sigma_1)\\) and \\((Y_1, \\dots, Y_{n_2})\\) iid \\(\\mathcal N(\\mu_2, \\sigma_2)\\).\n\\(\\sigma_1\\), \\(\\sigma_2\\), \\(\\mu_1\\), \\(\\mu_2\\) are unknown\nEquality of Mean Testing Problem: \\[\nH_0: \\mu_1 = \\mu_2 ~~~~ \\text{ or } ~~~~ H_1: \\mu_1 \\neq \\mu_2\n\\]\nFormally, \\(H_0 = \\{(\\mu,\\sigma_1, \\mu, \\sigma_2), \\mu \\in \\mathbb R, \\sigma_1, \\sigma_2 &gt; 0\\}\\).\nTest Statistic: \\(\\psi(X, Y) = \\frac{\\overline X - \\overline Y}{\\sqrt{\\frac{\\hat \\sigma_1^2}{n_1} + \\frac{\\hat \\sigma_2^2}{n_2}}}\\)\n\\(\\psi(X,Y)\\) is not pivotal\nGaussian approximation: \\(\\psi(X,Y) \\approx \\mathcal N(0,1)\\) when \\(n_1, n_2 \\to \\infty\\)\nBetter approximation: Student Welch"
+    "text": "Equality Means, Unequal Variances\n\nWe observe \\((X_1, \\dots, X_{n_1})\\) iid \\(\\mathcal N(\\mu_1, \\sigma_1)\\) and \\((Y_1, \\dots, Y_{n_2})\\) iid \\(\\mathcal N(\\mu_2, \\sigma_2)\\).\n\\(\\sigma_1\\), \\(\\sigma_2\\), \\(\\mu_1\\), \\(\\mu_2\\) are unknown\nEquality of Mean Testing Problem: \\[\nH_0: \\mu_1 = \\mu_2 ~~~~ \\text{ or } ~~~~ H_1: \\mu_1 \\neq \\mu_2\n\\]\nFormally, \\(H_0 = \\{(\\mu,\\sigma_1, \\mu, \\sigma_2), \\mu \\in \\mathbb R, \\sigma_1, \\sigma_2 &gt; 0\\}\\).\n\n\n\n\n\nStudent Welch Test Statistic\n\n\n\\[\\psi(X, Y) = \\frac{\\overline X - \\overline Y}{\\sqrt{\\frac{\\hat \\sigma_1^2}{n_1} + \\frac{\\hat \\sigma_2^2}{n_2}}}\\]\n\n\\(\\psi(X,Y)\\) is not pivotal\nGaussian approximation: \\(\\psi(X,Y) \\approx \\mathcal N(0,1)\\) when \\(n_1, n_2 \\to \\infty\\)\nBetter approximation: Student Welch"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/gaussian_populations.html#central-limit-theorem",
@@ -102,21 +165,21 @@
     "href": "teaching/hypothesis_testing/slides/gaussian_populations.html#proportion-test",
     "title": "Gaussian Populations",
     "section": "Proportion Test",
-    "text": "Proportion Test\n\nWe observe \\(Bin(n_1, p_1)\\) and \\(Bin(n_2, p_2)\\).\n\\(n_1\\), \\(n_2\\) are known but \\(p_1\\), \\(p_2\\) are unknown in \\((0,1)\\)\n\\(H_0\\): \\(p_1 = p_2\\) or \\(H_1\\): \\(p_1 \\neq p_2\\)\nQuestion: “Should we raise taxes on cigarettes to pay for a healthcare reform ?”\n\n\n\n\n\n\nNon-Smokers\nSmokers\nTotal\n\n\n\n\nYES\n351\n41\n392\n\n\nNO\n254\n195\n449\n\n\nTotal\n605\n154\n800\n\n\n\n\nabc"
+    "text": "Proportion Test\n\nWe observe \\(X \\sim Bin(n_1, p_1)\\) and \\(Y \\sim Bin(n_2, p_2)\\).\n\\(n_1\\), \\(n_2\\) are known but \\(p_1\\), \\(p_2\\) are unknown in \\((0,1)\\)\n\\(H_0\\): \\(p_1 = p_2\\) or \\(H_1\\): \\(p_1 \\neq p_2\\)\n\n\n\n\n\nTest Statistic\n\n\n\\[ \\psi(X,Y) = \\frac{\\hat p_1 - \\hat p_2}{\\sqrt{\\hat p ( 1-\\hat p)\\left(\\frac{1}{n_1} + \\frac{1}{n_2}\\right)}} \\; .\\]\n\n\\(\\hat p_1 = X/n_1\\), \\(\\hat p_2 = X/n_2\\)\n\\(\\hat p = \\frac{X+Y}{n_1+n_2}\\)\nIf \\(np_1, np_2 \\gg 1\\): \\(\\psi(X) \\sim \\mathcal N(0,1)\\)\nWe reject if \\(|\\psi(X,Y)| \\geq t_{1-\\alpha/2}\\) (gaussian quantile)"
   },
   {
-    "objectID": "teaching.html",
-    "href": "teaching.html",
-    "title": "Teaching",
-    "section": "",
-    "text": "Testing Models\nCommon Tests on Gaussian Populations"
+    "objectID": "teaching/hypothesis_testing/slides/gaussian_populations.html#example-reference",
+    "href": "teaching/hypothesis_testing/slides/gaussian_populations.html#example-reference",
+    "title": "Gaussian Populations",
+    "section": "Example (reference)",
+    "text": "Example (reference)\n\nQuestion Asked: “Should we raise taxes on cigarettes to pay for a healthcare reform ?”\n\\(p_1\\), \\(p_2\\): proportion of non-smokers or smokers willing to raise taxes\n\\(H_0\\): \\(p_1=p_1\\) or \\(H_1\\): \\(p_1 &lt; p_2\\)\n\n\n\n\n\n\nNon-Smokers\nSmokers\nTotal\n\n\n\n\nYES\n351\n41\n392\n\n\nNO\n254\n195\n449\n\n\nTotal\n605\n154\n800\n\n\n\n\n\n\\(\\hat p_1 \\approx 0.58\\), \\(\\hat p_2 \\approx 0.21\\).\n\\(\\psi(X,Y)= \\frac{\\hat p_1 - \\hat p_2}{\\sqrt{\\hat p ( 1-\\hat p)\\left(\\frac{1}{n_1} + \\frac{1}{n_2}\\right)}} \\approx 8.99\\)\n\\(\\mathbb P(\\psi(X,Y) &gt; 8.99)\\) = 1-cdf(Normal(0,1), 8.99)"
   },
   {
-    "objectID": "teaching.html#slides",
-    "href": "teaching.html#slides",
-    "title": "Teaching",
+    "objectID": "teaching/hypothesis_testing/slides/glossary.html",
+    "href": "teaching/hypothesis_testing/slides/glossary.html",
+    "title": "Glossary",
     "section": "",
-    "text": "Testing Models\nCommon Tests on Gaussian Populations"
+    "text": "General\n\n\n\nEnglish\n\nincreasing function\nnondecreasing function\ninterval \\([a,b)\\)\n\n\n\n\nFrench\n\nfonction strictement croissante\nfonction croissante\nintervalle \\([a,b[\\)\n\n\n\n\n\n\nProbability/Statistics\n\n\n\nEnglish\n\nexpectation\nlikelihood\ndistribution tail\n\n\n\n\nFrench\n\nespérance\nvraissemblance\nqueue de distribution\n\n\n\n\n\n\nHypothesis Testing\n\n\n\nEnglish\n\none-sided test\ntwo-sided test\nchi-squared goodness of fit test\nchi-squared homogeneity test\n\n\n\n\nFrench\n\ntest unilatéral\ntest bilatéral\ntest d’adéquation du Khi-deux\ntest d’homogénéité du Khi-deux"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/testing_models.html#general-principles",
@@ -292,5 +355,27 @@
     "title": "Hypothesis Testing",
     "section": "Pivotal Test Statistic and P-value",
     "text": "Pivotal Test Statistic and P-value\n\n\n\n\n\n\n\npvalue under \\(H_0\\)\n\n\nUnder \\(H_0\\), for a pivotal test statistic \\(\\psi\\), \\(\\mathrm{pvalue}(X)\\) has a uniform distribution \\(\\mathcal U([0,1])\\).\n\n\n\n\n\n\n\nIn practice: Reject if \\(\\mathrm{pvalue}(X) &lt; \\alpha = 0.05\\)\n\\(\\alpha\\) is the level or type-1-error of the test\n\n\n\nIllustration if \\(\\psi(X) \\sim \\mathcal N(0,1)\\) under \\(H_0\\):"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/hypothesis_testing.html",
+    "href": "teaching/hypothesis_testing/hypothesis_testing.html",
+    "title": "Hypothesis Testing",
+    "section": "",
+    "text": "Testing Models\nCommon Tests on Gaussian Populations\nChi-Squared Tests\nWilcoxon-Dependency Test\n\nSee the Glossary for English/French translations",
+    "crumbs": [
+      "Presentation",
+      "Hypothesis Testing"
+    ]
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/hypothesis_testing.html#slides",
+    "href": "teaching/hypothesis_testing/hypothesis_testing.html#slides",
+    "title": "Hypothesis Testing",
+    "section": "",
+    "text": "Testing Models\nCommon Tests on Gaussian Populations\nChi-Squared Tests\nWilcoxon-Dependency Test\n\nSee the Glossary for English/French translations",
+    "crumbs": [
+      "Presentation",
+      "Hypothesis Testing"
+    ]
   }
 ]

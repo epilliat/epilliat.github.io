@@ -109,7 +109,7 @@ Assume $X_i$ are iid $\mathcal N(\mu_0, \sigma)$.
 - **Proof idea**: $\overline X \cdot (1, \dots, 1)$ and $(X_1 - \overline X, \dots, X_n - \overline X)$ are orthogonal in $\mathbb R^n$.
 ::::
 
-## T-Test
+## Student T-Test
 
 - Multiple VS Multiple Test Problem $X=(X_1, \dots, X_n)$:
 $$
@@ -119,7 +119,9 @@ $$
 - (Student) T-Test Statistic:
 $$\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)} \sim \mathcal T(n-1)$$
 
-![](images/student_k_30.svg){.fragment}
+:::{.fragment}
+![](images/student_k_30.svg)
+:::
 
 # Two Gaussian Populations
 
@@ -181,7 +183,7 @@ $$ \frac{\hat \sigma^2_1}{\hat \sigma_2^2} \not \in [t_{\alpha/2}, t_{1-\alpha/2
 :::
 :::
 
-## Equality Means, Equal Variances
+## Testing Means, Equal Variances
 
 - We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2)$.
 - $\sigma_1$, $\sigma_2$, $\mu_1$, $\mu_2$ are **unknown**, but we **know** that $\sigma_1=\sigma_2$
@@ -191,10 +193,16 @@ H_0: \mu_1 = \mu_2 ~~~~ \text{ or } ~~~~ H_1: \mu_1 \neq \mu_2
 $$
 - Formally, $H_0 = \{(\mu,\sigma, \mu, \sigma), \mu \in \mathbb R, \sigma > 0\}$.
 
-1. Estimate $\sigma$: $\hat \sigma^2 = \frac{1}{n_1 + n_2 - 2}\left(\sum_{i=1}^{n_1}(X_i - \overline X)^2 + \sum_{i=1}^{n_2}(Y_i - \overline Y)^2 \right)$
-2. Normalize $\overline X - \overline Y$ to get the T-Statistic: $\psi(X,Y) = \frac{\overline X - \overline Y}{\sqrt{\hat \sigma^2\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \; .$
+::: {.callout-note .fragment}
+## Student T-Test for two populations with equal variance
+
+- $\hat \sigma^2 = \frac{1}{n_1 + n_2 - 2}\left(\sum_{i=1}^{n_1}(X_i - \overline X)^2 + \sum_{i=1}^{n_2}(Y_i - \overline Y)^2 \right)$
+- Normalize $\overline X - \overline Y$: 
+
+$$\psi(X,Y) = \frac{\overline X - \overline Y}{\sqrt{\hat \sigma^2\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \sim \mathcal T(n_1+n_2 - 2) \; .$$
 
 - $\psi(X,Y)$ is pivotal **because** $\sigma_1 = \sigma_2$.
+:::
 
 ## Equality Means, Unequal Variances
 
@@ -206,11 +214,14 @@ H_0: \mu_1 = \mu_2 ~~~~ \text{ or } ~~~~ H_1: \mu_1 \neq \mu_2
 $$
 - Formally, $H_0 = \{(\mu,\sigma_1, \mu, \sigma_2), \mu \in \mathbb R, \sigma_1, \sigma_2 > 0\}$.
 
-- Test Statistic: $\psi(X, Y) = \frac{\overline X - \overline Y}{\sqrt{\frac{\hat \sigma_1^2}{n_1} + \frac{\hat \sigma_2^2}{n_2}}}$
+::: {.callout-note .fragment}
+## Student Welch Test Statistic
+ $$\psi(X, Y) = \frac{\overline X - \overline Y}{\sqrt{\frac{\hat \sigma_1^2}{n_1} + \frac{\hat \sigma_2^2}{n_2}}}$$
 
 - $\psi(X,Y)$ is **not pivotal**
 - Gaussian approximation: $\psi(X,Y) \approx \mathcal N(0,1)$ when $n_1, n_2 \to \infty$
 - Better approximation: [Student Welch](https://fr.wikipedia.org/wiki/Test_t_de_Welch)
+:::
 
 # Asymptotic Approximations
 
@@ -261,12 +272,27 @@ Bad Approx for ($n=100$, $p=0.01$)
 
 ## Proportion Test
 
-- We observe $Bin(n_1, p_1)$ and $Bin(n_2, p_2)$.
+- We observe $X \sim Bin(n_1, p_1)$ and $Y \sim Bin(n_2, p_2)$.
 - $n_1$, $n_2$ are **known** but $p_1$, $p_2$ are **unknown** in $(0,1)$
 - $H_0$: $p_1 = p_2$ or $H_1$: $p_1 \neq p_2$
 
+::: {.callout-note .fragment}
+## Test Statistic
+$$ \psi(X,Y) = \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \; .$$
 
-- Question: "Should we raise taxes on cigarettes to pay for a healthcare reform ?" 
+- $\hat p_1 = X/n_1$, $\hat p_2 = X/n_2$
+- $\hat p = \frac{X+Y}{n_1+n_2}$
+- If $np_1, np_2 \gg 1$: $\psi(X) \sim \mathcal N(0,1)$
+- We reject if $|\psi(X,Y)| \geq t_{1-\alpha/2}$ (gaussian quantile)
+:::
+
+
+
+## Example ([reference](https://online.stat.psu.edu/stat415/lesson/9/9.4))
+
+- Question Asked: "Should we raise taxes on cigarettes to pay for a healthcare reform ?" 
+- $p_1$, $p_2$: proportion of non-smokers or smokers willing to raise taxes
+- $H_0$: $p_1=p_1$ or $H_1$: $p_1 < p_2$
 
 :::{.fragment}
 |       | Non-Smokers | Smokers | Total |
@@ -275,4 +301,7 @@ Bad Approx for ($n=100$, $p=0.01$)
 | **NO**   | 254         | 195     | 449   |
 | **Total** | 605         | 154     | 800   |
 :::
-abc
+
+- $\hat p_1 \approx 0.58$, $\hat p_2 \approx 0.21$.
+- $\psi(X,Y)= \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \approx 8.99$
+- $\mathbb P(\psi(X,Y) > 8.99)$ = `1-cdf(Normal(0,1), 8.99)`

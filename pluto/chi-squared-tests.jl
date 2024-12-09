@@ -16,246 +16,97 @@ macro bind(def, element)
     #! format: on
 end
 
-# ╔═╡ 311eb87c-9cf2-11ef-0f0c-4d295cefdec7
+# ╔═╡ 9af0a8e7-7182-4a68-92e0-75581a900f0d
 using Random, Plots, Distributions, PlutoUI
 
-# ╔═╡ 683d9f5d-d5f8-44c1-83c8-d532d8f631d0
-using StatsBase, StatsPlots
+# ╔═╡ 66ecec58-b327-11ef-3796-5bf78010935a
+md"n: $(@bind n Slider(1:10000, show_value=true; default=500))\
+m: $(@bind m Slider(1:100, show_value=true; default=10))\
+λ: $(@bind λ Slider(1:0.5:10, show_value=true; default=0.2))"
 
-# ╔═╡ 38a5b422-c5c2-46d4-aba0-9c632c9cc856
-md"# TCL"
+# ╔═╡ 00e613d8-5900-43da-940f-0f2b1f2efc74
+X = rand(Xoshiro(0),Poisson(λ),n)
 
-# ╔═╡ 67d7b1c2-8c97-49d8-b684-ee9892537a60
-md"n: $(@bind n Slider(1:100, show_value=true; default=10))\
-p: $(@bind p Slider(0.005:0.005:0.5, show_value=true; default=0.2))"
-
-# ╔═╡ 6b6bf5fd-1a8b-4f3f-a7fe-46ea9596f512
+# ╔═╡ 2dcf1779-7a8e-4bfb-9767-7972afbfc042
 begin
-    function tcl_plot()
-        p1 = bar(Binomial(n, p), bar_width=1, fillalpha=0.5, title="Distrib of \$S_n=\\sum_{i=1}^n X_i\$", xlimits=(0, 30), ylimits=(0, 0.2), label="\$\\mathcal{B}(n,p)\$")
-        plot!(n * p + sqrt(n * p * (1 - p)) * Normal(0, 1), label="\$np+\\sqrt{np(1-p)}\\mathcal{N}(0,1)\$")
-        normalized_binom = (Binomial(n, p) - n * p) / sqrt(n * p * (1 - p))
-        xnorm = ((0:n) .- n * p) / sqrt(n * p * (1 - p))
-        p2 = bar(xnorm, pdf((Binomial(n, p))) .* sqrt(n * p * (1 - p)), bar_width=1 / sqrt(n * p * (1 - p)), fillalpha=0.5, title="Distrib of \$ \\frac{S_n -\\mathbb{E}[S_n]}{\\sqrt{\\mathrm{Var(S_n)}}}\$", xlimits=(-5, 5), ylimits=(0, 0.5), label="\$\\mathcal{B}(n,p)\$ (Normalized)")
-        plot!(Normal(0, 1), label="\$\\mathcal{N}(0,1)\$")
-        plot(p1, p2)
-    end
-    tcl_plot()
+	counts = [sum(X.== i) for i in (0:m-1)]
+	counts[m] = sum(X.>=m-1)
+	counts
 end
 
-# ╔═╡ fe470914-9250-43c1-9d6c-0d9d1a546536
-md"# Student"
+# ╔═╡ 7d9ca539-62bd-458d-93b1-d564b629e7a6
+hatlambda=mean(X)
 
-# ╔═╡ a6960369-ecfb-4a6c-9f45-e1f49d86d11a
-md"α: $(@bind α Slider(0.005:0.001:0.4, show_value=true; default=0.05))"
-
-# ╔═╡ 9ab6cd9b-6d51-49c4-87d1-0b9a7e4072a0
+# ╔═╡ c504ec2c-1317-4c3a-bb0d-36531e22a579
 begin
-
-    function rejection_region(D, title, title1, title2)
-        x = -5:0.01:5
-        p1(x) = pdf(D, x)
-        y1 = p1.(x)
-        plot1 = plot(x, y1, label=title, title=title1)
-        q_alpha = quantile(D, 1 - α)
-        op = (>=)
-        plot!(x[op.(x, q_alpha)], zeros(length(x[op.(x, q_alpha)])), fillrange=y1[op.(x, q_alpha)], fillalpha=0.2, c=1, label="Rejection Region for \$\\alpha = $(α)\$")
-
-        vline!([q_alpha], color=:green, label="\$t_{\\alpha} = $(round(q_alpha, digits=2))\$")
-
-        plot2 = plot(x, y1, label=title, title=title2)
-        q_alphaover2 = quantile(D, 1 - α / 2)
-        op = (>=)
-        plot!(x[op.(x, q_alphaover2)], zeros(length(x[op.(x, q_alphaover2)])), fillrange=y1[op.(x, q_alphaover2)], fillalpha=0.2, c=1, label="Rejection Region for \$\\alpha = $(α)\$")
-        op = (<=)
-        plot!(x[op.(x, -q_alphaover2)], zeros(length(x[op.(x, -q_alphaover2)])), fillrange=y1[op.(x, -q_alphaover2)], fillalpha=0.2, c=1, primary=false)
-
-        vline!([q_alphaover2], color=:green, label="\$t_{1-\\alpha/2} = $(round(q_alphaover2, digits=2))\$")
-        vline!([-q_alphaover2], color=:green, label="\$t_{\\alpha/2} = $(-round(q_alphaover2, digits=2))\$")
-
-        plot(plot1, plot2, layout=(1, 2), size=(900, 300))
-
-
-    end
-    rejection_region(Normal(0, 1), "\$N(0,1)\$", "Gaussian, Right Tail Rejection Region", "Gaussian, Two Tail Rejection Region")
+	function theoretical_counts(λ,n, m)
+		l=[pdf(Poisson(λ), i)*n for i in (0:m-1)]
+		l[m] = (1-cdf(Poisson(λ),m-2))*n
+		return l
+	end
+	th_counts= theoretical_counts(hatlambda,n, m)
 end
 
-# ╔═╡ 06ff1f78-7131-4e08-8496-dd4f06c87770
-rejection_region(TDist(30), "\$\\mathcal{T}(k)\$", "Student (k=30), One Tail", "Student (k=30), Two Tails")
-
-# ╔═╡ 1e6d66df-5c17-4ae5-92c7-000ff09d55aa
-md"# Chi-Squared"
-
-# ╔═╡ adc73eff-e745-4b69-a12f-20ef8da025dc
-md"""
-n: $(@bind n1 Slider(1:5:100, show_value=true; default=10))\
-α: $(@bind α2 Slider(0.01:0.01:0.3, show_value=true; default=0.05))
-"""
-
-# ╔═╡ 8947bc2e-57a6-4a2e-9902-1bc81ff403a7
+# ╔═╡ 3e56f710-1bbc-48e5-8030-fe79892ebccf
 begin
-    function animation_chi1(n1, α)
-        x = 0:0.1:100
-        y = pdf.(Chisq(n1), x)
-        plot1 = plot(x, y, label="Chi-squared, \$\\chi^2(n)\$")
-        Dapprox = Normal(n1, sqrt(2 * n1))
-        plot!(x, pdf.(Dapprox, x), label="\$n + \\sqrt{2n}\\mathcal{N}(0,1)\$")
-        q_alpha = quantile(Chisq(n1), 1 - α2)
-        plot!(x[x.>=q_alpha], zeros(length(x[x.>=q_alpha])), fillrange=y[x.>=q_alpha], fillalpha=0.2, c=1, label="Rejection Region for \$\\alpha = $(α2)\$")
-        xlims!(0, 100)
-        ylims!(0, 0.3)
-    end
-    animation_chi1(n1, α)
+	function chi_squared_poisson(X,n,m, λ)
+		counts = [sum(X.== i) for i in (0:m-1)]
+		counts[m] = sum(X.>=m-1)
+		
+		th_counts=[pdf(Poisson(λ), i)*n for i in (0:m-1)]
+		th_counts[m] = (1-cdf(Poisson(λ),m-2))*n
+		
+		chi_squared= sum([(counts[i]-th_counts[i])^2/th_counts[i] for i in (1:length(counts))])
+	end
+	chi_squared_poisson(X,n,m, λ)
 end
 
-# ╔═╡ b75f5ca1-0151-4013-ba30-0a7676de0def
-md"
-# Fisher"
-
-# ╔═╡ b75a86c6-76ae-4138-99e6-a555478bd70d
-md"n1: $(@bind k1 Slider(1:5:1000, show_value=true; default=100))  \
-n2: $(@bind k2 Slider(1:5:1000, show_value=true; default=100))\
-α: $(@bind α3 Slider(0.01:0.01:0.3, show_value=true; default=0.05))"
-
-# ╔═╡ 289e3c47-cc08-43d9-82d5-c4a67bbb10e1
-begin
-    function animation_fish1()
-        x = -0:0.01:5
-        p1(x) = pdf(FDist(k1, k2), x)
-        y1 = p1.(x)
-        plot1 = plot(x, y1, label="Fisher, \$\\mathcal{F}(n1, n2)\$")
-        Dapprox = Normal(1, sqrt(2 / k1 + 2 / k2))
-        plot!(x, pdf.(Dapprox, x), label="\$1 + \\sqrt{\\frac{2}{n1} + \\frac{2}{n2}}\\mathcal{N}(0,1)\$")
-        q_alpha = quantile(FDist(k1, k2), 1 - α3)
-        plot!(x[x.>=q_alpha], zeros(length(x[x.>=q_alpha])), fillrange=y1[x.>=q_alpha], fillalpha=0.2, c=1, label="Rejection Region for \$\\alpha = $(α3)\$")
-        xlims!(0, 5)
-        ylims!(-0.1, 4)
-    end
-    animation_fish1()
+# ╔═╡ b9de5d61-0c69-434b-a974-adfad539e559
+begin 
+	function monte_carlo(N,λ,n,m)
+		l = []
+		for i in (1:N)
+			X = rand(Xoshiro(i),Poisson(λ),n)
+			append!(l, chi_squared_poisson(X,n,m, λ))
+		end
+		return l
+	end
+	l = monte_carlo(10000,λ,n,m)
+	histogram(l,bins=(0:0.5:20), normalize=:pdf, label="Empirical Histogram", fillalpha=0.2, bar_width=0.5)
+	x = (0:0.01:20)
+	plot!(x,pdf.(Chisq(m-1),x), linewidth=4)
 end
 
-# ╔═╡ 85c53c86-85dc-4df7-a635-4f2571f0b60b
+# ╔═╡ 170ade00-736a-443e-bb8e-739410c8b374
 begin
-    function Fisher()
-        x = -0:0.01:5
-        P = plot()
-        ks = [5, 10, 20, 50, 100, 200, 300, 500, 1000]
-        colors = cgrad(:blues, length(ks))
-        for (i, k) in enumerate(ks)
-            p1(x) = pdf(FDist(k, k), x)
-            y1 = p1.(x)
-            plot!(x, y1, color=colors[i], label="\$ \\mathcal{F}($k, $k)\$")
-        end
-        plot!()
-    end
-    Fisher()
+	function chi_squared_poisson_unknown_lambda(X,n,m)
+		counts = [sum(X.== i) for i in (0:m-1)]
+		counts[m] = sum(X.>=m-1)
+		
+		hatlambda = mean(X)
+		
+		th_counts=[pdf(Poisson(hatlambda), i)*n for i in (0:m-1)]
+		th_counts[m] = (1-cdf(Poisson(hatlambda),m-2))*n
+		
+		chi_squared= sum([(counts[i]-th_counts[i])^2/th_counts[i] for i in (1:length(counts))])
+	end
+	chi_squared_poisson_unknown_lambda(X,n,m)
 end
 
-# ╔═╡ a744ab33-3857-401f-ac56-a61b27892262
-begin
-    student_qplot() = begin
-        p = plot(layout=(3, 1))
-        D = Normal(0, 1)
-        data = rand(D, 1000)
-        p1 = qqplot(data, Normal(0, 1))
-        xlabel!("Quantiles of N(0,1)")
-        ylabel!("Empirical Quantiles of N(0,1)")
-        title!("Q-Q Plot")
-        p2 = qqplot(data, TDist(5))
-        xlabel!("Quantiles of N(0,1)")
-        ylabel!("Empirical Quantiles of Student(5)")
-        title!("Q-Q Plot")
-        StatsPlots.plot(p1, p2)
-    end
-    student_qplot()
-
-end
-
-# ╔═╡ ed8f3e1c-d7f4-4d0c-8350-8eaec09f4b3c
-begin
-    k = 50
-    plot(Normal(0, 1), label="\$\\mathcal{N}(0,1)\$")
-    plot!((Chisq(k) - k) / sqrt(2k), label="\$(\\chi^2(50)-50)/\\sqrt{100}\$")
-    plot!((FDist(k, k) - 1) / sqrt(4 / k), label="\$(\\mathcal{F}(50,50)-1)/\\sqrt{4/50}\$")
-end
-
-# ╔═╡ dafb4d19-225b-40da-acb4-a623998f01ae
-begin
-    ph1 = histogram(randn(1000), bins=50, normalize=true, label="Histogram of generated N(0,1)", fillalpha=0.2)
-    plot!(Normal(0, 1), label="Density of N(0,1)", linewidth=5, linealpha=0.7)
-    ph2 = histogram(rand(Binomial(10, 0.5), 1000), bins=50, normalize=:probability, label="Histogram of generated N(0,1)", fillalpha=0.2, bar_width=0.6)
-    plot!(Binomial(10, 0.5), label="Distribution of \$\\mathcal{B}\$(10,0.5)", linewidth=5, linealpha=0.7)
-    plot(ph1, ph2)
-end
-
-# ╔═╡ 53dfb092-0602-40ec-bb3b-7d3cc46a1817
-
-begin
-    function monte_carlo_multinomial(N, n, p)
-        trials = []
-        for i in (1:N)
-            X = rand(Multinomial(n, p))
-            chi2 = sum((X[i] - n * p[i])^2 / (n * p[i]) for i in (1:length(p)))
-            append!(trials, chi2)
-        end
-        return trials
-    end
-    function plot_mult()
-        p1 = histogram(monte_carlo_multinomial(100000, 1000, [0.4, 0.35, 0.25]), normalize=true, label="Histogram of simulated Mult(1000, [0.4, 0.35, 0.25]")
-        plot!(Chisq(2), linewidth=5, label="Density of \$\\chi^2(2)\$")
-        p2 = histogram(monte_carlo_multinomial(100000, 100, [0.4, 0.35, 0.25]), normalize=true, label="Histogram of simulated Mult(100, [0.4, 0.35, 0.25]")
-        plot!(Chisq(2), linewidth=5, label="Density of \$\\chi^2(2)\$")
-        plot(p1, p2, layout=(2, 1))
-    end
-    plot_mult()
-end
-
-
-
-
-# ╔═╡ 89fb9fa2-8591-45a3-a068-50574d100574
-begin
-    function plot_mult2()
-
-        N = 10000
-        n1 = 1000
-        n2 = 100
-        m = 1000
-        p1 = histogram(monte_carlo_multinomial(10000, n1, [1 / m for _ in (1:m)]), normalize=true, label="Simulated chisq stat of Mult(1000)", nbins=50)
-        plot!(Chisq(m - 1), linewidth=5, label="Density of \$\\chi^2(999)\$")
-        p2 = histogram(monte_carlo_multinomial(10000, n2, [1 / m for _ in (1:m)]), normalize=true, nbins=20, label="Simulated chisq stat of Mult(100)")
-        plot!(Chisq(m - 1), linewidth=5, label="Density of \$\\chi^2(99)\$")
-        plot(p1, p2, layout=(2, 1))
-    end
-    plot_mult2()
-end
-
-# ╔═╡ 1aec7b7a-8698-4d17-be87-7f1815d92130
-begin
-    function monte_carlo_indep_bin(N, n, k)
-        trials = []
-        for i in (1:N)
-            X = rand(Binomial(n, 1 / k), k)
-            chi2 = sum((X[i] - n / k)^2 / (n / k) for i in (1:k))
-            append!(trials, chi2)
-        end
-        return trials
-    end
-    function plot_indep_bin()
-        N = 10000
-        n1 = 1000
-        n2 = 100
-        m = 1000
-        p1 = histogram(monte_carlo_indep_bin(N, n1, m), normalize=true, label="Simulated chisq stat of Bin\$(n,1/k)^{\\otimes k}\$", nbins=50, legend=:topright)
-        plot!(Chisq(m - 1), linewidth=5, label="Density of \$\\chi^2(k-1)\$")
-        annotate!(xlims()[1] + xlims()[2] * 0.1, ylims()[2] * 0.8, text("N=$N\n n = $(n1) \n k=$m"))
-        p2 = histogram(monte_carlo_indep_bin(N, n2, m), normalize=true, nbins=50, label="Simulated chisq stat of Bin\$(n, 1/k)^{\\otimes k}\$")
-        plot!(Chisq(m - 1), linewidth=5, label="Density of \$\\chi^2(k-1)\$")
-        plot!(1000 + sqrt((2 + m / n2) * 1000) * Normal(0, 1), linewidth=5, label="Density of \$k + \\sqrt{(2+k/n)k}\\mathcal{N}(0,1)\$")
-        annotate!(xlims()[1] + xlims()[2] * 0.1, ylims()[2] * 0.8, text("N=$N\n n = $(n2) \n k=$m"))
-        plot(p1, p2, layout=(2, 1))
-    end
-    plot_indep_bin()
+# ╔═╡ 95452294-298d-402e-b00c-c2b23d26293e
+begin 
+	function monte_carlo_unknown_lambda(N,λ,n,m)
+		l = []
+		for i in (1:N)
+			X = rand(Xoshiro(i),Poisson(λ),n)
+			append!(l, chi_squared_poisson_unknown_lambda(X,n,m))
+		end
+		return l
+	end
+	l2 = monte_carlo_unknown_lambda(10000,λ,n,m)
+	histogram(l2,bins=(0:0.5:20), normalize=:pdf, label="Empirical Histogram", fillalpha=0.2, bar_width=0.5)
+	x2 = (0:0.01:20)
+	plot!(x2,pdf.(Chisq(m-2),x2), linewidth=4)
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -265,15 +116,11 @@ Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
 Distributions = "~0.25.113"
 Plots = "~1.40.8"
 PlutoUI = "~0.7.60"
-StatsBase = "~0.34.3"
-StatsPlots = "~0.15.7"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -282,34 +129,13 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.1"
 manifest_format = "2.0"
-project_hash = "86db5804858516041e3f8c83b169a60cfb294797"
-
-[[deps.AbstractFFTs]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "d92ad398961a3ed262d8bf04a1a2b8340f915fef"
-uuid = "621f4979-c628-5d54-868e-fcf4e3e8185c"
-version = "1.5.0"
-weakdeps = ["ChainRulesCore", "Test"]
-
-    [deps.AbstractFFTs.extensions]
-    AbstractFFTsChainRulesCoreExt = "ChainRulesCore"
-    AbstractFFTsTestExt = "Test"
+project_hash = "a1c1f0c746995cac4b5b8af35e45fab946535067"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
 git-tree-sha1 = "6e1d2a35f2f90a4bc7c2ed98079b2ba09c35b83a"
 uuid = "6e696c72-6542-2067-7265-42206c756150"
 version = "1.3.2"
-
-[[deps.Adapt]]
-deps = ["LinearAlgebra", "Requires"]
-git-tree-sha1 = "50c3c56a52972d78e8be9fd135bfb91c9574c140"
-uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
-version = "4.1.1"
-weakdeps = ["StaticArrays"]
-
-    [deps.Adapt.extensions]
-    AdaptStaticArraysExt = "StaticArrays"
 
 [[deps.AliasTables]]
 deps = ["PtrArrays", "Random"]
@@ -321,27 +147,9 @@ version = "1.1.3"
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 version = "1.1.2"
 
-[[deps.Arpack]]
-deps = ["Arpack_jll", "Libdl", "LinearAlgebra", "Logging"]
-git-tree-sha1 = "9b9b347613394885fd1c8c7729bfc60528faa436"
-uuid = "7d9fca2a-8960-54d3-9f78-7d1dccf2cb97"
-version = "0.5.4"
-
-[[deps.Arpack_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "OpenBLAS_jll", "Pkg"]
-git-tree-sha1 = "5ba6c757e8feccf03a1554dfaf3e26b3cfc7fd5e"
-uuid = "68821587-b530-5797-8361-c406ea357684"
-version = "3.5.1+1"
-
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 version = "1.11.0"
-
-[[deps.AxisAlgorithms]]
-deps = ["LinearAlgebra", "Random", "SparseArrays", "WoodburyMatrices"]
-git-tree-sha1 = "01b8ccb13d68535d73d2b0c23e39bd23155fb712"
-uuid = "13072b0f-2c55-5437-9ae7-d433b7a33950"
-version = "1.1.0"
 
 [[deps.Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -363,22 +171,6 @@ deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jl
 git-tree-sha1 = "009060c9a6168704143100f36ab08f06c2af4642"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.18.2+1"
-
-[[deps.ChainRulesCore]]
-deps = ["Compat", "LinearAlgebra"]
-git-tree-sha1 = "3e4b134270b372f2ed4d4d0e936aabaefc1802bc"
-uuid = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-version = "1.25.0"
-weakdeps = ["SparseArrays"]
-
-    [deps.ChainRulesCore.extensions]
-    ChainRulesCoreSparseArraysExt = "SparseArrays"
-
-[[deps.Clustering]]
-deps = ["Distances", "LinearAlgebra", "NearestNeighbors", "Printf", "Random", "SparseArrays", "Statistics", "StatsBase"]
-git-tree-sha1 = "9ebb045901e9bbf58767a9f34ff89831ed711aae"
-uuid = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
-version = "0.15.7"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -410,9 +202,9 @@ weakdeps = ["SpecialFunctions"]
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
-git-tree-sha1 = "362a287c3aa50601b0bc359053d5c2468f0e7ce0"
+git-tree-sha1 = "64e15186f0aa277e174aa81798f7eb8598e0157e"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
-version = "0.12.11"
+version = "0.13.0"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
@@ -451,11 +243,6 @@ git-tree-sha1 = "1d0a14036acb104d9e89698bd408f63ab58cdc82"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 version = "0.18.20"
 
-[[deps.DataValueInterfaces]]
-git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
-uuid = "e2d170a0-9d28-54be-80f0-106bbe20a464"
-version = "1.0.0"
-
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
@@ -472,22 +259,6 @@ deps = ["Mmap"]
 git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
-
-[[deps.Distances]]
-deps = ["LinearAlgebra", "Statistics", "StatsAPI"]
-git-tree-sha1 = "c7e3a542b999843086e2f29dac96a618c105be1d"
-uuid = "b4f34e82-e78d-54a5-968a-f98e89d6e8f7"
-version = "0.10.12"
-weakdeps = ["ChainRulesCore", "SparseArrays"]
-
-    [deps.Distances.extensions]
-    DistancesChainRulesCoreExt = "ChainRulesCore"
-    DistancesSparseArraysExt = "SparseArrays"
-
-[[deps.Distributed]]
-deps = ["Random", "Serialization", "Sockets"]
-uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
-version = "1.11.0"
 
 [[deps.Distributions]]
 deps = ["AliasTables", "FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SpecialFunctions", "Statistics", "StatsAPI", "StatsBase", "StatsFuns"]
@@ -545,18 +316,6 @@ deps = ["Artifacts", "Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "JLLWrappers",
 git-tree-sha1 = "466d45dc38e15794ec7d5d63ec03d776a9aff36e"
 uuid = "b22a6f82-2f65-5046-a5b2-351ab43fb4e5"
 version = "4.4.4+1"
-
-[[deps.FFTW]]
-deps = ["AbstractFFTs", "FFTW_jll", "LinearAlgebra", "MKL_jll", "Preferences", "Reexport"]
-git-tree-sha1 = "4820348781ae578893311153d69049a93d05f39d"
-uuid = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
-version = "1.8.0"
-
-[[deps.FFTW_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "4d81ed14783ec49ce9f2e168208a12ce1815aa25"
-uuid = "f5851436-0d7a-5f13-b9de-f02708fd171a"
-version = "3.3.10+1"
 
 [[deps.FileWatching]]
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
@@ -680,36 +439,15 @@ git-tree-sha1 = "b6d6bfdd7ce25b0f9b2f6b3dd56b2673a66c8770"
 uuid = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 version = "0.2.5"
 
-[[deps.IntelOpenMP_jll]]
-deps = ["Artifacts", "JLLWrappers", "LazyArtifacts", "Libdl"]
-git-tree-sha1 = "10bd689145d2c3b2a9844005d01087cc1194e79e"
-uuid = "1d5cc7b8-4909-519e-a0f8-d0f5ad9712d0"
-version = "2024.2.1+0"
-
 [[deps.InteractiveUtils]]
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 version = "1.11.0"
 
-[[deps.Interpolations]]
-deps = ["Adapt", "AxisAlgorithms", "ChainRulesCore", "LinearAlgebra", "OffsetArrays", "Random", "Ratios", "Requires", "SharedArrays", "SparseArrays", "StaticArrays", "WoodburyMatrices"]
-git-tree-sha1 = "88a101217d7cb38a7b481ccd50d21876e1d1b0e0"
-uuid = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
-version = "0.15.1"
-weakdeps = ["Unitful"]
-
-    [deps.Interpolations.extensions]
-    InterpolationsUnitfulExt = "Unitful"
-
 [[deps.IrrationalConstants]]
 git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
 version = "0.2.2"
-
-[[deps.IteratorInterfaceExtensions]]
-git-tree-sha1 = "a3f24677c21f5bbe9d2a714f95dcd58337fb2856"
-uuid = "82899510-4779-5014-852e-03e436cf321d"
-version = "1.0.0"
 
 [[deps.JLFzf]]
 deps = ["Pipe", "REPL", "Random", "fzf_jll"]
@@ -734,12 +472,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "25ee0be4d43d0269027024d75a24c24d6c6e590c"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
 version = "3.0.4+0"
-
-[[deps.KernelDensity]]
-deps = ["Distributions", "DocStringExtensions", "FFTW", "Interpolations", "StatsBase"]
-git-tree-sha1 = "7d703202e65efa1369de1279c162b915e245eed1"
-uuid = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
-version = "0.6.9"
 
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
@@ -785,11 +517,6 @@ version = "0.16.5"
     DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
     SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
     SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
-
-[[deps.LazyArtifacts]]
-deps = ["Artifacts", "Pkg"]
-uuid = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
-version = "1.11.0"
 
 [[deps.LibCURL]]
 deps = ["LibCURL_jll", "MozillaCACerts_jll"]
@@ -904,12 +631,6 @@ git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
 uuid = "6c6e2e6c-3030-632d-7369-2d6c69616d65"
 version = "0.1.4"
 
-[[deps.MKL_jll]]
-deps = ["Artifacts", "IntelOpenMP_jll", "JLLWrappers", "LazyArtifacts", "Libdl", "oneTBB_jll"]
-git-tree-sha1 = "f046ccd0c6db2832a9f639e2c669c6fe867e5f4f"
-uuid = "856f044c-d86e-5d09-b602-aeab76dc8ba7"
-version = "2024.2.0+0"
-
 [[deps.MacroTools]]
 deps = ["Markdown", "Random"]
 git-tree-sha1 = "2fa9ee3e63fd3a4f7a9a4f4744a52f4856de82df"
@@ -951,41 +672,15 @@ version = "1.11.0"
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
 version = "2023.12.12"
 
-[[deps.MultivariateStats]]
-deps = ["Arpack", "Distributions", "LinearAlgebra", "SparseArrays", "Statistics", "StatsAPI", "StatsBase"]
-git-tree-sha1 = "816620e3aac93e5b5359e4fdaf23ca4525b00ddf"
-uuid = "6f286f6a-111f-5878-ab1e-185364afe411"
-version = "0.10.3"
-
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
 git-tree-sha1 = "0877504529a3e5c3343c6f8b4c0381e57e4387e4"
 uuid = "77ba4419-2d1f-58cd-9bb1-8ffee604a2e3"
 version = "1.0.2"
 
-[[deps.NearestNeighbors]]
-deps = ["Distances", "StaticArrays"]
-git-tree-sha1 = "3cebfc94a0754cc329ebc3bab1e6c89621e791ad"
-uuid = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
-version = "0.4.20"
-
 [[deps.NetworkOptions]]
 uuid = "ca575930-c2e3-43a9-ace4-1e988b2c1908"
 version = "1.2.0"
-
-[[deps.Observables]]
-git-tree-sha1 = "7438a59546cf62428fc9d1bc94729146d37a7225"
-uuid = "510215fc-4207-5dde-b226-833fc4488ee2"
-version = "0.5.5"
-
-[[deps.OffsetArrays]]
-git-tree-sha1 = "1a27764e945a152f7ca7efa04de513d473e9542e"
-uuid = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
-version = "1.14.1"
-weakdeps = ["Adapt"]
-
-    [deps.OffsetArrays.extensions]
-    OffsetArraysAdaptExt = "Adapt"
 
 [[deps.Ogg_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -1181,16 +876,6 @@ deps = ["SHA"]
 uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 version = "1.11.0"
 
-[[deps.Ratios]]
-deps = ["Requires"]
-git-tree-sha1 = "1342a47bf3260ee108163042310d26f2be5ec90b"
-uuid = "c84ed2f1-dad5-54f0-aa8e-dbefe2724439"
-version = "0.4.5"
-weakdeps = ["FixedPointNumbers"]
-
-    [deps.Ratios.extensions]
-    RatiosFixedPointNumbersExt = "FixedPointNumbers"
-
 [[deps.RecipesBase]]
 deps = ["PrecompileTools"]
 git-tree-sha1 = "5c3d09cc4f31f5fc6af001c250bf1278733100ff"
@@ -1242,19 +927,8 @@ git-tree-sha1 = "3bac05bc7e74a75fd9cba4295cde4045d9fe2386"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
 version = "1.2.1"
 
-[[deps.SentinelArrays]]
-deps = ["Dates", "Random"]
-git-tree-sha1 = "d0553ce4031a081cc42387a9b9c8441b7d99f32d"
-uuid = "91c51154-3ec4-41a3-a24f-3f23e20d615c"
-version = "1.4.7"
-
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
-version = "1.11.0"
-
-[[deps.SharedArrays]]
-deps = ["Distributed", "Mmap", "Random", "Serialization"]
-uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
 version = "1.11.0"
 
 [[deps.Showoff]]
@@ -1288,32 +962,18 @@ deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_j
 git-tree-sha1 = "2f5d4697f21388cbe1ff299430dd169ef97d7e14"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
 version = "2.4.0"
-weakdeps = ["ChainRulesCore"]
 
     [deps.SpecialFunctions.extensions]
     SpecialFunctionsChainRulesCoreExt = "ChainRulesCore"
+
+    [deps.SpecialFunctions.weakdeps]
+    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 
 [[deps.StableRNGs]]
 deps = ["Random"]
 git-tree-sha1 = "83e6cce8324d49dfaf9ef059227f91ed4441a8e5"
 uuid = "860ef19b-820b-49d6-a774-d7a799459cd3"
 version = "1.0.2"
-
-[[deps.StaticArrays]]
-deps = ["LinearAlgebra", "PrecompileTools", "Random", "StaticArraysCore"]
-git-tree-sha1 = "777657803913ffc7e8cc20f0fd04b634f871af8f"
-uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.9.8"
-weakdeps = ["ChainRulesCore", "Statistics"]
-
-    [deps.StaticArrays.extensions]
-    StaticArraysChainRulesCoreExt = "ChainRulesCore"
-    StaticArraysStatisticsExt = "Statistics"
-
-[[deps.StaticArraysCore]]
-git-tree-sha1 = "192954ef1208c7019899fbf8049e717f92959682"
-uuid = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
-version = "1.4.3"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra"]
@@ -1351,12 +1011,6 @@ version = "1.3.2"
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     InverseFunctions = "3587e190-3f89-42d0-90ee-14403ec27112"
 
-[[deps.StatsPlots]]
-deps = ["AbstractFFTs", "Clustering", "DataStructures", "Distributions", "Interpolations", "KernelDensity", "LinearAlgebra", "MultivariateStats", "NaNMath", "Observables", "Plots", "RecipesBase", "RecipesPipeline", "Reexport", "StatsBase", "TableOperations", "Tables", "Widgets"]
-git-tree-sha1 = "3b1dcbf62e469a67f6733ae493401e53d92ff543"
-uuid = "f3b207a7-027a-5e70-b257-86293d7955fd"
-version = "0.15.7"
-
 [[deps.StyledStrings]]
 uuid = "f489334b-da3d-4c2e-b8f0-e476e12c162b"
 version = "1.11.0"
@@ -1374,24 +1028,6 @@ version = "7.7.0+0"
 deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 version = "1.0.3"
-
-[[deps.TableOperations]]
-deps = ["SentinelArrays", "Tables", "Test"]
-git-tree-sha1 = "e383c87cf2a1dc41fa30c093b2a19877c83e1bc1"
-uuid = "ab02a1b2-a7df-11e8-156e-fb1833f50b87"
-version = "1.2.0"
-
-[[deps.TableTraits]]
-deps = ["IteratorInterfaceExtensions"]
-git-tree-sha1 = "c06b2f539df1c6efa794486abfb6ed2022561a39"
-uuid = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
-version = "1.0.1"
-
-[[deps.Tables]]
-deps = ["DataAPI", "DataValueInterfaces", "IteratorInterfaceExtensions", "OrderedCollections", "TableTraits"]
-git-tree-sha1 = "598cd7c1f68d1e205689b1c2fe65a9f85846f297"
-uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
-version = "1.12.0"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
@@ -1481,18 +1117,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "93f43ab61b16ddfb2fd3bb13b3ce241cafb0e6c9"
 uuid = "2381bf8a-dfd0-557d-9999-79630e7b1b91"
 version = "1.31.0+0"
-
-[[deps.Widgets]]
-deps = ["Colors", "Dates", "Observables", "OrderedCollections"]
-git-tree-sha1 = "fcdae142c1cfc7d89de2d11e08721d0f2f86c98a"
-uuid = "cc8bc4a8-27d6-5769-a93b-9d913e69aa62"
-version = "0.6.6"
-
-[[deps.WoodburyMatrices]]
-deps = ["LinearAlgebra", "SparseArrays"]
-git-tree-sha1 = "c1a7aa6219628fcd757dede0ca95e245c5cd9511"
-uuid = "efce3f68-66dc-5838-9240-27a6d6f5f9b6"
-version = "1.0.0"
 
 [[deps.XML2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
@@ -1749,12 +1373,6 @@ deps = ["Artifacts", "Libdl"]
 uuid = "8e850ede-7688-5339-a07c-302acd2aaf8d"
 version = "1.59.0+0"
 
-[[deps.oneTBB_jll]]
-deps = ["Artifacts", "JLLWrappers", "Libdl"]
-git-tree-sha1 = "7d0ea0f4895ef2f5cb83645fa689e52cb55cf493"
-uuid = "1317d2d5-d96f-522e-a858-c73665f53c3e"
-version = "2021.12.0+0"
-
 [[deps.p7zip_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
@@ -1780,27 +1398,15 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╠═311eb87c-9cf2-11ef-0f0c-4d295cefdec7
-# ╟─38a5b422-c5c2-46d4-aba0-9c632c9cc856
-# ╟─67d7b1c2-8c97-49d8-b684-ee9892537a60
-# ╟─6b6bf5fd-1a8b-4f3f-a7fe-46ea9596f512
-# ╟─fe470914-9250-43c1-9d6c-0d9d1a546536
-# ╟─a6960369-ecfb-4a6c-9f45-e1f49d86d11a
-# ╟─9ab6cd9b-6d51-49c4-87d1-0b9a7e4072a0
-# ╟─06ff1f78-7131-4e08-8496-dd4f06c87770
-# ╟─1e6d66df-5c17-4ae5-92c7-000ff09d55aa
-# ╟─adc73eff-e745-4b69-a12f-20ef8da025dc
-# ╠═8947bc2e-57a6-4a2e-9902-1bc81ff403a7
-# ╟─b75f5ca1-0151-4013-ba30-0a7676de0def
-# ╟─b75a86c6-76ae-4138-99e6-a555478bd70d
-# ╟─289e3c47-cc08-43d9-82d5-c4a67bbb10e1
-# ╟─85c53c86-85dc-4df7-a635-4f2571f0b60b
-# ╟─683d9f5d-d5f8-44c1-83c8-d532d8f631d0
-# ╟─a744ab33-3857-401f-ac56-a61b27892262
-# ╟─ed8f3e1c-d7f4-4d0c-8350-8eaec09f4b3c
-# ╠═dafb4d19-225b-40da-acb4-a623998f01ae
-# ╟─53dfb092-0602-40ec-bb3b-7d3cc46a1817
-# ╟─89fb9fa2-8591-45a3-a068-50574d100574
-# ╟─1aec7b7a-8698-4d17-be87-7f1815d92130
+# ╟─9af0a8e7-7182-4a68-92e0-75581a900f0d
+# ╟─66ecec58-b327-11ef-3796-5bf78010935a
+# ╟─00e613d8-5900-43da-940f-0f2b1f2efc74
+# ╟─2dcf1779-7a8e-4bfb-9767-7972afbfc042
+# ╠═7d9ca539-62bd-458d-93b1-d564b629e7a6
+# ╠═c504ec2c-1317-4c3a-bb0d-36531e22a579
+# ╠═3e56f710-1bbc-48e5-8030-fe79892ebccf
+# ╠═b9de5d61-0c69-434b-a974-adfad539e559
+# ╠═170ade00-736a-443e-bb8e-739410c8b374
+# ╠═95452294-298d-402e-b00c-c2b23d26293e
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
