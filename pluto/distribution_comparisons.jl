@@ -83,6 +83,43 @@ end
 # ╔═╡ 06ff1f78-7131-4e08-8496-dd4f06c87770
 rejection_region(TDist(30), "\$\\mathcal{T}(k)\$", "Student (k=30), One Tail", "Student (k=30), Two Tails")
 
+# ╔═╡ 268ca338-b9f3-4eef-8579-a56820f796d4
+md"""
+# Pearson's Correlation Test
+"""
+
+# ╔═╡ 4038d331-8bb4-4353-8c79-0881ac385777
+begin
+pdep1=scatter(randn(100), randn(100),label=false, xlabel="X", ylabel="Y", title="no correlation")
+X1 = randn(100)
+pdep2=scatter(X1, 2*X1 .+ 0.5randn(100),label=false, xlabel="X", ylabel="Y", title="correlation")
+	plot(pdep1, pdep2)
+end
+
+# ╔═╡ e6a83814-f36b-4653-9b1c-fa2cc60bd9da
+md"n: $(@bind npearson Slider(3:1:100, show_value=true; default=3))"
+
+# ╔═╡ 108edfc7-0967-4d6f-838b-f0ee33848358
+
+begin
+    function monte_carlo_pearson(N, n)
+        trials = []
+        for i in (1:N)
+            X = randn(n)
+			Y = randn(n)
+			Xc = (X .- mean(X))
+			Yc = (Y.-mean(Y))
+			r = sum(Xc.*Yc)/sqrt(sum(Xc.^2)*sum(Yc.^2))
+			stat = r/sqrt(1-r^2)* sqrt(n-2)
+            append!(trials, stat)
+        end
+        return trials
+    end
+	histogram(monte_carlo_pearson(100000, npearson), normalize=:pdf, label="Histogram via Monte-Carlo of \$\\frac{r}{\\sqrt{1-r^2}}\\sqrt{n-2}\$", xlimits=(-5,5))
+	plot!(TDist(npearson-2), width=5, label="PDF of Student \$\\mathcal{T}(n-2)\$")
+end
+
+
 # ╔═╡ 1e6d66df-5c17-4ae5-92c7-000ff09d55aa
 md"# Chi-Squared"
 
@@ -212,6 +249,47 @@ end
 
 
 
+
+# ╔═╡ 4273cd77-21b2-4fd9-bbcc-987bddcd7a59
+md"""
+# Kolmogorov Smirnov, Empirical CDF
+"""
+
+# ╔═╡ 80ebcf20-b09f-4921-8127-8345a6f2c57e
+sortperm([1,3,2])
+
+# ╔═╡ aceffe55-d906-472b-9634-9cd48e236cd3
+md"n: $(@bind nks Slider(1:5:1000, show_value=true; default=100))"
+
+# ╔═╡ b707e671-f5fd-4fd3-9b37-555017939c3f
+begin
+	function empirical_CDF(distrib,n)
+		X = rand(distrib,n)
+		scatter(X,zeros(n), ylimits=(-0.01,1.01), xlimits=(-3,3), label="Data", title="empirical CDF, \$n = $(n)\$)")
+		Xsorted = sort(X)
+		plot!(Xsorted, (1:n)./n,linetype=:steppre, color=:black,linewidth=2, label="empirical CDF")
+	end
+	empirical_CDF(Normal(0,1),nks)
+end
+
+# ╔═╡ 8bd6b5c5-e1da-4b95-ace8-60aa07280f39
+vcat([1],[1])
+
+# ╔═╡ 618c44d6-940b-43d8-b65f-b86072fedf25
+begin
+	function empirical_CDF_KS(distrib,n)
+		X = rand(distrib,n)
+		scatter(X,zeros(n), ylimits=(-0.01,1.01), xlimits=(-3,3), label="Data", title="Kolmogorov Smirnov Illustration")
+		Xsorted = vcat(-3,sort(X),3)
+		plot!(Xsorted, vcat((0:n)./n,1),linetype=:steppre, color=:black,linewidth=2, label="empirical CDF")
+		x=(-3:0.02:3)
+		plot!(x,cdf.(distrib, x), linewidth=2, label="True CDF of N(0,1)")
+		iks = argmax(abs.(vcat((0:n)./n,1) .- cdf.(distrib, Xsorted)))
+		@show (iks-1)/n
+		plot!([Xsorted[iks], Xsorted[iks]], [(iks)/n, cdf(distrib, Xsorted[iks])], color=:blue, label="max distance", linewidth=3)
+	end
+	empirical_CDF_KS(Normal(0,1),nks)
+end
 
 # ╔═╡ 89fb9fa2-8591-45a3-a068-50574d100574
 begin
@@ -1785,21 +1863,31 @@ version = "1.4.1+1"
 # ╟─67d7b1c2-8c97-49d8-b684-ee9892537a60
 # ╟─6b6bf5fd-1a8b-4f3f-a7fe-46ea9596f512
 # ╟─fe470914-9250-43c1-9d6c-0d9d1a546536
-# ╟─a6960369-ecfb-4a6c-9f45-e1f49d86d11a
+# ╠═a6960369-ecfb-4a6c-9f45-e1f49d86d11a
 # ╟─9ab6cd9b-6d51-49c4-87d1-0b9a7e4072a0
 # ╟─06ff1f78-7131-4e08-8496-dd4f06c87770
+# ╟─268ca338-b9f3-4eef-8579-a56820f796d4
+# ╟─4038d331-8bb4-4353-8c79-0881ac385777
+# ╟─e6a83814-f36b-4653-9b1c-fa2cc60bd9da
+# ╟─108edfc7-0967-4d6f-838b-f0ee33848358
 # ╟─1e6d66df-5c17-4ae5-92c7-000ff09d55aa
 # ╟─adc73eff-e745-4b69-a12f-20ef8da025dc
 # ╠═8947bc2e-57a6-4a2e-9902-1bc81ff403a7
 # ╟─b75f5ca1-0151-4013-ba30-0a7676de0def
-# ╟─b75a86c6-76ae-4138-99e6-a555478bd70d
+# ╠═b75a86c6-76ae-4138-99e6-a555478bd70d
 # ╟─289e3c47-cc08-43d9-82d5-c4a67bbb10e1
 # ╟─85c53c86-85dc-4df7-a635-4f2571f0b60b
 # ╟─683d9f5d-d5f8-44c1-83c8-d532d8f631d0
 # ╟─a744ab33-3857-401f-ac56-a61b27892262
 # ╟─ed8f3e1c-d7f4-4d0c-8350-8eaec09f4b3c
-# ╠═dafb4d19-225b-40da-acb4-a623998f01ae
+# ╟─dafb4d19-225b-40da-acb4-a623998f01ae
 # ╟─53dfb092-0602-40ec-bb3b-7d3cc46a1817
+# ╠═4273cd77-21b2-4fd9-bbcc-987bddcd7a59
+# ╠═80ebcf20-b09f-4921-8127-8345a6f2c57e
+# ╠═aceffe55-d906-472b-9634-9cd48e236cd3
+# ╠═b707e671-f5fd-4fd3-9b37-555017939c3f
+# ╠═8bd6b5c5-e1da-4b95-ace8-60aa07280f39
+# ╠═618c44d6-940b-43d8-b65f-b86072fedf25
 # ╟─89fb9fa2-8591-45a3-a068-50574d100574
 # ╟─1aec7b7a-8698-4d17-be87-7f1815d92130
 # ╟─00000000-0000-0000-0000-000000000001

@@ -1,5 +1,5 @@
 ---
-title: "Chi-Squared Tests"
+title: "Tests of Correlation and Dependency"
 format: 
   revealjs:
     incremental: true
@@ -10,6 +10,61 @@ css: style.css
 #filters:
   #- parse-latex
 ---
+
+# Correlation Test
+
+::: {.callout}
+
+::: {.columns}
+::: {.column}
+
+- We observe iid paired data $(X_1, Y_1), \dots, (X_n,Y_n)$ of **unknown** mean $\mu_X, \mu_Y$ and cov matrix $\Sigma$.
+- Cov matrix: 
+$\Sigma = 
+\left(\begin{matrix} 
+\sigma_X^2 & \mathrm{Cov(X,Y)} \\
+\mathrm{Cov(X,Y)} & \sigma_Y^2 \\
+\end{matrix}\right)$
+- $H_0: \mathrm{Cov}(X,Y)=0$ or $H_1: \mathrm{Cov}(X,Y)\neq 0$ 
+
+
+:::
+::: {.column}
+- $\mathrm{Cov(X,Y)} = \mathbb E[(X- \mathbb E[X])^2]$
+- $\sigma_X^2 = \mathrm{Cov(X,X)}$
+- $\sigma_Y^2 = \mathrm{Cov(Y,Y)}$
+- $\mathrm{Cor(X,Y)} = \frac{\mathrm{Cov(X,Y)}}{\sigma_X \sigma_Y}$
+
+:::
+
+::: 
+
+:::
+
+:::: {.columns}
+::: {.column}
+::: {.callout-note}
+## Pearson's Correlation Test
+
+$$r =  \frac{\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)}{\sqrt{\sum_{i=1}^n (X_i - \overline X)^2\sum_{i=1}^n (Y_i - \overline Y)^2}}$$
+
+- $\psi(X,Y) = \frac{r}{\sqrt{1-r^2}}\sqrt{n-2}$
+- Under $H_0$, $\psi(X,Y) \approx \mathcal T(n-2)$
+:::
+:::
+::: {.column}
+![](images/correlated_X_Y.svg)
+:::
+:::: 
+
+
+## Correlation Test
+
+Monte Carlo Simulation with $n=4$:
+
+![](images/correlation_pearson.png)
+
+# Wilcoxon's Signed Rank
 
 ## Symetric Random Variable
 
@@ -31,10 +86,10 @@ $$
 - Indeed:
 $$
 \begin{aligned}
-\mathbb P(X - Y \leq t) &=\int_{-\infty}^t \mathbb P(X \leq t+y)p(y)dy \\
-&=\int_{-\infty}^t \mathbb P(Y \leq t+x)p(x)dy = \mathbb P(Y-X \leq t) \; .
+\mathbb P(X - Y \leq t) &=\int_{-\infty}^t \mathbb P(X \leq t+y)p(y)dy =\int_{-\infty}^t \mathbb P(Y \leq t+x)p(x)dy = \mathbb P(Y-X \leq t) \; .
 \end{aligned}
 $$
+- $X$ indep of $Y$ $\implies$ $X-Y$ symmetric $\implies$ $\mathrm{median}(X-Y) = 0$
 :::
 :::
 
@@ -91,8 +146,9 @@ Under $H_0$,
 :::{.column}
 - Wilcoxon's test statistic:
 $W_- = \sum_{i=1}^n R_i \mathbf 1\{D_i < 0\}$
-- Sometimes, also $W_+ = \sum_{i=1}^n R_i \mathbf 1\{D_i < 0\}$ or $\min(W_-, W_+)$.
+- Sometimes, also $W_+ = \sum_{i=1}^n R_i \mathbf 1\{D_i > 0\}$ or $\min(W_-, W_+)$.
 - Gaussian approximation: $W_- \asymp n(n+1)/4 + \sqrt{n(n+1)(2n+1)/24} \mathcal N(0,1)$
+- if $H_1$: $\mathrm{median}(D_i) > 0$: left-one sided test on $W_-$.
 :::
 
 :::{.column}
@@ -113,3 +169,29 @@ k = rand(Binomial(n, 0.5))
 w = sum(randperm(n)[1:k])
 ```
 :::
+
+## Effect of Drug on Blood Pressure
+
+- $H_0$: the drug has no effect. $H_1$: it lowers the blood pressure
+
+::: {.fragment}
+
+:::{style="font-size: 70%;"}
+
+| Patient | $X_i$ (Before) | $Y_i$​ (After) | $D_i = X_i-Y_i$​ | $R_i$ |
+| ------- | -------------- | -------------- | ---------------- | ----- |
+| 1       | 150            | 140            | 10               | 6 (+) |
+| 2       | 135            | 130            | 5                | 5 (+) |
+| 3       | 160            | 162            | -2               | 2 (-) |
+| 4       | 145            | 146            | -1               | 1 (-) |
+| 5       | 154            | 150            | 4                | 4 (+) |
+| 6       | 171            | 160            | 11               | 7 (+) |
+| 7       | 141            | 138            | 3                | 3 (+) |
+
+:::
+:::
+
+- $W_- = 1+2 = 3$.
+- From a simulation, we approx $\mathbb P(W_-=i)$, for $i \in \{0, 1, 2, 3, 4, 5,6\}$ under $H_0$ by
+- `[0.00784066, 0.00781442, 0.00781534, 0.01563892, 0.01562184, 0.02343478]`
+- From a simulation, $p_{value}=\mathbb P(W_- \leq 3) \approx 0.039 < 0.05$

@@ -6,10 +6,10 @@
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-07c16812f08c4a1591d6ec4fc46327fa.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.2">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.39">
 
-  <title>Emmanuel Pilliat – Multi-dimensional Tests</title>
+  <title>Emmanuel Pilliat – Goodness of Fit and Homogeneity Tests</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -95,6 +95,22 @@
   </style>
   <link rel="stylesheet" href="../../../site_libs/revealjs/dist/theme/quarto-9c52a1e0401bcc20e17ddd84b9a771f4.css">
   <link rel="stylesheet" href="style.css">
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
   <link href="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -192,7 +208,7 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Multi-dimensional Tests</h1>
+  <h1 class="title">Goodness of Fit and Homogeneity Tests</h1>
 
 <div class="quarto-title-authors">
 </div>
@@ -210,12 +226,12 @@
 </div>
 <div class="callout-content">
 <ul>
-<li class="fragment">Draw <span class="math inline">\(n\)</span> balls, <strong>blue or red</strong>.</li>
-<li class="fragment"><span class="math inline">\(p_1, (1-p_1)\)</span>: proportion of blues/red</li>
-<li class="fragment"><span class="math inline">\(X\)</span>, <span class="math inline">\(Y\)</span>: counts of blues/red</li>
-<li class="fragment"><span class="math inline">\(X \sim \mathrm{Bin}(n,p_1)\)</span></li>
-<li class="fragment"><span class="math inline">\(\mathbb P((X,Y) = (k_1,k_2)) = \binom{n}{k_1}p_1^k(1-p_1)^{k_2}\)</span><br>
-if <span class="math inline">\(k_1 +k_2 = n\)</span></li>
+<li class="fragment">Draw <span class="math inline">n</span> balls, <strong>blue or red</strong>.</li>
+<li class="fragment"><span class="math inline">p_1, (1-p_1)</span>: proportion of blues/red</li>
+<li class="fragment"><span class="math inline">X</span>, <span class="math inline">Y</span>: counts of blues/red</li>
+<li class="fragment"><span class="math inline">X \sim \mathrm{Bin}(n,p_1)</span></li>
+<li class="fragment"><span class="math inline">\mathbb P((X,Y) = (k_1,k_2)) = \binom{n}{k_1}p_1^k(1-p_1)^{k_2}</span><br>
+if <span class="math inline">k_1 +k_2 = n</span></li>
 </ul>
 </div>
 </div>
@@ -230,12 +246,12 @@ if <span class="math inline">\(k_1 +k_2 = n\)</span></li>
 </div>
 <div class="callout-content">
 <ul>
-<li class="fragment">Draw <span class="math inline">\(n\)</span> balls, <strong><span class="math inline">\(m\)</span> potential colors</strong>.</li>
-<li class="fragment"><span class="math inline">\((p_1, \dots, p_m)\)</span>: proportions of each color: <span class="math inline">\(\sum_{i=1}^m p_i = 1\)</span></li>
-<li class="fragment"><span class="math inline">\(X_1, \dots, X_m\)</span>: count of each color</li>
-<li class="fragment"><span class="math inline">\((X_1, \dots, X_m) \sim \mathrm{Mult}(n,(p_1, \dots, p_m))\)</span></li>
-<li class="fragment"><span class="math inline">\(\mathbb P((X_1, \dots, X_m)=(k_1, \dots, k_m)) = \frac{n!}{k_1!\dots k_m!}p_1^{k_1} \dots p_m^{k_m}\)</span><br>
-if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
+<li class="fragment">Draw <span class="math inline">n</span> balls, <strong><span class="math inline">m</span> potential colors</strong>.</li>
+<li class="fragment"><span class="math inline">(p_1, \dots, p_m)</span>: proportions of each color: <span class="math inline">\sum_{i=1}^m p_i = 1</span></li>
+<li class="fragment"><span class="math inline">X_1, \dots, X_m</span>: count of each color</li>
+<li class="fragment"><span class="math inline">(X_1, \dots, X_m) \sim \mathrm{Mult}(n,(p_1, \dots, p_m))</span></li>
+<li class="fragment"><span class="math inline">\mathbb P((X_1, \dots, X_m)=(k_1, \dots, k_m)) = \frac{n!}{k_1!\dots k_m!}p_1^{k_1} \dots p_m^{k_m}</span><br>
+if <span class="math inline">k_1 + \dots + k_m = n</span></li>
 </ul>
 </div>
 </div>
@@ -243,23 +259,23 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 </div>
 </div></div>
 <ul>
-<li class="fragment"><span class="math inline">\(\frac{n!}{k_1!\dots k_m!} = \binom{n}{k_1,\dots, k_m}\)</span> is a <strong>multinomial</strong> coefficient</li>
-<li class="fragment">In this course: <span class="math inline">\(n \gg m\)</span>.</li>
-<li class="fragment"><span class="math inline">\(m \gg n\)</span> corresponds to a high-dimensional setting.</li>
+<li class="fragment"><span class="math inline">\frac{n!}{k_1!\dots k_m!} = \binom{n}{k_1,\dots, k_m}</span> is a <strong>multinomial</strong> coefficient</li>
+<li class="fragment">In this course: <span class="math inline">n \gg m</span>.</li>
+<li class="fragment"><span class="math inline">m \gg n</span> corresponds to a high-dimensional setting.</li>
 </ul>
 </section>
 <section>
-<section id="chi-squared-goodness-of-fit-and-homogeneity-tests" class="title-slide slide level1 center">
-<h1>Chi-Squared Goodness of Fit and Homogeneity Tests</h1>
+<section id="chi2-goodness-of-fit-and-homogeneity-tests" class="title-slide slide level1 center">
+<h1><span class="math inline">\chi^2</span> Goodness of Fit and Homogeneity Tests</h1>
 
 </section>
-<section id="goodness-of-fit-test" class="slide level2">
-<h2>Goodness of Fit Test</h2>
+<section id="chi2-goodness-of-fit-test" class="slide level2">
+<h2><span class="math inline">\chi^2</span> Goodness of Fit Test</h2>
 <ul>
-<li class="fragment">We observe <span class="math inline">\((X_1, \dots, X_m) \sim \mathrm{Mult}(n, q)\)</span> This corresponds to <span class="math inline">\(n\)</span> counts: <span class="math inline">\(X_1 + \dots + X_m = n\)</span></li>
-<li class="fragment"><span class="math inline">\(q = (q_1, \dots, q_m)\)</span> corresponds to probabilities of getting color <span class="math inline">\(1, \dots, m\)</span></li>
-<li class="fragment">Let <span class="math inline">\(p = (p_1, \dots, p_m)\)</span> be a known vector s.t. <span class="math inline">\(p_1 + \dots + p_m = 1\)</span>.</li>
-<li class="fragment"><span class="math inline">\(H_0:~ q = p ~~~\text{or}~~~ H_1: q \neq p \; .\)</span></li>
+<li class="fragment">We observe <span class="math inline">(X_1, \dots, X_m) \sim \mathrm{Mult}(n, q)</span> This corresponds to <span class="math inline">n</span> counts: <span class="math inline">X_1 + \dots + X_m = n</span></li>
+<li class="fragment"><span class="math inline">q = (q_1, \dots, q_m)</span> corresponds to probabilities of getting color <span class="math inline">1, \dots, m</span></li>
+<li class="fragment">Let <span class="math inline">p = (p_1, \dots, p_m)</span> be a known vector s.t. <span class="math inline">p_1 + \dots + p_m = 1</span>.</li>
+<li class="fragment"><span class="math inline">H_0:~ q = p ~~~\text{or}~~~ H_1: q \neq p \; .</span></li>
 </ul>
 <div class="columns">
 <div class="column">
@@ -267,13 +283,13 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong>Goodness of Fit Test (Adéquation)</strong></p>
+<p><strong><span class="math inline">\chi^2</span> Goodness of Fit Test (Adéquation)</strong></p>
 </div>
 <div class="callout-content">
 <ul>
-<li class="fragment">Chi-Squared Test Statistic: <span class="math display">\[\psi(X) = \sum_{i=1}^m\frac{(X_i-n_i)^2}{n_i} \; ,\]</span> where <span class="math inline">\(n_i = np_i = \mathbb E[X_i]\)</span> is the expected number of counts for color <span class="math inline">\(i.\)</span></li>
-<li class="fragment">When <span class="math inline">\(np_i = n_i\)</span> are large, under <span class="math inline">\(H_0\)</span>, we approximate the distribution of <span class="math inline">\(\psi(X)\)</span> as <span class="math inline">\(\psi(X) \sim \chi^2(m-1)\)</span></li>
-<li class="fragment">Reject if <span class="math inline">\(\psi(X) &gt; t_{1- \alpha}\)</span> (right-tail of <span class="math inline">\(\chi^2(m-1)\)</span>)</li>
+<li class="fragment">Chi-Squared Test Statistic: <span class="math display">\psi(X) = \sum_{i=1}^m\frac{(X_i-n_i)^2}{n_i} \; ,</span> where <span class="math inline">n_i = np_i = \mathbb E[X_i]</span> is the expected number of counts for color <span class="math inline">i.</span></li>
+<li class="fragment">When <span class="math inline">np_i = n_i</span> are large, under <span class="math inline">H_0</span>, we approximate the distribution of <span class="math inline">\psi(X)</span> as <span class="math inline">\psi(X) \sim \chi^2(m-1)</span></li>
+<li class="fragment">Reject if <span class="math inline">\psi(X) &gt; t_{1- \alpha}</span> (right-tail of <span class="math inline">\chi^2(m-1)</span>)</li>
 </ul>
 </div>
 </div>
@@ -287,15 +303,21 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 </section>
 <section id="example-bag-of-sweets" class="slide level2">
 <h2>Example: Bag of Sweets</h2>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
 <ul>
-<li class="fragment">We observe a <strong>bag of sweets</strong> containing <span class="math inline">\(n=100\)</span> sweets of <span class="math inline">\(m=3\)</span> different colors: <strong>red</strong>, <strong>green</strong>, and <strong>yellow</strong>.</li>
-<li class="fragment">Manufacturer: <span class="math inline">\(p_1= 40\%\)</span> red, <span class="math inline">\(p_2=35\%\)</span> green, and <span class="math inline">\(p_3=25\%\)</span> yellow.</li>
-<li class="fragment"><span class="math inline">\(H_0: q=p\)</span> (manufacturer’s claim is correct)</li>
-<li class="fragment"><span class="math inline">\(H_1: q\neq p\)</span> (manufacturer’s claim is incorrect)</li>
+<li class="fragment">We observe a <strong>bag of sweets</strong> containing <span class="math inline">n=100</span> sweets of <span class="math inline">m=3</span> different colors: <strong>red</strong>, <strong>green</strong>, and <strong>yellow</strong>.</li>
+<li class="fragment">Manufacturer: <span class="math inline">p_1= 40\%</span> red, <span class="math inline">p_2=35\%</span> green, and <span class="math inline">p_3=25\%</span> yellow.</li>
+<li class="fragment"><span class="math inline">H_0: q=p</span> (manufacturer’s claim is correct)</li>
+<li class="fragment"><span class="math inline">H_1: q\neq p</span> (manufacturer’s claim is incorrect)</li>
 </ul>
+</div>
+</div>
+</div>
 <div class="columns">
 <div class="column">
-<div class="fragment">
+<div class="fragment" style="font-size:50%;">
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -306,21 +328,21 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 <tbody>
 <tr class="odd">
 <td>Red</td>
-<td><span class="math inline">\(X_1=50\)</span></td>
+<td><span class="math inline">X_1=50</span></td>
 </tr>
 <tr class="even">
 <td>Green</td>
-<td><span class="math inline">\(X_2=30\)</span></td>
+<td><span class="math inline">X_2=30</span></td>
 </tr>
 <tr class="odd">
 <td>Yellow</td>
-<td><span class="math inline">\(X_3=20\)</span></td>
+<td><span class="math inline">X_3=20</span></td>
 </tr>
 </tbody>
 </table>
 </div>
 </div><div class="column">
-<div class="fragment">
+<div class="fragment" style="font-size:50%;">
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -329,29 +351,44 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 </thead>
 <tbody>
 <tr class="odd">
-<td><span class="math inline">\(n_1=40\)</span></td>
+<td><span class="math inline">n_1=40</span></td>
 </tr>
 <tr class="even">
-<td><span class="math inline">\(n_2=35\)</span></td>
+<td><span class="math inline">n_2=35</span></td>
 </tr>
 <tr class="odd">
-<td><span class="math inline">\(n_3=25\)</span></td>
+<td><span class="math inline">n_3=25</span></td>
 </tr>
 </tbody>
 </table>
 </div>
 </div></div>
+<div class="columns">
+<div class="column">
+<div class="fragment">
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
 <ul>
-<li class="fragment"><span class="math inline">\(\psi(X) = \sum_{i=1}^m\frac{(X_i-n_i)^2}{n_i} \approx 2.5 +0.71+1 \approx 4.21\)</span></li>
-<li class="fragment"><span class="math inline">\(\mathrm{cdf}(\chi^2(2), 4.21) \approx 0.878\)</span> (<span class="math inline">\(p_{value} \approx 0.222\)</span>)</li>
-<li class="fragment">Conclusion: do not reject <span class="math inline">\(H_0\)</span></li>
+<li class="fragment"><span class="math inline">\psi(X) = \sum_{i=1}^m\frac{(X_i-n_i)^2}{n_i} \approx 2.5 +0.71+1 \approx 4.21</span></li>
+<li class="fragment"><span class="math inline">\mathrm{cdf}(\chi^2(2), 4.21) \approx 0.878</span> (<span class="math inline">p_{value} \approx 0.222</span>)</li>
+<li class="fragment">Conclusion: do not reject <span class="math inline">H_0</span></li>
 </ul>
+</div>
+</div>
+</div>
+</div>
+</div><div class="column">
+<div class="fragment">
+<p><img data-src="images/chi-2-sweets.svg"></p>
+</div>
+</div></div>
 </section>
 <section id="homogeneity-test" class="slide level2">
 <h2>Homogeneity Test</h2>
 <ul>
-<li class="fragment"><span class="math inline">\(d\)</span> different bags, each containing <span class="math inline">\(m\)</span> colors.</li>
-<li class="fragment">If <span class="math inline">\(d = 3\)</span> and <span class="math inline">\(m=2\)</span>, we observe the following <span class="math inline">\(2\times 3\)</span> matrix:</li>
+<li class="fragment"><span class="math inline">d</span> different bags, each containing <span class="math inline">m</span> colors.</li>
+<li class="fragment">If <span class="math inline">d = 3</span> and <span class="math inline">m=2</span>, we observe the following <span class="math inline">2\times 3</span> matrix:</li>
 </ul>
 <div class="fragment">
 <table class="caption-top">
@@ -367,24 +404,24 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 <tbody>
 <tr class="odd">
 <td>color 1</td>
-<td><span class="math inline">\(X_{11}\)</span></td>
-<td><span class="math inline">\(X_{12}\)</span></td>
-<td><span class="math inline">\(X_{13}\)</span></td>
-<td><span class="math inline">\(R_1\)</span></td>
+<td><span class="math inline">X_{11}</span></td>
+<td><span class="math inline">X_{12}</span></td>
+<td><span class="math inline">X_{13}</span></td>
+<td><span class="math inline">R_1</span></td>
 </tr>
 <tr class="even">
 <td>color 2</td>
-<td><span class="math inline">\(X_{21}\)</span></td>
-<td><span class="math inline">\(X_{22}\)</span></td>
-<td><span class="math inline">\(X_{23}\)</span></td>
-<td><span class="math inline">\(R_2\)</span></td>
+<td><span class="math inline">X_{21}</span></td>
+<td><span class="math inline">X_{22}</span></td>
+<td><span class="math inline">X_{23}</span></td>
+<td><span class="math inline">R_2</span></td>
 </tr>
 <tr class="odd">
 <td>Total</td>
-<td><span class="math inline">\(N_1\)</span></td>
-<td><span class="math inline">\(N_2\)</span></td>
-<td><span class="math inline">\(N_3\)</span></td>
-<td><span class="math inline">\(N\)</span></td>
+<td><span class="math inline">N_1</span></td>
+<td><span class="math inline">N_2</span></td>
+<td><span class="math inline">N_3</span></td>
+<td><span class="math inline">N</span></td>
 </tr>
 </tbody>
 </table>
@@ -392,15 +429,15 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 <div class="columns">
 <div class="column">
 <div class="fragment">
-<div class="callout callout-note no-icon callout-style-simple">
+<div class="callout callout-none no-icon callout-style-simple">
 <div class="callout-body">
 <div class="callout-content">
 <ul>
-<li class="fragment">Bag <span class="math inline">\(j\)</span>: <span class="math inline">\((X_{1j}, X_{2j}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}))\)</span></li>
-<li class="fragment">The parameters <span class="math inline">\(p_{ij}\)</span> are <strong>unknown</strong></li>
-<li class="fragment"><span class="math inline">\(H_0\)</span>: <span class="math inline">\(p_{i1} = p_{i2}=p_{i3}\)</span> for all <span class="math inline">\(i\)</span> (bags are homogeneous)</li>
-<li class="fragment"><span class="math inline">\(H_1\)</span>: bags are heterogeneous</li>
-<li class="fragment"><span class="math inline">\(\sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_jp_{ij})^2}{N_jp_{ij}}\)</span> <strong>not a test statistic</strong></li>
+<li class="fragment">Bag <span class="math inline">j</span>: <span class="math inline">(X_{1j}, X_{2j}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}))</span></li>
+<li class="fragment">The parameters <span class="math inline">p_{ij}</span> are <strong>unknown</strong></li>
+<li class="fragment"><span class="math inline">H_0</span>: <span class="math inline">p_{i1} = p_{i2}=p_{i3}</span> for all <span class="math inline">i</span> (bags are homogeneous)</li>
+<li class="fragment"><span class="math inline">H_1</span>: bags are heterogeneous</li>
+<li class="fragment"><span class="math inline">\sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_jp_{ij})^2}{N_jp_{ij}}</span> <strong>not a test statistic</strong></li>
 </ul>
 </div>
 </div>
@@ -415,9 +452,9 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 </div>
 <div class="callout-content">
 <ul>
-<li class="fragment"><span class="math inline">\(\hat p_{i} = \tfrac{1}{N}\sum_{j=1}^{d}X_{ij} = \frac{R_i}{N}\)</span></li>
-<li class="fragment"><span class="math inline">\(\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_j\hat p_{i})^2}{N_j\hat p_{i}}\)</span></li>
-<li class="fragment">Approximation: <span class="math inline">\(\psi(X) \sim \chi^2((m-1)(d-1))\)</span></li>
+<li class="fragment"><span class="math inline">\hat p_{i} = \tfrac{1}{N}\sum_{j=1}^{d}X_{ij} = \frac{R_i}{N}</span></li>
+<li class="fragment"><span class="math inline">\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_j\hat p_{i})^2}{N_j\hat p_{i}}</span></li>
+<li class="fragment">Approximation: <span class="math inline">\psi(X) \sim \chi^2((m-1)(d-1))</span></li>
 </ul>
 </div>
 </div>
@@ -429,8 +466,8 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 <h2>Example: Soft drink preferences</h2>
 <div style="font-size: 70%;">
 <ul>
-<li class="fragment">Split population into <span class="math inline">\(3\)</span> categories: <strong>Young Adults (18-30)</strong>, <strong>Middle-Aged Adults (31-50)</strong>, and <strong>Seniors (51 and above)</strong>.</li>
-<li class="fragment"><span class="math inline">\(H_0\)</span>: The groups are homogeneous in terms of soft drink preferences</li>
+<li class="fragment">Split population into <span class="math inline">3</span> categories: <strong>Young Adults (18-30)</strong>, <strong>Middle-Aged Adults (31-50)</strong>, and <strong>Seniors (51 and above)</strong>.</li>
+<li class="fragment"><span class="math inline">H_0</span>: The groups are homogeneous in terms of soft drink preferences</li>
 </ul>
 <div class="fragment">
 <table class="caption-top">
@@ -476,17 +513,17 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 </table>
 </div>
 <ul>
-<li class="fragment"><span class="math inline">\(N_1 \hat p_1 = 140*\frac{130}{390} \approx 46.7\)</span></li>
+<li class="fragment"><span class="math inline">N_1 \hat p_1 = 140*\frac{130}{390} \approx 46.7</span></li>
 </ul>
 <div class="fragment">
-<p><span class="math display">\[
+<p><span class="math display">
 \begin{aligned}
 \psi(X) &amp;= \frac{(60-46.7)^2}{46.7}&amp;+ \frac{(40-46.7)^2}{46.7}&amp;+\frac{(30-36.7)^2}{36.7} \\
 &amp;+\frac{(50-46.7)^2}{46.7}&amp;+ \frac{(55-46.7)^2}{46.7}&amp;+\frac{(25-36.7)^2}{36.7}\\
 &amp;+\frac{(30-46.7)^2}{46.7}&amp;+ \frac{(45-46.7)^2}{46.7}&amp;+\frac{(55-36.7)^2}{36.7}\\
     &amp;\approx 26.57
 \end{aligned}
-\]</span></p>
+</span></p>
 </div>
 </div>
 <div class="fragment">
@@ -510,12 +547,12 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 </div>
 <div class="callout-content">
 <ul>
-<li class="fragment">We observe <span class="math inline">\((X_1, \dots, X_n) \in \mathbb R^n\)</span><br>
+<li class="fragment">We observe <span class="math inline">(X_1, \dots, X_n) \in \mathbb R^n</span><br>
 </li>
-<li class="fragment"><span class="math inline">\(\mathrm{counts}(I) = \sum \mathbf 1\{X_i \in I\} \in \{1, \dots, n\}\; .\)</span></li>
-<li class="fragment"><span class="math inline">\(\mathrm{freq}(I) = \mathrm{counts}(I)/n\)</span></li>
-<li class="fragment"><span class="math inline">\(\mathrm{hist}(a,b,k) = (\mathrm{counts}(I_1), \dots,\mathrm{counts}(I_k))\)</span></li>
-<li class="fragment">where <span class="math inline">\(I_l = \big[a + (l-1)\tfrac{b-a}{k},a + l\tfrac{b-a}{k}\big)\)</span></li>
+<li class="fragment"><span class="math inline">\mathrm{counts}(I) = \sum \mathbf 1\{X_i \in I\} \in \{1, \dots, n\}\; .</span></li>
+<li class="fragment"><span class="math inline">\mathrm{freq}(I) = \mathrm{counts}(I)/n</span></li>
+<li class="fragment"><span class="math inline">\mathrm{hist}(a,b,k) = (\mathrm{counts}(I_1), \dots,\mathrm{counts}(I_k))</span></li>
+<li class="fragment">where <span class="math inline">I_l = \big[a + (l-1)\tfrac{b-a}{k},a + l\tfrac{b-a}{k}\big)</span></li>
 </ul>
 </div>
 </div>
@@ -551,8 +588,8 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 </div>
 <div class="callout-content">
 <ul>
-<li class="fragment">Assume that <span class="math inline">\((X_1, \dots, X_n)\)</span> are iid of distrib <span class="math inline">\(P\)</span>, and that <span class="math inline">\(a\)</span>,<span class="math inline">\(b\)</span>, <span class="math inline">\(k\)</span> are fixed</li>
-<li class="fragment">The histogram <span class="math inline">\(\mathrm{hist}(a,b,k)\)</span> converges to the histogram of the density <span class="math inline">\(P\)</span></li>
+<li class="fragment">Assume that <span class="math inline">(X_1, \dots, X_n)</span> are iid of distrib <span class="math inline">P</span>, and that <span class="math inline">a</span>,<span class="math inline">b</span>, <span class="math inline">k</span> are fixed</li>
+<li class="fragment">The histogram <span class="math inline">\mathrm{hist}(a,b,k)</span> converges to the histogram of the density <span class="math inline">P</span></li>
 </ul>
 </div>
 </div>
@@ -564,14 +601,20 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 </div>
 </div></div>
 </section>
-<section id="goodness-of-fit-to-a-given-distribution" class="slide level2">
-<h2>Goodness of Fit to a given distribution</h2>
+<section id="chi2-goodness-of-fit-to-a-given-distribution" class="slide level2">
+<h2><span class="math inline">\chi^2</span> Goodness of Fit to a given distribution</h2>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
 <ul>
-<li class="fragment">We observe <span class="math inline">\((X_1, \dots, X_n) \in \mathbb R^n\)</span>, iid with <strong>unknown</strong> distrib <span class="math inline">\(P\)</span></li>
-<li class="fragment"><span class="math inline">\(H_0\)</span>: <span class="math inline">\(P = P_0\)</span>, where <span class="math inline">\(P_0\)</span> is <strong>known</strong></li>
-<li class="fragment"><span class="math inline">\(H_1\)</span>: <span class="math inline">\(P \neq P_0\)</span></li>
-<li class="fragment">Idea: Under <span class="math inline">\(H_0\)</span>, the counts in the intervals <span class="math inline">\([a_0, a_1), [a_1, a_2), \dots, [a_{k-1}, a_k)\)</span> follow a <strong>multinomial</strong> distribution <span class="math inline">\(\mathrm{Mult}(n, (p_1, \dots, p_{k}))\)</span> where <span class="math inline">\(p_1 = P_0([a_0, a_1)), \dots, p_{k} = P_0([a_{k-1}, a_k))\)</span></li>
+<li class="fragment">We observe <span class="math inline">(X_1, \dots, X_n) \in \mathbb R^n</span>, iid with <strong>unknown</strong> distrib <span class="math inline">P</span></li>
+<li class="fragment"><span class="math inline">H_0</span>: <span class="math inline">P = P_0</span>, where <span class="math inline">P_0</span> is <strong>known</strong></li>
+<li class="fragment"><span class="math inline">H_1</span>: <span class="math inline">P \neq P_0</span></li>
+<li class="fragment">Idea: Under <span class="math inline">H_0</span>, the counts in the intervals <span class="math inline">[a_0, a_1), [a_1, a_2), \dots, [a_{k-1}, a_k)</span> follow a <strong>multinomial</strong> distribution <span class="math inline">\mathrm{Mult}(n, (p_1, \dots, p_{k}))</span> where <span class="math inline">p_1 = P_0([a_0, a_1)), \dots, p_{k} = P_0([a_{k-1}, a_k))</span></li>
 </ul>
+</div>
+</div>
+</div>
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
@@ -580,9 +623,9 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 </div>
 <div class="callout-content">
 <ol type="1">
-<li class="fragment">Count the number of data <span class="math inline">\((c_1, \dots, c_k)\)</span> falling in <span class="math inline">\(I_1, \dots, I_k\)</span></li>
-<li class="fragment">Compare the counts the theoretical <span class="math inline">\(nP_0(I_1) \dots, nP_0(I_k)\)</span> with a chi-squared statistic: <span class="math display">\[ \sum_{j=1}^k \frac{(c_j - nP_0(I_j))^2}{nP_0(I_1)}\]</span></li>
-<li class="fragment">Decide using an <span class="math inline">\(\alpha\)</span>-quantile of a <span class="math inline">\(\chi^2(k-1)\)</span> distribution</li>
+<li class="fragment">Count the number of data <span class="math inline">(c_1, \dots, c_k)</span> falling in <span class="math inline">I_1, \dots, I_k</span></li>
+<li class="fragment">Compare the counts the theoretical <span class="math inline">nP_0(I_1) \dots, nP_0(I_k)</span> with a chi-squared statistic: <span class="math display"> \sum_{j=1}^k \frac{(c_j - nP_0(I_j))^2}{nP_0(I_1)}</span></li>
+<li class="fragment">Decide using an <span class="math inline">\alpha</span>-quantile of a <span class="math inline">\chi^2(k-1)</span> distribution</li>
 </ol>
 </div>
 </div>
@@ -591,17 +634,17 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 </section>
 <section id="example-goodness-of-fit-to-a-poisson-distribution" class="slide level2">
 <h2>Example: Goodness of Fit to a Poisson distribution</h2>
-<p><span class="math inline">\(H_0\)</span>: <span class="math inline">\(X_i\)</span> iid <span class="math inline">\(\mathcal P(2)\)</span></p>
+<p><span class="math inline">H_0</span>: <span class="math inline">X_i</span> iid <span class="math inline">\mathcal P(2)</span></p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a>X <span class="op">=</span> [<span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="fragment">
 <table class="caption-top">
 <thead>
 <tr class="header">
 <th></th>
-<th><span class="math inline">\(0\)</span></th>
-<th><span class="math inline">\(1\)</span></th>
-<th><span class="math inline">\(2\)</span>&nbsp;</th>
-<th><span class="math inline">\(\geq 3\)</span></th>
+<th><span class="math inline">0</span></th>
+<th><span class="math inline">1</span></th>
+<th><span class="math inline">2</span>&nbsp;</th>
+<th><span class="math inline">\geq 3</span></th>
 <th>Total</th>
 </tr>
 </thead>
@@ -626,21 +669,27 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 </table>
 </div>
 <ul>
-<li class="fragment">To get <span class="math inline">\(9.7\)</span>, we compute <code>(1-cdf(Poisson(2),2))*30</code></li>
-<li class="fragment">chi square stat <span class="math inline">\(\gtrsim \frac{(16-4)^2}{4} = 36\)</span></li>
+<li class="fragment">To get <span class="math inline">9.7</span>, we compute <code>(1-cdf(Poisson(2),2))*30</code></li>
+<li class="fragment">chi square stat <span class="math inline">\gtrsim \frac{(16-4)^2}{4} = 36</span></li>
 <li class="fragment"><code>(1-cdf(Chisq(3),36))</code> is very small: Reject</li>
 </ul>
 </section>
 <section id="comparison-with-qq-plots" class="slide level2">
 <h2>Comparison with QQ-Plots</h2>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
 <ul>
-<li class="fragment">We observe <span class="math inline">\((X_1, \dots, X_n)\)</span> of <strong>unknown</strong> CDF <span class="math inline">\(F\)</span></li>
-<li class="fragment"><span class="math inline">\(H_0\)</span>: <span class="math inline">\(F = F_0\)</span> where <span class="math inline">\(F_0\)</span> is <strong>known</strong></li>
-<li class="fragment"><span class="math inline">\(H_1\)</span>: <span class="math inline">\(F \neq F_0\)</span></li>
-<li class="fragment">We write <span class="math inline">\(X_{(1)} \leq \dots \leq X_{(n)}\)</span> for the ordered data</li>
-<li class="fragment"><strong>empirical <span class="math inline">\(\frac{k}{n}\)</span>-quantile</strong>: <span class="math inline">\(X_{(k)}\)</span></li>
-<li class="fragment"><strong><span class="math inline">\(\frac{k}{n}\)</span>-quantile</strong>: <span class="math inline">\(x\)</span> such that <span class="math inline">\(F(x) = \frac{k}{n}\)</span></li>
+<li class="fragment">We observe <span class="math inline">(X_1, \dots, X_n)</span> of <strong>unknown</strong> CDF <span class="math inline">F</span></li>
+<li class="fragment"><span class="math inline">H_0</span>: <span class="math inline">F = F_0</span> where <span class="math inline">F_0</span> is <strong>known</strong></li>
+<li class="fragment"><span class="math inline">H_1</span>: <span class="math inline">F \neq F_0</span></li>
+<li class="fragment">We write <span class="math inline">X_{(1)} \leq \dots \leq X_{(n)}</span> for the ordered data</li>
+<li class="fragment"><strong>empirical <span class="math inline">\frac{k}{n}</span>-quantile</strong>: <span class="math inline">X_{(k)}</span></li>
+<li class="fragment"><strong><span class="math inline">\frac{k}{n}</span>-quantile</strong>: <span class="math inline">x</span> such that <span class="math inline">F(x) = \frac{k}{n}</span></li>
 </ul>
+</div>
+</div>
+</div>
 <div class="columns">
 <div class="column">
 <div class="fragment">
@@ -652,7 +701,7 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 <div class="callout-content">
 <ul>
 <li class="fragment">Represent the empirical quantiles in function of the theoretical quantiles.</li>
-<li class="fragment">Compare the scatter plot with <span class="math inline">\(y=x\)</span></li>
+<li class="fragment">Compare the scatter plot with <span class="math inline">y=x</span></li>
 </ul>
 </div>
 </div>
@@ -663,6 +712,47 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
 <p><img data-src="images/qqplot_NNTN.svg"></p>
 </div>
 </div></div>
+</section>
+<section id="kolmogorov-smirnov-test" class="slide level2">
+<h2>Kolmogorov-Smirnov Test</h2>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<div class="columns">
+<div class="column" style="width:50%;">
+<ul>
+<li class="fragment">We observe <span class="math inline">(X_1, \dots, X_n)</span> of <strong>unknown</strong> CDF <span class="math inline">F</span></li>
+<li class="fragment"><span class="math inline">H_0</span>: <span class="math inline">F = F_0</span> where <span class="math inline">F_0</span> is <strong>known</strong></li>
+<li class="fragment"><span class="math inline">H_1</span>: <span class="math inline">F \neq F_0</span></li>
+<li class="fragment">We write <span class="math inline">X_{(1)} \leq \dots \leq X_{(n)}</span> for the ordered data</li>
+<li class="fragment"><strong>empirical <span class="math inline">\frac{k}{n}</span>-quantile</strong>: <span class="math inline">X_{(k)}</span></li>
+<li class="fragment"><strong><span class="math inline">\frac{k}{n}</span>-quantile</strong>: <span class="math inline">x</span> such that <span class="math inline">F(x) = \frac{k}{n}</span></li>
+<li class="fragment"><strong>Empirical CDF</strong>: <span class="math inline">\hat F(x) = \frac{1}{n}\sum_{i=1}^n \mathbf 1\{X_i \leq x\}</span></li>
+<li class="fragment">Idea: Max distance between empirical and true CDF</li>
+</ul>
+</div><div class="column">
+<div class="r-stack">
+<p><img data-src="images/empirical_cdf.svg" class="fragment"></p>
+<p><img data-src="images/ks_illustration.svg" class="fragment"></p>
+</div>
+</div></div>
+</div>
+</div>
+</div>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Kolmogorov-Smirnov Test</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><span class="math inline">\psi(X) = \sup_{x}|\hat F(x) - F_0(x)|</span></li>
+<li class="fragment">Approx: <span class="math inline">\mathbb P_0(\psi(X) &gt;c/\sqrt{n}) \to 2\sum_{r=1}^{+\infty}(-1)^{r-1}\exp(-2c^2r^2)</span> when <span class="math inline">n \to +\infty</span></li>
+<li class="fragment">In practice, use Julia, Python or R</li>
+</ul>
+</div>
+</div>
+</div>
 
 
 </section></section>
@@ -686,7 +776,6 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
   <script src="../../../site_libs/revealjs/plugin/notes/notes.js"></script>
   <script src="../../../site_libs/revealjs/plugin/search/search.js"></script>
   <script src="../../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
-  <script src="../../../site_libs/revealjs/plugin/math/math.js"></script>
   <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
 
   <script>
@@ -854,27 +943,9 @@ if <span class="math inline">\(k_1 + \dots + k_m = n\)</span></li>
         // Factor of the display size that should remain empty around the content
         margin: 0.1,
 
-        math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
-          config: 'TeX-AMS_HTML-full',
-          tex2jax: {
-            inlineMath: [['\\(','\\)']],
-            displayMath: [['\\[','\\]']],
-            balanceBraces: true,
-            processEscapes: false,
-            processRefs: true,
-            processEnvironments: true,
-            preview: 'TeX',
-            skipTags: ['script','noscript','style','textarea','pre','code'],
-            ignoreClass: 'tex2jax_ignore',
-            processClass: 'tex2jax_process'
-          },
-        },
-
         // reveal.js plugins
         plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
 
-          RevealMath,
           RevealNotes,
           RevealSearch,
           RevealZoom

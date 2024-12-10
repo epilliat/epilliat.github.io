@@ -6,10 +6,10 @@
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-07c16812f08c4a1591d6ec4fc46327fa.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.2">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.39">
 
-  <title>Emmanuel Pilliat – Chi-Squared Tests</title>
+  <title>Emmanuel Pilliat – Tests of Correlation and Dependency</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -192,10 +192,68 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Chi-Squared Tests</h1>
+  <h1 class="title">Tests of Correlation and Dependency</h1>
 
 <div class="quarto-title-authors">
 </div>
+
+</section>
+<section>
+<section id="correlation-test" class="title-slide slide level1 center">
+<h1>Correlation Test</h1>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<div class="columns">
+<div class="column">
+<ul>
+<li class="fragment">We observe iid paired data <span class="math inline">\((X_1, Y_1), \dots, (X_n,Y_n)\)</span> of <strong>unknown</strong> mean <span class="math inline">\(\mu_X, \mu_Y\)</span> and cov matrix <span class="math inline">\(\Sigma\)</span>.</li>
+<li class="fragment">Cov matrix: <span class="math inline">\(\Sigma =
+\left(\begin{matrix}
+\sigma_X^2 &amp; \mathrm{Cov(X,Y)} \\
+\mathrm{Cov(X,Y)} &amp; \sigma_Y^2 \\
+\end{matrix}\right)\)</span></li>
+<li class="fragment"><span class="math inline">\(H_0: \mathrm{Cov}(X,Y)=0\)</span> or <span class="math inline">\(H_1: \mathrm{Cov}(X,Y)\neq 0\)</span></li>
+</ul>
+</div><div class="column">
+<ul>
+<li class="fragment"><span class="math inline">\(\mathrm{Cov(X,Y)} = \mathbb E[(X- \mathbb E[X])^2]\)</span></li>
+<li class="fragment"><span class="math inline">\(\sigma_X^2 = \mathrm{Cov(X,X)}\)</span></li>
+<li class="fragment"><span class="math inline">\(\sigma_Y^2 = \mathrm{Cov(Y,Y)}\)</span></li>
+<li class="fragment"><span class="math inline">\(\mathrm{Cor(X,Y)} = \frac{\mathrm{Cov(X,Y)}}{\sigma_X \sigma_Y}\)</span></li>
+</ul>
+</div></div>
+</div>
+</div>
+</div>
+<div class="columns">
+<div class="column">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Pearson’s Correlation Test</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[r =  \frac{\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)}{\sqrt{\sum_{i=1}^n (X_i - \overline X)^2\sum_{i=1}^n (Y_i - \overline Y)^2}}\]</span></p>
+<ul>
+<li class="fragment"><span class="math inline">\(\psi(X,Y) = \frac{r}{\sqrt{1-r^2}}\sqrt{n-2}\)</span></li>
+<li class="fragment">Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\psi(X,Y) \approx \mathcal T(n-2)\)</span></li>
+</ul>
+</div>
+</div>
+</div>
+</div><div class="column">
+<p><img data-src="images/correlated_X_Y.svg"></p>
+</div></div>
+</section>
+<section id="correlation-test-1" class="slide level2">
+<h2>Correlation Test</h2>
+<p>Monte Carlo Simulation with <span class="math inline">\(n=4\)</span>:</p>
+
+<img data-src="images/correlation_pearson.png" class="r-stretch"></section></section>
+<section>
+<section id="wilcoxons-signed-rank" class="title-slide slide level1 center">
+<h1>Wilcoxon’s Signed Rank</h1>
 
 </section>
 <section id="symetric-random-variable" class="slide level2">
@@ -226,10 +284,10 @@
 <li class="fragment">If <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are two <strong>independent</strong> variables with same density <span class="math inline">\(p\)</span>, then <span class="math inline">\(X-Y\)</span> is symetric.</li>
 <li class="fragment">Indeed: <span class="math display">\[
 \begin{aligned}
-\mathbb P(X - Y \leq t) &amp;=\int_{-\infty}^t \mathbb P(X \leq t+y)p(y)dy \\
-&amp;=\int_{-\infty}^t \mathbb P(Y \leq t+x)p(x)dy = \mathbb P(Y-X \leq t) \; .
+\mathbb P(X - Y \leq t) &amp;=\int_{-\infty}^t \mathbb P(X \leq t+y)p(y)dy =\int_{-\infty}^t \mathbb P(Y \leq t+x)p(x)dy = \mathbb P(Y-X \leq t) \; .
 \end{aligned}
 \]</span></li>
+<li class="fragment"><span class="math inline">\(X\)</span> indep of <span class="math inline">\(Y\)</span> <span class="math inline">\(\implies\)</span> <span class="math inline">\(X-Y\)</span> symmetric <span class="math inline">\(\implies\)</span> <span class="math inline">\(\mathrm{median}(X-Y) = 0\)</span></li>
 </ul>
 </div>
 </div>
@@ -313,8 +371,9 @@
 <div class="column">
 <ul>
 <li class="fragment">Wilcoxon’s test statistic: <span class="math inline">\(W_- = \sum_{i=1}^n R_i \mathbf 1\{D_i &lt; 0\}\)</span></li>
-<li class="fragment">Sometimes, also <span class="math inline">\(W_+ = \sum_{i=1}^n R_i \mathbf 1\{D_i &lt; 0\}\)</span> or <span class="math inline">\(\min(W_-, W_+)\)</span>.</li>
+<li class="fragment">Sometimes, also <span class="math inline">\(W_+ = \sum_{i=1}^n R_i \mathbf 1\{D_i &gt; 0\}\)</span> or <span class="math inline">\(\min(W_-, W_+)\)</span>.</li>
 <li class="fragment">Gaussian approximation: <span class="math inline">\(W_- \asymp n(n+1)/4 + \sqrt{n(n+1)(2n+1)/24} \mathcal N(0,1)\)</span></li>
+<li class="fragment">if <span class="math inline">\(H_1\)</span>: <span class="math inline">\(\mathrm{median}(D_i) &gt; 0\)</span>: left-one sided test on <span class="math inline">\(W_-\)</span>.</li>
 </ul>
 </div><div class="column">
 <div class="fragment">
@@ -331,9 +390,87 @@
 <div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a>k <span class="op">=</span> <span class="fu">rand</span>(<span class="fu">Binomial</span>(n, <span class="fl">0.5</span>))</span>
 <span id="cb1-2"><a></a>w <span class="op">=</span> <span class="fu">sum</span>(<span class="fu">randperm</span>(n)[<span class="fl">1</span><span class="op">:</span>k])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-
-
 </section>
+<section id="effect-of-drug-on-blood-pressure" class="slide level2">
+<h2>Effect of Drug on Blood Pressure</h2>
+<ul>
+<li class="fragment"><span class="math inline">\(H_0\)</span>: the drug has no effect. <span class="math inline">\(H_1\)</span>: it lowers the blood pressure</li>
+</ul>
+<div class="fragment">
+<div style="font-size: 70%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Patient</th>
+<th><span class="math inline">\(X_i\)</span> (Before)</th>
+<th><span class="math inline">\(Y_i\)</span>​ (After)</th>
+<th><span class="math inline">\(D_i = X_i-Y_i\)</span>​</th>
+<th><span class="math inline">\(R_i\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>150</td>
+<td>140</td>
+<td>10</td>
+<td>6 (+)</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>135</td>
+<td>130</td>
+<td>5</td>
+<td>5 (+)</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>160</td>
+<td>162</td>
+<td>-2</td>
+<td>2 (-)</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>145</td>
+<td>146</td>
+<td>-1</td>
+<td>1 (-)</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>154</td>
+<td>150</td>
+<td>4</td>
+<td>4 (+)</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>171</td>
+<td>160</td>
+<td>11</td>
+<td>7 (+)</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>141</td>
+<td>138</td>
+<td>3</td>
+<td>3 (+)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ul>
+<li class="fragment"><span class="math inline">\(W_- = 1+2 = 3\)</span>.</li>
+<li class="fragment">From a simulation, we approx <span class="math inline">\(\mathbb P(W_-=i)\)</span>, for <span class="math inline">\(i \in \{0, 1, 2, 3, 4, 5,6\}\)</span> under <span class="math inline">\(H_0\)</span> by</li>
+<li class="fragment"><code>[0.00784066, 0.00781442, 0.00781534, 0.01563892, 0.01562184, 0.02343478]</code></li>
+<li class="fragment">From a simulation, <span class="math inline">\(p_{value}=\mathbb P(W_- \leq 3) \approx 0.039 &lt; 0.05\)</span></li>
+</ul>
+
+
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
