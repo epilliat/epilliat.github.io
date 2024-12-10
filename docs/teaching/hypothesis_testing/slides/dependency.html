@@ -234,16 +234,18 @@
 <p><strong>Pearson’s Correlation Test</strong></p>
 </div>
 <div class="callout-content">
-<p><span class="math display">\[r =  \frac{\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)}{\sqrt{\sum_{i=1}^n (X_i - \overline X)^2\sum_{i=1}^n (Y_i - \overline Y)^2}}\]</span></p>
 <ul>
-<li class="fragment"><span class="math inline">\(\psi(X,Y) = \frac{r}{\sqrt{1-r^2}}\sqrt{n-2}\)</span></li>
-<li class="fragment">Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\psi(X,Y) \approx \mathcal T(n-2)\)</span></li>
+<li class="fragment"><p><span class="math inline">\(r =  \frac{\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)}{\sqrt{\sum_{i=1}^n (X_i - \overline X)^2\sum_{i=1}^n (Y_i - \overline Y)^2}}\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(\psi(X,Y) = \frac{r}{\sqrt{1-r^2}}\sqrt{n-2}\)</span></p></li>
+<li class="fragment"><p>Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\psi(X,Y) \approx \mathcal T(n-2)\)</span></p></li>
 </ul>
 </div>
 </div>
 </div>
 </div><div class="column">
+<div class="fragment">
 <p><img data-src="images/correlated_X_Y.svg"></p>
+</div>
 </div></div>
 </section>
 <section id="correlation-test-1" class="slide level2">
@@ -251,6 +253,244 @@
 <p>Monte Carlo Simulation with <span class="math inline">\(n=4\)</span>:</p>
 
 <img data-src="images/correlation_pearson.png" class="r-stretch"></section></section>
+<section>
+<section id="chi2-homogeneity-and-independence-tests" class="title-slide slide level1 center">
+<h1><span class="math inline">\(\chi^2\)</span> Homogeneity and Independence Tests</h1>
+
+</section>
+<section id="homogeneity-test" class="slide level2">
+<h2>Homogeneity Test</h2>
+<ul>
+<li class="fragment"><span class="math inline">\(d\)</span> different bags, each containing <span class="math inline">\(m\)</span> colors.</li>
+<li class="fragment">If <span class="math inline">\(d = 3\)</span> and <span class="math inline">\(m=2\)</span>, we observe the following <span class="math inline">\(2\times 3\)</span> matrix:</li>
+</ul>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>bag 1</th>
+<th>bag 2</th>
+<th>bag 3</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>color 1</td>
+<td><span class="math inline">\(X_{11}\)</span></td>
+<td><span class="math inline">\(X_{12}\)</span></td>
+<td><span class="math inline">\(X_{13}\)</span></td>
+<td><span class="math inline">\(R_1\)</span></td>
+</tr>
+<tr class="even">
+<td>color 2</td>
+<td><span class="math inline">\(X_{21}\)</span></td>
+<td><span class="math inline">\(X_{22}\)</span></td>
+<td><span class="math inline">\(X_{23}\)</span></td>
+<td><span class="math inline">\(R_2\)</span></td>
+</tr>
+<tr class="odd">
+<td>Total</td>
+<td><span class="math inline">\(N_1\)</span></td>
+<td><span class="math inline">\(N_2\)</span></td>
+<td><span class="math inline">\(N_3\)</span></td>
+<td><span class="math inline">\(N\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="columns">
+<div class="column">
+<div class="fragment">
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<ul>
+<li class="fragment">Bag <span class="math inline">\(j\)</span>: <span class="math inline">\((X_{1j}, X_{2j}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}))\)</span></li>
+<li class="fragment">The parameters <span class="math inline">\(p_{ij}\)</span> are <strong>unknown</strong></li>
+<li class="fragment"><span class="math inline">\(H_0\)</span>: <span class="math inline">\(p_{i1} = p_{i2}=p_{i3}\)</span> for all <span class="math inline">\(i\)</span> (bags are homogeneous)</li>
+<li class="fragment"><span class="math inline">\(H_1\)</span>: bags are heterogeneous</li>
+<li class="fragment"><span class="math inline">\(\sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_jp_{ij})^2}{N_jp_{ij}}\)</span> <strong>not a test statistic</strong></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div><div class="column">
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Chi-Squared Homogeneity Test Statistic</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><span class="math inline">\(\hat p_{i} = \tfrac{1}{N}\sum_{j=1}^{d}X_{ij} = \frac{R_i}{N}\)</span></li>
+<li class="fragment"><span class="math inline">\(\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_j\hat p_{i})^2}{N_j\hat p_{i}}\)</span></li>
+<li class="fragment">Approximation: <span class="math inline">\(\psi(X) \sim \chi^2((m-1)(d-1))\)</span></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+</section>
+<section id="example-soft-drink-preferences" class="slide level2">
+<h2>Example: Soft drink preferences</h2>
+<div style="font-size: 70%;">
+<ul>
+<li class="fragment">Split population into <span class="math inline">\(3\)</span> categories: <strong>Young Adults (18-30)</strong>, <strong>Middle-Aged Adults (31-50)</strong>, and <strong>Seniors (51 and above)</strong>.</li>
+<li class="fragment"><span class="math inline">\(H_0\)</span>: The groups are homogeneous in terms of soft drink preferences</li>
+</ul>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Age Group</th>
+<th>Young Adults</th>
+<th>Middle-Aged</th>
+<th>Seniors</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Coke</td>
+<td>60</td>
+<td>40</td>
+<td>30</td>
+<td>130</td>
+</tr>
+<tr class="even">
+<td>Pepsi</td>
+<td>50</td>
+<td>55</td>
+<td>25</td>
+<td>130</td>
+</tr>
+<tr class="odd">
+<td>Sprite</td>
+<td>30</td>
+<td>45</td>
+<td>55</td>
+<td>130</td>
+</tr>
+<tr class="even">
+<td><strong>Total</strong></td>
+<td>140</td>
+<td>140</td>
+<td>110</td>
+<td>390</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li class="fragment"><span class="math inline">\(N_1 \hat p_1 = 140*\frac{130}{390} \approx 46.7\)</span></li>
+</ul>
+<div class="fragment">
+<p><span class="math display">\[
+\begin{aligned}
+\psi(X) &amp;= \frac{(60-46.7)^2}{46.7}&amp;+ \frac{(40-46.7)^2}{46.7}&amp;+\frac{(30-36.7)^2}{36.7} \\
+&amp;+\frac{(50-46.7)^2}{46.7}&amp;+ \frac{(55-46.7)^2}{46.7}&amp;+\frac{(25-36.7)^2}{36.7}\\
+&amp;+\frac{(30-46.7)^2}{46.7}&amp;+ \frac{(45-46.7)^2}{46.7}&amp;+\frac{(55-36.7)^2}{36.7}\\
+    &amp;\approx 26.57
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="fl">1</span><span class="fu">-cdf</span>(<span class="fu">Chisq</span>(<span class="fl">4</span>), <span class="fl">26.57</span>) <span class="co"># 2.4e-5, reject H_0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="chi2-independence-test" class="slide level2">
+<h2><span class="math inline">\(\chi^2\)</span> Independence Test</h2>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<ul>
+<li class="fragment">Observations: Paired <strong>Categorical</strong> Variables <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span></li>
+<li class="fragment">e.g.&nbsp;<span class="math inline">\(X_i \in \{\mathrm{male}, \mathrm{female}\}\)</span>, <span class="math inline">\(Y_i \in \{\mathrm{coffee}, \mathrm{tea}\}\)</span></li>
+<li class="fragment">Idea: regroup the data into bags, e.g.&nbsp;<span class="math inline">\(\{\mathrm{male}, \mathrm{female}\}\)</span></li>
+<li class="fragment">Build the contingency table</li>
+<li class="fragment">Perform a chi-square homogeneity test</li>
+</ul>
+</div>
+</div>
+</div>
+<div style="font-size: 70%;">
+<div class="columns">
+<div class="column fragment">
+<p>Example of <strong>contingency table</strong>:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Gender</th>
+<th>Male</th>
+<th>Female</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Coffee</td>
+<td>30</td>
+<td>20</td>
+<td>50</td>
+</tr>
+<tr class="even">
+<td>Tea</td>
+<td>28</td>
+<td>22</td>
+<td>50</td>
+</tr>
+<tr class="odd">
+<td>Total</td>
+<td>58</td>
+<td>42</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+</div><div class="column fragment">
+<p><strong>Expected counts</strong>:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Gender</th>
+<th>Male</th>
+<th>Female</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Coffee</td>
+<td>29</td>
+<td>21</td>
+<td>50</td>
+</tr>
+<tr class="even">
+<td>Tea</td>
+<td>29</td>
+<td>21</td>
+<td>50</td>
+</tr>
+<tr class="odd">
+<td>Total</td>
+<td>58</td>
+<td>42</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+</div></div>
+</div>
+<ul>
+<li class="fragment">Degree of freedom: <span class="math inline">\((2-1)(2-1) = 1\)</span></li>
+</ul>
+</section></section>
 <section>
 <section id="wilcoxons-signed-rank" class="title-slide slide level1 center">
 <h1>Wilcoxon’s Signed Rank</h1>
@@ -387,8 +627,8 @@
 </div>
 <div class="fragment">
 <p>To generate a <span class="math inline">\(W_-\)</span> under <span class="math inline">\(H_0\)</span> in Julia:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a>k <span class="op">=</span> <span class="fu">rand</span>(<span class="fu">Binomial</span>(n, <span class="fl">0.5</span>))</span>
-<span id="cb1-2"><a></a>w <span class="op">=</span> <span class="fu">sum</span>(<span class="fu">randperm</span>(n)[<span class="fl">1</span><span class="op">:</span>k])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a>k <span class="op">=</span> <span class="fu">rand</span>(<span class="fu">Binomial</span>(n, <span class="fl">0.5</span>))</span>
+<span id="cb2-2"><a></a>w <span class="op">=</span> <span class="fu">sum</span>(<span class="fu">randperm</span>(n)[<span class="fl">1</span><span class="op">:</span>k])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="effect-of-drug-on-blood-pressure" class="slide level2">
