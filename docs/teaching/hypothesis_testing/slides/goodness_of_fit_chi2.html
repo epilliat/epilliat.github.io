@@ -6,10 +6,10 @@
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-07c16812f08c4a1591d6ec4fc46327fa.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.2">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.39">
 
-  <title>Emmanuel Pilliat – Chi-Squared Tests</title>
+  <title>Emmanuel Pilliat – Goodness of Fit Tests</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -95,6 +95,22 @@
   </style>
   <link rel="stylesheet" href="../../../site_libs/revealjs/dist/theme/quarto-9c52a1e0401bcc20e17ddd84b9a771f4.css">
   <link rel="stylesheet" href="style.css">
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
   <link href="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -192,148 +208,408 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Chi-Squared Tests</h1>
+  <h1 class="title">Goodness of Fit Tests</h1>
 
 <div class="quarto-title-authors">
 </div>
 
 </section>
-<section id="symetric-random-variable" class="slide level2">
-<h2>Symetric Random Variable</h2>
-<div class="callout callout-note no-icon callout-style-simple">
-<div class="callout-body">
-<div class="callout-content">
-<ul>
-<li class="fragment">A median of <span class="math inline">\(X\)</span> is a <span class="math inline">\(0.5\)</span>-quantile of its distribution</li>
-<li class="fragment">If <span class="math inline">\(X\)</span> has density <span class="math inline">\(p\)</span>, the median <span class="math inline">\(m\)</span> is such that <span class="math display">\[
-\int_{-\infty}^m p(x)dx = \int_{m}^{+\infty} p(x)dx =  0.5 \; .
-\]</span></li>
-<li class="fragment">A <strong>symmetric</strong> random variable <span class="math inline">\(X\)</span> is such that the distribution of <span class="math inline">\(X\)</span> is the same as the distribution of <span class="math inline">\(-X\)</span>.</li>
-<li class="fragment">In particular, its median is <span class="math inline">\(0\)</span>.</li>
-<li class="fragment">If <span class="math inline">\(X\)</span> is a <strong>symmetric</strong> random variable, then it has the same distribution as <span class="math inline">\(\varepsilon |X|\)</span> where <span class="math inline">\(\varepsilon\)</span> is independent of <span class="math inline">\(X\)</span> and uniformly distributed in <span class="math inline">\(\{-1,1\}\)</span></li>
-</ul>
-</div>
-</div>
-</div>
-<div class="fragment">
-<div class="callout callout-note no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Symetrization</strong></p>
-</div>
-<div class="callout-content">
-<ul>
-<li class="fragment">If <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are two <strong>independent</strong> variables with same density <span class="math inline">\(p\)</span>, then <span class="math inline">\(X-Y\)</span> is symetric.</li>
-<li class="fragment">Indeed: <span class="math display">\[
-\begin{aligned}
-\mathbb P(X - Y \leq t) &amp;=\int_{-\infty}^t \mathbb P(X \leq t+y)p(y)dy \\
-&amp;=\int_{-\infty}^t \mathbb P(Y \leq t+x)p(x)dy = \mathbb P(Y-X \leq t) \; .
-\end{aligned}
-\]</span></li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="dependency-problem-for-paired-data" class="slide level2">
-<h2>Dependency Problem for Paired Data</h2>
-<div class="callout callout-note no-icon callout-style-simple">
-<div class="callout-body">
-<div class="callout-content">
-<ul>
-<li class="fragment"><p>We observe iid pairs of real numbers <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span>. The density of each pair <span class="math inline">\((X_i, Y_i)\)</span> is <strong>unknown</strong> <span class="math inline">\(p_{XY}(x,y)\)</span>.</p></li>
-<li class="fragment"><p>The marginal distribution of <span class="math inline">\(X_i\)</span> and <span class="math inline">\(Y_i\)</span> are, respectively, <span class="math display">\[p_X(x) = \int_{y \in \mathbb R} p_{XY}(x,y)~~~~ \text{ and }~~~~ p_{Y}(y) = \int_{x \in \mathbb R} p_{XY}(x,y) \; .\]</span></p></li>
-<li class="fragment"><p><span class="math inline">\(H_0:\)</span> The distribution of <span class="math inline">\((X_i - Y_i)\)</span> is symetric</p></li>
-<li class="fragment"><p><span class="math inline">\(H_1:\)</span> The distribution of <span class="math inline">\((X_i - Y_i)\)</span> is not symetric</p></li>
-</ul>
-</div>
-</div>
-</div>
-<div class="fragment">
-<div class="callout callout-warning no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Warning</strong></p>
-</div>
-<div class="callout-content">
-<ul>
-<li class="fragment">The pairs are assume to be independent, but within each pair, <span class="math inline">\(Y_i\)</span> <strong>can depend on</strong> <span class="math inline">\(X_i\)</span> (that is, we don’t necessarily have <span class="math inline">\(p(x,y) =p_X(x)p_Y(y)\)</span>).</li>
-<li class="fragment">If <span class="math inline">\(X_i\)</span> is independent of <span class="math inline">\(Y_i\)</span> for all <span class="math inline">\(i\)</span>, then we are under <span class="math inline">\(H_0\)</span>.</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="wilcoxons-signed-rank-test" class="slide level2">
-<h2>Wilcoxon’s Signed Rank Test</h2>
-<div class="callout callout-note no-icon callout-style-simple">
-<div class="callout-body">
-<div class="callout-content">
-<ul>
-<li class="fragment"><span class="math inline">\(D_i = X_i - Y_i\)</span></li>
-<li class="fragment">We define the <strong>sign</strong> of pair <span class="math inline">\(i\)</span> as the sign of <span class="math inline">\(D_i=X_i - Y_i\)</span>. It is in <span class="math inline">\(\{-1, 1\}\)</span>.</li>
-<li class="fragment">We define the <strong>rank</strong> of pair <span class="math inline">\(i\)</span> as the permutation <span class="math inline">\(R_i\)</span> that satisfies <span class="math inline">\(|D_{R_i}| = |D_{(i)}|\)</span>, where <span class="math display">\[
-|D_{(1)}| \leq  \dots \leq |D_{(n)}|
-\]</span></li>
-</ul>
-</div>
-</div>
-</div>
-<div class="fragment">
-<div class="callout callout-note no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Properties on the Signed Ranks</strong></p>
-</div>
-<div class="callout-content">
-<p>Under <span class="math inline">\(H_0\)</span>,</p>
-<ul>
-<li class="fragment"><p>Signs of the <span class="math inline">\((D_i)\)</span>’s are independent and <strong>uniformly distributed</strong> in <span class="math inline">\(\{-1, 1\}\)</span>.</p></li>
-<li class="fragment"><p>In particular, the number of signs equal to <span class="math inline">\(+1\)</span> follows a Binomial distribution <span class="math inline">\(\mathcal B(n,0.5)\)</span>.</p></li>
-<li class="fragment"><p>The ranks <span class="math inline">\(R_i\)</span> of the <span class="math inline">\((|D_i|)\)</span>’s does not depend on the <strong>unknown</strong> density <span class="math inline">\(p_{X-Y}\)</span>. <span class="math inline">\((R_1, \dots, R_n)\)</span> is a <strong>random permutation</strong> under <span class="math inline">\(H_0\)</span>.</p></li>
-<li class="fragment"><p>Hence, any deterministic function of the ranks and of the differences is a <strong>pivotal test statistic</strong>: it does not depend on the distribution of the data under <span class="math inline">\(H_0\)</span>.</p></li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="wilcoxons-signed-rank-test-1" class="slide level2">
-<h2>Wilcoxon’s Signed Rank Test</h2>
-<div class="fragment">
-<div class="callout callout-note no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Properties on the Signed Ranks</strong></p>
-</div>
-<div class="callout-content">
+<section id="multinomials" class="slide level2">
+<h2>Multinomials</h2>
 <div class="columns">
 <div class="column">
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Binomial Distribution</strong></p>
+</div>
+<div class="callout-content">
 <ul>
-<li class="fragment">Wilcoxon’s test statistic: <span class="math inline">\(W_- = \sum_{i=1}^n R_i \mathbf 1\{D_i &lt; 0\}\)</span></li>
-<li class="fragment">Sometimes, also <span class="math inline">\(W_+ = \sum_{i=1}^n R_i \mathbf 1\{D_i &lt; 0\}\)</span> or <span class="math inline">\(\min(W_-, W_+)\)</span>.</li>
-<li class="fragment">Gaussian approximation: <span class="math inline">\(W_- \asymp n(n+1)/4 + \sqrt{n(n+1)(2n+1)/24} \mathcal N(0,1)\)</span></li>
+<li class="fragment">Draw <span class="math inline">n</span> balls, <strong>blue or red</strong>.</li>
+<li class="fragment"><span class="math inline">p_1, (1-p_1)</span>: proportion of blues/red</li>
+<li class="fragment"><span class="math inline">X</span>, <span class="math inline">Y</span>: counts of blues/red</li>
+<li class="fragment"><span class="math inline">X \sim \mathrm{Bin}(n,p_1)</span></li>
+<li class="fragment"><span class="math inline">\mathbb P((X,Y) = (k_1,k_2)) = \binom{n}{k_1}p_1^k(1-p_1)^{k_2}</span><br>
+if <span class="math inline">k_1 +k_2 = n</span></li>
 </ul>
+</div>
+</div>
+</div>
+</div>
 </div><div class="column">
 <div class="fragment">
-<p>This approximation fits well the exact distribution. Monte-Carlo simulation:</p>
-<p><img data-src="images/wilcoxon_W-.svg"></p>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Multinomial Distribution</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment">Draw <span class="math inline">n</span> balls, <strong><span class="math inline">m</span> potential colors</strong>.</li>
+<li class="fragment"><span class="math inline">(p_1, \dots, p_m)</span>: proportions of each color: <span class="math inline">\sum_{i=1}^m p_i = 1</span></li>
+<li class="fragment"><span class="math inline">X_1, \dots, X_m</span>: count of each color</li>
+<li class="fragment"><span class="math inline">(X_1, \dots, X_m) \sim \mathrm{Mult}(n,(p_1, \dots, p_m))</span></li>
+<li class="fragment"><span class="math inline">\mathbb P((X_1, \dots, X_m)=(k_1, \dots, k_m)) = \frac{n!}{k_1!\dots k_m!}p_1^{k_1} \dots p_m^{k_m}</span><br>
+if <span class="math inline">k_1 + \dots + k_m = n</span></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+<ul>
+<li class="fragment"><span class="math inline">\frac{n!}{k_1!\dots k_m!} = \binom{n}{k_1,\dots, k_m}</span> is a <strong>multinomial</strong> coefficient</li>
+<li class="fragment">In this course: <span class="math inline">n \gg m</span>.</li>
+<li class="fragment"><span class="math inline">m \gg n</span> corresponds to a high-dimensional setting.</li>
+</ul>
+</section>
+<section>
+<section id="chi2-goodness-of-fit" class="title-slide slide level1 center">
+<h1><span class="math inline">\chi^2</span> Goodness of Fit</h1>
+
+</section>
+<section id="chi2-goodness-of-fit-test" class="slide level2">
+<h2><span class="math inline">\chi^2</span> Goodness of Fit Test</h2>
+<ul>
+<li class="fragment">We observe <span class="math inline">(X_1, \dots, X_m) \sim \mathrm{Mult}(n, q)</span> This corresponds to <span class="math inline">n</span> counts: <span class="math inline">X_1 + \dots + X_m = n</span></li>
+<li class="fragment"><span class="math inline">q = (q_1, \dots, q_m)</span> corresponds to probabilities of getting color <span class="math inline">1, \dots, m</span></li>
+<li class="fragment">Let <span class="math inline">p = (p_1, \dots, p_m)</span> be a known vector s.t. <span class="math inline">p_1 + \dots + p_m = 1</span>.</li>
+<li class="fragment"><span class="math inline">H_0:~ q = p ~~~\text{or}~~~ H_1: q \neq p \; .</span></li>
+</ul>
+<div class="columns">
+<div class="column">
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong><span class="math inline">\chi^2</span> Goodness of Fit Test (Adéquation)</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment">Chi-Squared Test Statistic: <span class="math display">\psi(X) = \sum_{i=1}^m\frac{(X_i-n_i)^2}{n_i} \; ,</span> where <span class="math inline">n_i = np_i = \mathbb E[X_i]</span> is the expected number of counts for color <span class="math inline">i.</span></li>
+<li class="fragment">When <span class="math inline">np_i = n_i</span> are large, under <span class="math inline">H_0</span>, we approximate the distribution of <span class="math inline">\psi(X)</span> as <span class="math inline">\psi(X) \sim \chi^2(m-1)</span></li>
+<li class="fragment">Reject if <span class="math inline">\psi(X) &gt; t_{1- \alpha}</span> (right-tail of <span class="math inline">\chi^2(m-1)</span>)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div><div class="column">
+<div class="fragment">
+<p><img data-src="images/chisq3.svg"></p>
+</div>
+</div></div>
+</section>
+<section id="example-bag-of-sweets" class="slide level2">
+<h2>Example: Bag of Sweets</h2>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<ul>
+<li class="fragment">We observe a <strong>bag of sweets</strong> containing <span class="math inline">n=100</span> sweets of <span class="math inline">m=3</span> different colors: <strong>red</strong>, <strong>green</strong>, and <strong>yellow</strong>.</li>
+<li class="fragment">Manufacturer: <span class="math inline">p_1= 40\%</span> red, <span class="math inline">p_2=35\%</span> green, and <span class="math inline">p_3=25\%</span> yellow.</li>
+<li class="fragment"><span class="math inline">H_0: q=p</span> (manufacturer’s claim is correct)</li>
+<li class="fragment"><span class="math inline">H_1: q\neq p</span> (manufacturer’s claim is incorrect)</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="columns">
+<div class="column">
+<div class="fragment" style="font-size:50%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Color</th>
+<th>Observed Counts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Red</td>
+<td><span class="math inline">X_1=50</span></td>
+</tr>
+<tr class="even">
+<td>Green</td>
+<td><span class="math inline">X_2=30</span></td>
+</tr>
+<tr class="odd">
+<td>Yellow</td>
+<td><span class="math inline">X_3=20</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div><div class="column">
+<div class="fragment" style="font-size:50%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Expected Counts</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">n_1=40</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">n_2=35</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">n_3=25</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></div>
+<div class="columns">
+<div class="column">
+<div class="fragment">
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<ul>
+<li class="fragment"><span class="math inline">\psi(X) = \sum_{i=1}^m\frac{(X_i-n_i)^2}{n_i} \approx 2.5 +0.71+1 \approx 4.21</span></li>
+<li class="fragment"><span class="math inline">\mathrm{cdf}(\chi^2(2), 4.21) \approx 0.878</span> (<span class="math inline">p_{value} \approx 0.222</span>)</li>
+<li class="fragment">Conclusion: do not reject <span class="math inline">H_0</span></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div><div class="column">
+<div class="fragment">
+<p><img data-src="images/chi-2-sweets.svg"></p>
+</div>
+</div></div>
+</section></section>
+<section>
+<section id="comparison-to-a-theoretical-disrtribution" class="title-slide slide level1 center">
+<h1>Comparison to a Theoretical Disrtribution</h1>
+
+</section>
+<section id="histograms" class="slide level2">
+<h2>Histograms</h2>
+<div class="columns">
+<div class="column">
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>histogram</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment">We observe <span class="math inline">(X_1, \dots, X_n) \in \mathbb R^n</span><br>
+</li>
+<li class="fragment"><span class="math inline">\mathrm{counts}(I) = \sum \mathbf 1\{X_i \in I\} \in \{1, \dots, n\}\; .</span></li>
+<li class="fragment"><span class="math inline">\mathrm{freq}(I) = \mathrm{counts}(I)/n</span></li>
+<li class="fragment"><span class="math inline">\mathrm{hist}(a,b,k) = (\mathrm{counts}(I_1), \dots,\mathrm{counts}(I_k))</span></li>
+<li class="fragment">where <span class="math inline">I_l = \big[a + (l-1)\tfrac{b-a}{k},a + l\tfrac{b-a}{k}\big)</span></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Normalization</strong></p>
+</div>
+<div class="callout-content">
+<p>Can be normalized in <strong>counts</strong> (default), <strong>frequency</strong>, or <strong>density</strong> (area under the curve = 1)</p>
+</div>
+</div>
+</div>
+</div>
+</div><div class="column">
+<div class="fragment">
+<p><img data-src="images/histogram.svg"></p>
+</div>
+</div></div>
+<div class="columns">
+<div class="column">
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Law of Large Number, Monte Carlo (Informal)</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment">Assume that <span class="math inline">(X_1, \dots, X_n)</span> are iid of distrib <span class="math inline">P</span>, and that <span class="math inline">a</span>,<span class="math inline">b</span>, <span class="math inline">k</span> are fixed</li>
+<li class="fragment">The histogram <span class="math inline">\mathrm{hist}(a,b,k)</span> converges to the histogram of the density <span class="math inline">P</span></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div><div class="column">
+<div class="fragment">
+<p><img data-src="images/histogram_discrete_continuous.svg" style="width:60.0%"></p>
+</div>
+</div></div>
+</section>
+<section id="chi2-goodness-of-fit-to-a-given-distribution" class="slide level2">
+<h2><span class="math inline">\chi^2</span> Goodness of Fit to a given distribution</h2>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<ul>
+<li class="fragment">We observe <span class="math inline">(X_1, \dots, X_n) \in \mathbb R^n</span>, iid with <strong>unknown</strong> distrib <span class="math inline">P</span></li>
+<li class="fragment"><span class="math inline">H_0</span>: <span class="math inline">P = P_0</span>, where <span class="math inline">P_0</span> is <strong>known</strong></li>
+<li class="fragment"><span class="math inline">H_1</span>: <span class="math inline">P \neq P_0</span></li>
+<li class="fragment">Idea: Under <span class="math inline">H_0</span>, the counts in the intervals <span class="math inline">[a_0, a_1), [a_1, a_2), \dots, [a_{k-1}, a_k)</span> follow a <strong>multinomial</strong> distribution <span class="math inline">\mathrm{Mult}(n, (p_1, \dots, p_{k}))</span> where <span class="math inline">p_1 = P_0([a_0, a_1)), \dots, p_{k} = P_0([a_{k-1}, a_k))</span></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Reduction to Chi-Squared Statistic Test</strong></p>
+</div>
+<div class="callout-content">
+<ol type="1">
+<li class="fragment">Count the number of data <span class="math inline">(c_1, \dots, c_k)</span> falling in <span class="math inline">I_1, \dots, I_k</span></li>
+<li class="fragment">Compare the counts the theoretical <span class="math inline">nP_0(I_1) \dots, nP_0(I_k)</span> with a chi-squared statistic: <span class="math display"> \sum_{j=1}^k \frac{(c_j - nP_0(I_j))^2}{nP_0(I_1)}</span></li>
+<li class="fragment">Decide using an <span class="math inline">\alpha</span>-quantile of a <span class="math inline">\chi^2(k-1)</span> distribution</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="example-goodness-of-fit-to-a-poisson-distribution" class="slide level2">
+<h2>Example: Goodness of Fit to a Poisson distribution</h2>
+<p><span class="math inline">H_0</span>: <span class="math inline">X_i</span> iid <span class="math inline">\mathcal P(2)</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a>X <span class="op">=</span> [<span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th><span class="math inline">0</span></th>
+<th><span class="math inline">1</span></th>
+<th><span class="math inline">2</span>&nbsp;</th>
+<th><span class="math inline">\geq 3</span></th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Counts</td>
+<td>16</td>
+<td>8</td>
+<td>3</td>
+<td>3</td>
+<td>30</td>
+</tr>
+<tr class="even">
+<td>Theoretical Counts</td>
+<td>4.06</td>
+<td>8.1</td>
+<td>8.1</td>
+<td>9.7</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li class="fragment">To get <span class="math inline">9.7</span>, we compute <code>(1-cdf(Poisson(2),2))*30</code></li>
+<li class="fragment">chi square stat <span class="math inline">\gtrsim \frac{(16-4)^2}{4} = 36</span></li>
+<li class="fragment"><code>(1-cdf(Chisq(3),36))</code> is very small: Reject</li>
+</ul>
+</section>
+<section id="comparison-with-qq-plots" class="slide level2">
+<h2>Comparison with QQ-Plots</h2>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<ul>
+<li class="fragment">We observe <span class="math inline">(X_1, \dots, X_n)</span> of <strong>unknown</strong> CDF <span class="math inline">F</span></li>
+<li class="fragment"><span class="math inline">H_0</span>: <span class="math inline">F = F_0</span> where <span class="math inline">F_0</span> is <strong>known</strong></li>
+<li class="fragment"><span class="math inline">H_1</span>: <span class="math inline">F \neq F_0</span></li>
+<li class="fragment">We write <span class="math inline">X_{(1)} \leq \dots \leq X_{(n)}</span> for the ordered data</li>
+<li class="fragment"><strong>empirical <span class="math inline">\frac{k}{n}</span>-quantile</strong>: <span class="math inline">X_{(k)}</span></li>
+<li class="fragment"><strong><span class="math inline">\frac{k}{n}</span>-quantile</strong>: <span class="math inline">x</span> such that <span class="math inline">F(x) = \frac{k}{n}</span></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="columns">
+<div class="column">
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>QQ-Plot</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment">Represent the empirical quantiles in function of the theoretical quantiles.</li>
+<li class="fragment">Compare the scatter plot with <span class="math inline">y=x</span></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div><div class="column">
+<div class="fragment">
+<p><img data-src="images/qqplot_NNTN.svg"></p>
+</div>
+</div></div>
+</section>
+<section id="kolmogorov-smirnov-test" class="slide level2">
+<h2>Kolmogorov-Smirnov Test</h2>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<div class="columns">
+<div class="column" style="width:50%;">
+<ul>
+<li class="fragment">We observe <span class="math inline">(X_1, \dots, X_n)</span> of <strong>unknown</strong> CDF <span class="math inline">F</span></li>
+<li class="fragment"><span class="math inline">H_0</span>: <span class="math inline">F = F_0</span> where <span class="math inline">F_0</span> is <strong>known</strong></li>
+<li class="fragment"><span class="math inline">H_1</span>: <span class="math inline">F \neq F_0</span></li>
+<li class="fragment">We write <span class="math inline">X_{(1)} \leq \dots \leq X_{(n)}</span> for the ordered data</li>
+<li class="fragment"><strong>empirical <span class="math inline">\frac{k}{n}</span>-quantile</strong>: <span class="math inline">X_{(k)}</span></li>
+<li class="fragment"><strong><span class="math inline">\frac{k}{n}</span>-quantile</strong>: <span class="math inline">x</span> such that <span class="math inline">F(x) = \frac{k}{n}</span></li>
+<li class="fragment"><strong>Empirical CDF</strong>: <span class="math inline">\hat F(x) = \frac{1}{n}\sum_{i=1}^n \mathbf 1\{X_i \leq x\}</span></li>
+<li class="fragment">Idea: Max distance between empirical and true CDF</li>
+</ul>
+</div><div class="column">
+<div class="r-stack">
+<p><img data-src="images/empirical_cdf.svg" class="fragment"></p>
+<p><img data-src="images/ks_illustration.svg" class="fragment"></p>
 </div>
 </div></div>
 </div>
 </div>
 </div>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Kolmogorov-Smirnov Test</strong></p>
 </div>
-<div class="fragment">
-<p>To generate a <span class="math inline">\(W_-\)</span> under <span class="math inline">\(H_0\)</span> in Julia:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a>k <span class="op">=</span> <span class="fu">rand</span>(<span class="fu">Binomial</span>(n, <span class="fl">0.5</span>))</span>
-<span id="cb1-2"><a></a>w <span class="op">=</span> <span class="fu">sum</span>(<span class="fu">randperm</span>(n)[<span class="fl">1</span><span class="op">:</span>k])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><span class="math inline">\psi(X) = \sup_{x}|\hat F(x) - F_0(x)|</span></li>
+<li class="fragment">Approx: <span class="math inline">\mathbb P_0(\psi(X) &gt;c/\sqrt{n}) \to 2\sum_{r=1}^{+\infty}(-1)^{r-1}\exp(-2c^2r^2)</span> when <span class="math inline">n \to +\infty</span></li>
+<li class="fragment">In practice, use Julia, Python or R</li>
+</ul>
+</div>
+</div>
 </div>
 
 
-</section>
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
@@ -354,7 +630,6 @@
   <script src="../../../site_libs/revealjs/plugin/notes/notes.js"></script>
   <script src="../../../site_libs/revealjs/plugin/search/search.js"></script>
   <script src="../../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
-  <script src="../../../site_libs/revealjs/plugin/math/math.js"></script>
   <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
 
   <script>
@@ -522,27 +797,9 @@
         // Factor of the display size that should remain empty around the content
         margin: 0.1,
 
-        math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
-          config: 'TeX-AMS_HTML-full',
-          tex2jax: {
-            inlineMath: [['\\(','\\)']],
-            displayMath: [['\\[','\\]']],
-            balanceBraces: true,
-            processEscapes: false,
-            processRefs: true,
-            processEnvironments: true,
-            preview: 'TeX',
-            skipTags: ['script','noscript','style','textarea','pre','code'],
-            ignoreClass: 'tex2jax_ignore',
-            processClass: 'tex2jax_process'
-          },
-        },
-
         // reveal.js plugins
         plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
 
-          RevealMath,
           RevealNotes,
           RevealSearch,
           RevealZoom

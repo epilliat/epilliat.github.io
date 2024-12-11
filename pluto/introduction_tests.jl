@@ -30,35 +30,6 @@ end
 # ╔═╡ 76ca83ad-ff45-4b47-bfde-22bd0b83c535
 md"α: $(@bind α1 Slider(0.001:0.001:0.999, show_value=true; default=0.05))"
 
-# ╔═╡ c12e5b68-848f-4b1e-a8fc-9cf41cdc380b
-md"n: $(@bind n Slider(1:200, show_value=true; default=0.05)) \
-pvalrej: $(@bind pvalrej Slider(0:0.01:0.5, show_value=true; default=0.05)) \
-bilat: $(@bind bilat Slider(0:1, show_value=true; default=0.05))"
-
-# ╔═╡ aa80aba4-9aba-4b37-918f-e72fdbeb57ef
-begin
-    function random_sampling(distrib, x, unif,n; name="\$\\mathcal{N}(0,1)\$")
-        p2=plot(x, cdf.(distrib, x), title="CDF of $(name)", label=false,xticks=[],yticks=[0,1],ylimits=(0,1),
-		legend=false)
-
-		for i in (1:n)		
-		α=unif[i]
-		q = quantile(distrib,α)
-		if bilat == 0
-		color = α > 1-pvalrej ? :red : :green
-		else
-			color = ((α > 1-pvalrej/2) || (α < pvalrej/2)) ? :red : :green
-		end
-		plot!([x[1],q],[α,α],label=false, color=color)
-		plot!([q,q],[0,α], color=color, label="\$\\alpha = $(round(α,digits=3))\$ \n \$q_{\\alpha} = $(round(q,digits=3))\$")
-		scatter!([q], [0.01], color=:purple)
-		end
-		plot(p2)
-    end
-	unif = rand(Xoshiro(1),500)
-    random_sampling(Normal(0,1), (-4:0.02:4), unif, n,name="\$\\mathcal{N}(0,1)\$")
-end
-
 # ╔═╡ e6787194-bcd1-4b26-8b3b-14e42f1b13d7
 begin
     function plotpdfgaussgrid()
@@ -1763,10 +1734,8 @@ version = "1.4.1+1"
 # ╔═╡ Cell order:
 # ╟─dd876e43-ca57-4917-af6c-a58ba189cca3
 # ╟─76ca83ad-ff45-4b47-bfde-22bd0b83c535
-# ╟─c12e5b68-848f-4b1e-a8fc-9cf41cdc380b
-# ╠═aa80aba4-9aba-4b37-918f-e72fdbeb57ef
 # ╟─e6787194-bcd1-4b26-8b3b-14e42f1b13d7
-# ╟─db302370-9c85-4fd6-98bb-ba85cda615c2
+# ╠═db302370-9c85-4fd6-98bb-ba85cda615c2
 # ╟─ff2a1004-5c52-48c2-a59f-4564f7ccef93
 # ╟─d030cc95-29ca-4d3b-bd87-11e78189cf93
 # ╟─5ce64823-94a2-4642-afc8-e3cd7f4bece3
