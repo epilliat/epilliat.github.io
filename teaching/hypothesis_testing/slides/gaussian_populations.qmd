@@ -76,6 +76,8 @@ $$
 \psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma} \; .
 $$
 
+- Is $\psi(X)$ pivotal under $H_0$ ? What is its distribution ?
+
 ## Chi-Square and Student Distributions
 
 
@@ -123,6 +125,48 @@ $$\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)} \sim \mathcal T(n
 ![](images/student_k_30.svg)
 :::
 
+## Testing Variance, Unknown Mean
+
+::: {.callout}
+- We observe $X=(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu, \sigma)$. $\mu$, $\sigma$ are **unknown**. $\sigma_0$ is fixed.
+
+
+:::
+
+::: {.fragment}
+
+::: {.callout-note}
+::: {.columns}
+::: {.column}
+- $H_0$: $\sigma \leq \sigma_0$, $H_1$: $\sigma > \sigma_0$
+- $\psi(X) = \frac{1}{\sigma_0^2}\sum (X_i - \overline X)^2$
+- $T(X) = \mathbf{1}\{\psi(X) > q_{1-\alpha}\}$
+- $q_{1-\alpha}$: `quantile(Chisq(n-1), 1-alpha)`
+- pvalue: `1-cdf(Chisq(n-1), xobs)`
+
+![](images/pdf_cdf_chi5_right.svg){width=80%}
+
+:::
+::: {.column}
+
+- $H_0$: $\sigma \geq \sigma_0$, $H_1$: $\sigma < \sigma_0$
+- $\psi(X) = \frac{1}{\sigma_0^2}\sum (X_i - \overline X)^2$
+- $T(X) = \mathbf{1}\{\psi(X) < q_{\alpha}\}$
+- $q_{\alpha}$: `quantile(Chisq(n-1), alpha)`
+- pvalue: `cdf(Chisq(n-1), xobs)`
+
+::: {.fragment}
+![](images/pdf_cdf_chi5_left.svg){width=80%}
+
+:::
+:::
+:::
+
+:::
+:::
+
+
+
 # Two Gaussian Populations
 
 ## Testing Means, Known Variances
@@ -140,7 +184,7 @@ $$
 $$
 T(X,Y)=\left|\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}}\right| \geq t_{1-\alpha/2} \;  ,
 $$
-- $t_{1-\alpha/2}$ is the $(1-\alpha/2)$-quantile of a **Gaussian** Distrb
+- $t_{1-\alpha/2}$ is the $(1-\alpha/2)$-quantile of a **Gaussian** distribution
 
 ## Testing Variances, Unknown Means
 
