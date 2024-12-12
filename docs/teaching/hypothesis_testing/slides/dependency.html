@@ -6,10 +6,10 @@
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-07c16812f08c4a1591d6ec4fc46327fa.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.2">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.39">
 
-  <title>Emmanuel Pilliat – Tests of Correlation and Dependency</title>
+  <title>Emmanuel Pilliat – Correlation, Homogeneity and Dependency</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -192,7 +192,7 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Tests of Correlation and Dependency</h1>
+  <h1 class="title">Correlation, Homogeneity and Dependency</h1>
 
 <div class="quarto-title-authors">
 </div>
@@ -228,6 +228,7 @@
 </div>
 <div class="columns">
 <div class="column">
+<div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -242,6 +243,7 @@
 </div>
 </div>
 </div>
+</div>
 </div><div class="column">
 <div class="fragment">
 <p><img data-src="images/correlated_X_Y.svg"></p>
@@ -252,17 +254,82 @@
 <h2>Correlation Test</h2>
 <p>Monte Carlo Simulation with <span class="math inline">\(n=4\)</span>:</p>
 
-<img data-src="images/correlation_pearson.png" class="r-stretch"></section></section>
+<img data-src="images/correlation_pearson.png" class="r-stretch"></section>
+<section id="anova-test" class="slide level2">
+<h2>ANOVA Test</h2>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
+<ul>
+<li class="fragment"><span class="math inline">\(d\)</span> independent groups (bags), each containing <span class="math inline">\(N_1, \dots, N_d\)</span> individuals. <span class="math inline">\(N_{\mathrm{tot}} = \sum_{j=1}^d N_j\)</span></li>
+<li class="fragment">Group <span class="math inline">\(j\)</span>: <span class="math inline">\((X_{1,j}, \dots, X_{N_j,j}) \in \mathbb R^{N_j}\)</span> are iid <span class="math inline">\(\mathcal N(\mu_j, \sigma)\)</span>. Ex: <span class="math inline">\(X_{ij} =\)</span> sallary of <span class="math inline">\(i\)</span> living in region <span class="math inline">\(j\)</span></li>
+<li class="fragment"><span class="math inline">\(H_0: \mu_1 = \dots = \mu_d\)</span> vs <span class="math inline">\(H_1: \mu_i \neq \mu_k\)</span> for some <span class="math inline">\((i,k)\)</span> (<strong>unknown <span class="math inline">\(\sigma\)</span></strong>)</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<div class="columns">
+<div class="column">
+<section id="section" class="slide level2">
+<h2></h2>
+<ul>
+<li class="fragment">Empirical mean of group <span class="math inline">\(j\)</span>: <span class="math inline">\(\overline X^{(j)} = \tfrac{1}{N_j}\sum_{k=1}^{N_j} X_{ik}\)</span></li>
+<li class="fragment">Sum of Squares in group <span class="math inline">\(j\)</span>:<br>
+<span class="math inline">\(SS_j = \sum_{i=1}^{N_j} (X_{ij} - \overline X^{(j)})^2 \sim \sigma^2\chi^2(N_j-1)\)</span> (under <span class="math inline">\(H_0\)</span>)</li>
+<li class="fragment">Var of group <span class="math inline">\(j\)</span>: <span class="math inline">\(V_j = \tfrac{1}{N_j}SS_j\)</span></li>
+</ul>
+</section>
+</div><div class="column">
+<ul>
+<li class="fragment">Total empirical mean: <span class="math inline">\(\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{j=1}^d\sum_{k=1}^{N_j} X_{ik}\)</span></li>
+<li class="fragment">Sum of Squares btween Groups: <span class="math inline">\(SSB = \sum_{i=1}^{d} N_j(\overline X^{(j)} - \overline X)^2\sim\sigma^2\chi^2(d-1)\)</span> (under <span class="math inline">\(H_0\)</span>)</li>
+</ul>
+</div></div>
+</div>
+</div>
+</div>
+</div>
+<div class="columns">
+<div class="column">
+<div class="fragment">
+<p><img data-src="images/anova.svg"></p>
+</div>
+</div><div class="column">
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>ANOVA Test Statistic</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><span class="math inline">\(\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{j=1}^d SS_j}{\tfrac{1}{d-1}SSB}\)</span></li>
+<li class="fragment"><span class="math inline">\(\psi(X) \sim \mathcal F(N_{\mathrm{tot}}-d, d-1)\)</span> (Fisher under <span class="math inline">\(H_0\)</span>)</li>
+<li class="fragment">Two-sided test: double the min left/right <span class="math inline">\(p_{value}\)</span>.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div></div>
+</section></section>
 <section>
 <section id="chi2-homogeneity-and-independence-tests" class="title-slide slide level1 center">
 <h1><span class="math inline">\(\chi^2\)</span> Homogeneity and Independence Tests</h1>
 
 </section>
-<section id="homogeneity-test" class="slide level2">
-<h2>Homogeneity Test</h2>
+<section id="chi2-homogeneity-test" class="slide level2">
+<h2><span class="math inline">\(\chi^2\)</span> Homogeneity Test</h2>
 <ul>
-<li class="fragment"><span class="math inline">\(d\)</span> different bags, each containing <span class="math inline">\(m\)</span> colors.</li>
-<li class="fragment">If <span class="math inline">\(d = 3\)</span> and <span class="math inline">\(m=2\)</span>, we observe the following <span class="math inline">\(2\times 3\)</span> matrix:</li>
+<li class="fragment"><span class="math inline">\(d\)</span> different bags (or groups), each containing balls of <span class="math inline">\(m\)</span> potential colors.</li>
+<li class="fragment">If <span class="math inline">\(d = 3\)</span> and <span class="math inline">\(m=2\)</span>, we observe the following <span class="math inline">\(2\times 3\)</span> matrix of <strong>counts</strong>:</li>
 </ul>
 <div class="fragment">
 <table class="caption-top">
@@ -309,7 +376,7 @@
 <ul>
 <li class="fragment">Bag <span class="math inline">\(j\)</span>: <span class="math inline">\((X_{1j}, X_{2j}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}))\)</span></li>
 <li class="fragment">The parameters <span class="math inline">\(p_{ij}\)</span> are <strong>unknown</strong></li>
-<li class="fragment"><span class="math inline">\(H_0\)</span>: <span class="math inline">\(p_{i1} = p_{i2}=p_{i3}\)</span> for all <span class="math inline">\(i\)</span> (bags are homogeneous)</li>
+<li class="fragment"><span class="math inline">\(H_0\)</span>: <span class="math inline">\(p_{i1} = p_{i2}=p_{i3}\)</span> for all color <span class="math inline">\(i\)</span> (bags are homogeneous)</li>
 <li class="fragment"><span class="math inline">\(H_1\)</span>: bags are heterogeneous</li>
 <li class="fragment"><span class="math inline">\(\sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_jp_{ij})^2}{N_jp_{ij}}\)</span> <strong>not a test statistic</strong></li>
 </ul>
@@ -542,9 +609,24 @@
 <ul>
 <li class="fragment"><p>We observe iid pairs of real numbers <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span>. The density of each pair <span class="math inline">\((X_i, Y_i)\)</span> is <strong>unknown</strong> <span class="math inline">\(p_{XY}(x,y)\)</span>.</p></li>
 <li class="fragment"><p>The marginal distribution of <span class="math inline">\(X_i\)</span> and <span class="math inline">\(Y_i\)</span> are, respectively, <span class="math display">\[p_X(x) = \int_{y \in \mathbb R} p_{XY}(x,y)~~~~ \text{ and }~~~~ p_{Y}(y) = \int_{x \in \mathbb R} p_{XY}(x,y) \; .\]</span></p></li>
-<li class="fragment"><p><span class="math inline">\(H_0:\)</span> The distribution of <span class="math inline">\((X_i - Y_i)\)</span> is symetric</p></li>
-<li class="fragment"><p><span class="math inline">\(H_1:\)</span> The distribution of <span class="math inline">\((X_i - Y_i)\)</span> is not symetric</p></li>
+<li class="fragment"><p><span class="math inline">\(H_0:\)</span> The median of <span class="math inline">\((X_i - Y_i)\)</span> is <span class="math inline">\(0\)</span> for all <span class="math inline">\(i\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(H_1:\)</span> The median of <span class="math inline">\((X_i - Y_i)\)</span> is not <span class="math inline">\(0\)</span> for all <span class="math inline">\(i\)</span></p></li>
 </ul>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Generality of <span class="math inline">\(H_0\)</span></strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment">If <span class="math inline">\(X_i-Y_i\)</span> is symmetric <span class="math inline">\(i\)</span>, then we are under <span class="math inline">\(H_0\)</span>.</li>
+<li class="fragment">If <span class="math inline">\(X_i\)</span> is independent of <span class="math inline">\(Y_i\)</span> for all <span class="math inline">\(i\)</span>, then we are under <span class="math inline">\(H_0\)</span>.</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -557,7 +639,6 @@
 <div class="callout-content">
 <ul>
 <li class="fragment">The pairs are assume to be independent, but within each pair, <span class="math inline">\(Y_i\)</span> <strong>can depend on</strong> <span class="math inline">\(X_i\)</span> (that is, we don’t necessarily have <span class="math inline">\(p(x,y) =p_X(x)p_Y(y)\)</span>).</li>
-<li class="fragment">If <span class="math inline">\(X_i\)</span> is independent of <span class="math inline">\(Y_i\)</span> for all <span class="math inline">\(i\)</span>, then we are under <span class="math inline">\(H_0\)</span>.</li>
 </ul>
 </div>
 </div>

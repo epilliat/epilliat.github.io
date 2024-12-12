@@ -1,5 +1,5 @@
 ---
-title: "Tests of Correlation and Dependency"
+title: "Correlation, Homogeneity and Dependency"
 format: 
   revealjs:
     incremental: true
@@ -43,7 +43,7 @@ $\Sigma =
 
 :::: {.columns}
 ::: {.column}
-::: {.callout-note}
+::: {.callout-note .fragment}
 ## Pearson's Correlation Test
 
 - $r =  \frac{\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)}{\sqrt{\sum_{i=1}^n (X_i - \overline X)^2\sum_{i=1}^n (Y_i - \overline Y)^2}}$
@@ -68,13 +68,60 @@ Monte Carlo Simulation with $n=4$:
 
 ![](images/correlation_pearson.png)
 
+## ANOVA Test
+
+::: {.callout}
+- $d$ independent groups (bags), each containing $N_1, \dots, N_d$ individuals. $N_{\mathrm{tot}} = \sum_{j=1}^d N_j$
+- Group $j$: $(X_{1,j}, \dots, X_{N_j,j}) \in \mathbb R^{N_j}$ are iid $\mathcal N(\mu_j, \sigma)$. Ex: $X_{ij} =$ sallary of $i$ living in region $j$
+- $H_0: \mu_1 = \dots = \mu_d$ vs $H_1: \mu_i \neq \mu_k$ for some $(i,k)$ (**unknown $\sigma$**)
+:::
+
+::: {.callout-note .fragment}
+::: {.columns}
+
+::: {.column}
+## 
+
+- Empirical mean of group $j$:
+$\overline X^{(j)} = \tfrac{1}{N_j}\sum_{k=1}^{N_j} X_{ik}$
+- Sum of Squares in group $j$: \
+$SS_j = \sum_{i=1}^{N_j} (X_{ij} - \overline X^{(j)})^2 \sim \sigma^2\chi^2(N_j-1)$ (under $H_0$)
+- Var of group $j$: $V_j = \tfrac{1}{N_j}SS_j$
+
+:::
+::: {.column}
+
+- Total empirical mean:
+$\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{j=1}^d\sum_{k=1}^{N_j} X_{ik}$
+- Sum of Squares btween Groups: $SSB = \sum_{i=1}^{d} N_j(\overline X^{(j)} - \overline X)^2\sim\sigma^2\chi^2(d-1)$ (under $H_0$)
+:::
+::: 
+:::
+
+::: {.columns}
+::: {.column}
+::: {.fragment}
+![](images/anova.svg)
+
+:::
+:::
+::: {.column}
+::: {.callout-note .fragment}
+## ANOVA Test Statistic
+- $\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{j=1}^d SS_j}{\tfrac{1}{d-1}SSB}$
+- $\psi(X) \sim \mathcal F(N_{\mathrm{tot}}-d, d-1)$ (Fisher under $H_0$)
+- Two-sided test: double the min left/right $p_{value}$.
+
+:::
+:::
+::: 
 
 # $\chi^2$ Homogeneity and Independence Tests
 
-## Homogeneity Test
+## $\chi^2$ Homogeneity Test
 
-- $d$ different bags, each containing $m$ colors.
-- If $d = 3$ and $m=2$, we observe the following $2\times 3$ matrix:
+- $d$ different bags (or groups), each containing balls of $m$ potential colors.
+- If $d = 3$ and $m=2$, we observe the following $2\times 3$ matrix of **counts**:
 
 :::{.fragment}
 |         | bag 1    | bag 2    | bag 3    | Total |
@@ -90,7 +137,7 @@ Monte Carlo Simulation with $n=4$:
 :::{.callout}
 - Bag $j$: $(X_{1j}, X_{2j}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}))$
 - The parameters $p_{ij}$ are **unknown**
-- $H_0$: $p_{i1} = p_{i2}=p_{i3}$ for all $i$ (bags are homogeneous)
+- $H_0$: $p_{i1} = p_{i2}=p_{i3}$ for all color $i$ (bags are homogeneous)
 - $H_1$: bags are heterogeneous
 - $\sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_jp_{ij})^2}{N_jp_{ij}}$ **not a test statistic**
 :::
@@ -223,13 +270,17 @@ $$
 
 - The marginal distribution of $X_i$ and $Y_i$ are, respectively,
 $$p_X(x) = \int_{y \in \mathbb R} p_{XY}(x,y)~~~~ \text{ and }~~~~ p_{Y}(y) = \int_{x \in \mathbb R} p_{XY}(x,y) \; .$$
-- $H_0:$ The distribution of $(X_i - Y_i)$ is symetric
-- $H_1:$ The distribution of  $(X_i - Y_i)$ is not symetric
+- $H_0:$ The median of $(X_i - Y_i)$ is $0$ for all $i$
+- $H_1:$ The median of  $(X_i - Y_i)$ is not $0$ for all $i$
 :::
 
+::: {.callout-note .fragment}
+## Generality of $H_0$
+- If $X_i-Y_i$ is symmetric $i$, then we are under $H_0$.
+- If $X_i$ is independent of $Y_i$ for all $i$, then we are under $H_0$.
+:::
 :::{.callout-warning .fragment}
 - The pairs are assume to be independent, but within each pair, $Y_i$ **can depend on** $X_i$ (that is, we don't necessarily have $p(x,y) =p_X(x)p_Y(y)$).
-- If $X_i$ is independent of $Y_i$ for all $i$, then we are under $H_0$.
 :::
 
 
