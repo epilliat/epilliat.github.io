@@ -19,10 +19,15 @@ end
 # ╔═╡ 9af0a8e7-7182-4a68-92e0-75581a900f0d
 using Random, Plots, Distributions, PlutoUI
 
+# ╔═╡ fcea3be5-be63-487a-8f49-7a60455180a6
+md"""
+# Poisson
+"""
+
 # ╔═╡ 66ecec58-b327-11ef-3796-5bf78010935a
 md"n: $(@bind n Slider(1:10000, show_value=true; default=500))\
 m: $(@bind m Slider(1:100, show_value=true; default=10))\
-λ: $(@bind λ Slider(1:0.5:10, show_value=true; default=0.2))"
+λ: $(@bind λ Slider(1:0.5:10, show_value=true; default=3))"
 
 # ╔═╡ 00e613d8-5900-43da-940f-0f2b1f2efc74
 X = rand(Xoshiro(0),Poisson(λ),n)
@@ -74,7 +79,7 @@ begin
 	l = monte_carlo(10000,λ,n,m)
 	histogram(l,bins=(0:0.5:20), normalize=:pdf, label="Empirical Histogram", fillalpha=0.2, bar_width=0.5)
 	x = (0:0.01:20)
-	plot!(x,pdf.(Chisq(m-1),x), linewidth=4)
+	plot!(x,pdf.(Chisq(m-1),x), linewidth=4) ## m-1 !!!!
 end
 
 # ╔═╡ 170ade00-736a-443e-bb8e-739410c8b374
@@ -106,7 +111,98 @@ begin
 	l2 = monte_carlo_unknown_lambda(10000,λ,n,m)
 	histogram(l2,bins=(0:0.5:20), normalize=:pdf, label="Empirical Histogram", fillalpha=0.2, bar_width=0.5)
 	x2 = (0:0.01:20)
-	plot!(x2,pdf.(Chisq(m-2),x2), linewidth=4)
+	plot!(x2,pdf.(Chisq(m-2),x2), linewidth=4) ## m-2 !!!!
+end
+
+# ╔═╡ 36787455-6a39-4b02-af10-9699a28875d7
+md"""
+# Gaussian
+"""
+
+# ╔═╡ c640abf7-7250-4ab5-b0ad-0e597d20c735
+md"n: $(@bind n2 Slider(1:10000, show_value=true; default=500))\
+m: $(@bind m2 Slider(1:100, show_value=true; default=10))\
+μ: $(@bind μ Slider(-4:0.2:4, show_value=true; default=0.))\
+σ: $(@bind σ Slider(1:0.5:10, show_value=true; default=1)) "
+
+# ╔═╡ 3fb07af3-5754-4836-9f5f-96e77994652c
+Y = rand(Xoshiro(0),Normal(μ, σ), n2);mean(Y)
+
+# ╔═╡ d87afdda-eb6e-4e6c-ae46-a4119b6998f2
+begin
+	function chi_squared_gaussian(X,μ, σ,n,m)
+		Y = (X.- μ)./σ
+		counts = [sum(i*3/m.<= Y.< (i+1)*3/m) for i in (-m-1:m)]
+		counts[1] = sum(Y.< -3)
+		counts[2*(m+1)] = sum(Y.>= 3)
+		th_counts=[
+			(cdf(Normal(0,1), (i+1)*3/m)- 
+			cdf(Normal(0,1), (i)*3/m))*n 
+			for i in (-m-1:m)
+		]
+		th_counts[1] = cdf(Normal(0,1),-3)*n
+		th_counts[2*(m+1)] = th_counts[1]
+		
+		chi_squared= sum([(counts[i]-th_counts[i])^2/th_counts[i] for i in (1:(2*(m+1)))])
+	end
+	chi_squared_gaussian(Y,μ, σ,n2,m2)
+end
+
+# ╔═╡ 1dd77363-4262-4035-921f-01eedf698218
+begin
+	function chi_squared_gaussian_unknown(X,n,m)
+		
+		hatmu = mean(X)
+		hatsigma = sum((X .- hatmu).^2)/(n2-1)
+		
+		counts = [sum(i*3*hatsigma/m .<= X .+ hatmu .< (i+1)*3*hatsigma/m) for i in (-m-1:m)]
+		counts[1] = sum(hatmu .+ X .< -3*hatsigma)
+		counts[2*(m+1)] = sum(hatmu .+ X .>= 3*hatsigma)
+		th_counts=[
+			(cdf(Normal(hatmu,hatsigma), hatmu + (i+1)*3*hatsigma/m)- 
+			cdf(Normal(hatmu,hatsigma), hatmu + (i)*3*hatsigma/m))*n 
+			for i in (-m-1:m)
+		]
+		th_counts[1] = cdf(Normal(0,hatsigma),0 -3*hatsigma)*n
+		th_counts[2*(m+1)] = th_counts[1]
+		
+		chi_squared= sum([(counts[i]-th_counts[i])^2/th_counts[i] for i in (1:(2*(m+1)))])
+	end
+	chi_squared_gaussian_unknown(Y,n2,m2)
+end
+
+# ╔═╡ 47f76f0a-2bad-475b-8216-73f63385dc3c
+begin 
+	function monte_carlo_unknown_gaussian(N,μ, σ,n,m)
+		l = []
+		for i in (1:N)
+			X = rand(Xoshiro(i),Normal(μ,σ),n)
+			hatmu = mean(X)
+			hatsigma = sqrt(sum((X .- hatmu).^2)/(n2-1))
+			append!(l, chi_squared_gaussian(X,hatmu, hatsigma,n,m))
+		end
+		return l
+	end
+	l3 = monte_carlo_unknown_gaussian(10000,μ, σ,n2,m2)
+	x3 = (0:0.01:30)
+	histogram(l3,bins=(0:0.5:30), normalize=:pdf, label="Empirical Histogram", fillalpha=0.2, bar_width=0.5)
+	plot!(x3,pdf.(Chisq(2*(m2+1)-3),x3), linewidth=4) ## 3 = -1 (usual) - 1 (estmu) - 1 (estsigma)
+end
+
+# ╔═╡ 6d1682fc-7bea-4620-9aa7-3b35c76f18f6
+begin 
+	function monte_carlo_gaussian(N,μ, σ,n,m)
+		l = []
+		for i in (1:N)
+			X = rand(Xoshiro(i),Normal(μ,σ),n)
+			append!(l, chi_squared_gaussian(X,μ,σ,n,m))
+		end
+		return l
+	end
+	lg = monte_carlo_gaussian(10000,μ, σ,n2,m2)
+	xg = (0:0.01:30)
+	histogram(lg,bins=(0:0.5:30), normalize=:pdf, label="Empirical Histogram", fillalpha=0.2, bar_width=0.5)
+	plot!(xg,pdf.(Chisq(2*(m2+1)-1),x3), linewidth=4) ## 2(m2+1)-1 !!
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -1399,14 +1495,22 @@ version = "1.4.1+1"
 
 # ╔═╡ Cell order:
 # ╟─9af0a8e7-7182-4a68-92e0-75581a900f0d
+# ╟─fcea3be5-be63-487a-8f49-7a60455180a6
 # ╟─66ecec58-b327-11ef-3796-5bf78010935a
 # ╟─00e613d8-5900-43da-940f-0f2b1f2efc74
 # ╟─2dcf1779-7a8e-4bfb-9767-7972afbfc042
 # ╟─7d9ca539-62bd-458d-93b1-d564b629e7a6
 # ╟─c504ec2c-1317-4c3a-bb0d-36531e22a579
-# ╠═3e56f710-1bbc-48e5-8030-fe79892ebccf
-# ╠═b9de5d61-0c69-434b-a974-adfad539e559
+# ╟─3e56f710-1bbc-48e5-8030-fe79892ebccf
+# ╟─b9de5d61-0c69-434b-a974-adfad539e559
 # ╟─170ade00-736a-443e-bb8e-739410c8b374
-# ╠═95452294-298d-402e-b00c-c2b23d26293e
+# ╟─95452294-298d-402e-b00c-c2b23d26293e
+# ╟─36787455-6a39-4b02-af10-9699a28875d7
+# ╟─c640abf7-7250-4ab5-b0ad-0e597d20c735
+# ╟─3fb07af3-5754-4836-9f5f-96e77994652c
+# ╟─d87afdda-eb6e-4e6c-ae46-a4119b6998f2
+# ╟─6d1682fc-7bea-4620-9aa7-3b35c76f18f6
+# ╟─1dd77363-4262-4035-921f-01eedf698218
+# ╟─47f76f0a-2bad-475b-8216-73f63385dc3c
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
