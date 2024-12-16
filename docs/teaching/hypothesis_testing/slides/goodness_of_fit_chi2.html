@@ -6,8 +6,8 @@
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-07c16812f08c4a1591d6ec4fc46327fa.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.2">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-e26003cea8cd680ca0c55a263523d882.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.6.39">
 
   <title>Emmanuel Pilliat – Goodness of Fit Tests</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -464,11 +464,13 @@ if <span class="math inline">k_1 + \dots + k_m = n</span></li>
 <li class="fragment">We observe <span class="math inline">(X_1, \dots, X_n) \in \mathbb R^n</span>, iid with <strong>unknown</strong> distrib <span class="math inline">P</span></li>
 <li class="fragment"><span class="math inline">H_0</span>: <span class="math inline">P = P_0</span>, where <span class="math inline">P_0</span> is <strong>known</strong></li>
 <li class="fragment"><span class="math inline">H_1</span>: <span class="math inline">P \neq P_0</span></li>
-<li class="fragment">Idea: Under <span class="math inline">H_0</span>, the counts in the intervals <span class="math inline">[a_0, a_1), [a_1, a_2), \dots, [a_{k-1}, a_k)</span> follow a <strong>multinomial</strong> distribution <span class="math inline">\mathrm{Mult}(n, (p_1, \dots, p_{k}))</span> where <span class="math inline">p_1 = P_0([a_0, a_1)), \dots, p_{k} = P_0([a_{k-1}, a_k))</span></li>
+<li class="fragment">Idea: Under <span class="math inline">H_0</span>, the counts in disjoint intervals <span class="math inline">I_1, I_2, \dots, I_k</span> follow a <strong>multinomial</strong> distribution <span class="math inline">\mathrm{Mult}(n, (p_1, \dots, p_{k}))</span> where <span class="math inline">p_1 = P_0(I_1), \dots, p_{k} = P_0(I_k)</span></li>
 </ul>
 </div>
 </div>
 </div>
+<div class="columns">
+<div class="column">
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
@@ -477,14 +479,34 @@ if <span class="math inline">k_1 + \dots + k_m = n</span></li>
 </div>
 <div class="callout-content">
 <ol type="1">
-<li class="fragment">Count the number of data <span class="math inline">(c_1, \dots, c_k)</span> falling in <span class="math inline">I_1, \dots, I_k</span></li>
-<li class="fragment">Compare the counts the theoretical <span class="math inline">nP_0(I_1) \dots, nP_0(I_k)</span> with a chi-squared statistic: <span class="math display"> \sum_{j=1}^k \frac{(c_j - nP_0(I_j))^2}{nP_0(I_1)}</span></li>
+<li class="fragment">Count the number of data <span class="math inline">(c_1, \dots, c_k)</span> in <span class="math inline">I_1, \dots, I_k</span></li>
+<li class="fragment">Theoretical counts <span class="math inline">nP_0(I_1) \dots, nP_0(I_k)</span></li>
+<li class="fragment">Chi-squared statistic: <span class="math inline">\sum_{j=1}^k \frac{(c_j - nP_0(I_j))^2}{nP_0(I_1)}</span></li>
 <li class="fragment">Decide using an <span class="math inline">\alpha</span>-quantile of a <span class="math inline">\chi^2(k-1)</span> distribution</li>
 </ol>
 </div>
 </div>
 </div>
 </div>
+</div><div class="column">
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Change of Degree of Freedom</strong></p>
+</div>
+<div class="callout-content">
+<ol type="1">
+<li class="fragment">If <span class="math inline">P_0</span> is <strong>unknown</strong></li>
+<li class="fragment">An that you have to estimate <span class="math inline">\ell</span> parameters to estimate <span class="math inline">\hat P_0</span></li>
+<li class="fragment">Compute theoretical counts with <span class="math inline">\hat P_0</span>…</li>
+<li class="fragment">But decide with <span class="math inline">\chi^2(k - 1 - \ell)</span></li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div></div>
 </section>
 <section id="example-goodness-of-fit-to-a-poisson-distribution" class="slide level2">
 <h2>Example: Goodness of Fit to a Poisson distribution</h2>
@@ -522,11 +544,39 @@ if <span class="math inline">k_1 + \dots + k_m = n</span></li>
 </tbody>
 </table>
 </div>
+<div class="columns">
+<div class="column">
+<div class="fragment">
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
 <ul>
 <li class="fragment">To get <span class="math inline">9.7</span>, we compute <code>(1-cdf(Poisson(2),2))*30</code></li>
 <li class="fragment">chi square stat <span class="math inline">\gtrsim \frac{(16-4)^2}{4} = 36</span></li>
 <li class="fragment"><code>(1-cdf(Chisq(3),36))</code> is very small: Reject</li>
 </ul>
+</div>
+</div>
+</div>
+</div>
+</div><div class="column">
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment">If <span class="math inline">H_0</span> is <span class="math inline">X_i</span> iid <span class="math inline">\mathcal P(\lambda)</span> with <strong>unknown</strong> <span class="math inline">\lambda</span></li>
+<li class="fragment">Not <span class="math inline">\chi^2(3)</span> but <span class="math inline">\chi^2(2)</span></li>
+<li class="fragment"><code>(1-cdf(Chisq(2),36))</code> is even smaller: (Still Reject)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div></div>
 </section>
 <section id="comparison-with-qq-plots" class="slide level2">
 <h2>Comparison with QQ-Plots</h2>
@@ -593,6 +643,7 @@ if <span class="math inline">k_1 + \dots + k_m = n</span></li>
 </div>
 </div>
 </div>
+<div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -602,8 +653,9 @@ if <span class="math inline">k_1 + \dots + k_m = n</span></li>
 <ul>
 <li class="fragment"><span class="math inline">\psi(X) = \sup_{x}|\hat F(x) - F_0(x)|</span></li>
 <li class="fragment">Approx: <span class="math inline">\mathbb P_0(\psi(X) &gt;c/\sqrt{n}) \to 2\sum_{r=1}^{+\infty}(-1)^{r-1}\exp(-2c^2r^2)</span> when <span class="math inline">n \to +\infty</span></li>
-<li class="fragment">In practice, use Julia, Python or R</li>
+<li class="fragment">In practice, use Julia, Python or R for KS Tests</li>
 </ul>
+</div>
 </div>
 </div>
 </div>

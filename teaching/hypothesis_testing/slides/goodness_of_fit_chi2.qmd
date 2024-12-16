@@ -204,20 +204,35 @@ $\psi(X) \sim \chi^2(m-1)$
 - We observe $(X_1, \dots, X_n) \in \mathbb R^n$, iid with **unknown** distrib $P$
 - $H_0$: $P = P_0$, where $P_0$ is **known**
 - $H_1$: $P \neq P_0$
-- Idea: Under $H_0$, the counts in the intervals 
-$[a_0, a_1), [a_1, a_2), \dots, [a_{k-1}, a_k)$
+- Idea: Under $H_0$, the counts in disjoint intervals 
+$I_1, I_2, \dots, I_k$
 follow a **multinomial** distribution $\mathrm{Mult}(n, (p_1, \dots, p_{k}))$ where
-$p_1 = P_0([a_0, a_1)), \dots, p_{k} = P_0([a_{k-1}, a_k))$
+$p_1 = P_0(I_1), \dots, p_{k} = P_0(I_k)$
 :::
 
-
+::: {.columns}
+::: {.column}
 :::{.callout-note .fragment}
 ## Reduction to Chi-Squared Statistic Test
-1. Count the number of data $(c_1, \dots, c_k)$ falling in $I_1, \dots, I_k$
-2. Compare the counts the theoretical $nP_0(I_1) \dots, nP_0(I_k)$ with a chi-squared statistic:
-$$ \sum_{j=1}^k \frac{(c_j - nP_0(I_j))^2}{nP_0(I_1)}$$
-3. Decide using an $\alpha$-quantile of a $\chi^2(k-1)$ distribution
+1. Count the number of data $(c_1, \dots, c_k)$ in $I_1, \dots, I_k$
+2. Theoretical counts $nP_0(I_1) \dots, nP_0(I_k)$ 
+3. Chi-squared statistic: $\sum_{j=1}^k \frac{(c_j - nP_0(I_j))^2}{nP_0(I_1)}$
+4. Decide using an $\alpha$-quantile of a $\chi^2(k-1)$ distribution
 
+:::
+:::
+
+::: {.column}
+
+:::{.callout-warning .fragment}
+## Change of Degree of Freedom
+1. If $P_0$ is **unknown**
+2. An that you have to estimate $\ell$ parameters to estimate $\hat P_0$
+3. Compute theoretical counts with $\hat P_0$...
+4. But decide with $\chi^2(k - 1 - \ell)$
+:::
+
+:::
 :::
 
 ## Example: Goodness of Fit to a Poisson distribution
@@ -236,9 +251,24 @@ X = [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 3, 0, 1, 1, 2, 3, 0, 1, 0, 0, 2, 1, 0, 1, 
 | Theoretical Counts | 4.06 | 8.1 | 8.1 | 9.7 | |
 :::
 
+::: {.columns}
+::: {.column}
+::: {.callout .fragment}
+
 - To get $9.7$, we compute ```(1-cdf(Poisson(2),2))*30```
 - chi square stat $\gtrsim \frac{(16-4)^2}{4} = 36$
 - ```(1-cdf(Chisq(3),36))``` is very small: Reject
+:::
+:::
+::: {.column}
+::: {.callout-warning .fragment}
+- If $H_0$ is $X_i$ iid $\mathcal P(\lambda)$ with **unknown** $\lambda$
+- Not $\chi^2(3)$ but $\chi^2(2)$
+- ```(1-cdf(Chisq(2),36))``` is even smaller: (Still Reject)
+:::
+
+:::
+::: 
 
 
 ## Comparison with QQ-Plots
@@ -299,10 +329,10 @@ X = [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 3, 0, 1, 1, 2, 3, 0, 1, 0, 0, 2, 1, 0, 1, 
 
 :::
 
-:::: {.callout-note}
+:::: {.callout-note .fragment}
 ## Kolmogorov-Smirnov Test
 
 - $\psi(X) = \sup_{x}|\hat F(x) - F_0(x)|$
 - Approx: $\mathbb P_0(\psi(X) >c/\sqrt{n}) \to 2\sum_{r=1}^{+\infty}(-1)^{r-1}\exp(-2c^2r^2)$ when $n \to +\infty$
-- In practice, use Julia, Python or R
+- In practice, use Julia, Python or R for KS Tests
 ::::
