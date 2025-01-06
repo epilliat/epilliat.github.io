@@ -257,14 +257,16 @@
 <img data-src="images/correlation_pearson.png" class="r-stretch"></section>
 <section id="anova-test" class="slide level2">
 <h2>ANOVA Test</h2>
+<div class="fragment">
 <div class="callout callout-none no-icon callout-style-simple">
 <div class="callout-body">
 <div class="callout-content">
 <ul>
-<li class="fragment"><span class="math inline">\(d\)</span> independent groups (bags), each containing <span class="math inline">\(N_1, \dots, N_d\)</span> individuals. <span class="math inline">\(N_{\mathrm{tot}} = \sum_{j=1}^d N_j\)</span></li>
-<li class="fragment">Group <span class="math inline">\(j\)</span>: <span class="math inline">\((X_{1,j}, \dots, X_{N_j,j}) \in \mathbb R^{N_j}\)</span> are iid <span class="math inline">\(\mathcal N(\mu_j, \sigma)\)</span>. Ex: <span class="math inline">\(X_{ij} =\)</span> sallary of <span class="math inline">\(i\)</span> living in region <span class="math inline">\(j\)</span></li>
-<li class="fragment"><span class="math inline">\(H_0: \mu_1 = \dots = \mu_d\)</span> vs <span class="math inline">\(H_1: \mu_i \neq \mu_k\)</span> for some <span class="math inline">\((i,k)\)</span> (<strong>unknown <span class="math inline">\(\sigma\)</span></strong>)</li>
+<li class="fragment"><span class="math inline">\(d\)</span> independent groups (bags), each containing <span class="math inline">\(N_1, \dots, N_d\)</span> individuals. <span class="math inline">\(N_{\mathrm{tot}} = \sum_{k=1}^d N_k\)</span></li>
+<li class="fragment">Group <span class="math inline">\(k\)</span>: <span class="math inline">\((X_{1,k}, \dots, X_{N_k,k}) \in \mathbb R^{N_k}\)</span> are iid <span class="math inline">\(\mathcal N(\mu_k, \sigma)\)</span>. Ex: <span class="math inline">\(X_{ik} =\)</span> sallary of <span class="math inline">\(i\)</span> living in region <span class="math inline">\(k\)</span></li>
+<li class="fragment"><span class="math inline">\(H_0: \mu_1 = \dots = \mu_d\)</span> vs <span class="math inline">\(H_1: \mu_l \neq \mu_k\)</span> for some <span class="math inline">\((l,k)\)</span> (<strong>unknown <span class="math inline">\(\sigma\)</span></strong>)</li>
 </ul>
+</div>
 </div>
 </div>
 </div>
@@ -272,24 +274,21 @@
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong>Note</strong></p>
+<p><strong>ANOVA</strong></p>
 </div>
 <div class="callout-content">
 <div class="columns">
 <div class="column">
-<section id="section" class="slide level2">
-<h2></h2>
 <ul>
-<li class="fragment">Empirical mean of group <span class="math inline">\(j\)</span>: <span class="math inline">\(\overline X^{(j)} = \tfrac{1}{N_j}\sum_{k=1}^{N_j} X_{ik}\)</span></li>
-<li class="fragment">Sum of Squares in group <span class="math inline">\(j\)</span>:<br>
-<span class="math inline">\(SS_j = \sum_{i=1}^{N_j} (X_{ij} - \overline X^{(j)})^2 \sim \sigma^2\chi^2(N_j-1)\)</span> (under <span class="math inline">\(H_0\)</span>)</li>
-<li class="fragment">Var of group <span class="math inline">\(j\)</span>: <span class="math inline">\(V_j = \tfrac{1}{N_j}SS_j\)</span></li>
+<li class="fragment">Empirical mean of group <span class="math inline">\(k\)</span>: <span class="math inline">\(\overline X_k = \tfrac{1}{N_k}\sum_{i=1}^{N_k} X_{ik}\)</span></li>
+<li class="fragment">Sum of Squares in group <span class="math inline">\(k\)</span>:<br>
+<span class="math inline">\(SS_k = \sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2 \sim \sigma^2\chi^2(N_k-1)\)</span> (under <span class="math inline">\(H_0\)</span>)</li>
+<li class="fragment">Var of group <span class="math inline">\(k\)</span>: <span class="math inline">\(V_k = \tfrac{1}{N_k}SS_k\)</span></li>
 </ul>
-</section>
 </div><div class="column">
 <ul>
-<li class="fragment">Total empirical mean: <span class="math inline">\(\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{j=1}^d\sum_{k=1}^{N_j} X_{ik}\)</span></li>
-<li class="fragment">Sum of Squares btween Groups: <span class="math inline">\(SSB = \sum_{i=1}^{d} N_j(\overline X^{(j)} - \overline X)^2\sim\sigma^2\chi^2(d-1)\)</span> (under <span class="math inline">\(H_0\)</span>)</li>
+<li class="fragment">Total empirical mean: <span class="math inline">\(\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} X_{ik}\)</span></li>
+<li class="fragment">Sum of Squares btween Groups: <span class="math inline">\(SSB = \sum_{k=1}^{d} N_k(\overline X_k - \overline X)^2\sim\sigma^2\chi^2(d-1)\)</span> (under <span class="math inline">\(H_0\)</span>)</li>
 </ul>
 </div></div>
 </div>
@@ -310,7 +309,7 @@
 </div>
 <div class="callout-content">
 <ul>
-<li class="fragment"><span class="math inline">\(\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{j=1}^d SS_j}{\tfrac{1}{d-1}SSB}\)</span></li>
+<li class="fragment"><span class="math inline">\(\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}{\tfrac{1}{d-1}SSB}\)</span></li>
 <li class="fragment"><span class="math inline">\(\psi(X) \sim \mathcal F(N_{\mathrm{tot}}-d, d-1)\)</span> (Fisher under <span class="math inline">\(H_0\)</span>)</li>
 <li class="fragment">Two-sided test: double the min left/right <span class="math inline">\(p_{value}\)</span>.</li>
 </ul>
@@ -610,7 +609,7 @@
 <li class="fragment"><p>We observe iid pairs of real numbers <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span>. The density of each pair <span class="math inline">\((X_i, Y_i)\)</span> is <strong>unknown</strong> <span class="math inline">\(p_{XY}(x,y)\)</span>.</p></li>
 <li class="fragment"><p>The marginal distribution of <span class="math inline">\(X_i\)</span> and <span class="math inline">\(Y_i\)</span> are, respectively, <span class="math display">\[p_X(x) = \int_{y \in \mathbb R} p_{XY}(x,y)~~~~ \text{ and }~~~~ p_{Y}(y) = \int_{x \in \mathbb R} p_{XY}(x,y) \; .\]</span></p></li>
 <li class="fragment"><p><span class="math inline">\(H_0:\)</span> The median of <span class="math inline">\((X_i - Y_i)\)</span> is <span class="math inline">\(0\)</span> for all <span class="math inline">\(i\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(H_1:\)</span> The median of <span class="math inline">\((X_i - Y_i)\)</span> is not <span class="math inline">\(0\)</span> for all <span class="math inline">\(i\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(H_1:\)</span> The median of <span class="math inline">\((X_i - Y_i)\)</span> is not <span class="math inline">\(0\)</span> for some <span class="math inline">\(i\)</span></p></li>
 </ul>
 </div>
 </div>
