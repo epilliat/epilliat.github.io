@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Gaussian Populations – Emmanuel Pilliat</title>
+<title>Goodness of Fit Tests – Emmanuel Pilliat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -67,8 +67,22 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script>window.backupDefine = window.define; window.define = undefined;</script><script src="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.js"></script>
+  <script>document.addEventListener("DOMContentLoaded", function () {
+ var mathElements = document.getElementsByClassName("math");
+ var macros = [];
+ for (var i = 0; i < mathElements.length; i++) {
+  var texText = mathElements[i].firstChild;
+  if (mathElements[i].tagName == "SPAN") {
+   katex.render(texText.data, mathElements[i], {
+    displayMode: mathElements[i].classList.contains('display'),
+    throwOnError: false,
+    macros: macros,
+    fleqn: false
+   });
+}}});
+  </script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@latest/dist/katex.min.css">
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -101,7 +115,7 @@ window.Quarto = {
 <link rel="stylesheet" href="../style.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -144,18 +158,74 @@ window.Quarto = {
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../teaching/hypothesis_testing/lectures/testing_models.html">Hypothesis Testing</a></li><li class="breadcrumb-item"><a href="../../../teaching/hypothesis_testing/lectures/gaussian_populations.html">Gaussian Populations</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Hypothesis Testing</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../teaching/hypothesis_testing/lectures/testing_models.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Testing Models</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../teaching/hypothesis_testing/lectures/gaussian_populations.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Gaussian Populations</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../teaching/hypothesis_testing/lectures/goodness_of_fit_chi2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Goodness of Fit, Homogeneity</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../../teaching/hypothesis_testing/lectures/dependency.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Dependency</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <span class="sidebar-item-text sidebar-link text-start">
+ <span class="menu-text">Times Series</span></span>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
-  <ul>
+  <ul class="incremental">
   <li><a href="#one-gaussian-population" id="toc-one-gaussian-population" class="nav-link active" data-scroll-target="#one-gaussian-population">One Gaussian Population</a>
-  <ul class="collapse">
+  <ul class="incremental collapse">
   <li><a href="#testing-mean-with-known-variance" id="toc-testing-mean-with-known-variance" class="nav-link" data-scroll-target="#testing-mean-with-known-variance">Testing Mean with Known variance</a></li>
   <li><a href="#why-0.05-and-1.96" id="toc-why-0.05-and-1.96" class="nav-link" data-scroll-target="#why-0.05-and-1.96">Why 0.05 and 1.96 ?</a></li>
   <li><a href="#testing-mean-with-unknown-variance" id="toc-testing-mean-with-unknown-variance" class="nav-link" data-scroll-target="#testing-mean-with-unknown-variance">Testing Mean with Unknown Variance</a></li>
@@ -164,7 +234,7 @@ window.Quarto = {
   <li><a href="#testing-variance-unknown-mean" id="toc-testing-variance-unknown-mean" class="nav-link" data-scroll-target="#testing-variance-unknown-mean">Testing Variance, Unknown Mean</a></li>
   </ul></li>
   <li><a href="#two-gaussian-populations" id="toc-two-gaussian-populations" class="nav-link" data-scroll-target="#two-gaussian-populations">Two Gaussian Populations</a>
-  <ul class="collapse">
+  <ul class="incremental collapse">
   <li><a href="#testing-means-known-variances" id="toc-testing-means-known-variances" class="nav-link" data-scroll-target="#testing-means-known-variances">Testing Means, Known Variances</a></li>
   <li><a href="#testing-variances-unknown-means" id="toc-testing-variances-unknown-means" class="nav-link" data-scroll-target="#testing-variances-unknown-means">Testing Variances, Unknown Means</a></li>
   <li><a href="#fisher-distribution" id="toc-fisher-distribution" class="nav-link" data-scroll-target="#fisher-distribution">Fisher Distribution</a></li>
@@ -172,20 +242,20 @@ window.Quarto = {
   <li><a href="#equality-means-unequal-variances" id="toc-equality-means-unequal-variances" class="nav-link" data-scroll-target="#equality-means-unequal-variances">Equality Means, Unequal Variances</a></li>
   </ul></li>
   <li><a href="#asymptotic-approximations" id="toc-asymptotic-approximations" class="nav-link" data-scroll-target="#asymptotic-approximations">Asymptotic Approximations</a>
-  <ul class="collapse">
+  <ul class="incremental collapse">
   <li><a href="#central-limit-theorem" id="toc-central-limit-theorem" class="nav-link" data-scroll-target="#central-limit-theorem">Central Limit Theorem</a></li>
   <li><a href="#proportion-test" id="toc-proportion-test" class="nav-link" data-scroll-target="#proportion-test">Proportion Test</a></li>
   <li><a href="#example-reference" id="toc-example-reference" class="nav-link" data-scroll-target="#example-reference">Example (reference)</a></li>
   </ul></li>
   </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="gaussian_populations.html"><i class="bi bi-file-slides"></i>RevealJS</a></li></ul></div></nav>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../teaching/hypothesis_testing/lectures/testing_models.html">Hypothesis Testing</a></li><li class="breadcrumb-item"><a href="../../../teaching/hypothesis_testing/lectures/gaussian_populations.html">Gaussian Populations</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Gaussian Populations</h1>
+<h1 class="title">Goodness of Fit Tests</h1>
 </div>
 
 
@@ -202,15 +272,13 @@ window.Quarto = {
 </header>
 
 
-<section id="one-gaussian-population" class="level1" style="text-align: center;">
-<h1 style="text-align: center;">One Gaussian Population</h1>
+<section id="one-gaussian-population" class="level1">
+<h1>One Gaussian Population</h1>
 <section id="testing-mean-with-known-variance" class="level2">
 <h2 class="anchored" data-anchor-id="testing-mean-with-known-variance">Testing Mean with Known variance</h2>
-<ul>
-<li><span class="math inline">\(X = (X_1, \dots, X_n)\)</span>, iid with distribution <span class="math inline">\(\mathcal N(\mu, \sigma)\)</span>.</li>
+<ul class="incremental">
+<li><span class="math inline">X = (X_1, \dots, X_n)</span>, iid with distribution <span class="math inline">\mathcal N(\mu, \sigma)</span>.</li>
 </ul>
-<div class="columns">
-<div class="column" style="width:50%;">
 <div class="fragment callout callout-style-default callout-note no-icon callout-titled" title="Test Problems">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -221,20 +289,19 @@ Test Problems
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><span class="math display">\[
+<p><span class="math display">
 \begin{aligned}
 H_0: \mu = \mu_0 ~~~~ &amp;\text{ or } ~~~ H_1: \mu &gt; \mu_0 ~~~ \text{(One-Sided Right)}\\
 H_0: \mu = \mu_0 ~~~ &amp;\text{ or } ~~~ H_1: \mu &lt; \mu_0 ~~~ \text{(One-Sided Left)}\\
 H_0: \mu = \mu_0 ~~~ &amp;\text{ or } ~~~ H_1: \mu \neq \mu_0 ~~~ \text{(Two-Sided)}\\
 \end{aligned}
-\]</span></p>
+</span></p>
 </div>
 </div>
-<ul>
-<li>Test Statistic: <span class="math display">\[ \psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma} \; .\]</span></li>
-<li><span class="math inline">\(\psi(X) \sim \mathcal N(0,1)\)</span></li>
+<ul class="incremental">
+<li>Test Statistic: <span class="math display"> \psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma} \; .</span></li>
+<li><span class="math inline">\psi(X) \sim \mathcal N(0,1)</span></li>
 </ul>
-</div><div class="column" style="width:50%;">
 <div class="fragment callout callout-style-default callout-note no-icon callout-titled" title="Tests">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -245,18 +312,16 @@ Tests
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><span class="math display">\[
+<p><span class="math display">
 \begin{aligned}
 \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma} &gt; t_{1-\alpha} ~~~ \text{(One-Sided Right)}\\
 \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma} &lt; t_{\alpha} ~~~ \text{( One-Sided Left)}\\
 \left|\frac{\sqrt{n}(\overline X-\mu_0)}{\sigma}\right| &gt; t_{1-\tfrac{\alpha}{2}}~~~ \text{(Two-Sided)}\\
 \end{aligned}
-\]</span></p>
+</span></p>
 </div>
 </div>
 <p><img src="../images/rejection_region.svg" class="fragment img-fluid"></p>
-</div>
-</div>
 </section>
 <section id="why-0.05-and-1.96" class="level2">
 <h2 class="anchored" data-anchor-id="why-0.05-and-1.96">Why 0.05 and 1.96 ?</h2>
@@ -271,66 +336,63 @@ Fisher’s Quote
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>The value for which <span class="math inline">\(p=0.05\)</span>, or 1 in 20, is 1.96 or nearly 2&nbsp;; it is convenient to take this point as a limit in judging whether a deviation is to be considered significant or not.</p>
+<p>The value for which <span class="math inline">p=0.05</span>, or 1 in 20, is 1.96 or nearly 2&nbsp;; it is convenient to take this point as a limit in judging whether a deviation is to be considered significant or not.</p>
 </div>
 </div>
 </section>
 <section id="testing-mean-with-unknown-variance" class="level2">
 <h2 class="anchored" data-anchor-id="testing-mean-with-unknown-variance">Testing Mean with Unknown Variance</h2>
-<ul>
-<li><p>Multiple VS Multiple Test Problem: <span class="math display">\[
+<ul class="incremental">
+<li><p>Multiple VS Multiple Test Problem: <span class="math display">
 H_0: \{\mu_0,\sigma &gt; 0\} \text{ or } H_1: \{\mu \neq \mu_0,\sigma &gt; 0\} \;.
-\]</span></p></li>
-<li><p><span class="math inline">\(\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma}\)</span> <strong>no longer test statistic</strong>.</p></li>
-<li><p><strong>Idea</strong>: replace <span class="math inline">\(\sigma\)</span> by its estimator <span class="math display">\[ \hat \sigma(X) = \sqrt{\frac{1}{n-1}\sum_{i=1}^n(X_i - \overline X)^2} \; .\]</span></p></li>
-<li><p>This gives <span class="math display">\[
+</span></p></li>
+<li><p><span class="math inline">\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma}</span> <strong>no longer test statistic</strong>.</p></li>
+<li><p><strong>Idea</strong>: replace <span class="math inline">\sigma</span> by its estimator <span class="math display"> \hat \sigma(X) = \sqrt{\frac{1}{n-1}\sum_{i=1}^n(X_i - \overline X)^2} \; .</span></p></li>
+<li><p>This gives <span class="math display">
 \psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma} \; .
-\]</span></p></li>
-<li><p>Is <span class="math inline">\(\psi(X)\)</span> pivotal under <span class="math inline">\(H_0\)</span> ? What is its distribution ?</p></li>
+</span></p></li>
+<li><p>Is <span class="math inline">\psi(X)</span> pivotal under <span class="math inline">H_0</span> ? What is its distribution ?</p></li>
 </ul>
 </section>
 <section id="chi-square-and-student-distributions" class="level2">
 <h2 class="anchored" data-anchor-id="chi-square-and-student-distributions">Chi-Square and Student Distributions</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
 <div class="fragment callout callout-style-default callout-note no-icon callout-titled" title="Chi-Squared Distribution $\chi^2(k)$">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Chi-Squared Distribution <span class="math inline">\(\chi^2(k)\)</span>
+Chi-Squared Distribution <span class="math inline">\chi^2(k)</span>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<ul>
-<li><span class="math inline">\(k\)</span>: degree of freedom</li>
-<li>Distrib of <span class="math inline">\(\sum_{i=1}^k Z_i^2\)</span></li>
-<li>where the <span class="math inline">\(Z_i\)</span>’s are iid <span class="math inline">\(\mathcal N(0,1)\)</span>.</li>
-<li><span class="math inline">\(\mathbb E[Z_i^4] - \mathbb E[Z_i^2]=2\)</span></li>
-<li><span class="math inline">\(\chi^2(k) \sim k + \sqrt{2k}\mathcal N(0,1)\)</span> when <span class="math inline">\(k \to +\infty\)</span></li>
+<ul class="incremental">
+<li><span class="math inline">k</span>: degree of freedom</li>
+<li>Distrib of <span class="math inline">\sum_{i=1}^k Z_i^2</span></li>
+<li>where the <span class="math inline">Z_i</span>’s are iid <span class="math inline">\mathcal N(0,1)</span>.</li>
+<li><span class="math inline">\mathbb E[Z_i^4] - \mathbb E[Z_i^2]=2</span></li>
+<li><span class="math inline">\chi^2(k) \sim k + \sqrt{2k}\mathcal N(0,1)</span> when <span class="math inline">k \to +\infty</span></li>
 </ul>
 </div>
 </div>
-</div><div class="column" style="width:50%;">
 <div class="fragment callout callout-style-default callout-note no-icon callout-titled" title="Student Distribution $\mathcal T(k)$">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Student Distribution <span class="math inline">\(\mathcal T(k)\)</span>
+Student Distribution <span class="math inline">\mathcal T(k)</span>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<ul>
-<li><span class="math inline">\(k\)</span>: degree of freedom</li>
-<li>Distrib of <span class="math inline">\(\tfrac{Z}{\sqrt{U/k}}\)</span></li>
-<li><span class="math inline">\(Z\)</span>, <span class="math inline">\(U\)</span> are independent and follow resp. <span class="math inline">\(\mathcal N(0,1)\)</span> and a <span class="math inline">\(\chi^2(k)\)</span></li>
+<ul class="incremental">
+<li><span class="math inline">k</span>: degree of freedom</li>
+<li>Distrib of <span class="math inline">\tfrac{Z}{\sqrt{U/k}}</span></li>
+<li><span class="math inline">Z</span>, <span class="math inline">U</span> are independent and follow resp. <span class="math inline">\mathcal N(0,1)</span> and a <span class="math inline">\chi^2(k)</span></li>
 </ul>
 </div>
 </div>
-</div><div class="fragment callout callout-style-default callout-note no-icon callout-titled" title="Theorem">
+<div class="fragment callout callout-style-default callout-note no-icon callout-titled" title="Theorem">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
@@ -340,24 +402,24 @@ Theorem
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Assume <span class="math inline">\(X_i\)</span> are iid <span class="math inline">\(\mathcal N(\mu_0, \sigma)\)</span>.</p>
-<ul>
-<li>The Test Statistic <span class="math inline">\(\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma}\)</span> <strong>pivotal</strong> (indep. of <span class="math inline">\(\sigma\)</span>).</li>
-<li>It follows a Student Distribution <span class="math inline">\(\mathcal T(n-1)\)</span>.</li>
+<p>Assume <span class="math inline">X_i</span> are iid <span class="math inline">\mathcal N(\mu_0, \sigma)</span>.</p>
+<ul class="incremental">
+<li>The Test Statistic <span class="math inline">\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma}</span> <strong>pivotal</strong> (indep. of <span class="math inline">\sigma</span>).</li>
+<li>It follows a Student Distribution <span class="math inline">\mathcal T(n-1)</span>.</li>
 </ul>
 </div>
-</div><ul>
-<li><strong>Proof idea</strong>: <span class="math inline">\(\overline X \cdot (1, \dots, 1)\)</span> and <span class="math inline">\((X_1 - \overline X, \dots, X_n - \overline X)\)</span> are orthogonal in <span class="math inline">\(\mathbb R^n\)</span>.</li>
-</ul>
 </div>
+<ul class="incremental">
+<li><strong>Proof idea</strong>: <span class="math inline">\overline X \cdot (1, \dots, 1)</span> and <span class="math inline">(X_1 - \overline X, \dots, X_n - \overline X)</span> are orthogonal in <span class="math inline">\mathbb R^n</span>.</li>
+</ul>
 </section>
 <section id="student-t-test" class="level2">
 <h2 class="anchored" data-anchor-id="student-t-test">Student T-Test</h2>
-<ul>
-<li><p>Multiple VS Multiple Test Problem <span class="math inline">\(X=(X_1, \dots, X_n)\)</span>: <span class="math display">\[
+<ul class="incremental">
+<li><p>Multiple VS Multiple Test Problem <span class="math inline">X=(X_1, \dots, X_n)</span>: <span class="math display">
 H_0: \{\mu_0,\sigma &gt; 0\} \text{ or } H_1: \{\mu \neq \mu_0,\sigma &gt; 0\} \;.
-\]</span></p></li>
-<li><p>(Student) T-Test Statistic: <span class="math display">\[\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)} \sim \mathcal T(n-1)\]</span></p></li>
+</span></p></li>
+<li><p>(Student) T-Test Statistic: <span class="math display">\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)} \sim \mathcal T(n-1)</span></p></li>
 </ul>
 <div class="fragment">
 <p><img src="../images/student_k_30.svg" class="img-fluid"></p>
@@ -371,101 +433,102 @@ H_0: \{\mu_0,\sigma &gt; 0\} \text{ or } H_1: \{\mu \neq \mu_0,\sigma &gt; 0\} \
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-body-container">
-<ul>
-<li>We observe <span class="math inline">\(X=(X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu, \sigma)\)</span>. <span class="math inline">\(\mu\)</span>, <span class="math inline">\(\sigma\)</span> are <strong>unknown</strong>. <span class="math inline">\(\sigma_0\)</span> is fixed.</li>
+<ul class="incremental">
+<li>We observe <span class="math inline">X=(X_1, \dots, X_{n_1})</span> iid <span class="math inline">\mathcal N(\mu, \sigma)</span>. <span class="math inline">\mu</span>, <span class="math inline">\sigma</span> are <strong>unknown</strong>. <span class="math inline">\sigma_0</span> is fixed.</li>
 </ul>
 </div>
 </div>
 </div>
-<div class="fragment">
-<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout callout-style-default callout-note no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon"></i>
+<i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note
+Right-tailed test
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<div class="columns">
-<div class="column">
-<ul>
-<li><span class="math inline">\(H_0\)</span>: <span class="math inline">\(\sigma \leq \sigma_0\)</span>, <span class="math inline">\(H_1\)</span>: <span class="math inline">\(\sigma &gt; \sigma_0\)</span></li>
-<li><span class="math inline">\(\psi(X) = \frac{1}{\sigma_0^2}\sum (X_i - \overline X)^2\)</span></li>
-<li><span class="math inline">\(T(X) = \mathbf{1}\{\psi(X) &gt; q_{1-\alpha}\}\)</span></li>
-<li><span class="math inline">\(q_{1-\alpha}\)</span>: <code>quantile(Chisq(n-1), 1-alpha)</code></li>
+<ul class="incremental">
+<li><span class="math inline">H_0</span>: <span class="math inline">\sigma \leq \sigma_0</span>, <span class="math inline">H_1</span>: <span class="math inline">\sigma &gt; \sigma_0</span></li>
+<li><span class="math inline">\psi(X) = \frac{1}{\sigma_0^2}\sum (X_i - \overline X)^2</span></li>
+<li><span class="math inline">T(X) = \mathbf{1}\{\psi(X) &gt; q_{1-\alpha}\}</span></li>
+<li><span class="math inline">q_{1-\alpha}</span>: <code>quantile(Chisq(n-1), 1-alpha)</code></li>
 <li>pvalue: <code>1-cdf(Chisq(n-1), xobs)</code></li>
 </ul>
+</div>
+</div>
 <p><img src="../images/pdf_cdf_chi5_right.svg" class="img-fluid" style="width:80.0%"></p>
-</div><div class="column">
-<ul>
-<li><span class="math inline">\(H_0\)</span>: <span class="math inline">\(\sigma \geq \sigma_0\)</span>, <span class="math inline">\(H_1\)</span>: <span class="math inline">\(\sigma &lt; \sigma_0\)</span></li>
-<li><span class="math inline">\(\psi(X) = \frac{1}{\sigma_0^2}\sum (X_i - \overline X)^2\)</span></li>
-<li><span class="math inline">\(T(X) = \mathbf{1}\{\psi(X) &lt; q_{\alpha}\}\)</span></li>
-<li><span class="math inline">\(q_{\alpha}\)</span>: <code>quantile(Chisq(n-1), alpha)</code></li>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Left-tailed test
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="incremental">
+<li><span class="math inline">H_0</span>: <span class="math inline">\sigma \geq \sigma_0</span>, <span class="math inline">H_1</span>: <span class="math inline">\sigma &lt; \sigma_0</span></li>
+<li><span class="math inline">\psi(X) = \frac{1}{\sigma_0^2}\sum (X_i - \overline X)^2</span></li>
+<li><span class="math inline">T(X) = \mathbf{1}\{\psi(X) &lt; q_{\alpha}\}</span></li>
+<li><span class="math inline">q_{\alpha}</span>: <code>quantile(Chisq(n-1), alpha)</code></li>
 <li>pvalue: <code>cdf(Chisq(n-1), xobs)</code></li>
 </ul>
-<div class="fragment">
+</div>
+</div>
 <p><img src="../images/pdf_cdf_chi5_left.svg" class="img-fluid" style="width:80.0%"></p>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
 </section>
 </section>
 <section id="two-gaussian-populations" class="level1">
 <h1>Two Gaussian Populations</h1>
 <section id="testing-means-known-variances" class="level2">
 <h2 class="anchored" data-anchor-id="testing-means-known-variances">Testing Means, Known Variances</h2>
-<ul>
-<li><p>We observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span>.</p></li>
-<li><p><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span> are <strong>known</strong>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> are <strong>unknown</strong></p></li>
-<li><p>Test Problem: <span class="math inline">\(H_0: \mu_1 = \mu_2 ~~~\text{or} ~~~H_1: \mu_1 \neq \mu_2\)</span></p></li>
-<li><p>Idea: Normalize <span class="math inline">\(\overline X - \overline Y\)</span>: <span class="math display">\[
+<ul class="incremental">
+<li><p>We observe <span class="math inline">(X_1, \dots, X_{n_1})</span> iid <span class="math inline">\mathcal N(\mu_1, \sigma_1^2)</span> and <span class="math inline">(Y_1, \dots, Y_{n_2})</span> iid <span class="math inline">\mathcal N(\mu_1, \sigma_1^2)</span>.</p></li>
+<li><p><span class="math inline">\sigma_1</span>, <span class="math inline">\sigma_2</span> are <strong>known</strong>, <span class="math inline">\mu_1</span>, <span class="math inline">\mu_2</span> are <strong>unknown</strong></p></li>
+<li><p>Test Problem: <span class="math inline">H_0: \mu_1 = \mu_2 ~~~\text{or} ~~~H_1: \mu_1 \neq \mu_2</span></p></li>
+<li><p>Idea: Normalize <span class="math inline">\overline X - \overline Y</span>: <span class="math display">
 \psi(X,Y)=\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}}
-\]</span></p></li>
-<li><p>Two-Sided Test for Testing Variance: <span class="math display">\[
+</span></p></li>
+<li><p>Two-Sided Test for Testing Variance: <span class="math display">
 T(X,Y)=\left|\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}}\right| \geq t_{1-\alpha/2} \;  ,
-\]</span></p></li>
-<li><p><span class="math inline">\(t_{1-\alpha/2}\)</span> is the <span class="math inline">\((1-\alpha/2)\)</span>-quantile of a <strong>Gaussian</strong> distribution</p></li>
+</span></p></li>
+<li><p><span class="math inline">t_{1-\alpha/2}</span> is the <span class="math inline">(1-\alpha/2)</span>-quantile of a <strong>Gaussian</strong> distribution</p></li>
 </ul>
 </section>
 <section id="testing-variances-unknown-means" class="level2">
 <h2 class="anchored" data-anchor-id="testing-variances-unknown-means">Testing Variances, Unknown Means</h2>
-<ul>
-<li>We observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1)\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2)\)</span>.</li>
-<li><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> are <strong>unknown</strong></li>
-<li>Variance Testing Problem: <span class="math display">\[
+<ul class="incremental">
+<li>We observe <span class="math inline">(X_1, \dots, X_{n_1})</span> iid <span class="math inline">\mathcal N(\mu_1, \sigma_1)</span> and <span class="math inline">(Y_1, \dots, Y_{n_2})</span> iid <span class="math inline">\mathcal N(\mu_2, \sigma_2)</span>.</li>
+<li><span class="math inline">\sigma_1</span>, <span class="math inline">\sigma_2</span>, <span class="math inline">\mu_1</span>, <span class="math inline">\mu_2</span> are <strong>unknown</strong></li>
+<li>Variance Testing Problem: <span class="math display">
 H_0: \sigma_1 = \sigma_2 ~~~~ \text{ or } ~~~~ H_1: \sigma_1 \neq \sigma_2
-\]</span></li>
-<li>F-Test Statistic of the Variances (ANOVA) <span class="math display">\[
+</span></li>
+<li>F-Test Statistic of the Variances (ANOVA) <span class="math display">
 \frac{\hat \sigma^2_1}{\hat \sigma_2^2} = \frac{\tfrac{1}{n_1-1}\sum_{i=1}^{n_1}(X_i-\overline X)^2}{\tfrac{1}{n_2-1}\sum_{i=1}^{n_2}(Y_i-\overline Y)^2}\; .
-\]</span></li>
+</span></li>
 </ul>
 </section>
 <section id="fisher-distribution" class="level2">
 <h2 class="anchored" data-anchor-id="fisher-distribution">Fisher Distribution</h2>
-<div class="columns">
-<div class="column">
 <div class="fragment callout callout-style-default callout-note no-icon callout-titled" title="Fisher Distribution $\mathcal F(k_1,k_2)$">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Fisher Distribution <span class="math inline">\(\mathcal F(k_1,k_2)\)</span>
+Fisher Distribution <span class="math inline">\mathcal F(k_1,k_2)</span>
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<ul>
-<li><span class="math inline">\((k_1, k_2)\)</span>: degrees of freedom</li>
-<li>Distribution of <span class="math inline">\(\frac{U_1/k_1}{U_2/k_2}\)</span></li>
-<li>Where <span class="math inline">\(U_1\)</span>, <span class="math inline">\(U_2\)</span> are indep. and follow <span class="math inline">\(\chi^2(k_1)\)</span>, <span class="math inline">\(\chi^2(k_2)\)</span>. <a href="https://fr.wikipedia.org/wiki/Loi_de_Fisher">wiki</a></li>
-<li><span class="math inline">\(\mathcal F(k_1,k_2) \approx 1 + \sqrt{\frac{2}{k_1} + \frac{2}{k_2}}\mathcal N\left(0, 1\right)\)</span> when <span class="math inline">\(k_1,k_2 \to +\infty\)</span></li>
-<li>Example: <span class="math inline">\(\frac{Z_1^2+Z_2^2}{2Z_3^2} \sim \mathcal F(2,1)\)</span> if <span class="math inline">\(Z_i \sim \mathcal N(0,1)\)</span></li>
+<ul class="incremental">
+<li><span class="math inline">(k_1, k_2)</span>: degrees of freedom</li>
+<li>Distribution of <span class="math inline">\frac{U_1/k_1}{U_2/k_2}</span></li>
+<li>Where <span class="math inline">U_1</span>, <span class="math inline">U_2</span> are indep. and follow <span class="math inline">\chi^2(k_1)</span>, <span class="math inline">\chi^2(k_2)</span>. <a href="https://fr.wikipedia.org/wiki/Loi_de_Fisher">wiki</a></li>
+<li><span class="math inline">\mathcal F(k_1,k_2) \approx 1 + \sqrt{\frac{2}{k_1} + \frac{2}{k_2}}\mathcal N\left(0, 1\right)</span> when <span class="math inline">k_1,k_2 \to +\infty</span></li>
+<li>Example: <span class="math inline">\frac{Z_1^2+Z_2^2}{2Z_3^2} \sim \mathcal F(2,1)</span> if <span class="math inline">Z_i \sim \mathcal N(0,1)</span></li>
 </ul>
 </div>
 </div>
@@ -479,75 +542,72 @@ Proposition
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<ul>
-<li><span class="math inline">\(\psi(X,Y)=\frac{\hat \sigma^2_1}{\hat \sigma_2^2}\)</span> is independent of <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span>, <span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>. It is <strong>pivotal</strong></li>
-<li>It follow distribution <span class="math inline">\(\mathcal F(n_1-1, n_2-1)\)</span></li>
+<ul class="incremental">
+<li><span class="math inline">\psi(X,Y)=\frac{\hat \sigma^2_1}{\hat \sigma_2^2}</span> is independent of <span class="math inline">\mu_1</span>, <span class="math inline">\mu_2</span>, <span class="math inline">\sigma_1</span>, <span class="math inline">\sigma_2</span>. It is <strong>pivotal</strong></li>
+<li>It follow distribution <span class="math inline">\mathcal F(n_1-1, n_2-1)</span></li>
 </ul>
 </div>
 </div>
-</div><div class="column">
 <p><img src="../images/Fisher.svg" class="fragment img-fluid"></p>
-<ul>
-<li>Two-Sided Test: <span class="math display">\[ \frac{\hat \sigma^2_1}{\hat \sigma_2^2} \not \in [t_{\alpha/2}, t_{1-\alpha/2}] ~~~\text{(quantile of Fisher)}\]</span></li>
+<ul class="incremental">
+<li>Two-Sided Test: <span class="math display"> \frac{\hat \sigma^2_1}{\hat \sigma_2^2} \not \in [t_{\alpha/2}, t_{1-\alpha/2}] ~~~\text{(quantile of Fisher)}</span></li>
 </ul>
-</div>
-</div>
 </section>
 <section id="testing-means-equal-variances" class="level2">
 <h2 class="anchored" data-anchor-id="testing-means-equal-variances">Testing Means, Equal Variances</h2>
-<ul>
-<li>We observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1)\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2)\)</span>.</li>
-<li><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> are <strong>unknown</strong>, but we <strong>know</strong> that <span class="math inline">\(\sigma_1=\sigma_2\)</span></li>
-<li>Equality of Mean Testing Problem: <span class="math display">\[
+<ul class="incremental">
+<li>We observe <span class="math inline">(X_1, \dots, X_{n_1})</span> iid <span class="math inline">\mathcal N(\mu_1, \sigma_1)</span> and <span class="math inline">(Y_1, \dots, Y_{n_2})</span> iid <span class="math inline">\mathcal N(\mu_2, \sigma_2)</span>.</li>
+<li><span class="math inline">\sigma_1</span>, <span class="math inline">\sigma_2</span>, <span class="math inline">\mu_1</span>, <span class="math inline">\mu_2</span> are <strong>unknown</strong>, but we <strong>know</strong> that <span class="math inline">\sigma_1=\sigma_2</span></li>
+<li>Equality of Mean Testing Problem: <span class="math display">
 H_0: \mu_1 = \mu_2 ~~~~ \text{ or } ~~~~ H_1: \mu_1 \neq \mu_2
-\]</span></li>
-<li>Formally, <span class="math inline">\(H_0 = \{(\mu,\sigma, \mu, \sigma), \mu \in \mathbb R, \sigma &gt; 0\}\)</span>.</li>
+</span></li>
+<li>Formally, <span class="math inline">H_0 = \{(\mu,\sigma, \mu, \sigma), \mu \in \mathbb R, \sigma &gt; 0\}</span>.</li>
 </ul>
-<div class="fragment callout callout-style-default callout-note callout-titled">
+<div class="fragment callout callout-style-default callout-note no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon"></i>
+<i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
 Student T-Test for two populations with equal variance
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<ul>
-<li><span class="math inline">\(\hat \sigma^2 = \frac{1}{n_1 + n_2 - 2}\left(\sum_{i=1}^{n_1}(X_i - \overline X)^2 + \sum_{i=1}^{n_2}(Y_i - \overline Y)^2 \right)\)</span></li>
-<li>Normalize <span class="math inline">\(\overline X - \overline Y\)</span>:</li>
+<ul class="incremental">
+<li><span class="math inline">\hat \sigma^2 = \frac{1}{n_1 + n_2 - 2}\left(\sum_{i=1}^{n_1}(X_i - \overline X)^2 + \sum_{i=1}^{n_2}(Y_i - \overline Y)^2 \right)</span></li>
+<li>Normalize <span class="math inline">\overline X - \overline Y</span>:</li>
 </ul>
-<p><span class="math display">\[\psi(X,Y) = \frac{\overline X - \overline Y}{\sqrt{\hat \sigma^2\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \sim \mathcal T(n_1+n_2 - 2) \; .\]</span></p>
-<ul>
-<li><span class="math inline">\(\psi(X,Y)\)</span> is pivotal <strong>because</strong> <span class="math inline">\(\sigma_1 = \sigma_2\)</span>.</li>
+<p><span class="math display">\psi(X,Y) = \frac{\overline X - \overline Y}{\sqrt{\hat \sigma^2\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \sim \mathcal T(n_1+n_2 - 2) \; .</span></p>
+<ul class="incremental">
+<li><span class="math inline">\psi(X,Y)</span> is pivotal <strong>because</strong> <span class="math inline">\sigma_1 = \sigma_2</span>.</li>
 </ul>
 </div>
 </div>
 </section>
 <section id="equality-means-unequal-variances" class="level2">
 <h2 class="anchored" data-anchor-id="equality-means-unequal-variances">Equality Means, Unequal Variances</h2>
-<ul>
-<li>We observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1)\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2)\)</span>.</li>
-<li><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> are <strong>unknown</strong></li>
-<li>Equality of Mean Testing Problem: <span class="math display">\[
+<ul class="incremental">
+<li>We observe <span class="math inline">(X_1, \dots, X_{n_1})</span> iid <span class="math inline">\mathcal N(\mu_1, \sigma_1)</span> and <span class="math inline">(Y_1, \dots, Y_{n_2})</span> iid <span class="math inline">\mathcal N(\mu_2, \sigma_2)</span>.</li>
+<li><span class="math inline">\sigma_1</span>, <span class="math inline">\sigma_2</span>, <span class="math inline">\mu_1</span>, <span class="math inline">\mu_2</span> are <strong>unknown</strong></li>
+<li>Equality of Mean Testing Problem: <span class="math display">
 H_0: \mu_1 = \mu_2 ~~~~ \text{ or } ~~~~ H_1: \mu_1 \neq \mu_2
-\]</span></li>
-<li>Formally, <span class="math inline">\(H_0 = \{(\mu,\sigma_1, \mu, \sigma_2), \mu \in \mathbb R, \sigma_1, \sigma_2 &gt; 0\}\)</span>.</li>
+</span></li>
+<li>Formally, <span class="math inline">H_0 = \{(\mu,\sigma_1, \mu, \sigma_2), \mu \in \mathbb R, \sigma_1, \sigma_2 &gt; 0\}</span>.</li>
 </ul>
-<div class="fragment callout callout-style-default callout-note callout-titled">
+<div class="fragment callout callout-style-default callout-note no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon"></i>
+<i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
 Student Welch Test Statistic
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><span class="math display">\[\psi(X, Y) = \frac{\overline X - \overline Y}{\sqrt{\frac{\hat \sigma_1^2}{n_1} + \frac{\hat \sigma_2^2}{n_2}}}\]</span></p>
-<ul>
-<li><span class="math inline">\(\psi(X,Y)\)</span> is <strong>not pivotal</strong></li>
-<li>Gaussian approximation: <span class="math inline">\(\psi(X,Y) \approx \mathcal N(0,1)\)</span> when <span class="math inline">\(n_1, n_2 \to \infty\)</span></li>
+<p><span class="math display">\psi(X, Y) = \frac{\overline X - \overline Y}{\sqrt{\frac{\hat \sigma_1^2}{n_1} + \frac{\hat \sigma_2^2}{n_2}}}</span></p>
+<ul class="incremental">
+<li><span class="math inline">\psi(X,Y)</span> is <strong>not pivotal</strong></li>
+<li>Gaussian approximation: <span class="math inline">\psi(X,Y) \approx \mathcal N(0,1)</span> when <span class="math inline">n_1, n_2 \to \infty</span></li>
 <li>Better approximation: <a href="https://fr.wikipedia.org/wiki/Test_t_de_Welch">Student Welch</a></li>
 </ul>
 </div>
@@ -558,91 +618,77 @@ Student Welch Test Statistic
 <h1>Asymptotic Approximations</h1>
 <section id="central-limit-theorem" class="level2">
 <h2 class="anchored" data-anchor-id="central-limit-theorem">Central Limit Theorem</h2>
-<div class="columns">
-<div class="column">
-<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout callout-style-default callout-note no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon"></i>
+<i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
 CLT
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<ul>
-<li>Let <span class="math inline">\(S_n = \sum_{i=1}^n\)</span> with <span class="math inline">\((X_1, \dots, X_n)\)</span> iid (<span class="math inline">\(L^2\)</span>) then <span class="math display">\[ \frac{S_n - \mathbb E[S_n]}{\sqrt{\mathrm{Var}(S_n)}} \approx \mathcal N(0,1) \text{ when $n \to \infty$} \]</span></li>
-<li>Equality when <span class="math inline">\(X_i\)</span>’s are <span class="math inline">\(\mathcal N(\mu, \sigma)\)</span></li>
-<li>Rule of thumb: <span class="math inline">\(n \geq 30\)</span></li>
+<ul class="incremental">
+<li>Let <span class="math inline">S_n = \sum_{i=1}^n</span> with <span class="math inline">(X_1, \dots, X_n)</span> iid (<span class="math inline">L^2</span>) then <span class="math display"> \frac{S_n - \mathbb E[S_n]}{\sqrt{\mathrm{Var}(S_n)}} \approx \mathcal N(0,1) \text{ when $n \to \infty$} </span></li>
+<li>Equality when <span class="math inline">X_i</span>’s are <span class="math inline">\mathcal N(\mu, \sigma)</span></li>
+<li>Rule of thumb: <span class="math inline">n \geq 30</span></li>
 </ul>
 </div>
 </div>
-</div><div class="column">
-<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout callout-style-default callout-tip no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon"></i>
+<i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
 Example: Binomials
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<ul>
-<li>If <span class="math inline">\(p \in (0,1)\)</span></li>
-<li><span class="math inline">\(\frac{\mathrm{Bin}(n,p) - np}{\sqrt{np(1-p)}} \approx \mathcal N(0,1)\)</span> when <span class="math inline">\(n \to \infty\)</span></li>
-<li><span class="math inline">\(n\)</span> should be <span class="math inline">\(\gg \frac{1}{p}\)</span></li>
+<ul class="incremental">
+<li>If <span class="math inline">p \in (0,1)</span></li>
+<li><span class="math inline">\frac{\mathrm{Bin}(n,p) - np}{\sqrt{np(1-p)}} \approx \mathcal N(0,1)</span> when <span class="math inline">n \to \infty</span></li>
+<li><span class="math inline">n</span> should be <span class="math inline">\gg \frac{1}{p}</span></li>
 </ul>
 </div>
 </div>
-</div>
-</div>
-<div class="columns">
-<div class="column">
-<div class="fragment">
-<p>Good Approx for (<span class="math inline">\(n=100\)</span>, <span class="math inline">\(p=0.2\)</span>)</p>
+<p>Good Approx for (<span class="math inline">n=100</span>, <span class="math inline">p=0.2</span>)</p>
 <p><img src="../images/clt2.svg" class="img-fluid" style="width:70.0%"></p>
-</div>
-</div><div class="column">
-<div class="fragment">
-<p>Bad Approx for (<span class="math inline">\(n=100\)</span>, <span class="math inline">\(p=0.01\)</span>) <img src="../images/clt001.svg" class="img-fluid" style="width:70.0%"></p>
-</div>
-</div>
-</div>
+<p>Bad Approx for (<span class="math inline">n=100</span>, <span class="math inline">p=0.01</span>) <img src="../images/clt001.svg" class="img-fluid" style="width:70.0%"></p>
 </section>
 <section id="proportion-test" class="level2">
 <h2 class="anchored" data-anchor-id="proportion-test">Proportion Test</h2>
-<ul>
-<li>We observe <span class="math inline">\(X \sim Bin(n_1, p_1)\)</span> and <span class="math inline">\(Y \sim Bin(n_2, p_2)\)</span>.</li>
-<li><span class="math inline">\(n_1\)</span>, <span class="math inline">\(n_2\)</span> are <strong>known</strong> but <span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span> are <strong>unknown</strong> in <span class="math inline">\((0,1)\)</span></li>
-<li><span class="math inline">\(H_0\)</span>: <span class="math inline">\(p_1 = p_2\)</span> or <span class="math inline">\(H_1\)</span>: <span class="math inline">\(p_1 \neq p_2\)</span></li>
+<ul class="incremental">
+<li>We observe <span class="math inline">X \sim Bin(n_1, p_1)</span> and <span class="math inline">Y \sim Bin(n_2, p_2)</span>.</li>
+<li><span class="math inline">n_1</span>, <span class="math inline">n_2</span> are <strong>known</strong> but <span class="math inline">p_1</span>, <span class="math inline">p_2</span> are <strong>unknown</strong> in <span class="math inline">(0,1)</span></li>
+<li><span class="math inline">H_0</span>: <span class="math inline">p_1 = p_2</span> or <span class="math inline">H_1</span>: <span class="math inline">p_1 \neq p_2</span></li>
 </ul>
-<div class="fragment callout callout-style-default callout-note callout-titled">
+<div class="fragment callout callout-style-default callout-note no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
-<i class="callout-icon"></i>
+<i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
 Test Statistic
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><span class="math display">\[ \psi(X,Y) = \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \; .\]</span></p>
-<ul>
-<li><span class="math inline">\(\hat p_1 = X/n_1\)</span>, <span class="math inline">\(\hat p_2 = X/n_2\)</span></li>
-<li><span class="math inline">\(\hat p = \frac{X+Y}{n_1+n_2}\)</span></li>
-<li>If <span class="math inline">\(np_1, np_2 \gg 1\)</span>: <span class="math inline">\(\psi(X) \sim \mathcal N(0,1)\)</span></li>
-<li>We reject if <span class="math inline">\(|\psi(X,Y)| \geq t_{1-\alpha/2}\)</span> (gaussian quantile)</li>
+<p><span class="math display"> \psi(X,Y) = \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \; .</span></p>
+<ul class="incremental">
+<li><span class="math inline">\hat p_1 = X/n_1</span>, <span class="math inline">\hat p_2 = X/n_2</span></li>
+<li><span class="math inline">\hat p = \frac{X+Y}{n_1+n_2}</span></li>
+<li>If <span class="math inline">np_1, np_2 \gg 1</span>: <span class="math inline">\psi(X) \sim \mathcal N(0,1)</span></li>
+<li>We reject if <span class="math inline">|\psi(X,Y)| \geq t_{1-\alpha/2}</span> (gaussian quantile)</li>
 </ul>
 </div>
 </div>
 </section>
 <section id="example-reference" class="level2">
 <h2 class="anchored" data-anchor-id="example-reference">Example (<a href="https://online.stat.psu.edu/stat415/lesson/9/9.4">reference</a>)</h2>
-<ul>
+<ul class="incremental">
 <li>Question Asked: “Should we raise taxes on cigarettes to pay for a healthcare reform ?”</li>
-<li><span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span>: proportion of non-smokers or smokers willing to raise taxes</li>
-<li><span class="math inline">\(H_0\)</span>: <span class="math inline">\(p_1=p_1\)</span> or <span class="math inline">\(H_1\)</span>: <span class="math inline">\(p_1 &lt; p_2\)</span></li>
+<li><span class="math inline">p_1</span>, <span class="math inline">p_2</span>: proportion of non-smokers or smokers willing to raise taxes</li>
+<li><span class="math inline">H_0</span>: <span class="math inline">p_1=p_1</span> or <span class="math inline">H_1</span>: <span class="math inline">p_1 &lt; p_2</span></li>
 </ul>
 <div class="fragment">
 <table class="caption-top table">
@@ -676,10 +722,10 @@ Test Statistic
 </tbody>
 </table>
 </div>
-<ul>
-<li><span class="math inline">\(\hat p_1 \approx 0.58\)</span>, <span class="math inline">\(\hat p_2 \approx 0.21\)</span>.</li>
-<li><span class="math inline">\(\psi(X,Y)= \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \approx 8.99\)</span></li>
-<li><span class="math inline">\(\mathbb P(\psi(X,Y) &gt; 8.99)\)</span> = <code>1-cdf(Normal(0,1), 8.99)</code></li>
+<ul class="incremental">
+<li><span class="math inline">\hat p_1 \approx 0.58</span>, <span class="math inline">\hat p_2 \approx 0.21</span>.</li>
+<li><span class="math inline">\psi(X,Y)= \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \approx 8.99</span></li>
+<li><span class="math inline">\mathbb P(\psi(X,Y) &gt; 8.99)</span> = <code>1-cdf(Normal(0,1), 8.99)</code></li>
 </ul>
 
 

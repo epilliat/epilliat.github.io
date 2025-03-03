@@ -1,7 +1,7 @@
 ---
 title: "Hypothesis Testing"
 format: 
-  revealjs:
+  html:
     incremental: true
 smaller: true
 css: ../style.css
@@ -86,26 +86,14 @@ css: ../style.css
     - $H_1$: Nucal translucency is large
 
 
-:::: {.columns}
-::: {.column width="40%"}
 
 4. **Decision Rule**: reject if $P_0(X \geq x_{obs}) \leq =0.05$
 5. **Collect Data**: $x_{obs}=3.02$
 6. **Make a Decision**: Calculate the value of $P_0(X \geq 3.02)=0.029$
 7. **Conclusion ?**
 
-:::
-::: {.column width="60%"}
-::: {.r-stack}
-![](../images/H_0_normal.svg){.fragment width="80%"}
-
-![](../images/normal_005.svg){.fragment width="80%"}
-
 ![](../images/nuque.svg){.fragment width="80%"}
-:::
-:::
 
-::::
 
 
 
@@ -117,8 +105,7 @@ css: ../style.css
 - We observe some data $X$ in a measurable space $(\mathcal X, \mathcal A)$.
 - Example $\mathcal X = \mathbb R^n$: $X= (X_1, \dots, X_n)$.
 
-::: {.columns}
-::: {.column width="50%"}
+
 
 ### Estimation
 
@@ -129,15 +116,13 @@ $$
 $$
 - $\exists \theta \in \Theta$ such that $X \sim P_{\theta}$
 
-::: {.fragment}
+
 **Goal:** Estimate a given function of $P_{\theta}$, e.g.:
 
 - $F(P_{\theta}) = \int x dP_{\theta}$
 - $F(P_{\theta}) = \int x^2 dP_{\theta}$
-:::
 
-:::
-::: {.column width="50%"}
+
 
 ### Test
 
@@ -152,15 +137,9 @@ $$
 - $\exists \theta \in \Theta_0 \cup \Theta_1$ such that $X \sim P_{\theta}$
 
 
-::: {.fragment}
 **Goal:** Decide between
 $$H_0: \theta \in \Theta_0 \text{ or } H_1: \theta \in \Theta_1$$
 
-[Question Tests](https://app.wooclap.com/events/RQSUIA/questions/6737a984033a3cdd266d88f5)
-:::
-
-:::
-:::
 
 
 ## 
@@ -186,43 +165,13 @@ $$H_0: \theta \in \Theta_0 \text{ or } H_1: \theta \in \Theta_1$$
 :::
 
 
-##
-
-::: {.columns}
-
-::: {.column width="50%"}
-
-### Problems
+## Type of Problems
 
 
 - **Simple VS Simple**:$$\Theta_0 = \{\theta_0\} \text{ and } \Theta_1 = \{\theta_1\}$$
 - **Simple VS Multiple**:$$\Theta_0 = \{\theta_0\}$$
 - Else: **Multiple VS Multiple**
 
-:::
-
-::: {.column width="50%"}
-
-### Test Model 
-
-::::: {.nonincremental}
-- Two sets of distributions $\mathcal P_0$, $\mathcal P_1$
-- Parameterized by disjoints $\Theta_0$, $\Theta_1$
-$$ 
-\begin{aligned}
-\mathcal P_0 = \{P_{\theta} : \theta \in \Theta_1\}, ~~~~  \mathcal P_1 = \{P_{\theta} : \theta \in \Theta_1\}\; .
-\end{aligned}
-$$
-
-- $\exists \theta \in \Theta_0 \cup \Theta_1$ such that $X \sim P_{\theta}$
-
-**Goal:** Decide between
-$$H_0: \theta \in \Theta_0 \text{ or } H_1: \theta \in \Theta_1$$
-:::::
-
-:::
-
-:::
 
 
 ##
@@ -267,9 +216,6 @@ Example of Multiple VS Multiple Parametric Problem:
 :::
 
 
-::: {.fragment}
-[Simple VS Multiple Non-Parametric Problems](https://app.wooclap.com/events/RQSUIA/questions/6737a94e942e824ee194f4f9)
-:::
 
 
 
@@ -281,14 +227,13 @@ Example of Multiple VS Multiple Parametric Problem:
 
 - It can depend on the sets $\mathcal P_0$ and $\mathcal P_1$
 - but **not** on any unknown parameter.
-- $T(x) = 0$ (or $1$) for all $x$ is the trivial decision rule. [Question: Decision Rule](https://app.wooclap.com/events/RQSUIA/questions/6737b74b942e824ee1a033a6)
 :::
 
 ::: {.callout-note title="Test Statistic"}
 - a **Test Statistic** $\psi$ is a measurable function from $\mathcal X$ to $\mathbb R$: $$ \psi : \mathcal X \to \mathbb R\; .$$
 
 - It can depend on the sets $\mathcal P_0$ and $\mathcal P_1$
-- but **not** on any unknown parameter. [Question: Test Statistic](https://app.wooclap.com/events/RQSUIA/questions/674734898cc94c63e6c9947e)
+
 :::
 
 
@@ -477,77 +422,21 @@ For a given test $T$ we define:
 
 ## Likelihood Ratio Test
 
-::::{.columns}
-
-
-:::{.column width="50%"}
 
 - Test $T$ that maximizes $\beta$ at fixed $\alpha$ ?
 - **Idea**: Consider the **likelihood ratio test statistic** 
 $$\psi(x)=\frac{dQ}{dP}(x) = \frac{q(x)}{p(x)}$$
 - We consider the **likelihood ratio test**
 $$ T^*(x)=\mathbf 1\left\{\frac{q(x)}{p(x)} > t_{\alpha}\right\} \;$$
-
+- Equivalently, we can consider the **Log-Likelihood Ratio Test**:
+$$T^*(x)=\mathbf 1\left\{\log\left(\frac{q(x)}{p(x)}\right) > \log(t_{\alpha})\right\}$$
 - $t_{\alpha}$ is the $\alpha$-quantile of the distrib $\frac{q(X)}{p(X)}$ if $X\sim P$
 $$ \mathbb P_{X \sim P}\left(\frac{q(X)}{p(X)} > t_{\alpha}\right) = \alpha$$
 
 
 
-:::
-:::{.column width="50%"}
-
-::: {.nonincremental}
-- We observe $X \in \mathcal X=\mathbb R^n$.
-- $H_0: X \sim P$ or $H_1: X \sim Q$.
-- We **know** $P$ and $Q$ but we do not know whether $X \sim P$ or $X \sim Q$
-
-<table style="border-collapse: collapse; width: 100%; text-align: center; border: 2px solid black;">
-  <thead>
-    <tr>
-      <th>Decision</th>
-      <th>$H_0: X \sim P$</th>
-      <th>$H_1: X \sim Q$</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>$T=0$</td>
-      <td class="green-cell" style="text-align: center">
-        $1-\alpha$
-      </td>
-      <td class="red-cell" style="text-align: center">
-        $1-\beta$
-      </td>
-    </tr>
-    <tr>
-      <td>$T=1$</td>
-      <td class="red-cell" style="text-align: center">
-        $\alpha$
-      </td>
-      <td class="green-cell" style="text-align: center">
-        $\beta$
-      </td>
-    </tr>
-  </tbody>
-</table>
-- **unbiased**: $\beta > \alpha$
-- $\alpha = 0$ for trivial test $T(x)=0$ ! 
-- But $\beta =0$ too...
-:::
-
-:::
-
-
-::::
-
-
 ## Neyman Pearson's Theorem
 
-::: {.columns}
-
-::: {.column width="50%"}
-
-:::{.fragment}
 ::: {.callout-note title="Neyman Pearson's Theorem"}
 The likelihood Ratio Test of level $\alpha$ maximizes the power among all tests of level $\alpha$.
 :::
@@ -556,61 +445,14 @@ The likelihood Ratio Test of level $\alpha$ maximizes the power among all tests 
 - $H_0: \theta=\theta_0$, $H_1: \theta=\theta_1$.
 - Check that the log-likelihood ratio is
 $$ (\theta_1 - \theta_0)x + \frac{\theta_0^2 -\theta_1^2}{2} \; .$$
-:::
+
 - If $\theta_1 > \theta_0$, an optimal test if of the form 
 $$ T(x) = \mathbf 1\{ x > t \} \; .$$
-:::
 
-::: {.column width="50%"}
-<table style="border-collapse: collapse; width: 100%; text-align: center; border: 2px solid black;">
-  <thead>
-    <tr>
-      <th>Decision</th>
-      <th>$H_0: X \sim P$</th>
-      <th>$H_1: X \sim Q$</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>$T=0$</td>
-      <td class="green-cell" style="text-align: center">
-        $1-\alpha$
-      </td>
-      <td class="red-cell" style="text-align: center">
-        $1-\beta$
-      </td>
-    </tr>
-    <tr>
-      <td>$T=1$</td>
-      <td class="red-cell" style="text-align: center">
-        $\alpha$
-      </td>
-      <td class="green-cell" style="text-align: center">
-        $\beta$
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-$$ T^*(x)=\mathbf 1\left\{\frac{q(x)}{p(x)} > t_{\alpha}\right\} \;$$
-
-Where, if $X\sim P$,
-$$ P(T^*(X)=1)=\mathbb P_{X \sim P}\left(\frac{q(X)}{p(X)} > t_{\alpha}\right) = \alpha$$
-
-::: {.fragment fragment-index=2}
-Equivalent to Log-Likelihood Ratio Test:
-$$T^*(x)=\mathbf 1\left\{\log\left(\frac{q(x)}{p(x)}\right) > \log(t_{\alpha})\right\}$$
-:::
-:::
-
-:::
 
 ## Example with Gaussians
 
 
-::::{.columns}
-
-:::{.column width="50%"}
 - Let $P_{\theta}$ be the distribution $\mathcal N(\theta,1)$.
 
 - Observe $n$ iid data $X = (X_1, \dots, X_n)$
@@ -618,8 +460,7 @@ $$T^*(x)=\mathbf 1\left\{\log\left(\frac{q(x)}{p(x)}\right) > \log(t_{\alpha})\r
 - Remark:  $P^{\otimes n}_{\theta}= \mathcal N((\theta,\dots, \theta), I_n)$
 - Density of $P^{\otimes n}_{\theta}$:
 
-::: {.fragment}
-::: {.small-text}
+
 $$
 \begin{aligned}
 \frac{d P^{\otimes n}_{\theta}}{dx} &= \frac{d P_{\theta}}{dx_1}\dots\frac{d P_{\theta}}{dx_n} \\
@@ -627,21 +468,12 @@ $$
 &=  \frac{1}{\sqrt{2\pi}^n}\exp\left(-\frac{\|x\|^2}{2} + n\theta \overline x - \frac{\theta^2}{2}\right)\; .
 \end{aligned}
 $$
-:::
-:::
 
-:::
 
-:::{.column width="50%"}
 - Log-Likelihood Ratio Test:
 - $T(x) = \mathbf 1\{\overline x > t_{\alpha}\}$ if $\theta_1 > \theta_0$
 - $T(x) = \mathbf 1\{\overline x < t_{\alpha}\}$ otherwise
 
-- [Distrib of $\overline X$ ?](https://app.wooclap.com/events/RQSUIA/questions/674dd6ad6e59c0c457a73b85)
-- [$t_{\alpha}$ ?](https://app.wooclap.com/events/RQSUIA/questions/674dda3980e3863f9c782fd6)
-:::
-
-::::
 
 ## Generalization: Exponential Families
 
@@ -656,7 +488,6 @@ $$
 \frac{dP^{\otimes n}_{\theta_1}}{dP^{\otimes n}_{\theta_0}} = \left(\frac{a(\theta_1)}{a(\theta_0)}\right)^n\exp\left((c(\theta_1)-c(\theta_0))\sum_{i=1}^n d(x_i)\right) \; .
 $$
 
-- Likelihood Ratio Test: [(Q: Select Exp. Families)](https://app.wooclap.com/events/RQSUIA/questions/674ecc1b2713644c58eec8bd)
 $$
 T(X) = \mathbf 1\left\{\frac{1}{n}\sum_{i=1}^n d(X_i) > t\right\} \;. ~~~~\text{(calibrate $t$)}$$
 
@@ -677,9 +508,7 @@ $$T(X)=\mathbf 1\left\{\sum_{i=1}^{20}X_i > t_{\alpha}\right\} \; .$$
 
 ## Multiple-Multiple Tests
 
-::: {.columns}
 
-::: {.column width="50%"}
 - $H_0 = \{ \mathcal P_{\theta}, \theta \in \Theta_0 \}$ is not a singleton
 - No meaning of $\mathbb P_{H_0}(X \in A)$
 - **level** of $T$:
@@ -691,16 +520,14 @@ $$
 \beta(\theta) = P_{\theta}(T(X)=1)
 $$
 - $T$ is **unbiased** if $\beta (\theta) \geq \alpha$ for all $\theta \in \Theta_1$.
-:::
 
-::: {.column width="50%"}
+
 - If $T_1$, $T_2$ are two tests of level $\alpha_1$, $\alpha_2$ 
 - $T_2$ is uniformly more powerfull ($UMP$) than $T_1$ if
     1. $\alpha_2 \leq \alpha_1$
     2. $\beta_2(\theta) \geq \beta_1(\theta)$ for all $\theta \in \Theta_1$
 - $T^*$ is $UMP_{\alpha}$ if it is $UMP$ than any other test $T$ of level $\alpha$.
-:::
-:::
+
 
 ## Multiple-Multiple Tests in $\mathbb R$
 
@@ -710,7 +537,7 @@ Assumption: $\Theta_0 \cup \Theta_1 \subset \mathbb R$.
 $$
 \begin{aligned}
 H_0: \theta \leq \theta_0 ~~~~ &\text{ or } ~~~ H_1: \theta > \theta_0 ~~~ \text{(One-Sided Right: unilatéral droit)}\\
-H_0: \theta \geq \theta_0 ~~~ &\text{ or } ~~~ H_1: \theta < \theta_0 ~~~ \text{(One-Sided Left: uniilatéral gauche)}
+H_0: \theta \geq \theta_0 ~~~ &\text{ or } ~~~ H_1: \theta < \theta_0 ~~~ \text{(One-Sided Left: unilatéral gauche)}
 \end{aligned}
 $$
 

@@ -1,10 +1,10 @@
 ---
 title: "Correlation, Homogeneity and Dependency"
 format: 
-  revealjs:
+  html:
     incremental: true
     callout-icon: false
-    theme: [default, custom.scss]
+    theme: [default, ../custom.scss]
 smaller: true
 css: ../style.css
 #filters:
@@ -15,9 +15,6 @@ css: ../style.css
 
 ::: {.callout}
 
-::: {.columns}
-::: {.column}
-
 - We observe iid paired data $(X_1, Y_1), \dots, (X_n,Y_n)$ of **unknown** mean $\mu_X, \mu_Y$ and cov matrix $\Sigma$.
 - Cov matrix: 
 $\Sigma = 
@@ -27,9 +24,6 @@ $\Sigma =
 \end{matrix}\right)$
 - $H_0: \mathrm{Cov}(X,Y)=0$ or $H_1: \mathrm{Cov}(X,Y)\neq 0$ 
 
-
-:::
-::: {.column}
 - $\mathrm{Cov(X,Y)} = \mathbb E[(X- \mathbb E[X])^2]$
 - $\sigma_X^2 = \mathrm{Cov(X,X)}$
 - $\sigma_Y^2 = \mathrm{Cov(Y,Y)}$
@@ -37,12 +31,6 @@ $\Sigma =
 
 :::
 
-::: 
-
-:::
-
-:::: {.columns}
-::: {.column}
 ::: {.callout-note .fragment}
 ## Pearson's Correlation Test
 
@@ -51,15 +39,10 @@ $\Sigma =
 - $\psi(X,Y) = \frac{r}{\sqrt{1-r^2}}\sqrt{n-2}$
 - Under $H_0$, $\psi(X,Y) \approx \mathcal T(n-2)$
 :::
-:::
-::: {.column}
 
-::: {.fragment}
+
 ![](../images/correlated_X_Y.svg)
 
-:::
-:::
-:::: 
 
 
 ## Correlation Test
@@ -78,9 +61,6 @@ Monte Carlo Simulation with $n=4$:
 
 ::: {.callout-note .fragment}
 ## ANOVA
-::: {.columns}
-
-::: {.column}
 
 - Empirical mean of group $k$:
 $\overline X_k = \tfrac{1}{N_k}\sum_{i=1}^{N_k} X_{ik}$
@@ -88,33 +68,23 @@ $\overline X_k = \tfrac{1}{N_k}\sum_{i=1}^{N_k} X_{ik}$
 $SS_k = \sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2 \sim \sigma^2\chi^2(N_k-1)$ (under $H_0$)
 - Var of group $k$: $V_k = \tfrac{1}{N_k}SS_k$
 
-:::
-::: {.column}
+
 
 - Total empirical mean:
 $\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} X_{ik}$
 - Sum of Squares btween Groups: $SSB = \sum_{k=1}^{d} N_k(\overline X_k - \overline X)^2\sim\sigma^2\chi^2(d-1)$ (under $H_0$)
 :::
-::: 
-:::
 
-::: {.columns}
-::: {.column}
-::: {.fragment}
 ![](../images/anova.svg)
 
-:::
-:::
-::: {.column}
-::: {.callout-note .fragment}
+::: {.callout-note}
 ## ANOVA Test Statistic
 - $\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}{\tfrac{1}{d-1}SSB}$
 - $\psi(X) \sim \mathcal F(N_{\mathrm{tot}}-d, d-1)$ (Fisher under $H_0$)
 - Two-sided test: double the min left/right $p_{value}$.
 
 :::
-:::
-::: 
+
 
 # $\chi^2$ Homogeneity and Independence Tests
 
@@ -131,9 +101,7 @@ $\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} X_{ik}$
 | Total   | $N_1$    | $N_2$    | $N_3$    | $N$   |
 :::
 
-:::{.columns}
-:::{.column}
-:::{.fragment}
+
 :::{.callout}
 - Bag $j$: $(X_{1j}, X_{2j}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}))$
 - The parameters $p_{ij}$ are **unknown**
@@ -141,42 +109,35 @@ $\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} X_{ik}$
 - $H_1$: bags are heterogeneous
 - $\sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_jp_{ij})^2}{N_jp_{ij}}$ **not a test statistic**
 :::
-:::
-:::
 
-:::{.column}
-:::{.fragment}
+
 :::{.callout-note}
 ## Chi-Squared Homogeneity Test Statistic
 - $\hat p_{i} = \tfrac{1}{N}\sum_{j=1}^{d}X_{ij} = \frac{R_i}{N}$
 - $\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_j\hat p_{i})^2}{N_j\hat p_{i}}$
 - Approximation: $\psi(X) \sim \chi^2((m-1)(d-1))$
 :::
-:::
-:::
-:::
+
 
 ## Example: Soft drink preferences
 
-
-:::{style="font-size: 70%;"}
 
 
 - Split population into $3$ categories: **Young Adults (18-30)**, **Middle-Aged Adults (31-50)**, and **Seniors (51 and above)**.
 - $H_0$: The groups are homogeneous in terms of soft drink preferences
 
-:::{.fragment}
+
 | Age Group    | Young Adults |  Middle-Aged | Seniors | Total |
 | ------------ | ---- | ----- | ------ | ----- |
 | Coke | 60   | 40    | 30     | 130   |
 | Pepsi  | 50   | 55    | 25     | 130   |
 | Sprite  | 30   | 45    | 55     | 130   |
 | **Total**    | 140  | 140   | 110    | 390   |
-:::
+
 
 - $N_1 \hat p_1 = 140*\frac{130}{390} \approx 46.7$
 
-:::{.fragment}
+
 $$
 \begin{aligned}
 \psi(X) &= \frac{(60-46.7)^2}{46.7}&+ \frac{(40-46.7)^2}{46.7}&+\frac{(30-36.7)^2}{36.7} \\
@@ -185,14 +146,12 @@ $$
  	&\approx 26.57
 \end{aligned}
 $$
-:::
-:::
 
-:::{.fragment}
+
+
 ```julia
 1-cdf(Chisq(4), 26.57) # 2.4e-5, reject H_0
 ```
-:::
 
 ## $\chi^2$ Independence Test
 
@@ -207,9 +166,6 @@ $$
 
 
 
-:::{style="font-size: 70%;"}
-::: {.columns}
-::: {.column .fragment}
 
 Example of **contingency table**:
 
@@ -218,8 +174,7 @@ Example of **contingency table**:
 |Coffee|	30|	20|	50|
 |Tea|	28	|22	|50|
 |Total|	58|	42|100|
-:::
-::: {.column .fragment}
+
 **Expected counts**:
 
 |Gender|	Male| Female|	Total|
@@ -227,10 +182,7 @@ Example of **contingency table**:
 |Coffee|	29|	21|	50|
 |Tea|	29	|21	|50|
 |Total|	58|	42|100|
-:::
-:::
 
-:::
 
 - Degree of freedom: $(2-1)(2-1) = 1$
 
@@ -256,7 +208,10 @@ $$
 - Indeed:
 $$
 \begin{aligned}
-\mathbb P(X - Y \leq t) &=\int_{-\infty}^t \mathbb P(X \leq t+y)p(y)dy =\int_{-\infty}^t \mathbb P(Y \leq t+x)p(x)dy = \mathbb P(Y-X \leq t) \; .
+\mathbb P(X - Y \leq t) 
+&=\int_{-\infty}^t \mathbb P(X \leq t+y)p(y)dy \\
+&=\int_{-\infty}^t \mathbb P(Y \leq t+x)p(x)dy \\
+&= \mathbb P(Y-X \leq t) \; .
 \end{aligned}
 $$
 - $X$ indep of $Y$ $\implies$ $X-Y$ symmetric $\implies$ $\mathrm{median}(X-Y) = 0$
@@ -280,14 +235,15 @@ $$p_X(x) = \int_{y \in \mathbb R} p_{XY}(x,y)~~~~ \text{ and }~~~~ p_{Y}(y) = \i
 - If $X_i$ is independent of $Y_i$ for all $i$, then we are under $H_0$.
 :::
 :::{.callout-warning .fragment}
-- The pairs are assume to be independent, but within each pair, $Y_i$ **can depend on** $X_i$ (that is, we don't necessarily have $p(x,y) =p_X(x)p_Y(y)$).
+- The pairs are assume to be independent, but within each pair, $Y_i$ **can depend on** $X_i$ 
+  (that is, we don't necessarily have $p(x,y) =p_X(x)p_Y(y)$).
 :::
 
 
 ## Wilcoxon's Signed Rank Test
 
 
-:::{.callout-note appearance="minimal"}
+:::{.callout appearance="minimal"}
 - $D_i = X_i - Y_i$
 - We define the **sign** of pair $i$ as the sign of $D_i=X_i - Y_i$. It is in $\{-1, 1\}$.
 - We define the **rank** of pair $i$ as the permutation $R_i$ that satisfies $|D_{R_i}| = |D_{(i)}|$, where
@@ -315,42 +271,34 @@ Under $H_0$,
 :::{.callout-note .fragment}
 ## Properties on the Signed Ranks 
 
-::::{.columns}
 
-:::{.column}
 - Wilcoxon's test statistic:
 $W_- = \sum_{i=1}^n R_i \mathbf 1\{D_i < 0\}$
 - Sometimes, also $W_+ = \sum_{i=1}^n R_i \mathbf 1\{D_i > 0\}$ or $\min(W_-, W_+)$.
 - Gaussian approximation: $W_- \asymp n(n+1)/4 + \sqrt{n(n+1)(2n+1)/24} \mathcal N(0,1)$
 - if $H_1$: $\mathrm{median}(D_i) > 0$: left-one sided test on $W_-$.
+
+
+
+
 :::
 
-:::{.column}
-:::{.fragment}
 This approximation fits well the exact distribution. Monte-Carlo simulation:
 
 ![](../images/wilcoxon_W-.svg)
-:::
-:::
 
-::::
-:::
 
-:::{.fragment}
 To generate a $W_-$ under $H_0$ in Julia:
 ```julia
 k = rand(Binomial(n, 0.5))
 w = sum(randperm(n)[1:k])
 ```
-:::
 
 ## Effect of Drug on Blood Pressure
 
 - $H_0$: the drug has no effect. $H_1$: it lowers the blood pressure
 
-::: {.fragment}
 
-:::{style="font-size: 70%;"}
 
 | Patient | $X_i$ (Before) | $Y_i$​ (After) | $D_i = X_i-Y_i$​ | $R_i$ |
 | ------- | -------------- | -------------- | ---------------- | ----- |
@@ -362,10 +310,10 @@ w = sum(randperm(n)[1:k])
 | 6       | 171            | 160            | 11               | 7 (+) |
 | 7       | 141            | 138            | 3                | 3 (+) |
 
-:::
-:::
 
 - $W_- = 1+2 = 3$.
 - From a simulation, we approx $\mathbb P(W_-=i)$, for $i \in \{0, 1, 2, 3, 4, 5,6\}$ under $H_0$ by
-- `[0.00784066, 0.00781442, 0.00781534, 0.01563892, 0.01562184, 0.02343478]`
+```julia
+[0.00784066, 0.00781442, 0.00781534, 0.01563892, 0.01562184, 0.02343478]
+```
 - From a simulation, $p_{value}=\mathbb P(W_- \leq 3) \approx 0.039 < 0.05$
