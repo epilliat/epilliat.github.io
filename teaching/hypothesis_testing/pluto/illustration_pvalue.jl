@@ -26,6 +26,21 @@ end
 # ╔═╡ 2023f341-2e40-42bd-a60a-643918066b97
 using Random, Plots
 
+# ╔═╡ c5a5ef3b-4586-47cd-97b2-31b07cc49879
+md"""
+## Medical Test
+
+1. **Objective:** test if a fetus has Down syndrome
+2. **Experiment:** measure the nucal translucency
+3. **Hypotheses:**
+    -  $H_0$: nucal translucency is normal $\sim \mathcal N(1.5,0.8)$
+    -  $H_1$: nucal translucency is large
+1. **Decision rule**: reject if $P_0(X \geq x_{obs}) \leq 0.05$
+2. **Collect data**: $x_{obs}=3.02$
+3. **Make a decision**: calculate the value of $P_0(X \geq 3.02)=0.029$
+4. **Conclusion ?**
+"""
+
 # ╔═╡ 9927dda7-82e1-4b97-b94e-83ada6b02195
 md"α: $(@bind α0 Slider(0.005:0.001:0.4, show_value=true; default=0.05))"
 
@@ -1433,6 +1448,7 @@ version = "1.4.1+1"
 # ╔═╡ Cell order:
 # ╟─5df43af6-7dd1-11ef-12bc-571a00aa4bd8
 # ╟─2023f341-2e40-42bd-a60a-643918066b97
+# ╟─c5a5ef3b-4586-47cd-97b2-31b07cc49879
 # ╟─9927dda7-82e1-4b97-b94e-83ada6b02195
 # ╟─6b375e5e-76b2-4efa-ab3a-b0fe3c73fe23
 # ╟─54b9be35-4fe0-4e10-97e1-6917c74e1ddc
