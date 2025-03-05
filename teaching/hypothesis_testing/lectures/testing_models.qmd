@@ -249,9 +249,7 @@ T(x) &= \mathbf{1}\{|\psi(x)| > t\}:~~~~~~\mathcal R = (-\infty,t)\cup (t, +\inf
 $$
 
 
-# Simple VS Simple
-
-## Recall of Proba
+# Recall of Proba
 
 Consider a probability measure $P$ on $\mathbb R$.
 
@@ -264,7 +262,7 @@ $$x \to P(~(-\infty,x]~) = \mathbb P(X \leq x) ~~~~\text{(if $X \sim P$ under $\
 ::::{.columns}
 :::{.column width="50%"}
 
-### Continous Measures
+## Continous Measures
 - density wrp to Lebesgue: $dP(x) = p(x)dx$
 
 - **PDF** (proba density function): $x \to p(x)$
@@ -276,7 +274,7 @@ $$x \to P(~(-\infty,x]~) = \mathbb P(X \leq x) ~~~~\text{(if $X \sim P$ under $\
 :::{.column width="50%"}
 
 ::: {.fragment}
-### Discrete Measures
+## Discrete Measures
 - density wrp to counting measure: $P(X=x) = p(x)$
 - **CDF**: $x \to \sum_{x' \leq x} p(x')dx'$
 - $\alpha$-quantile $q_{\alpha}$: 
@@ -371,9 +369,7 @@ $$p(x)=\frac{\lambda^x}{x!}e^{-\lambda}$$
 
 ::::
 
-
-## Simple VS Simple Problems
-
+# Simple VS Simple
 
 - We observe $X \in \mathcal X=\mathbb R^n$.
 - $H_0: X \sim P$ or $H_1: X \sim Q$.
@@ -422,7 +418,7 @@ For a given test $T$ we define:
 
 
 
-### Likelihood Ratio Test
+## Likelihood Ratio Test
 
 
 - Test $T$ that maximizes $\beta$ at fixed $\alpha$ ?
@@ -437,7 +433,7 @@ $$ \mathbb P_{X \sim P}\left(\frac{q(X)}{p(X)} > t_{\alpha}\right) = \alpha$$
 
 
 
-### Neyman Pearson's Theorem
+## Neyman Pearson
 
 ::: {.callout-note title="Neyman Pearson's theorem"}
 The likelihood Ratio Test of level $\alpha$ maximizes the power among all tests of level $\alpha$.
@@ -452,6 +448,45 @@ $$ (\theta_1 - \theta_0)x + \frac{\theta_0^2 -\theta_1^2}{2} \; .$$
 $$ T(x) = \mathbf 1\{ x > t \} \; .$$
 
 
+### Proof of Neyman Pearson's theorem
+We prove the theorem in the case where $P$ and $Q$ each have a density $p$ and $q$ on $\mathbb R^n$.
+For any $t > 0$, define
+$$I_t(P, Q) = \int_{x \in \mathbb R^n} |q(x) - tp(x)|dx \; .$$
+
+When $t=1$, this quantity is equal to the total-variation distance between $P$ and $Q$. For any event A in $\mathbb R^n$ , it holds that
+
+$$
+\begin{split}
+  I_t(P, Q) &= \int_{x \in \mathbb R^n} |q(x) - tp(x)|dx \\
+  &= \int_{q(x)> tp(x)} q(x) - tp(x)dx + \int_{q(x)< tp(x)} tp(x) - q(x)dx\\
+  &=  2\int_{x \in \mathbb R^n} \mathbf1_{q(x)> tp(x)}(q(x) - tp(x))dx + t-1 \\
+  &\geq 2\int_{x \in \mathbb R^n} \mathbf 1_A \mathbf1_{q(x)> tp(x)}(q(x) - tp(x))dx + t-1\\
+  &\geq t-1 + 2(Q(A) - tP(A)) \; .
+\end{split}
+$$
+
+If $A  = \{x \in \mathbb R^n : q(x) > tp(x)\}$, then the two last inequalities are equalities. In particular,
+$$I_t(P, Q) = t-1 + 2\sup_{A \subset \mathbb R^n}(Q(A) - tP(A))) \; .$$
+
+
+Assume that the type-1 error of $T$ is smaller than $\alpha$: $P(T=1) \leq \alpha$.
+
+ The power of $T$, $Q(T = 1)$, is upper-bounded as follows:
+$$
+\begin{split}
+  Q(T=1) &\leq Q(T=1) + t(\alpha - P(T=1))\\ 
+  &= \alpha t + Q(T=1) - tP(T=1) \\
+  &\leq \alpha t + \frac{t-1}{2} + \frac{1}{2}I_t \; .
+\end{split}
+$$
+
+- There is equality in the second inequality if $T=1$ is the event $\{ \frac{q(X)}{p(X)} > t \}$. 
+- There is equality in the first inequality if $P(T=1) = \alpha$.
+
+Let $t_{\alpha}$ be such that $P(\frac{q(X)}{p(X)}> t_{\alpha}) = \alpha$. The test $T^*(X) = \mathbf1 \{\frac{q(X)}{p(X)}> t_{\alpha}\}$ satisfies the two above points, since its rejection event is exactly $\{T^*(X) = 1\} = \{\frac{q(X)}{p(X)}> t_{\alpha}\}$ and since $P(T^* = 1) = \alpha.$ Hence, for any test $T$ of type 1 error smaller than $\alpha$, it holds that $Q(T = 1) \leq Q(T^* = 1)$.
+
+
+## Examples
 ### Example (Gaussians)
 
 - Let $P_{\theta}$ be the distribution $\mathcal N(\theta,1)$.
@@ -460,6 +495,8 @@ $$ T(x) = \mathbf 1\{ x > t \} \; .$$
 - $H_0: X \sim P^{\otimes n}_{\theta_0}$ or $H_1: X \sim P^{\otimes n}_{\theta_1}$
 - Remark:  $P^{\otimes n}_{\theta}= \mathcal N((\theta,\dots, \theta), I_n)$
 - Density of $P^{\otimes n}_{\theta}$:
+
+
 
 
 $$
