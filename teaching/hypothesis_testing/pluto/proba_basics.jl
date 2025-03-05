@@ -95,35 +95,6 @@ begin
     illustration_pvalue_discrete(Poisson(1.5), (0:0.02:10),α4,name="\$\\mathcal{P}(1)\$")
 end
 
-# ╔═╡ 94395374-13a3-462b-9e17-339ada13dfcc
-md"n: $(@bind n Slider(1:200, show_value=true; default=0.05)) \
-pvalrej: $(@bind pvalrej Slider(0:0.01:0.5, show_value=true; default=0.05)) \
-bilat: $(@bind bilat Slider(0:1, show_value=true; default=0.05))"
-
-# ╔═╡ c414d76b-790e-460b-b526-6d006e66ced7
-begin
-    function random_sampling(distrib, x, unif,n; name="\$\\mathcal{N}(0,1)\$")
-        p2=plot(x, cdf.(distrib, x), title="CDF of $(name)", label=false,xticks=[],yticks=[0,1],ylimits=(0,1),
-		legend=false)
-
-		for i in (1:n)		
-		α=unif[i]
-		q = quantile(distrib,α)
-		if bilat == 0
-		color = α > 1-pvalrej ? :red : :green
-		else
-			color = ((α > 1-pvalrej/2) || (α < pvalrej/2)) ? :red : :green
-		end
-		plot!([x[1],q],[α,α],label=false, color=color)
-		plot!([q,q],[0,α], color=color, label="\$\\alpha = $(round(α,digits=3))\$ \n \$q_{\\alpha} = $(round(q,digits=3))\$")
-		scatter!([q], [0.01], color=:purple)
-		end
-		plot(p2)
-    end
-	unif = rand(Xoshiro(1),500)
-    random_sampling(Normal(0,1), (-4:0.02:4), unif, n,name="\$\\mathcal{N}(0,1)\$")
-end
-
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -144,7 +115,7 @@ StatsPlots = "~0.15.7"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.1"
+julia_version = "1.11.3"
 manifest_format = "2.0"
 project_hash = "c6270645deed6c8ef2bd2ff68bff584fbd9a0e7f"
 
@@ -1644,20 +1615,18 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╠═cfa70d3a-0d59-4882-8ea0-a43e3216f961
+# ╟─cfa70d3a-0d59-4882-8ea0-a43e3216f961
 # ╟─8ec37e3c-b0a9-11ef-20fd-37ea74ef9b15
-# ╠═59599abf-3b4d-47ec-9a74-b416ce92eefd
+# ╟─59599abf-3b4d-47ec-9a74-b416ce92eefd
 # ╟─4d051fd6-fa16-457b-81e8-6e126ea66142
 # ╟─80334fcf-fe48-4872-a4d8-dac95fec1a0d
 # ╟─7b1d756a-253d-489e-a070-7063e24979fd
 # ╟─cae1c158-a4e7-48a8-93bc-c5d9ecb06f26
 # ╟─7bb7346d-6bdf-40ae-8cab-1aadd1437574
-# ╠═45ef61aa-022c-4a14-894b-1aeb3866e2df
-# ╠═8c50ec30-043b-417c-b768-5b6745e1df9c
+# ╟─45ef61aa-022c-4a14-894b-1aeb3866e2df
+# ╟─8c50ec30-043b-417c-b768-5b6745e1df9c
 # ╟─57e78428-8953-4564-b6ed-63493b324188
 # ╟─d194ece5-5f27-4c27-a035-fb3863323f01
-# ╠═64073a56-d316-4321-a066-ea5e0cef82ca
-# ╟─94395374-13a3-462b-9e17-339ada13dfcc
-# ╠═c414d76b-790e-460b-b526-6d006e66ced7
+# ╟─64073a56-d316-4321-a066-ea5e0cef82ca
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

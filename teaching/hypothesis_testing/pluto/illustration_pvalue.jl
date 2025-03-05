@@ -42,7 +42,6 @@ function nuque()
 	data = [mu + 1.9s]
 
 	q_alpha = quantile(Normal(mu,s),1-α0)
-	@show q_alpha
 	scatter!(data, zeros(length(data)), label="\$x_{\\mathrm{obs}} = $(round(data[1], digits=2))\$", mc=:black, ms=5, ma=0.5)
 	op = (>=)
 	plot!(x[op.(x, q_alpha)], zeros(length(x[op.(x, q_alpha)])), fillrange = y1[op.(x,q_alpha)],fillalpha = 0.2, c = 1, label = "\$\\alpha = $(α0)\$")
@@ -69,26 +68,6 @@ sliders_1 = [
 	md"$(sliders_1[1:end])"
 end
 
-# ╔═╡ 526e9778-b8a3-4cff-a1ae-a1cc0c3f089b
-begin
-function show_graph_1()
-	x = θ0 - 4σ0:σ0/100:θ0 + 2σ0
-	p1(x) = pdf(Normal(300, 15/sqrt(30)), x)
-	y1 = p1.(x)
-	plot(x, y1, label="\$H_0\$", xlimits = (300-15, 300+15))
-	
-	data = -7 + 300 .+ 15* randn(30) / sqrt(30)
-	scatter!(data, zeros(length(data)), label="\$(X_i)\$", mc=:red, ms=5, ma=0.7)
-end
-	show_graph_1()
-end
-
-# ╔═╡ 699bc63f-f7c2-4023-8249-97dac7393d69
-quantile(Normal(1.5,0.8), 0.95)
-
-# ╔═╡ 977a8f33-9482-4f32-8853-2b410c62c48f
-
-
 # ╔═╡ f4e262c8-9fb0-42e7-b6e3-31f586b924e5
 begin
 function show_graph(θ0, θ1, σ0, σ1,n, α)
@@ -98,7 +77,7 @@ function show_graph(θ0, θ1, σ0, σ1,n, α)
 	p1(x) = pdf(Normal(θ0, σ0/sqrt(n)), x)
 	p2(x) = pdf(Normal(θ1, σ1/sqrt(n)), x)
 	y1,y2 = p1.(x), p2.(x)
-	plot(x, y1, label="\$H_0\$", xlimits=(θ0 - 2σ0,θ0 + 2σ0), ylimits=(-0.002,0.12))
+	plot(x, y1, label="\$H_0\$", xlimits=(80,150), ylimits=(-0.01,0.4))
 	#plot!(x, y2, label="\$H_1\$")
 	scatter!(data, zeros(length(data)), label="\$(X_i)\$", mc=:red, ms=4, ma=1)
 	#scatter!([mean(data)], [0], label="mean", mc=:black, ms=10, ma=0.7)
@@ -121,20 +100,47 @@ end;
 show_graph(θ0, θ1, σ0, σ1,n, α)
 end
 
-# ╔═╡ 12347425-2c60-4953-bc25-a8a0bf1f4b4c
-quantile(Binomial(50,0.2), 0.5)
+# ╔═╡ 03f912aa-e0b8-457d-b855-757fc9f1b41a
+md"""
+## Illustration of False Alarm Rate
+In this example, We perform the same testing problem $n$ times to illustrate the false alarm rate. 
 
-# ╔═╡ 7d9f6d5d-33c5-4590-b147-3ed9969f5875
-quantile(Poisson(20*0.6), 0.95)
+We observe one sample $X_i \sim \mathcal N(\theta,1)$.\
+Testing problem:
+$H_0: \theta = 0$ vs $H_1: \theta > 0$ (in the one-sided case)
 
-# ╔═╡ a01ae2ac-55d1-4ea7-97b5-52d99e63d457
+We reject if pvalue < pvalrej, that is if $\mathbb P(X > X_i |X_i) < \mathrm{pvalrej}$ (one-sided) or $\mathbb P(|X| > |X_i| |X_i) < \mathrm{pvalrej}$ (two-sided)\
+(Here $X$ represents an independent $\mathcal N(0,1)$ random variable).
+"""
 
+# ╔═╡ ce6cfbf8-2919-4cf0-b3a8-137c51bf0275
+md"n: $(@bind n2 Slider(1:200, show_value=true; default=0.05)) \
+pvalrej: $(@bind pvalrej Slider(0:0.01:0.5, show_value=true; default=0.05)) \
+two-sided: $(@bind bilat Slider(0:1, show_value=true; default=0.05))"
 
-# ╔═╡ 2d1874c4-55e1-4b78-a136-df0b48cf4bd1
-cdf(Poisson(20*0.6), 18)
+# ╔═╡ 2766134b-12e9-4dec-8983-5619b43339f0
+begin
+    function random_sampling(distrib, x, unif,n; name="\$\\mathcal{N}(0,1)\$")
+        p2=plot(x, cdf.(distrib, x), title="Rejected Data", label="CDF of $name", xticks=[],yticks=[0,1],ylimits=(0,1), legend=:topright)
 
-# ╔═╡ 17db68fa-3924-4312-91fb-cdb0ebeb3811
-1-cdf(Poisson(20*0.8), 18)
+		for i in (1:n2)		
+		α=unif[i]
+		q = quantile(distrib,α)
+		if bilat == 0
+		color = α > 1-pvalrej ? :red : :green
+		else
+			color = ((α > 1-pvalrej/2) || (α < pvalrej/2)) ? :red : :green
+		end
+		plot!([x[1],q],[α,α],label=false, color=color)
+			label = i==1 ? "\$X_i \\sim \\mathcal{N}(0,1)\$ under \$H_0\$" : false
+		plot!([q,q],[0,α], color=color, label=false)
+		scatter!([q], [0.01], color=:purple, label=label)
+		end
+		plot(p2)
+    end
+	unif = rand(Xoshiro(1),500)
+    random_sampling(Normal(0,1), (-4:0.02:4), unif, n2,name="\$\\mathcal{N}(0,1)\$")
+end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -154,7 +160,7 @@ PlutoUI = "~0.7.60"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.1"
+julia_version = "1.11.3"
 manifest_format = "2.0"
 project_hash = "be867e579bfe67ff0f4f4d92c70c5e6df9a8494b"
 
@@ -1426,18 +1432,13 @@ version = "1.4.1+1"
 
 # ╔═╡ Cell order:
 # ╟─5df43af6-7dd1-11ef-12bc-571a00aa4bd8
-# ╠═2023f341-2e40-42bd-a60a-643918066b97
-# ╠═9927dda7-82e1-4b97-b94e-83ada6b02195
-# ╠═6b375e5e-76b2-4efa-ab3a-b0fe3c73fe23
-# ╠═526e9778-b8a3-4cff-a1ae-a1cc0c3f089b
+# ╟─2023f341-2e40-42bd-a60a-643918066b97
+# ╟─9927dda7-82e1-4b97-b94e-83ada6b02195
+# ╟─6b375e5e-76b2-4efa-ab3a-b0fe3c73fe23
 # ╟─54b9be35-4fe0-4e10-97e1-6917c74e1ddc
-# ╠═699bc63f-f7c2-4023-8249-97dac7393d69
-# ╠═977a8f33-9482-4f32-8853-2b410c62c48f
-# ╠═f4e262c8-9fb0-42e7-b6e3-31f586b924e5
-# ╠═12347425-2c60-4953-bc25-a8a0bf1f4b4c
-# ╠═7d9f6d5d-33c5-4590-b147-3ed9969f5875
-# ╠═a01ae2ac-55d1-4ea7-97b5-52d99e63d457
-# ╠═2d1874c4-55e1-4b78-a136-df0b48cf4bd1
-# ╠═17db68fa-3924-4312-91fb-cdb0ebeb3811
+# ╟─f4e262c8-9fb0-42e7-b6e3-31f586b924e5
+# ╟─03f912aa-e0b8-457d-b855-757fc9f1b41a
+# ╟─ce6cfbf8-2919-4cf0-b3a8-137c51bf0275
+# ╟─2766134b-12e9-4dec-8983-5619b43339f0
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
