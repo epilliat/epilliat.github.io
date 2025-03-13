@@ -18,22 +18,23 @@ css: ../style.css
 ::: {.columns}
 ::: {.column}
 
-- We observe iid paired data $(X_1, Y_1), \dots, (X_n,Y_n)$ of **unknown** mean $\mu_X, \mu_Y$ and cov matrix $\Sigma$.
+- We observe iid paired data $(X_1, Y_1), \dots, (X_n,Y_n)$ of **unknown** mean $\mu_X, \mu_Y$ and cov matrix $\Sigma$. Let $X=X_1$, $Y=Y_1$.
+- $\mathrm{Cov(X,Y)} = \mathbb E[(X- \mathbb E[X])(Y- \mathbb E[Y])]$
+- $H_0: \mathrm{Cov}(X,Y)=0$ or $H_1: \mathrm{Cov}(X,Y)\neq 0$ 
+
+
+:::
+::: {.column}
+
+- $\sigma_X^2 = \mathrm{Cov(X,X)}$
+- $\sigma_Y^2 = \mathrm{Cov(Y,Y)}$
+- $\mathrm{Cor(X,Y)} = \frac{\mathrm{Cov(X,Y)}}{\sigma_X \sigma_Y}$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d18d44da9d0e3a03397017)]
 - Cov matrix: 
 $\Sigma = 
 \left(\begin{matrix} 
 \sigma_X^2 & \mathrm{Cov(X,Y)} \\
 \mathrm{Cov(X,Y)} & \sigma_Y^2 \\
 \end{matrix}\right)$
-- $H_0: \mathrm{Cov}(X,Y)=0$ or $H_1: \mathrm{Cov}(X,Y)\neq 0$ 
-
-
-:::
-::: {.column}
-- $\mathrm{Cov(X,Y)} = \mathbb E[(X- \mathbb E[X])^2]$
-- $\sigma_X^2 = \mathrm{Cov(X,X)}$
-- $\sigma_Y^2 = \mathrm{Cov(Y,Y)}$
-- $\mathrm{Cor(X,Y)} = \frac{\mathrm{Cov(X,Y)}}{\sigma_X \sigma_Y}$
 
 :::
 
@@ -72,7 +73,7 @@ Monte Carlo Simulation with $n=4$:
 
 ::: {.callout .fragment}
 - $d$ independent groups (bags), each containing $N_1, \dots, N_d$ individuals. $N_{\mathrm{tot}} = \sum_{k=1}^d N_k$
-- Group $k$: $(X_{1,k}, \dots, X_{N_k,k}) \in \mathbb R^{N_k}$ are iid $\mathcal N(\mu_k, \sigma)$. Ex: $X_{ik} =$ sallary of $i$ living in region $k$
+- Group $k$: $(X_{1,k}, \dots, X_{N_k,k}) \in \mathbb R^{N_k}$ are iid $\mathcal N(\mu_k, \sigma)$. Ex: $X_{ik} =$ sallary of $i$ living in region $k$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d190bd325561a195e734b3)]
 - $H_0: \mu_1 = \dots = \mu_d$ vs $H_1: \mu_l \neq \mu_k$ for some $(l,k)$ (**unknown $\sigma$**)
 :::
 
@@ -83,10 +84,10 @@ Monte Carlo Simulation with $n=4$:
 ::: {.column}
 
 - Empirical mean of group $k$:
-$\overline X_k = \tfrac{1}{N_k}\sum_{i=1}^{N_k} X_{ik}$
+$\overline X_k = \tfrac{1}{N_k}\sum_{i=1}^{N_k} X_{ik}$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d1929a5467cc7e3e3d2163)]
 - Sum of Squares in group $k$: \
 $SS_k = \sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2 \sim \sigma^2\chi^2(N_k-1)$ (under $H_0$)
-- Var of group $k$: $V_k = \tfrac{1}{N_k}SS_k$
+- Empirical var of group $k$: $V_k = \tfrac{1}{N_k}SS_k$
 
 :::
 ::: {.column}
@@ -95,7 +96,7 @@ $SS_k = \sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2 \sim \sigma^2\chi^2(N_k-1)$ 
 $\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} X_{ik}$
 - Sum of Squares btween Groups: $SSB = \sum_{k=1}^{d} N_k(\overline X_k - \overline X)^2\sim\sigma^2\chi^2(d-1)$ (under $H_0$)
 :::
-::: 
+:::
 :::
 
 ::: {.columns}
@@ -115,6 +116,31 @@ $\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} X_{ik}$
 :::
 :::
 ::: 
+
+## Interpretation of variances in ANOVA
+
+$$
+\left.\begin{array}{cl}
+\overline X_k &= \frac{1}{N_k} \sum_{i=1}^{N_k} X_{ik}\\
+\overline{X} &= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_k\overline X_{k},&\end{array}\right.
+\left.\begin{array}{cl}
+V_k &= \frac{1}{N_k}\sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2
+\\
+V_W &= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_kV_k\\
+V_B &= \frac{1}{N_{\mathrm{tot}}}\sum_{i=1}^{N_k} N_k(\overline X_k - \overline X)^2\\
+V_{T} &= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \overline X)^2 
+\end{array}
+\right.
+$$
+
+- $V_k$: Empirical variance of group $k$
+- $V_W$: Average empirical variance within groups (unexplained variance)
+- $V_B$: Empirical variance between groups (explained variance)
+- $V_T$: Total variance of the sample
+
+:::{.fragment}
+$$\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}{\tfrac{1}{d-1}SSB}=\frac{\tfrac{1}{N_{tot}-d}V_W}{\tfrac{1}{d-1}V_B} = \frac{d-1}{N_{tot}-d} \frac{V_W}{V_B} \sim \mathcal F(N_{tot}-d, d-1) \; .$$
+:::
 
 # $\chi^2$ Homogeneity and Independence Tests
 
@@ -136,7 +162,7 @@ $\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} X_{ik}$
 :::{.fragment}
 :::{.callout}
 - Bag $j$: $(X_{1j}, X_{2j}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}))$
-- The parameters $p_{ij}$ are **unknown**
+- The parameters $p_{ij}$ are **unknown** [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d19ee99480f7e8d5dbf8da)]
 - $H_0$: $p_{i1} = p_{i2}=p_{i3}$ for all color $i$ (bags are homogeneous)
 - $H_1$: bags are heterogeneous
 - $\sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_jp_{ij})^2}{N_jp_{ij}}$ **not a test statistic**
@@ -199,7 +225,7 @@ $$
 ::: {.callout}
 
 - Observations: Paired **Categorical** Variables $(X_1, Y_1), \dots, (X_n, Y_n)$
-- e.g. $X_i \in \{\mathrm{male}, \mathrm{female}\}$, $Y_i \in \{\mathrm{coffee}, \mathrm{tea}\}$
+- e.g. $X_i \in \{\mathrm{male}, \mathrm{female}\}$, $Y_i \in \{\mathrm{coffee}, \mathrm{tea}\}$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d1a28a4b4e2b35810c65ff)]
 - Idea: regroup the data into bags, e.g. $\{\mathrm{male}, \mathrm{female}\}$
 - Build the contingency table
 - Perform a chi-square homogeneity test
@@ -232,6 +258,7 @@ Example of **contingency table**:
 
 :::
 
+- $N_1 \hat p_1 = 58 \cdot 50/100  = 29$
 - Degree of freedom: $(2-1)(2-1) = 1$
 
 # Wilcoxon's Signed Rank
@@ -271,7 +298,7 @@ $$
 - The marginal distribution of $X_i$ and $Y_i$ are, respectively,
 $$p_X(x) = \int_{y \in \mathbb R} p_{XY}(x,y)~~~~ \text{ and }~~~~ p_{Y}(y) = \int_{x \in \mathbb R} p_{XY}(x,y) \; .$$
 - $H_0:$ The median of $(X_i - Y_i)$ is $0$ for all $i$
-- $H_1:$ The median of  $(X_i - Y_i)$ is not $0$ for some $i$
+- $H_1:$ The median of  $(X_i - Y_i)$ is not $0$ for some $i$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d2a7e45a6787f340144164)]
 :::
 
 ::: {.callout-note .fragment}
@@ -290,7 +317,7 @@ $$p_X(x) = \int_{y \in \mathbb R} p_{XY}(x,y)~~~~ \text{ and }~~~~ p_{Y}(y) = \i
 :::{.callout-note appearance="minimal"}
 - $D_i = X_i - Y_i$
 - We define the **sign** of pair $i$ as the sign of $D_i=X_i - Y_i$. It is in $\{-1, 1\}$.
-- We define the **rank** of pair $i$ as the permutation $R_i$ that satisfies $|D_{R_i}| = |D_{(i)}|$, where
+- We define the **rank** of pair $i$ as the permutation $R_i$ that satisfies $|D_{R_i}| = |D_{(i)}|$, where [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d2a963cf335081a465b092)]
 $$
 |D_{(1)}| \leq  \dots \leq |D_{(n)}| 
 $$
@@ -322,7 +349,7 @@ Under $H_0$,
 $W_- = \sum_{i=1}^n R_i \mathbf 1\{D_i < 0\}$
 - Sometimes, also $W_+ = \sum_{i=1}^n R_i \mathbf 1\{D_i > 0\}$ or $\min(W_-, W_+)$.
 - Gaussian approximation: $W_- \asymp n(n+1)/4 + \sqrt{n(n+1)(2n+1)/24} \mathcal N(0,1)$
-- if $H_1$: $\mathrm{median}(D_i) > 0$: left-one sided test on $W_-$.
+- if $H_1$: $\mathrm{median}(D_i) > 0$: left-tailed test on $W_-$.
 :::
 
 :::{.column}

@@ -24,7 +24,7 @@ $\Sigma =
 \end{matrix}\right)$
 - $H_0: \mathrm{Cov}(X,Y)=0$ or $H_1: \mathrm{Cov}(X,Y)\neq 0$ 
 
-- $\mathrm{Cov(X,Y)} = \mathbb E[(X- \mathbb E[X])^2]$
+- $\mathrm{Cov(X,Y)} = \mathbb E[(X- \mathbb E[X])(Y- \mathbb E[Y])]$
 - $\sigma_X^2 = \mathrm{Cov(X,X)}$
 - $\sigma_Y^2 = \mathrm{Cov(Y,Y)}$
 - $\mathrm{Cor(X,Y)} = \frac{\mathrm{Cov(X,Y)}}{\sigma_X \sigma_Y}$
@@ -83,6 +83,31 @@ $\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} X_{ik}$
 - $\psi(X) \sim \mathcal F(N_{\mathrm{tot}}-d, d-1)$ (Fisher under $H_0$)
 - Two-sided test: double the min left/right $p_{value}$.
 
+:::
+
+## Interpretation of variances in ANOVA
+
+$$
+\left.\begin{array}{cl}
+\overline X_k &= \frac{1}{N_k} \sum_{i=1}^{N_k} X_{ik}\\
+\overline{X} &= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_k\overline X_{k},&\end{array}\right.
+\left.\begin{array}{cl}
+V_k &= \frac{1}{N_k}\sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2
+\\
+V_W &= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_kV_k\\
+V_B &= \frac{1}{N_{\mathrm{tot}}}\sum_{i=1}^{N_k} N_k(\overline X_k - \overline X)^2\\
+V_{T} &= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \overline X)^2 
+\end{array}
+\right.
+$$
+
+- $V_k$: Empirical variance of group $k$
+- $V_W$: Average empirical variance within groups (unexplained variance)
+- $V_B$: Empirical variance between groups (explained variance)
+- $V_T$: Total variance of the sample
+
+:::{.fragment}
+$$\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}{\tfrac{1}{d-1}SSB}=\frac{\tfrac{1}{N_{tot}-d}V_W}{\tfrac{1}{d-1}V_B} = \frac{d-1}{N_{tot}-d} \frac{V_W}{V_B} \sim \mathcal F(N_{tot}-d, d-1) \; .$$
 :::
 
 

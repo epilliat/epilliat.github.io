@@ -248,6 +248,7 @@ window.Quarto = {
   <ul class="incremental collapse">
   <li><a href="#correlation-test-1" id="toc-correlation-test-1" class="nav-link" data-scroll-target="#correlation-test-1">Correlation Test</a></li>
   <li><a href="#anova-test" id="toc-anova-test" class="nav-link" data-scroll-target="#anova-test">ANOVA Test</a></li>
+  <li><a href="#interpretation-of-variances-in-anova" id="toc-interpretation-of-variances-in-anova" class="nav-link" data-scroll-target="#interpretation-of-variances-in-anova">Interpretation of variances in ANOVA</a></li>
   </ul></li>
   <li><a href="#chi2-homogeneity-and-independence-tests" id="toc-chi2-homogeneity-and-independence-tests" class="nav-link" data-scroll-target="#chi2-homogeneity-and-independence-tests"><span class="math inline">\(\chi^2\)</span> Homogeneity and Independence Tests</a>
   <ul class="incremental collapse">
@@ -304,7 +305,7 @@ window.Quarto = {
 \mathrm{Cov(X,Y)} &amp; \sigma_Y^2 \\
 \end{matrix}\right)\)</span></p></li>
 <li><p><span class="math inline">\(H_0: \mathrm{Cov}(X,Y)=0\)</span> or <span class="math inline">\(H_1: \mathrm{Cov}(X,Y)\neq 0\)</span></p></li>
-<li><p><span class="math inline">\(\mathrm{Cov(X,Y)} = \mathbb E[(X- \mathbb E[X])^2]\)</span></p></li>
+<li><p><span class="math inline">\(\mathrm{Cov(X,Y)} = \mathbb E[(X- \mathbb E[X])(Y- \mathbb E[Y])]\)</span></p></li>
 <li><p><span class="math inline">\(\sigma_X^2 = \mathrm{Cov(X,X)}\)</span></p></li>
 <li><p><span class="math inline">\(\sigma_Y^2 = \mathrm{Cov(Y,Y)}\)</span></p></li>
 <li><p><span class="math inline">\(\mathrm{Cor(X,Y)} = \frac{\mathrm{Cov(X,Y)}}{\sigma_X \sigma_Y}\)</span></p></li>
@@ -388,6 +389,31 @@ ANOVA Test Statistic
 <li>Two-sided test: double the min left/right <span class="math inline">\(p_{value}\)</span>.</li>
 </ul>
 </div>
+</div>
+</section>
+<section id="interpretation-of-variances-in-anova" class="level2">
+<h2 class="anchored" data-anchor-id="interpretation-of-variances-in-anova">Interpretation of variances in ANOVA</h2>
+<p><span class="math display">\[
+\left.\begin{array}{cl}
+\overline X_k &amp;= \frac{1}{N_k} \sum_{i=1}^{N_k} X_{ik}\\
+\overline{X} &amp;= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_k\overline X_{k},&amp;\end{array}\right.
+\left.\begin{array}{cl}
+V_k &amp;= \frac{1}{N_k}\sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2
+\\
+V_W &amp;= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_kV_k\\
+V_B &amp;= \frac{1}{N_{\mathrm{tot}}}\sum_{i=1}^{N_k} N_k(\overline X_k - \overline X)^2\\
+V_{T} &amp;= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \overline X)^2
+\end{array}
+\right.
+\]</span></p>
+<ul class="incremental">
+<li><span class="math inline">\(V_k\)</span>: Empirical variance of group <span class="math inline">\(k\)</span></li>
+<li><span class="math inline">\(V_W\)</span>: Average empirical variance within groups (unexplained variance)</li>
+<li><span class="math inline">\(V_B\)</span>: Empirical variance between groups (explained variance)</li>
+<li><span class="math inline">\(V_T\)</span>: Total variance of the sample</li>
+</ul>
+<div class="fragment">
+<p><span class="math display">\[\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}{\tfrac{1}{d-1}SSB}=\frac{\tfrac{1}{N_{tot}-d}V_W}{\tfrac{1}{d-1}V_B} = \frac{d-1}{N_{tot}-d} \frac{V_W}{V_B} \sim \mathcal F(N_{tot}-d, d-1) \; .\]</span></p>
 </div>
 </section>
 </section>
