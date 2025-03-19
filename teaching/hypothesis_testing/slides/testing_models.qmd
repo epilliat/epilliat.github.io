@@ -11,10 +11,27 @@ css: ../style.css
 
 # Introduction
 
+## Organization
+
+- 15h of lectures, 18h of TD
+- $12^{th}$ may: Exam (2h)
+- Lecture notes and slides on the website
+- About english and programming languages
+- Wooclap sessions [[Test](https://app.wooclap.com/events/RQSUIA/questions/67d994736e237838c3125d66)]
+
+## Objective
+
+1. Given a general decision problem
+    - Introduce precise notations to describe the pb
+    - formulate mathematically hypotheses $H_0$ (a priori) and $H_1$ (alternative)
+2. Choose a statistic adapted to the problem
+3. Compute this statistic and its pvalue (or an approx.)
+4. Conclude and make a decision
+
 ## General Principles
 
 1. **Fix an objective:** test whether Bob has diabetes
-2. **Design an experiment:** Measure glucose level
+2. **Design an experiment:** measure of glucose level
 3. **Define hypotheses**
     - **Null hypothesis:** $H_0$: a priori, Bob has no diabetes
     - **Alternative hypothesis:** $H_1$: Bob has diabete
@@ -74,6 +91,29 @@ css: ../style.css
 5. **Data**: the dice falls $10$ times on $6$
 6. **Decision**: the probability is $1/6^{10} < 0.05$
 7. **Conclusion?**
+
+## Fairness of Dice
+
+- We observe $(X_1, \dots, X_n)$ iid where $X_i \in \{1, \dots, 6\}$ where each $\mathbb P(X_i = k) = p_k$
+
+:::{.fragment}
+![](../images/biased_dice.svg){width="50%"}
+:::
+
+
+:::{.callout-warning .fragment}
+## Same data, two conclusions
+::: {.columns}
+::: {.column}
+- $H_0: p_6 = 1/6$ VS $H_1: p_6 > 1/6$
+- Do not reject $H_1$ ($H_0$ is "likely")
+:::
+::: {.column}
+- $H_0: (p_1=\dots=p_6 = 1/6)$ (dice is fair) VS $H_1: \exists k: p_k > 1/6$
+- Reject $H_1$ ($H_0$ is "unlikely")
+:::
+::: 
+:::
 
 
 ## Medical Test
@@ -295,12 +335,13 @@ Example of Multiple VS Multiple Parametric Problem:
 
 - For a given test $T$, the **rejection region** $\mathcal R \subset \mathbb R$ is the set
 $$\{\psi(x) \in \mathbb R:~ T(x)=1\} \; .$$
-- For a given threshold $t>0$,
+- Example of $\mathcal R$, for a given threshold $t>0$,
 $$
 \begin{aligned}
 T(x) &= \mathbf{1}\{\psi(x) > t\}:~~~~~~\mathcal R = (t,+\infty)\\ 
 T(x) &= \mathbf{1}\{\psi(x) < t\}:~~~~~~\mathcal R = (-\infty,t)\\
-T(x) &= \mathbf{1}\{|\psi(x)| > t\}:~~~~~~\mathcal R = (-\infty,t)\cup (t, +\infty)\;
+T(x) &= \mathbf{1}\{|\psi(x)| > t\}:~~~~~~\mathcal R = (-\infty,t)\cup (t, +\infty)\\
+T(x) &= \mathbf{1}\{\psi(x) \not \in [t_1, t_2]\}:~~~~~~\mathcal R = (-\infty,t_1)\cup (t_2, +\infty)\;
 \end{aligned}
 $$
 
@@ -321,19 +362,19 @@ $$x \to P(~(-\infty,x]~) = \mathbb P(X \leq x) ~~~~\text{(if $X \sim P$ under $\
 :::{.column width="50%"}
 
 ### Continous Measures
-- density wrp to Lebesgue: $dP(x) = p(x)dx$
+- density wrp to Lebesgue: $\mathbb P(X\in[x,x+dx])=dP(x) = p(x)dx$
 
 - **PDF** (Proba Density Function): $x \to p(x)$
 - **CDF**: $x \to \int_{\infty}^x p(x')dx'$
 - $\alpha$-quantile $q_{\alpha}$: $\int_{\infty}^{q_{\alpha}} p(x)dx = \alpha$
-- or $\mathbb P(X \leq q_{\alpha} = \alpha)$
+- or $\mathbb P(X \leq q_{\alpha}) = \alpha$
 :::
 
 :::{.column width="50%"}
 
 ::: {.fragment}
 ### Discrete Measures
-- density wrp to Counting Measure: $P(X=x) = p(x)$
+- density wrp to counting measure: $\mathbb P(X=x) = P(\{x\})=p(x)$
 - **CDF**: $x \to \sum_{x' \leq x} p(x')dx'$
 - $\alpha$-quantile $q_{\alpha}$: 
 $$\inf_{q \in \mathbb R}\{q:~\sum_{x_i \leq q}p(x_i) > \alpha\}$$
@@ -417,7 +458,7 @@ $$p(x)=\frac{\lambda^x}{x!}e^{-\lambda}$$
 ::: {.fragment}
 ![](../images/basics/pdf_poisson.svg)
 :::
-- Number of tics before time $1$ of an atomic clock of rate $\lambda$
+- Numb. of tics before time $1$ of clock $\lambda$
 
 :::
 

@@ -272,23 +272,26 @@ begin
 	empirical_CDF(Normal(0,1),nks)
 end
 
-# ╔═╡ 8bd6b5c5-e1da-4b95-ace8-60aa07280f39
-vcat([1],[1])
+# ╔═╡ 8341fa8f-4b14-4919-9cb5-cfc8d2247477
+md"n: $(@bind nks2 Slider(1:5:1000, show_value=true; default=100))"
+
+# ╔═╡ 91a0058c-29a0-4b3e-b1c1-7a557488a66f
+Xks = rand(Xoshiro(0),Normal(0,1),1000)
 
 # ╔═╡ 618c44d6-940b-43d8-b65f-b86072fedf25
 begin
-	function empirical_CDF_KS(distrib,n)
-		X = rand(distrib,n)
+	function empirical_CDF_KS(distrib,X)
+		n=length(X)
 		scatter(X,zeros(n), ylimits=(-0.01,1.01), xlimits=(-3,3), label="Data", title="Kolmogorov Smirnov Illustration")
 		Xsorted = vcat(-3,sort(X),3)
 		plot!(Xsorted, vcat((0:n)./n,1),linetype=:steppre, color=:black,linewidth=2, label="empirical CDF")
 		x=(-3:0.02:3)
 		plot!(x,cdf.(distrib, x), linewidth=2, label="True CDF of N(0,1)")
 		iks = argmax(abs.(vcat((0:n)./n,1) .- cdf.(distrib, Xsorted)))
-		@show (iks-1)/n
+		#@show (iks-1)/n
 		plot!([Xsorted[iks], Xsorted[iks]], [(iks)/n, cdf(distrib, Xsorted[iks])], color=:blue, label="max distance", linewidth=3)
 	end
-	empirical_CDF_KS(Normal(0,1),nks)
+	empirical_CDF_KS(Normal(0,1),Xks[1:nks2])
 end
 
 # ╔═╡ 89fb9fa2-8591-45a3-a068-50574d100574
@@ -358,7 +361,7 @@ StatsPlots = "~0.15.7"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.1"
+julia_version = "1.11.4"
 manifest_format = "2.0"
 project_hash = "86db5804858516041e3f8c83b169a60cfb294797"
 
@@ -1079,7 +1082,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+2"
+version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -1886,8 +1889,9 @@ version = "1.4.1+1"
 # ╠═80ebcf20-b09f-4921-8127-8345a6f2c57e
 # ╠═aceffe55-d906-472b-9634-9cd48e236cd3
 # ╠═b707e671-f5fd-4fd3-9b37-555017939c3f
-# ╠═8bd6b5c5-e1da-4b95-ace8-60aa07280f39
-# ╠═618c44d6-940b-43d8-b65f-b86072fedf25
+# ╟─8341fa8f-4b14-4919-9cb5-cfc8d2247477
+# ╟─91a0058c-29a0-4b3e-b1c1-7a557488a66f
+# ╟─618c44d6-940b-43d8-b65f-b86072fedf25
 # ╟─89fb9fa2-8591-45a3-a068-50574d100574
 # ╟─1aec7b7a-8698-4d17-be87-7f1815d92130
 # ╟─00000000-0000-0000-0000-000000000001

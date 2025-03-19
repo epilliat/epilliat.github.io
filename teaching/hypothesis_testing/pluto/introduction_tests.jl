@@ -27,6 +27,12 @@ begin
 	using Distributions, Plots, StatsPlots
 end
 
+# ╔═╡ c76fa8bf-5048-49e6-9444-2b2a0fcee5ad
+bar(rand(Multinomial(600,[1/12,1/3,1/12,1/6,1/6,1/6])), label="counts of dice toss")
+
+# ╔═╡ 79e1dbd7-d5f5-4bae-ba05-6ce423a10baa
+Multinomial(10,[1/6 for _ in (1:6)])
+
 # ╔═╡ 76ca83ad-ff45-4b47-bfde-22bd0b83c535
 md"α: $(@bind α1 Slider(0.001:0.001:0.999, show_value=true; default=0.05))"
 
@@ -232,7 +238,7 @@ StatsPlots = "~0.15.7"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.3"
+julia_version = "1.11.4"
 manifest_format = "2.0"
 project_hash = "c6270645deed6c8ef2bd2ff68bff584fbd9a0e7f"
 
@@ -953,7 +959,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+2"
+version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -1733,6 +1739,8 @@ version = "1.4.1+1"
 
 # ╔═╡ Cell order:
 # ╟─dd876e43-ca57-4917-af6c-a58ba189cca3
+# ╠═c76fa8bf-5048-49e6-9444-2b2a0fcee5ad
+# ╠═79e1dbd7-d5f5-4bae-ba05-6ce423a10baa
 # ╟─76ca83ad-ff45-4b47-bfde-22bd0b83c535
 # ╟─e6787194-bcd1-4b26-8b3b-14e42f1b13d7
 # ╠═db302370-9c85-4fd6-98bb-ba85cda615c2

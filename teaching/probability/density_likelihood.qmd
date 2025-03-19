@@ -1,0 +1,69 @@
+---
+title: "Density, Likelihood and Radon Nikodym"
+format: 
+  html:
+    incremental: true
+    callout-icon: false
+    theme: [default]
+smaller: true
+#css: ../style.css
+#filters:
+  #- parse-latex
+---
+
+### Continuous Densities
+
+A measure $\mathbb P$ has density $p$ with respect to the Lebesgue measure if for any event $A$ (which is simply a measurable set of $\mathbb R^n$), $$\mathbb P(A)= \int_{x \in \mathbb R^n}\mathbf 1\{x \in A\}p(x)dx \; .$$$p(x)$ is sometimes called the likelihood of a random variables that has distribution $\mathbb P$ at point $x$. An equivalent condition is that for any "kind" function $f$ (e.g. continuous with bounded support),  $$\mathbb E_{X \sim \mathbb P}[f(X)] \stackrel{\mathrm{def}}{=} \int_{x \in \mathbb R^n}f(x)d\mathbb P =\int_{x \in \mathbb R^n}f(x)p(x)dx \; .$$
+We write that 
+$$d\mathbb P(x) = p(x)dx ~~~ \text{or}~~~~ \tfrac{d\mathbb P}{dx}(x) = p(x) \; ,$$
+and $\tfrac{d\mathbb P}{dx}$  is called the Radon-Nikodym derivative of $\mathbb P$ with respect to the Lebesgue measure.
+The intuition of this abstract notation is the following. If $x \in \mathbb R^n$ and $h$ is a small quantity that goes to $0$, $d\mathbb P$ represents the measure of the interval $[x, x+h]$, with respect to the measure $\mathbb P$. Then, $d \mathbb P(x) = \mathbb P([x, x+h]) = \int_x^{x+h}p(x)dx \sim p(x)h$.
+
+### The Counting Measure for Discrete Random Variables
+
+Random variables in $\mathbb{R}$ that take on a finite number of values are referred to as discrete random variables, and they do not have a density with respect to the Lebesgue measure. However, this case is much simpler and is handled within measure theory using _the counting measure_. As its name indicates, the counting measure $\mu$ on $\mathbb R^n$ counts the elements of a given set $A$:
+$$ \mu(A) = |A| \enspace .$$ In particular, $\mu(A)$ is infinite if $A$ is an infinite set.
+
+Let $X$ be a discrete random variable that takes values in $\{x_1, \dots, x_N\}$, e.g. a Bernoulli, Binomial or Poisson random variable, and let $\mathbb P$ be its probability distribution. Let $p(x_i)$ be the probability that $X = x_i$, that is $p(x_i) = \mathbb P(\{x_i\}) = \mathbb P(X = x_i) \in [0,1]$. In this discrete case, the probability $p(x_i)$ represents the likelihood of the value $x_i$ for the random variable $X$.
+While $X$ has not a density with respect to the Lebesgue measure, it has density $p$ with respect to the counting measure $\mu$, that is
+$$\mathbb E_{X \sim \mathbb P}[f(X)] =\int_{x \in \mathbb R^n}f(x)p(x)d\mu, ~~~~~~~ \frac{d\mathbb P}{d\mu}(x) = p(x) \; .$$
+$$ $$
+### The General Radon Nikodym Theorem
+
+The Radon Nikodym Theorem tells us  that any probability $\mathbb P$ admits a density with respect to a given measure $\nu$ if it is absolutely continuous with respect to $\nu$, that is 
+$$ \nu(A) = 0 \implies \mathbb P(A) = 0 \; .$$
+In this case, the density is the Radon Nikodym derivative $\frac{d\mathbb P}{d\nu}$ of $\mathbb P$ with respect to $\nu$ and satisfies
+
+$$ E_{X \sim \mathbb P}[f(X)] =\int_{x \in \mathbb R^n}f(x)\frac{d\mathbb P}{d\nu}(x)d\nu \; .$$
+Informally, the $d\nu$ simplify so that  $\frac{d\mathbb P}{d\nu}d\nu$ = $d\mathbb P$.
+
+### Generalized Likelihood Ratio
+
+If $\mathbb P$ and $\mathbb Q$ are two probability measures such that $\mathbb P$ is absolutely continuous with respect to $\mathbb Q$, then the Radon Nikodym derivative $\frac{d\mathbb P}{d\nu}$ of $\mathbb P$ with respect to $\mathbb Q$ is a generalized likelihood ratio.
+
+If $\mathbb P$ and $\mathbb Q$ are both absolutely continuous with respect to another measure $\nu$ (for example the Lebesgue measure), then the generalized likelihood ratio can be written
+$$ 
+\frac{d\mathbb P}{d\mathbb Q} = \frac{\frac{d\mathbb P}{d\mathbb \nu}}{\frac{d\mathbb Q}{d\mathbb \nu}} \; .
+$$
+
+In particular, if $\mathbb P$ and $\mathbb Q$ have positive densities $p$ and $q$ with respect to the Lebesgue measure, that is $\frac{d\mathbb P}{dx} = p(x)$ and $\frac{d\mathbb Q}{dx} = q(x)$,  then 
+
+$$
+\frac{d\mathbb P}{d\mathbb Q}(x) = \frac{p(x)}{q(x)} \; .
+$$
+
+In particular, the likelihood ratio does not depend on the reference measure (here Lebesgue).
+
+
+### Change of Measure
+
+If $\mathbb E_{\mathbb P}$ (resp. $\mathbb E_{\mathbb Q}$) denotes the expectation when the random variable $X$ follows distribution $\mathbb P$ (resp. $\mathbb Q$), then for any measurable and bounded function $f$,
+
+$$\mathbb E_{\mathbb P}[X] = \mathbb E_{\mathbb Q}\left[X \frac{d\mathbb P}{d\mathbb Q}(X)\right] \; .$$
+In other words, we simply replace $X$ by the random variable $X \frac{d\mathbb P}{d\mathbb Q}(X)$ when we observe $X$ under $\mathbb Q$ instead of $\mathbb P$. This results directly follows from Radon-Nikodym:
+$$
+\int_{x \in \mathbb R^d} x d\mathbb P(x) = \int_{x \in \mathbb R^d} x \frac{d\mathbb P}{d\mathbb Q}(x) d\mathbb Q(x) \; .
+$$
+
+
+
