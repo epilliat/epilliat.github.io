@@ -1,5 +1,5 @@
 ---
-title: "Goodness of Fit Tests"
+title: "Gaussian Populations"
 format: 
   html:
     incremental: true
@@ -16,7 +16,7 @@ css: ../style.css
 
 ## Testing Mean with Known variance
 
-- $X = (X_1, \dots, X_n)$, iid with distribution $\mathcal N(\mu, \sigma)$.
+We observe $X = (X_1, \dots, X_n)$, iid with distribution $\mathcal N(\mu, \sigma)$. We assume that $\mu$ is unknown but that $\sigma$ is known.
 
 ::: {.callout-note icon=false .fragment title="Test problems"}
 $$
@@ -82,7 +82,7 @@ $$
 :::
 
 
-:::{.callout-note .fragment icon=false title="Student Distribution $\mathcal T(k)$"}
+:::{.callout-note .fragment icon=false title="Student distribution $\mathcal T(k)$"}
 - $k$: degree of freedom
 - Distrib of $\tfrac{Z}{\sqrt{U/k}}$
 - $Z$, $U$ are independent and follow resp. $\mathcal N(0,1)$ and a $\chi^2(k)$
@@ -91,21 +91,32 @@ $$
 ::: {.callout-note .fragment icon=false title="Theorem"}
 Assume $X_i$ are iid $\mathcal N(\mu_0, \sigma)$. 
 
-- The Test Statistic $\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma}$ **pivotal** (indep. of $\sigma$). 
-- It follows a Student Distribution $\mathcal T(n-1)$. 
+- The test statistic $\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma}$ **pivotal** (indep. of $\sigma$). 
+- It follows a Student distribution $\mathcal T(n-1)$. 
 :::
 
-- **Proof idea**: $\overline X \cdot (1, \dots, 1)$ and $(X_1 - \overline X, \dots, X_n - \overline X)$ are orthogonal in $\mathbb R^n$.
+**Sketch of Proof**. 
+
+Remark that, the orthogonal projection of $(X_1, \dots, X_n)$ on $(1, \dots, 1)$ is equal to $\overline X \cdot (1, \dots, 1)$. This is precisely because the empirical mean minimizes the quantity $\tfrac{1}{n}\sum (X_i - \overline X)^2$. 
+Hence, the two vectors $\overline X \cdot (1, \dots, 1)$ and $(X_1 - \overline X, \dots, X_n - \overline X)$ are orthogonal. From the Cochran's theorem, Orthogonality is equivalent to independence for Gaussian random variables, and we deduce that $\overline X$ is independent of $\hat \sigma^2$. 
+$$
+\tag*{$\blacksquare$}
+$$
 
 
-## Student T-Test
+The student tests are the same as Gaussian tests with known variance, except that we replace the quantiles of the Gaussian the quantiles of the Student distribution.
 
-- Multiple VS Multiple Test Problem $X=(X_1, \dots, X_n)$:
+- The quantiles of the Student distribution are close to the quantile of the Standard Gaussian when the degree of freedom $k$ is large:
+- The quantiles are slightly larger when $k$ is small. The Student Distribution has a slightly **heavier tail**. 
+
+## Student T-test
+
+- Multiple VS multiple test problem $X=(X_1, \dots, X_n)$:
 $$
 H_0: \{\mu_0,\sigma > 0\} \text{ or } H_1: \{\mu \neq \mu_0,\sigma > 0\} \;.
 $$
 
-- (Student) T-Test Statistic:
+- (Student) T-test statistic:
 $$\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)} \sim \mathcal T(n-1)$$
 
 :::{.fragment}
@@ -246,7 +257,7 @@ $$
 
 ::: {.callout-note}
 ## CLT
-- Let $S_n = \sum_{i=1}^n$ with $(X_1, \dots, X_n)$ iid ($L^2$) then
+- Let $S_n = \sum_{i=1}^n X_i$ with $(X_1, \dots, X_n)$ iid ($L^2$) then
 $$ \frac{S_n - \mathbb E[S_n]}{\sqrt{\mathrm{Var}(S_n)}} \approx \mathcal N(0,1) \text{ when $n \to \infty$} $$
 - Equality when $X_i$'s are $\mathcal N(\mu, \sigma)$
 - Rule of thumb: $n \geq 30$

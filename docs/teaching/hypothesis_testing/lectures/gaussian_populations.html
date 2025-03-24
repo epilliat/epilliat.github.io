@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Goodness of Fit Tests – Emmanuel Pilliat</title>
+<title>Gaussian Populations – Emmanuel Pilliat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -247,7 +247,7 @@ window.Quarto = {
   <li><a href="#why-0.05-and-1.96" id="toc-why-0.05-and-1.96" class="nav-link" data-scroll-target="#why-0.05-and-1.96">Why 0.05 and 1.96 ?</a></li>
   <li><a href="#testing-mean-with-unknown-variance" id="toc-testing-mean-with-unknown-variance" class="nav-link" data-scroll-target="#testing-mean-with-unknown-variance">Testing Mean with Unknown Variance</a></li>
   <li><a href="#chi-square-and-student-distributions" id="toc-chi-square-and-student-distributions" class="nav-link" data-scroll-target="#chi-square-and-student-distributions">Chi-Square and Student Distributions</a></li>
-  <li><a href="#student-t-test" id="toc-student-t-test" class="nav-link" data-scroll-target="#student-t-test">Student T-Test</a></li>
+  <li><a href="#student-t-test" id="toc-student-t-test" class="nav-link" data-scroll-target="#student-t-test">Student T-test</a></li>
   <li><a href="#testing-variance-unknown-mean" id="toc-testing-variance-unknown-mean" class="nav-link" data-scroll-target="#testing-variance-unknown-mean">Testing Variance, Unknown Mean</a></li>
   </ul></li>
   <li><a href="#two-gaussian-populations" id="toc-two-gaussian-populations" class="nav-link" data-scroll-target="#two-gaussian-populations">Two Gaussian Populations</a>
@@ -272,7 +272,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../../teaching/hypothesis_testing/lectures/testing_models.html">Hypothesis Testing</a></li><li class="breadcrumb-item"><a href="../../../teaching/hypothesis_testing/lectures/gaussian_populations.html">Gaussian Populations</a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Goodness of Fit Tests</h1>
+<h1 class="title">Gaussian Populations</h1>
 </div>
 
 
@@ -293,9 +293,7 @@ window.Quarto = {
 <h1>One Gaussian Population</h1>
 <section id="testing-mean-with-known-variance" class="level2">
 <h2 class="anchored" data-anchor-id="testing-mean-with-known-variance">Testing Mean with Known variance</h2>
-<ul class="incremental">
-<li><span class="math inline">X = (X_1, \dots, X_n)</span>, iid with distribution <span class="math inline">\mathcal N(\mu, \sigma)</span>.</li>
-</ul>
+<p>We observe <span class="math inline">X = (X_1, \dots, X_n)</span>, iid with distribution <span class="math inline">\mathcal N(\mu, \sigma)</span>. We assume that <span class="math inline">\mu</span> is unknown but that <span class="math inline">\sigma</span> is known.</p>
 <div class="fragment callout callout-style-default callout-note no-icon callout-titled" title="Test problems">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -392,13 +390,13 @@ Chi-Squared Distribution <span class="math inline">\chi^2(k)</span>
 </ul>
 </div>
 </div>
-<div class="fragment callout callout-style-default callout-note no-icon callout-titled" title="Student Distribution $\mathcal T(k)$">
+<div class="fragment callout callout-style-default callout-note no-icon callout-titled" title="Student distribution $\mathcal T(k)$">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Student Distribution <span class="math inline">\mathcal T(k)</span>
+Student distribution <span class="math inline">\mathcal T(k)</span>
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -421,22 +419,28 @@ Theorem
 <div class="callout-body-container callout-body">
 <p>Assume <span class="math inline">X_i</span> are iid <span class="math inline">\mathcal N(\mu_0, \sigma)</span>.</p>
 <ul class="incremental">
-<li>The Test Statistic <span class="math inline">\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma}</span> <strong>pivotal</strong> (indep. of <span class="math inline">\sigma</span>).</li>
-<li>It follows a Student Distribution <span class="math inline">\mathcal T(n-1)</span>.</li>
+<li>The test statistic <span class="math inline">\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma}</span> <strong>pivotal</strong> (indep. of <span class="math inline">\sigma</span>).</li>
+<li>It follows a Student distribution <span class="math inline">\mathcal T(n-1)</span>.</li>
 </ul>
 </div>
 </div>
+<p><strong>Sketch of Proof</strong>.</p>
+<p>Remark that, the orthogonal projection of <span class="math inline">(X_1, \dots, X_n)</span> on <span class="math inline">(1, \dots, 1)</span> is equal to <span class="math inline">\overline X \cdot (1, \dots, 1)</span>. This is precisely because the empirical mean minimizes the quantity <span class="math inline">\tfrac{1}{n}\sum (X_i - \overline X)^2</span>. Hence, the two vectors <span class="math inline">\overline X \cdot (1, \dots, 1)</span> and <span class="math inline">(X_1 - \overline X, \dots, X_n - \overline X)</span> are orthogonal. From the Cochran’s theorem, Orthogonality is equivalent to independence for Gaussian random variables, and we deduce that <span class="math inline">\overline X</span> is independent of <span class="math inline">\hat \sigma^2</span>. <span class="math display">
+\tag*{$\blacksquare$}
+</span></p>
+<p>The student tests are the same as Gaussian tests with known variance, except that we replace the quantiles of the Gaussian the quantiles of the Student distribution.</p>
 <ul class="incremental">
-<li><strong>Proof idea</strong>: <span class="math inline">\overline X \cdot (1, \dots, 1)</span> and <span class="math inline">(X_1 - \overline X, \dots, X_n - \overline X)</span> are orthogonal in <span class="math inline">\mathbb R^n</span>.</li>
+<li>The quantiles of the Student distribution are close to the quantile of the Standard Gaussian when the degree of freedom <span class="math inline">k</span> is large:</li>
+<li>The quantiles are slightly larger when <span class="math inline">k</span> is small. The Student Distribution has a slightly <strong>heavier tail</strong>.</li>
 </ul>
 </section>
 <section id="student-t-test" class="level2">
-<h2 class="anchored" data-anchor-id="student-t-test">Student T-Test</h2>
+<h2 class="anchored" data-anchor-id="student-t-test">Student T-test</h2>
 <ul class="incremental">
-<li><p>Multiple VS Multiple Test Problem <span class="math inline">X=(X_1, \dots, X_n)</span>: <span class="math display">
+<li><p>Multiple VS multiple test problem <span class="math inline">X=(X_1, \dots, X_n)</span>: <span class="math display">
 H_0: \{\mu_0,\sigma &gt; 0\} \text{ or } H_1: \{\mu \neq \mu_0,\sigma &gt; 0\} \;.
 </span></p></li>
-<li><p>(Student) T-Test Statistic: <span class="math display">\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)} \sim \mathcal T(n-1)</span></p></li>
+<li><p>(Student) T-test statistic: <span class="math display">\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)} \sim \mathcal T(n-1)</span></p></li>
 </ul>
 <div class="fragment">
 <p><img src="../images/student_k_30.svg" class="img-fluid"></p>
@@ -646,7 +650,7 @@ CLT
 </div>
 <div class="callout-body-container callout-body">
 <ul class="incremental">
-<li>Let <span class="math inline">S_n = \sum_{i=1}^n</span> with <span class="math inline">(X_1, \dots, X_n)</span> iid (<span class="math inline">L^2</span>) then <span class="math display"> \frac{S_n - \mathbb E[S_n]}{\sqrt{\mathrm{Var}(S_n)}} \approx \mathcal N(0,1) \text{ when $n \to \infty$} </span></li>
+<li>Let <span class="math inline">S_n = \sum_{i=1}^n X_i</span> with <span class="math inline">(X_1, \dots, X_n)</span> iid (<span class="math inline">L^2</span>) then <span class="math display"> \frac{S_n - \mathbb E[S_n]}{\sqrt{\mathrm{Var}(S_n)}} \approx \mathcal N(0,1) \text{ when $n \to \infty$} </span></li>
 <li>Equality when <span class="math inline">X_i</span>’s are <span class="math inline">\mathcal N(\mu, \sigma)</span></li>
 <li>Rule of thumb: <span class="math inline">n \geq 30</span></li>
 </ul>
