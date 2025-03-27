@@ -3,7 +3,7 @@ title: "Hypothesis Testing"
 format: 
   revealjs:
     incremental: true
-smaller: true
+smaller: false
 css: ../style.css
 #filters:
   #- parse-latex
@@ -106,11 +106,11 @@ css: ../style.css
 ::: {.columns}
 ::: {.column}
 - $H_0: p_6 = 1/6$ VS $H_1: p_6 > 1/6$
-- Do not reject $H_1$ ($H_0$ is "likely")
+- Do not reject $H_0$ ($H_0$ is "likely")
 :::
 ::: {.column}
 - $H_0: (p_1=\dots=p_6 = 1/6)$ (dice is fair) VS $H_1: \exists k: p_k > 1/6$
-- Reject $H_1$ ($H_0$ is "unlikely")
+- Reject $H_1$ ($H_1$ is "unlikely")
 :::
 ::: 
 :::
@@ -184,7 +184,7 @@ $$
 - Parameterized by disjoints $\Theta_0$, $\Theta_1$
 $$ 
 \begin{aligned}
-\mathcal P_0 = \{P_{\theta} : \theta \in \Theta_1\}, ~~~~  \mathcal P_1 = \{P_{\theta} : \theta \in \Theta_1\}\; .
+\mathcal P_0 = \{P_{\theta} : \theta \in \Theta_0\}, ~~~~  \mathcal P_1 = \{P_{\theta} : \theta \in \Theta_1\}\; .
 \end{aligned}
 $$
 
@@ -712,10 +712,12 @@ T(X) = \mathbf 1\left\{\frac{1}{n}\sum_{i=1}^n d(X_i) > t\right\} \;. ~~~~\text{
 - Likelihood Ratio Test:
 $$T(X)=\mathbf 1\left\{\sum_{i=1}^{20}X_i > t_{\alpha}\right\} \; .$$
 - $t_{0.95}$:&nbsp;&nbsp; `quantile(Poisson(20*0.6), 0.95)` gives $18$\
-- $\mathbb P(\mathcal P(20*0.6) \leq 17)$: `1-cdf(Poisson(20*0.6), 17)` gives $0.063$\
-- $\mathbb P(\mathcal P(20*0.6) \leq 18)$: `1-cdf(Poisson(20*0.6), 18)` gives $0.038$: Reject if $N \geq 19$\
+- $\mathbb P(\mathcal P(20*0.6) > 17)$: `1-cdf(Poisson(20*0.6), 17)` gives $0.063$\
+- $\mathbb P(\mathcal P(20*0.6) > 18)$: `1-cdf(Poisson(20*0.6), 18)` gives $0.038$: Reject if $N \geq 19$\
 
-## Multiple-Multiple Tests
+# Multiple-Multiple Tests
+
+## Definitions
 
 ::: {.columns}
 
@@ -791,9 +793,9 @@ does not depend on $\sigma$.
 ## Pivotal Test Statistic and P-value
 
 ::: {.callout-note title="P-value: definition"}
-We define $p_{value}(x_{\mathrm{obs}}) =\mathbb P(\psi(X) > x_{\mathrm{obs}})$ for a right-tailed test.
+We define $p_{value}(x_{\mathrm{obs}}) =\mathbb P(\psi(X) \geq x_{\mathrm{obs}})$ for a right-tailed test.
 
-For a two-tailed test, $p_{value}(x_{\mathrm{obs}}) =2\min(\mathbb P(\psi(X) > x_{\mathrm{obs}}),\mathbb P(\psi(X) < x_{\mathrm{obs}}))$
+For a two-tailed test, $p_{value}(x_{\mathrm{obs}}) =2\min(\mathbb P(\psi(X) \geq x_{\mathrm{obs}}),\mathbb P(\psi(X) \leq x_{\mathrm{obs}}))$
 :::
 ::: {.callout-note title="P-value under $H_0$"}
 Under $H_0$, for a pivotal test statistic $\psi$, $p_{value}(X)$ has a uniform distribution $\mathcal U([0,1])$.
@@ -802,10 +804,10 @@ Under $H_0$, for a pivotal test statistic $\psi$, $p_{value}(X)$ has a uniform d
 :::: {.columns}
 
 ::: {.column width="50%"}
-- In practice: reject if $p_{value}(x_{\mathrm{obs}}) < \alpha = 0.05$
+- In practice: reject if $p_{value}(x_{\mathrm{obs}}) \leq \alpha = 0.05$
 - $\alpha$ is the **level** or **type-1-error** of the test
 :::
-::: {.column width="50%"}
+::: {.column width="50%"} 
 - Illustration if $\psi(X) \sim \mathcal N(0,1)$:
 ![](../images/basics/pvalue_uniform.svg)
 :::

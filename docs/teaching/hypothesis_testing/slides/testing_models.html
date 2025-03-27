@@ -274,12 +274,12 @@ True Positive (<strong>TP</strong>)
 <div class="column">
 <ul>
 <li class="fragment"><span class="math inline">\(H_0: p_6 = 1/6\)</span> VS <span class="math inline">\(H_1: p_6 &gt; 1/6\)</span></li>
-<li class="fragment">Do not reject <span class="math inline">\(H_1\)</span> (<span class="math inline">\(H_0\)</span> is “likely”)</li>
+<li class="fragment">Do not reject <span class="math inline">\(H_0\)</span> (<span class="math inline">\(H_0\)</span> is “likely”)</li>
 </ul>
 </div><div class="column">
 <ul>
 <li class="fragment"><span class="math inline">\(H_0: (p_1=\dots=p_6 = 1/6)\)</span> (dice is fair) VS <span class="math inline">\(H_1: \exists k: p_k &gt; 1/6\)</span></li>
-<li class="fragment">Reject <span class="math inline">\(H_1\)</span> (<span class="math inline">\(H_0\)</span> is “unlikely”)</li>
+<li class="fragment">Reject <span class="math inline">\(H_1\)</span> (<span class="math inline">\(H_1\)</span> is “unlikely”)</li>
 </ul>
 </div></div>
 </div>
@@ -348,7 +348,7 @@ True Positive (<strong>TP</strong>)
 <li class="fragment"><p>Two sets of distributions <span class="math inline">\(\mathcal P_0\)</span>, <span class="math inline">\(\mathcal P_1\)</span></p></li>
 <li class="fragment"><p>Parameterized by disjoints <span class="math inline">\(\Theta_0\)</span>, <span class="math inline">\(\Theta_1\)</span> <span class="math display">\[
 \begin{aligned}
-\mathcal P_0 = \{P_{\theta} : \theta \in \Theta_1\}, ~~~~  \mathcal P_1 = \{P_{\theta} : \theta \in \Theta_1\}\; .
+\mathcal P_0 = \{P_{\theta} : \theta \in \Theta_0\}, ~~~~  \mathcal P_1 = \{P_{\theta} : \theta \in \Theta_1\}\; .
 \end{aligned}
 \]</span></p></li>
 <li class="fragment"><p><span class="math inline">\(\exists \theta \in \Theta_0 \cup \Theta_1\)</span> such that <span class="math inline">\(X \sim P_{\theta}\)</span></p></li>
@@ -850,14 +850,19 @@ T(X) = \mathbf 1\left\{\frac{1}{n}\sum_{i=1}^n d(X_i) &gt; t\right\} \;. ~~~~\te
 <li class="fragment"><p>Likelihood Ratio Test: <span class="math display">\[T(X)=\mathbf 1\left\{\sum_{i=1}^{20}X_i &gt; t_{\alpha}\right\} \; .\]</span></p></li>
 <li class="fragment"><p><span class="math inline">\(t_{0.95}\)</span>:&nbsp;&nbsp; <code>quantile(Poisson(20*0.6), 0.95)</code> gives <span class="math inline">\(18\)</span><br>
 </p></li>
-<li class="fragment"><p><span class="math inline">\(\mathbb P(\mathcal P(20*0.6) \leq 17)\)</span>: <code>1-cdf(Poisson(20*0.6), 17)</code> gives <span class="math inline">\(0.063\)</span><br>
+<li class="fragment"><p><span class="math inline">\(\mathbb P(\mathcal P(20*0.6) &gt; 17)\)</span>: <code>1-cdf(Poisson(20*0.6), 17)</code> gives <span class="math inline">\(0.063\)</span><br>
 </p></li>
-<li class="fragment"><p><span class="math inline">\(\mathbb P(\mathcal P(20*0.6) \leq 18)\)</span>: <code>1-cdf(Poisson(20*0.6), 18)</code> gives <span class="math inline">\(0.038\)</span>: Reject if <span class="math inline">\(N \geq 19\)</span><br>
+<li class="fragment"><p><span class="math inline">\(\mathbb P(\mathcal P(20*0.6) &gt; 18)\)</span>: <code>1-cdf(Poisson(20*0.6), 18)</code> gives <span class="math inline">\(0.038\)</span>: Reject if <span class="math inline">\(N \geq 19\)</span><br>
 </p></li>
 </ul>
+</section></section>
+<section>
+<section id="multiple-multiple-tests" class="title-slide slide level1 center">
+<h1>Multiple-Multiple Tests</h1>
+
 </section>
-<section id="multiple-multiple-tests" class="slide level2">
-<h2>Multiple-Multiple Tests</h2>
+<section id="definitions" class="slide level2">
+<h2>Definitions</h2>
 <div class="columns">
 <div class="column" style="width:50%;">
 <ul>
@@ -961,8 +966,8 @@ H_0: \theta \in [\theta_1, \theta_2] ~~~ &amp;\text{ or } ~~~ H_1: \theta \not \
 <p><strong>P-value: definition</strong></p>
 </div>
 <div class="callout-content">
-<p>We define <span class="math inline">\(p_{value}(x_{\mathrm{obs}}) =\mathbb P(\psi(X) &gt; x_{\mathrm{obs}})\)</span> for a right-tailed test.</p>
-<p>For a two-tailed test, <span class="math inline">\(p_{value}(x_{\mathrm{obs}}) =2\min(\mathbb P(\psi(X) &gt; x_{\mathrm{obs}}),\mathbb P(\psi(X) &lt; x_{\mathrm{obs}}))\)</span></p>
+<p>We define <span class="math inline">\(p_{value}(x_{\mathrm{obs}}) =\mathbb P(\psi(X) \geq x_{\mathrm{obs}})\)</span> for a right-tailed test.</p>
+<p>For a two-tailed test, <span class="math inline">\(p_{value}(x_{\mathrm{obs}}) =2\min(\mathbb P(\psi(X) \geq x_{\mathrm{obs}}),\mathbb P(\psi(X) \leq x_{\mathrm{obs}}))\)</span></p>
 </div>
 </div>
 </div>
@@ -985,7 +990,7 @@ H_0: \theta \in [\theta_1, \theta_2] ~~~ &amp;\text{ or } ~~~ H_1: \theta \not \
 <div class="columns">
 <div class="column" style="width:50%;">
 <ul>
-<li class="fragment">In practice: reject if <span class="math inline">\(p_{value}(x_{\mathrm{obs}}) &lt; \alpha = 0.05\)</span></li>
+<li class="fragment">In practice: reject if <span class="math inline">\(p_{value}(x_{\mathrm{obs}}) \leq \alpha = 0.05\)</span></li>
 <li class="fragment"><span class="math inline">\(\alpha\)</span> is the <strong>level</strong> or <strong>type-1-error</strong> of the test</li>
 </ul>
 </div><div class="column" style="width:50%;">
@@ -1032,7 +1037,7 @@ H_0: \theta \in [\theta_1, \theta_2] ~~~ &amp;\text{ or } ~~~ H_1: \theta \not \
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
 'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
-'smaller': true,
+'smaller': false,
  
         // Display controls in the bottom right corner
         controls: false,
