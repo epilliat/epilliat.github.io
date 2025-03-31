@@ -24,7 +24,7 @@ We observe $(X_1, \dots, X_n)$ iid real valued random variables.
 - Rule of thumb: $n \geq 30$
 :::
 
-- Equality when $X_i$'s are Gaussian $\mathcal N(\mu, \sigma)$,
+- Equality when $X_i$'s are Gaussian $\mathcal N(\mu, \sigma^2)$,
 that is 
 $$
 \mathbb P(X_1 \in [x,x+dx]) = \frac{1}{\sqrt{2\pi \sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}dx
@@ -34,7 +34,7 @@ $$
 
 ## Testing Mean with Known Variance
 
-- $X = (X_1, \dots, X_n)$, iid with distribution $\mathcal N(\mu, \sigma)$.
+- $X = (X_1, \dots, X_n)$, iid with distribution $\mathcal N(\mu, \sigma^2)$.
 
 :::: {.columns}
 
@@ -89,7 +89,7 @@ H_0: \{\mu_0,\sigma > 0\} \text{ or } H_1: \{\mu \neq \mu_0,\sigma > 0\} \;.
 $$
 - $\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma}$ **no longer test statistic**.
 - **Idea**: replace $\sigma$ by its estimator 
-$$ \hat \sigma(X) = \sqrt{\frac{1}{n-1}\sum_{i=1}^n(X_i - \overline X)^2} \; .$$
+$$ \hat \sigma(X) = \sqrt{\frac{1}{n-1}\sum_{i=1}^n(X_i - \mu_0)^2} \; .$$
 
 - This gives
 $$
@@ -104,7 +104,7 @@ $$
 :::: {.columns}
 
 ::: {.column width="50%"}
-:::{.callout-note .fragment icon=false title="Chi-squared distribution $\chi^2(k)$"}
+:::{.callout-note .fragment icon=false title="Chi-squared distribution $\chi^2(k)$" style="font-size:100%"}
 - Distrib of $\sum_{i=1}^k Z_i^2$ where the $Z_i$'s are iid $\mathcal N(0,1)$.
 - $\mathbb E[Z_i^4] - \mathbb E[Z_i^2]=2$
 - $k$: degree of freedom
@@ -121,7 +121,7 @@ $$
 :::
 
 ::: {.callout-note .fragment icon=false title="Theorem"}
-Assume $X_i$ are iid $\mathcal N(\mu_0, \sigma)$. 
+Assume $X_i$ are iid $\mathcal N(\mu_0, \sigma^2)$. 
 
 - The test statistic $\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma}$ **pivotal** (indep. of $\sigma$). 
 - It follows a Student Distribution $\mathcal T(n-1)$. 
@@ -147,7 +147,7 @@ $$\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)} \sim \mathcal T(n
 ## Testing Variance, Unknown Mean
 
 ::: {.callout}
-- We observe $X=(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu, \sigma)$. $\mu$, $\sigma$ are **unknown**. $\sigma_0$ is fixed.
+- We observe $X=(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu, \sigma^2)$. $\mu$, $\sigma$ are **unknown**. $\sigma_0$ is fixed and **known**.
 
 
 :::
@@ -190,7 +190,7 @@ $$\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)} \sim \mathcal T(n
 
 ## Testing Means, Known Variances
 
-- We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$.
+- We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2^2)$.
 - $\sigma_1$, $\sigma_2$ are **known**, $\mu_1$, $\mu_2$ are **unknown**
 
 - Test problem: $H_0: \mu_1 = \mu_2 ~~~\text{or} ~~~H_1: \mu_1 \neq \mu_2$
@@ -199,15 +199,31 @@ $$\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)} \sim \mathcal T(n
 $$
 \psi(X,Y)=\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}} 
 $$
-- Two-tailed test for testing variance:
+- Two-tailed test for testing means:
 $$
 T(X,Y)=\left|\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}}\right| \geq t_{1-\alpha/2} \;  ,
 $$
 - $t_{1-\alpha/2}$ is the $(1-\alpha/2)$-quantile of a **Gaussian** distribution
 
+
+## Example
+
+- **Objective.** Test if a new medication is efficient to lower cholesterol level
+- **Experiment.** 
+    - Group A: $n_A = 45$ patients receiving the new medication
+    - Group B: $n_B = 50$ patients receiving a placebo
+- **Test Problem.** 
+    - We observe $(X_1, \dots, X_{n_A})$ iid $\mathcal N(\mu_A,\sigma^2)$ and $(Y_1, \dots, Y_{n_B})$ iid $N(\mu_B,\sigma^2)$ the chol levels. $\sigma = 8$ mg/dL is **known** from calibration.
+    - $H_0: \mu_A = \mu_B$ VS $H_1: \mu_A < \mu_B$
+- **Test Statistic.** $\psi(X,Y)=\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma^2}{n_1} + \frac{\sigma^2}{n_2}}}$
+
+- **Data.** $\overline X = 24.5$ mg/dL and $\overline Y = 21.3$ mg/dL. Hence $\psi(X,Y)= 5.5$. 
+- **Conclusion.** Do not reject, and do not use this medication!
+
+ 
 ## Testing Variances, Unknown Means
 
-- We observe $(X_1, \dots, X_{n})$ iid  $\mathcal N(\mu_1, \sigma_1)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2)$.
+- We observe $(X_1, \dots, X_{n})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2^2)$.
 - $\sigma_1$, $\sigma_2$, $\mu_1$, $\mu_2$ are **unknown**
 - Variance Testing Problem:
 $$
@@ -247,7 +263,7 @@ $$ \frac{\hat \sigma^2_1}{\hat \sigma_2^2} \not \in [t_{\alpha/2}, t_{1-\alpha/2
 
 ## Testing Means, Equal Variances
 
-- We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2)$.
+- We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2^2)$.
 - $\sigma_1$, $\sigma_2$, $\mu_1$, $\mu_2$ are **unknown**, but we **know** that $\sigma_1=\sigma_2$
 - Equality of mean testing problem:
 $$
@@ -267,7 +283,7 @@ $$\psi(X,Y) = \frac{\overline X - \overline Y}{\sqrt{\hat \sigma^2\left(\frac{1}
 
 ## Equality Means, Unequal Variances
 
-- We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2)$.
+- We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2^2)$.
 - $\sigma_1$, $\sigma_2$, $\mu_1$, $\mu_2$ are **unknown**
 - Equality of Mean Testing Problem:
 $$
@@ -294,7 +310,7 @@ $$
 ## CLT
 - Let $S_n = \sum_{i=1}^n$ with $(X_1, \dots, X_n)$ iid ($L^2$) then
 $$ \frac{S_n - \mathbb E[S_n]}{\sqrt{\mathrm{Var}(S_n)}} \approx \mathcal N(0,1) \text{ when $n \to \infty$} $$
-- Equality when $X_i$'s are $\mathcal N(\mu, \sigma)$
+- Equality when $X_i$'s are $\mathcal N(\mu, \sigma^2)$
 - Rule of thumb: $n \geq 30$
 :::
 :::
