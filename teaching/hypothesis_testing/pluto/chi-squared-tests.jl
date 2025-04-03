@@ -298,7 +298,7 @@ PlutoUI = "~0.7.60"
 PLUTO_MANIFEST_TOML_CONTENTS = """
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.11.2"
+julia_version = "1.11.4"
 manifest_format = "2.0"
 project_hash = "4eb36db1e3e3aa295263f0fb0c52d8d19bbcf84b"
 
@@ -986,7 +986,7 @@ version = "0.3.27+1"
 [[deps.OpenLibm_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "05823500-19ac-5b8b-9628-191a04bc5112"
-version = "0.8.1+2"
+version = "0.8.1+4"
 
 [[deps.OpenSSL]]
 deps = ["BitFlags", "Dates", "MozillaCACerts_jll", "OpenSSL_jll", "Sockets"]
@@ -1765,7 +1765,7 @@ version = "1.4.1+1"
 # ╠═fa0a63d6-5fc7-4e72-ac70-925a28134f72
 # ╠═76f0a0dd-4dcd-4b95-94e8-1df4883940a0
 # ╠═8a1492d6-5a13-49f9-8f44-cbeccc0bb52f
-# ╠═d6ed45bb-c918-4a99-9740-2d8f829283f4
+# ╟─d6ed45bb-c918-4a99-9740-2d8f829283f4
 # ╠═7bb1e3e7-86f4-4a3e-9b2f-d68d14f5e7df
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

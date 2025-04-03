@@ -17,12 +17,12 @@ smaller: false
 
 We observe $(X_1, \dots, X_{n_1})$ iid $\mathcal N(\mu_1, \sigma_1)$ and $(Y_1, \dots, Y_{n_2})$ iid $\mathcal N(\mu_2, \sigma_2)$. We assume that the vectors $X$ and $Y$ are independent. We want to test
 $H_0$: $\mu_1 = \mu_2$ VS $H_1$: $\mu_1 \neq \mu_2$.
-We observe 
+We observe the data
 ```julia
 X=[-0.2657064426519085, -0.27538323622274347, 0.11419811877193782, 0.1158736466676504, 1.7071154417851981, 0.9306910454777643, 0.5834941669559498, -1.536447927372139, -1.4158768806157345, 1.0532694288697444, 1.2955133629200777, -0.4195557179577367]
 Y=[-0.6452416530469819, 0.3662048411679129, -0.09943069837472361, 0.8738423322164134, 0.7163913715056272, -0.32450102319617485, 0.9159821874321818, -2.3583609849887224]
 ```
-1. Compute the student-Welch test statistic
+1. Compute the student-Welch test statistic $\tfrac{\overline X - \overline Y}{\sqrt{\hat\sigma_1/n_1 + \hat\sigma_2/n_2}}$
 2. Conclude using a Gaussian approximation
 3. Conclude using an `UnequalVarianceTTest` [(julia)](https://juliastats.org/HypothesisTests.jl/dev/parametric/) or `test.welch` [(R)](https://search.r-project.org/CRAN/refmans/misty/html/test.welch.html) or `scipy.stats.ttest_ind(a, b, equal_var=False)` [(python)](scipy.stats.ttest_ind(a, b, equal_var=False))
 4. **Bonus** Conclude using a [chi-squared approximation](https://fr.wikipedia.org/wiki/Test_t_de_Welch)
@@ -60,7 +60,7 @@ We will:
 3. Compute the vector $Y = \frac{X-\mu}{\sigma}$
 4. Compute the list of counts of $Y$ in $(-\infty, -3)$, $[\tfrac{3i}{m}, \frac{3(i+1)}{m})$ for $i$ in $\{-m, \dots, m-1\}$ and $[3,+\infty)$. 
     a. How many intervals do we have here?
-    b. What is the expected number of entry of $Y$ falling in $[3, +\infty)$? (compute it using the cdf function). Change the value of $n$ so that we have at least $5$ expected counts.
+    b. What is the expected number of entries of $Y$ falling in $[3, +\infty)$? (compute this using the cdf function). Change the value of $n$ so that we have at least $5$ expected counts in $[3, +\infty)$.
    
 ::: {.columns}
 ::: {.column}
