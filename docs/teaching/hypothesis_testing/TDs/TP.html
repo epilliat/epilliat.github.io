@@ -220,14 +220,14 @@ window.Quarto = {
 
 <section id="student-test" class="level2">
 <h2 class="anchored" data-anchor-id="student-test">0. Student Test</h2>
-<p>We observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1)\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2)\)</span>. We assume that the vectors <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are independent. We want to test <span class="math inline">\(H_0\)</span>: <span class="math inline">\(\mu_1 = \mu_2\)</span> VS <span class="math inline">\(H_1\)</span>: <span class="math inline">\(\mu_1 \neq \mu_2\)</span>. We observe</p>
+<p>We observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1)\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2)\)</span>. We assume that the vectors <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are independent. We want to test <span class="math inline">\(H_0\)</span>: <span class="math inline">\(\mu_1 = \mu_2\)</span> VS <span class="math inline">\(H_1\)</span>: <span class="math inline">\(\mu_1 \neq \mu_2\)</span>. We observe the data</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>X<span class="op">=</span>[<span class="op">-</span><span class="fl">0.2657064426519085</span>, <span class="op">-</span><span class="fl">0.27538323622274347</span>, <span class="fl">0.11419811877193782</span>, <span class="fl">0.1158736466676504</span>, <span class="fl">1.7071154417851981</span>, <span class="fl">0.9306910454777643</span>, <span class="fl">0.5834941669559498</span>, <span class="op">-</span><span class="fl">1.536447927372139</span>, <span class="op">-</span><span class="fl">1.4158768806157345</span>, <span class="fl">1.0532694288697444</span>, <span class="fl">1.2955133629200777</span>, <span class="op">-</span><span class="fl">0.4195557179577367</span>]</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Y<span class="op">=</span>[<span class="op">-</span><span class="fl">0.6452416530469819</span>, <span class="fl">0.3662048411679129</span>, <span class="op">-</span><span class="fl">0.09943069837472361</span>, <span class="fl">0.8738423322164134</span>, <span class="fl">0.7163913715056272</span>, <span class="op">-</span><span class="fl">0.32450102319617485</span>, <span class="fl">0.9159821874321818</span>, <span class="op">-</span><span class="fl">2.3583609849887224</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ol type="1">
 <li>Compute the student-Welch test statistic <span class="math inline">\(\tfrac{\overline X - \overline Y}{\sqrt{\hat\sigma_1/n_1 + \hat\sigma_2/n_2}}\)</span></li>
-<li>Conclude using a Gaussian approximation</li>
+<li>Conclude using a Gaussian approximation (use the cdf of a N(0,1))</li>
 <li>Conclude using an <code>UnequalVarianceTTest</code> <a href="https://juliastats.org/HypothesisTests.jl/dev/parametric/">(julia)</a> or <code>test.welch</code> <a href="https://search.r-project.org/CRAN/refmans/misty/html/test.welch.html">(R)</a> or <code>scipy.stats.ttest_ind(a, b, equal_var=False)</code> <a href="scipy.stats.ttest_ind(a, b, equal_var=False)">(python)</a></li>
-<li><strong>Bonus</strong> Conclude using a <a href="https://fr.wikipedia.org/wiki/Test_t_de_Welch">chi-squared approximation</a></li>
+<li><strong>Bonus.</strong> Conclude using a better <a href="https://fr.wikipedia.org/wiki/Test_t_de_Welch">chi-squared approximation</a>. Compare these result to 3.</li>
 </ol>
 </section>
 <section id="monte-carlo-and-chi-squared-tests" class="level2">
@@ -251,13 +251,12 @@ window.Quarto = {
 <section id="questions" class="level3">
 <h3 class="anchored" data-anchor-id="questions">Questions</h3>
 <ol type="1">
-<li>Write the testing problem when <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> are <strong>known</strong>.</li>
 <li>Generate a vector <span class="math inline">\(X\)</span> made of <span class="math inline">\(n\)</span> iid <span class="math inline">\(\mathcal N(\mu, \sigma)\)</span></li>
 <li>Compute the vector <span class="math inline">\(Y = \frac{X-\mu}{\sigma}\)</span></li>
-<li>Compute the list of counts of <span class="math inline">\(Y\)</span> in <span class="math inline">\((-\infty, -3)\)</span>, <span class="math inline">\([\tfrac{3i}{m}, \frac{3(i+1)}{m})\)</span> for <span class="math inline">\(i\)</span> in <span class="math inline">\(\{-m, \dots, m-1\}\)</span> and <span class="math inline">\([3,+\infty)\)</span>.
+<li>Compute the list of counts <span class="math inline">\(C\)</span> of <span class="math inline">\(Y\)</span> in <span class="math inline">\((-\infty, -3)\)</span>, <span class="math inline">\([\tfrac{3i}{m}, \frac{3(i+1)}{m})\)</span> for <span class="math inline">\(i\)</span> in <span class="math inline">\(\{-m, \dots, m-1\}\)</span> and <span class="math inline">\([3,+\infty)\)</span>.
 <ol type="a">
 <li>How many intervals do we have here?</li>
-<li>What is the expected number of entry of <span class="math inline">\(Y\)</span> falling in <span class="math inline">\([3, +\infty)\)</span>? (compute it using the cdf function). Change the value of <span class="math inline">\(n\)</span> so that we have at least <span class="math inline">\(5\)</span> expected counts.</li>
+<li>What is the expected number of entries of <span class="math inline">\(Y\)</span> falling in <span class="math inline">\([3, +\infty)\)</span>? (compute this using the cdf function). Change the value of <span class="math inline">\(n\)</span> so that we have at least <span class="math inline">\(5\)</span> expected counts in <span class="math inline">\([3, +\infty)\)</span>.</li>
 </ol></li>
 </ol>
 <div class="columns">
@@ -280,8 +279,8 @@ window.Quarto = {
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute counts </span></span>
 <span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute expcounts</span></span>
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute and Return chisq</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<ol start="7" type="1">
-<li>Using the previous question, write a function <code>monte_carlo_known</code> that computes <span class="math inline">\(N\)</span> chi-squared test statistics on iid random samples <span class="math inline">\(X\sim \mathcal N(\mu, \sigma)^{\otimes n}\)</span>:</li>
+<ol type="1">
+<li>Using the previous question, write a function <code>monte_carlo_known</code> that computes <span class="math inline">\(N\)</span> chi-squared test statistics on iid random samples <span class="math inline">\(X\sim \mathcal N(\mu, \sigma)^{\otimes n}\)</span>. It returns a list <code>trials</code> of length <span class="math inline">\(N\)</span>.</li>
 </ol>
 <div class="sourceCode" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="fl">1000</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># function monte_carlo_known(N, mu, sigma, n, m)</span></span>
@@ -296,7 +295,8 @@ window.Quarto = {
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co"># return trials</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ol start="8" type="1">
 <li>Plot a histogram of a list of <code>trials</code> using a builtin function. Normalize it in density (area=1), and precise the bins <code>(0:0.5:30)</code>.</li>
-<li>What is a good distribution to approximate the histogram ? Plot the distribution’s density and check that it fits the histogram. Vary the parameters <span class="math inline">\(m\)</span>, <span class="math inline">\(n\)</span>, and <span class="math inline">\(N\)</span>.</li>
+<li>What is a good approximation of this histogram? Plot an approximated density on the same graph.</li>
+<li>What is a good distribution to approximate the histogram? Plot the distribution’s density and check that it fits the histogram. Vary the parameters <span class="math inline">\(m\)</span>, <span class="math inline">\(n\)</span>, and <span class="math inline">\(N\)</span>.</li>
 </ol>
 <p>Now, we assume that <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> are <strong>unknown</strong>.</p>
 <ol type="1">
