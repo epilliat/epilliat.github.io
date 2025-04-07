@@ -5,7 +5,7 @@ format:
     incremental: true
     callout-icon: false
     theme: [default, ../custom.scss]
-smaller: true
+smaller: false
 css: ../style.css
 #filters:
   #- parse-latex
@@ -15,16 +15,11 @@ css: ../style.css
 
 ::: {.callout}
 
-::: {.columns}
-::: {.column}
-
 - We observe iid paired data $(X_1, Y_1), \dots, (X_n,Y_n)$ of **unknown** mean $\mu_X, \mu_Y$ and cov matrix $\Sigma$. Let $X=X_1$, $Y=Y_1$.
 - $\mathrm{Cov(X,Y)} = \mathbb E[(X- \mathbb E[X])(Y- \mathbb E[Y])]$
 - $H_0: \mathrm{Cov}(X,Y)=0$ or $H_1: \mathrm{Cov}(X,Y)\neq 0$ 
 
 
-:::
-::: {.column}
 
 - $\sigma_X^2 = \mathrm{Cov(X,X)}$
 - $\sigma_Y^2 = \mathrm{Cov(Y,Y)}$
@@ -38,9 +33,7 @@ $\Sigma =
 
 :::
 
-::: 
-
-:::
+## Correlation Test 
 
 :::: {.columns}
 ::: {.column}
@@ -71,14 +64,18 @@ Monte Carlo Simulation with $n=4$:
 
 ## ANOVA Test
 
-::: {.callout .fragment}
-- $d$ independent groups (bags), each containing $N_1, \dots, N_d$ individuals. $N_{\mathrm{tot}} = \sum_{k=1}^d N_k$
-- Group $k$: $(X_{1,k}, \dots, X_{N_k,k}) \in \mathbb R^{N_k}$ are iid $\mathcal N(\mu_k, \sigma)$. Ex: $X_{ik} =$ sallary of $i$ living in region $k$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d190bd325561a195e734b3)]
-- $H_0: \mu_1 = \dots = \mu_d$ vs $H_1: \mu_l \neq \mu_k$ for some $(l,k)$ (**unknown $\sigma$**)
-:::
 
-::: {.callout-note .fragment}
-## ANOVA
+- $d$ independent groups (bags), each containing $N_1, \dots, N_d$ individuals. $N_{\mathrm{tot}} = \sum_{k=1}^d N_k$
+- For each group $k$ (eg a region), we observe $(X_{1,k}, \dots, X_{N_k,k}) \in \mathbb R^{N_k}$ (eg salaries).
+- We assume that the $X_{ik}$ are iid $\mathcal N(\mu_k, \sigma)$. 
+- Ex: $X_{ik} =$ sallary of $i$ living in region $k$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d190bd325561a195e734b3)]
+- $H_0: \mu_1 = \dots = \mu_d$ vs $H_1: \mu_l \neq \mu_k$ for some $(l,k)$ (**unknown $\sigma$**)
+
+
+## ANOVA Test
+
+::: {.callout-note }
+
 ::: {.columns}
 
 ::: {.column}
@@ -86,7 +83,8 @@ Monte Carlo Simulation with $n=4$:
 - Empirical mean of group $k$:
 $\overline X_k = \tfrac{1}{N_k}\sum_{i=1}^{N_k} X_{ik}$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d1929a5467cc7e3e3d2163)]
 - Sum of Squares in group $k$: \
-$SS_k = \sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2 \sim \sigma^2\chi^2(N_k-1)$ (under $H_0$)
+$SS_k = \sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2$ 
+- $SS_k \sim \sigma^2\chi^2(N_k-1)$ under $H_0$
 - Empirical var of group $k$: $V_k = \tfrac{1}{N_k}SS_k$
 
 :::
@@ -94,19 +92,18 @@ $SS_k = \sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2 \sim \sigma^2\chi^2(N_k-1)$ 
 
 - Total empirical mean:
 $\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} X_{ik}$
-- Sum of Squares btween Groups: $SSB = \sum_{k=1}^{d} N_k(\overline X_k - \overline X)^2\sim\sigma^2\chi^2(d-1)$ (under $H_0$)
+- Sum of Squares btween Groups: $SSB = \sum_{k=1}^{d} N_k(\overline X_k - \overline X)^2$
+- $SSB \sim \sigma^2\chi^2(d-1)$ under $H_0$
 :::
 :::
 :::
 
-::: {.columns}
-::: {.column}
-::: {.fragment}
-![](../images/anova.svg)
+## ANOVA Test
 
-:::
-:::
-::: {.column}
+
+![](../images/anova.svg){height=280}
+
+
 ::: {.callout-note .fragment}
 ## ANOVA Test Statistic
 - $\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}{\tfrac{1}{d-1}SSB}$
@@ -114,11 +111,10 @@ $\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} X_{ik}$
 - Two-sided test: double the min left/right $p_{value}$.
 
 :::
-:::
-::: 
 
 ## Interpretation of variances in ANOVA
 
+:::{style="font-size: 70%"}
 $$
 \left.\begin{array}{cl}
 \overline X_k &= \frac{1}{N_k} \sum_{i=1}^{N_k} X_{ik}\\
@@ -127,12 +123,14 @@ $$
 V_k &= \frac{1}{N_k}\sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2
 \\
 V_W &= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_kV_k\\
-V_B &= \frac{1}{N_{\mathrm{tot}}}\sum_{i=1}^{N_k} N_k(\overline X_k - \overline X)^2\\
+V_B &= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^{d} N_k(\overline X_k - \overline X)^2\\
 V_{T} &= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \overline X)^2 
 \end{array}
 \right.
 $$
+:::
 
+:::{.fragment style="font-size:60%"}
 - $V_k$: Empirical variance of group $k$
 - $V_W$: Average empirical variance within groups (unexplained variance)
 - $V_B$: Empirical variance between groups (explained variance)
@@ -141,6 +139,9 @@ $$
 :::{.fragment}
 $$\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}{\tfrac{1}{d-1}SSB}=\frac{\tfrac{1}{N_{tot}-d}V_W}{\tfrac{1}{d-1}V_B} = \frac{d-1}{N_{tot}-d} \frac{V_W}{V_B} \sim \mathcal F(N_{tot}-d, d-1) \; .$$
 :::
+:::
+
+
 
 # $\chi^2$ Homogeneity and Independence Tests
 
@@ -157,9 +158,8 @@ $$\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}{\tfrac{1}{d-
 | Total   | $N_1$    | $N_2$    | $N_3$    | $N$   |
 :::
 
-:::{.columns}
-:::{.column}
-:::{.fragment}
+## Homogeneity Test
+
 :::{.callout}
 - Bag $j$: $(X_{1j}, X_{2j}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}))$
 - The parameters $p_{ij}$ are **unknown** [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d19ee99480f7e8d5dbf8da)]
@@ -167,31 +167,26 @@ $$\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}{\tfrac{1}{d-
 - $H_1$: bags are heterogeneous
 - $\sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_jp_{ij})^2}{N_jp_{ij}}$ **not a test statistic**
 :::
-:::
-:::
 
-:::{.column}
-:::{.fragment}
+
 :::{.callout-note}
 ## Chi-Squared Homogeneity Test Statistic
 - $\hat p_{i} = \tfrac{1}{N}\sum_{j=1}^{d}X_{ij} = \frac{R_i}{N}$
 - $\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_j\hat p_{i})^2}{N_j\hat p_{i}}$
 - Approximation: $\psi(X) \sim \chi^2((m-1)(d-1))$
 :::
-:::
-:::
-:::
+
 
 ## Example: Soft drink preferences
 
 
-:::{style="font-size: 70%;"}
+:::{style="font-size: 100%;"}
 
 
 - Split population into $3$ categories: **Young Adults (18-30)**, **Middle-Aged Adults (31-50)**, and **Seniors (51 and above)**.
 - $H_0$: The groups are homogeneous in terms of soft drink preferences
 
-:::{.fragment}
+:::{.fragment style="font-size: 60%"}
 | Age Group    | Young Adults |  Middle-Aged | Seniors | Total |
 | ------------ | ---- | ----- | ------ | ----- |
 | Coke | 60   | 40    | 30     | 130   |
@@ -200,9 +195,11 @@ $$\psi(X) = \frac{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}{\tfrac{1}{d-
 | **Total**    | 140  | 140   | 110    | 390   |
 :::
 
-- $N_1 \hat p_1 = 140*\frac{130}{390} \approx 46.7$
+- $N_1 \hat p_1 = 140*\frac{130}{390} \approx 46.7$ (proportion of Coke lovers)
 
-:::{.fragment}
+:::
+## Computation of Chi2 stat
+
 $$
 \begin{aligned}
 \psi(X) &= \frac{(60-46.7)^2}{46.7}&+ \frac{(40-46.7)^2}{46.7}&+\frac{(30-36.7)^2}{36.7} \\
@@ -211,8 +208,7 @@ $$
  	&\approx 26.57
 \end{aligned}
 $$
-:::
-:::
+
 
 :::{.fragment}
 ```julia
@@ -258,8 +254,7 @@ Example of **contingency table**:
 
 :::
 
-- $N_1 \hat p_1 = 58 \cdot 50/100  = 29$
-- Degree of freedom: $(2-1)(2-1) = 1$
+- $N_1 \hat p_1 = 58 \cdot 50/100  = 29$, Degree of freedom $= 1$
 
 # Wilcoxon's Signed Rank
 
@@ -275,20 +270,20 @@ $$
 - In particular, its median is $0$.
 - If $X$ is a **symmetric** random variable, then it has the same distribution as $\varepsilon |X|$ where $\varepsilon$ is independent of $X$ and uniformly distributed in $\{-1,1\}$
 :::
-
-::: {.fragment}
+## Symetric Random Variable
 ::: {.callout-note}
 ## Symetrization
 - If $X$ and $Y$ are two **independent** variables with same density $p$, then $X-Y$ is symetric.
 - Indeed:
 $$
 \begin{aligned}
-\mathbb P(X - Y \leq t) &=\int_{-\infty}^t \mathbb P(X \leq t+y)p(y)dy =\int_{-\infty}^t \mathbb P(Y \leq t+x)p(x)dy = \mathbb P(Y-X \leq t) \; .
+\mathbb P(X - Y \leq t) &=\int_{-\infty}^t \mathbb P(X \leq t+y)p(y)dy \\
+&=\int_{-\infty}^t \mathbb P(Y \leq t+x)p(x)dy = \mathbb P(Y-X \leq t) \; .
 \end{aligned}
 $$
 - $X$ indep of $Y$ $\implies$ $X-Y$ symmetric $\implies$ $\mathrm{median}(X-Y) = 0$
 :::
-:::
+
 
 ## Dependency Problem for Paired Data
 
@@ -306,35 +301,36 @@ $$p_X(x) = \int_{y \in \mathbb R} p_{XY}(x,y)~~~~ \text{ and }~~~~ p_{Y}(y) = \i
 - If $X_i-Y_i$ is symmetric $i$, then we are under $H_0$.
 - If $X_i$ is independent of $Y_i$ for all $i$, then we are under $H_0$.
 :::
-:::{.callout-warning .fragment}
+
+## 
+
+:::{.callout-warning}
 - The pairs are assume to be independent, but within each pair, $Y_i$ **can depend on** $X_i$ (that is, we don't necessarily have $p(x,y) =p_X(x)p_Y(y)$).
 :::
 
 
 ## Wilcoxon's Signed Rank Test
 
-
-:::{.callout-note appearance="minimal"}
 - $D_i = X_i - Y_i$
 - We define the **sign** of pair $i$ as the sign of $D_i=X_i - Y_i$. It is in $\{-1, 1\}$.
 - We define the **rank** of pair $i$ as the permutation $R_i$ that satisfies $|D_{R_i}| = |D_{(i)}|$, where [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d2a963cf335081a465b092)]
 $$
 |D_{(1)}| \leq  \dots \leq |D_{(n)}| 
 $$
-:::
 
 
-:::{.callout-note .fragment}
+## Wilcoxon's Signed Rank Test
+
 ## Properties on the Signed Ranks 
 Under $H_0$, 
 
-- Signs of the $(D_i)$'s are independent and **uniformly distributed** in $\{-1, 1\}$. 
+- The signs $(D_i)$'s are independent and **uniformly distributed** in $\{-1, 1\}$. 
 - In particular, the number of signs equal to $+1$ follows a Binomial distribution $\mathcal B(n,0.5)$.
 - The ranks $R_i$ of the $(|D_i|)$'s does not depend on the **unknown** density $p_{X-Y}$. $(R_1, \dots, R_n)$ is a **random permutation** under $H_0$.
   
 - Hence, any deterministic function of the ranks and of the differences is a **pivotal test statistic**: it does not depend on the distribution of the data under $H_0$.
 
-:::
+
 
 ## Wilcoxon's Signed Rank Test
 
@@ -342,33 +338,32 @@ Under $H_0$,
 :::{.callout-note .fragment}
 ## Properties on the Signed Ranks 
 
-::::{.columns}
 
-:::{.column}
 - Wilcoxon's test statistic:
 $W_- = \sum_{i=1}^n R_i \mathbf 1\{D_i < 0\}$
 - Sometimes, also $W_+ = \sum_{i=1}^n R_i \mathbf 1\{D_i > 0\}$ or $\min(W_-, W_+)$.
 - Gaussian approximation: $W_- \asymp n(n+1)/4 + \sqrt{n(n+1)(2n+1)/24} \mathcal N(0,1)$
 - if $H_1$: $\mathrm{median}(D_i) > 0$: left-tailed test on $W_-$.
 :::
+:::{.fragment}
+To generate a $W_-$ under $H_0$:
+```julia
+k = rand(Binomial(n, 0.5))
+w = sum(randperm(n)[1:k])
+```
+:::
 
-:::{.column}
+##
+
 :::{.fragment}
 This approximation fits well the exact distribution. Monte-Carlo simulation:
 
 ![](../images/wilcoxon_W-.svg)
 :::
-:::
 
-::::
-:::
 
 :::{.fragment}
-To generate a $W_-$ under $H_0$ in Julia:
-```julia
-k = rand(Binomial(n, 0.5))
-w = sum(randperm(n)[1:k])
-```
+
 :::
 
 ## Effect of Drug on Blood Pressure
@@ -392,6 +387,7 @@ w = sum(randperm(n)[1:k])
 :::
 :::
 
+## Numerical Appli
 - $W_- = 1+2 = 3$.
 - From a simulation, we approx $\mathbb P(W_-=i)$, for $i \in \{0, 1, 2, 3, 4, 5,6\}$ under $H_0$ by
 - `[0.00784066, 0.00781442, 0.00781534, 0.01563892, 0.01562184, 0.02343478]`

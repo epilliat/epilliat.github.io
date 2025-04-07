@@ -1,0 +1,184 @@
+---
+title: "TP: Hypothesis Testing"
+format: 
+  html:
+    callout-icon: false
+    theme: [default]
+smaller: false
+#execute:
+#  eval: false
+#engine: julia
+#css: style.css
+#filters:
+  #- parse-latex
+---
+
+## 0. Student Test
+
+We observe $(X_1, \dots, X_{n_1})$ iid $\mathcal N(\mu_1, \sigma_1)$ and $(Y_1, \dots, Y_{n_2})$ iid $\mathcal N(\mu_2, \sigma_2)$. We assume that the vectors $X$ and $Y$ are independent. We want to test
+$H_0$: $\mu_1 = \mu_2$ VS $H_1$: $\mu_1 \neq \mu_2$.
+We observe the data
+```julia
+X=[-0.2657064426519085, -0.27538323622274347, 0.11419811877193782, 0.1158736466676504, 1.7071154417851981, 0.9306910454777643, 0.5834941669559498, -1.536447927372139, -1.4158768806157345, 1.0532694288697444, 1.2955133629200777, -0.4195557179577367]
+Y=[-0.6452416530469819, 0.3662048411679129, -0.09943069837472361, 0.8738423322164134, 0.7163913715056272, -0.32450102319617485, 0.9159821874321818, -2.3583609849887224]
+```
+1. Compute the student-Welch test statistic $\tfrac{\overline X - \overline Y}{\sqrt{\hat\sigma_1/n_1 + \hat\sigma_2/n_2}}$
+2. Conclude using a Gaussian approximation (use the cdf of a N(0,1))
+3. Conclude using an `UnequalVarianceTTest` [(julia)](https://juliastats.org/HypothesisTests.jl/dev/parametric/) or `test.welch` [(R)](https://search.r-project.org/CRAN/refmans/misty/html/test.welch.html) or `scipy.stats.ttest_ind(a, b, equal_var=False)` [(python)](scipy.stats.ttest_ind(a, b, equal_var=False))
+4. **Bonus.** Conclude using a better [chi-squared approximation](https://fr.wikipedia.org/wiki/Test_t_de_Welch). Compare these result to 3.
+
+## 1. Monte Carlo and Chi-squared Tests
+
+A statistician observes 
+$X = (X_1, \dots, X_n)$ where the $X_i's$ are iid of distribution $P$. If the problem is to test whether $P$ is Gaussian with **known** $\mu$ and $\sigma$, the problem is:
+
+$$H_0: P=\mathcal N(\mu, \sigma) \quad \text{VS} \quad H_1: P\neq \mathcal N(\mu, \sigma)$$
+
+If $\mu$ and $\sigma$ are **unknown**, the problem is
+$$H_0: P\in \{\mathcal N(\mu, \sigma), \mu \in \mathbb R, \sigma >0\}\quad \text{VS} \quad H_1: P\not \in \{\mathcal N(\mu, \sigma), \mu \in \mathbb R, \sigma >0\}$$
+
+We first assume that $\mu$ and $\sigma$ are **known**, and that:
+```julia
+mu = 0
+sigma = 1
+n = 100
+m = 5
+```
+
+This practical exercise aims to empirically demonstrate how a chi-squared test statistic converges to a chi-squared distribution in both known and unknown parameter scenarios.
+We will:
+
+1. Divide the observation space into 5 disjoint intervals
+2. Count how many observations fall into each interval for randomly generated data
+3. Calculate the chi-squared test statistic for randomly generated data
+4. Repeat this process 1,000 times to build an empirical distribution (an histogram)
+5. The resulting empirical histogram should approach a theoretical chi-squared distribution as both the sample size $n$ and the number of repetitions $N$ approach infinity.
+
+### Questions 
+
+1. Generate a vector $X$ made of $n$ iid $\mathcal N(\mu, \sigma)$
+2. Compute the vector $Y = \frac{X-\mu}{\sigma}$
+3. Compute the list of counts $C$ of $Y$ in $(-\infty, -3)$, $[\tfrac{3i}{m}, \frac{3(i+1)}{m})$ for $i$ in $\{-m, \dots, m-1\}$ and $[3,+\infty)$. 
+    a. How many intervals do we have here?
+    b. What is the expected number of entries of $Y$ falling in $[3, +\infty)$? (compute this using the cdf function). Change the value of $n$ so that we have at least $5$ expected counts in $[3, +\infty)$.
+   
+::: {.columns}
+::: {.column}
+```julia
+#Julia: use the broadcasting .<
+sum(x .<= Y .< y) # counts in [x, y)
+```
+:::
+::: {.column}
+```R
+#R: use bitwise operator &
+sum(Y >= x & Y < y) # counts in [x, y)
+```
+:::
+::: 
+4. Using the cdf of $\mathcal N(0,1)$, compute the list of expected counts in the same intervals
+2. Compute the Chi-squared test statistic using the two preceeding questions. We recall that $\psi(Y) = \sum_{i=1}^n \tfrac{(c_i - e_i)^2}{e_i}$ where $c_i$ and $e_i$ are the counts and expected counts.
+3. Summarize the preceeding questions into a function `trial_chisq(X, mu, sigma, m)` that normalizes $X$, computes counts, expected counts and the chisq test statistic:
+```julia
+# function trial_chisq(X, mu, sigma, m)
+# n = length(X)
+# Y = (X-mu)/sigma
+# Compute counts 
+# Compute expcounts
+# Compute and Return chisq
+```
+
+1. Using the previous question, write a function `monte_carlo_known` that computes $N$ chi-squared test statistics on iid random samples $X\sim \mathcal N(\mu, \sigma)^{\otimes n}$. It returns a list `trials` of length $N$.
+```julia
+N = 1000
+# function monte_carlo_known(N, mu, sigma, n, m)
+# empty list trials
+
+# for i = 1 ... N
+
+# Generate X made of n iid gaussian (mu, sigma)
+# append trial_chisq(X, mu, sigma, m) to trials
+
+# endfor
+# return trials
+```
+8. Plot a histogram of a list of ``trials`` using a builtin function. Normalize it in density (area=1), and precise the bins ``(0:0.5:30)``.
+9.  What is a good distribution to approximate the histogram? Plot the distribution's density and check that it fits the histogram. Vary the parameters $m$, $n$, and $N$.
+
+Now, we assume that $\mu$ and $\sigma$ are **unknown**.
+
+1. Given $X$, compute to estimators ``hatmu`` and ``hatsigma`` of ``mu`` and ``sigma``
+2. Similarly to Q.7, write a function ``monte_carlo_unknown(N, n, m)`` that computes a Monte-Carlo simulation. 
+$\hat \mu$ and $\hat \sigma$ must be computed for all trial $i=1,\dots,N$.
+1. Revisit questions 8 and 9, considering the case where $\mu$ and $\sigma$ are unknown. How does this affect the distribution of the histogram?
+
+## 2. Application with Bitcoin
+
+1. Use your favorite AI to write the code to import the last $500$ hourly close prices of bitcoin in usdt from binance. Plot the prices and compute the returns defined as $R_t = \tfrac{P_t}{P_{t-1}}-1$, where $P_t$ is the price at time $t$ (in hours).
+
+::: {.callout-tip collapse="true"}
+## R (Click to See a Solution)
+```r
+library(httr)
+library(jsonlite)
+# Define the API endpoint and parameters
+api_url <- "https://api.binance.com/api/v3/klines"
+symbol <- "BTCUSDT" # Bitcoin to USDT trading pair
+interval <- "1h" # 1-hour interval
+limit <- 500 # Limit to 500 data points
+
+# Create the query URL with parameters
+query_params <- list(
+    symbol = symbol,
+    interval = interval,
+    limit = limit
+)
+
+# Fetch the data from Binance API
+response <- GET(api_url, query = query_params)
+response.body
+data <- content(response, as = "text", encoding = "UTF-8")
+data <- fromJSON(data)
+data <- data.frame(data)[2]
+data <- data.frame(lapply(data, as.numeric))
+n <- length(data$X2)
+R <- (data[2:n,1] / data[1:(n - 1),1]) - 1
+```
+:::
+::: {.callout-tip collapse="true"}
+## Julia (Click to See a Solution)
+```julia
+using HTTP
+using JSON
+using DataFrames
+
+function BTC_returns()
+	# Define the API endpoint and parameters
+	api_url = "https://api.binance.com/api/v3/klines"
+	symbol = "BTCUSDT"  # Bitcoin to USDT trading pair
+	interval = "1h"     # 1-hour interval
+	limit = 1000         # Limit to 500 data points
+	
+	# Construct the full query URL
+	query_url = "$api_url?symbol=$symbol&interval=$interval&limit=$limit"
+	
+	# Fetch the data from Binance API
+	response = HTTP.get(query_url)
+	data = JSON.parse(String(response.body))
+	P = [parse(Float64, data[i][2]) for i in 1:length(data)]
+	R = [P[t] / P[t-1] - 1 for t in 2:length(P)]
+	return R
+end
+	R=BTC_returns()
+```
+:::
+
+2. We first test \
+$H_0$: the mean of the returns is zero VS $H_1$: it is nonzero.\
+Compute $\hat \sigma$ as ``std(R)`` and the Student statistic $\psi(R) = \sqrt{n}\tfrac{\overline R}{\hat \sigma}$. Compute the p-value using the ``cdf`` function of a Student(499) (or Gaussian).
+Obtain the same result with a library function like ``OneSampleTTest`` in Julia, ``t.test`` in R or ``ttest_1samp`` in Python
+1. Plot a histogram of the returns, normalized in density. Plot on the same graph the density of a Gaussian of mean ``mean(R)`` and of std ``std(R)``. 
+2. Using the previous exercise with $m=5$, compute a chi-squared statistic and an approximated p-value.
+3. Do a scatter plot of $(R_{t-1}, R_t)$. Do you see any correlation between $R_{t-1}$ and $R_t$?
+4. Compute the correlation $r$ between $(R_t)$ and $(R_{t-1})$.
+5. Compute the p-value of a two-sided Pearson's correlation test, using the test statistic $\tfrac{r}{\sqrt{1-r^2}} \sqrt{n-2}$ and the cdf of a Student distribution. Compare with the function ``CorrelationTest`` in Julia or ``cor.test`` in R or ``pearsonr`` in Python.
