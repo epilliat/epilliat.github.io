@@ -1,0 +1,243 @@
+---
+title: "Introduction"
+format: 
+  revealjs:
+    incremental: true
+    callout-icon: false
+    #theme: [default, ../custom.scss]
+smaller: false
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+
+## Course Structure
+
+- 8 lecture sessions
+- Course materials and slides (both evolving) available on Moodle
+- 8 TD/TP sessions (tutorial/practical work)
+
+- Continuous assessment: November 6 (date to be confirmed)
+- Final exam: December 18 (date to be confirmed)
+
+- **Attention**: Some practical sessions may take place in the tutorial room with your personal computer (not the first session).
+
+
+## Objectives of a Regression Model
+
+. . .
+
+Explain a quantity $Y$ based on $p$ quantities $X^{(1)}, ..., X^{(p)}$ (explanatory variables, or regressors). 
+
+. . .
+
+For this purpose, we have $n$ observations of each quantity from $n$ individuals.
+
+
+## Examples:
+
+. . .
+
+$Y$: daily electricity consumption in France  
+
+- $X= X^{(1)}$: average daily temperature  
+
+. . .
+
+The data consists of a history of $(Y_1, \dots, Y_n)$ and $(X_1, \dots, X_n)$ over $n$ days  
+  
+. . .
+
+**Question**: Do we have $Y \approx f(X)$ for a certain function f?  
+**Simplifying**: Do we have $Y ≈ aX + b$ for certain values $a$ and $b$?  
+  If yes, what is $a$? What is $b$? Is the relationship "reliable"?
+
+
+## Examples
+
+. . .
+
+$Y \in \{0,1\}$: customer quality ($1$: good; $0$: not good)  
+
+- $X^{(1)}$: customer income  
+- $X^{(2)}$: socio-professional category (6-7 possibilities)  
+- $X^{(3)}$: age  
+
+. . .
+
+
+  Data: n customers.  
+  
+  In this case, we model $p = P(Y = 1)$.  
+  Do we have $p \approx f(X^{(1)}, X^{(2)}, X^{(3)})$ for a function f with values in $[0, 1]$?
+
+## Predictive/Descriptive Model
+
+. . .
+
+The "approximate" relationship we're trying to establish between $Y$ and $X^{(1)}$, ..., $X^{(p)}$ is a model.
+
+. . .
+
+Why seek to establish such a model? Two main reasons:
+
+. . .
+
+**Descriptive objective**: quantify the marginal effect of each variable.
+For example, if $X^{(1)}$ increases by 10%, how does $Y$ change?
+
+. . .
+
+**Predictive objective**: given new values for $X^{(1)}$, ..., $X^{(p)}$, 
+we can deduce the (approximate) associated $Y$.
+
+
+
+## Course Outline
+
+1. **Introduction**
+  → Bivariate analysis (review): relationship between 2 variables
+  → General aspects of modeling
+
+2. **Linear Regression**
+  → Quantitative $Y$ as a function of quantitative $X^{(1)}$, ..., $X^{(p)}$
+
+3. **Analysis of Variance and Covariance**
+  → Quantitative $Y$ as a function of qualitative and/or quantitative $X^{(1)}$, ..., $X^{(p)}$
+
+4. **Generalized Linear Regression**
+  → Qualitative or quantitative $Y$ as a function of qualitative and/or quantitative $X^{(1)}$, ..., $X^{(p)}$
+
+
+## Two Types of Variables
+
+We are interested in the relationship between $2$ variables $X$ and $Y$.
+We distinguish two main categories, each divided into two types.
+
+## Quantitative Variables
+
+. . .
+
+A variable whose observation is a measured quantity.
+Examples: age, salary, number of infractions, etc.
+
+We distinguish between:
+
+- **Discrete quantitative variables** whose possible values are finite or countable 
+ (Examples: number of children, number of infractions, etc.)
+- **Continuous quantitative variables** which can take any value within an interval
+ (Examples: height, salary, etc.)
+
+## Qualitative Variables (or Factors)
+
+. . .
+
+A variable whose observation results in a category or code. The possible observations are called the modalities of the qualitative variable.
+Examples: gender, socio-professional category, nationality, high school honors, etc.
+
+We distinguish between:
+
+- **ordinal qualitative variable**: a natural order appears in the modalities
+(Examples: high school honors, etc.). 
+- **nominal qualitative variable** otherwise (Examples: gender, socio-professional category, etc.).
+
+
+## Example of the "Pottery" Dataset
+
+. . .
+
+Data: chemical composition of pottery found at different archaeological sites in the United Kingdom
+
+::: {.table-responsive}
+|  | Site | Al | Fe | Mg | Ca | Na |
+|---|------------|------|-----|-----|------|------|
+| 1 | Llanedyrn | 14.4 | 7.00 | 4.30 | 0.15 | 0.51 |
+| 2 | Llanedyrn | 13.8 | 7.08 | 3.43 | 0.12 | 0.17 |
+| 3 | Llanedyrn | 14.6 | 7.09 | 3.88 | 0.13 | 0.20 |
+| 4 | Llanedyrn | 10.9 | 6.26 | 3.47 | 0.17 | 0.22 |
+| 5 | Caldicot | 11.8 | 5.44 | 3.94 | 0.30 | 0.04 |
+| 6 | Caldicot | 11.6 | 5.39 | 3.77 | 0.29 | 0.06 |
+| 7 | IsleThorns | 18.3 | 1.28 | 0.67 | 0.03 | 0.03 |
+| 8 | IsleThorns | 15.8 | 2.39 | 0.63 | 0.01 | 0.04 |
+| 9 | IsleThorns | 18.0 | 1.88 | 0.68 | 0.01 | 0.04 |
+| 10 | IsleThorns | 20.8 | 1.51 | 0.72 | 0.07 | 0.10 |
+| 11 | AshleyRails | 17.7 | 1.12 | 0.56 | 0.06 | 0.06 |
+| 12 | AshleyRails | 18.3 | 1.14 | 0.67 | 0.06 | 0.05 |
+| 13 | AshleyRails | 16.7 | 0.92 | 0.53 | 0.01 | 0.05 |
+:::
+
+- **Individuals**: pottery numbered from 1 to 13  
+- **Variables**: the archaeological site (factor with 4 modalities) and different chemical compounds (quantitative).
+
+
+## Example of the "NO2traffic" 
+
+. . .
+
+**Data**: NO2 concentration inside cars in Paris, type of road,
+(P, T, A, V or U) and traffic fluidity (A to D).
+
+::: {.table-responsive}
+|  | NO2 | Type | Fluidity |
+|---|------|------|----------|
+| 1 | 378.94 | P | A |
+| 2 | 806.67 | T | D |
+| 3 | 634.58 | A | D |
+| 4 | 673.35 | T | C |
+| 5 | 589.75 | P | A |
+| ... | ... | ... | ... |
+| 283 | 184.16 | P | B |
+| 284 | 121.88 | V | D |
+| 285 | 152.39 | U | A |
+| 286 | 129.12 | U | C |
+:::
+
+- **Individuals**: vehicles numbered from 1 to 286  
+- **Variables**: NO2 (quantitative), type (factor with 5 modalities) and fluidity (ordinal factor with 4 modalities)
+
+## Pairwise Scatter Plots
+
+. . .
+
+Let $x=(x_1, \ldots, x_n)$ and $y=(y_1, \ldots, y_n)$ be the observed values of two quantitative variables
+
+. . .
+
+We visualize the relationship between $X$ and $Y$ using the scatter plot of points $(x_i, y_i)$.
+
+## Example: Pottery Dataset
+
+![](images/pottery_pairwise.svg){width=100%}
+
+## Linear Empirical Correlation
+
+. . .
+
+The linear relationship is quantified by Pearson's linear correlation:
+
+$\DeclareMathOperator{\cov}{cov}$
+$\DeclareMathOperator{\var}{var}$
+$\hat{\rho} = \frac{\hat\cov(x,y)}{\sqrt{\hat \var(x)\hat \var(y)}} = \frac{\frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x}_n)(y_i - \bar{y}_n)}{\sqrt{\frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x}_n)^2 \cdot \frac{1}{n}\sum_{i=1}^{n}(y_i - \bar{y}_n)^2}}$
+
+. . .
+
+where $\hat \var$ and $\hat \cov$ denote the empirical variance and covariance.
+
+## Properties of Empirical Correlation
+
+. . .
+
+From the Cauchy-Schwarz inequality, we deduce that:
+
+. . .
+
+The correlation $\hat{\rho}$ is always between $-1$ and $1$:
+
+- If $\hat{\rho} = 1$, there is a "perfect" positive linear relationship, i.e.:
+  $\hat{\rho} = 1$ if and only if there exist $a > 0$ and $b$ such that $y_i = ax_i + b$ for all $i = 1, \ldots, n$
+
+- If $\hat{\rho} = -1$, there is a "perfect" negative linear relationship, i.e.:
+  $\hat{\rho} = -1$ if and only if there exist $a < 0$ and $b$ such that $y_i = ax_i + b$ for all $i = 1, \ldots, n$
+
+- If $\hat{\rho} = 0$, there is no linear relationship (but a non-linear relationship may exist).
