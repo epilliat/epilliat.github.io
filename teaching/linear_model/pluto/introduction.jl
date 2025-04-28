@@ -24,12 +24,27 @@ begin
 	using Random, Plots, StatsPlots, RDatasets, CSV, Statistics
 end
 
+# ╔═╡ 6d4d2a6b-e519-4fa8-991d-b9235fc25e14
+md"""
+# Y Quanti / X Quanti
+"""
+
+# ╔═╡ 92b54675-b57f-4ba6-bc64-997e0421bff9
+md"""
+## Pottery Dataset
+"""
+
 # ╔═╡ bab32655-1b44-48bc-893e-9f6eb9a021f4
 begin
 pottery = CSV.read("datasets/pottery_dataset.csv", DataFrame)
 numeric_cols = names(pottery)[eltype.(eachcol(pottery)) .<: Number]
 pottery_num = pottery[:,[:Al, :Fe, :Mg, :Ca]]
 end
+
+# ╔═╡ e0703f52-e22b-4190-9694-036e81f88fe6
+md"""
+### Pairwise Scatter Plots
+"""
 
 # ╔═╡ 6eefad3f-f461-4782-a0c0-bc7b97077299
 begin
@@ -60,6 +75,19 @@ begin
 	end
 	pairwise_plot()
 end
+
+# ╔═╡ 4db9b7fc-a022-4204-ae4b-0ef6af5a241b
+begin
+	gr(size=(600,400))
+plot_cor=@df pottery_num corrplot(cols(1:4),grid=false, compact=true, markersize=4, markeralpha=1, fc=:thermal, xticks=false, yticks=false, size=(450,350), labelfontsize=20)
+	savefig(plot_cor, "pottery.png")
+	plot_cor
+end
+
+# ╔═╡ ec47fef0-6aab-4fdb-b825-203477fd5c5e
+md"""
+## Synthetic Quadratic Data
+"""
 
 # ╔═╡ 8328e499-ae35-409a-bd53-7cf405641546
 begin
@@ -190,6 +218,303 @@ end
 
 # ╔═╡ ce571cbf-30a8-4273-b6df-65fc770b5671
 transpose((U.-mean(U, dims=1)))*(U.-mean(U, dims=1))
+
+# ╔═╡ e78e42e8-2f41-4cc9-94c1-7b41bd204720
+md"""
+# Y Quali / X Quali
+"""
+
+# ╔═╡ a7e6cee0-0cd1-435c-adda-d2a8084e7c11
+md"""
+## NO2 traffic barplot
+"""
+
+# ╔═╡ ceed047d-6846-4ba8-8c60-f9c1410da282
+# Fluidity and Type Data Barplot
+begin
+# Define the data
+fluidity_types = ["A", "B", "C", "D"]
+type_p = [21, 20, 17, 20]
+type_u = [21, 17, 17, 20]
+type_a = [19, 16, 16, 18]
+type_t = [9, 8, 8, 8]
+type_v = [9, 7, 7, 8]
+
+# Create a matrix for the grouped bar plot
+# Each row represents a fluidity type, each column represents a measurement type
+data_matrix = hcat(type_p, type_u, type_a, type_t, type_v)
+
+# Create a grouped bar plot
+p1 = groupedbar(
+    fluidity_types,
+    data_matrix,
+    title="Dodge (Beside)",
+    xlabel="Fluidity",
+    ylabel="Value",
+    label=["Type P" "Type U" "Type A" "Type T" "Type V"],
+    legend=:topleft,
+    bar_position=:dodge,
+    color=[:steelblue :orange :green :purple :red],
+    alpha=0.7,
+    size=(800, 500)
+)
+p2 = groupedbar(
+    fluidity_types,
+    data_matrix,
+    title="Stack",
+    xlabel="Fluidity",
+    ylabel="Value",
+    label=["Type P" "Type U" "Type A" "Type T" "Type V"],
+    legend=:topleft,
+	bar_position=:stack,
+    color=[:steelblue :orange :green :purple :red],
+    alpha=0.7,
+    size=(800, 500)
+)
+plot(p1,p2)
+end
+
+# ╔═╡ 69858c72-1645-4d06-ace4-412964d59d2a
+md"""
+## Titanic Dataset
+"""
+
+# ╔═╡ 82a33d4f-2034-40ee-b9e2-cda2ffc9994a
+begin
+titanic = RDatasets.dataset("datasets", "Titanic")
+#groupedbar(titanic)
+end
+
+# ╔═╡ 476a92ee-6240-497a-8d94-638f458eaebd
+begin
+class_sex_counts = DataFrame(Class = String[], Sex = String[], Count = Int[])
+
+# Go through each unique combination of class and sex
+for class in ["1st", "2nd", "3rd", "Crew"]
+    for sex in ["Male", "Female"]
+        # Filter the dataset for this class and sex
+        subset = titanic[(titanic.Class .== class) .& (titanic.Sex .== sex), :]
+        
+        # Calculate the total (sum of Freq column)
+        total = sum(subset.Freq)
+        
+        # Add to our results
+        push!(class_sex_counts, (class, sex, total))
+    end
+end
+	class_sex_counts
+end
+
+# ╔═╡ 8686dcea-37de-49c7-8745-ab25dec1ac91
+begin
+survival_stats = DataFrame(Class = String[], Sex = String[], 
+                          Survived = Int[], Total = Int[], SurvivalRate = Float64[])
+	for class in ["1st", "2nd", "3rd", "Crew"]
+    for sex in ["Male", "Female"]
+        # Filter for this class and sex
+        subset = titanic[(titanic.Class .== class) .& (titanic.Sex .== sex), :]
+        
+        # Get the total count
+        total = sum(subset.Freq)
+        
+        # Get the count of survivors
+        survivors_subset = subset[subset.Survived .== "Yes", :]
+        survived = sum(survivors_subset.Freq)
+        
+        # Calculate survival rate
+        rate = survived / total
+        
+        # Add to our results
+        push!(survival_stats, (class, sex, survived, total, rate))
+    end
+end
+survival_stats
+end
+
+# ╔═╡ 52f81dc6-5fab-49fe-a8f3-d606787c0a0c
+begin
+	classes = ["1st", "2nd", "3rd", "Crew"]
+	function bar1()
+x_positions = 1:3  # Positions for the classes on x-axis
+
+# Extract data for males and females
+male_counts = [
+    survival_stats[(survival_stats.Class .== class) .& (survival_stats.Sex .== "Male"), :].Total[1]
+    for class in classes
+]
+
+female_counts = [
+    survival_stats[(survival_stats.Class .== class) .& (survival_stats.Sex .== "Female"), :].Total[1]
+    for class in classes
+]
+p1 = bar(
+    classes,
+    male_counts,
+    label="Male",
+    color=:blue,
+    alpha=0.7,
+    legend=:topleft,
+    title="Passenger Counts by Class and Sex",
+    xlabel="Passenger Class",
+    ylabel="Number of Passengers"
+)
+
+bar!(
+    p1,
+    classes,
+    female_counts,
+    label="Female",
+    color=:red,
+    alpha=0.7
+)
+	end
+	bar1()
+end
+
+
+# ╔═╡ 7a0dcb35-6a7a-417a-ae05-b21ef9356ef5
+begin
+	function bar2()
+
+# Extract male and female counts
+male_counts = [
+    class_sex_counts[(class_sex_counts.Class .== class) .& (class_sex_counts.Sex .== "Male"), :].Count[1]
+    for class in classes
+]
+
+female_counts = [
+    class_sex_counts[(class_sex_counts.Class .== class) .& (class_sex_counts.Sex .== "Female"), :].Count[1]
+    for class in classes
+]
+
+# Create a grouped bar chart using a position adjustment
+# This method explicitly places the bars side by side
+
+# Define the x positions for each group
+group_positions = 1:1:length(classes)
+bar_width = 0.5 # Width of each bar
+male_positions = group_positions  # Shift male bars to the left
+female_positions = group_positions .+ 0.5  # Shift female bars to the right
+
+passenger_data = hcat(male_counts, female_counts)
+
+# Create the grouped bar plot
+p1 = groupedbar(
+    classes,
+    passenger_data,
+    title="Titanic Passengers by Class and Sex",
+    xlabel="Passenger Class",
+    ylabel="Number of Passengers",
+    label=["Male" "Female"],
+    legend=:topleft,
+    bar_position=:dodge,  # This places bars side by side
+    color=[:blue :red],
+    alpha=0.7
+)
+	end
+	bar2()
+end
+
+# ╔═╡ fcbb65f3-ee8c-407e-9976-8dc4e53784ac
+begin
+titanic.SexAge = string.(titanic.Sex, "-", titanic.Age)
+	titanic
+end
+
+# ╔═╡ 1590870a-ce1e-42e1-b419-dc45897823ad
+begin
+function bar3()
+class_sexage_counts = DataFrame(Class = String[], SexAge = String[], Count = Int[])
+
+# Go through each unique combination of Class and SexAge
+for class in ["1st", "2nd", "3rd", "Crew"]
+    for sexage in unique(titanic.SexAge)
+        # Filter the dataset for this Class and SexAge
+        subset = titanic[(titanic.Class .== class) .& (titanic.SexAge .== sexage), :]
+        
+        # Calculate the total (sum of Freq column)
+        total = sum(subset.Freq)
+        
+        # Add to our results
+        push!(class_sexage_counts, (class, sexage, total))
+    end
+end
+
+println("\nPassenger counts by Class and SexAge:")
+println(class_sexage_counts)
+
+# Extract data for plotting
+sexage_categories = ["Male-Adult", "Male-Child", "Female-Adult", "Female-Child"]
+classes = ["1st", "2nd", "3rd", "Crew"]
+
+# Create matrices to hold data for each class
+first_class = zeros(length(sexage_categories))
+second_class = zeros(length(sexage_categories))
+third_class = zeros(length(sexage_categories))
+crew_class = zeros(length(sexage_categories))
+
+# Fill in the data
+for (i, sexage) in enumerate(sexage_categories)
+    # Find the counts for each class
+    first_class_rows = filter(row -> row.Class == "1st" && row.SexAge == sexage, class_sexage_counts)
+    if !isempty(first_class_rows)
+        first_class[i] = first_class_rows[1, :Count]
+    end
+    
+    second_class_rows = filter(row -> row.Class == "2nd" && row.SexAge == sexage, class_sexage_counts)
+    if !isempty(second_class_rows)
+        second_class[i] = second_class_rows[1, :Count]
+    end
+    
+    third_class_rows = filter(row -> row.Class == "3rd" && row.SexAge == sexage, class_sexage_counts)
+    if !isempty(third_class_rows)
+        third_class[i] = third_class_rows[1, :Count]
+    end
+    
+    crew_class_rows = filter(row -> row.Class == "Crew" && row.SexAge == sexage, class_sexage_counts)
+    if !isempty(crew_class_rows)
+        crew_class[i] = crew_class_rows[1, :Count]
+    end
+end
+
+# Create a matrix for the groupedbar plot (classes as series, sexage as categories)
+passenger_data = hcat(first_class, second_class, third_class, crew_class)
+
+# Create the grouped bar plot for passenger counts
+p1 = groupedbar(
+    sexage_categories,
+    passenger_data,
+    title="Titanic Passengers by Sex-Age Groups and Class",
+    xlabel="",
+    ylabel="Number of Passengers",
+    label=["1st Class" "2nd Class" "3rd Class" "Crew"],
+    legend=:topleft,
+    bar_position=:dodge,
+    color=[:gold :royalblue :darkgreen :purple],
+    alpha=0.7,
+    rotation=30,  # Rotate x-axis labels for better readability
+
+)
+
+end
+	bar3()
+end
+
+# ╔═╡ 9c1bd2ad-663a-4fdb-879c-46593e82bf22
+md"""
+# Quanti / Quali
+"""
+
+# ╔═╡ 4a01e597-b8d5-49d9-842b-a08bd3b40540
+begin
+	singers = RDatasets.dataset("lattice", "singer")
+@df singers violin(string.(:VoicePart), :Height, linewidth=0, label=false, ylabel="height (inch)", xtickfontsize=8)
+@df singers boxplot!(string.(:VoicePart), :Height, fillalpha=0.75, linewidth=2, label=false)
+@df singers dotplot!(string.(:VoicePart), :Height, marker=(:black, stroke(0)), label=false)
+end
+
+# ╔═╡ 125a1715-0819-4f6d-ab69-a2e245779692
+
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1857,12 +2182,17 @@ version = "1.4.1+2"
 """
 
 # ╔═╡ Cell order:
-# ╟─f9fad20e-1933-11f0-0c89-176a17d75c0f
+# ╠═f9fad20e-1933-11f0-0c89-176a17d75c0f
+# ╟─6d4d2a6b-e519-4fa8-991d-b9235fc25e14
+# ╟─92b54675-b57f-4ba6-bc64-997e0421bff9
 # ╟─bab32655-1b44-48bc-893e-9f6eb9a021f4
+# ╟─e0703f52-e22b-4190-9694-036e81f88fe6
 # ╟─6eefad3f-f461-4782-a0c0-bc7b97077299
+# ╠═4db9b7fc-a022-4204-ae4b-0ef6af5a241b
+# ╟─ec47fef0-6aab-4fdb-b825-203477fd5c5e
 # ╟─8328e499-ae35-409a-bd53-7cf405641546
-# ╠═44ec35e8-ade0-4d31-bf67-7d494a4d9f45
-# ╠═939c7010-4450-4f08-a5b8-53fdb6b5d017
+# ╟─44ec35e8-ade0-4d31-bf67-7d494a4d9f45
+# ╟─939c7010-4450-4f08-a5b8-53fdb6b5d017
 # ╟─188ee304-08a6-4b0a-ad9e-6a9ef7ef33d5
 # ╟─ba43ba7b-63f7-4660-8f8b-6b91afd0a3df
 # ╟─e88b6a19-4dd2-464a-8090-b4fd56334cde
@@ -1871,5 +2201,19 @@ version = "1.4.1+2"
 # ╟─d1738ad6-50ad-452e-855d-36576e996ca5
 # ╠═f4b8d192-d2fc-44cf-98c4-fb670a9e498c
 # ╠═ce571cbf-30a8-4273-b6df-65fc770b5671
+# ╟─e78e42e8-2f41-4cc9-94c1-7b41bd204720
+# ╟─a7e6cee0-0cd1-435c-adda-d2a8084e7c11
+# ╟─ceed047d-6846-4ba8-8c60-f9c1410da282
+# ╟─69858c72-1645-4d06-ace4-412964d59d2a
+# ╟─82a33d4f-2034-40ee-b9e2-cda2ffc9994a
+# ╟─476a92ee-6240-497a-8d94-638f458eaebd
+# ╟─8686dcea-37de-49c7-8745-ab25dec1ac91
+# ╟─52f81dc6-5fab-49fe-a8f3-d606787c0a0c
+# ╠═7a0dcb35-6a7a-417a-ae05-b21ef9356ef5
+# ╠═fcbb65f3-ee8c-407e-9976-8dc4e53784ac
+# ╟─1590870a-ce1e-42e1-b419-dc45897823ad
+# ╟─9c1bd2ad-663a-4fdb-879c-46593e82bf22
+# ╟─4a01e597-b8d5-49d9-842b-a08bd3b40540
+# ╠═125a1715-0819-4f6d-ab69-a2e245779692
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

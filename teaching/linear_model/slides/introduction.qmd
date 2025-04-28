@@ -4,13 +4,20 @@ format:
   revealjs:
     incremental: true
     callout-icon: false
+    code-overflow: scroll
+    code-block-height: 200px
     #theme: [default, ../custom.scss]
+#julia:
+#  path: "/home/emmanuel/.juliaup/bin/julia"
 smaller: false
 css: ../../../styles.css
 #filters:
   #- parse-latex
 ---
 
+
+
+# Objectives 
 
 ## Course Structure
 
@@ -71,6 +78,7 @@ $Y \in \{0,1\}$: customer quality ($1$: good; $0$: not good)
   
   In this case, we model $p = P(Y = 1)$.  
   Do we have $p \approx f(X^{(1)}, X^{(2)}, X^{(3)})$ for a function f with values in $[0, 1]$?
+
 
 ## Predictive/Descriptive Model
 
@@ -196,33 +204,54 @@ Data: chemical composition of pottery found at different archaeological sites in
 - **Individuals**: vehicles numbered from 1 to 286  
 - **Variables**: NO2 (quantitative), type (factor with 5 modalities) and fluidity (ordinal factor with 4 modalities)
 
+
+# Y Quanti, X Quanti
+
 ## Pairwise Scatter Plots
 
 . . .
 
-Let $x=(x_1, \ldots, x_n)$ and $y=(y_1, \ldots, y_n)$ be the observed values of two quantitative variables
+We observe 
+
+$X=(X_1, \ldots, X_n) \in \mathbb R^n$ and $Y=(Y_1, \ldots, Y_n) \in \mathbb R^n$, (**quantitative variables**)
 
 . . .
 
-We visualize the relationship between $X$ and $Y$ using the scatter plot of points $(x_i, y_i)$.
+Relationship between $X$ and $Y$: **scatter plot** of points $(X_i, Y_i)$.
 
 ## Example: Pottery Dataset
 
 ![](images/pottery_pairwise.svg){width=100%}
+
+## Correlation Plot
+
+![](../pluto/pottery.png)
+
+```julia
+plot_cor=@df pottery_num corrplot(cols(1:4),grid=false, compact=true) #Julia
+```
 
 ## Linear Empirical Correlation
 
 . . .
 
 The linear relationship is quantified by Pearson's linear correlation:
-
 $\DeclareMathOperator{\cov}{cov}$
 $\DeclareMathOperator{\var}{var}$
-$\hat{\rho} = \frac{\hat\cov(x,y)}{\sqrt{\hat \var(x)\hat \var(y)}} = \frac{\frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x}_n)(y_i - \bar{y}_n)}{\sqrt{\frac{1}{n}\sum_{i=1}^{n}(x_i - \bar{x}_n)^2 \cdot \frac{1}{n}\sum_{i=1}^{n}(y_i - \bar{y}_n)^2}}$
+
+::: {.square-def}
+$$\hat \rho = \frac{\hat\cov(X,Y)}{\sqrt{\hat \var(X)\hat \var(Y)}}$$
+:::
+
+
 
 . . .
 
-where $\hat \var$ and $\hat \cov$ denote the empirical variance and covariance.
+where $\hat \var$ and $\hat \cov$ denote the [empirical]{style="background-color: yellow;"} variance and covariance:
+
+- $\hat \cov(X,Y)= \frac{1}{n}\sum_{i=1}^{n}(X_i - \overline X)(Y_i - \overline Y)$
+- $\hat \var(X) = \hat \cov(X,X)$, $\hat \var(Y)=\hat\cov(Y,Y)$
+
 
 ## Properties of Empirical Correlation
 
@@ -232,12 +261,512 @@ From the Cauchy-Schwarz inequality, we deduce that:
 
 . . .
 
-The correlation $\hat{\rho}$ is always between $-1$ and $1$:
+The correlation $\hat \rho$ is always between $-1$ and $1$:
 
-- If $\hat{\rho} = 1$, there is a "perfect" positive linear relationship, i.e.:
-  $\hat{\rho} = 1$ if and only if there exist $a > 0$ and $b$ such that $y_i = ax_i + b$ for all $i = 1, \ldots, n$
+- If [$\hat \rho = 1$]{style="background-color: lightgreen;"}: for all $i$, $Y_i = aX_i + b$ for some [$a > 0$]{style="background-color: lightgreen;"}
 
-- If $\hat{\rho} = -1$, there is a "perfect" negative linear relationship, i.e.:
-  $\hat{\rho} = -1$ if and only if there exist $a < 0$ and $b$ such that $y_i = ax_i + b$ for all $i = 1, \ldots, n$
+- If [$\hat \rho = -1$]{style="background-color: orange;"}: for all $i$, $Y_i = aX_i + b$ for some [$a < 0$]{style="background-color: orange;"}
 
-- If $\hat{\rho} = 0$, there is no linear relationship (but a non-linear relationship may exist).
+- If [$\hat \rho = 0$]{style="background-color: yellow;"}: **no linear** relationship. [notebook](../pluto/introduction.html)
+
+## Correlation test
+
+
+. . .
+
+$\hat \rho(X, Y)$ is an estimator of the **unknown** theoretical correlation $\rho$ between $X$ and $Y$ defined by
+$$\rho = \frac{\mathbb E[(X - \mathbb E(X))(Y - \mathbb E(Y))]}{\sqrt{\mathbb V(X)\mathbb V(Y)}}$$
+
+. . .
+
+**Correlation test problem:** 
+
+$$H_0: \rho = 0 \quad \text{VS}\quad  H_1: \rho \neq 0$$
+
+## Correlation test
+
+. . .
+
+**Test statistic** (here we use $\psi$ for test statistics and $T$ for tests)
+$$\psi(X,Y) = \frac{\hat \rho\sqrt{n-2}}{\sqrt{1-\hat \rho^2}}$$
+
+. . .
+
+**Test**
+
+[Under $H_0$]{style="background-color: yellow;"}, if $(X,Y)$ is Gaussian, [$\psi(X,Y) \sim \mathcal T(n-2)$]{style="background-color: yellow;"} (Student distribution of degree of freedom $n-2$)
+
+. . .
+
+$$T(X,Y) = \mathbf{1}\{|\psi(X,Y)| > t_{1-\alpha/2}\}$$
+
+In R: `cor.test`
+
+
+## Least Square $(p=1)$
+
+. . .
+
+Given observations $(X_i, Y_i)$, we consider $\hat \alpha$, $\hat \mu$ that **minimize**, over all $(\alpha, \mu) \in \mathbb R^2$:
+
+::: {.square-objective}
+$$
+L(\alpha, \mu) = \sum_{i=1}^n (Y_i - \alpha X_i - \mu)^2
+$$
+
+:::
+
+. . .
+
+**Solution:** (check homogeneity!)
+
+::: {.square-solution}
+$$\hat \alpha = \hat \cov(X,Y)  \quad \text{and} \quad \hat \mu = \overline Y - \hat a \overline X$$
+
+:::
+
+
+
+
+# Y Quali, X Quali
+
+## Contingency Table and Notation
+
+. . .
+
+We observe $X=(X_1, \dots, X_n)$ and $Y=(Y_1, \dots, Y_n)$, where
+
+- $X_k \in \{1, \dots, I\}$ (factor with $I$ categories, "colors")
+- $Y_k \in \{1, \dots, J\}$ (factor with $J$ categories, "bags")
+
+. . .
+
+| Category X/Y| **Bag 1** | **Bag 2** | **Bag 3** | Totals |
+|---|---|---|---|---|
+| **Col 1** | $n_{11}$ | $n_{12}$ | $n_{13}$ | $R_1$ |
+| **Col 2** | $n_{21}$ | $n_{22}$ | $n_{23}$ | $R_2$ |
+| **Totals** | $N_1$ | $N_2$ | $N_3$ | $N$ |
+
+
+$n_{ij}$: number of individuals having category $i$ for $X$ and $j$ for $Y$  
+
+
+## Example: NO2trafic dataset
+
+**contingency table** of variable "Type" and "Fluidity"
+
+| **Fluidity**/**Type** | P | U | A | T | V |
+|---|------|-----|-----|-----|-----|
+| A | 21 | 21 | 19 | 9 | 9 |
+| B | 20 | 17 | 16 | 8 | 7 |
+| C | 17 | 17 | 16 | 8 | 7 |
+| D | 20 | 20 | 18 | 8 | 8 |
+
+In R: `table(X,Y)`
+
+## In Julia
+
+![](images/bar_plot.svg)
+
+```julia
+fluidity_types = ["A", "B", "C", "D"]
+type_p = [21, 20, 17, 20]
+type_u = [21, 17, 17, 20]
+type_a = [19, 16, 16, 18]
+type_t = [9, 8, 8, 8]
+type_v = [9, 7, 7, 8]
+
+# Create a matrix for the grouped bar plot
+# Each row represents a fluidity type, each column represents a measurement type
+data_matrix = hcat(type_p, type_u, type_a, type_t, type_v)
+
+# Create a grouped bar plot
+p1 = groupedbar(
+    fluidity_types,
+    data_matrix,
+    title="Dodge (Beside)",
+    xlabel="Fluidity",
+    ylabel="Value",
+    label=["Type P" "Type U" "Type A" "Type T" "Type V"],
+    legend=:topleft,
+    bar_position=:dodge,
+    color=[:steelblue :orange :green :purple :red],
+    alpha=0.7,
+    size=(800, 500)
+)
+p2 = groupedbar(
+    fluidity_types,
+    data_matrix,
+    title="Stack",
+    xlabel="Fluidity",
+    ylabel="Value",
+    label=["Type P" "Type U" "Type A" "Type T" "Type V"],
+    legend=:topleft,
+	bar_position=:stack,
+    color=[:steelblue :orange :green :purple :red],
+    alpha=0.7,
+    size=(800, 500)
+)
+plot(p1,p2)
+```
+
+## $\chi^2$ Dependency Test Problem
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+
+. . .
+
+We observe  \
+$X=(X_1, \dots, X_n) \in \{1, \dots, I\}^n$ and $Y=(Y_1, \dots, Y_n) \in \{1, \dots, J\}^n$
+
+. . .
+
+**Assumptions**: $(X_k,Y_k)$ are independent, each pair has unknown distribution $P_{XY}$
+
+. . .
+
+dependency test problem:
+
+::: {.square-def}
+$$H_0: P_{XY}=P_{X}P_Y \VS H_1: P_{XY} \neq P_{X}P_{Y}$$
+:::
+
+
+
+## Definitions
+
+. . .
+
+Entries of the table:
+
+::: {.square-def}
+$$n_{ij} = \sum_{k=1}^n \mathbf 1\{X_{k} = i\}\mathbf 1\{Y_k=j\}$$
+:::
+
+. . .
+
+Total proportion of individuals $k$ of color $X_k =i$:\
+
+::: {.square-def}
+[$\hat p_{i}=\frac{R_i}{N}$]{style="background-color: yellow;"} $= \tfrac{1}{N}\sum_{j=1}^{J}n_{ij}$
+:::
+
+
+
+## $\chi^2$ Dependency Test 
+
+. . .
+
+Chi-squared statistic, or chi-squared distance:
+
+::: {.square-def}
+$$\psi(X,Y) = \sum_{i=1}^I\sum_{j=1}^J \frac{(n_{ij}- N_j\hat p_{i})^2}{N_j\hat p_{i}}$$
+:::
+
+
+
+- Approximation: $\psi(X,Y) \sim \chi^2((I-1)(J-1))$ when $n \to \infty$
+- Test: $T=\mathbf 1\{\psi(X,Y) \geq t_{1-\alpha/2}\}$, where \
+$t_{0.975}$ = `quantile(Chisq(I-1,J-1), 0.975)`
+
+
+# Y Quanti / X Quali
+
+## Setting
+
+. . .
+
+We observe $X=(X_1, \dots, X_n)$ and $Y=(Y_1, \dots, Y_n)$, where
+
+- $X_k \in \{1, \dots, I\}$ (Quali)
+- $Y_k \in \mathbb R$ (Quanti)
+
+. . .
+
+**Boxplot**:  represents $0, 25, 75$ and $100$ percentiles.
+
+
+## Singer Dataset (Julia StatsPlots)
+
+. . .
+
+$X$: Height (in inches), $Y$: Type of singer
+
+. . .
+
+![](images/singers.svg){width=70%}
+
+
+## Definitions
+
+. . .
+
+$X=(X_1, \dots, X_n) \in \{1, \dots, I\}^n$, 
+$Y=(Y_1, \dots, Y_n) \in \mathbb R^n$
+
+. . .
+
+if $i \in \{1, \dots, I\}$, we define partial means as
+
+::: {.square-def}
+:::{style="font-size: 80%;"}
+$$N_i = \sum_{k=1}^n \mathbf 1\{X_k=i\} \and \overline Y_i = \frac{1}{N_i}\sum_{k=1}^n Y_k \mathbf 1\{X_k=i\}$$
+:::
+
+:::
+
+. . .
+
+Total mean:
+
+$Y_i = \frac{1}{N}\sum_{k=1}^n Y_k = \frac{1}{N}\sum_{i=1}^I\sum N_i \overline Y_i$
+
+## Variance Decomposition
+
+
+. . .
+
+
+::: {.square-def}
+:::{style="font-size: 80%;"}
+$$\frac{1}{n}\underbrace{\sum_{k=1}^n(Y_k - \overline Y)^2}_{SST} = 
+\frac{1}{n}\underbrace{\sum_{i=1}^IN_i(\overline Y_i - \overline Y)^2}_{SSB} 
++ \frac{1}{n}\underbrace{\sum_{k=1}^n\mathbf 1\{X_k=i\}(Y_k - \overline Y_i)^2}_{SSW}$$
+:::
+:::
+
+. . .
+
+**correlation ratio:**
+
+::: {.square-def}
+$$ \hat \eta^2 = \frac{SSB}{SST}  \in [0,1]$$
+:::
+
+. . .
+
+This is an estimator of **unknown** $\eta = \frac{\mathbb V(\mathbb E[Y|X])}{\mathbb V(Y)}$
+
+## ANOVA Test
+
+. . .
+
+$(X_1, \dots, X_n) \in \{1, \dots I\}^n$\
+$(Y_1, \dots, Y_n) \in \mathbb R^n$
+
+. . .
+
+Assumption: $Y_i$ are Gaussian of [same variance]{style="background-color: yellow;"}.
+$\mu_i = \mathbb E[Y|X=i]=\frac{\mathbb E[Y\mathbf 1\{X=i\}]}{\mathbb P(X=i)}$ **(unknown)**
+
+. . .
+
+Problem:
+
+::: {.square-def}
+$$H_0: \mu_1=\dots \mu_I \VS H_1: \mu_i \neq \mu_j \text{ for some $i,j$}$$
+:::
+
+## ANOVA Test
+
+. . .
+
+**Test Statistic**
+
+::: {.square-def}
+$$\psi(X,Y) = \frac{SSB/(I-1)}{SSW/(N-I)}$$
+:::
+
+. . .
+
+$\psi(X,Y) \sim \mathcal F(I-1, N-I)$ under $H_0$
+
+. . .
+
+pvalue: 
+```julia
+1-cdf(FDist(I-1, N-1), psiobs)
+```
+
+
+# Model Considerations
+
+## Context
+
+. . .
+
+$n$ individuals, $p$ explanatory variables $X=(X^{(1)}, \dots, X^{(p)})$.
+
+**Goal:** Explain/Predict $Y$ in function of $X$
+
+. . .
+
+**We observe**
+
+$$Y=\begin{pmatrix}
+Y_1 \\
+Y_2 \\
+\vdots \\
+Y_n
+\end{pmatrix} \and X=\begin{pmatrix}
+X^{(1)}_1 & \cdots & X^{(p)}_1 \\
+X^{(1)}_2 & \cdots & X^{(p)}_1 \\
+\vdots & & \vdots \\
+X^{(1)}_n & \cdots & X^{(p)}_1
+\end{pmatrix}$$
+
+Each [individual $i$]{style="background-color: yellow;"} correspond to $Y_i$ a [row]{style="background-color: yellow;"} $(X^{(1)}_i, \dots, X^{(p)}_i)$
+
+## Where is Randomness?
+
+Generally, we don't know any values a priori.
+Example:
+
+- individual characteristics of a customer
+
+. . .
+
+$Y$ and $X^{(1)}, \ldots, X^{(p)}$ are [random variables]{style="background-color: yellow;"}. 
+
+. . .
+
+We observe [realizations]{style="background-color: yellow;"} the $Y$'s and $X$'s
+
+. . .
+
+Sometimes $X = (X^{(1)}, \ldots, X^{(p)})$ is chosen **a priori**.
+Example:
+
+- $X$: medication dosages (and $Y$: a physiological response)
+
+. . .
+
+
+In this context, $Y$ is random, but $X^{(1)}, \ldots, X^{(p)}$ are not.
+
+
+## Summary:
+. . .
+
+$Y$ is always viewed as a [random variable]{style="background-color: yellow;"}
+
+. . .
+
+$X^{(1)}, \ldots, X^{(p)}$ are viewed as random variables or deterministic variables, depending on the context
+
+
+## General Model
+
+. . .
+
+$Y=(Y_1, \dots, Y_n)$\
+$X^{(k)} = (X^{(k)}_1, \dots, X^{(k)}_n)$, $k= 1, \dots, p$ (row notation) 
+
+. . .
+
+General model:
+
+::: {.square-def}
+$$Y_i = F(X_i^{(1)}, \dots, X_i^{(p)}, \varepsilon_i)$$
+:::
+
+- $F$ is an **unknown** and **deterministic** function of $p$ variables.
+- $\varepsilon_i$ are iid **random** representing external independent noise
+
+. . .
+
+[Nonparametric problem]{style="background-color: yellow;"}: space of all $f$ is of [infinite dimension]{style="background-color: yellow;"}!
+
+
+## Linear Model
+
+. . .
+
+Idea: reduce to a smaller class of function $F \in \mathcal F$.
+
+. . .
+
+Linear Model:
+
+::: {.square-def}
+$$
+Y_i = \mu + \beta_1 X^{(1)}_i + \beta_2 X^{(2)}_i + \dots + \beta_p X^{(p)}_i + \sigma \varepsilon_i
+$$
+:::
+
+. . .
+
+Space of affine function:
+
+$$
+\mathcal F = \{F:~ F(x, \varepsilon) = \mu + \beta^T x + \sigma \varepsilon, (\mu, \beta, \sigma) \in \mathbb R^{p+2}\}
+$$
+
+. . .
+
+
+$\dim(\mathcal F) = p+2$ (number of unknown parameters)
+
+. . .
+
+much easier to estimate $f$ (and perhaps less overfitting)
+
+
+## Wait, what is + ?
+
+. . .
+
+
+If the $X^{(k)}$ are **qualitative** factors,
+
+. . .
+
+What is the meaning of
+
+
+$$
+Y_i = \mu + \beta_1 X^{(1)}_i + \beta_2 X^{(2)}_i + \dots + \beta_p X^{(p)}_i + \sigma \varepsilon_i
+$$
+
+## Case of categorical variables
+
+. . .
+
+[Encode]{style="background-color: yellow;"} each category
+
+. . .
+
+If $Y \in \{A, B\}$ has $2$ categories, we encode
+$$\widetilde Y = \mathbf 1\{Y = A\}$$
+
+. . .
+
+If $Y\in \{A_1, \dots, A_k\}$, we use one hot encoding: 
+
+$$\widetilde{Y}_k = \mathbf 1\{Y=A_k\}$$
+
+- Also encode $X^{(1)}, \ldots, X^{(p)}$ if needed.
+- see also the chapter on ANOVA and ANCOVA.
+
+
+
+## From random to deterministic $X$
+
+. . .
+
+If $X^{(1)}, \ldots, X^{(p)}$ are [random]{style="background-color: yellow;"}, 
+
+. . .
+
+Then for all [deterministic]{style="background-color: yellow;"} $x^{(1)}, \dots, x^{(p)}$
+
+. . .
+
+[Conditionnally]{style="background-color: yellow;"} to $(X^{(1)}=x^{(1)}, \dots, X^{(p)} =x^{(p)})$, we have the general model
+
+$$Y = F(x^{(1)},\dots, x^{(p)}, \varepsilon)$$
+
+- Because $\varepsilon$ is [independent]{style="background-color: yellow;"} of $X$
+- Replace $X^{(k)}$ by their observations $x^{(k)}$. 
+- The only randomness is now in $\varepsilon$!
