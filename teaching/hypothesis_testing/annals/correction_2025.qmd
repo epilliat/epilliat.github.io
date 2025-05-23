@@ -1,0 +1,336 @@
+---
+title: "Introduction to Hypothesis Testing, Exam 2025"
+format: 
+  html:
+    callout-icon: false
+    theme: [default]
+smaller: false
+css: ../../../styles.css
+#execute:
+#  eval: false
+#engine: julia
+#css: style.css
+#filters:
+  #- parse-latex
+---
+
+::: {.callout-note}
+## Note sur la correction
+
+Comme répété à plusieurs reprises en cours, la qualité de la rédaction ainsi que les détails d'explications sont grandement pris en compte dans l'évaluation, surtout pour les [introductions des modèles]{style="background-color: yellow;"} (premières questions des exercices). 
+:::
+
+
+## Exercice 1 : Test d'une préférence pour les sources d'énergie renouvelables ou non renouvelables
+
+Nous cherchons à déterminer si les citoyens d'une région ont une quelconque préférence pour les sources d'énergie renouvelables (par exemple, solaire, éolienne) ou les sources d'énergie non renouvelables (par exemple, charbon, gaz naturel). Nous supposons que, a priori, il n'y a aucune préférence en moyenne. Nous interrogeons $n$ individus, et nous notons $X$ le nombre de répondants qui préfèrent les énergies renouvelables.
+
+## Questions :
+
+1. Formalisez le problème de test d'hypothèse, et définissez $H_0$ et $H_1$​. Indiquez si ce test est unilatéral ou bilatéral.
+
+::: {.callout-note}
+## Réponse
+
+- On observe $X$ le nombre d'individus qui préfèrent les ENR.
+- On suppose que [$X$ suit une loi $Bin(n,p)$]{style="background-color: yellow;"}, où [$p$ est un paramètre inconnu]{style="background-color: yellow;"}.
+- On considère le problème de test: 
+$H_0: p=1/2$ VS $H_1: p\neq 1/2$
+
+C'est un problème de test [bilatéral]{style="background-color: yellow;"}
+:::
+
+2. Nous interrogeons $n=100$ individus, et $X=58$ préfèrent les sources d'énergie renouvelables. Écrivez la p-valeur en fonction de $F$, la fonction de répartition d'une distribution Binomiale Bin$(100,0.5)$.
+
+::: {.callout-note}
+## Réponse
+[Sous $H_0$, $X$ suit une loi $Bin(100, 0.5)$]{style="background-color: yellow;"} de cdf $F$. Ainsi,
+$p_{valeur} = 2\min(\mathbb P(X \leq 58), \mathbb P(X \geq 58)) =  2\mathbb P(X \geq 58) = 2(1- F(57))$.\
+d'où [$p_{valeur} = 2(1- F(57))$]{style="background-color: yellow;"}.\
+(58 accepté aussi car $\mathbb P(X=58)$ est petit)
+:::
+
+3. Écrivez une ligne de code qui calculerait la p-valeur exacte en Julia, Python, ou R.
+
+```julia
+2*(1-cdf(Binomial(100, 0.5), 57)) # Julia
+2*(1-pbinom(57,100,0.5)) # R
+# Résultat: 0.133
+```
+
+
+
+4. Donnez une approximation de la p-valeur en utilisant une approximation gaussienne et le graphique de la fonction de répartition de $\mathcal N(0,1)$ fourni dans le sujet. Quelle est votre conclusion ?
+
+::: {.callout-note}
+[Sous $H_0$, $\mathbb E_0[X]=n/2$ et $\mathbb V_0(X)=n\frac{1}{2}(1-\frac{1}{2})=n/4$]{style="background-color: yellow;"}\
+
+On renormalise $X$ pour obtenir la statistique de test suivante:
+$$\psi(X) = \frac{X-\mathbb E_0[X]}{\sqrt{\mathbb V_0(X)}}=\frac{X-n/2}{\sqrt{n/4}}$$
+
+Lorsque $n \to \infty$, $\psi(X)$ converge en loi vers $\mathcal N(0,1)$. Ainsi, on obtient suite à cette approximation Gaussienne ([$n/2$ est assez grand]{style="background-color: yellow;"}):
+
+$$
+p_{valeur} = 2\mathbb P(\psi(X) \geq \psi(X_{obs})) \asymp 2\mathbb P(Z \geq \psi(58)),
+$$
+où $Z$ est une VA qui suit une loi $\mathcal N(0,1)$ sous $\mathbb P$.
+On calcule $\psi(58) \asymp 1.6$, et par lecture graphique,
+[$2*P(Z \geq \psi(58)) \asymp 0.11$]{style="background-color: yellow;"}
+
+La $p_{valeur}$ est grande, [on ne donc rejette pas à un niveau de $5\%$]{style="background-color: yellow;"}.
+
+
+:::
+
+5. Redéfinissez l'hypothèse alternative $H_1$​ et calculez une p-valeur approximative si nous cherchons à déterminer si les citoyens ont une préférence pour :
+    a. les sources d'énergie renouvelables.
+    b. les sources d'énergie non renouvelables.
+   Quelles sont vos conclusions pour ces deux autres problèmes ?
+
+::: {.callout-note}
+# Réponse
+Les problèmes de test deviennent unilatéraux.
+
+a.  $H_1: p > 0.5$, $p_{valeur} \asymp 0.11/2 \asymp 0.055$ on pourrait rejeter à un niveau $10\%$
+b.  $H_1: p < 0.5$ , $p_{valeur} \asymp (1-0.11)/2 \asymp 0.445$, on ne rejette pas.
+:::
+
+![](cdfs/gauss.svg)
+
+## Exercice 2 : Surveillance environnementale de la pollution fluviale
+
+Une agence environnementale surveille les niveaux de pollution d'une rivière pour déterminer si une usine à proximité provoque une **augmentation** de la concentration de produits chimiques nocifs. La concentration cible pour un produit chimique spécifique est de $15 \, \text{ppm}$ (parties par million), ce qui est considéré comme sûr pour la vie aquatique. Pour un échantillon de $n = 20$ prélèvements d'eau effectués en aval de l'usine, la concentration moyenne empirique est $\bar{X}_n = 16,3 \, \text{ppm}$, et la variance empirique est $S^2_n = 2,4 \, \text{ppm}^2$.
+
+**A priori**, on suppose que la rivière respecte le seuil de pollution sans danger de $15 \, \text{ppm}$.
+
+Nous visons à tester, avec un niveau de signification $\alpha = 0,05$, si la concentration chimique en aval dépasse le seuil de sécurité, indiquant une pollution provenant de l'usine.
+
+### Questions :
+
+1. En utilisant une hypothèse Gaussienne, formalisez le problème de test d'hypothèse et définissez $H_0$ et $H_1$. S'agit-il d'un test unilatéral ou bilatéral ? 
+
+::: {.callout-note}
+## Réponse
+- On observe $(X_1, \dots, X_n)$ les concentrations des prélèvement [en ppm]{style="background-color: yellow;"} (toujours bien de mettre les unités)
+- On suppose que les [$X_i$ sont iid de loi $\mathcal N(\mu, \sigma^2)$ où $\mu$ et $\sigma^2$ sont des paramètres inconnus]{style="background-color: yellow;"}
+- On souhaite tester s'il y a un problème de pollution, cad \
+$H_0: \mu = 15$ ppm VS $H_1: \mu > 15$ ppm
+
+C'est un problème de test [unilatéral droit]{style="background-color: yellow;"} ($\mu \leq 15$ ppm aussi accepté pour $H_0$)
+:::
+
+1. Définissez la statistique de test. Quelle est sa distribution sous $H_0$ ?
+
+::: {.callout-note}
+## Réponse
+On utilise la statistique de test de Student
+$$\psi(X) = \sqrt{n}\frac{\overline X - 15}{\hat \sigma},$$
+
+où $\overline X=\frac{1}{n}\sum_{i=1}^n X_i$ et $\hat \sigma^2 = \tfrac{1}{n-1}\sum_{i=1}^n (X_i-\overline X)^2$ est un estimateur non biaisé de $\sigma^2$ sous $H_0$. Comme les $X_i$ sont iid de loi normale, $\psi(X)$ suit une loi de student $\mathcal T(n-1)$ sous $H_0$. [Ce n'est pas une approximation ici, on peut même dire que $\psi$ est une statistique de test pivot]{style="background-color: lightgreen;"}
+
+:::
+
+2. Déterminez la zone de rejet. Vous pouvez utiliser une approximation Gaussienne et le graphe de l'exercice 1.
+
+::: {.callout-note}
+## Réponse
+On souhaite tester (à droite) au niveau $0.05$. Ainsi, on rejette si
+$\psi(X) \geq t_{0.95}$, où $t_{0.95}$ est le quantile $0.95$ de $\mathcal T(n-1)$
+
+Lorsque $n$ tend vers $+\infty$, $\mathcal T(n-1)$ converge en loi vers $\mathcal N(0,1)$. On approxime donc $t_{0.95}$ par le quantile de la loi Gaussienne (inverse de la cdf sur le graphe), d'où $t_{0.95} \asymp 1.6$
+
+[On rejette si $\psi(X) \geq 1.6$]{style="background-color: yellow;"}
+
+:::
+
+3. Ecrivez une ligne de code permettant de calculer le seuil de rejet exact.
+```julia
+quantile(TDist(19), 0.95) # julia
+qt(0.95,n) # R, (1.73 légèrement plus grand que 1.6)
+```
+
+4. La rivière présente-t-elle une concentration chimique accrue qui pourrait indiquer une pollution provenant de l'usine ?
+
+::: {.callout-note}
+## Réponse
+
+On calcule $\psi(X_{\mathrm{obs}}) = 3.75$, [on rejette donc $H_0$]{style="background-color: yellow;"}, la rivière est peut être polluée
+:::
+
+## Exercice 3 : Analyse de la distribution des habitats lors de la migration des oiseaux
+
+Un chercheur en faune sauvage étudie le comportement d'une certaine espèce d'oiseaux qui migrent vers une réserve naturelle. Le chercheur a une hypothèse sur la façon dont les oiseaux se répartissent entre différents types d'habitats dans la réserve. La distribution attendue, basée sur des données historiques, est la suivante :
+
+- **Prairie** : 40%
+- **Zones humides** : 30%
+- **Forêts** : 20%
+- **Zones rocheuses** : 10%
+
+Pour tester cette hypothèse, le chercheur observe 200 oiseaux et enregistre leurs préférences d'habitat. Les comptages observés sont les suivants :
+
+| Habitat | Prairie | Zones humides | Forêts | Zones rocheuses |
+|---------|---------|---------------|--------|----------------|
+| Observé | 90      | 60            | 30     | 20             |
+
+### Questions :
+1. Formalisez le problème de test d'hypothèse et définissez $H_0$ et $H_1$.
+
+::: {.callout-note}
+## Réponse
+- On observe $(X_1, X_2,X_3,X_4)$ les effectifs d'oiseaux présent respectivement dans les Prairie,..., zones rocheuses.
+- On suppose que le vecteur $(X_1, X_2,X_3,X_4)$ suit une [loi multinomiale de paramètre $n=200$ et $q=(q_1,q_2,q_3,q_4)$ inconnu]{style="background-color: yellow;"}
+- On veut tester si les observations correspondent à la distribution attendue, c'est à dire
+$H_0: q=(0.4,0.3,0.2,0.1)$ VS $H_1: q\neq (0.4,0.3,0.2,0.1)$
+Ce problème correspond au [test d'adéquation du Chi2 (Goodness of fit)]{style="background-color: yellow;"}.
+:::
+1. Calculez les effectifs attendus.
+
+::: {.callout-note}
+## Réponse 
+| Habitat | Prairie | Zones humides | Forêts | Zones rocheuses |
+|---------|---------|---------------|--------|----------------|
+| Observé ($X_i$) | 90      | 60            | 30     | 20             |
+| Attendus ($E_i$) | 80 | 60 | 40| 20 |
+:::
+
+2. Calculez la statistique du chi-deux.
+
+::: {.callout-note}
+$\psi(X) = \sum_{i=1}^4 \frac{(X_i - E_i)^2}{E_i} = 100/80 + 100/40 = 3.75$
+:::
+
+3. Déterminez le degré de liberté $df$ de la statistique du chi-deux, et lisez la p-value sur le graphique suivant de la fonction de répartition.
+
+::: {.callout-note}
+Lorsque $n \to +\infty$, $\psi(X)$ converge en loi vers une loi de $\chi^2$ de degré $df=3$. On lit 
+``pvaleur = 1-cdf(Chisq(df), 3.75)=0.3``
+:::
+4. Quelle est votre conclusion ?
+   
+::: {.callout-note}
+## Réponse
+La $p_{valeur}$ est assez grande, la distribution colle avec celle attendue et on ne rejette donc pas $H_0$.
+:::
+   
+![](cdfs/chi3.svg)
+
+## Exercice 4
+### Productivité des employés entre départements
+Une entreprise souhaite évaluer si un nouveau style de management a eu un effet uniforme sur la productivité des employés dans cinq départements. Chaque département a adopté une variation spécifique du style de management pendant trois mois, et l'entreprise a enregistré le nombre moyen de tâches accomplies par employé durant cette période.
+
+**Données :**
+
+| Département | 1 | 2 | 3 | 4 | 5 |
+|---------------------|-----|-----|-----|-----|-----|
+| Nombre d'employés | 12 | 10 | 8 | 9 | 11 |
+| Moyenne des tâches accomplies | 72,4 | 68,9 | 75,6 | 74,3 | 69,7 |
+| Variance des tâches | 8,5 | 9,2 | 10,1 | 7,8 | 9,6 |
+
+L'entreprise cherche à comprendre si les niveaux de productivité varient significativement entre les départements, indiquant que les styles de management pourraient avoir des impacts différents.
+
+Soit $d=5$ le nombre de départements et $N_{\text{tot}} = 50$ le nombre total d'employés. Pour tout département $j$, nous notons $N_k$ le nombre d'employés dans le département $k$, et $P_{ik}$ le nombre de tâches accomplies par l'employé $i$ dans le département $k$. Nous supposons que les $P_{ik}$ sont indépendants et suivent une distribution normale de moyenne $\mu_k$ et de variance $\sigma^2$.
+
+Nous écrivons
+$$
+\left.\begin{array}{cl}
+\overline P_k &= \frac{1}{N_k} \sum_{i=1}^{N_k} P_{ik}\\
+\overline{P} &= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_k\overline P_{k}\end{array}\right.
+\left.\begin{array}{cl}
+V_k &= \frac{1}{N_k}\sum_{i=1}^{N_k} (P_{ik} - \overline P_k)^2
+\\
+V_W &= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_kV_k\\
+V_B &= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^{d} N_k(\overline P_k - \overline P)^2\\
+V_{T} &= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (P_{ik} - \overline P)^2 
+\end{array}
+\right.
+$$
+
+### Questions
+1. Définissez les hypothèses du problème pour tester si les styles de management ont eu un impact uniforme sur la productivité.
+
+::: {.callout-note}
+## Réponse
+
+- Dans le département $k$, on observe $P_{ik}$ le nombre de tâche accompli par l'employé $i$
+- On suppose que les $P_{ik}$ sont [indépendants]{style="background-color: yellow;"}, et que [$P_{ik}$ suit une $\mathcal N(\mu_k, \sigma^2)$ où $(\mu_1, \dots, \mu_5)$ et $\sigma^2$ sont des paramètres inconnus]{style="background-color: yellow;"}. 
+- Problème de test:
+$H_0$: $\mu_1 = \dots = \mu_5$ VS $H_1$: $\exists k,l$ tels que $\mu_k \neq \mu_l$
+
+:::
+
+2. Donnez une brève interprétation de chacune des quantités $\overline{P}_k$, $\overline{P}$, $V_k$, $V_W$, $V_B$, $V_T$.
+   
+::: {.callout-note}
+Cf cours
+:::
+
+3. Démontrez la formule d'analyse de la variance :
+$V_T = V_W + V_B$
+
+::: {.callout-note}
+Exercice à refaire
+:::
+
+4. Calculez $\overline{P}$, $V_W$, $V_B$, et $V_T$.
+
+::: {.callout-note}
+On applique les formules...\
+$\overline P=71.96$\
+$V_W = 9.01$\
+$V_B=6.15$\
+$V_T=15.16$\
+:::
+
+5. Exprimez la statistique de test ANOVA en termes de $V_W$ et $V_B$.
+6. Quelles sont les distributions de $N_k V_k$ et de $N_{\mathrm{tot}}V_W$ sous $H_0$ ? Changent-elles sous $H_1$ ?
+
+::: {.callout-note}
+$N_kV_k$ suit une [loi $\sigma^2\chi^2(N_k-1)$]{style="background-color: yellow;"}.\
+Ainsi, $N_{\mathrm{tot}}V_W/\sigma^2$ suit une loi $\chi^2$ de degré $\sum_{k=1}^5(N_k-1) = N_{tot}-5$
+[Ces lois ne changes pas sous $H_1$!]{style="background-color: yellow;"}
+[C'est en fait la loi de la variance interclasses $V_B$ qui va changer sous $H_1$]{style="background-color: lightgreen;"}.
+:::
+
+7. Rappelez la définition de la statistique de test ANOVA, donnez sa distribution $\mathcal D$ sous $H_0$ et effectuez le test ANOVA au niveau $\alpha =0,05$. On donne les quantiles $0.05$ et $0.95$ de $\mathcal D$: $0.18$ and $2.58$. Concluez si la productivité diffère significativement entre les départements.
+
+::: {.callout-note}
+## Réponse
+La statistique ANOVA se définit comme 
+$\psi((P_{ik})) = \frac{N_k-1}{d-1}\frac{V_B}{V_W}$.
+Ici, on calcule $\psi((P_{ik}))=7.7$. Comme $7.7 > 2.5$ (On regarde le quantile à droite), on rejette $H_0$ au niveau $0.05$. La productivité n'est pas homogène entre les départements.
+:::
+
+## Questions de cours
+
+
+1. Rappelez la définition d'une statistique de test $\psi$ et d'un test (ou règle de décision) $T$.
+
+::: {.callout-note}
+## Réponse
+- Une statistique de test $\psi$ est une fonction mesurable des donnée à valeurs réelles et qui ne dépend pas des paramètres inconnus du modèle.
+- Une règle de décision $T$ a la même définition, sauf qu'elle prend ses valeurs dans $\{0,1\}$ ($0$ correspond à conserver $H_0$ et $1$ correspond au rejet de $H_0$)
+:::
+2. Quels sont les deux types d'erreur que nous pouvons commettre ?
+
+::: {.callout-note}
+Cf cours
+:::
+
+3. Pour une statistique de test $\psi$ donnée et un problème de test bilatéral, rappelez la définition de la p-valeur.
+
+::: {.callout-note}
+## Réponse
+Soit un problème de test où $H_0$ est simple. Soit $X$ la variable aléatoire, et $X_{obs}$ une observation (c'est formellement une réalisation de $X$)
+
+Pour un problème de test [bilatéral]{style="background-color: yellow;"} et une statistique de test $\psi$ donnée, la pvaleur s'écrit
+$2*\min(\mathbb P(\psi(X) \geq \psi(X_{\mathrm{obs}})), \mathbb P(\psi(X) \leq \psi(X_{\mathrm{obs}})))$
+:::
+
+
+4. Énoncez le théorème de Neyman-Pearson.
+   
+::: {.callout-note}
+## Réponse
+Dans le cas d'un problème [simple VS simple]{style="background-color: yellow;"}, le rapport de vraissemblance est optimal pour un niveau de test $\alpha$ fixé, au sens où aucun test de niveau $\alpha$ ne peut avoir une plus grande puissance.
+Cf cours
+:::
