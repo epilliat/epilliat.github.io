@@ -1,0 +1,98 @@
+# F-Test for Linear Constraints {#F-Test}
+
+## Theorem
+If $\text{rank}(X) = p$, $\text{rank}(R) = q$, and $\varepsilon \sim N(0, \sigma^2 I_n)$, then under $H_0: R\beta = 0$:
+
+$$F = \frac{n-p}{q} \cdot \frac{SSR_c - SSR}{SSR} \sim F(q, n-p)$$
+
+where:
+
+- $SSR$: sum of squares of residuals in the unconstrained model
+- $SSR_c$: sum of squares of residuals in the constrained model satisfying $R\beta = 0$
+
+## Proof
+
+### 1. Setup and Key Spaces
+
+Define the following spaces:
+
+- $V = [X] \subseteq \mathbb{R}^n$ (column space of $X$)
+- $V_0 = \{X\beta : R\beta = 0\} = X(\text{Ker}(R))$ (constrained subspace)
+
+Since $\text{rank}(X) = p$ and $\text{rank}(R) = q$:
+
+- By rank-nullity theorem: $\dim(\text{Ker}(R)) = p - q$
+- Since $X$ has full column rank, the map $\beta \mapsto X\beta$ is injective
+- Therefore: $\dim(V_0) = \dim(X(\text{Ker}(R))) = \dim(\text{Ker}(R)) = p - q$
+- Also: $\dim(V) = p$
+
+### 2. Orthogonal Decomposition
+
+Since $V_0 \subseteq V$, we can decompose $V$ as:
+$$V = V_0 \oplus V_0^{\perp_V}$$
+
+where $V_0^{\perp_V}$ is the orthogonal complement of $V_0$ within $V$, with:
+$$\dim(V_0^{\perp_V}) = \dim(V) - \dim(V_0) = p - (p-q) = q$$
+
+### 3. Projection Operators
+
+- $\hat{y} = P_V y$ is the projection of $y$ onto $V$ (unconstrained fit)
+- $\hat{y}_c = P_{V_0} y$ is the projection of $y$ onto $V_0$ (constrained fit)
+
+### 4. Decomposition of SSR Difference
+
+Since $V_0 \subseteq V$, we have $\hat{y}_c \in V$, and by the Pythagorean theorem:
+$$\|y - \hat{y}_c\|^2 = \|y - \hat{y}\|^2 + \|\hat{y} - \hat{y}_c\|^2$$
+
+This gives us:
+$$SSR_c = SSR + \|\hat{y} - \hat{y}_c\|^2$$
+
+Since $\hat{y} - \hat{y}_c = P_V y - P_{V_0} y = P_{V_0^{\perp_V}} y$:
+$$SSR_c - SSR = \|P_{V_0^{\perp_V}} y\|^2$$
+
+### 5. Distribution Under $H_0$
+
+Under $H_0: R\beta = 0$, we have $\mathbb{E}[y] = X\beta \in V_0$, which implies:
+- $P_{V_0} \mathbb{E}[y] = X\beta$
+- $P_{V_0^{\perp_V}} \mathbb{E}[y] = 0$
+
+Since $y = X\beta + \varepsilon$ with $\varepsilon \sim N(0, \sigma^2 I_n)$:
+
+**For the numerator:**
+$$P_{V_0^{\perp_V}} y = P_{V_0^{\perp_V}} \varepsilon \sim N(0, \sigma^2 P_{V_0^{\perp_V}})$$
+
+Since $P_{V_0^{\perp_V}}$ is a projection onto a $q$-dimensional space:
+$$\frac{1}{\sigma^2}\|P_{V_0^{\perp_V}} y\|^2 = \frac{SSR_c - SSR}{\sigma^2} \sim \chi^2_q$$
+
+**For the denominator:**
+$$P_{V^{\perp}} y = P_{V^{\perp}} \varepsilon \sim N(0, \sigma^2 P_{V^{\perp}})$$
+
+Since $P_{V^{\perp}}$ is a projection onto an $(n-p)$-dimensional space:
+$$\frac{1}{\sigma^2}\|P_{V^{\perp}} y\|^2 = \frac{SSR}{\sigma^2} \sim \chi^2_{n-p}$$
+
+### 6. Independence
+
+The projections $P_{V_0^{\perp_V}}$ and $P_{V^{\perp}}$ are orthogonal because:
+
+- $V_0^{\perp_V} \subseteq V$
+- $V \perp V^{\perp}$
+- Therefore $V_0^{\perp_V} \perp V^{\perp}$
+
+This implies $P_{V_0^{\perp_V}} \varepsilon$ and $P_{V^{\perp}} \varepsilon$ are independent.
+
+### 7. Final Result
+
+The F-statistic is:
+$$F = \frac{(SSR_c - SSR)/q}{SSR/(n-p)} = \frac{\chi^2_q/q}{\chi^2_{n-p}/(n-p)}$$
+
+Since this is the ratio of two independent chi-squared random variables divided by their respective degrees of freedom, we have:
+$$F \sim F(q, n-p)$$
+
+## Geometric Interpretation
+
+The F-statistic measures the relative magnitude of:
+
+- The projection onto $V_0^{\perp_V}$ (the constraint violation space within the model)
+- The projection onto $V^{\perp}$ (the residual space)
+
+Under $H_0$, both projections capture only noise, leading to the F-distribution. Large values of $F$ suggest the constraint $R\beta = 0$ is violated.

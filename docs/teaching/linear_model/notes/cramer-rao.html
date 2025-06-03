@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Teaching – Emmanuel Pilliat</title>
+<title>Cramér-Rao Bound – Emmanuel Pilliat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,23 +23,23 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-338eaa8bf8d7f1eb506da55f2b711d05.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-338eaa8bf8d7f1eb506da55f2b711d05.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -68,18 +68,47 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
-<link rel="stylesheet" href="styles.css">
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../../styles.css">
 </head>
 
-<body class="nav-sidebar floating nav-fixed quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="./index.html">
+    <a class="navbar-brand" href="../../../index.html">
     <span class="navbar-title">Emmanuel Pilliat</span>
     </a>
   </div>
@@ -90,11 +119,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll me-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./index.html"> 
+    <a class="nav-link" href="../../../index.html"> 
 <span class="menu-text">Presentation</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link active" href="./teaching.html" aria-current="page"> 
+    <a class="nav-link" href="../../../teaching.html"> 
 <span class="menu-text">Teaching</span></a>
   </li>  
 </ul>
@@ -115,104 +144,26 @@ ul.task-list li input[type="checkbox"] {
 </div>
       </div> <!-- /container-fluid -->
     </nav>
-  <nav class="quarto-secondary-nav">
-    <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-        <i class="bi bi-layout-text-sidebar-reverse"></i>
-      </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Teaching</li></ol></nav>
-        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-        </a>
-    </div>
-  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
-    <div class="sidebar-menu-container"> 
-    <ul class="list-unstyled mt-1">
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
- <span class="menu-text">Hypothesis Testing</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./teaching/hypothesis_testing/lectures/testing_models.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Testing Models</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./teaching/hypothesis_testing/lectures/gaussian_populations.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Gaussian Populations</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./teaching/hypothesis_testing/lectures/goodness_of_fit_chi2.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Goodness of Fit, Homogeneity</span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./teaching/hypothesis_testing/lectures/dependency.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Dependency</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false">
- <span class="menu-text">Probability</span></a>
-          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./teaching/probability/density_likelihood.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Density and Likelihood</span></a>
-  </div>
-</li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <span class="sidebar-item-text sidebar-link text-start">
- <span class="menu-text">Times Series</span></span>
-  </li>
-    </ul>
-    </div>
-</nav>
-<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">On this page</h2>
    
-  <ul>
-  <li><a href="#introduction-to-hypothesis-testing" id="toc-introduction-to-hypothesis-testing" class="nav-link active" data-scroll-target="#introduction-to-hypothesis-testing">Introduction to Hypothesis Testing</a>
-  <ul class="collapse">
-  <li><a href="#slides" id="toc-slides" class="nav-link" data-scroll-target="#slides">Slides</a></li>
-  <li><a href="#lectures" id="toc-lectures" class="nav-link" data-scroll-target="#lectures">Lectures</a></li>
-  <li><a href="#pluto-notebooks" id="toc-pluto-notebooks" class="nav-link" data-scroll-target="#pluto-notebooks">Pluto Notebooks</a></li>
-  <li><a href="#td-tp" id="toc-td-tp" class="nav-link" data-scroll-target="#td-tp">TD-TP</a></li>
-  <li><a href="#annals" id="toc-annals" class="nav-link" data-scroll-target="#annals">Annals</a></li>
-  </ul></li>
-  <li><a href="#linear-regression" id="toc-linear-regression" class="nav-link" data-scroll-target="#linear-regression">Linear Regression</a>
-  <ul class="collapse">
-  <li><a href="#slides-1" id="toc-slides-1" class="nav-link" data-scroll-target="#slides-1">Slides</a>
-  <ul class="collapse">
-  <li><a href="#linear-model" id="toc-linear-model" class="nav-link" data-scroll-target="#linear-model">Linear Model</a></li>
-  <li><a href="#generalized-linear-model" id="toc-generalized-linear-model" class="nav-link" data-scroll-target="#generalized-linear-model">Generalized Linear Model</a></li>
-  </ul></li>
+  <ul class="incremental">
+  <li><a href="#setup" id="toc-setup" class="nav-link active" data-scroll-target="#setup">Setup</a></li>
+  <li><a href="#key-definitions" id="toc-key-definitions" class="nav-link" data-scroll-target="#key-definitions">Key Definitions</a></li>
+  <li><a href="#matrix-cauchy-schwarz-inequality" id="toc-matrix-cauchy-schwarz-inequality" class="nav-link" data-scroll-target="#matrix-cauchy-schwarz-inequality">Matrix Cauchy-Schwarz Inequality</a></li>
+  <li><a href="#proof-of-cramér-rao-bound" id="toc-proof-of-cramér-rao-bound" class="nav-link" data-scroll-target="#proof-of-cramér-rao-bound">Proof of Cramér-Rao Bound</a></li>
+  <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation">Interpretation</a></li>
+  <li><a href="#proof-of-matrix-cauchy-schwarz-inequality" id="toc-proof-of-matrix-cauchy-schwarz-inequality" class="nav-link" data-scroll-target="#proof-of-matrix-cauchy-schwarz-inequality">Proof of Matrix Cauchy-Schwarz Inequality</a>
+  <ul class="incremental collapse">
+  <li><a href="#theorem" id="toc-theorem" class="nav-link" data-scroll-target="#theorem">Theorem</a></li>
+  <li><a href="#proof" id="toc-proof" class="nav-link" data-scroll-target="#proof">Proof</a></li>
+  <li><a href="#connection-to-scalar-case" id="toc-connection-to-scalar-case" class="nav-link" data-scroll-target="#connection-to-scalar-case">Connection to Scalar Case</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -222,7 +173,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Teaching</h1>
+<h1 class="title">Cramér-Rao Bound</h1>
 </div>
 
 
@@ -239,70 +190,103 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>I currently am a teaching three topics in statistics at ENSAI Rennes: Hypothesis Testing, Linear and Generalized Linear Model and Times Series (TD 2024).</p>
-<p>See the <a href="./teaching/glossary.html">Glossary</a> for English/French translations. See also the note recalling some notion on <a href="./teaching/probability/density_likelihood.html">Density and Likelihood</a>.</p>
-<section id="introduction-to-hypothesis-testing" class="level1">
-<h1>Introduction to Hypothesis Testing</h1>
-<section id="slides" class="level2">
-<h2 class="anchored" data-anchor-id="slides">Slides</h2>
-<ul>
-<li><a href="./teaching/hypothesis_testing/slides/testing_models.html">Testing Models</a></li>
-<li><a href="./teaching/hypothesis_testing/slides/gaussian_populations.html">Classical Tests on Gaussian Populations</a></li>
-<li><a href="./teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html">Goodness of Fit and Homogeneity Tests</a></li>
-<li><a href="./teaching/hypothesis_testing/slides/dependency.html">Tests for Dependency</a></li>
+<p>AI was used to assist with the formatting and writing of the proofs on this page.</p>
+<section id="setup" class="level2">
+<h2 class="anchored" data-anchor-id="setup">Setup</h2>
+<p>Let:</p>
+<ul class="incremental">
+<li><span class="math inline">\(\beta \in \mathbb R^p\)</span> be a vector of parameters</li>
+<li><span class="math inline">\(X=(X_1, \dots, X_n) \in \mathbb R^n\)</span> be observations with joint pdf <span class="math inline">\(f\)</span></li>
+<li><span class="math inline">\(\tilde \beta\)</span> be an unbiased estimator of <span class="math inline">\(\beta\)</span>, so <span class="math inline">\(\mathbb E[\tilde\beta]= \mathbb E_{X\sim f}[\tilde\beta] = \beta\)</span></li>
+<li><span class="math inline">\(s(x; \beta) = \nabla_{\beta} \log f(x; \beta)\)</span> be the derivative of the log-likelihood</li>
 </ul>
 </section>
-<section id="lectures" class="level2">
-<h2 class="anchored" data-anchor-id="lectures">Lectures</h2>
-<ul>
-<li><a href="./teaching/hypothesis_testing/lectures/testing_models.html">Testing Models</a><br>
-</li>
-<li><a href="./teaching/hypothesis_testing/lectures/gaussian_populations.html">Classical Tests on Gaussian Populations</a></li>
-<li><a href="./teaching/hypothesis_testing/lectures/goodness_of_fit_chi2.html">Goodness of Fit and Homogeneity Tests</a></li>
-<li><a href="./teaching/hypothesis_testing/lectures/dependency.html">Tests for Dependency</a></li>
+<section id="key-definitions" class="level2">
+<h2 class="anchored" data-anchor-id="key-definitions">Key Definitions</h2>
+<p>The Fisher Information Matrix is: <span class="math display">\[I(\beta) = E[s(x; \beta)s(x; \beta)^T]\]</span></p>
+<p>Under regularity conditions, this equals: <span class="math display">\[I(\beta) = -E\left[\frac{\partial^2 \log f(x; \beta)}{\partial \beta \partial \beta^T}\right]\]</span></p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Cramér-Rao (vector version)
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>In this context, it holds that <span class="math display">\[[I(\beta)]^{-1} \preceq \mathbb V(\tilde \beta) \; .\]</span></p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul class="incremental">
+<li><span class="math inline">\(I(\beta)\)</span> and <span class="math inline">\(\mathbb V(\tilde \beta)\)</span> are <span style="background-color: yellow;">matrices</span></li>
+<li><span class="math inline">\(I(\beta)\)</span> does not depend on the estimator, unlike <span class="math inline">\(\mathbb V(\tilde \beta)\)</span>.</li>
 </ul>
+</div>
+</div>
 </section>
-<section id="pluto-notebooks" class="level2">
-<h2 class="anchored" data-anchor-id="pluto-notebooks">Pluto Notebooks</h2>
-<ul>
-<li><a href="teaching/hypothesis_testing/pluto/proba_basics.jl">Proba Basics</a></li>
-<li><a href="teaching/hypothesis_testing/pluto/distribution_comparisons.html">Approximation of Distributions</a></li>
-<li><a href="teaching/hypothesis_testing/pluto/illustration_pvalue.html">Illustration of pvalue</a></li>
+<section id="matrix-cauchy-schwarz-inequality" class="level2">
+<h2 class="anchored" data-anchor-id="matrix-cauchy-schwarz-inequality">Matrix Cauchy-Schwarz Inequality</h2>
+<p>For random vectors <span class="math inline">\(U \in \mathbb R^p\)</span> and <span class="math inline">\(V \in \mathbb R^q\)</span>, the covariance satisfies: <span class="math display">\[\text{Cov}(U, V)^T [\text{Var}(V)]^{-1} \text{Cov}(U, V) \preceq \text{Var}(U)\]</span></p>
+<p>where <span class="math inline">\(A\preceq B\)</span> means <span class="math inline">\(B-A\)</span> is positive semidefinite.</p>
+</section>
+<section id="proof-of-cramér-rao-bound" class="level2">
+<h2 class="anchored" data-anchor-id="proof-of-cramér-rao-bound">Proof of Cramér-Rao Bound</h2>
+<p>Since <span class="math inline">\(\tilde \beta\)</span> is unbiased, <span class="math inline">\(\mathbb E[\tilde\beta]\)</span> = <span class="math inline">\(\beta\)</span>. Differentiating both sides with respect to <span class="math inline">\(\beta\)</span>: <span class="math display">\[\frac{\partial}{\partial \beta} \int \tilde \beta(x) f(x; \beta) dx = I_p\]</span></p>
+<p>where <span class="math inline">\(I_p\)</span> is the p×p identity matrix.</p>
+<p>By interchanging differentiation and integration (under regularity conditions): <span class="math display">\[\int \tilde \beta(x) \big(\nabla_{\beta}f(x; \beta)\big)^T dx = I_p\]</span></p>
+<p>Using the identity <span class="math inline">\(\nabla_{\beta} f(x;\beta)= f(x;\beta)\cdot\nabla_{\beta} \log(f(x;\beta))\)</span>: <span class="math display">\[\int \tilde \beta(x) f(x; \beta) s(x; \beta)^T dx = I_p\]</span></p>
+<p>This gives us: <span class="math display">\[E[\tilde \beta s^T] = I_p\]</span></p>
+<p>Since <span class="math inline">\(\mathbb E[s]=0\)</span> (under regularity conditions), we have: <span class="math display">\[\text{Cov}(\tilde \beta, s) = E[\tilde \beta s^T] - \mathbb E[\tilde\beta]E[s]^T = I_p\]</span></p>
+<p>Apply the matrix Cauchy-Schwarz inequality with <span class="math inline">\(U=\tilde \beta\)</span> and <span class="math inline">\(V = s\)</span>: <span class="math display">\[\text{Cov}(\tilde \beta, s)^T [\text{Var}(s)]^{-1} \text{Cov}(\tilde \beta, s) \preceq \text{Var}(\tilde \beta)\]</span></p>
+<p>Substituting our results:</p>
+<ul class="incremental">
+<li><span class="math inline">\(\mathrm{Cov}(\tilde \beta, s) = I_p\)</span></li>
+<li><span class="math inline">\(\mathbb V(s) = I(\beta)\)</span> (the Fisher Information Matrix)</li>
 </ul>
+<p>We get: <span class="math display">\[I_p^T [I(\beta)]^{-1} I_p \preceq \mathbb V(\tilde \beta)\]</span></p>
+<p>Simplifying: <span class="math display">\[[I(\beta)]^{-1} \preceq \text{Var}(\tilde \beta)\]</span></p>
+<p>This is the Cramér-Rao Lower Bound for vector parameters.</p>
 </section>
-<section id="td-tp" class="level2">
-<h2 class="anchored" data-anchor-id="td-tp">TD-TP</h2>
-<ul>
-<li><a href="./teaching/hypothesis_testing/TDs/TD1.html">TD1</a></li>
-<li><a href="./teaching/hypothesis_testing/TDs/TD2.html">TD2</a></li>
-<li><a href="./teaching/hypothesis_testing/TDs/TD3.html">TD3</a></li>
-<li><a href="./teaching/hypothesis_testing/TDs/TD4.html">TD4</a></li>
-<li><a href="./teaching/hypothesis_testing/TDs/TP.html">TP</a></li>
+<section id="interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="interpretation">Interpretation</h2>
+<ul class="incremental">
+<li>For any unbiased estimator <span class="math inline">\(\tilde \beta\)</span> of <span class="math inline">\(\beta\)</span>, its covariance matrix is bounded below by the inverse of the Fisher Information Matrix.</li>
+<li>For a scalar function <span class="math inline">\(c^T \beta\)</span>, we have: <span class="math inline">\(\mathbb V(c^T \tilde \beta) \succeq c^T[I(\beta)]^{-1}c\)</span></li>
 </ul>
+<p>This generalizes the scalar Cramér-Rao bound to the multivariate case using matrix inequalities.</p>
 </section>
-<section id="annals" class="level2">
-<h2 class="anchored" data-anchor-id="annals">Annals</h2>
-<ul>
-<li><a href="./teaching/hypothesis_testing/annals/test_2025.html">Exam 2025</a></li>
-<li><a href="./teaching/hypothesis_testing/annals/correction_2025.html">Correction 2025</a></li>
-</ul>
+<section id="proof-of-matrix-cauchy-schwarz-inequality" class="level1">
+<h1>Proof of Matrix Cauchy-Schwarz Inequality</h1>
+<section id="theorem" class="level2">
+<h2 class="anchored" data-anchor-id="theorem">Theorem</h2>
+<p>For random vectors <span class="math inline">\(U\in \mathbb R^p\)</span> and <span class="math inline">\(V \in \mathbb R^q\)</span> with finite second moments, if <span class="math inline">\(\mathbb V(V)\)</span> is invertible, then: <span class="math display">\[\text{Cov}(U, V)[\text{Var}(V)]^{-1}\text{Cov}(V, U) \preceq \text{Var}(U)\]</span></p>
 </section>
+<section id="proof" class="level2">
+<h2 class="anchored" data-anchor-id="proof">Proof</h2>
+<p>For any matrix <span class="math inline">\(A \in \mathbb R^{p \times q}\)</span>, consider: <span class="math display">\[\text{Var}(U - AV) = \text{Var}(U) - A\text{Cov}(V, U) - \text{Cov}(U, V)A^T + A\text{Var}(V)A^T\]</span></p>
+<p>To minimize this quadratic form in A, take the derivative and set to zero: <span class="math display">\[\frac{\partial}{\partial A} = -2\text{Cov}(U, V) + 2A\text{Var}(V) = 0\]</span></p>
+<p>Solving gives: <span class="math display">\[A^* = \text{Cov}(U, V)[\text{Var}(V)]^{-1}\]</span></p>
+<p>At this minimum: <span class="math display">\[\text{Var}(U - A^*V) = \text{Var}(U) - \text{Cov}(U, V)[\text{Var}(V)]^{-1}\text{Cov}(V, U) \succeq 0\]</span></p>
+<p>This gives the generalized CS inequality.</p>
 </section>
-<section id="linear-regression" class="level1">
-<h1>Linear Regression</h1>
-<section id="slides-1" class="level2">
-<h2 class="anchored" data-anchor-id="slides-1">Slides</h2>
-<section id="linear-model" class="level3">
-<h3 class="anchored" data-anchor-id="linear-model">Linear Model</h3>
-<ul>
-<li><a href="./teaching/linear_model/slides/introduction.html">Introduction</a></li>
-</ul>
-</section>
-<section id="generalized-linear-model" class="level3">
-<h3 class="anchored" data-anchor-id="generalized-linear-model">Generalized Linear Model</h3>
+<section id="connection-to-scalar-case" class="level2">
+<h2 class="anchored" data-anchor-id="connection-to-scalar-case">Connection to Scalar Case</h2>
+<p>When U and V are scalars, this reduces to: <span class="math display">\[\frac{[\text{Cov}(U,V)]^2}{\text{Var}(V)} \leq \text{Var}(U)\]</span></p>
+<p>Which is equivalent to the familiar form: <span class="math display">\[[\text{Cov}(U,V)]^2 \leq \text{Var}(U)\text{Var}(V)\]</span></p>
+<p>The matrix version generalizes this to higher dimensions using positive semidefiniteness instead of simple inequality.</p>
 
 
-</section>
 </section>
 </section>
 

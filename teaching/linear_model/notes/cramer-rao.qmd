@@ -1,0 +1,126 @@
+---
+title: "Cramér-Rao Bound"
+format: 
+  html:
+    incremental: true
+    callout-icon: false
+    theme: [default]
+smaller: true
+css: ../../../styles.css
+---
+
+AI was used to assist with the formatting and writing of the proofs on this page. 
+
+## Setup
+
+Let:
+
+- $\beta \in \mathbb R^p$ be a vector of parameters
+- $X=(X_1, \dots, X_n) \in \mathbb R^n$ be observations with joint pdf $f$
+- $\tilde \beta$ be an unbiased estimator of $\beta$, so $\mathbb E[\tilde\beta]= \mathbb E_{X\sim f}[\tilde\beta] = \beta$
+- $s(x; \beta) = \nabla_{\beta} \log f(x; \beta)$ be the derivative of the log-likelihood
+
+
+## Key Definitions
+
+The Fisher Information Matrix is:
+$$I(\beta) = E[s(x; \beta)s(x; \beta)^T]$$
+
+Under regularity conditions, this equals:
+$$I(\beta) = -E\left[\frac{\partial^2 \log f(x; \beta)}{\partial \beta \partial \beta^T}\right]$$
+
+
+::: {.callout-note}
+## Cramér-Rao (vector version)
+
+In this context, it holds that
+$$[I(\beta)]^{-1} \preceq \mathbb V(\tilde \beta) \; .$$
+
+:::
+
+::: {.callout-warning}
+- $I(\beta)$ and $\mathbb V(\tilde \beta)$ are [matrices]{style="background-color: yellow;"}
+- $I(\beta)$ does not depend on the estimator, unlike $\mathbb V(\tilde \beta)$.
+:::
+
+## Matrix Cauchy-Schwarz Inequality
+
+For random vectors $U \in \mathbb R^p$ and $V \in \mathbb R^q$, the covariance satisfies:
+$$\text{Cov}(U, V)^T [\text{Var}(V)]^{-1} \text{Cov}(U, V) \preceq \text{Var}(U)$$
+
+where $A\preceq B$ means $B-A$ is positive semidefinite.
+
+## Proof of Cramér-Rao Bound
+
+Since $\tilde \beta$ is unbiased, $\mathbb E[\tilde\beta]$ = $\beta$. Differentiating both sides with respect to $\beta$:
+$$\frac{\partial}{\partial \beta} \int \tilde \beta(x) f(x; \beta) dx = I_p$$
+
+where $I_p$ is the p×p identity matrix.
+
+By interchanging differentiation and integration (under regularity conditions):
+$$\int \tilde \beta(x) \big(\nabla_{\beta}f(x; \beta)\big)^T dx = I_p$$
+
+Using the identity $\nabla_{\beta} f(x;\beta)= f(x;\beta)\cdot\nabla_{\beta} \log(f(x;\beta))$:
+$$\int \tilde \beta(x) f(x; \beta) s(x; \beta)^T dx = I_p$$
+
+This gives us:
+$$E[\tilde \beta s^T] = I_p$$
+
+Since $\mathbb E[s]=0$ (under regularity conditions), we have:
+$$\text{Cov}(\tilde \beta, s) = E[\tilde \beta s^T] - \mathbb E[\tilde\beta]E[s]^T = I_p$$
+
+Apply the matrix Cauchy-Schwarz inequality with $U=\tilde \beta$ and $V = s$:
+$$\text{Cov}(\tilde \beta, s)^T [\text{Var}(s)]^{-1} \text{Cov}(\tilde \beta, s) \preceq \text{Var}(\tilde \beta)$$
+
+Substituting our results:
+
+- $\mathrm{Cov}(\tilde \beta, s) = I_p$
+- $\mathbb V(s) = I(\beta)$ (the Fisher Information Matrix)
+
+We get:
+$$I_p^T [I(\beta)]^{-1} I_p \preceq \mathbb V(\tilde \beta)$$
+
+Simplifying:
+$$[I(\beta)]^{-1} \preceq \text{Var}(\tilde \beta)$$
+
+This is the Cramér-Rao Lower Bound for vector parameters.
+
+## Interpretation
+
+- For any unbiased estimator $\tilde \beta$ of $\beta$, its covariance matrix is bounded below by the inverse of the Fisher Information Matrix.
+- For a scalar function $c^T \beta$, we have: $\mathbb V(c^T \tilde \beta) \succeq c^T[I(\beta)]^{-1}c$
+
+This generalizes the scalar Cramér-Rao bound to the multivariate case using matrix inequalities.
+
+# Proof of Matrix Cauchy-Schwarz Inequality
+
+## Theorem
+For random vectors $U\in \mathbb R^p$ and $V \in \mathbb R^q$ with finite second moments, if $\mathbb V(V)$ is invertible, then:
+$$\text{Cov}(U, V)[\text{Var}(V)]^{-1}\text{Cov}(V, U) \preceq \text{Var}(U)$$
+
+
+## Proof
+
+For any matrix $A \in \mathbb R^{p \times q}$, consider:
+$$\text{Var}(U - AV) = \text{Var}(U) - A\text{Cov}(V, U) - \text{Cov}(U, V)A^T + A\text{Var}(V)A^T$$
+
+To minimize this quadratic form in A, take the derivative and set to zero:
+$$\frac{\partial}{\partial A} = -2\text{Cov}(U, V) + 2A\text{Var}(V) = 0$$
+
+Solving gives:
+$$A^* = \text{Cov}(U, V)[\text{Var}(V)]^{-1}$$
+
+At this minimum:
+$$\text{Var}(U - A^*V) = \text{Var}(U) - \text{Cov}(U, V)[\text{Var}(V)]^{-1}\text{Cov}(V, U) \succeq 0$$
+
+This gives the generalized CS inequality.
+
+## Connection to Scalar Case
+
+When U and V are scalars, this reduces to:
+$$\frac{[\text{Cov}(U,V)]^2}{\text{Var}(V)} \leq \text{Var}(U)$$
+
+Which is equivalent to the familiar form:
+$$[\text{Cov}(U,V)]^2 \leq \text{Var}(U)\text{Var}(V)$$
+
+The matrix version generalizes this to higher dimensions using positive semidefiniteness instead of simple inequality.

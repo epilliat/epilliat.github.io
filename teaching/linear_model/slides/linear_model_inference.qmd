@@ -1,0 +1,880 @@
+---
+title: "Linear Model and Inference"
+format: 
+  revealjs:
+    incremental: true
+    callout-icon: false
+    code-overflow: scroll
+    code-block-height: 200px
+    #theme: [default, ../custom.scss]
+#julia:
+#  path: "/home/emmanuel/.juliaup/bin/julia"
+smaller: false
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+# Linear Model
+
+## General Setting
+
+. . .
+
+We observe $n$ individuals, and variables [$Y \in \mathbb R^n$]{style="background-color: lightgreen;"}  and [$(X^{(1)}, \dots, X^{(p)}) \in \mathbb R^{n \times p}$]{style="background-color: lightblue;"}.
+
+. . .
+
+In other words, we observe 
+\
+[$Y= (Y_1, \dots, Y_n) \in \mathbb R^n$ ]{style="background-color: lightgreen;"}
+\
+
+. . .
+
+[$X^{(1)} = (X^{(1)}_1, \dots, X^{(1)}_n) \in \mathbb R^n$ \
+$X^{(2)} = (X^{(2)}_1, \dots, X^{(2)}_n) \in \mathbb R^n$\
+...\
+$X^{(p)} = (X^{(p)}_1, \dots, X^{(p)}_n)\in \mathbb R^n$]{style="background-color: lightblue;"}
+
+## Non Parametric Model
+
+. . .
+
+We observe $n$ individuals, and variables [$Y \in \mathbb R^n$]{style="background-color: lightgreen;"}  and [$(X^{(1)}, \dots, X^{(p)}) \in \mathbb R^{n \times p}$]{style="background-color: lightblue;"}.
+
+. . .
+
+We assume that
+
+::: {.square-def}
+$$Y_i = F(X^{(1)}_i, X^{(2)}_i, \dots, X^{(p)}_i, \varepsilon_i)$$
+:::
+
+. . .
+
+where $\varepsilon = (\varepsilon_1, \dots, \varepsilon_n) \in \mathbb R^n$ are iid random noise \
+
+. . .
+
+[$\varepsilon$ is not observed]{style="background-color: orange;"}
+
+. . .
+
+$F$ is **unknown**
+
+--> Too ambitious, risk of overfitting
+
+
+## Linear Model
+
+
+We observe $n$ individuals, and variables [$Y \in \mathbb R^n$]{style="background-color: lightgreen;"}  and [$(X^{(1)}, \dots, X^{(p)}) \in \mathbb R^{n \times p}$]{style="background-color: lightblue;"}.
+
+. . .
+
+We assume that
+
+::: {.square-def}
+$$Y = \beta_1 X^{(1)}+ \beta_2 X^{(2)}+ \dots+ \beta_p X^{(p)}+ \varepsilon$$
+:::
+
+. . .
+
+That is, **we know** that $F$ is of the form $F(x_1, \dots, x_p, \varepsilon) = \beta_1 x_1+ \beta_2 x_2+ \dots+ \beta_p x_p+ \varepsilon$
+
+## Linear Model
+
+$Y$ and the $X^{(k)}$'s are **vectors** in $\mathbb R^n$.
+
+. . .
+
+For all $i$,
+
+::: {.square-def}
+$$Y_i = \beta_1 X^{(1)}_i+ \beta_2 X^{(2)}_i+ \dots+ \beta_p X^{(p)}_i+ \varepsilon_i$$
+:::
+
+We assume that 
+
+- $X^{(k)}$ are **known** and deterministic (otherwise we condition on $X^{(k)}$'s)
+- $\mathbb E[\varepsilon_i] = 0$
+
+## Linear Model with Intercept
+
+$Y$ and the $X^{(k)}$'s are **vectors** in $\mathbb R^n$.
+
+. . .
+
+
+If we set $X^{(1)}= (1, \dots, 1)$, then the model rewrites
+
+::: {.square-def}
+$$Y_i = \beta_1+ \beta_2 X^{(2)}_i+ \dots+ \beta_p X^{(p)}_i+ \varepsilon_i$$
+:::
+
+. . .
+
+- The model is linear in $X^{(2)}, \dots, X^{(p)}$
+- $\beta_1$ is then called the **intercept**
+
+
+## Notation
+
+We write $Y = (Y_1, \dots, Y_n)$ and $X^{(k)} = (X^{(k)}_1, \dots, X^{(k)}_n)$ as columns:
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+$\newcommand{\E}{\mathbb E}$
+$\newcommand{\P}{\mathbb P}$
+$\newcommand{\Var}{\mathbb V}$
+
+::: {.square-def}
+$$Y = \begin{pmatrix}
+Y_1 \\
+\vdots \\
+Y_n
+\end{pmatrix} \and X^{(k)}=\begin{pmatrix}
+X^{(k)}_1 \\
+\vdots \\
+X^{(k)}_n
+\end{pmatrix}$$
+:::
+
+## Notation 
+
+. . .
+
+To get a matrix form, we write $X_{ik} = X^{(k)}_i$. Then:
+
+. . .
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+
+::: {.square-def}
+$$Y = \begin{pmatrix}
+Y_1 \\
+\vdots \\
+Y_n
+\end{pmatrix} \and X^{(k)}=\begin{pmatrix}
+X_{1k} \\
+\vdots \\
+X_{n,k}
+\end{pmatrix}$$
+:::
+
+## Notation 
+
+. . .
+
+To get a matrix form, we write $X$ for the matrix $(X_{ik}) \in \mathbb R^{n \times p}$
+
+. . .
+
+That is,
+$X = (X^{(1)}, \dots, X^{(p)})$
+
+. . .
+
+And:
+
+::: {.square-def}
+$$Y = \begin{pmatrix}
+Y_1 \\
+\vdots \\
+Y_n
+\end{pmatrix} \and X=\begin{pmatrix}
+&X_{1,1} &\dots &X_{1,p} \\
+&\vdots &~ &\vdots \\
+&X_{n,1} &\dots &X_{n,p}
+\end{pmatrix}$$
+:::
+
+## Model, Matrix Form
+
+. . .
+
+Let $\beta = (\beta_1, \dots, \beta_p) \in \mathbb R^p$ be **unknown** parameters, and $\varepsilon = (\varepsilon_1, \dots, \varepsilon_n)$ be iid noise.
+
+ . . .
+
+In column notation:
+
+::: {.square-def}
+$$\beta = \begin{pmatrix}
+\beta_1 \\
+\vdots \\
+\beta_p
+\end{pmatrix} \and \varepsilon=\begin{pmatrix}
+\varepsilon_{1} \\
+\vdots \\
+\varepsilon_{n}
+\end{pmatrix}$$
+:::
+
+## Linear Model, Matrix Form
+
+. . .
+
+We observe $Y = (Y_1, \dots, Y_n) \in \mathbb R^n$ and 
+$X \in \mathbb R^{n \times p}$
+
+. . .
+
+We assume that 
+
+::: {.square-def}
+$$Y = X \beta + \varepsilon$$
+:::
+
+where 
+
+- $X$ is **known**, 
+- $\beta \in \mathbb R^p$ is **unknown**
+- $\varepsilon \in \mathbb R^n$ is a vector of iid random noise with $\mathbb E[\varepsilon_i] = 0$ and $\mathbb V(\varepsilon_i) = \sigma^2$(**unknown**)
+
+## Remarks
+
+- $(\varepsilon_1, \dots, \varepsilon_n)$ **independent** implies no correlation between individuals
+- $\mathbb V(\varepsilon_i)= \sigma^2$ does not depend on $i$: this is called **homoscedasticity** assumption
+- We can write $\mathbb V(\varepsilon) = \sigma^2 I_n$ (covariance matrix of $\varepsilon$)
+
+## Identifiability Condition
+
+. . .
+
+Recall that $X \in \mathbb R^{n \times p}$
+
+. . .
+
+We assume that [$rk(X)=p$]{style="background-color: yellow;"}.
+
+. . .
+
+This implies [$p \leq n$]{style="background-color: yellow;"}
+
+. . .
+
+[If this condition is not satisfied]{style="background-color: orange;"}:
+
+. . .
+
+It means that there is a [linear relation]{style="background-color: lightblue;"} between the $X^{(k)}$!
+
+. . .
+
+It means that [$X\alpha=\alpha_1X^{(1)} + \dots + \alpha_p X^{(p)}=0$]{style="background-color: lightblue;"} for some $\alpha \in \mathbb R^p\setminus \{0\}$
+
+. . .
+
+We can take [infinitely many possible $\beta$]{style="background-color: orange;"}, since for $t \in \mathbb R$,
+
+$$
+X(\beta + t\alpha) = X\beta
+$$
+
+
+# Estimation of $\beta$
+
+## Ordinary Least Square Estimator (OLS)
+
+. . .
+
+We observe $Y \in \mathbb R^{n\times 1}$ and $X \in \mathbb R^{n \times p}$.
+
+. . .
+
+What is the best [estimator $\hat \beta$]{style="background-color: yellow;"} of $\beta$ such that
+[$Y = X\beta + \varepsilon$]{style="background-color: yellow;"}?
+
+. . .
+
+Ordinary Least Square (OLS) Estimator:
+
+$\newcommand{\argmin}{\mathrm{argmin}}$
+
+::: {.square-def}
+$$\hat \beta = \argmin_{\beta'}\|Y-X\beta'\|^2$$
+:::
+
+Here, $\|Y-X\beta'\|^2 = \sum_{i=1}^n(Y_i-\beta_1X_{i}^{(1)}- \dots - \beta_pX_i^{(p)})$
+
+
+
+## Least squares as an L2 projection 
+
+. . .
+
+If $\mathrm{rk}(X) = p$, it holds that 
+
+::: {.square-def}
+$$\hat \beta = (X^TX)^{-1}X^TY$$
+:::
+
+. . .
+
+$X\hat \beta = X(X^TX)^{-1}X^TY$ is [the projection of $Y$]{style="background-color: yellow;"} on the space generated by columns of $X$: 
+$$[X]=\mathrm{Im}(X)=\mathrm{Span}(X^{(1)},\dots, X^{(p)})=\{X\alpha, \alpha \in \mathbb R^p\}$$
+
+## Least squares as an L2 projection 
+
+. . .
+
+::: {.square-def}
+
+$$P_{[X]} = X(X^TX)^{-1}X^T \and \widehat{Y} = P_{[X]}Y = X\hat \beta$$
+:::
+
+
+
+. . .
+
+Check that [$P_{[X]}$ is the orthogonal projector on $[X]$ ]{style="background-color: yellow;"}
+
+. . .
+
+That is $P_{[X]}^2 = P_{[X]}$, $P_{[X]}=P_{[X]}^T$ and $\mathrm{Im} (P_{[X]}) = [X]$
+
+. . .
+
+Or, without computation: 
+
+[$P_{[X]}Y$ minimizes $\|Y-Y'\|^2$ over all $Y' \in [X]$]{style="background-color: yellow;"}.
+
+. . .
+
+So $P_{[X]}Y$ must be the orthogonal projection by Pythagorean theorem
+
+## Least squares as an L2 projection 
+
+We can decompose
+
+::: {.square-def}
+$$Y = \underbrace{P_{[X]}Y}_{\widehat Y} + \underbrace{(I-P_{[X]})Y}_{"residuals"}$$
+:::
+
+. . .
+
+Notice that $I-P_{[X]}= P_{[X]^{\perp}}$ is the orthogonal projection on $[X]^{\perp} = \{\alpha\in \mathbb R^p:~ X\alpha =0\}$
+
+
+
+## Least squares as an L2 projection 
+
+![](images/linreg_proj.jpg)
+
+(image: elements of statistical learning. In yellow: $[X]$ with $p=2$)
+
+## Properties on $\hat \beta$
+
+. . .
+
+::: {.callout-note}
+## Expectation and variance
+Assume that $rk(X)=p$, $\mathbb E[\varepsilon] = 0$ and $\mathbb V(\varepsilon) = \sigma^2I_n$. Then,
+
+- $\hat \beta = (X^TX)^{-1}X Y$ is a [linear estimator]{style="background-color: yellow;"}
+- $\mathbb E[\hat \beta] = \beta$ [unbiased estimator]{style="background-color: yellow;"}
+- $\mathbb V(\hat \beta) = \sigma^2(X^TX)^{-1}$
+:::
+
+. . .
+
+
+::: {.callout-note}
+## Gauss-Markov Theorem
+
+Under the same assumptions, if $\tilde \beta$ is another [linear and unbiased estimator]{style="background-color: yellow;"} then $$\mathbb V(\hat \beta) \preceq \mathbb V(\tilde \beta),$$
+
+where $A\preceq B$  means that $B-A$ is a symmetric positive semidefinite matrix
+[Elements of proof](../lectures/linear_model.qmd)
+:::
+
+# Estimation of $\sigma^2$
+
+## Residuals
+
+. . .
+
+We define the [residuals $\hat \varepsilon$]{style="background-color: yellow;"} as
+
+::: {.square-def}
+$$
+\hat \varepsilon = Y- \hat Y = Y-X\hat \beta
+$$
+:::
+
+. . .
+
+It can be computed from the data. 
+
+. . .
+
+
+It is the [orthogonal projection of $Y$ on $[X]^{\perp}$]{style="background-color: yellow;"}:
+
+. . .
+
+::: {.square-def}
+$$Y = \underbrace{P_{[X]}Y}_{\widehat Y} + \underbrace{(I-P_{[X]})Y}_{\hat \varepsilon="residuals"}$$
+:::
+
+
+## Residuals 
+
+::: {.square-def}
+$$
+\begin{aligned}
+Y &= X\beta + \varepsilon & \quad \text{(model)} \\
+Y &= \widehat Y + \hat \varepsilon & \quad \text{(estimation)}
+\end{aligned}
+$$
+:::
+
+## Properties on residuals
+
+::: {.callout-note}
+## Expectation and Variance of $\hat\varepsilon$
+
+If $rk(X)=p$, $\mathbb E[\varepsilon] = 0$ and $\mathbb V(\varepsilon)=\sigma^2I_n$, then
+
+- $\mathbb E[\hat\varepsilon]=0$
+- $\mathbb V(\hat \varepsilon) = \sigma^2P_{[X]^\perp} = \sigma^2(I_n - X(X^TX)^{-1}X^T)$
+:::
+
+. . .
+
+Remark: [if a constant vector is in $[X]$]{style="background-color: yellow;"}, e.g. $\forall i,X_i^{(1)}=1$, then $\hat \varepsilon \perp \mathbf 1$ and
+
+$$ 
+\overline{\hat\varepsilon} = \frac{1}{n}\sum_{i=1}^n \varepsilon_i = 0 \and \overline{\widehat Y} = \overline Y
+$$
+
+
+## Estimation of $\sigma^2$
+
+. . .
+
+Recall that in the model $Y=X\beta + \varepsilon$, [both $\beta$ and $\sigma^2=\mathbb E[\varepsilon_i^2]$ are unknown]{style="background-color: yellow;"} ($p+1$ parameters)
+
+. . .
+
+
+::: {.square-def}
+$$
+\hat\varepsilon = Y- \hat Y = P_{[X]^\perp}\varepsilon \and dim([X]^{\perp}) = =n-p
+$$
+:::
+
+. . .
+
+
+We estimate $\sigma^2$ with 
+
+::: {.square-def}
+
+$$\hat \sigma^2 = \frac{1}{n-p}\sum_{i=1}^n \hat \varepsilon_i^2$$
+:::
+
+
+
+## Properties of $\hat \sigma^2$
+
+
+::: {.callout-note}
+## Proposition
+If $rk(X)=p$, $\E[\varepsilon]=0$ and $\Var(\varepsilon)= \sigma^2I_n$, then
+
+$$\hat \sigma^2 = \frac{1}{n-p}\sum_{i=1}^n \hat \varepsilon_i^2=\frac{\mathrm{SSR}}{n-p}$$
+
+is an [unbiased]{style="background-color: yellow;"} estimator of $\sigma^2$. If moreover the $\varepsilon_i$'s are iid, then $\hat \sigma^2$ is a [consistent]{style="background-color: yellow;"} estimator.
+
+:::
+
+- [unbiased]{style="background-color: yellow;"}: $\E[\hat \sigma^2]= \sigma^2$
+- [consistent]{style="background-color: yellow;"}: $\hat \sigma^2 \to \sigma^2$ a.s. as $n\to +\infty$
+- SSR: Sum of squared residuals
+
+
+# Gaussian Case
+
+## Gaussian Model
+
+. . .
+
+[Until then]{style="background-color: yellow;"}, we assumed that $Y=X\beta+\varepsilon$, where $\E[\varepsilon]=0$ and $\Var(\varepsilon)= \sigma^2I_n$.
+
+. . .
+
+The $\varepsilon_i$ are [uncorrelated but]{style="background-color: yellow;"} there can be [dependency]{style="background-color: yellow;"}
+
+. . .
+
+[No assumption was made on the distribution]{style="background-color: yellow;"} of $\varepsilon$ 
+
+. . .
+
+
+**Now** (Gaussian Model):
+
+::: {.square-def}
+$$\varepsilon \sim \mathcal N(0, \sigma^2I_n) \quad \text{i.e.} \quad Y \sim \mathcal N(X\beta, \sigma^2I_n)$$
+:::
+
+
+. . .
+
+Equivalently we assume that the [$\varepsilon_i$'s are iid $\mathcal N(0, \sigma^2)$]{style="background-color: yellow;"}.
+
+. . .
+
+In this simpler model, we can do maximum likelihood estimation (MLE)!
+
+## Maximum Likelihood Estimation
+
+
+. . .
+
+::: {.callout-note}
+## MLE
+Let $\hat \beta_{MLE}$ and $\hat \sigma_{MLE}^2$ be the MLE of $\beta$ and $\sigma^2$, respectively.
+
+
+- $\hat{\beta}_{MLE} = \hat{\beta}$ et $\hat{\sigma}^2_{MLE} = \frac{SCR}{n} = \frac{n-p}{n} \hat{\sigma}^2$.
+
+- $\hat{\beta} \sim N(\beta, \sigma^2(X^TX)^{-1})$.
+
+- $\frac{n-p}{\sigma^2} \hat{\sigma}^2 = \frac{n}{\sigma^2} \hat{\sigma}^2_{MLE} \sim \chi^2(n - p)$.
+
+- $\hat{\beta}$ and $\hat{\sigma}^2$ are independent
+
+[Elements of proof](../lectures/linear_model.qmd#proof-mle)
+
+:::
+
+
+## Efficient Estimator
+
+. . .
+
+::: {.callout-note}
+## Theorem
+In the Gaussian Model, $\hat \beta$ is an [efficient]{style="background-color: yellow;"} estimator of $\hat \beta$. This means that 
+$$
+\Var(\hat \beta) \preceq \Var(\tilde \beta)\; ,
+$$
+for [any]{style="background-color: yellow;"} estimator $\tilde \beta$. See [Elements of proof](../lectures/linear_model.qmd#efficient-beta)
+
+:::
+
+- This is stronger than Gauss-Markov
+- Better than [any $\tilde \beta$]{style="background-color: yellow;"}, not only [linear $\tilde  \beta$]{style="background-color: yellow;"}. $\hat \beta$ is "BUE" (Best Unbiased Estimator)
+- If [$n$ is large]{style="background-color: yellow;"}, most of the result in Gaussian case remains valid.
+
+
+# Tests and Confidence Intervals
+
+## Pivotal Distribution in Gaussian Case
+
+. . .
+
+Recall that $\hat \sigma^2 = \frac{1}{n-p}\|\hat \varepsilon\|^2$
+
+. . .
+
+::: {.callout-note}
+## Property
+
+In the Gaussian model,
+
+$$ \frac{\hat \beta_j - \beta_j}{\hat \sigma \sqrt{(X^T X)^{-1}_{jj}}} \sim \mathcal T(n-p) $$
+
+(Student Distribution of degree $n-p$, $(X^TX)^{-1}_{jj}$  is the $j^{th}$ element of the matrix $(X^TX)^{-1}$)
+
+:::
+
+. . .
+
+$\mathbb V(\hat{\beta}) = \sigma^2 (X^T X)^{-1}$ implies that $\mathbb V(\hat{\beta}_j) = \sigma^2 (X^T X)^{-1}_{jj}$. 
+$\hat{\sigma}^2_{\hat{\beta}_j}:=\hat\sigma^2 (X^T X)^{-1}$ is an estimator of $\sqrt{\mathbb V(\hat{\beta}_j)}$
+
+## Student Signifactivity Test
+
+. . .
+
+We observe $Y = X\beta+\varepsilon$, where $\beta \in \mathbb R^p$ is unknown.
+
+. . .
+
+We want to test whether the $j^{th}$ feature $X^{(j)}$ is significant in the LM, that is:
+
+::: {.square-def}
+
+$H_0: \beta_j =0 \VS H_1: \beta_j \neq 0$.
+:::
+
+We use the test statistic 
+
+:::{style="font-size: 90%;"}
+::: {.square-def}
+$$\psi_j(X,Y)= \frac{\hat \beta_j}{\hat \sigma_{\hat \beta_j}} = \frac{\hat \beta_j}{\hat \sigma \sqrt{(X^T X)^{-1}_{jj}}} \sim \mathcal T(n-p) ~~\text{(under $H_0$)}$$
+:::
+:::
+
+## Student Signifactivity Test
+
+
+. . .
+
+:::{style="font-size: 90%;"}
+::: {.square-def}
+$$\psi_j(X,Y)= \frac{\hat \beta_j}{\hat \sigma_{\hat \beta_j}} = \frac{\hat \beta_j}{\hat \sigma \sqrt{(X^T X)^{-1}_{jj}}} \sim \mathcal T(n-p) ~~\text{(under $H_0$)}$$
+:::
+:::
+
+. . .
+
+We [reject if $|\psi(X,Y)| \geq t_{1-\alpha/2}$]{style="background-color: yellow;"}, where $t_{\alpha}$ is the $\alpha$-quantile of $\mathcal T(n-p)$.
+
+. . .
+
+::: {.square-def}
+
+$$p_{value}=2\min(F(\psi_j(X,Y)), 1-F(\psi_j(X,Y)))$$
+
+:::
+
+
+where [$F$ is the cdf]{style="background-color: yellow;"} of $\mathcal T(n-p)$.
+
+. . .
+
+If we get $\beta_j=0$, we can remove $X^{(j)}$ from the model.
+
+## Confidence Interval
+
+Confidence interval with proba $1-\alpha$ around $\beta_j$:
+
+::: {.square-def}
+$$CI_{1-\alpha} = [\hat \beta_j \pm t\hat \sigma_{\hat \beta_j}]$$
+:::
+
+- Here, $t$ is the $1-\alpha/2$ quantile of $\mathcal T(n-p)$
+- Recall that $\hat \sigma_{\hat \beta_j} = \hat \sigma \sqrt{(X^T X)^{-1}_{jj}}$
+
+. . .
+
+We check that 
+
+$$ 
+\P(\beta \in CI_{1-\alpha}) = 1- \alpha
+$$
+
+## Remarks
+
+- This is what is computed on $R$
+- This is valid in Gaussian case, but is [also true when $n$ is large for other distributions]{style="background-color: yellow;"} 
+
+# Prediction 
+
+## Prediction Setting
+
+. . .
+
+Consider the LM [$Y = X\beta + \varepsilon$]{style="background-color: yellow;"}.
+
+. . .
+
+From previous slides, we estimate $(\beta, \sigma)$ with $(\hat \beta, \hat \sigma)$ from observations $Y$ and [matrix]{style="background-color: lightblue;"} $X=(X^{(1)}, \dots, X^{(p)})$.
+
+. . .
+
+We observe a [new individual $o$]{style="background-color: yellow;"}, with [unknown $Y_o$]{style="background-color: yellow;"} and [vector]{style="background-color: lightblue;"} $X_o=X_{o,\cdot}=(X^{(1)}_o, \dots, X^{(p)}_o)$, and [independent noise $\varepsilon_o$]{style="background-color: yellow;"}.
+
+. . .
+
+with this definition, [$X_o$ is a row vector]{style="background-color: yellow;"} and
+
+::: {.square-def}
+$$Y_o = X_{o}\beta + \varepsilon_o = \beta_1X^{(1)}_o + \dots + \beta_p X^{(p)}_o+\varepsilon_o$$
+:::
+
+Here, $\mathbb E[\varepsilon_o] = 0$ and $\mathbb V(\varepsilon_o)=\sigma^2$
+
+## Prediction
+
+. . .
+
+We want predict $Y_o$ (unknown) from $X_o$ (known). Natural predictor:
+
+::: {.square-def}
+$\hat Y_o = X_o \hat \beta + \varepsilon_o$
+:::
+
+. . .
+
+Prediction error $Y_o - \hat Y_o$ decomposes in [two terms]{style="background-color: yellow;"}: 
+
+::: {.square-def}
+$$Y_o - \hat Y_o = \underbrace{X_o(\beta - \hat \beta)}_{\text{Estimation error}} + \underbrace{\varepsilon_o}_{\text{Random error}}$$
+:::
+
+---
+
+##  Error Decomposition
+
+. . .
+
+:::{style="font-size: 90%;"}
+::: {.square-def}
+$$Y_o - \hat Y_o = \underbrace{X_o(\beta - \hat \beta)}_{\text{Estimation error}} + \underbrace{\varepsilon_o}_{\text{Random error}}$$
+:::
+:::
+
+
+. . .
+
+$\E(Y_o - \hat Y_o)$: prediction error is [$0$ on average]{style="background-color: yellow;"}
+
+. . .
+
+$$\begin{aligned}
+\Var(Y_o - \hat Y_o) &= \color{blue}{ \Var(X_o(\beta - \hat \beta))} + \color{red}{\Var(\varepsilon_o)} \\
+&=\color{blue}{\sigma^2X_o(X^TX)^{-1}X_o} + \color{red}{\sigma^2} \\
+\end{aligned}$$
+
+. . .
+
+$\color{blue}{\Var(X_o(\beta - \hat \beta))\to 0}$ when $n \to +\infty$ but $\color{red}{\Var(\varepsilon_o) =\sigma^2}$
+
+. . .
+
+Estimation error is [negligible]{style="color: blue;"} when $n \to +\infty$ but random error is [incompressible]{style="color: red;"}.
+
+## Prediction Interval
+
+. . .
+
+In the Gaussian model, $Y_o - \hat Y_o \sim \mathcal N(0,  \sigma^2X_o(X^TX)^{-1}X_o^T+\sigma^2)$.
+
+. . .
+
+Since $\hat \sigma$ is   indep of $\hat Y_o$ (check this with projections!),
+
+:::{style="font-size: 100%;"}
+::: {.square-def}
+$$\frac{Y_o - \hat Y_o}{\hat \sigma\sqrt{X_o(X^TX)^{-1}X_o^T+1}} \sim \mathcal T(n-p)$$
+:::
+:::
+
+## Prediction Interval
+
+. . .
+
+We deduce the [prediction interval ]{style="background-color: yellow;"}
+
+:::{style="font-size: 90%;"}
+::: {.square-def}
+$$PI_{1-\alpha}(Y_o)=\left[\hat Y_o \pm \sqrt{\color{blue}{\hat \sigma^2X_o(X^TX)^{-1}X_o^T} + \color{red}{\hat \sigma^2}}\right]$$
+:::
+:::
+
+such that $\P(Y_o \in PI_{1-\alpha})= 1-\alpha$
+
+
+. . .
+
+If we only want to estimate $\mathbb E[Y_o]=X_o \beta$, (point on the hyperplane), we get the [confidence interval]{style="background-color: yellow;"}
+
+:::{style="font-size: 90%;"}
+::: {.square-def}
+$$CI_{1-\alpha}(X_o\beta)=\left[\hat Y_o \pm \sqrt{\color{blue}{\hat \sigma^2X_o(X^TX)^{-1}X_o^T}}\right]$$
+:::
+:::
+
+
+## Example
+
+
+For 100 trees, we record their volume and their girth.
+
+
+::: {style="text-align: center;"}
+![](../R/images/trees1.png){width="70%"}
+:::
+
+## Model
+
+. . .
+
+Volume = $\beta_1$ + $\beta_2$ Girth  + $\varepsilon$
+
+```r
+# In R
+reg=lm(Volume ~ Girth, data=trees)
+summary(reg)
+```
+
+```
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -36.9435     3.3651  -10.98 7.62e-12 ***
+Girth         5.0659     0.2474   20.48  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 4.252 on 29 degrees of freedom
+```
+
+
+## Results
+
+. . .
+
+Estimation:
+
+:::{style="font-size: 80%;"}
+::: {.square-def}
+$$\hat \beta_1=-36.9 \and \hat \beta_2=5.07$$
+$$\hat \sigma_{\hat \beta_1} =3.4 \and \hat \sigma_{\hat \beta_2} =0.25$$
+:::
+:::
+
+. . .
+
+Statistics:
+
+:::{style="font-size: 80%;"}
+::: {.square-def}
+$$\frac{\hat \beta_1}{\hat \sigma_{\hat \beta_1}}=-10.98 \and \frac{\hat \beta_2}{\hat \sigma_{\hat \beta_2}}=20.48$$
+:::
+
+
+:::
+
+. . .
+
+$Pr(>|t|)$: pvalues of the student tests. Last row: $\hat \sigma=4.25$ and df.
+
+
+## Illustration
+
+![](../R/images/trees_regression_intervals.png)
+
+## R code
+
+```r 
+require(stats); require(graphics)
+pairs(trees, main = "trees data")
+trees[,c("Girth", "Volume")]
+reg <- lm(Volume ~ Girth, data = trees)
+# Create sequence of x values for smooth curves
+x_seq <- seq(min(trees$Girth), max(trees$Girth), length.out = 100)
+
+# Calculate confidence and prediction intervals
+conf_int <- predict(reg, newdata = data.frame(Girth = x_seq), 
+                   interval = "confidence", level = 0.95)
+pred_int <- predict(reg, newdata = data.frame(Girth = x_seq), 
+                   interval = "prediction", level = 0.95)
+```

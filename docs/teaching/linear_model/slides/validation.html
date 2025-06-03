@@ -9,7 +9,7 @@
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.22">
 
-  <title>Emmanuel Pilliat – Linear Model and Inference</title>
+  <title>Emmanuel Pilliat – Validation</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -127,220 +127,376 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Linear Model and Inference</h1>
+  <h1 class="title">Validation</h1>
 
 <div class="quarto-title-authors">
 </div>
 
 </section>
+<section class="slide level2">
+
+<p><span class="math inline">\(\newcommand{\VS}{\quad \mathrm{VS} \quad}\)</span> <span class="math inline">\(\newcommand{\and}{\quad \mathrm{and} \quad}\)</span> <span class="math inline">\(\newcommand{\E}{\mathbb E}\)</span> <span class="math inline">\(\newcommand{\P}{\mathbb P}\)</span> <span class="math inline">\(\newcommand{\Var}{\mathbb V}\)</span> <span class="math inline">\(\newcommand{\1}{\mathbf 1}\)</span></p>
+</section>
 <section>
-<section id="linear-model" class="title-slide slide level1 center">
-<h1>Linear Model</h1>
+<section id="explanatory-quality" class="title-slide slide level1 center">
+<h1>Explanatory Quality</h1>
 
 </section>
-<section id="general-setting" class="slide level2">
-<h2>General Setting</h2>
+<section id="pythagorean-decomposition" class="slide level2">
+<h2>Pythagorean Decomposition</h2>
 <div class="fragment">
-<p>We observe <span class="math inline">\(n\)</span> individuals, and variables <span style="background-color: orange;"><span class="math inline">\(Y \in \mathbb R^n\)</span></span> and <span style="background-color: lightblue;"><span class="math inline">\((X^{(1)}, \dots, X^{(p)}) \in \mathbb R^{n \times p}\)</span></span>.</p>
+<p>Let <span class="math inline">\(\mathbf{1}\)</span> be the constant column vector in <span class="math inline">\(\mathbb R^{n\times 1}\)</span>.</p>
 </div>
 <div class="fragment">
-<p>In other words, we observe<br>
-<span style="background-color: orange;"><span class="math inline">\(Y= (Y_1, \dots, Y_n) \in \mathbb R^n\)</span></span><br>
-</p>
+<p>If <span style="background-color: yellow;"><span class="math inline">\(\mathbf{1} \in [X]\)</span></span> (eg if we consider an <span style="background-color: yellow;">intercept</span>) <span class="math display">\[ \underbrace{\|Y-\overline Y \1\|^2}_{SST} = \underbrace{\|Y-\widehat Y\|^2}_{SSR}+\underbrace{\|\widehat Y-\overline Y \1\|^2}_{SSE}\]</span></p>
+<p>In the general case,</p>
 </div>
 <div class="fragment">
-<p><span style="background-color: lightblue;"><span class="math inline">\(X^{(1)} = (X^{(1)}_1, \dots, X^{(1)}_n) \in \mathbb R^n\)</span><br>
-<span class="math inline">\(X^{(2)} = (X^{(2)}_1, \dots, X^{(2)}_n) \in \mathbb R^n\)</span><br>
-…<br>
-<span class="math inline">\(X^{(p)} = (X^{(p)}_1, \dots, X^{(p)}_n)\in \mathbb R^n\)</span></span></p>
+<p><span class="math display">\[\|Y\|^2 = \|Y-\widehat Y\|^2 + \|\widehat Y\|^2\]</span></p>
+<p><span style="background-color: yellow;">Good model</span> if sum of squares of residuals <span style="background-color: yellow;"><span class="math inline">\(SSR \ll 1\)</span></span></p>
 </div>
 </section>
-<section id="non-parametric-model" class="slide level2">
-<h2>Non Parametric Model</h2>
+<section id="r2" class="slide level2">
+<h2><span class="math inline">\(R^2\)</span></h2>
 <div class="fragment">
-<p>We observe <span class="math inline">\(n\)</span> individuals, and variables <span style="background-color: orange;"><span class="math inline">\(Y \in \mathbb R^n\)</span></span> and <span style="background-color: lightblue;"><span class="math inline">\((X^{(1)}, \dots, X^{(p)}) \in \mathbb R^{n \times p}\)</span></span>.</p>
+<div class="columns">
+<div class="column">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong><span class="math inline">\(R^2\)</span> if <span class="math inline">\(\1 \in [X]\)</span></strong></p>
 </div>
-<div class="fragment">
-<p>We assume that</p>
-<div class="square-def">
-<p><span class="math display">\[Y_i = F(X^{(1)}_i, X^{(2)}_i, \dots, X^{(p)}_i, \varepsilon_i)\]</span></p>
-</div>
-</div>
-<div class="fragment">
-<p>where <span class="math inline">\(\varepsilon = (\varepsilon_1, \dots, \varepsilon_n) \in \mathbb R^n\)</span> are iid random noise<br>
-</p>
-</div>
-<div class="fragment">
-<p><span class="math inline">\(F\)</span> is <strong>unknown</strong></p>
-<p>–&gt; Too ambitious, risk of overfitting</p>
-</div>
-</section>
-<section id="linear-model-1" class="slide level2">
-<h2>Linear Model</h2>
-<p>We observe <span class="math inline">\(n\)</span> individuals, and variables <span style="background-color: orange;"><span class="math inline">\(Y \in \mathbb R^n\)</span></span> and <span style="background-color: lightblue;"><span class="math inline">\((X^{(1)}, \dots, X^{(p)}) \in \mathbb R^{n \times p}\)</span></span>.</p>
-<div class="fragment">
-<p>We assume that</p>
-<div class="square-def">
-<p><span class="math display">\[Y = \beta_1 X^{(1)}+ \beta_2 X^{(2)}+ \dots+ \beta_p X^{(p)}+ \varepsilon\]</span></p>
+<div class="callout-content">
+<p><span class="math display">\[R^2 = \frac{SSE}{SST} = 1-\frac{SSR}{SST}\]</span></p>
 </div>
 </div>
-<div class="fragment">
-<p>That is, <strong>we know</strong> that <span class="math inline">\(F\)</span> is of the form <span class="math inline">\(F(x_1, \dots, x_p, \varepsilon) = \beta_1 x_1+ \beta_2 x_2+ \dots+ \beta_p x_p+ \varepsilon\)</span></p>
 </div>
-</section>
-<section id="linear-model-2" class="slide level2">
-<h2>Linear Model</h2>
-<p><span class="math inline">\(Y\)</span> and the <span class="math inline">\(X^{(k)}\)</span>’s are <strong>vectors</strong> in <span class="math inline">\(\mathbb R^n\)</span>.</p>
-<div class="fragment">
-<p>For all <span class="math inline">\(i\)</span>,</p>
-<div class="square-def">
-<p><span class="math display">\[Y_i = \beta_1 X^{(1)}_i+ \beta_2 X^{(2)}_i+ \dots+ \beta_p X^{(p)}_i+ \varepsilon_i\]</span></p>
+</div><div class="column">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong><span class="math inline">\(R^2\)</span> if <span class="math inline">\(\1 \not \in [X]\)</span></strong></p>
 </div>
-<p>We assume that</p>
+<div class="callout-content">
+<p><span class="math display">\[R^2 = \frac{\|\widehat Y\|^2}{\|Y\|^2} = 1 - \frac{SCR}{\|Y\|^2}\]</span></p>
+</div>
+</div>
+</div>
+</div></div>
 <ul>
-<li class="fragment"><span class="math inline">\(X^{(k)}\)</span> are <strong>known</strong> and deterministic (otherwise we condition on <span class="math inline">\(X^{(k)}\)</span>’s)</li>
-<li class="fragment"><span class="math inline">\(\mathbb E[\varepsilon_i] = 0\)</span></li>
+<li class="fragment"><span class="math inline">\(0 \leq R^2 \leq 1\)</span>. Better model if <span class="math inline">\(R^2\)</span> close to <span class="math inline">\(1\)</span></li>
+<li class="fragment">Two definitions of <span class="math inline">\(R^2\)</span> when <span class="math inline">\(\1 \in [X]\)</span> or not</li>
+<li class="fragment">In simple linear regression <span class="math inline">\((Y_i = \beta_1+\beta_2X_i+\varepsilon_i)\)</span>: <span class="math inline">\(R^2 = \hat \rho^2\)</span> is the <span style="background-color: yellow;">square empirical correlation</span> between <span class="math inline">\(Y\)</span> and <span class="math inline">\(X\)</span></li>
 </ul>
 </div>
 </section>
-<section id="linear-model-with-intercept" class="slide level2">
-<h2>Linear Model with Intercept</h2>
-<p><span class="math inline">\(Y\)</span> and the <span class="math inline">\(X^{(k)}\)</span>’s are <strong>vectors</strong> in <span class="math inline">\(\mathbb R^n\)</span>.</p>
+<section id="adjusted-r2" class="slide level2">
+<h2>Adjusted <span class="math inline">\(R^2\)</span></h2>
 <div class="fragment">
-<p>If we set <span class="math inline">\(X^{(1)}= (1, \dots, 1)\)</span>, then the model rewrites</p>
-<div class="square-def">
-<p><span class="math display">\[Y_i = \beta_1+ \beta_2 X^{(2)}_i+ \dots+ \beta_p X^{(p)}_i+ \varepsilon_i\]</span></p>
-</div>
+<p>Main flaw of <span class="math inline">\(R^2\)</span>: <span style="background-color: yellow;">adding a new variables decreases <span class="math inline">\(R^2\)</span></span> (because <span class="math inline">\([X]\)</span> is a bigger projection space)</p>
 </div>
 <div class="fragment">
+<div class="columns">
+<div class="column">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong><span class="math inline">\(R^2\)</span> if <span class="math inline">\(\1 \in [X]\)</span></strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[R^2_a = 1-\frac{n-1}{n-p}\frac{SSR}{SST}\]</span></p>
+</div>
+</div>
+</div>
+</div><div class="column">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong><span class="math inline">\(R^2\)</span> if <span class="math inline">\(\1 \not \in [X]\)</span></strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[R^2_a = 1 - \frac{n}{n-p}\frac{SCR}{\|Y\|^2}\]</span></p>
+</div>
+</div>
+</div>
+</div></div>
+</div>
+<div class="fragment">
+<p>With a <span style="background-color: yellow;">new variable</span>, <span class="math inline">\(SCR\)</span> decreases but <span style="background-color: yellow;"><span class="math inline">\(p \to p+1\)</span></span></p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;"><span class="math inline">\(R_a^2\)</span>​ only decreases</span> when adding a new variable <span style="background-color: yellow;">if that variable significantly</span> reduces the residual sum of squares. ()</p>
+</div>
+</section>
+<section id="r-output-interpretation" class="slide level2">
+<h2>R output interpretation</h2>
+<pre><code>Residuals:
+   Min     1Q Median     3Q    Max 
+-8.065 -3.107  0.152  3.495  9.587 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -36.9435     3.3651  -10.98 7.62e-12 ***
+Girth         5.0659     0.2474   20.48  &lt; 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 4.252 on 29 degrees of freedom
+Multiple R-squared:  0.9353,    Adjusted R-squared:  0.9331 </code></pre>
+<p>Here, <span class="math inline">\(R^2=0.9353\)</span> and <span class="math inline">\(R^2_a=0.9331\)</span>.</p>
+<div class="fragment">
+<p><span class="math inline">\(\approx 93\%\)</span> of the variability is explained by the model.</p>
+</div>
+</section></section>
+<section>
+<section id="testing-linear-constraints-on-beta" class="title-slide slide level1 center">
+<h1>Testing Linear Constraints on <span class="math inline">\(\beta\)</span></h1>
+
+</section>
+<section id="linear-constraints" class="slide level2">
+<h2>Linear Constraints</h2>
+<div class="fragment">
+<p>We want to test <strong>q linear constraints</strong> on the coefficient vector <span class="math inline">\(\beta \in \mathbb R^p\)</span>.</p>
+</div>
+<div class="fragment">
+<p>This is formulated as: <span class="math display">\[H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0\]</span></p>
+<p>where <strong>R</strong> is a (q × p) constraint matrix encoding the restrictions, with <span class="math inline">\(q \leq p\)</span>.</p>
+</div>
+</section>
+<section id="common-test-types" class="slide level2">
+<h2>Common Test Types</h2>
+<p><span class="math display">\[H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0\]</span></p>
 <ul>
-<li class="fragment">The model is linear in <span class="math inline">\(X^{(2)}, \dots, X^{(p)}\)</span></li>
-<li class="fragment"><span class="math inline">\(\beta_1\)</span> is then called the <strong>intercept</strong></li>
+<li class="fragment"><strong>Student’s t-test</strong>: is variable <span class="math inline">\(j\)</span> significant?<br>
+<span style="background-color: lightblue;"><span class="math inline">\(H_0: \beta_j = 0\)</span> vs <span class="math inline">\(H_1: \beta_j \neq 0\)</span></span></li>
+<li class="fragment"><strong>Global F-test</strong>: is any variable significant? Identity matrix excluding intercept<br>
+<span style="background-color: lightblue;"><span class="math inline">\(H_0: \beta_2 = \cdots = \beta_p = 0\)</span> vs <span class="math inline">\(H_1: \exists j \in \{2,\ldots,p\}\)</span> s.t. <span class="math inline">\(\beta_j \neq 0\)</span></span></li>
+<li class="fragment"><strong>Nested model test</strong>: are q variables jointly significant?<br>
+<span style="background-color: lightblue;"><span class="math inline">\(H_0: \beta_{p-q+1} = \cdots = \beta_p = 0\)</span> vs <span class="math inline">\(H_1\)</span>: the contrary</span></li>
+</ul>
+</section>
+<section id="key-applications" class="slide level2">
+<h2>Key Applications</h2>
+<ul>
+<li class="fragment"><strong>Individual significance</strong>: Testing if a single predictor matters</li>
+<li class="fragment"><strong>Overall model significance</strong>: Testing if the model explains anything beyond the intercept<br>
+</li>
+<li class="fragment"><strong>Variable subset significance</strong>: Testing if a group of variables contributes to the model</li>
+</ul>
+</section>
+<section id="fisher-test" class="slide level2">
+<h2>Fisher Test</h2>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Theorem</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><span class="math inline">\(SSR\)</span>: sum of squares of residuals in the unconstrained regression model</li>
+<li class="fragment"><span class="math inline">\(SSR_c\)</span>: sum of squares of residuals in the constrained regression model, i.e., in the sub-model satisfying <span class="math inline">\(R\beta = 0\)</span></li>
+</ul>
+<div class="fragment">
+<p>If <span class="math inline">\(\text{rank}(X) = p\)</span>, <span class="math inline">\(\text{rank}(R)=q\)</span> and <span class="math inline">\(\varepsilon \sim N(0, \sigma^2 I_n)\)</span>, then under <span class="math inline">\(H_0: R\beta = 0\)</span>:</p>
+<p><span class="math display">\[F = \frac{n-p}{q} \cdot \frac{{SSR}_c - {SSR}}{{SSR}} \sim F(q, n-p)\]</span></p>
+<p>where <span class="math inline">\(F(q, n-p)\)</span> denotes the Fisher distribution with <span class="math inline">\((q, n-p)\)</span> degrees of freedom. <a href="../../../teaching/linear_model/lectures/validation.html#F-Test">Elements of proof</a></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="rejection-region" class="slide level2">
+<h2>Rejection Region</h2>
+<div class="fragment">
+<p>Key argument: <span class="math inline">\(SSR_c - SSR\)</span> is equal to <span class="math inline">\(\|P_{V}Y\|^2\)</span>, where <span class="math inline">\(V=X(Ker(R))^{\perp} \cap [X]\)</span> and <span class="math inline">\(\text{dim}(V)=q\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Therefore, the critical region at significance level <span class="math inline">\(\alpha\)</span> for testing <span class="math inline">\(H_0: R\beta = 0\)</span> against <span class="math inline">\(H_1: R\beta \neq 0\)</span> is:</p>
+<div class="square-def">
+<p><span class="math display">\[RC_\alpha = \{F &gt; f_{q,n-p}(1-\alpha)\}\]</span></p>
+</div>
+<p>where <span class="math inline">\(f_{q,n-p}(1-\alpha)\)</span> denotes the <span class="math inline">\((1-\alpha)\)</span>-quantile of an <span class="math inline">\(F(q, n-p)\)</span> distribution.</p>
+</div>
+</section>
+<section id="particular-case-1-student-test" class="slide level2">
+<h2>Particular Case 1: Student Test</h2>
+<div class="fragment">
+<p>Fix some variable <span class="math inline">\(j\)</span> and consider</p>
+<div class="square-def">
+<p><span class="math inline">\(H_0: \beta_j=0\)</span> VS <span class="math inline">\(H_1:\beta_j\neq 0\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Only one constraint: <span class="math inline">\(q=1\)</span>, so that</p>
+<div class="square-def">
+<p><span class="math display">\[ F = (n-p) \frac{SCR_c-SCR}{SCR} \sim \mathcal F(1,n-p) \sim \mathcal T^2(n-p)\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>In fact, Here <span class="math inline">\(F = \big(\tfrac{\hat \beta_j}{\hat \sigma_{\hat \beta_j}}\big)^2\)</span> so <span style="background-color: yellow;"><span class="math inline">\(F\)</span> is the student test</span> presented before</p>
+</div>
+</section>
+<section id="particular-case-2-global-fisher-test" class="slide level2">
+<h2>Particular Case 2: Global Fisher Test</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(H_0: \beta_2= \dots = \beta_p=0\)</span> VS <span class="math inline">\(H_1\)</span>: contrary</p>
+</div>
+<p><span class="math inline">\(q = p-1\)</span> in this case . . .</p>
+<div class="square-def">
+<p><span class="math display">\[F = \frac{n-p}{p-1}\frac{SSE}{SSR} = \frac{n-p}{p-1}\frac{R^2}{1-R^2} \sim \mathcal F(p-1, n-p)\]</span></p>
+</div>
+</div>
+</section>
+<section id="particular-case-3-nested-fisher-test" class="slide level2">
+<h2>Particular Case 3: Nested Fisher Test</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(H_0: \beta_{p-q+1}= \dots = \beta_p=0\)</span> VS <span class="math inline">\(H_1\)</span>: contrary</p>
+</div>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[F = \frac{n-p}{q}\frac{SCR_c - SCR}{SCR} \sim \mathcal F(q, n-p)\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Interpretation:</p>
+<p>If <span style="background-color: yellow;"><span class="math inline">\(F \geq f_{q,n-p}(1-\alpha)\)</span></span> (<span class="math inline">\(1-\alpha\)</span>-quantile of Fisher dist.) then constraints are not satisfied. We <span style="background-color: yellow;">do not accept the submodel</span> with respect to larger model.</p>
+</div>
+</section>
+<section id="example-of-r-output" class="slide level2">
+<h2>Example of R Output</h2>
+<pre><code>
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) -36.9435     3.3651  -10.98 7.62e-12 ***
+Girth         5.0659     0.2474   20.48  &lt; 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 4.252 on 29 degrees of freedom
+Multiple R-squared:  0.9353,    Adjusted R-squared:  0.9331 
+F-statistic: 419.4 on 1 and 29 DF,  p-value: &lt; 2.2e-16</code></pre>
+<div class="fragment">
+<p>Here, Fisher global significance test statistic is <span class="math inline">\(F=419.4\)</span>, <span class="math inline">\(q=1\)</span> and <span class="math inline">\(n-p=29\)</span> (<span class="math inline">\(n=31\)</span>). <span style="background-color: yellow;">pvalue is negligible</span></p>
+</div>
+<div class="fragment">
+<p>Here, <span class="math inline">\(q=1\)</span> and <span class="math inline">\(Global Fisher test\)</span> is a <span style="background-color: yellow;">Student Test</span>.</p>
+</div>
+</section></section>
+<section>
+<section id="verification-of-model-hypotheses" class="title-slide slide level1 center">
+<h1>Verification of Model Hypotheses</h1>
+
+</section>
+<section id="model-assumptions" class="slide level2">
+<h2>Model Assumptions</h2>
+<p>The linear regression model relies on the following key assumptions:</p>
+<ul>
+<li class="fragment"><strong>Model specification</strong>: <span class="math inline">\(Y = X\beta + \varepsilon\)</span> (linear relationship)</li>
+<li class="fragment"><strong>Full rank design</strong>: <span class="math inline">\(\text{rank}(X) = p\)</span> (no perfect multicollinearity)</li>
+<li class="fragment"><strong>Zero mean errors</strong>: <span class="math inline">\(\mathbb{E}(\varepsilon) = 0\)</span></li>
+<li class="fragment"><strong>Homoscedastic errors</strong>: <span class="math inline">\(\text{Var}(\varepsilon) = \sigma^2 I_n\)</span> (constant variance and uncorrelated errors)</li>
+</ul>
+<div class="fragment">
+<p>Now: diagnostic tools to <span style="background-color: yellow;">verify each assumption</span> and remedial strategies when they fail.</p>
+</div>
+</section>
+<section id="linearity-assumption" class="slide level2">
+<h2>Linearity Assumption</h2>
+<p>The linearity assumption <span class="math inline">\(\mathbb{E}(Y) = X\beta\)</span> is the fundamental hypothesis of linear regression.</p>
+<p><strong>Diagnostic Tools:</strong></p>
+<ul>
+<li class="fragment"><strong>Pre-modeling</strong>: Scatter plots <span class="math inline">\((X^{(j)}, Y)\)</span> and empirical correlations for each predictor</li>
+<li class="fragment"><strong>Post-modeling</strong>: Residual analysis - non-linearity manifests as patterns in <span class="math inline">\(\hat{\varepsilon}\)</span></li>
+<li class="fragment"><strong>Advanced</strong>: Partial residual plots (not covered here)</li>
+</ul>
+</section>
+<section id="linearity-assumption-1" class="slide level2">
+<h2>Linearity Assumption</h2>
+<p>The linearity assumption <span class="math inline">\(\mathbb{E}(Y) = X\beta\)</span> is the fundamental hypothesis of linear regression.</p>
+<p><strong>Remedial Strategies:</strong></p>
+<ul>
+<li class="fragment"><strong>Transformations</strong>: Apply transformations to <span class="math inline">\(Y\)</span> and/or predictors <span class="math inline">\(X^{(j)}\)</span> to achieve linearity</li>
+<li class="fragment"><strong>Alternative models</strong>: If transformations fail, consider nonlinear regression models</li>
+</ul>
+</section>
+<section id="full-rank-assumption" class="slide level2">
+<h2>Full Rank Assumption</h2>
+<p>The condition <span class="math inline">\(\text{rank}(X) = p\)</span> ensures no predictor <span class="math inline">\(X^{(j)}\)</span> is a linear combination of others.</p>
+<div class="fragment">
+<p><strong>Why it matters:</strong></p>
+<ul>
+<li class="fragment"><strong>Identifiability</strong>: Without full rank, <span class="math inline">\(\beta\)</span> is not uniquely defined</li>
+<li class="fragment"><strong>Estimation</strong>: <span class="math inline">\((X^TX)\)</span> becomes non-invertible, making <span class="math inline">\(\hat{\beta} = (X^TX)^{-1}X^TY\)</span> undefined</li>
+<li class="fragment">Infinitely many solutions satisfy <span class="math inline">\(X^TX\hat{\beta} = X^TY\)</span></li>
 </ul>
 </div>
 </section>
-<section id="notation" class="slide level2">
-<h2>Notation</h2>
-<p>We write <span class="math inline">\(Y = (Y_1, \dots, Y_n)\)</span> and <span class="math inline">\(X^{(k)} = (X^{(k)}_1, \dots, X^{(k)}_n)\)</span> as columns:</p>
-<p><span class="math inline">\(\newcommand{\VS}{\quad \mathrm{VS} \quad}\)</span> <span class="math inline">\(\newcommand{\and}{\quad \mathrm{and} \quad}\)</span></p>
-<div class="square-def">
-<p><span class="math display">\[Y = \begin{pmatrix}
-Y_1 \\
-\vdots \\
-Y_n
-\end{pmatrix} \and X^{(k)}=\begin{pmatrix}
-X^{(k)}_1 \\
-\vdots \\
-X^{(k)}_n
-\end{pmatrix}\]</span></p>
-</div>
-</section>
-<section id="notation-1" class="slide level2">
-<h2>Notation</h2>
-<div class="fragment">
-<p>To get a matrix form, we write <span class="math inline">\(X_{ik} = X^{(k)}_i\)</span>. Then:</p>
-</div>
-<div class="fragment">
-<p><span class="math inline">\(\newcommand{\VS}{\quad \mathrm{VS} \quad}\)</span> <span class="math inline">\(\newcommand{\and}{\quad \mathrm{and} \quad}\)</span></p>
-<div class="square-def">
-<p><span class="math display">\[Y = \begin{pmatrix}
-Y_1 \\
-\vdots \\
-Y_n
-\end{pmatrix} \and X^{(k)}=\begin{pmatrix}
-X_{1k} \\
-\vdots \\
-X_{n,k}
-\end{pmatrix}\]</span></p>
-</div>
-</div>
-</section>
-<section id="notation-2" class="slide level2">
-<h2>Notation</h2>
-<div class="fragment">
-<p>To get a matrix form, we write <span class="math inline">\(X\)</span> for the matrix <span class="math inline">\((X_{ik}) \in \mathbb R^{n \times p}\)</span></p>
-</div>
-<div class="fragment">
-<p>That is, <span class="math inline">\(X = (X^{(1)}, \dots, X^{(p)})\)</span></p>
-</div>
-<div class="fragment">
-<p>And:</p>
-<div class="square-def">
-<p><span class="math display">\[Y = \begin{pmatrix}
-Y_1 \\
-\vdots \\
-Y_n
-\end{pmatrix} \and X=\begin{pmatrix}
-&amp;X_{1,1} &amp;\dots &amp;X_{1,p} \\
-&amp;\vdots &amp;~ &amp;\vdots \\
-&amp;X_{n,1} &amp;\dots &amp;X_{n,p}
-\end{pmatrix}\]</span></p>
-</div>
-</div>
-</section>
-<section id="model-matrix-form" class="slide level2">
-<h2>Model, Matrix Form</h2>
-<div class="fragment">
-<p>Let <span class="math inline">\(\beta = (\beta_1, \dots, \beta_p) \in \mathbb R^p\)</span> be <strong>unknown</strong> parameters, and <span class="math inline">\(\varepsilon = (\varepsilon_1, \dots, \varepsilon_n)\)</span> be iid noise.</p>
-<p>. . . In column notation:</p>
-<div class="square-def">
-<p><span class="math display">\[\beta = \begin{pmatrix}
-\beta_1 \\
-\vdots \\
-\beta_p
-\end{pmatrix} \and \varepsilon=\begin{pmatrix}
-\varepsilon_{1} \\
-\vdots \\
-\varepsilon_{n}
-\end{pmatrix}\]</span></p>
-</div>
-</div>
-</section>
-<section id="linear-model-matrix-form" class="slide level2">
-<h2>Linear Model, Matrix Form</h2>
-<div class="fragment">
-<p>We observe <span class="math inline">\(Y = (Y_1, \dots, Y_n) \in \mathbb R^n\)</span> and <span class="math inline">\(X \in \mathbb R^{n \times p}\)</span></p>
-</div>
-<div class="fragment">
-<p>We assume that</p>
-<div class="square-def">
-<p><span class="math display">\[Y = X \beta + \varepsilon\]</span></p>
-</div>
-<p>where</p>
+<section id="full-rank-assumption-1" class="slide level2">
+<h2>Full Rank Assumption</h2>
+<p>The condition <span class="math inline">\(\text{rank}(X) = p\)</span> ensures no predictor <span class="math inline">\(X^{(j)}\)</span> is a linear combination of others.</p>
+<p><strong>In practice:</strong></p>
 <ul>
-<li class="fragment"><span class="math inline">\(X\)</span> is <strong>known</strong>,</li>
-<li class="fragment"><span class="math inline">\(\beta \in \mathbb R^p\)</span> is <strong>unknown</strong></li>
-<li class="fragment"><span class="math inline">\(\varepsilon \in \mathbb R^n\)</span> is a vector of iid random noise with <span class="math inline">\(\mathbb E[\varepsilon_i] = 0\)</span> and <span class="math inline">\(\mathbb V(\varepsilon_i) = \sigma^2\)</span>(<strong>unknown</strong>)</li>
+<li class="fragment">Perfect collinearity is rare, so <span class="math inline">\(\text{rank}(X) = p\)</span> usually holds</li>
+<li class="fragment"><strong>Near-collinearity</strong> is the real concern - when predictors are “almost” linearly dependent</li>
+</ul>
+</section>
+<section id="near-collinearity-issues" class="slide level2">
+<h2>Near-Collinearity Issues</h2>
+<p>When a variable is highly correlated with others (correlation close to but not exactly <span class="math inline">\(\pm 1\)</span>):</p>
+<div class="fragment">
+<p><strong>Mathematical consequences:</strong></p>
+<ul>
+<li class="fragment"><span class="math inline">\(X'X\)</span> remains invertible, but its smallest eigenvalue approaches zero</li>
+<li class="fragment"><span class="math inline">\((X'X)^{-1}\)</span> becomes numerically unstable</li>
 </ul>
 </div>
 </section>
-<section id="remarks" class="slide level2">
-<h2>Remarks</h2>
+<section id="near-collinearity-issues-1" class="slide level2">
+<h2>Near-Collinearity Issues</h2>
+<div class="fragment">
+<p><strong>Statistical implications:</strong></p>
 <ul>
-<li class="fragment"><span class="math inline">\((\varepsilon_1, \dots, \varepsilon_n)\)</span> <strong>independent</strong> implies no correlation between individuals</li>
-<li class="fragment"><span class="math inline">\(\mathbb V(\varepsilon_i)= \sigma^2\)</span> does not depend on <span class="math inline">\(i\)</span>: this is called <strong>homoscedasticity</strong> assumption</li>
-<li class="fragment">We can write <span class="math inline">\(\mathbb V(\varepsilon) = \sigma^2 I_n\)</span> (covariance matrix of <span class="math inline">\(\varepsilon\)</span>)</li>
+<li class="fragment"><strong>Instability</strong>: Adding/removing a single observation can drastically change <span class="math inline">\((X'X)^{-1}\)</span></li>
+<li class="fragment"><strong>Unreliable estimates</strong>: <span class="math inline">\(\hat{\beta} = (X'X)^{-1}X'Y\)</span> becomes highly unstable</li>
+<li class="fragment"><strong>Inflated variance</strong>: <span class="math inline">\(\text{Var}(\hat{\beta}) = \sigma^2(X'X)^{-1}\)</span> becomes very large</li>
 </ul>
+</div>
+<div class="fragment">
+<p>This is undesirable from a statistical point of view</p>
+</div>
 </section>
-<section id="identifiability-condition" class="slide level2">
-<h2>Identifiability Condition</h2>
+<section id="detecting-collinearity-vif" class="slide level2">
+<h2>Detecting Collinearity: VIF</h2>
+<p>Compute the VIF (Variance Inflation Factor) for each <span class="math inline">\(X^{(j)}\)</span>:</p>
+<ol type="1">
+<li class="fragment">Regress <span class="math inline">\(X^{(j)}\)</span> on all other <span class="math inline">\(X^{(k)}\)</span> (where <span class="math inline">\(k \neq j\)</span>)</li>
+<li class="fragment">Compute <span class="math inline">\(R_j^2\)</span> from this regression</li>
+<li class="fragment">Calculate: <span class="math inline">\(\text{VIF}_j = \frac{1}{1 - R_j^2}\)</span></li>
+</ol>
 <div class="fragment">
-<p>Recall that <span class="math inline">\(X \in \mathbb R^{n \times p}\)</span></p>
+<p><strong>Properties:</strong></p>
+<ul>
+<li class="fragment"><span class="math inline">\(\text{VIF}_j \geq 1\)</span> always</li>
+<li class="fragment">High VIF indicates collinearity. Common threshold: <span style="background-color: yellow;"><span class="math inline">\(\text{VIF}_j \geq 5\)</span></span>. In R: <code>vif()</code> from <code>car</code> package</li>
+</ul>
 </div>
+</section>
+<section id="remedies-for-multicollinearity" class="slide level2">
+<h2>Remedies for Multicollinearity</h2>
+<ul>
+<li class="fragment"><strong>Variable removal</strong>: Drop variables with high VIF</li>
+<li class="fragment">Preferably remove those least correlated with <span class="math inline">\(Y\)</span></li>
+<li class="fragment"><strong>Penalized regression</strong>: Ridge, LASSO, or elastic net methods (not covered here)</li>
+</ul>
 <div class="fragment">
-<p>We assume that <span style="background-color: yellow;"><span class="math inline">\(rk(X)=p\)</span></span>.</p>
-</div>
-<div class="fragment">
-<p>This implies <span style="background-color: yellow;"><span class="math inline">\(p \leq n\)</span></span></p>
-</div>
-<div class="fragment">
-<p>If this condition is not satisfied:</p>
-</div>
-<div class="fragment">
-<p>It means that there is a linear relation between the <span class="math inline">\(X^{(k)}\)</span>!</p>
-</div>
-<div class="fragment">
-<p>We can take infinitely many possible <span class="math inline">\(\beta\)</span></p>
+<p><strong>Important Distinction on Multicollinearity</strong></p>
+<ul>
+<li class="fragment"><strong>Parameter estimation</strong>: Multicollinearity severely affects <span class="math inline">\(\hat{\beta}\)</span> reliability</li>
+<li class="fragment"><strong>Prediction</strong>: Not problematic: <span class="math inline">\(\hat{Y}\)</span> remains well-defined and stable since <span style="background-color: yellow;">projection on <span class="math inline">\([X]\)</span> is still unique</span></li>
+</ul>
 
 
 </div>

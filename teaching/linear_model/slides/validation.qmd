@@ -1,0 +1,400 @@
+---
+title: "Validation"
+format: 
+  revealjs:
+    incremental: true
+    callout-icon: false
+    code-overflow: scroll
+    code-block-height: 200px
+    #theme: [default, ../custom.scss]
+#julia:
+#  path: "/home/emmanuel/.juliaup/bin/julia"
+smaller: false
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+$\newcommand{\E}{\mathbb E}$
+$\newcommand{\P}{\mathbb P}$
+$\newcommand{\Var}{\mathbb V}$
+$\newcommand{\1}{\mathbf 1}$
+
+
+# Explanatory Quality
+
+## Pythagorean Decomposition
+
+. . .
+
+Let $\mathbf{1}$ be the constant column vector in $\mathbb R^{n\times 1}$.
+
+. . .
+
+If [$\mathbf{1} \in [X]$]{style="background-color: yellow;"} (eg if we consider an [intercept]{style="background-color: yellow;"})
+$$ \underbrace{\|Y-\overline Y \1\|^2}_{SST} = \underbrace{\|Y-\widehat Y\|^2}_{SSR}+\underbrace{\|\widehat Y-\overline Y \1\|^2}_{SSE}$$
+
+In the general case,
+
+. . .
+
+$$\|Y\|^2 = \|Y-\widehat Y\|^2 + \|\widehat Y\|^2$$
+
+[Good model]{style="background-color: yellow;"} if sum of squares of residuals [$SSR \ll 1$ ]{style="background-color: yellow;"}
+
+
+## $R^2$
+
+. . .
+
+::: {.columns}
+::: {.column}
+::: {.callout-note}
+## $R^2$ if $\1 \in [X]$
+$$R^2 = \frac{SSE}{SST} = 1-\frac{SSR}{SST}$$
+:::
+:::
+::: {.column}
+::: {.callout-note}
+## $R^2$ if $\1 \not \in [X]$
+
+$$R^2 = \frac{\|\widehat Y\|^2}{\|Y\|^2} = 1 - \frac{SCR}{\|Y\|^2}$$
+:::
+::: 
+
+:::
+
+- $0 \leq R^2 \leq 1$. Better model if $R^2$ close to $1$
+- Two definitions of $R^2$ when $\1 \in [X]$ or not
+- In simple linear regression $(Y_i = \beta_1+\beta_2X_i+\varepsilon_i)$: $R^2 = \hat \rho^2$ is the [square empirical correlation]{style="background-color: yellow;"} between $Y$ and $X$
+
+## Adjusted $R^2$
+
+. . .
+
+Main flaw of $R^2$: [adding a new variables decreases $R^2$]{style="background-color: yellow;"} (because $[X]$ is a bigger projection space)
+
+. . .
+
+::: {.columns}
+::: {.column}
+::: {.callout-note}
+## $R^2$ if $\1 \in [X]$
+$$R^2_a = 1-\frac{n-1}{n-p}\frac{SSR}{SST}$$
+:::
+:::
+::: {.column}
+::: {.callout-note}
+## $R^2$ if $\1 \not \in [X]$
+
+$$R^2_a = 1 - \frac{n}{n-p}\frac{SCR}{\|Y\|^2}$$
+:::
+::: 
+
+:::
+
+. . .
+
+With a [new variable]{style="background-color: yellow;"}, $SCR$ decreases but [$p \to p+1$]{style="background-color: yellow;"}
+
+. . .
+
+[$R_a^2$​ only decreases]{style="background-color: yellow;"} when adding a new variable [if that variable significantly]{style="background-color: yellow;"} reduces the residual sum of squares. ()
+
+
+## R output interpretation
+
+```
+Residuals:
+   Min     1Q Median     3Q    Max 
+-8.065 -3.107  0.152  3.495  9.587 
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -36.9435     3.3651  -10.98 7.62e-12 ***
+Girth         5.0659     0.2474   20.48  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 4.252 on 29 degrees of freedom
+Multiple R-squared:  0.9353,    Adjusted R-squared:  0.9331 
+```
+
+Here, $R^2=0.9353$ and $R^2_a=0.9331$.
+
+. . .
+
+$\approx 93\%$ of the variability is explained by the model.
+
+# Testing Linear Constraints on $\beta$
+
+## Linear Constraints
+
+. . .
+
+We want to test **q linear constraints** on the coefficient vector $\beta \in \mathbb R^p$.
+
+. . .
+
+This is formulated as:
+$$H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0$$
+
+where **R** is a (q × p) constraint matrix encoding the restrictions, with $q \leq p$.
+
+## Common Test Types
+
+$$H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0$$
+
+- **Student's t-test**: is variable $j$ significant? \
+[$H_0: \beta_j = 0$ vs $H_1: \beta_j \neq 0$]{style="background-color: lightblue;"}
+- **Global F-test**: is any variable significant? Identity matrix excluding intercept \
+[$H_0: \beta_2 = \cdots = \beta_p = 0$ vs $H_1: \exists j \in \{2,\ldots,p\}$ s.t. $\beta_j \neq 0$ ]{style="background-color: lightblue;"}
+- **Nested model test**: are q variables jointly significant? \
+[$H_0: \beta_{p-q+1} = \cdots = \beta_p = 0$ vs $H_1$: the contrary]{style="background-color: lightblue;"}
+
+
+## Key Applications
+
+- **Individual significance**: Testing if a single predictor matters
+- **Overall model significance**: Testing if the model explains anything beyond the intercept  
+- **Variable subset significance**: Testing if a group of variables contributes to the model
+
+## Fisher Test
+
+::: {.callout-note}
+## Theorem
+
+- $SSR$: sum of squares of residuals in the unconstrained regression model
+- $SSR_c$: sum of squares of residuals in the constrained regression model, i.e., in the sub-model satisfying $R\beta = 0$
+  
+::: {.fragment}
+If $\text{rank}(X) = p$, $\text{rank}(R)=q$ and $\varepsilon \sim N(0, \sigma^2 I_n)$, then under $H_0: R\beta = 0$:
+
+$$F = \frac{n-p}{q} \cdot \frac{{SSR}_c - {SSR}}{{SSR}} \sim F(q, n-p)$$
+
+where $F(q, n-p)$ denotes the Fisher distribution with $(q, n-p)$ degrees of freedom. [Elements of proof](../lectures/validation.qmd#F-Test)
+:::
+:::
+
+
+## Rejection Region
+
+. . .
+
+Key argument: $SSR_c - SSR$ is equal to $\|P_{V}Y\|^2$, where $V=X(Ker(R))^{\perp} \cap [X]$ and $\text{dim}(V)=q$.
+
+. . .
+
+Therefore, the critical region at significance level $\alpha$ for testing $H_0: R\beta = 0$ against $H_1: R\beta \neq 0$ is:
+
+::: {.square-def}
+$$RC_\alpha = \{F > f_{q,n-p}(1-\alpha)\}$$
+:::
+
+
+
+where $f_{q,n-p}(1-\alpha)$ denotes the $(1-\alpha)$-quantile of an $F(q, n-p)$ distribution.
+
+
+
+## Particular Case 1: Student Test
+
+. . .
+
+Fix some variable $j$ and consider
+
+::: {.square-def}
+$H_0: \beta_j=0$ VS $H_1:\beta_j\neq 0$
+:::
+
+
+
+. . .
+
+Only one constraint: $q=1$, so that
+
+::: {.square-def}
+$$ F = (n-p) \frac{SCR_c-SCR}{SCR} \sim \mathcal F(1,n-p) \sim \mathcal T^2(n-p)$$
+:::
+
+
+
+. . .
+
+In fact, Here $F = \big(\tfrac{\hat \beta_j}{\hat \sigma_{\hat \beta_j}}\big)^2$ so [$F$ is the student test]{style="background-color: yellow;"} presented before
+
+
+## Particular Case 2: Global Fisher Test
+
+. . .
+
+::: {.square-def}
+$H_0: \beta_2= \dots = \beta_p=0$ VS $H_1$: contrary
+:::
+
+$q = p-1$ in this case
+. . .
+
+::: {.square-def}
+$$F = \frac{n-p}{p-1}\frac{SSE}{SSR} = \frac{n-p}{p-1}\frac{R^2}{1-R^2} \sim \mathcal F(p-1, n-p)$$
+:::
+
+## Particular Case 3: Nested Fisher Test
+
+
+. . .
+
+::: {.square-def}
+$H_0: \beta_{p-q+1}= \dots = \beta_p=0$ VS $H_1$: contrary
+:::
+
+
+. . .
+
+::: {.square-def}
+$$F = \frac{n-p}{q}\frac{SCR_c - SCR}{SCR} \sim \mathcal F(q, n-p)$$
+:::
+
+. . .
+
+Interpretation:
+
+If [$F \geq f_{q,n-p}(1-\alpha)$]{style="background-color: yellow;"} ($1-\alpha$-quantile of Fisher dist.) then constraints are not satisfied. We [do not accept the submodel]{style="background-color: yellow;"} with respect to larger model.
+
+
+## Example of R Output
+
+```
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -36.9435     3.3651  -10.98 7.62e-12 ***
+Girth         5.0659     0.2474   20.48  < 2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 4.252 on 29 degrees of freedom
+Multiple R-squared:  0.9353,    Adjusted R-squared:  0.9331 
+F-statistic: 419.4 on 1 and 29 DF,  p-value: < 2.2e-16
+```
+
+. . .
+
+Here, Fisher global significance test statistic is $F=419.4$, $q=1$ and $n-p=29$ ($n=31$). [pvalue is negligible]{style="background-color: yellow;"}
+
+. . .
+
+Here, $q=1$ and $Global Fisher test$ is a [Student Test]{style="background-color: yellow;"}.
+
+
+# Verification of Model Hypotheses
+
+## Model Assumptions
+
+The linear regression model relies on the following key assumptions:
+
+- **Model specification**: $Y = X\beta + \varepsilon$ (linear relationship)
+- **Full rank design**: $\text{rank}(X) = p$ (no perfect multicollinearity)
+- **Zero mean errors**: $\mathbb{E}(\varepsilon) = 0$
+- **Homoscedastic errors**: $\text{Var}(\varepsilon) = \sigma^2 I_n$ (constant variance and uncorrelated errors)
+
+. . .
+
+Now: diagnostic tools to [verify each assumption]{style="background-color: yellow;"} and remedial strategies when they fail.
+
+
+## Linearity Assumption
+
+The linearity assumption $\mathbb{E}(Y) = X\beta$ is the fundamental hypothesis of linear regression.
+
+**Diagnostic Tools:**
+
+- **Pre-modeling**: Scatter plots $(X^{(j)}, Y)$ and empirical correlations for each predictor
+- **Post-modeling**: Residual analysis - non-linearity manifests as patterns in $\hat{\varepsilon}$
+- **Advanced**: Partial residual plots (not covered here)
+
+## Linearity Assumption
+
+The linearity assumption $\mathbb{E}(Y) = X\beta$ is the fundamental hypothesis of linear regression.
+
+**Remedial Strategies:**
+
+- **Transformations**: Apply transformations to $Y$ and/or predictors $X^{(j)}$ to achieve linearity
+- **Alternative models**: If transformations fail, consider nonlinear regression models
+
+## Full Rank Assumption
+
+The condition $\text{rank}(X) = p$ ensures no predictor $X^{(j)}$ is a linear combination of others.
+
+. . .
+
+**Why it matters:**
+
+- **Identifiability**: Without full rank, $\beta$ is not uniquely defined
+- **Estimation**: $(X^TX)$ becomes non-invertible, making $\hat{\beta} = (X^TX)^{-1}X^TY$ undefined
+ - Infinitely many solutions satisfy $X^TX\hat{\beta} = X^TY$
+
+## Full Rank Assumption
+
+The condition $\text{rank}(X) = p$ ensures no predictor $X^{(j)}$ is a linear combination of others.
+
+**In practice:**
+
+- Perfect collinearity is rare, so $\text{rank}(X) = p$ usually holds
+- **Near-collinearity** is the real concern - when predictors are "almost" linearly dependent
+
+## Near-Collinearity Issues
+
+When a variable is highly correlated with others (correlation close to but not exactly $\pm 1$):
+
+. . .
+
+**Mathematical consequences:**
+
+- $X'X$ remains invertible, but its smallest eigenvalue approaches zero
+- $(X'X)^{-1}$ becomes numerically unstable
+
+## Near-Collinearity Issues
+
+. . .
+
+**Statistical implications:**
+
+- **Instability**: Adding/removing a single observation can drastically change $(X'X)^{-1}$
+- **Unreliable estimates**: $\hat{\beta} = (X'X)^{-1}X'Y$ becomes highly unstable
+- **Inflated variance**: $\text{Var}(\hat{\beta}) = \sigma^2(X'X)^{-1}$ becomes very large
+
+. . .
+
+This is undesirable from a statistical point of view
+
+## Detecting Collinearity: VIF
+
+Compute the VIF (Variance Inflation Factor) for each $X^{(j)}$:
+
+1. Regress $X^{(j)}$ on all other $X^{(k)}$ (where $k \neq j$)
+2. Compute $R_j^2$ from this regression
+3. Calculate: $\text{VIF}_j = \frac{1}{1 - R_j^2}$
+
+. . .
+
+**Properties:**
+
+- $\text{VIF}_j \geq 1$ always
+- High VIF indicates collinearity. Common threshold: [$\text{VIF}_j \geq 5$]{style="background-color: yellow;"}. In R: `vif()` from `car` package
+
+
+## Remedies for Multicollinearity
+
+- **Variable removal**: Drop variables with high VIF
+ - Preferably remove those least correlated with $Y$
+- **Penalized regression**: Ridge, LASSO, or elastic net methods (not covered here)
+
+. . .
+
+**Important Distinction on Multicollinearity**
+
+- **Parameter estimation**: Multicollinearity severely affects $\hat{\beta}$ reliability
+- **Prediction**: Not problematic: $\hat{Y}$ remains well-defined and stable since [projection on $[X]$ is still unique]{style="background-color: yellow;"}

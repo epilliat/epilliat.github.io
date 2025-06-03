@@ -1,0 +1,266 @@
+---
+title: "Linear Regression Model"
+format: 
+  html:
+    incremental: true
+    callout-icon: false
+    theme: [default]
+smaller: true
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+AI was used to assist with the formatting and writing of the proofs on this page.
+
+
+# Gauss Markov
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+$\newcommand{\E}{\mathbb E}$
+$\newcommand{\P}{\mathbb P}$
+$\newcommand{\Var}{\mathbb V}$
+
+::: {.callout-note}
+## Gauss-Markov
+
+Under the same assumptions, if $\tilde \beta$ is another [linear and unbiased estimator]{style="background-color: yellow;"} then $$\mathbb V(\hat \beta) \preceq \mathbb V(\tilde \beta),$$
+
+where $A\preceq B$  means that $B-A$ is a symmetric positive semidefinite matrix
+
+:::
+
+## Proof of the Gauss-Markov Theorem
+
+### Setup
+Let $\tilde{\beta} = CY$ be any linear unbiased estimator of $\beta$, where $C$ is an $n \times p$ matrix of constants.
+
+### Step 1: Unbiasedness Constraint
+Since $\tilde{\beta}$ is unbiased: $\E[\tilde{\beta}] = \beta$ for all $\beta$
+
+$$\E[\tilde{\beta}] = \E[CY] = \E[C(X\beta + \varepsilon)]$$
+
+$$= CX\beta + C\E[\varepsilon] = CX\beta$$
+
+For unbiasedness: $CX\beta = \beta$ for all $\beta$
+
+Therefore: $CX = I$ (the $p \times p$ identity matrix)
+
+### Step 2: Express Any Linear Unbiased Estimator
+Since $CX = I$, we can write:
+$$C = (X^TX)^{-1}X^T + D$$
+
+where $D$ is any matrix satisfying $DX = 0$.
+
+*Verification*: $(X^TX)^{-1}X^TX + DX = I + 0 = I$ ✓
+
+### Step 3: Express the Estimator
+$$\tilde{\beta} = CY = [(X^TX)^{-1}X^T + D]Y$$
+
+$$= (X^TX)^{-1}X^TY + DY$$
+
+$$= \hat{\beta} + DY$$
+
+### Step 4: Calculate Variance
+$$\text{Var}(\tilde{\beta}) = \text{Var}(\hat{\beta} + DY)$$
+
+$$= \text{Var}(\hat{\beta}) + \text{Var}(DY) + 2\text{Cov}(\hat{\beta}, DY)$$
+
+### Step 5: Show Covariance Term is Zero
+$$\text{Cov}(\hat{\beta}, DY) = \text{Cov}((X^TX)^{-1}X^TY, DY)$$
+
+$$= (X^TX)^{-1}X^T \text{Cov}(Y, Y) D^T$$
+
+$$= (X^TX)^{-1}X^T (\sigma^2I) D^T$$
+
+$$= \sigma^2(X^TX)^{-1}X^TD^T$$
+
+Since $DX = 0$, we have $X^TD^T = 0$, therefore:
+$$\text{Cov}(\hat{\beta}, DY) = 0$$
+
+### Step 6: Final Comparison
+$$\text{Var}(\tilde{\beta}) = \text{Var}(\hat{\beta}) + \text{Var}(DY)$$
+
+$$= \sigma^2(X^TX)^{-1} + \sigma^2DD^T$$
+
+Since $DD^T \succeq 0$ (positive semidefinite), we have:
+
+$$\text{Var}(\tilde{\beta}) - \text{Var}(\hat{\beta}) = \sigma^2DD^T \succeq 0$$
+
+### Conclusion
+This proves that $\text{Var}(\hat{\beta}) \preceq \text{Var}(\tilde{\beta})$ in the matrix sense, establishing that the OLS estimator $\hat{\beta}$ has minimum variance among all linear unbiased estimators. □
+
+
+
+
+
+# Maximum Likelihood Estimators for Linear Regression
+
+## Maximum Likelihood Estimator
+
+::: {.callout-note}
+## MLE
+Let $\hat \beta_{MLE}$ and $\hat \sigma_{MLE}^2$ be the MLE of $\beta$ and $\sigma^2$, respectively.
+
+
+- $\hat{\beta}_{MLE} = \hat{\beta}$ et $\hat{\sigma}^2_{MLE} = \frac{SCR}{n} = \frac{n-p}{n} \hat{\sigma}^2$.
+
+- $\hat{\beta} \sim N(\beta, \sigma^2(X^TX)^{-1})$.
+
+- $\frac{n-p}{\sigma^2} \hat{\sigma}^2 = \frac{n}{\sigma^2} \hat{\sigma}^2_{MLE} \sim \chi^2(n - p)$.
+
+- $\hat{\beta}$ and $\hat{\sigma}^2$ are independent
+
+:::
+
+## Proof {#proof-mle}
+
+### Setup
+Model: $Y = X\beta + \varepsilon$ where $\varepsilon \sim N(0, \sigma^2 I)$
+
+This means: $Y \sim N(X\beta, \sigma^2 I)$
+
+### Likelihood Function
+
+For $n$ observations, the likelihood function is:
+
+$$L(\beta, \sigma^2) = (2\pi\sigma^2)^{-n/2} \exp\left(-\frac{1}{2\sigma^2} (Y - X\beta)^T(Y - X\beta)\right)$$
+
+### Log-Likelihood Function
+
+$$\ell(\beta, \sigma^2) = \log L(\beta, \sigma^2) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T(Y - X\beta)$$
+
+$$\ell(\beta, \sigma^2) = -\frac{n}{2} \log(2\pi) - \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T(Y - X\beta)$$
+
+### Finding MLE for $\beta$
+
+Taking the partial derivative with respect to $\beta$:
+
+$$\frac{\partial \ell}{\partial \beta} = \frac{1}{\sigma^2} X^T(Y - X\beta)$$
+
+Setting equal to zero:
+$$X^T(Y - X\hat{\beta}_{MLE}) = 0$$
+
+$$X^TY - X^TX\hat{\beta}_{MLE} = 0$$
+
+$$X^TX\hat{\beta}_{MLE} = X^Ty$$
+
+Therefore: 
+$$\hat{\beta}_{MLE} = (X^TX)^{-1}X^Ty$$
+
+### Finding MLE for $\sigma^2$
+
+Taking the partial derivative with respect to $\sigma^2$:
+
+$$\frac{\partial \ell}{\partial \sigma^2} = -\frac{n}{2\sigma^2} + \frac{1}{2\sigma^4} (Y - X\beta)^T(Y - X\beta)$$
+
+Setting equal to zero:
+$$-\frac{n}{2\sigma^2} + \frac{1}{2\sigma^4} (Y - X\hat{\beta}_{MLE})^T(Y - X\hat{\beta}_{MLE}) = 0$$
+
+Multiplying by $2\sigma^4$:
+$$-n\sigma^2 + (y - X\hat{\beta}_{MLE})^T(y - X\hat{\beta}_{MLE}) = 0$$
+
+Therefore: 
+$$\hat{\sigma}^2 = \frac{1}{n} (y - X\hat{\beta}_{MLE})^T(y - X\hat{\beta}_{MLE}) = \frac{SSR}{n}$$
+
+### Verification (Second-Order Conditions)
+
+The Hessian matrix has:
+
+$$\frac{\partial^2 \ell}{\partial \beta \partial \beta'} = -\frac{1}{\sigma^2} X^TX$$
+
+This is negative definite (assuming $X^TX$ is invertible), confirming $\hat{\beta}$ is a maximum.
+
+$$\frac{\partial^2 \ell}{\partial (\sigma^2)^2} = \frac{n}{2\sigma^4} - \frac{1}{\sigma^6} (y - X\beta)^T(y - X\beta)$$
+
+At the MLE: $\frac{\partial^2 \ell}{\partial (\sigma^2)^2}\bigg|_{\hat{\sigma}^2} = \frac{n}{2\sigma^4} - \frac{n}{\sigma^4} = -\frac{n}{2\sigma^4} < 0$
+
+This confirms $\hat{\sigma}^2$ is a maximum.
+
+### Key Properties
+
+- Consistency: Both estimators are consistent
+- Bias: $\hat{\beta}$ is unbiased, but $\hat{\sigma}^2$ is biased (divides by $n$ instead of $n-k$)
+- Efficiency: Under normality, these MLEs achieve the Cramér-Rao lower bound
+- Relationship to OLS: $\hat{\beta}_{MLE} = \hat{\beta}_{OLS}$ under normality assumption
+
+
+
+
+# $\hat \beta$ is an Efficient Estimator in the Gaussian Model {#efficient-beta}
+
+::: {.callout-note}
+## Theorem
+In the Gaussian Model, $\hat \beta$ is an [efficient]{style="background-color: yellow;"} estimator of $\hat \beta$. This means that 
+$$
+\Var(\hat \beta) \preceq \Var(\tilde \beta)\; ,
+$$
+for [any]{style="background-color: yellow;"} estimator $\tilde \beta$
+
+:::
+
+## Setup
+Consider the linear regression model:
+$$Y = X\beta + \varepsilon, \quad \varepsilon \sim N(0, \sigma^2 I)$$
+
+We want to prove that $\hat \beta = (X^TX)^{-1}X^TY$ is efficient.
+
+## Definition of Efficiency
+An unbiased estimator is efficient if it achieves the Cramér-Rao lower bound:
+$$\text{Var}(\hat \beta) = [I(\beta)]^{-1}$$
+where $I(\beta)$ is the Fisher Information Matrix.
+This comes from the [Cramér-Rao lower bound](../notes/cramer-rao.qmd) 
+
+## Step 1: Fisher Information Matrix
+
+The log-likelihood function is:
+$$\ell(\beta, \sigma^2) = -\frac{n}{2}\log(2\pi) - \frac{n}{2}\log(\sigma^2) - \frac{1}{2\sigma^2}(Y - X\beta)^T(Y - X\beta)$$
+
+First derivative with respect to $\beta$:
+$$\frac{\partial \ell}{\partial \beta} = \frac{1}{\sigma^2}X^T(Y - X\beta)$$
+
+Second derivative:
+$$\frac{\partial^2 \ell}{\partial \beta \partial \beta^T} = -\frac{1}{\sigma^2}X^TX$$
+
+Fisher Information Matrix for $\beta$:
+$$I(\beta) = -\mathbb{E}\left[\frac{\partial^2 \ell}{\partial \beta \partial \beta^T}\right] = \frac{1}{\sigma^2}X^TX$$
+
+Cramér-Rao lower bound:
+$$[I(\beta)]^{-1} = \sigma^2(X^TX)^{-1}$$
+
+## Step 2: Variance of $\hat \beta$
+
+$$\hat \beta = (X^TX)^{-1}X^TY = (X^TX)^{-1}X^T(X\beta + \varepsilon) = \beta + (X^TX)^{-1}X^T\varepsilon$$
+
+Since $\varepsilon \sim N(0, \sigma^2 I)$:
+$$\text{Var}(\hat \beta) = \text{Var}((X^TX)^{-1}X^T\varepsilon)$$
+
+$$= (X^TX)^{-1}X^T \cdot \text{Var}(\varepsilon) \cdot X(X^TX)^{-1}$$
+
+$$= (X^TX)^{-1}X^T \cdot \sigma^2 I \cdot X(X^TX)^{-1}$$
+
+$$= \sigma^2(X^TX)^{-1}X^TX(X^TX)^{-1}$$
+
+$$= \sigma^2(X^TX)^{-1}$$
+
+## Step 3: Verification of Efficiency
+
+We have shown:
+- Cramér-Rao bound: $[I(\beta)]^{-1} = \sigma^2(X^TX)^{-1}$
+- Variance of $\hat \beta$: $\text{Var}(\hat \beta) = \sigma^2(X^TX)^{-1}$
+
+Since:
+$$\text{Var}(\hat \beta) = [I(\beta)]^{-1}$$
+
+The estimator $\hat \beta$ achieves the Cramér-Rao lower bound.
+
+## Conclusion
+
+Therefore, $\hat \beta = (X^TX)^{-1}X^TY$ is an efficient estimator of $\beta$ in the Gaussian linear regression model.
+
+## Additional Notes
+
+- This efficiency holds specifically under the normality assumption
+- $\hat \beta$ is also the Best Linear Unbiased Estimator (BLUE) by the Gauss-Markov theorem
+- Under normality, $\hat \beta$ is the Best Unbiased Estimator (BUE) among all estimators, not just linear ones
