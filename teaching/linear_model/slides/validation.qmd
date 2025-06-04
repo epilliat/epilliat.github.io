@@ -388,8 +388,8 @@ Compute the VIF (Variance Inflation Factor) for each $X^{(j)}$:
 
 ## Remedies for Multicollinearity
 
-- **Variable removal**: Drop variables with high VIF
- - Preferably remove those least correlated with $Y$
+- **Variable removal**: [Drop variables]{style="background-color: yellow;"} with high VIF
+ - Preferably remove those [least correlated with $Y$]{style="background-color: yellow;"}
 - **Penalized regression**: Ridge, LASSO, or elastic net methods (not covered here)
 
 . . .
@@ -398,3 +398,318 @@ Compute the VIF (Variance Inflation Factor) for each $X^{(j)}$:
 
 - **Parameter estimation**: Multicollinearity severely affects $\hat{\beta}$ reliability
 - **Prediction**: Not problematic: $\hat{Y}$ remains well-defined and stable since [projection on $[X]$ is still unique]{style="background-color: yellow;"}
+
+
+## Analysis of the Residuals
+
+. . .
+
+Recall that [$\hat \varepsilon = Y - \widehat Y = P_{[X]^{\perp}} \varepsilon$]{style="background-color: lightblue;"}
+
+. . .
+
+### Residual Properties
+
+- $\E(\hat{\varepsilon}) = 0$
+- $\Var(\hat{\varepsilon}) = \sigma^2P_{[X]}^{\perp}$
+- $\text{Cov}(\hat{\varepsilon}, \hat{Y}) = 0$
+- If $\1 \in [X]$: $\bar{\hat{\varepsilon}} = 0$
+
+## Diagnostic Tools
+
+1. **Graphical Assessment:** Visual evaluation of model quality
+
+2. **Homoscedasticity Test:**
+Test: $\Var(\varepsilon_i) = \sigma^2$ for all $i$ (constant variance)
+3. **Non-correlation Test:**  
+Test: $\Var(\varepsilon)$ is diagonal (uncorrelated errors)
+
+4. **Normality Test:** Examine normality of residuals
+
+
+
+## Residual vs. Fitted Plot
+
+. . .
+
+The [scatter plot between $\hat{Y}$ and $\hat{\varepsilon}$]{style="background-color: yellow;"} is informative.
+
+Since $\text{Cov}(\hat{\varepsilon}, \hat{Y}) = 0$, [no structure should appear]{style="background-color: yellow;"}.
+
+If patterns emerge, this may indicate violations of:
+
+- Linearity assumption
+- Homoscedasticity assumption  
+- Non-correlation assumption
+- Or a combination of these...
+
+## Homosced. Test (Breusch-Pagan)
+
+
+. . .
+
+We want to test whether $\Var(\varepsilon_i)=\sigma^2, ~~\forall i$
+
+. . .
+
+**Principle**: Assume $\varepsilon_i$ has variance [$\sigma_i^2 = \sigma^2 + z_i^T\gamma$]{style="background-color: lightblue;"} where:
+
+- [$z_i$ is a $k$-vector]{style="background-color: orange;"} of variables that might explain [heteroscedasticity]{style="background-color: orange;"} ([known]{style="background-color: yellow;"})
+- **Default in R**: $z_i = (X_i^{(1)}, \ldots, X_i^{(p)})$, so $k = p$
+- $\gamma$ is an [unknown]{style="background-color: yellow;"} $k$-dimensional parameter
+
+. . .
+
+
+. . .
+
+$H_0: \gamma = 0$ ([homosced.]{style="background-color: lightgreen;"}) VS $H_1: \gamma \neq 0$ ([heterosced.]{style="background-color: orange;"})
+
+. . .
+
+**R function**: `bptest` from `lmtest` library
+
+## Consequences of Heteroscedasticity
+
+. . .
+
+**What happens**:
+
+- OLS estimation of $\beta$ is no longer optimal but remains consistent
+- Inference tools (tests, confidence intervals) become invalid because they rely on $\hat{\sigma}^2$ estimation
+
+
+## Solutions for Heteroscedasticity
+
+
+- **Transformation**: Transform $Y$ (e.g., log transformation) to stabilize variance
+- **Modeling**: Model heteroscedasticity explicitly and account for it in estimation
+- **GLS**: Use Generalized Least Squares (not detailed here)
+
+
+## 3. Non-correlation Test
+
+. . .
+
+**Purpose**: Test if $\Var(\varepsilon)$ is diagonal (uncorrelated errors)
+
+. . .
+
+Correlation between $\varepsilon_i$ [often occurs with temporal data]{style="background-color: yellow;"} (index $i$ represents time)
+
+. . .
+
+**Auto-correlation Model of order $r$**:
+
+::: {.square-def}
+$$\varepsilon_i = \rho_1 \varepsilon_{i-1} + \dots + \rho_r \varepsilon_{i-r} + \eta_i$$
+where $\eta_i \sim \text{iid } N(0, \sigma^2)$
+:::
+
+
+
+## Tests for Correlation
+
+. . .
+
+In the auto-correlation model [$\varepsilon_i = \rho_1 \varepsilon_{i-1} + \dots + \rho_r \varepsilon_{i-r} + \eta_i$]{style="background-color: lightblue;"}: 
+
+. . .
+
+**Durbin-Watson Test** (for $r = 1$ only):
+
+- [$H_0: \rho_1 = 0$ VS $H_1: \rho_1 \neq 0$]{style="background-color: lightblue;"}
+- **R function**: `dwtest` from `lmtest`
+
+. . .
+
+**Breusch-Godfrey Test** (for any $r$):
+
+- [$H_0: \rho_1 = \cdots = \rho_r = 0$ VS $H_1:$ at least one $\rho_j \neq 0$]{style="background-color: lightblue;"}
+- User chooses order $r$ (default $r = 1$)
+- **R function**: `bgtest` from `lmtest`
+
+
+## Consequences of Auto-correlation
+
+- OLS estimation of $\beta$ is no longer optimal but remains consistent
+- Inference tools (tests, confidence intervals) become invalid
+
+. . .
+
+**Solutions:**
+
+- **GLS modeling**: Model the dependence structure (complex, risky if wrong)
+- **Model improvement**: [Exploit the dependence]{style="background-color: yellow;"} to enhance the model
+- **Ex**: [Explain $Y_i$ using $Y_{i-1}$]{style="background-color: yellow;"} in addition to $(X_i^{(1)}, \dots, X_i^{(p)})$
+
+## 4. Normality Test
+
+. . .
+
+**Purpose**: Examine normality of residuals $\hat \varepsilon$
+
+**Reminder on Normality Assumption**
+
+- **Not essential** when $n$ is large
+- All tests remain **asymptotically valid**
+- Only **prediction intervals** truly require normality
+
+. . .
+
+
+**Why examine it anyway?**
+
+If $\varepsilon \sim N(0, \sigma^2 I_n)$ then [$\hat{\varepsilon} \sim N(0, \sigma^2 P_{[X]}^{\perp})$]{style="background-color: lightblue;"}
+
+
+## Diagnostic Tools for Normality of $\hat \varepsilon$
+
+. . .
+
+**Q-Q Plot (Henry's line)**:
+
+- Plot theoretical vs. sample quantiles of $\hat{\varepsilon}$
+- **R function**: `qqnorm`
+
+. . .
+
+**Shapiro-Wilk, $\chi^2$ or KS Tests**:
+
+- Formal test of normality for $\hat{\varepsilon}$
+- $H_0$: residuals are normally distributed
+- $H_1$: residuals are not normally distributed
+- **R function**: `shapiro.test`
+
+
+## Outlier Analysis
+
+. . .
+
+An individual is atypical when:
+
+1. **Poorly explained** by the model, and/or
+2. **Heavily influences** coefficient estimation
+
+. . .
+
+**Identify** these individuals to:
+
+- **Understand** the reason for this particularity
+- **Potentially modify** the model accordingly  
+- **Potentially exclude** the individual from the study
+
+
+## Poorly Explained Individuals
+
+. . .
+
+Individual $i$ is poorly explained if its residual [$\hat{\varepsilon}_i$ is "abnormally" large]{style="background-color: yellow;"}.
+
+. . .
+
+**How to quantify "abnormally"?**
+
+Let [$h_{ij}$]{style="background-color: lightblue;"} be elements of matrix $P_{[X]}$ (hat matrix).
+
+For a Gaussian model: [$\hat{\varepsilon}_i \sim N(0, (1-h_{ii})\sigma^2)$]{style="background-color: lightblue;"}
+
+
+. . .
+
+**Standardized Residuals**
+
+::: {.square-def}
+$$t_i = \frac{\hat{\varepsilon}_i}{\hat{\sigma}\sqrt{1-h_{ii}}}$$
+:::
+
+
+## Poorly Explained Individuals
+
+. . .
+
+::: {.square-def}
+$$h_{ij} = (P_{[X]})_{ij} \and t_i = \frac{\hat{\varepsilon}_i}{\hat{\sigma}\sqrt{1-h_{ii}}}$$
+
+:::
+
+
+
+. . .
+
+We expect $t_i \sim St(n-p)$ (not strictly true since $\hat{\varepsilon}_i \not\perp \hat{\sigma}^2$)
+
+::: {.callout-note}
+## Definition
+Individual $i$ is considered poorly explained by the model if:
+$$|t_i| > t_{n-p}(1-\alpha/2)$$
+for predetermined $\alpha$, typically $\alpha = 0.05$, giving $t_{n-p}(1-\alpha/2) \approx 2$.
+:::
+
+
+
+## Leverage Points
+
+. . .
+
+A point is influential if it [contributes significantly to $\hat{\beta}$]{style="background-color: yellow;"} estimation.
+
+. . .
+
+**Leverage value**: $h_{ii}$ corresponds to the weight of $Y_i$ on its own estimation $\hat{Y}_i$
+
+. . .
+
+We know that: $\sum_{i=1}^n h_{ii} = \text{tr}(P_{[X]}) = p$
+
+. . .
+
+Therefore, on average: $h_{ii} \approx p/n$
+
+. . .
+
+::: {.callout-note}
+## Definition
+Individual $i$ is called a **leverage point** if $h_{ii} \gg p/n$
+
+Typically: $h_{ii} > 2p/n$ or $h_{ii} > 3p/n$
+:::
+
+
+## Outlier Analysis: Cook's Distance
+
+. . .
+
+**Cook's Distance**
+
+Quantifies the influence of individual $i$ on $\hat{Y}$:
+
+::: {.square-def}
+$$C_i = \frac{\|\hat{Y} - \hat{Y}_{(-i)}\|^2}{p\hat{\sigma}^2}$$
+:::
+
+
+where $\hat{Y}_{(-i)} = X\hat{\beta}_{(-i)}$ with $\hat{\beta}_{(-i)}$: estimation of $\beta$ without individual $i$
+
+
+## Cook's Distance, Alternative Formula
+
+. . .
+
+::: {.square-def}
+$$C_i = \frac{1}{p} \cdot \frac{h_{ii}}{1-h_{ii}} \cdot t_i^2,$$
+:::
+
+
+where [$t_i = \frac{\hat{\varepsilon}_i}{\hat{\sigma}\sqrt{1-h_{ii}}}$]{style="background-color: lightblue;"}.
+
+This formula shows that Cook's distance $C_i$ combines:
+
+1. **Aberrant effect** of individual (through $t_i$)
+2. **Leverage effect** (through $h_{ii}$)
+
+. . .
+
+**R functions**: `cooks.distance` and last plot of `plot.lm`
+
+

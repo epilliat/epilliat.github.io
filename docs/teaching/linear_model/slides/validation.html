@@ -487,8 +487,8 @@ F-statistic: 419.4 on 1 and 29 DF,  p-value: &lt; 2.2e-16</code></pre>
 <section id="remedies-for-multicollinearity" class="slide level2">
 <h2>Remedies for Multicollinearity</h2>
 <ul>
-<li class="fragment"><strong>Variable removal</strong>: Drop variables with high VIF</li>
-<li class="fragment">Preferably remove those least correlated with <span class="math inline">\(Y\)</span></li>
+<li class="fragment"><strong>Variable removal</strong>: <span style="background-color: yellow;">Drop variables</span> with high VIF</li>
+<li class="fragment">Preferably remove those <span style="background-color: yellow;">least correlated with <span class="math inline">\(Y\)</span></span></li>
 <li class="fragment"><strong>Penalized regression</strong>: Ridge, LASSO, or elastic net methods (not covered here)</li>
 </ul>
 <div class="fragment">
@@ -497,6 +497,283 @@ F-statistic: 419.4 on 1 and 29 DF,  p-value: &lt; 2.2e-16</code></pre>
 <li class="fragment"><strong>Parameter estimation</strong>: Multicollinearity severely affects <span class="math inline">\(\hat{\beta}\)</span> reliability</li>
 <li class="fragment"><strong>Prediction</strong>: Not problematic: <span class="math inline">\(\hat{Y}\)</span> remains well-defined and stable since <span style="background-color: yellow;">projection on <span class="math inline">\([X]\)</span> is still unique</span></li>
 </ul>
+</div>
+</section>
+<section id="analysis-of-the-residuals" class="slide level2">
+<h2>Analysis of the Residuals</h2>
+<div class="fragment">
+<p>Recall that <span style="background-color: lightblue;"><span class="math inline">\(\hat \varepsilon = Y - \widehat Y = P_{[X]^{\perp}} \varepsilon\)</span></span></p>
+</div>
+<div class="fragment">
+<h3 id="residual-properties">Residual Properties</h3>
+<ul>
+<li class="fragment"><span class="math inline">\(\E(\hat{\varepsilon}) = 0\)</span></li>
+<li class="fragment"><span class="math inline">\(\Var(\hat{\varepsilon}) = \sigma^2P_{[X]}^{\perp}\)</span></li>
+<li class="fragment"><span class="math inline">\(\text{Cov}(\hat{\varepsilon}, \hat{Y}) = 0\)</span></li>
+<li class="fragment">If <span class="math inline">\(\1 \in [X]\)</span>: <span class="math inline">\(\bar{\hat{\varepsilon}} = 0\)</span></li>
+</ul>
+</div>
+</section>
+<section id="diagnostic-tools" class="slide level2">
+<h2>Diagnostic Tools</h2>
+<ol type="1">
+<li class="fragment"><p><strong>Graphical Assessment:</strong> Visual evaluation of model quality</p></li>
+<li class="fragment"><p><strong>Homoscedasticity Test:</strong> Test: <span class="math inline">\(\Var(\varepsilon_i) = \sigma^2\)</span> for all <span class="math inline">\(i\)</span> (constant variance)</p></li>
+<li class="fragment"><p><strong>Non-correlation Test:</strong><br>
+Test: <span class="math inline">\(\Var(\varepsilon)\)</span> is diagonal (uncorrelated errors)</p></li>
+<li class="fragment"><p><strong>Normality Test:</strong> Examine normality of residuals</p></li>
+</ol>
+</section>
+<section id="residual-vs.-fitted-plot" class="slide level2">
+<h2>Residual vs.&nbsp;Fitted Plot</h2>
+<div class="fragment">
+<p>The <span style="background-color: yellow;">scatter plot between <span class="math inline">\(\hat{Y}\)</span> and <span class="math inline">\(\hat{\varepsilon}\)</span></span> is informative.</p>
+<p>Since <span class="math inline">\(\text{Cov}(\hat{\varepsilon}, \hat{Y}) = 0\)</span>, <span style="background-color: yellow;">no structure should appear</span>.</p>
+<p>If patterns emerge, this may indicate violations of:</p>
+<ul>
+<li class="fragment">Linearity assumption</li>
+<li class="fragment">Homoscedasticity assumption<br>
+</li>
+<li class="fragment">Non-correlation assumption</li>
+<li class="fragment">Or a combination of these…</li>
+</ul>
+</div>
+</section>
+<section id="homosced.-test-breusch-pagan" class="slide level2">
+<h2>Homosced. Test (Breusch-Pagan)</h2>
+<div class="fragment">
+<p>We want to test whether <span class="math inline">\(\Var(\varepsilon_i)=\sigma^2, ~~\forall i\)</span></p>
+</div>
+<div class="fragment">
+<p><strong>Principle</strong>: Assume <span class="math inline">\(\varepsilon_i\)</span> has variance <span style="background-color: lightblue;"><span class="math inline">\(\sigma_i^2 = \sigma^2 + z_i^T\gamma\)</span></span> where:</p>
+<ul>
+<li class="fragment"><span style="background-color: orange;"><span class="math inline">\(z_i\)</span> is a <span class="math inline">\(k\)</span>-vector</span> of variables that might explain <span style="background-color: orange;">heteroscedasticity</span> (<span style="background-color: yellow;">known</span>)</li>
+<li class="fragment"><strong>Default in R</strong>: <span class="math inline">\(z_i = (X_i^{(1)}, \ldots, X_i^{(p)})\)</span>, so <span class="math inline">\(k = p\)</span></li>
+<li class="fragment"><span class="math inline">\(\gamma\)</span> is an <span style="background-color: yellow;">unknown</span> <span class="math inline">\(k\)</span>-dimensional parameter</li>
+</ul>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(H_0: \gamma = 0\)</span> (<span style="background-color: lightgreen;">homosced.</span>) VS <span class="math inline">\(H_1: \gamma \neq 0\)</span> (<span style="background-color: orange;">heterosced.</span>)</p>
+</div>
+<div class="fragment">
+<p><strong>R function</strong>: <code>bptest</code> from <code>lmtest</code> library</p>
+</div>
+</section>
+<section id="consequences-of-heteroscedasticity" class="slide level2">
+<h2>Consequences of Heteroscedasticity</h2>
+<div class="fragment">
+<p><strong>What happens</strong>:</p>
+<ul>
+<li class="fragment">OLS estimation of <span class="math inline">\(\beta\)</span> is no longer optimal but remains consistent</li>
+<li class="fragment">Inference tools (tests, confidence intervals) become invalid because they rely on <span class="math inline">\(\hat{\sigma}^2\)</span> estimation</li>
+</ul>
+</div>
+</section>
+<section id="solutions-for-heteroscedasticity" class="slide level2">
+<h2>Solutions for Heteroscedasticity</h2>
+<ul>
+<li class="fragment"><strong>Transformation</strong>: Transform <span class="math inline">\(Y\)</span> (e.g., log transformation) to stabilize variance</li>
+<li class="fragment"><strong>Modeling</strong>: Model heteroscedasticity explicitly and account for it in estimation</li>
+<li class="fragment"><strong>GLS</strong>: Use Generalized Least Squares (not detailed here)</li>
+</ul>
+</section>
+<section id="non-correlation-test" class="slide level2">
+<h2>3. Non-correlation Test</h2>
+<div class="fragment">
+<p><strong>Purpose</strong>: Test if <span class="math inline">\(\Var(\varepsilon)\)</span> is diagonal (uncorrelated errors)</p>
+</div>
+<div class="fragment">
+<p>Correlation between <span class="math inline">\(\varepsilon_i\)</span> <span style="background-color: yellow;">often occurs with temporal data</span> (index <span class="math inline">\(i\)</span> represents time)</p>
+</div>
+<div class="fragment">
+<p><strong>Auto-correlation Model of order <span class="math inline">\(r\)</span></strong>:</p>
+<div class="square-def">
+<p><span class="math display">\[\varepsilon_i = \rho_1 \varepsilon_{i-1} + \dots + \rho_r \varepsilon_{i-r} + \eta_i\]</span> where <span class="math inline">\(\eta_i \sim \text{iid } N(0, \sigma^2)\)</span></p>
+</div>
+</div>
+</section>
+<section id="tests-for-correlation" class="slide level2">
+<h2>Tests for Correlation</h2>
+<div class="fragment">
+<p>In the auto-correlation model <span style="background-color: lightblue;"><span class="math inline">\(\varepsilon_i = \rho_1 \varepsilon_{i-1} + \dots + \rho_r \varepsilon_{i-r} + \eta_i\)</span></span>:</p>
+</div>
+<div class="fragment">
+<p><strong>Durbin-Watson Test</strong> (for <span class="math inline">\(r = 1\)</span> only):</p>
+<ul>
+<li class="fragment"><span style="background-color: lightblue;"><span class="math inline">\(H_0: \rho_1 = 0\)</span> VS <span class="math inline">\(H_1: \rho_1 \neq 0\)</span></span></li>
+<li class="fragment"><strong>R function</strong>: <code>dwtest</code> from <code>lmtest</code></li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Breusch-Godfrey Test</strong> (for any <span class="math inline">\(r\)</span>):</p>
+<ul>
+<li class="fragment"><span style="background-color: lightblue;"><span class="math inline">\(H_0: \rho_1 = \cdots = \rho_r = 0\)</span> VS <span class="math inline">\(H_1:\)</span> at least one <span class="math inline">\(\rho_j \neq 0\)</span></span></li>
+<li class="fragment">User chooses order <span class="math inline">\(r\)</span> (default <span class="math inline">\(r = 1\)</span>)</li>
+<li class="fragment"><strong>R function</strong>: <code>bgtest</code> from <code>lmtest</code></li>
+</ul>
+</div>
+</section>
+<section id="consequences-of-auto-correlation" class="slide level2">
+<h2>Consequences of Auto-correlation</h2>
+<ul>
+<li class="fragment">OLS estimation of <span class="math inline">\(\beta\)</span> is no longer optimal but remains consistent</li>
+<li class="fragment">Inference tools (tests, confidence intervals) become invalid</li>
+</ul>
+<div class="fragment">
+<p><strong>Solutions:</strong></p>
+<ul>
+<li class="fragment"><strong>GLS modeling</strong>: Model the dependence structure (complex, risky if wrong)</li>
+<li class="fragment"><strong>Model improvement</strong>: <span style="background-color: yellow;">Exploit the dependence</span> to enhance the model</li>
+<li class="fragment"><strong>Ex</strong>: <span style="background-color: yellow;">Explain <span class="math inline">\(Y_i\)</span> using <span class="math inline">\(Y_{i-1}\)</span></span> in addition to <span class="math inline">\((X_i^{(1)}, \dots, X_i^{(p)})\)</span></li>
+</ul>
+</div>
+</section>
+<section id="normality-test" class="slide level2">
+<h2>4. Normality Test</h2>
+<div class="fragment">
+<p><strong>Purpose</strong>: Examine normality of residuals <span class="math inline">\(\hat \varepsilon\)</span></p>
+<p><strong>Reminder on Normality Assumption</strong></p>
+<ul>
+<li class="fragment"><strong>Not essential</strong> when <span class="math inline">\(n\)</span> is large</li>
+<li class="fragment">All tests remain <strong>asymptotically valid</strong></li>
+<li class="fragment">Only <strong>prediction intervals</strong> truly require normality</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Why examine it anyway?</strong></p>
+<p>If <span class="math inline">\(\varepsilon \sim N(0, \sigma^2 I_n)\)</span> then <span style="background-color: lightblue;"><span class="math inline">\(\hat{\varepsilon} \sim N(0, \sigma^2 P_{[X]}^{\perp})\)</span></span></p>
+</div>
+</section>
+<section id="diagnostic-tools-for-normality-of-hat-varepsilon" class="slide level2">
+<h2>Diagnostic Tools for Normality of <span class="math inline">\(\hat \varepsilon\)</span></h2>
+<div class="fragment">
+<p><strong>Q-Q Plot (Henry’s line)</strong>:</p>
+<ul>
+<li class="fragment">Plot theoretical vs.&nbsp;sample quantiles of <span class="math inline">\(\hat{\varepsilon}\)</span></li>
+<li class="fragment"><strong>R function</strong>: <code>qqnorm</code></li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Shapiro-Wilk, <span class="math inline">\(\chi^2\)</span> or KS Tests</strong>:</p>
+<ul>
+<li class="fragment">Formal test of normality for <span class="math inline">\(\hat{\varepsilon}\)</span></li>
+<li class="fragment"><span class="math inline">\(H_0\)</span>: residuals are normally distributed</li>
+<li class="fragment"><span class="math inline">\(H_1\)</span>: residuals are not normally distributed</li>
+<li class="fragment"><strong>R function</strong>: <code>shapiro.test</code></li>
+</ul>
+</div>
+</section>
+<section id="outlier-analysis" class="slide level2">
+<h2>Outlier Analysis</h2>
+<div class="fragment">
+<p>An individual is atypical when:</p>
+<ol type="1">
+<li class="fragment"><strong>Poorly explained</strong> by the model, and/or</li>
+<li class="fragment"><strong>Heavily influences</strong> coefficient estimation</li>
+</ol>
+</div>
+<div class="fragment">
+<p><strong>Identify</strong> these individuals to:</p>
+<ul>
+<li class="fragment"><strong>Understand</strong> the reason for this particularity</li>
+<li class="fragment"><strong>Potentially modify</strong> the model accordingly<br>
+</li>
+<li class="fragment"><strong>Potentially exclude</strong> the individual from the study</li>
+</ul>
+</div>
+</section>
+<section id="poorly-explained-individuals" class="slide level2">
+<h2>Poorly Explained Individuals</h2>
+<div class="fragment">
+<p>Individual <span class="math inline">\(i\)</span> is poorly explained if its residual <span style="background-color: yellow;"><span class="math inline">\(\hat{\varepsilon}_i\)</span> is “abnormally” large</span>.</p>
+</div>
+<div class="fragment">
+<p><strong>How to quantify “abnormally”?</strong></p>
+<p>Let <span style="background-color: lightblue;"><span class="math inline">\(h_{ij}\)</span></span> be elements of matrix <span class="math inline">\(P_{[X]}\)</span> (hat matrix).</p>
+<p>For a Gaussian model: <span style="background-color: lightblue;"><span class="math inline">\(\hat{\varepsilon}_i \sim N(0, (1-h_{ii})\sigma^2)\)</span></span></p>
+</div>
+<div class="fragment">
+<p><strong>Standardized Residuals</strong></p>
+<div class="square-def">
+<p><span class="math display">\[t_i = \frac{\hat{\varepsilon}_i}{\hat{\sigma}\sqrt{1-h_{ii}}}\]</span></p>
+</div>
+</div>
+</section>
+<section id="poorly-explained-individuals-1" class="slide level2">
+<h2>Poorly Explained Individuals</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[h_{ij} = (P_{[X]})_{ij} \and t_i = \frac{\hat{\varepsilon}_i}{\hat{\sigma}\sqrt{1-h_{ii}}}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>We expect <span class="math inline">\(t_i \sim St(n-p)\)</span> (not strictly true since <span class="math inline">\(\hat{\varepsilon}_i \not\perp \hat{\sigma}^2\)</span>)</p>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Definition</strong></p>
+</div>
+<div class="callout-content">
+<p>Individual <span class="math inline">\(i\)</span> is considered poorly explained by the model if: <span class="math display">\[|t_i| &gt; t_{n-p}(1-\alpha/2)\]</span> for predetermined <span class="math inline">\(\alpha\)</span>, typically <span class="math inline">\(\alpha = 0.05\)</span>, giving <span class="math inline">\(t_{n-p}(1-\alpha/2) \approx 2\)</span>.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="leverage-points" class="slide level2">
+<h2>Leverage Points</h2>
+<div class="fragment">
+<p>A point is influential if it <span style="background-color: yellow;">contributes significantly to <span class="math inline">\(\hat{\beta}\)</span></span> estimation.</p>
+</div>
+<div class="fragment">
+<p><strong>Leverage value</strong>: <span class="math inline">\(h_{ii}\)</span> corresponds to the weight of <span class="math inline">\(Y_i\)</span> on its own estimation <span class="math inline">\(\hat{Y}_i\)</span></p>
+</div>
+<div class="fragment">
+<p>We know that: <span class="math inline">\(\sum_{i=1}^n h_{ii} = \text{tr}(P_{[X]}) = p\)</span></p>
+</div>
+<div class="fragment">
+<p>Therefore, on average: <span class="math inline">\(h_{ii} \approx p/n\)</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Definition</strong></p>
+</div>
+<div class="callout-content">
+<p>Individual <span class="math inline">\(i\)</span> is called a <strong>leverage point</strong> if <span class="math inline">\(h_{ii} \gg p/n\)</span></p>
+<p>Typically: <span class="math inline">\(h_{ii} &gt; 2p/n\)</span> or <span class="math inline">\(h_{ii} &gt; 3p/n\)</span></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="outlier-analysis-cooks-distance" class="slide level2">
+<h2>Outlier Analysis: Cook’s Distance</h2>
+<div class="fragment">
+<p><strong>Cook’s Distance</strong></p>
+<p>Quantifies the influence of individual <span class="math inline">\(i\)</span> on <span class="math inline">\(\hat{Y}\)</span>:</p>
+<div class="square-def">
+<p><span class="math display">\[C_i = \frac{\|\hat{Y} - \hat{Y}_{(-i)}\|^2}{p\hat{\sigma}^2}\]</span></p>
+</div>
+<p>where <span class="math inline">\(\hat{Y}_{(-i)} = X\hat{\beta}_{(-i)}\)</span> with <span class="math inline">\(\hat{\beta}_{(-i)}\)</span>: estimation of <span class="math inline">\(\beta\)</span> without individual <span class="math inline">\(i\)</span></p>
+</div>
+</section>
+<section id="cooks-distance-alternative-formula" class="slide level2">
+<h2>Cook’s Distance, Alternative Formula</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[C_i = \frac{1}{p} \cdot \frac{h_{ii}}{1-h_{ii}} \cdot t_i^2,\]</span></p>
+</div>
+<p>where <span style="background-color: lightblue;"><span class="math inline">\(t_i = \frac{\hat{\varepsilon}_i}{\hat{\sigma}\sqrt{1-h_{ii}}}\)</span></span>.</p>
+<p>This formula shows that Cook’s distance <span class="math inline">\(C_i\)</span> combines:</p>
+<ol type="1">
+<li class="fragment"><strong>Aberrant effect</strong> of individual (through <span class="math inline">\(t_i\)</span>)</li>
+<li class="fragment"><strong>Leverage effect</strong> (through <span class="math inline">\(h_{ii}\)</span>)</li>
+</ol>
+</div>
+<div class="fragment">
+<p><strong>R functions</strong>: <code>cooks.distance</code> and last plot of <code>plot.lm</code></p>
 
 
 </div>

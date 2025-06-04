@@ -1,0 +1,275 @@
+---
+title: "Definition of the Linear Model"
+format: 
+  revealjs:
+    incremental: true
+    callout-icon: false
+    code-overflow: scroll
+    code-block-height: 200px
+    #theme: [default, ../custom.scss]
+#julia:
+#  path: "/home/emmanuel/.juliaup/bin/julia"
+smaller: false
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+# Linear Model
+
+## General Setting
+
+. . .
+
+We observe $n$ individuals, and variables [$Y \in \mathbb R^n$]{style="background-color: lightgreen;"}  and [$(X^{(1)}, \dots, X^{(p)}) \in \mathbb R^{n \times p}$]{style="background-color: lightblue;"}.
+
+. . .
+
+In other words, we observe 
+\
+[$Y= (Y_1, \dots, Y_n) \in \mathbb R^n$ ]{style="background-color: lightgreen;"}
+\
+
+. . .
+
+[$X^{(1)} = (X^{(1)}_1, \dots, X^{(1)}_n) \in \mathbb R^n$ \
+$X^{(2)} = (X^{(2)}_1, \dots, X^{(2)}_n) \in \mathbb R^n$\
+...\
+$X^{(p)} = (X^{(p)}_1, \dots, X^{(p)}_n)\in \mathbb R^n$]{style="background-color: lightblue;"}
+
+## Non Parametric Model
+
+. . .
+
+We observe $n$ individuals, and variables [$Y \in \mathbb R^n$]{style="background-color: lightgreen;"}  and [$(X^{(1)}, \dots, X^{(p)}) \in \mathbb R^{n \times p}$]{style="background-color: lightblue;"}.
+
+. . .
+
+We assume that
+
+::: {.square-def}
+$$Y_i = F(X^{(1)}_i, X^{(2)}_i, \dots, X^{(p)}_i, \varepsilon_i)$$
+:::
+
+. . .
+
+where $\varepsilon = (\varepsilon_1, \dots, \varepsilon_n) \in \mathbb R^n$ are iid random noise \
+
+. . .
+
+[$\varepsilon$ is not observed]{style="background-color: orange;"}
+
+. . .
+
+$F$ is **unknown**
+
+--> Too ambitious, risk of overfitting
+
+
+## Linear Model
+
+
+We observe $n$ individuals, and variables [$Y \in \mathbb R^n$]{style="background-color: lightgreen;"}  and [$(X^{(1)}, \dots, X^{(p)}) \in \mathbb R^{n \times p}$]{style="background-color: lightblue;"}.
+
+. . .
+
+We assume that
+
+::: {.square-def}
+$$Y = \beta_1 X^{(1)}+ \beta_2 X^{(2)}+ \dots+ \beta_p X^{(p)}+ \varepsilon$$
+:::
+
+. . .
+
+That is, **we know** that $F$ is of the form $F(x_1, \dots, x_p, \varepsilon) = \beta_1 x_1+ \beta_2 x_2+ \dots+ \beta_p x_p+ \varepsilon$
+
+## Linear Model
+
+$Y$ and the $X^{(k)}$'s are **vectors** in $\mathbb R^n$.
+
+. . .
+
+For all $i$,
+
+::: {.square-def}
+$$Y_i = \beta_1 X^{(1)}_i+ \beta_2 X^{(2)}_i+ \dots+ \beta_p X^{(p)}_i+ \varepsilon_i$$
+:::
+
+We assume that 
+
+- $X^{(k)}$ are **known** and deterministic (otherwise we condition on $X^{(k)}$'s)
+- $\mathbb E[\varepsilon_i] = 0$
+
+## Linear Model with Intercept
+
+$Y$ and the $X^{(k)}$'s are **vectors** in $\mathbb R^n$.
+
+. . .
+
+
+If we set $X^{(1)}= (1, \dots, 1)$, then the model rewrites
+
+::: {.square-def}
+$$Y_i = \beta_1+ \beta_2 X^{(2)}_i+ \dots+ \beta_p X^{(p)}_i+ \varepsilon_i$$
+:::
+
+. . .
+
+- The model is linear in $X^{(2)}, \dots, X^{(p)}$
+- $\beta_1$ is then called the **intercept**
+
+
+## Notation
+
+We write $Y = (Y_1, \dots, Y_n)$ and $X^{(k)} = (X^{(k)}_1, \dots, X^{(k)}_n)$ as columns:
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+$\newcommand{\E}{\mathbb E}$
+$\newcommand{\P}{\mathbb P}$
+$\newcommand{\Var}{\mathbb V}$
+
+::: {.square-def}
+$$Y = \begin{pmatrix}
+Y_1 \\
+\vdots \\
+Y_n
+\end{pmatrix} \and X^{(k)}=\begin{pmatrix}
+X^{(k)}_1 \\
+\vdots \\
+X^{(k)}_n
+\end{pmatrix}$$
+:::
+
+## Notation 
+
+. . .
+
+To get a matrix form, we write $X_{ik} = X^{(k)}_i$. Then:
+
+. . .
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+
+::: {.square-def}
+$$Y = \begin{pmatrix}
+Y_1 \\
+\vdots \\
+Y_n
+\end{pmatrix} \and X^{(k)}=\begin{pmatrix}
+X_{1k} \\
+\vdots \\
+X_{n,k}
+\end{pmatrix}$$
+:::
+
+## Notation 
+
+. . .
+
+To get a matrix form, we write $X$ for the matrix $(X_{ik}) \in \mathbb R^{n \times p}$
+
+. . .
+
+That is,
+$X = (X^{(1)}, \dots, X^{(p)})$
+
+. . .
+
+And:
+
+::: {.square-def}
+$$Y = \begin{pmatrix}
+Y_1 \\
+\vdots \\
+Y_n
+\end{pmatrix} \and X=\begin{pmatrix}
+&X_{1,1} &\dots &X_{1,p} \\
+&\vdots &~ &\vdots \\
+&X_{n,1} &\dots &X_{n,p}
+\end{pmatrix}$$
+:::
+
+## Model, Matrix Form
+
+. . .
+
+Let $\beta = (\beta_1, \dots, \beta_p) \in \mathbb R^p$ be **unknown** parameters, and $\varepsilon = (\varepsilon_1, \dots, \varepsilon_n)$ be iid noise.
+
+ . . .
+
+In column notation:
+
+::: {.square-def}
+$$\beta = \begin{pmatrix}
+\beta_1 \\
+\vdots \\
+\beta_p
+\end{pmatrix} \and \varepsilon=\begin{pmatrix}
+\varepsilon_{1} \\
+\vdots \\
+\varepsilon_{n}
+\end{pmatrix}$$
+:::
+
+## Linear Model, Matrix Form
+
+. . .
+
+We observe $Y = (Y_1, \dots, Y_n) \in \mathbb R^n$ and 
+$X \in \mathbb R^{n \times p}$
+
+. . .
+
+We assume that 
+
+::: {.square-def}
+$$Y = X \beta + \varepsilon$$
+:::
+
+where 
+
+- $X$ is **known**, 
+- $\beta \in \mathbb R^p$ is **unknown**
+- $\varepsilon \in \mathbb R^n$ is a vector of iid random noise with $\mathbb E[\varepsilon_i] = 0$ and $\mathbb V(\varepsilon_i) = \sigma^2$(**unknown**)
+
+## Remarks
+
+- $(\varepsilon_1, \dots, \varepsilon_n)$ **independent** implies no correlation between individuals
+- $\mathbb V(\varepsilon_i)= \sigma^2$ does not depend on $i$: this is called **homoscedasticity** assumption
+- We can write $\mathbb V(\varepsilon) = \sigma^2 I_n$ (covariance matrix of $\varepsilon$)
+
+## Identifiability Condition
+
+. . .
+
+Recall that $X \in \mathbb R^{n \times p}$
+
+. . .
+
+We assume that [$rk(X)=p$]{style="background-color: yellow;"}.
+
+. . .
+
+This implies [$p \leq n$]{style="background-color: yellow;"}
+
+. . .
+
+[If this condition is not satisfied]{style="background-color: orange;"}:
+
+. . .
+
+It means that there is a [linear relation]{style="background-color: lightblue;"} between the $X^{(k)}$!
+
+. . .
+
+It means that [$X\alpha=\alpha_1X^{(1)} + \dots + \alpha_p X^{(p)}=0$]{style="background-color: lightblue;"} for some $\alpha \in \mathbb R^p\setminus \{0\}$
+
+. . .
+
+We can take [infinitely many possible $\beta$]{style="background-color: orange;"}, since for $t \in \mathbb R$,
+
+$$
+X(\beta + t\alpha) = X\beta
+$$

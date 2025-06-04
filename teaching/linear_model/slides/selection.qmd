@@ -1,0 +1,309 @@
+---
+title: "Selection"
+format: 
+  revealjs:
+    incremental: true
+    callout-icon: false
+    code-overflow: scroll
+    code-block-height: 200px
+    #theme: [default, ../custom.scss]
+#julia:
+#  path: "/home/emmanuel/.juliaup/bin/julia"
+smaller: false
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+$\newcommand{\E}{\mathbb E}$
+$\newcommand{\P}{\mathbb P}$
+$\newcommand{\Var}{\mathbb V}$
+$\newcommand{\1}{\mathbf 1}$
+
+
+
+# Model Selection
+
+## Practical Question
+
+. . .
+
+In practice, we often hesitate between several models:
+
+- Which variables to include in the model?
+- How to choose between one model and another?
+- **Ideally**: How to select the "best" model among all possible sub-models of a large linear regression model?
+
+## Selection Criteria
+
+. . .
+
+Several criteria exist. The main ones:
+
+- **$R_a^2$**: Adjusted $R^2$ (already seen)
+- **Fisher test** for nested models (already seen)  
+- **Mallows' $C_p$**
+- **AIC criterion**
+- **BIC criterion**
+
+
+## Setup
+
+. . .
+
+Suppose [we have $p_{\max}$ explanatory variables]{style="background-color: yellow;"}, forming the "maximal" design matrix $X_{\max}$.
+
+. . .
+
+**True model** (unknown):
+
+::: {.square-def}
+$$Y = X^*\beta^* + \varepsilon$$
+:::
+
+
+where [$X^*$ is a sub-matrix of $X_{\max}$ formed by $p^* \leq p_{\max}$ columns]{style="background-color: yellow;"}.
+
+. . .
+
+[We don't know $p^*$]{style="background-color: yellow;"} nor which variables are involved.
+
+**Goal**: Select the correct matrix $X^*$ and **estimate** $\beta^*$.
+
+## Practice
+
+. . .
+
+We [regress $Y$ on $p \leq p_{\max}$ variables]{style="background-color: yellow;"}, assuming:
+$$Y = X\beta + \varepsilon$$
+where $X$: sub-matrix of $X_{\max}$ containing the [$p$ chosen columns]{style="background-color: yellow;"} (yielding $\hat{\beta}$).
+
+. . .
+
+This model is **potentially wrong** (bad choice of variables).
+
+. . .
+
+**Objective**: Calculate a [quality score]{style="background-color: yellow;"} for this submodel.
+
+
+## Adjusted $R^2$ - Reminder
+
+. . .
+
+For a model with constant:
+
+::: {.square-def}
+$$R_a^2 = 1 - \frac{n-1}{n-p} \cdot \frac{SSR}{SST}$$
+:::
+
+
+- $SST = \sum_{i=1}^n (Y_i - \bar{Y})^2$ (independent of chosen model)
+- $SSR = \sum_{i=1}^n (Y_i - \hat{Y}_i)^2$ (specific to considered model)
+
+. . .
+
+**Selection rule**: Between two models, prefer the one with **highest** $R_a^2$.
+
+## Fisher Test for Nested Models
+
+::: {.square-def}
+$$F = \frac{n-p}{q} \cdot \frac{SSR_c - SSR}{SSR}$$
+:::
+
+
+
+- $SSR$: residual sum of squares of the **larger model**
+- $SSR_c$: SSR of the **sub-model** (fewer variables)
+- $p$: number of variables in the larger model
+- $q$: number of constraints ($p-q$ variables in sub-model)
+
+. . .
+
+If $F < f_{q,n-p}(1-\alpha)$: prefer **sub-model** ($H_0$ at level $\alpha$)
+
+
+## Mallows' $C_p$
+
+- **True model** (unknown): $Y = X^*\beta^* + \varepsilon$  
+- **Tested model** (possibly wrong): $Y = X\beta + \varepsilon$ with OLS estimate $\hat{\beta}$
+
+. . .
+
+Mallows' $C_p$ aims to estimate the **prediction risk**:
+$$\E(\|\tilde{Y} - X\hat{\beta}\|^2)$$
+
+
+where $\tilde{Y}$ follows the same distribution as $Y$ but is independent.
+
+## Formula for Mallows' $C_p$
+. . .
+
+::: {.square-def}
+$$C_p = \frac{SSR}{\hat{\sigma}^2} - n + 2p$$
+:::
+
+
+
+- $p$: number of variables in the considered model
+- $SSR$: residual sum of squares of the considered model  
+- $\hat{\sigma}^2$: estimation of $\sigma^2$ in the **largest model**
+ - Same for all tested models
+
+. . .
+
+**Selection rule**: Among all tested models, choose the one with **lowest** $C_p$.
+
+
+## AIC Criterion
+
+. . .
+
+AIC (Akaike Information Criterion) is motivated like $C_p$.
+
+It also focuses on prediction error $\tilde{Y} - X\hat{\beta}$, but **Kullback distance** instead of **Quadratic distance**.
+
+. . .
+
+::: {.square-def}
+$$AIC = n \ln\left(\frac{SSR}{n}\right) + 2(p+1)$$
+:::
+
+. . .
+
+**Selection rule**: choose model with **lowest** AIC.
+
+In practice, **AIC and $C_p$ are very close** (choose same model)
+
+
+## BIC Criterion
+
+. . .
+
+BIC (Bayesian Information Criterion) seeks the **"most probable" model** in a Bayesian formalism.
+
+::: {.square-def}
+$$BIC = n \ln\left(\frac{SSR}{n}\right) + (p+1) \ln n$$
+:::
+
+. . .
+
+**Selection rule**: choose the one with **lowest** BIC.
+
+- **Key difference**: The "2" in front of $(p+1)$ is replaced by $\ln n$
+- This difference **frequently** leads to a [different model choice between AIC and BIC]{style="background-color: yellow;"}
+
+## Relationship Between Criteria
+
+- **"Large" model**: low $SSR$, but high number of variables $p$ \
+ (if too large: overfitting)
+- **"Small" model**: high $SSR$, but low number of variables $p$ \ 
+  (if two small: underfitting)
+
+. . .
+
+All previous criteria try to find a **compromise** between:
+
+- **Good fit** to data (low $SSR$)
+- **Small model size** (low $p$)
+
+. . .
+
+This is a **permanent trade-off** in statistics (not just in regression).
+
+## General Form
+
+. . .
+
+$C_p$, AIC, and BIC consist of minimizing an expression of the form:
+
+::: {.square-def}
+$$f(SSR) + c(n) \cdot p$$
+:::
+
+. . .
+
+
+**BIC**: $c(n) = \ln n$ $\quad\quad$ **AIC**: $c(n) = 2$
+
+- $f$ is an **increasing function** of $SSR$
+- $c(n) \cdot p$ is a term **penalizing** models with many variables
+
+. . .
+
+(Other criteria exist built on the same principle.)
+
+
+## Relationship Between Criteria
+
+::: {.square-def}
+$$f(SSR) + c(n) \cdot p$$
+:::
+
+
+
+
+. . .
+
+When $\ln n > 2$, **BIC penalizes large models more** than AIC.
+
+. . .
+
+Ordering criteria by their propensity to select the **most sparse model**:
+
+$$BIC \leq F\text{ test} \leq C_p \approx AIC \leq R_a^2$$
+
+- **BIC** will favor a **smaller model** than $C_p$ or AIC
+- **$R_a^2$** will tend to favor an **even larger model**
+
+## Theoretical Aspects
+
+| Probability as $n \to \infty$ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | BIC | $C_p$, AIC, $R_a^2$ |
+|---|-----|------|
+| $\mathbb{P}$(selects model **smaller** than true) | $\to 0$ | $\to 0$ |
+| $\mathbb{P}$(selects model **larger** than true) | $\to 0$ | $\not\to 0$ |
+| $\mathbb{P}$(selects **correct model**) | $\to 1$ | $\not\to 1$ |
+
+. . .
+
+**BIC is asymptotically consistent**, while other criteria tend to overfit.
+
+
+# Automatic Selection
+
+## Exhaustive Search
+
+. . .
+
+Given $p_{\max}$ available explanatory variables:
+
+- **Tempting approach**: Test all possible sub-models
+- **Selection**: Keep the one with lowest BIC (or other criterion)
+- **Computational cost**: $2^{p_{\max}}$ models to test (that's a lot!)
+
+. . .
+
+If $p_{\max}$ is not too large, this remains feasible.
+
+**R function**: `regsubsets` from `leaps` library
+
+## Exhaustive Search
+
+. . .
+
+::: {.callout-warning}
+## Important Warning
+Automatic selection does **not guarantee** that the selected model is good.
+
+It's simply the **best model** [according to the chosen criterion]{style="background-color: orange;"}.
+
+The selected model may be **bad** in terms of:
+
+- Explanatory power
+- Multicollinearity problems  
+- Heteroscedasticity issues
+- Auto-correlation problems
+:::
+
