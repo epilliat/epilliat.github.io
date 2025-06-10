@@ -1,0 +1,914 @@
+---
+title: "Analysis of Variance (ANOVA) and of Covariance (ANCOVA)"
+format: 
+  revealjs:
+    incremental: true
+    callout-icon: false
+    code-overflow: scroll
+    code-block-height: 200px
+    #theme: [default, ../custom.scss]
+#julia:
+#  path: "/home/emmanuel/.juliaup/bin/julia"
+smaller: false
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+$\newcommand{\E}{\mathbb E}$
+$\newcommand{\P}{\mathbb P}$
+$\newcommand{\Var}{\mathbb V}$
+$\newcommand{\Cov}{\mathrm{Cov}}$
+$\newcommand{\1}{\mathbf 1}$
+
+
+
+# Objective
+
+## Link with Previous Lectures
+
+. . .
+
+Previously, we considered that:
+
+- Response variable $Y$ is **quantitative**
+- Explanatory variables $X^{(j)}$ are **quantitative**
+
+. . .
+
+We still assume $Y$ is **quantitative**, but [explanatory variables can be **qualitative and/or quantitative**]{style="background-color: yellow;"}.
+
+## Terminology
+
+- [**ANOVA**]{style="background-color: lightblue;"} (Analysis of Variance): All explanatory variables $X^{(j)}$ are [**qualitative**]{style="background-color: lightblue;"}
+- [**ANCOVA**]{style="background-color: lightgreen;"} (Analysis of Covariance): Explanatory variables mix [**both quantitative and qualitative**]{style="background-color: lightgreen;"} variables
+
+. . .
+
+We'll see that these situations **reduce to the case** of the previous chapter.
+
+# Analysis of Variance with $1$ Factor
+
+
+## Context, Notations
+
+. . .
+
+We seek to explain $Y$ using a **single qualitative variable** $A$.
+
+We observe $(Y, X)$, and define
+
+. . .
+
+::: {.square-def}
+:::{style="font-size: 80%;"}
+$$N_i = \sum_{k=1}^n \mathbf 1\{X_k=i\} \and \overline Y_i = \frac{1}{N_i}\sum_{k=1}^n Y_k \mathbf 1\{X_k=i\}$$
+:::
+
+:::
+
+. . .
+
+Total mean:
+
+$Y_i = \frac{1}{N}\sum_{k=1}^n Y_k = \frac{1}{N}\sum_{i=1}^I\sum N_i \overline Y_i$
+
+. . .
+
+
+## Setting
+
+. . .
+
+For $k = 1, \ldots, n$
+
+::: {.square-def}
+$$Y_k = \sum_{i=1}^I \mu_i \mathbf{1}\{X_k=A_i\} + \varepsilon_k$$
+:::
+
+where $\E[\varepsilon_k]=0$,  $\Cov(\varepsilon_k,\varepsilon_l)=\sigma^2\1\{k=l\}$
+
+- $Y_k$ is random and has expectation $\mu_i$ if $X_k=A_i$
+- $\Var(Y_k)=\sigma^2$ is the same regardless of modality $A_i$
+
+## Problem
+
+- Do we have $\mu_1 = \mu_2 \ldots = \mu_I$? (Does factor $A$ influences $Y$?)
+- Does a $\mu_i$ has more influence on $Y$?
+- How do we estimate the $\mu_i$'s?
+
+## One Hot Encoding
+
+. . .
+
+We use [one-hot encoding]{style="background-color: yellow;"}: $X_{ki}=\1\{X_k=A_i\}$
+
+. . .
+
+That is, for individual $k$, [$X_{k\cdot} = (\1\{X_k=A_1\}, \dots, \1\{X_k=A_I\}) \in \{0,1\}^I$]{style="background-color: lightblue;"}
+
+. . .
+
+Or, using previous notations, $X = (X^{(1)}, \dots, X^{(I)})$ where
+
+
+$$X^{(i)}= \begin{pmatrix}
+X^{(i)}_1 \\
+\vdots  \\
+X^{(i)}_n 
+\end{pmatrix}$$
+
+## In Other Words
+
+- If there are [ $3$ categories]{style="background-color: yellow;"} e.g. [blue]{style="background-color: lightblue;"}, [orange]{style="background-color: orange;"}, [green]{style="background-color: lightgreen;"}, we replace the column $X$ by $3$ columns
+
+- Example with $I=3$ categories and $n=5$ individuals
+$$
+\begin{pmatrix}
+\color{blue}{\mathrm{blue}} \\
+\mathrm{green} \\
+\color{blue}{\mathrm{blue}} \\
+\mathrm{orange} \\
+\mathrm{orange} \\
+\end{pmatrix} \quad  \text{becomes} \quad
+X=\begin{pmatrix}
+\color{blue}{\mathrm{1}} & \mathrm{0} & \mathrm{0}\\
+\mathrm{0} & \mathrm{0} & \mathrm{1}\\
+\color{blue}{\mathrm{1}} & \mathrm{0} & \mathrm{0}\\
+\mathrm{0} & \mathrm{1} & \mathrm{0}\\
+\mathrm{0} & \mathrm{1} & \mathrm{0}\\
+\end{pmatrix}
+$$
+
+## Model, Matrix Form
+
+. . .
+
+We rewrite the model [$Y_k = \sum_{i=1}^I \mu_i \mathbf{1}\{X_k=A_i\} + \varepsilon_k$]{style="background-color: lightblue;"} as
+
+::: {.square-def}
+$$Y = X\mu + \varepsilon$$
+:::
+
+- Here, [$X_{k\cdot} = (\1\{X_k=A_1\}, \dots, \1\{X_k=A_I\}) \in \{0,1\}^I$]{style="background-color: lightblue;"}
+- There is [no constant]{style="background-color: yellow;"} in this model
+
+
+
+## Model with Constant
+
+. . .
+
+If we want to model the constant (intercept) and $I-1$ modalities, we assume
+
+::: {.square-def}
+$$Y_k = \mu_1+\sum_{i=2}^I (\mu_i-\mu_1) \mathbf{1}\{X_k=A_i\} + \varepsilon_k$$
+:::
+
+. . .
+
+Why $\mu_i - \mu_1$ and not just $\mu_i$?
+
+- $\E[Y_k | X_k=A_i] = \mu_1 + \mu_i - \mu_1 = \mu_i$
+- $\sum_{i=2}^{I}\{X_k = A_i\} = 1$ (collinearity problem)
+
+## In R
+
+. . .
+
+:::{style="font-size: 120%;"}
+**with intercept** (default)
+:::
+
+```r
+lm(Y~A) #with intercept
+```
+
+. . .
+
+Interpretation: gives expectation [$\E[Y_k] = \mu_1$]{style="background-color: yellow;"} and coefficients [$\alpha_i= \mu_i - \mu_1$]{style="background-color: yellow;"}
+
+\ \
+
+. . .
+
+:::{style="font-size: 120%;"}
+**without intercept**
+:::
+```r
+lm(Y~A-1) #without intercept
+```
+
+. . .
+
+Interpretation: gives coefficients [$\alpha_i= \mu_i$]{style="background-color: yellow;"}
+
+## Estimation of $\mu$ 
+
+. . .
+
+Whichever the model we choose (with constant or not), estimation of $\mu_i=\E[Y_k|X_k=A_i]$ is the same. Same for $\Var(\varepsilon_k)=\sigma^2$.
+
+. . .
+
+::: {.callout-note}
+## Proposition
+
+In category $i$, OLS estimation of $\mu_i$ leads to:
+
+- $\hat{\mu}_i = \frac{1}{N_i}\sum_{k=1}^n Y_k \1\{X_k=A_i\} = \overline{Y}_i$
+
+An unbiased estimator of $\sigma^2$ is
+
+- $\hat{\sigma}^2 = \frac{1}{n-I} \sum_{k=1}^{n}\sum_{i=1}^I (Y_{k} - \overline{Y}_i)^2\1\{X_k=A_i\}$
+:::
+
+. . .
+
+Proof (OLS): derive $\sum_{k=1}^n (Y_k - \mu'_i)^2$ with respect to $\mu'_i$
+
+## Testing for Factor Effect (ANOVA Test)
+
+. . .
+
+We want to test $H_0: \mu_1 = \cdots = \mu_I$.
+
+This is a **linear constraints test**! (See previous chapters)
+
+. . .
+
+::: {.callout-note}
+## Proposition
+If $\varepsilon \sim N(0, \sigma^2 I_n)$, then under $H_0: \mu_1 = \cdots = \mu_I$:
+
+$$F = \frac{SSB/(I-1)}{SSW/(n-I)} \sim F(I-1, n-I)$$
+
+- $SSB = \sum_{i=1}^I N_i (\overline{Y}_i - \overline{Y})^2$
+- $SSW = \sum_{i=1}^I \sum_{k=1}^{n} (Y_{k} - \overline{Y}_i)^2\1\{X_k=A_i\}$
+
+**Critical region** at level $\alpha$: $RC_\alpha = \{F > f_{I-1,n-I}(1-\alpha)\}$
+:::
+
+## Link with previous chapter
+
+In $\mu_1= \ldots = \mu_I$, there are $I-1$ constraints to test. 
+
+. . .
+
+$$F = \frac{n-I}{I-1} \cdot \frac{SSR_c - SSR}{SSR}$$
+
+. . .
+
+We show that 
+
+- $SSR = SSW$
+- $SSR_c = SST = \sum_{k=1}^n(Y_k - \overline Y)^2$
+- $SST = SSB + SSW$.
+
+
+. . .
+
+**In R**: `anova(lm(Y~A))`
+
+
+## Factor Significance: Analysis of Variance Test
+
+. . .
+
+::: {.callout-warning}
+The previous analysis of variance test [tests equality of means]{style="background-color: lightgreen;"} between modalities 
+[not equality of variances]{style="background-color: orange;"}
+
+:::
+
+. . .
+
+It is valid under the assumption $\varepsilon \sim N(0, \sigma^2 I_n)$.
+
+- **Gaussian assumption**: Not critical if $n$ is large
+- **Homoscedasticity**: [Important assumption]{style="background-color: orange;"}
+
+
+## Homoscedasticity Tests
+
+. . .
+
+How to test **equality of variances** in each modality:
+
+- **Levene test**
+- **Bartlett test**
+
+. . .
+
+**In R**: `leveneTest` or `bartlett.test` from `car` library
+
+## Post-hoc Analysis: Multiple Testing Problem
+
+. . .
+
+If factor $A$ is significant, we want to know more: \
+[which modality(ies) differs from others?]{style="background-color: yellow;"}
+
+. . .
+
+We want to perform [all tests]{style="background-color: orange;"}:
+
+::: {.square-def}
+$$H_{0}^{i,j}: \mu_i = \mu_j \quad \text{vs} \quad H_{1}^{i,j}: \mu_i \neq \mu_j$$
+:::
+
+. . .
+
+for all $i \neq j$ in $\{1, \ldots, I\}$, corresponding to [$I(I-1)/2$ tests]{style="background-color: orange;"}.
+
+## Multiple Testing: Naive Approach
+
+. . .
+
+Perform all [Student's t-tests]{style="background-color: yellow;"} for mean comparison ([1 constraint]{style="background-color: yellow;"}), each at level $\alpha$.
+
+**Problem**: Given the number of tests, this would lead to many **false positives**.
+
+. . .
+
+False positives are a well-known problem in multiple testing.
+
+. . .
+
+**Solution**: Apply a correction to the decision rule, e.g.
+
+- **Bonferroni correction**
+- **Benjamini-Hochberg correction**
+
+. . .
+
+**For one-way ANOVA**: **Tukey's test** addresses the problem.
+
+
+## Multiple Testing: Tukey's Test
+
+. . .
+
+::: {.square-def}
+$$Q = \max_{(i,j)} \frac{|\overline{Y}_i - \overline{Y}_j|}{\hat{\sigma}\sqrt{\frac{1}{N_i} + \frac{1}{N_j}}}$$
+:::
+
+. . .
+
+::: {.callout-note}
+## Distribution of Tukey's Test Statistic
+Under [$H_0: \mu_1 = \cdots = \mu_I$]{style="background-color: lightblue;"} and assuming $\varepsilon \sim N(0, \sigma^2 I_n)$:
+
+$$Q \sim Q_{I,n-I}$$
+
+
+where $Q_{I,n-I}$ denotes the **Tukey distribution** with $(I, n-I)$ degrees of freedom.
+
+**Note**: This is exact if all $n_i$ are equal, otherwise the distribution is approximately Tukey.
+:::
+
+## Individual Tests
+
+To test each [$H_0^{i,j}: \mu_i = \mu_j$]{style="background-color: lightblue;"}, we use the critical regions:
+
+. . .
+
+:::{style="font-size: 80%;"}
+::: {.square-def}
+$$RC_\alpha^{i,j} = \left\{|\overline{Y}_i - \overline{Y}_j| > \frac{\hat{\sigma}}{\sqrt{2}} \sqrt{\frac{1}{n_i} + \frac{1}{n_j}} \cdot Q_{I,n-I}(1-\alpha)\right\}$$
+:::
+:::
+
+
+
+where $Q_{I,n-I}(1-\alpha)$ denotes the $(1-\alpha)$ quantile of a [tukey distribution $Q(I,n-I)$]{style="background-color: yellow;"}  of degrees $(I, n-I)$.
+
+## Key Properties of Tukey's Test
+
+The form of the previous $RC_\alpha^{i,j}$ ensures that:
+$$\mathbb{P}_{\mu_1 = \cdots = \mu_I}\left(\bigcup_{(i,j)} H_1^{i,j}\right) = \alpha$$
+
+**Interpretation**: If all null hypotheses $H_0^{i,j}$ are true ($\mu_1 = \cdots = \mu_I$), then the probability of concluding at least one $H_1^{i,j}$ equals $\alpha$.
+
+. . .
+
+This is the **simultaneous Type I error rate** equals $\alpha$.
+
+## Comparison with Student's tests
+
+- **Individual Student's t-tests** at level $\alpha$: only guarantee $\mathbb{P}_{\mu_i = \mu_j}(H_1^{i,j}) = \alpha$
+- **When cumulated**: $\mathbb{P}_{\mu_1 = \cdots = \mu_I}\left[\cup_{(i,j)} H_1^{i,j}\right] \approx 1$ → **false positives**
+
+. . .
+
+### Advantage
+With Tukey's test, two significantly different means are **truly different**, not just due to false positives.
+
+**In R**: `TukeyHSD`
+
+
+## Example of R output
+
+. . .
+
+Homoscedasticity Test:
+
+```r
+leveneTest(Loss∼Exercise)
+```
+
+We get
+
+```
+Levene’s Test for Homogeneity of Variance (center = median)
+Df F value Pr(>F)
+group 3 0.6527 0.584
+68
+```
+
+. . .
+
+Homoscedasticity is ok. ANOVA?
+
+```r
+reg=lm(Loss∼Exercise) # Exercise has 4 categories
+anova(reg)
+```
+
+. . .
+
+We get
+
+```
+Response: Loss
+         Df Sum Sq Mean Sq F value    Pr(>F)    
+Exercise   3 712.56  237.519  20.657 1.269e-09 ***
+Residuals 68 781.89   11.498
+```
+
+## Results Interpretation
+
+. . .
+
+The means are significantly different. We read in particular:
+
+- $I - 1 = 3$, $n - I = 68$
+- $SSB = 712.56$, $SSW = 781.89$
+- $F = \frac{SSB/(I-1)}{SSW/(n-I)} = 20.657$
+
+
+## R Example: Post-hoc Analysis
+
+. . .
+
+We finish by analyzing the mean differences more precisely:
+
+. . .
+
+```r
+TukeyHSD(aov(Loss~Exercise))
+```
+
+. . .
+
+```
+Exercise
+     diff        lwr        upr     p adj
+2-1  7.1666667   4.1897551 10.1435782 0.0000001
+3-1  3.8888889   0.9119773  6.8658005 0.0053823
+4-1 -0.6111111  -3.5880227  2.3658005 0.9487355
+3-2 -3.2777778  -6.2546894 -0.3008662 0.0252761
+4-2 -7.7777778 -10.7546894 -4.8008662 0.0000000
+4-3 -4.5000000  -7.4769116 -1.5230884 0.0009537
+```
+
+**Conclusion**: All differences are significant, except between exercise 4 and exercise 1.
+
+
+# Analysis of Variance with $2$ Factors
+
+## Setting
+
+. . .
+
+We observe $Y$ and explanatory variables $X^{(1)}, X^{(2)}$
+
+- $X^{(1)}_k \in \{A_1, \dots, A_I\}$ ($I$ modalities)
+- $X^{(2)}_k \in \{B_1, \dots, B_J\}$ ($J$ modalities)
+- $N_{ij} = \sum_{k=1}^n \1\{X^{(1)}_k \in A_i\}\1\{X_k^{(2)} \in B_j\}$ individuals in modality $A_i$ and $B_j$
+
+
+## Model
+
+. . .
+
+:::{style="font-size: 80%;"}
+::: {.square-def}
+$$\begin{aligned}
+Y_k &= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\1\{X^{(2)}_k \in B_j\} \\
+&+ \gamma_{ij}\sum_{i=1}^I\sum_{j=1}^J\1\{X^{(1)}_k \in A_i\}\1\{X^{(2)}_k \in B_i\} + \varepsilon_k
+\end{aligned}$$
+:::
+:::
+
+. . .
+
+In other words, in modality $A_i$ and $B_j$,
+
+. . .
+
+::: {.square-def}
+$Y_k =m+\alpha_i + \beta_j + \gamma_{ij}+ \varepsilon_k$
+:::
+
+
+
+## Interpretation
+
+. . .
+
+This is a model of the type [$Y_k = \mu_{ij} + \varepsilon_k$]{style="background-color: lightblue;"}.
+
+. . .
+
+In modalities $(i,j)$, [$\E[Y_k] = \mu_{ij} = m + \alpha_i + \beta_j + \gamma_{ij}$]{style="background-color: lightblue;"}
+
+
+- $m$: the average effect of $Y$ (without considering $A$ and $B$)
+- $\alpha_i = \mu_{i.} - m$: the marginal effect due to $A$
+- $\beta_j = \mu_{.j} - m$: the marginal effect due to $B$  
+- $\gamma_{ij} = \mu_{ij} - m - \alpha_i - \beta_j$: the remaining effect, due to interaction between $A$ and $B$ 
+
+## Example 1
+
+. . .
+
+$Y$: employee satisfaction  
+[$A$: schedule type]{style="background-color: lightblue;"} (flexible or fixed)  
+[$B$: training level]{style="background-color: lightgreen;"} (basic or advanced)
+
+. . .
+
+We can imagine:
+
+- [Effect due to $A$]{style="background-color: lightblue;"}: satisfaction is greater with flexible schedules
+- [Effect due to $B$]{style="background-color: lightgreen;"}: satisfaction is higher with advanced training
+- **No particular interaction** between A and B
+
+
+
+## Example 2  
+
+. . .
+
+$Y$: plant yield  
+[$A$: fertilizer type (1 or 2)]{style="background-color: lightblue;"}  
+[$B$: water quantity (low, medium, high)]{style="background-color: lightgreen;"}
+
+We can imagine:
+
+- [Effect due to $A$]{style="background-color: lightblue;"}: yield differs according to fertilizer used
+- [Effect due to $B$]{style="background-color: lightgreen;"}: yield is better when there is lots of water
+- [Interaction]{style="background-color: orange;"}: fertilizer 1 is better with water, and vice versa for fertilizer 2
+
+. . .
+
+Maybe interaction is so strong that the effect due to A seems absent!
+
+
+## Constraints on the Parameters
+
+. . .
+
+In modalities $(i,j)$, [$\E[Y_k] = \mu_{ij} = m + \alpha_i + \beta_j + \gamma_{ij}$]{style="background-color: lightblue;"}
+
+.  . .
+
+Initial two-factor ANOVA problem: [$I \times J$]{style="background-color: yellow;"} parameters $\mu_{ij}$.
+
+. . .
+
+Now: [$1 + I + J + IJ$ parameters]{style="background-color: yellow;"} ($m$, $\alpha_i$, $\beta_j$, $\gamma_{ij}$).
+
+. . .
+
+Therefore, [we need $1 + I + J$ constraints]{style="background-color: yellow;"} for identifiability:
+
+
+. . .
+
+::: {.square-def}
+$\sum_{i=1}^{I} \alpha_i = 0 \and \sum_{j=1}^{J} \beta_j = 0$
+
+
+:::
+
+. . .
+
+::: {.square-def}
+$\sum_{i=1}^{I} \gamma_{ij} = 0 \and \sum_{j=1}^{J} \gamma_{ij} = 0$
+:::
+
+
+. . .
+
+
+
+These constraints ensure model identifiability by removing the redundant parameters that cause [multicollinearity issues]{style="background-color: yellow;"}.
+
+
+## Implementation in R
+
+. . .
+
+The complete model (with interaction) is launched with the command:
+
+```r
+lm(Y ~ A + B + A:B) ## or equivalently, lm(Y ~ A*B)
+```
+
+. . .
+
+With these constraints, the parameter interpretation is as follows:
+
+**Intercept:** $m = \mu_{11}$ \
+**Main effect A:** $\alpha_i = \mu_{i1} - \mu_{11}$ \
+**Main effect B:** $\beta_j = \mu_{1j} - \mu_{11}$ \
+**Interaction:** $\gamma_{ij} = \mu_{ij} - \mu_{i1} - \mu_{1j} + \mu_{11}$ \
+
+
+## Important Note on Interpretation
+
+. . .
+
+From 
+```r
+lm(Y ~ A + B + A:B) ## or equivalently, lm(Y ~ A*B)
+```
+. . .
+
+**Intercept:** $m = \mu_{11}$ \
+**Main effect A:** $\alpha_i = \mu_{i1} - \mu_{11}$ \
+**Main effect B:** $\beta_j = \mu_{1j} - \mu_{11}$ \
+**Interaction:** $\gamma_{ij} = \mu_{ij} - \mu_{i1} - \mu_{1j} + \mu_{11}$ \
+
+. . .
+
+::: {.callout-warning}
+## Be Cautious on the Interpretation of the Coefficients
+
+To impose the constraints from the previous approach ([sum-to-zero]{style="background-color: orange;"} constraints):
+
+```r
+lm(Y ~ A*B, contrasts = list(A = contr.sum, B = contr.sum))
+```
+
+:::
+
+
+## Estimation
+
+. . .
+
+The [choice of constraints does not affect the estimation]{style="background-color: yellow;"} of the expectation of $Y$ in each crossed modality $A_i \cap B_j$.
+
+. . .
+
+::: {.callout-note}
+## Proposition
+
+Whatever the linear constraints chosen, the OLS leads to, for all $i = 1, \ldots, I$, $j = 1, \ldots, J$ and $k = 1, \ldots, N_{ij}$, if $X^{(1)}_{k}=A_i$ and $X_k^{(2)}=B_j$:
+
+$$\widehat{Y}_{k} = \overline{Y}_{ij}:= \frac{1}{N_{ij}} \sum_{k=1}^{n} Y_{k}\1\{X_k^{(1)}=A_i \and X_k^{(2)}=B_j\}$$
+
+
+and to the estimation of the residual variance:
+
+$$\hat{\sigma}^2 = \frac{1}{n - IJ} \sum_{i=1}^I\sum_{j=1}^J\sum_{k=1}^n (Y_{k} - \overline{Y}_{ij})^2\1\{X_k^{(1)}=A_i \and X_k^{(2)}=B_j\}$$
+:::
+
+## Significance Tests for Effects
+
+. . .
+
+- Is the effect due to the [interaction between A and B]{style="background-color: orange;"}  significant?
+- Is the marginal [effect due to A]{style="background-color: lightblue;"} significant?
+- Is the marginal [effect due to B]{style="background-color: lightgreen;"} significant?
+
+. . .
+
+First, in the additive model with interaction,
+[$Y_{ijk} = m + \alpha_i + \beta_j + \varepsilon_{ijk}$]{style="background-color: lightblue;"}
+
+\
+
+**Do we have $\gamma_{ij} = 0$ for all $i, j$?**
+
+
+## Interpretation on Plots:
+
+. . .
+
+Plot $\overline Y_{ij}$ in function of modalities $(i,j)$ \
+
+. . .
+
+without interactions, lines should be almost parallel
+
+::: {style="text-align: center;"}
+![](images/captures/interaction_1.png){width="50%"}
+:::
+
+
+```r
+interaction.plot(A,B,Y)
+```
+
+## Plot: Presence of Interaction
+
+Lines cross in presence of interaction
+
+![](images/captures/interaction_2.png)
+
+
+
+## Significance Tests
+
+. . .
+
+We want to test for the presence of an interaction:
+
+::: {.square-def}
+$$H_0^{(AB)}: \gamma_{ij} = 0 \text{ for all } i, j$$
+:::
+
+. . .
+
+If we conclude $H_0^{(AB)}$ (accept the null hypothesis), we then want to test the marginal effects:
+
+::: {.square-def}
+$$H_0^{(A)}: \alpha_i = 0 \text{ for all } i \and H_0^{(B)}: \beta_j = 0 \text{ for all } j$$
+:::
+
+## Presence of Interaction
+
+. . .
+
+::: {.square-def}
+$$H_0^{(AB)}: \gamma_{ij} = 0 \text{ for all } i, j$$
+:::
+
+. . .
+
+::: {.callout-warning}
+If we reject $H_0^{(AB)}$, it makes no sense to test whether A or B have an effect: they have one through their interaction.
+:::
+
+. . .
+
+These tests reduce to [constraint tests]{style="background-color: yellow;"} in the regression model.
+
+
+## Balanced Design Analysis of Variance
+
+. . .
+
+We assume that "the design is balanced": this means that [$N_{ij}:=N$ does not depend on $i$ or $j$]{style="background-color: yellow;"}. (Otherwise, everything becomes complicated).
+
+. . .
+
+In this case, we have the analysis of variance formula:
+
+
+## ANOVA Formula
+
+. . .
+
+:::{style="font-size: 80%;"}
+::: {.square-def}
+$$S_T^2 = S_A^2 + S_B^2 + S_{AB}^2 + S_R^2$$
+:::
+
+
+- [$S_T^2 = \sum_{k=1}^{n} (Y_{k} - \overline{Y})^2$]{style="background-color: lightblue;"}: total sum of squares
+
+- [$S_A^2 = \sum_{i=1}^{I} \sum_{j=1}^{J} N_{ij} (\overline{Y}_{i.} - \overline{Y})^2$]{style="background-color: lightblue;"}: $S^2_{between}$ in the case of one-factor ANOVA where the factor is $A$
+
+- [$S_B^2 = \sum_{i=1}^{I} \sum_{j=1}^{J} N_{ij} (\overline{Y}_{.j} - \overline{Y})^2$: $S^2_{between}$]{style="background-color: lightblue;"} in the case of one-factor ANOVA where the factor is $B$
+
+- [$S_{AB}^2 = \sum_{i=1}^{I} \sum_{j=1}^{J} N_{ij} (\overline{Y}_{ij} - \overline{Y}_{i.} - \overline{Y}_{.j} + \overline{Y})^2$]{style="background-color: lightblue;"} quantifies the interaction
+
+- [$S_R^2 = \sum_{i=1}^{I} \sum_{j=1}^{J} \sum_{k=1}^{N_{ij}} (Y_{k} - \overline{Y}_{ij})^2\1\{X^{(1)}_k=A_i \and X^{(2)}_k=B_j\}$]{style="background-color: lightblue;"}: $S_{within}$ in one-factor ANOVA
+:::
+
+
+
+## Testing the Interaction
+
+. . .
+
+For testing the interaction, [$H_0^{(AB)}: \gamma_{ij} = 0$ for all $i, j$]{style="background-color: lightblue;"}
+
+. . .
+
+We the linear constraint test statistic $F = \frac{n-p}{q} \frac{(SSR_c - SSR)}{SSR}$
+
+where $SSR_c$ corresponds to the sum of squares of the residuals in [the space $\gamma_{ij}=0$ for all $(i,j)$]{style="background-color: yellow;"}.
+
+
+. . .
+
+::: {.square-def}
+$$F^{(AB)} = \frac{S_{AB}^2/(I-1)(J-1)}{S_R^2/(n-IJ)}$$
+:::
+
+
+
+When $\varepsilon \sim \mathcal N(0, \sigma^2 I_n)$, [$F^{(AB)} \sim \mathcal F((I-1)(J-1), n-IJ)$]{style="background-color: lightgreen;"}
+
+
+## Testing the Effect of $A$
+
+. . .
+
+For testing the main effect of $A$, [$H_0^{(A)}: \alpha_i = 0$]{style="background-color: lightblue;"} for all $i$:
+
+We use $F = \frac{n-p}{q} \frac{(SSR_c - SSR)}{SSR}$
+
+where $SSR_c$ corresponds to the sum of squares of the residuals in the space $\alpha_i=0$ for all $i$.
+
+. . .
+
+::: {.square-def}
+$$F^{(A)} = \frac{S_A^2/(I-1)}{S_R^2/(n-IJ)}$$
+:::
+
+When $\varepsilon \sim \mathcal{N}(0, \sigma^2 I_n)$, [$F^{(A)} \sim \mathcal{F}(I-1, n-IJ)$]{style="background-color: lightgreen;"}
+
+## Testing the Effect of $B$
+
+. . .
+
+For testing the main effect of $B$, [$H_0^{(B)}: \beta_j = 0$]{style="background-color: lightblue;"} for all $j$:
+
+We use $F = \frac{n-p}{q} \frac{(SSR_c - SSR)}{SSR}$
+
+where $SSR_c$ corresponds to the sum of squares of the residuals in the space $\beta_j=0$ for all $j$.
+
+. . .
+
+::: {.square-def}
+$$F^{(B)} = \frac{S_B^2/(J-1)}{S_R^2/(n-IJ)}$$
+:::
+
+When $\varepsilon \sim \mathcal{N}(0, \sigma^2 I_n)$, [$F^{(B)} \sim \mathcal{F}(J-1, n-IJ)$]{style="background-color: lightgreen;"}
+
+## R outputs
+
+. . .
+
+In software, these tests are summarized in a table as shown below.
+
+In R: `anova(lm(Y ~ A*B))`
+
+:::{style="font-size: 60%;"}
+| Source | df | Sum Sq | Mean Sq | F value | Pr(>F) |
+|--------|----|---------|---------|---------|---------| 
+| $A$ | $I-1$ | $S_A^2$ | $S_A^2/(I-1)$ | $F^{(A)}$ | ... |
+| $B$ | $J-1$ | $S_B^2$ | $S_B^2/(J-1)$ | $F^{(B)}$ | ... |
+| $A:B$ | $(I-1)(J-1)$ | $S_{AB}^2$ | $S_{AB}^2/((I-1)(J-1))$ | $F^{(AB)}$ | ... |
+| Residuals | $n-IJ$ | $S_R^2$ | $S_R^2/(n-IJ)$ | | |
+:::
+
+
+# Two-Factor ANOVA Practice
+
+## Assumptions
+
+. . .
+
+Fisher tests are based on the assumption $\varepsilon \sim N(0, \sigma^2 I_n)$
+
+- Normality is not critical, but **homoscedasticity is**
+- We can test equality of variances in each modality of A (or B), or in each crossed modality if the $n_{ij}$ are sufficiently large
+- This can be done with **Levene's test** or **Bartlett's test**
+
+## Practical Procedure
+
+1. **Test equality of variances**
+
+2. **Form the ANOVA table** (independent of chosen constraints)
+
+3. **If the $AB$ interaction is significant**: don't change anything
+
+4. **If the interaction is not significant**: analyze the marginal effects of A and B
+  - If they are significant: the model is additive: `lm(Y ~ A + B)`
+  - Otherwise: we can remove $A$ (or $B$) from the model
+
+## Post-Hoc Analysis
+
+**Once effects are identified**: perform post-hoc analysis by [examining differences between (crossed) modalities more closely]{style="background-color: yellow;"}, using **Tukey's test** as in one-factor ANOVA
+
+

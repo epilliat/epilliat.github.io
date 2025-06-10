@@ -209,7 +209,7 @@
 </ul>
 </div>
 <div class="fragment">
-<p><strong>Selection rule</strong>: Between two models, prefer the one with <strong>highest</strong> <span class="math inline">\(R_a^2\)</span>.</p>
+<p><strong>Selection rule</strong>: Between two models, prefer <strong>highest</strong> <span class="math inline">\(R_a^2\)</span>.</p>
 </div>
 </section>
 <section id="fisher-test-for-nested-models" class="slide level2">
@@ -422,6 +422,68 @@
 </div>
 </div>
 </div>
+</div>
+</section>
+<section id="stepwise-procedures" class="slide level2">
+<h2>Stepwise Procedures</h2>
+<div class="fragment">
+<p>If <span class="math inline">\(p_{\max}\)</span> is too large for exhaustive search:</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;"><strong>Stepwise Backward</strong></span> (according to chosen criterion, e.g., BIC):</p>
+<ul>
+<li class="fragment">Start with largest model (<span class="math inline">\(p_{\max}\)</span> variables)</li>
+<li class="fragment">Remove least significant variable</li>
+<li class="fragment">Repeat: remove remaining least significant variable</li>
+<li class="fragment">Stop when no removal improves the model</li>
+</ul>
+</div>
+</section>
+<section id="stepwise-procedures-1" class="slide level2">
+<h2>Stepwise Procedures</h2>
+<p>If <span class="math inline">\(p_{\max}\)</span> is too large for exhaustive search:</p>
+<div class="fragment">
+<p><span style="background-color: yellow;"><strong>Stepwise Forward</strong></span>:</p>
+<ul>
+<li class="fragment">Start with smallest model (constant only)</li>
+<li class="fragment">Add most significant variable at each step</li>
+</ul>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;"><strong>Stepwise Backward (or Forward) Hybrid</strong></span>:</p>
+<ul>
+<li class="fragment">Like backward (or forward), but also try <strong>adding</strong> (or <strong>removing</strong>) a variable at each step</li>
+</ul>
+</div>
+</section>
+<section id="limitations-and-characteristics" class="slide level2">
+<h2>Limitations and Characteristics</h2>
+<div class="fragment">
+<p><strong>Stepwise procedures</strong> do <strong>not explore all possible sub-models</strong>:</p>
+<ul>
+<li class="fragment">May <strong>miss</strong> the best model</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Speed comparison</strong>:</p>
+<ul>
+<li class="fragment"><strong>Forward</strong>: fastest (small models are quicker to estimate)</li>
+<li class="fragment"><strong>Hybrid procedures</strong>: slower, but explore more possible models</li>
+</ul>
+</div>
+</section>
+<section id="r-implementation" class="slide level2">
+<h2>R Implementation</h2>
+<div class="fragment">
+<p><strong>Function</strong>: <code>step</code> with option <code>direction</code>:</p>
+<ul>
+<li class="fragment"><code>"backward"</code> or <code>"forward"</code> or <code>"both"</code></li>
+<li class="fragment"><strong>Default criterion</strong>: AIC (<code>k = 2</code>)</li>
+<li class="fragment"><strong>For BIC</strong>: use <code>k = ln(n)</code></li>
+</ul>
+</div>
+<div class="fragment">
+<p>The option <code>k</code> corresponds to the penalty <span class="math inline">\(c(n)\)</span> introduced earlier.</p>
 
 
 </div>

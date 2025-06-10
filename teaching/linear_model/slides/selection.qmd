@@ -105,7 +105,7 @@ $$R_a^2 = 1 - \frac{n-1}{n-p} \cdot \frac{SSR}{SST}$$
 
 . . .
 
-**Selection rule**: Between two models, prefer the one with **highest** $R_a^2$.
+**Selection rule**: Between two models, prefer **highest** $R_a^2$.
 
 ## Fisher Test for Nested Models
 
@@ -307,3 +307,65 @@ The selected model may be **bad** in terms of:
 - Auto-correlation problems
 :::
 
+
+## Stepwise Procedures
+
+. . .
+
+If $p_{\max}$ is too large for exhaustive search:
+
+. . .
+
+[**Stepwise Backward**]{style="background-color: yellow;"} (according to chosen criterion, e.g., BIC):
+
+- Start with largest model ($p_{\max}$ variables)
+- Remove least significant variable
+- Repeat: remove remaining least significant variable
+- Stop when no removal improves the model
+
+## Stepwise Procedures
+
+If $p_{\max}$ is too large for exhaustive search:
+
+. . .
+
+[**Stepwise Forward**]{style="background-color: yellow;"}:
+
+- Start with smallest model (constant only)
+- Add most significant variable at each step
+
+. . .
+
+[**Stepwise Backward (or Forward) Hybrid**]{style="background-color: yellow;"}:
+
+- Like backward (or forward), but also try **adding** (or **removing**) a variable at each step
+
+
+## Limitations and Characteristics
+
+. . .
+
+**Stepwise procedures** do **not explore all possible sub-models**:
+
+- May **miss** the best model
+
+. . .
+
+**Speed comparison**:
+
+- **Forward**: fastest (small models are quicker to estimate)
+- **Hybrid procedures**: slower, but explore more possible models
+
+## R Implementation
+
+. . .
+
+**Function**: `step` with option `direction`:
+
+- `"backward"` or `"forward"` or `"both"`
+- **Default criterion**: AIC (`k = 2`)
+- **For BIC**: use `k = ln(n)`
+
+. . .
+
+The option `k` corresponds to the penalty $c(n)$ introduced earlier.
