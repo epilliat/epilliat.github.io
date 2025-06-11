@@ -3177,5 +3177,208 @@
     "title": "Analysis of Variance (ANOVA) and of Covariance (ANCOVA)",
     "section": "Post-Hoc Analysis",
     "text": "Post-Hoc Analysis\nOnce effects are identified: perform post-hoc analysis by examining differences between (crossed) modalities more closely, using Tukey’s test as in one-factor ANOVA"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#crowdsourcing-problem-with-binary-tasks",
+    "href": "research/crowdsourcing/presentation.html#crowdsourcing-problem-with-binary-tasks",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Crowdsourcing Problem with Binary Tasks",
+    "text": "Crowdsourcing Problem with Binary Tasks\n\nImage Classification: “Does this image contain a dog?”\nText Moderation: “Is this comment toxic or offensive?”\nSentiment Analysis: “Does this review express positive sentiment?”\nData Verification: “Is this information factually correct?”"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#main-question",
+    "href": "research/crowdsourcing/presentation.html#main-question",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Main Question",
+    "text": "Main Question\n\nGiven \\(n\\) workers and \\(d\\) binary tasks\n\n\nA proportion \\(\\lambda\\) of observations\n\n\nHow can we accurately recover the labels?"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#illustration",
+    "href": "research/crowdsourcing/presentation.html#illustration",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Illustration",
+    "text": "Illustration\n\nTwo binary tasks with labels in \\(\\{\\color{green}{-1},\\color{blue}{+1}\\}\\)\nUnknown vector \\(x^*\\) of labels with \\(d=9\\) tasks \\(x^*= (\\color{blue}{+1},\\color{blue}{+1},\\color{green}{-1},\\color{blue}{+1},\\color{green}{-1},\\color{blue}{+1},\\color{blue}{+1},\\color{blue}{+1},\\color{blue}{+1})\\)\n\n\n\n\n\\[\nY=\\left(\\begin{array}{ccccccccc}\n\\color{green}{-1} & \\color{blue}{+1} & \\color{green}{-1} & \\color{blue}{+1} & \\color{blue}{+1} & \\color{green}{-1} & \\color{green}{-1} & \\color{blue}{+1} & \\color{blue}{+1} \\\\\n\\color{blue}{+1} & \\color{blue}{+1} & \\color{blue}{+1} & \\color{blue}{+1} & \\color{green}{-1} & \\color{blue}{+1} & \\color{blue}{+1} & \\color{green}{-1} & \\color{blue}{+1} \\\\\n\\color{blue}{+1} & \\color{green}{-1} & \\color{green}{-1} & \\color{blue}{+1} & \\color{green}{-1} & \\color{blue}{+1} & \\color{green}{-1} & \\color{blue}{+1} & \\color{blue}{+1} \\\\\n\\color{green}{-1} & \\color{blue}{+1} & \\color{blue}{+1} & \\color{blue}{+1} & \\color{green}{-1} & \\color{blue}{+1} & \\color{blue}{+1} & \\color{blue}{+1} & \\color{blue}{+1}\n\\end{array}\\right)\n\\]\n\n\n\n\n\\[\nY=\\left(\\begin{array}{ccccccccc}\n\\color{red}{0} & \\color{blue}{+1} & \\color{green}{-1} & \\color{blue}{+1} & \\color{red}{0} & \\color{green}{-1} & \\color{green}{-1} & \\color{blue}{+1} & \\color{blue}{+1} \\\\\n\\color{red}{0} & \\color{blue}{+1} & \\color{red}{0} & \\color{blue}{+1} & \\color{green}{-1} & \\color{red}{0} & \\color{blue}{+1} & \\color{green}{-1} & \\color{blue}{+1} \\\\\n\\color{blue}{+1} & \\color{green}{-1} & \\color{green}{-1} & \\color{blue}{+1} & \\color{green}{-1} & \\color{blue}{+1} & \\color{red}{0} & \\color{blue}{+1} & \\color{blue}{+1} \\\\\n\\color{green}{-1} & \\color{blue}{+1} & \\color{blue}{+1} & \\color{red}{0} & \\color{green}{-1} & \\color{blue}{+1} & \\color{red}{0} & \\color{red}{0} & \\color{red}{0}\n\\end{array}\\right)\n\\]\n\n\n\n\nRate of observations: \\(\\color{red}{\\lambda= 0.72}\\)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#observation-model",
+    "href": "research/crowdsourcing/presentation.html#observation-model",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Observation Model",
+    "text": "Observation Model\n\nGiven workers \\(i\\in\\{1, \\dots, n\\}\\) and tasks \\(k\\in\\{1, \\dots, d\\}\\)\n\n\nWe observe\n\n\\[\nY_{ik} = B_{ik}(M_{ik}x_k^* + E_{ik}) \\enspace\n\\]\n\n\nWhere:\n\n\\(M_{ik} \\in [0,1]\\)\n\\(E_{ik}\\) are independent and \\(1\\)-subGaussian\n\\(B_{ik}\\) are iid Bernoulli \\(\\lambda \\in [0,1]\\)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#observation-model-1",
+    "href": "research/crowdsourcing/presentation.html#observation-model-1",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Observation Model",
+    "text": "Observation Model\n\nWe observe\n\n\\[Y = B\\odot(M\\mathrm{diag}(x^*) + E) \\in \\mathbb R^{n \\times d}\\]\n\nwhere \\(\\odot\\) is the Hadamard product.\n\n\\(M \\in [0,1]^{n \\times d}\\) is the ability matrix\n\\(x^*\\) is the vector of unknown labels\n\\(E\\) is a matrix of independent noise\n\\(B\\) is a Bernoulli “mask” matrix, modelling partial observations"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#bernoulli-observation-submodel",
+    "href": "research/crowdsourcing/presentation.html#bernoulli-observation-submodel",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Bernoulli Observation SubModel",
+    "text": "Bernoulli Observation SubModel\n\\[Y = B\\odot(M\\mathrm{diag}(x^*) + E) \\in \\mathbb R^{n \\times d}\\]\n\n\n\n\nBernoulli submodel (Shah et al., 2020)\n\n\n\\[\n\\begin{aligned}\\label{eq:bernoulli_model}\n    Y_{ik} = \\begin{cases}\n        x^*_k \\text{ with proba } \\lambda\\left(\\frac{1+M_{ik}}{2}\\right)\n        \\\\\n        -x^*_k \\text{ with proba } \\lambda\\left(\\frac{1-M_{ik}}{2}\\right)\\\\\n        0 \\text{ with proba } 1-\\lambda\n        \\end{cases}\n\\end{aligned}\n\\]\n\n\n\n\n\n\\(\\frac{1+M_{ik}}{2}\\) is the proba that \\(i\\) answers correctly to task \\(k\\).\n\n\n\\(\\lambda\\) is the probability of observing worker/task pair \\((i,k)\\)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#shape-constraints",
+    "href": "research/crowdsourcing/presentation.html#shape-constraints",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Shape Constraints",
+    "text": "Shape Constraints\n\n\\(M \\in [0,1]^{n \\times d}\\) represents the ability matrix of worker/task pairs\nWe assume that \\(M\\) is isotonic up to a permutation \\(\\pi^*\\) , that is\n\n\n\n\\[\nM_{\\pi^*}=\\left(\\begin{array}{ccccccccc}\n\\color{#000099}{0.9} & \\color{#000099}{0.8} & \\color{#000099}{0.9} & \\color{#000099}{1\\phantom{.0}} \\\\\n\\color{#4B0082}{0.8} & \\color{#4B0082}{0.7} & \\color{#4B0082}{0.9} & \\color{#4B0082}{0.8} \\\\\n\\color{#990066}{0.6} & \\color{#990066}{0.7} & \\color{#990066}{0.7} & \\color{#990066}{0.6} \\\\\n\\color{#CC0000}{0.5} & \\color{#CC0000}{0.7} & \\color{#CC0000}{0.5} & \\color{#CC0000}{0.6}\n\\end{array}\\right)\n\\]\n\n\n\\[\nM_{\\phantom{{\\pi^*}}}=\\left(\\begin{array}{ccccccccc}\n\\color{#990066}{0.6} & \\color{#990066}{0.7} & \\color{#990066}{0.7} & \\color{#990066}{0.6} \\\\\n\\color{#CC0000}{0.5} & \\color{#CC0000}{0.7} & \\color{#CC0000}{0.5} & \\color{#CC0000}{0.6} \\\\\n\\color{#000099}{0.9} & \\color{#000099}{0.8} & \\color{#000099}{0.9} & \\color{#000099}{1\\phantom{.0}} \\\\\n\\color{#4B0082}{0.8} & \\color{#4B0082}{0.7} & \\color{#4B0082}{0.9} & \\color{#4B0082}{0.8}\n\\end{array}\\right)\n\\]"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#shape-constraints-1",
+    "href": "research/crowdsourcing/presentation.html#shape-constraints-1",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Shape Constraints",
+    "text": "Shape Constraints\n\nFor all \\(k = 1, \\dots, d\\), \\[\nM_{\\pi^*(1), k}\\geq \\dots \\geq M_{\\pi^*(n),k}\n\\]\nIt means that the rows are uniformly increasing\nA worker \\(i\\) is better on average than \\(j\\), if it is better on all tasks on average"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#illustration-when-x-is-known",
+    "href": "research/crowdsourcing/presentation.html#illustration-when-x-is-known",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Illustration when \\(x^*\\) is Known",
+    "text": "Illustration when \\(x^*\\) is Known"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#crowdsourcing-problems",
+    "href": "research/crowdsourcing/presentation.html#crowdsourcing-problems",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Crowdsourcing Problems",
+    "text": "Crowdsourcing Problems\n\n\n\n\nSetting\n\n\n\\[ Y = B\\odot(M \\mathrm{diag}(x^*) + E)\\] Shape constraint: \\(\\exists \\pi^*\\) s.t. \\(M_{\\pi^*} \\in [0,1]^{n \\times d}\\) is isotonic\n\n\n\n\n\n\n\nObjectives\n\n\nRecovering the labels\n\n\nRanking the workers\n\n\nEstimating their abilities\n\n\n\nLosses\n\n\n\\(\\phantom{\\color{purple}{\\mathbb E}}\\|M \\mathrm{diag}(x^* \\neq \\hat x)\\|_F^2\\)\n\n\n\\(\\phantom{\\color{purple}{\\mathbb E}}\\|M_{\\pi^*} - M_{\\hat \\pi}\\|_F^2\\)\n\n\n\n\\(\\phantom{\\color{purple}{\\mathbb E}}\\|M - \\hat M\\|_F^2\\)\n\n\n\nThese three objectives are closely intertwined!"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#crowdsourcing-problems-1",
+    "href": "research/crowdsourcing/presentation.html#crowdsourcing-problems-1",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Crowdsourcing Problems",
+    "text": "Crowdsourcing Problems\n\n\n\n\nSetting\n\n\n\\[ Y = B\\odot(M \\mathrm{diag}(x^*) + E)\\] Shape constraint: \\(\\exists \\pi^*\\) s.t. \\(M_{\\pi^*} \\in [0,1]^{n \\times d}\\) is isotonic\n\n\n\n\n\n\nObjectives\nRecovering the labels\n\nRanking the workers\n\nEstimating their abilities\n\nRisks\n\\(\\color{purple}{\\mathbb E}[\\|M \\mathrm{diag}(x^* \\neq \\hat x)\\|_F^2]\\)\n\n\\(\\color{purple}{\\mathbb E}[\\|M_{\\pi^*} - M_{\\hat \\pi}\\|_F^2]\\)\n\n\\(\\color{purple}{\\mathbb E}[\\|M - \\hat M\\|_F^2]\\)\n\n\nThese three objectives are closely intertwined!"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#square-norm-loss-vs-hamming-loss",
+    "href": "research/crowdsourcing/presentation.html#square-norm-loss-vs-hamming-loss",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Square Norm Loss VS Hamming Loss",
+    "text": "Square Norm Loss VS Hamming Loss\n\n\n\n\nHamming Loss: \\[ \\sum_{k=1}^d \\mathbf 1\\{\\hat x_k \\neq x_k^*\\}\\]\n\n\n\n\n\nSquare Norm Loss: \\[ \\|M \\mathrm{diag}(x^* \\neq \\hat x)\\|_F^2\\]\n\n\n\n\nIf workers are bad, \\(M\\) is small but Hamming Loss is large\nIf \\(M \\sim 0\\), Hamming loss \\(\\sim d\\)\nSquare norm loss evaluates the quality of \\(\\hat x\\) rather than workers"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#other-parametric-models",
+    "href": "research/crowdsourcing/presentation.html#other-parametric-models",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Other Parametric Models",
+    "text": "Other Parametric Models\n\nDS: \\(M_{ik} = q_i\\) (Dawid & Skene, 1979), (Shah et al., 2020)\n\nThe abilities are independent of the tasks\n\nBTL: \\(M_{ik}=\\phi(a_i-b_k)\\) (Bradley & Terry, 1952)\n\n\\(a_i\\): abilities of the workers\n\\(b_i\\): difficulties of the tasks\n\n\n\nThese parametric models often fail to fit data well"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#non-parametric-models",
+    "href": "research/crowdsourcing/presentation.html#non-parametric-models",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Non-Parametric Models",
+    "text": "Non-Parametric Models\n\nknown labels \\(x^*\\), \\(M_{\\pi^*\\eta^*}\\) is bi-isotonic (Mao et al., 2020) (Liu & Moitra, 2020)\nknown labels \\(x^*\\), \\(M_{\\pi^*}\\) is isotonic (Flammarion et al., 2019) (Pilliat et al., 2024)\nunknown labels \\(x^*\\), \\(M_{\\pi^*\\eta^*}\\) is bi-isotonic (Shah et al., 2020)\nunknown labels \\(x^*\\), \\(M_{\\pi^*}\\) is isotonic (this paper)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#risks-recap",
+    "href": "research/crowdsourcing/presentation.html#risks-recap",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Risks Recap",
+    "text": "Risks Recap\n\n\n\n\nObjectives\n\n\nRecovering the labels\n\nRanking the workers\n\nEstimating their abilities\n\nRisks\n\n\n\\(\\color{purple}{\\mathbb E}[\\|M \\mathrm{diag}(x^* \\neq \\hat x)\\|_F^2]\\)\n\n\\(\\color{purple}{\\mathbb E}[\\|M_{\\pi^*} - M_{\\hat \\pi}\\|_F^2]\\)\n\n\\(\\color{purple}{\\mathbb E}[\\|M - \\hat M\\|_F^2]\\)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#minimax-recovering-risk",
+    "href": "research/crowdsourcing/presentation.html#minimax-recovering-risk",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "MiniMax Recovering Risk",
+    "text": "MiniMax Recovering Risk\n\n\n\n\nMax risk for recovering labels\n\n\n\\[\\max_{M,\\pi^*, x^*}{\\mathbb E}[\\|M \\mathrm{diag}(x^* \\neq \\hat x)\\|_F^2]\\]\n\nmaximize on all \\(M\\), \\(\\pi^*\\), \\(x^*\\) such that \\(M_{\\pi^*}\\) is isotonic\n\n\n\n\n\n\n\n\n\nMiniMax risk for recovering labels\n\n\n\\[\\mathcal R^*_{\\mathrm{reco}}(n,d,\\lambda)=\\min_{\\hat x}\\max_{M,\\pi^*, x^*}{\\mathbb E}[\\|M \\mathrm{diag}(x^* \\neq \\hat x)\\|_F^2]\\]\n\nminimize on all estimator \\(\\hat x\\)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#minimax-risks",
+    "href": "research/crowdsourcing/presentation.html#minimax-risks",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Minimax Risks",
+    "text": "Minimax Risks\n\n\n\n\nRecovering labels\n\n\n\\[\\mathcal R^*_{\\mathrm{reco}}(n,d,\\lambda)=\\min_{\\hat x}\\max_{M,\\pi^*, x^*}{\\mathbb E}[\\|M \\mathrm{diag}(x^* \\neq \\hat x)\\|_F^2]\\]\n\n\n\n\n\n\n\n\nRanking workers\n\n\n\\[\\mathcal R^*_{\\mathrm{rk}}(n,d,\\lambda)=\\min_{\\hat \\pi}\\max_{M,\\pi^*, x^*}{\\mathbb E}[\\|M_{\\pi^*} - M_{\\hat \\pi}\\|_F^2]\\]\n\n\n\n\n\n\n\n\nEstimating abilities\n\n\n\\[\\mathcal R^*_{\\mathrm{est}}(n,d,\\lambda)=\\min_{\\hat M}\\max_{M,\\pi^*, x^*}{\\mathbb E}[\\|M- \\hat M\\|_F^2]\\]"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#short-story",
+    "href": "research/crowdsourcing/presentation.html#short-story",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Short Story",
+    "text": "Short Story\n\n(Shah et al., 2020): recovering \\(x^*\\) optimally using a least square method, conjectured NP hard (\\(x^*\\) unknown, \\(M_{\\pi^*\\eta^*}\\) bi-isotonic).\n\n\n(Mao et al., 2020): estimating abilities \\(M\\) of workers optimally with least square method (\\(x^*\\) known, \\(M_{\\pi^*\\eta^*}\\) bi-isotonic)\n\n\n(Liu & Moitra, 2020): ranking \\(\\pi^*\\) and estimating abilities \\(M\\): improve state of the art poly. time (\\(x^*\\) known, \\(M_{\\pi^*\\eta^*}\\) bi-isotonic)\n\n\n(Pilliat et al., 2024): ranking \\(\\pi^*\\) and estimating abilities \\(M\\): achieves rates of Liu & Moitra (2020) without bi-isotonic assumption (\\(x^*\\) known, \\(M_{\\pi^*}\\) isotonic)\n\n\nThis paper: recovering \\(x^*\\), ranking \\(\\pi^*\\) and estimating abilities \\(M\\) in poly. time when \\(n=d\\) (\\(x^*\\) unknown, \\(M_{\\pi^*}\\) isotonic)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#main-results",
+    "href": "research/crowdsourcing/presentation.html#main-results",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Main Results",
+    "text": "Main Results\n\n\n\n\nOptimal poly. time method\n\n\nIf \\(\\tfrac{1}{\\lambda} \\leq n \\leq d\\), there exists a poly. time method \\(\\hat x\\) achieving \\(\\mathcal R^*_{\\mathrm{reco}}\\) up to polylog factors, i.e. \\[\n\\mathcal R_{\\mathrm{reco}}(n,d,\\lambda, \\hat x) \\lesssim \\mathcal R^*_{\\mathrm{reco}}(n,d,\\lambda)\n\\]\n\n\n\n\n\n\n\n\nMinimax Risk\n\n\nIf \\(\\tfrac{1}{\\lambda} \\leq n \\leq d\\), up to polylogs, \\[\n\\mathcal R^*_{\\mathrm{reco}}(n,d,\\lambda) \\asymp \\frac{d}{\\lambda}\n\\]"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#majority-vote",
+    "href": "research/crowdsourcing/presentation.html#majority-vote",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Majority Vote",
+    "text": "Majority Vote\n\n\\[ \\hat x^{(maj)}_k = \\mathrm{sign} \\left( \\sum_{i=1}^n Y_{ik} \\right) \\enspace .\\]\n\n\n\n\n\nMax risk of majority vote\n\n\n\\[\\mathcal R^*_{\\mathrm{reco}}(n, d, \\lambda, \\hat x^{(maj)}) \\asymp \\tfrac{d \\sqrt{n}}{\\lambda}\\]\n\n\n\n\n\nWorst case (\\(\\lambda=1\\)): \\(M \\asymp \\frac{1}{\\sqrt{n}}(\\mathbf 1_{n\\times d})\\)\n\n\nIn this case, \\(\\hat x^{(maj)}\\) is no better than random labelling and \\(\\|M\\mathrm{diag}(\\hat x \\neq x^*)\\|_F^2 \\asymp d\\sqrt{n}\\)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#least-square-conjectured-np-hard",
+    "href": "research/crowdsourcing/presentation.html#least-square-conjectured-np-hard",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Least square (conjectured NP Hard)",
+    "text": "Least square (conjectured NP Hard)\n\nMinimize\n\n\\[\\|Y- \\lambda M' \\mathrm{diag}(x)\\|_F^2\\]\n\n\nover all \\(x \\in \\{-1, 1\\}^d\\)\nand \\(M'\\) isotonic, up to a permutation \\(\\pi^*\\)\n\n\n\nThe set of isotonic matrices is convex…\n\n\n\nBut not isotonic matrices up to a permutation \\(\\pi^*\\)\n\n\nIt is minimax optimal (Shah et al., 2020)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#obi-wan-shah2020permutation",
+    "href": "research/crowdsourcing/presentation.html#obi-wan-shah2020permutation",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "OBI-WAN (Shah et al., 2020)",
+    "text": "OBI-WAN (Shah et al., 2020)\n\nIdea: Population term \\((M\\mathrm{diag}(x^*))(M\\mathrm{diag}(x^*))^T\\) is independent of \\(x^*\\)\n\n\nPCA Step:\n\n\\[\\hat v = \\underset{\\|v\\|=1}{\\mathrm{argmax}}\\|v^T Y\\|^2\\]\n\n\n\n(Shah et al., 2020) sort \\(|\\hat v|\\) to get a partial ranking\n\n\nAggregation: Majority vote on \\(k\\) top experts according to \\(|\\hat v|\\)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#result-on-obi-wan-method",
+    "href": "research/crowdsourcing/presentation.html#result-on-obi-wan-method",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Result on Obi-Wan Method",
+    "text": "Result on Obi-Wan Method\n\n\n\n\n\nTheorem 1 (Shah et al., 2020)\n\n\nIn submodel where \\(\\mathrm{rk}(M)= 1\\), \\(\\hat x^{(\\mathrm{Obi-Wan})}\\) achieves minimax risk up to polylogs: \\[\\mathcal R(n,d, \\lambda, \\hat x^{(\\mathrm{Obi-Wan})}) \\lesssim \\frac{d}{\\lambda} \\quad \\textbf{(minimax)}\\]\n\n\n\n\n\n\n\n\n\n\nTheorem 2 (Shah et al., 2020)\n\n\nIn the model where \\(M_{\\pi^*\\eta^*}\\) is bi-isotonic up to polylogs: \\[\\mathcal R(n,d, \\lambda, \\hat x^{(\\mathrm{Obi-Wan})}) \\lesssim \\frac{\\sqrt{n}d}{\\lambda} \\quad \\textbf{(not minimax)}\\]"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#subsampling",
+    "href": "research/crowdsourcing/presentation.html#subsampling",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Subsampling",
+    "text": "Subsampling\n\nLet \\(T \\geq 1\\). We generate \\(T\\) samples \\((Y^{(1)}, \\dots, Y^{(T)})\\) from \\(Y\\).\n\n\nPut \\(Y_{ik}\\) uniformly at random into one of the \\(Y^{(s)}\\).\n\n\\(Y_{ik}^{(s)}= 0\\) for all \\(s\\) except one, which is \\(Y_{ik}\\)\nThe \\((Y^{(s)})\\)’s are not independent!\nTechnical trick: condition on the sampling scheme"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#pca-step",
+    "href": "research/crowdsourcing/presentation.html#pca-step",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "PCA Step",
+    "text": "PCA Step\n\n\n\\[\\hat v = \\underset{\\|v\\|=1}{\\mathrm{argmax}}\\|v^T Y^{(1)}\\|^2 \\quad \\text{and} \\quad \\tilde v = \\hat v \\land \\sqrt{\\lambda / T}\\]\n\n\n\nMain idea: if \\(M\\) is isotonic, then up to a polylog\n\n\\[\\|MM^T\\|_{\\mathrm{op}} \\gtrsim \\|M\\|_F^2\\]\n\n\n\nIdea for the proof: if \\(\\|M\\|_F^2 \\gg \\frac{d}{\\lambda}\\), then \\(\\|\\tilde v^T M\\| \\gtrsim \\|M\\|_F^2\\)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#voting-step",
+    "href": "research/crowdsourcing/presentation.html#voting-step",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Voting Step",
+    "text": "Voting Step\n\nDefine the weighted vote vector\n\n\\[\\hat w = \\tilde v^T Y^{(2)}\\]\n\n\n\nDefine the estimated label as\n\n\\[\\hat x_k^{(1)} = \\mathrm{sign}(\\hat w_k)\\mathbf{1}\\bigg\\{|\\hat w_k| \\gg \\sqrt{\\sum_{i=1}^n \\tilde v_i B_{ik}^{(2)}}\\bigg\\}\\]"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#iterate",
+    "href": "research/crowdsourcing/presentation.html#iterate",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Iterate",
+    "text": "Iterate\n\nRepeat PCA Step + Voting Step on \\(Y \\mathrm{diag}(\\hat x \\neq 0)\\) a polylogarithmic number of times.\n\n\nWe get \\(\\hat x^{(1)}, \\hat x^{(2)}, \\dots, \\hat x^{(T)}\\)\n\n\nOutput \\(\\hat x^{(T)}\\)\n\\(\\newcommand{\\and}{\\quad \\mathrm{and} \\quad}\\)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#proof-idea",
+    "href": "research/crowdsourcing/presentation.html#proof-idea",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Proof Idea",
+    "text": "Proof Idea\n\nLet \\(M(t) = M\\mathrm{diag}(x^{(t-1)} = 0)\\)\n\n\nWhile \\(M(t) \\gg d/\\lambda\\), we prove that\n\n\\[\\|\\tilde v^TM(t)\\|_2^2 \\gtrsim \\|M\\|_F^2 \\and \\|\\tilde v^TM(t+1)\\|_2^2 \\lesssim d/\\lambda\\]\n\n\n\nBy Pythagoeran Theorem, we have\n\n\\[\\|M(t)\\|_F^2 - \\|M(t+1)\\|_F^2 \\geq \\|\\tilde v M(t)\\|_2^2 - \\|\\tilde v^TM(t+1)\\|_2^2\\]\n\n\n\nThis leads to exponential decay of \\(\\|M(t)\\|_F^2\\) until \\(M(t) \\leq d/\\lambda\\)"
+  },
+  {
+    "objectID": "research/crowdsourcing/presentation.html#synthetic-data",
+    "href": "research/crowdsourcing/presentation.html#synthetic-data",
+    "title": "Recovering Labels from Crowdsourced Data",
+    "section": "Synthetic Data",
+    "text": "Synthetic Data\n\n\n\n\n\n\n\n\n\n \n\nBlack: \\(M_{ik}=0\\)\nBlue: \\(M_{ik} = h\\)"
   }
 ]

@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.22">
+
+  <title>Emmanuel Pilliat – Recovering Labels from Crowdsourced Data</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-00ac2f6af1389919a18f42df5b7c0002.css">
+  <link rel="stylesheet" href="styles.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Recovering Labels from Crowdsourced Data</h1>
+  <p class="subtitle">An Optimal and Polynomial Time Method</p>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section id="crowdsourcing-problem-with-binary-tasks" class="slide level2">
+<h2>Crowdsourcing Problem with Binary Tasks</h2>
+<ul>
+<li class="fragment"><strong>Image Classification</strong>: “Does this image contain a dog?”</li>
+<li class="fragment"><strong>Text Moderation</strong>: “Is this comment toxic or offensive?”</li>
+<li class="fragment"><strong>Sentiment Analysis</strong>: “Does this review express positive sentiment?”</li>
+<li class="fragment"><strong>Data Verification</strong>: “Is this information factually correct?”</li>
+</ul>
+</section>
+<section id="main-question" class="slide level2">
+<h2>Main Question</h2>
+<div class="fragment">
+<p>Given <span style="background-color: yellow;"><span class="math inline">\(n\)</span> workers</span> and <span style="background-color: yellow;"><span class="math inline">\(d\)</span> binary tasks</span></p>
+</div>
+<div class="fragment">
+<p>A proportion <span class="math inline">\(\lambda\)</span> of observations</p>
+</div>
+<div class="fragment">
+<p>How can we accurately <span style="background-color: yellow;">recover the <strong>labels</strong></span>?</p>
+</div>
+</section>
+<section id="illustration" class="slide level2">
+<h2>Illustration</h2>
+<ul>
+<li class="fragment">Two binary tasks with labels in <span class="math inline">\(\{\color{green}{-1},\color{blue}{+1}\}\)</span></li>
+<li class="fragment"><strong>Unknown</strong> vector <span class="math inline">\(x^*\)</span> of labels with <span class="math inline">\(d=9\)</span> tasks <span class="math inline">\(x^*= (\color{blue}{+1},\color{blue}{+1},\color{green}{-1},\color{blue}{+1},\color{green}{-1},\color{blue}{+1},\color{blue}{+1},\color{blue}{+1},\color{blue}{+1})\)</span></li>
+</ul>
+<div class="r-stack">
+<div class="fragment fade-in-then-out">
+<div class="center">
+<p><span class="math display">\[
+Y=\left(\begin{array}{ccccccccc}
+\color{green}{-1} &amp; \color{blue}{+1} &amp; \color{green}{-1} &amp; \color{blue}{+1} &amp; \color{blue}{+1} &amp; \color{green}{-1} &amp; \color{green}{-1} &amp; \color{blue}{+1} &amp; \color{blue}{+1} \\
+\color{blue}{+1} &amp; \color{blue}{+1} &amp; \color{blue}{+1} &amp; \color{blue}{+1} &amp; \color{green}{-1} &amp; \color{blue}{+1} &amp; \color{blue}{+1} &amp; \color{green}{-1} &amp; \color{blue}{+1} \\
+\color{blue}{+1} &amp; \color{green}{-1} &amp; \color{green}{-1} &amp; \color{blue}{+1} &amp; \color{green}{-1} &amp; \color{blue}{+1} &amp; \color{green}{-1} &amp; \color{blue}{+1} &amp; \color{blue}{+1} \\
+\color{green}{-1} &amp; \color{blue}{+1} &amp; \color{blue}{+1} &amp; \color{blue}{+1} &amp; \color{green}{-1} &amp; \color{blue}{+1} &amp; \color{blue}{+1} &amp; \color{blue}{+1} &amp; \color{blue}{+1}
+\end{array}\right)
+\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="center">
+<p><span class="math display">\[
+Y=\left(\begin{array}{ccccccccc}
+\color{red}{0} &amp; \color{blue}{+1} &amp; \color{green}{-1} &amp; \color{blue}{+1} &amp; \color{red}{0} &amp; \color{green}{-1} &amp; \color{green}{-1} &amp; \color{blue}{+1} &amp; \color{blue}{+1} \\
+\color{red}{0} &amp; \color{blue}{+1} &amp; \color{red}{0} &amp; \color{blue}{+1} &amp; \color{green}{-1} &amp; \color{red}{0} &amp; \color{blue}{+1} &amp; \color{green}{-1} &amp; \color{blue}{+1} \\
+\color{blue}{+1} &amp; \color{green}{-1} &amp; \color{green}{-1} &amp; \color{blue}{+1} &amp; \color{green}{-1} &amp; \color{blue}{+1} &amp; \color{red}{0} &amp; \color{blue}{+1} &amp; \color{blue}{+1} \\
+\color{green}{-1} &amp; \color{blue}{+1} &amp; \color{blue}{+1} &amp; \color{red}{0} &amp; \color{green}{-1} &amp; \color{blue}{+1} &amp; \color{red}{0} &amp; \color{red}{0} &amp; \color{red}{0}
+\end{array}\right)
+\]</span></p>
+</div>
+</div>
+</div>
+<ul>
+<li class="fragment">Rate of observations: <span class="math inline">\(\color{red}{\lambda= 0.72}\)</span></li>
+</ul>
+</section>
+<section id="observation-model" class="slide level2">
+<h2>Observation Model</h2>
+<div class="fragment">
+<p>Given workers <span class="math inline">\(i\in\{1, \dots, n\}\)</span> and tasks <span class="math inline">\(k\in\{1, \dots, d\}\)</span></p>
+</div>
+<div class="fragment">
+<p>We observe</p>
+<div class="square-def">
+<p><span class="math display">\[
+Y_{ik} = B_{ik}(M_{ik}x_k^* + E_{ik}) \enspace
+\]</span></p>
+</div>
+<ul>
+<li class="fragment"><p>Where:</p>
+<ol type="1">
+<li class="fragment"><span class="math inline">\(M_{ik} \in [0,1]\)</span></li>
+<li class="fragment"><span class="math inline">\(E_{ik}\)</span> are independent and <span class="math inline">\(1\)</span>-subGaussian</li>
+<li class="fragment"><span class="math inline">\(B_{ik}\)</span> are iid Bernoulli <span class="math inline">\(\lambda \in [0,1]\)</span></li>
+</ol></li>
+</ul>
+</div>
+</section>
+<section id="observation-model-1" class="slide level2">
+<h2>Observation Model</h2>
+<div class="fragment">
+<p>We observe</p>
+<div class="square-def">
+<p><span class="math display">\[Y = B\odot(M\mathrm{diag}(x^*) + E) \in \mathbb R^{n \times d}\]</span></p>
+</div>
+<p>where <span class="math inline">\(\odot\)</span> is the Hadamard product.</p>
+<ul>
+<li class="fragment"><span class="math inline">\(M \in [0,1]^{n \times d}\)</span> is the <strong>ability</strong> matrix</li>
+<li class="fragment"><span class="math inline">\(x^*\)</span> is the vector of <strong>unknown</strong> labels</li>
+<li class="fragment"><span class="math inline">\(E\)</span> is a matrix of independent <strong>noise</strong></li>
+<li class="fragment"><span class="math inline">\(B\)</span> is a Bernoulli “mask” matrix, modelling <strong>partial observations</strong></li>
+</ul>
+</div>
+</section>
+<section id="bernoulli-observation-submodel" class="slide level2">
+<h2>Bernoulli Observation SubModel</h2>
+<p><span class="math display">\[Y = B\odot(M\mathrm{diag}(x^*) + E) \in \mathbb R^{n \times d}\]</span></p>
+<div class="fragment" style="font-size:120%">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Bernoulli submodel <span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span></strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[
+\begin{aligned}\label{eq:bernoulli_model}
+    Y_{ik} = \begin{cases}
+        x^*_k \text{ with proba } \lambda\left(\frac{1+M_{ik}}{2}\right)
+        \\
+        -x^*_k \text{ with proba } \lambda\left(\frac{1-M_{ik}}{2}\right)\\
+        0 \text{ with proba } 1-\lambda
+        \end{cases}
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\frac{1+M_{ik}}{2}\)</span> is the proba that <span class="math inline">\(i\)</span> answers <strong>correctly</strong> to task <span class="math inline">\(k\)</span>.</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\lambda\)</span> is the probability of observing worker/task pair <span class="math inline">\((i,k)\)</span></p>
+</div>
+</section>
+<section id="shape-constraints" class="slide level2">
+<h2>Shape Constraints</h2>
+<ul>
+<li class="fragment"><span class="math inline">\(M \in [0,1]^{n \times d}\)</span> represents the <strong>ability</strong> matrix of worker/task pairs</li>
+<li class="fragment">We assume that <span style="background-color: yellow;"><span class="math inline">\(M\)</span> is isotonic up to a permutation <span class="math inline">\(\pi^*\)</span></span> , that is</li>
+</ul>
+<div class="r-stack">
+<div class="fragment fade-in-then-out">
+<p><span class="math display">\[
+M_{\pi^*}=\left(\begin{array}{ccccccccc}
+\color{#000099}{0.9} &amp; \color{#000099}{0.8} &amp; \color{#000099}{0.9} &amp; \color{#000099}{1\phantom{.0}} \\
+\color{#4B0082}{0.8} &amp; \color{#4B0082}{0.7} &amp; \color{#4B0082}{0.9} &amp; \color{#4B0082}{0.8} \\
+\color{#990066}{0.6} &amp; \color{#990066}{0.7} &amp; \color{#990066}{0.7} &amp; \color{#990066}{0.6} \\
+\color{#CC0000}{0.5} &amp; \color{#CC0000}{0.7} &amp; \color{#CC0000}{0.5} &amp; \color{#CC0000}{0.6}
+\end{array}\right)
+\]</span></p>
+</div>
+<div class="fragment">
+<p><span class="math display">\[
+M_{\phantom{{\pi^*}}}=\left(\begin{array}{ccccccccc}
+\color{#990066}{0.6} &amp; \color{#990066}{0.7} &amp; \color{#990066}{0.7} &amp; \color{#990066}{0.6} \\
+\color{#CC0000}{0.5} &amp; \color{#CC0000}{0.7} &amp; \color{#CC0000}{0.5} &amp; \color{#CC0000}{0.6} \\
+\color{#000099}{0.9} &amp; \color{#000099}{0.8} &amp; \color{#000099}{0.9} &amp; \color{#000099}{1\phantom{.0}} \\
+\color{#4B0082}{0.8} &amp; \color{#4B0082}{0.7} &amp; \color{#4B0082}{0.9} &amp; \color{#4B0082}{0.8}
+\end{array}\right)
+\]</span></p>
+</div>
+</div>
+</section>
+<section id="shape-constraints-1" class="slide level2">
+<h2>Shape Constraints</h2>
+<ul>
+<li class="fragment">For all <span class="math inline">\(k = 1, \dots, d\)</span>, <span class="math display">\[
+M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
+\]</span></li>
+<li class="fragment">It means that the <span style="background-color: yellow;">rows are uniformly increasing</span></li>
+<li class="fragment">A worker <span class="math inline">\(i\)</span> is better <strong>on average</strong> than <span class="math inline">\(j\)</span>, if it is better on <strong>all tasks</strong> on average</li>
+</ul>
+</section>
+<section id="illustration-when-x-is-known" class="slide level2">
+<h2>Illustration when <span class="math inline">\(x^*\)</span> is Known</h2>
+<div class="r-stack">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="IllustrationsCrowdsourcing/imshow22_n150_d150_scale0.1.png" class="fragment quarto-figure quarto-figure-center" style="width:60.0%"></p>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="IllustrationsCrowdsourcing/imshow22_n150_d150_scale0.2.png" class="fragment quarto-figure quarto-figure-center" style="width:60.0%"></p>
+</figure>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="IllustrationsCrowdsourcing/imshow22_n150_d150_scale0.4.png" class="fragment quarto-figure quarto-figure-center" style="width:60.0%"></p>
+</figure>
+</div>
+</div>
+</section>
+<section id="crowdsourcing-problems" class="slide level2">
+<h2>Crowdsourcing Problems</h2>
+<div style="font-size:120%">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Setting</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[ Y = B\odot(M \mathrm{diag}(x^*) + E)\]</span> <strong>Shape constraint</strong>: <span class="math inline">\(\exists \pi^*\)</span> s.t. <span class="math inline">\(M_{\pi^*} \in [0,1]^{n \times d}\)</span> is <strong>isotonic</strong></p>
+</div>
+</div>
+</div>
+</div>
+<div class="columns">
+<div class="column">
+<div class="fragment">
+<h3 id="objectives">Objectives</h3>
+</div>
+<div class="fragment">
+<p><strong>Recovering</strong> the labels</p>
+</div>
+<div class="fragment">
+<p><strong>Ranking</strong> the workers</p>
+</div>
+<div class="fragment">
+<p><strong>Estimating</strong> their abilities</p>
+</div>
+</div><div class="column">
+<div class="fragment">
+<h3 id="losses">Losses</h3>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\phantom{\color{purple}{\mathbb E}}\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2\)</span></p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\phantom{\color{purple}{\mathbb E}}\|M_{\pi^*} - M_{\hat \pi}\|_F^2\)</span><br>
+</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\phantom{\color{purple}{\mathbb E}}\|M - \hat M\|_F^2\)</span></p>
+</div>
+</div></div>
+<div class="fragment" style="font-size:120%;color">
+<p>These three objectives are closely intertwined!</p>
+</div>
+</section>
+<section id="crowdsourcing-problems-1" class="slide level2">
+<h2>Crowdsourcing Problems</h2>
+<div style="font-size:120%">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Setting</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[ Y = B\odot(M \mathrm{diag}(x^*) + E)\]</span> <strong>Shape constraint</strong>: <span class="math inline">\(\exists \pi^*\)</span> s.t. <span class="math inline">\(M_{\pi^*} \in [0,1]^{n \times d}\)</span> is <strong>isotonic</strong></p>
+</div>
+</div>
+</div>
+</div>
+<div class="columns">
+<div class="column">
+<h3 id="objectives-1">Objectives</h3>
+<p><strong>Recovering</strong> the labels<br>
+</p>
+<p><strong>Ranking</strong> the workers<br>
+</p>
+<p><strong>Estimating</strong> their abilities</p>
+</div><div class="column">
+<h3 id="risks">Risks</h3>
+<p><span class="math inline">\(\color{purple}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2]\)</span><br>
+</p>
+<p><span class="math inline">\(\color{purple}{\mathbb E}[\|M_{\pi^*} - M_{\hat \pi}\|_F^2]\)</span><br>
+</p>
+<p><span class="math inline">\(\color{purple}{\mathbb E}[\|M - \hat M\|_F^2]\)</span></p>
+</div></div>
+<div style="font-size:120%;color">
+<p>These three objectives are closely intertwined!</p>
+</div>
+</section>
+<section id="square-norm-loss-vs-hamming-loss" class="slide level2">
+<h2>Square Norm Loss VS Hamming Loss</h2>
+<div class="columns">
+<div class="column">
+<div class="fragment">
+<div class="square-def">
+<p><strong>Hamming Loss</strong>: <span class="math display">\[ \sum_{k=1}^d \mathbf 1\{\hat x_k \neq x_k^*\}\]</span></p>
+</div>
+</div>
+</div><div class="column">
+<div class="fragment">
+<div class="square-def">
+<p><strong>Square Norm Loss</strong>: <span class="math display">\[ \|M \mathrm{diag}(x^* \neq \hat x)\|_F^2\]</span></p>
+</div>
+</div>
+</div></div>
+<ul>
+<li class="fragment">If <span style="background-color: orange;">workers are bad</span>, <span class="math inline">\(M\)</span> is small but <span style="background-color: orange;">Hamming Loss is large</span></li>
+<li class="fragment">If <span class="math inline">\(M \sim 0\)</span>, Hamming loss <span class="math inline">\(\sim d\)</span></li>
+<li class="fragment"><span style="background-color: lightgreen;">Square norm loss</span> evaluates the <span style="background-color: lightgreen;">quality of <span class="math inline">\(\hat x\)</span></span> rather than workers</li>
+</ul>
+</section>
+<section id="other-parametric-models" class="slide level2">
+<h2>Other Parametric Models</h2>
+<ul>
+<li class="fragment"><span style="background-color: yellow;">DS: <span class="math inline">\(M_{ik} = q_i\)</span></span> <span class="citation" data-cites="dawid1979maximum">(Dawid &amp; Skene, 1979)</span>, <span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span>
+<ul>
+<li class="fragment">The <strong>abilities</strong> are independent of the tasks</li>
+</ul></li>
+<li class="fragment"><span style="background-color: yellow;">BTL: <span class="math inline">\(M_{ik}=\phi(a_i-b_k)\)</span></span> <span class="citation" data-cites="bradley1952rank">(Bradley &amp; Terry, 1952)</span>
+<ul>
+<li class="fragment"><span class="math inline">\(a_i\)</span>: abilities of the workers</li>
+<li class="fragment"><span class="math inline">\(b_i\)</span>: difficulties of the tasks</li>
+</ul></li>
+</ul>
+<div class="fragment">
+<p>These <span style="background-color: orange;">parametric</span> models often <span style="background-color: orange;">fail to fit data well</span></p>
+</div>
+</section>
+<section id="non-parametric-models" class="slide level2">
+<h2>Non-Parametric Models</h2>
+<ul>
+<li class="fragment"><span style="background-color: lightgreen;"><strong>known labels</strong> <span class="math inline">\(x^*\)</span></span>, <span style="background-color: lightblue;"><span class="math inline">\(M_{\pi^*\eta^*}\)</span> is bi-isotonic</span> <span class="citation" data-cites="mao2020towards">(Mao et al., 2020)</span> <span class="citation" data-cites="liu2020better">(Liu &amp; Moitra, 2020)</span></li>
+<li class="fragment"><span style="background-color: lightgreen;"><strong>known labels</strong> <span class="math inline">\(x^*\)</span></span>, <span style="background-color: lightblue;"><span class="math inline">\(M_{\pi^*}\)</span> is isotonic</span> <span class="citation" data-cites="flammarion2019optimal">(Flammarion et al., 2019)</span> <span class="citation" data-cites="pilliat2024optimal">(Pilliat et al., 2024)</span></li>
+<li class="fragment"><span style="background-color: lightgreen;"><strong>unknown labels</strong> <span class="math inline">\(x^*\)</span></span>, <span style="background-color: lightblue;"><span class="math inline">\(M_{\pi^*\eta^*}\)</span> is bi-isotonic</span> <span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span></li>
+<li class="fragment"><span style="background-color: lightgreen;"><strong>unknown labels</strong> <span class="math inline">\(x^*\)</span></span>, <span style="background-color: lightblue;"><span class="math inline">\(M_{\pi^*}\)</span> is isotonic</span> (this paper)</li>
+</ul>
+</section>
+<section id="risks-recap" class="slide level2">
+<h2>Risks Recap</h2>
+<p><br>
+</p>
+<div class="columns">
+<div class="column">
+<h3 id="objectives-2">Objectives</h3>
+<p><br>
+</p>
+<p><strong>Recovering</strong> the labels<br>
+</p>
+<p><strong>Ranking</strong> the workers<br>
+</p>
+<p><strong>Estimating</strong> their abilities</p>
+</div><div class="column">
+<h3 id="risks-1">Risks</h3>
+<p><br>
+</p>
+<p><span class="math inline">\(\color{purple}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2]\)</span><br>
+</p>
+<p><span class="math inline">\(\color{purple}{\mathbb E}[\|M_{\pi^*} - M_{\hat \pi}\|_F^2]\)</span><br>
+</p>
+<p><span class="math inline">\(\color{purple}{\mathbb E}[\|M - \hat M\|_F^2]\)</span></p>
+</div></div>
+</section>
+<section id="minimax-recovering-risk" class="slide level2">
+<h2>MiniMax Recovering Risk</h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Max risk for recovering labels</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[\max_{M,\pi^*, x^*}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2]\]</span></p>
+<ul>
+<li class="fragment">maximize on all <span class="math inline">\(M\)</span>, <span class="math inline">\(\pi^*\)</span>, <span class="math inline">\(x^*\)</span> such that <span class="math inline">\(M_{\pi^*}\)</span> is <strong>isotonic</strong></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>MiniMax risk for recovering labels</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[\mathcal R^*_{\mathrm{reco}}(n,d,\lambda)=\min_{\hat x}\max_{M,\pi^*, x^*}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2]\]</span></p>
+<ul>
+<li class="fragment">minimize on all estimator <span class="math inline">\(\hat x\)</span></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="minimax-risks" class="slide level2">
+<h2>Minimax Risks</h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Recovering labels</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[\mathcal R^*_{\mathrm{reco}}(n,d,\lambda)=\min_{\hat x}\max_{M,\pi^*, x^*}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2]\]</span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Ranking workers</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[\mathcal R^*_{\mathrm{rk}}(n,d,\lambda)=\min_{\hat \pi}\max_{M,\pi^*, x^*}{\mathbb E}[\|M_{\pi^*} - M_{\hat \pi}\|_F^2]\]</span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Estimating abilities</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[\mathcal R^*_{\mathrm{est}}(n,d,\lambda)=\min_{\hat M}\max_{M,\pi^*, x^*}{\mathbb E}[\|M- \hat M\|_F^2]\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="short-story" class="slide level2" style="font-size:90%">
+<h2>Short Story</h2>
+<div class="fragment">
+<p><span style="background-color: yellow;"><span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span></span>: <span style="background-color: lightblue;">recovering <span class="math inline">\(x^*\)</span></span> optimally using a <strong>least square</strong> method, conjectured <strong>NP hard</strong> (<span style="background-color: lightgreen;"><span class="math inline">\(x^*\)</span> <strong>unknown</strong>, <span class="math inline">\(M_{\pi^*\eta^*}\)</span> <strong>bi-isotonic</strong></span>).</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;"><span class="citation" data-cites="mao2020towards">(Mao et al., 2020)</span></span>: <span style="background-color: lightblue;">estimating abilities <span class="math inline">\(M\)</span></span> of workers optimally with <strong>least square method</strong> (<span style="background-color: lightgreen;"><span class="math inline">\(x^*\)</span> <strong>known</strong>, <span class="math inline">\(M_{\pi^*\eta^*}\)</span> <strong>bi-isotonic</strong></span>)</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;"><span class="citation" data-cites="liu2020better">(Liu &amp; Moitra, 2020)</span></span>: <span style="background-color: lightblue;">ranking <span class="math inline">\(\pi^*\)</span> and estimating abilities <span class="math inline">\(M\)</span></span>: improve state of the art poly. time (<span style="background-color: lightgreen;"><span class="math inline">\(x^*\)</span> <strong>known</strong>, <span class="math inline">\(M_{\pi^*\eta^*}\)</span> <strong>bi-isotonic</strong></span>)</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;"><span class="citation" data-cites="pilliat2024optimal">(Pilliat et al., 2024)</span></span>: <span style="background-color: lightblue;">ranking <span class="math inline">\(\pi^*\)</span> and estimating abilities <span class="math inline">\(M\)</span></span>: achieves rates of <span class="citation" data-cites="liu2020better">Liu &amp; Moitra (2020)</span> without bi-isotonic assumption (<span style="background-color: lightgreen;"><span class="math inline">\(x^*\)</span> <strong>known</strong>, <span class="math inline">\(M_{\pi^*}\)</span> <strong>isotonic</strong></span>)</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;"><strong>This paper</strong></span>: <span style="background-color: lightblue;">recovering <span class="math inline">\(x^*\)</span>, ranking <span class="math inline">\(\pi^*\)</span> and estimating abilities <span class="math inline">\(M\)</span></span> in poly. time when <span class="math inline">\(n=d\)</span> (<span style="background-color: lightgreen;"><span class="math inline">\(x^*\)</span> <strong>unknown</strong>, <span class="math inline">\(M_{\pi^*}\)</span> <strong>isotonic</strong></span>)</p>
+</div>
+</section>
+<section id="main-results" class="slide level2">
+<h2>Main Results</h2>
+<div class="fragment" style="font-size=120%">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Optimal poly. time method</strong></p>
+</div>
+<div class="callout-content">
+<p>If <span class="math inline">\(\tfrac{1}{\lambda} \leq n \leq d\)</span>, there exists a poly. time method <span class="math inline">\(\hat x\)</span> achieving <span class="math inline">\(\mathcal R^*_{\mathrm{reco}}\)</span> up to polylog factors, i.e. <span class="math display">\[
+\mathcal R_{\mathrm{reco}}(n,d,\lambda, \hat x) \lesssim \mathcal R^*_{\mathrm{reco}}(n,d,\lambda)
+\]</span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment" style="font-size=120%">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Minimax Risk</strong></p>
+</div>
+<div class="callout-content">
+<p>If <span class="math inline">\(\tfrac{1}{\lambda} \leq n \leq d\)</span>, up to polylogs, <span class="math display">\[
+\mathcal R^*_{\mathrm{reco}}(n,d,\lambda) \asymp \frac{d}{\lambda}
+\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section>
+<section id="methods-in-the-literature" class="title-slide slide level1 center">
+<h1>Methods in the Literature</h1>
+
+</section>
+<section id="majority-vote" class="slide level2">
+<h2>Majority Vote</h2>
+<div class="fragment">
+<p><span class="math display">\[ \hat x^{(maj)}_k = \mathrm{sign} \left( \sum_{i=1}^n Y_{ik} \right) \enspace .\]</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Max risk of majority vote</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[\mathcal R^*_{\mathrm{reco}}(n, d, \lambda, \hat x^{(maj)}) \asymp \tfrac{d \sqrt{n}}{\lambda}\]</span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>Worst case (<span class="math inline">\(\lambda=1\)</span>): <span class="math inline">\(M \asymp \frac{1}{\sqrt{n}}(\mathbf 1_{n\times d})\)</span></p>
+</div>
+<div class="fragment">
+<p>In this case, <span style="background-color: orange;"><span class="math inline">\(\hat x^{(maj)}\)</span> is no better than random labelling</span> and <span class="math inline">\(\|M\mathrm{diag}(\hat x \neq x^*)\|_F^2 \asymp d\sqrt{n}\)</span></p>
+</div>
+</section>
+<section id="least-square-conjectured-np-hard" class="slide level2">
+<h2>Least square (conjectured NP Hard)</h2>
+<div class="fragment">
+<p>Minimize</p>
+<div class="square-def">
+<p><span class="math display">\[\|Y- \lambda M' \mathrm{diag}(x)\|_F^2\]</span></p>
+</div>
+<ul>
+<li class="fragment">over all <span class="math inline">\(x \in \{-1, 1\}^d\)</span></li>
+<li class="fragment">and <span class="math inline">\(M'\)</span> <strong>isotonic</strong>, up to a permutation <span class="math inline">\(\pi^*\)</span></li>
+</ul>
+</div>
+<div class="fragment">
+<p>The set of <span style="background-color: lightgreen;">isotonic matrices is convex</span>…<br>
+</p>
+</div>
+<div class="fragment">
+<p>But <span style="background-color: orange;">not isotonic matrices up to a permutation <span class="math inline">\(\pi^*\)</span></span></p>
+</div>
+<div class="fragment">
+<p>It is minimax optimal <span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span></p>
+</div>
+</section>
+<section id="obi-wan-shah2020permutation" class="slide level2">
+<h2>OBI-WAN <span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span></h2>
+<div class="fragment">
+<p><strong>Idea</strong>: Population term <span class="math inline">\((M\mathrm{diag}(x^*))(M\mathrm{diag}(x^*))^T\)</span> is <span style="background-color: yellow;">independent of <span class="math inline">\(x^*\)</span></span></p>
+</div>
+<div class="fragment">
+<p><strong>PCA</strong> Step:</p>
+<div class="square-def">
+<p><span class="math display">\[\hat v = \underset{\|v\|=1}{\mathrm{argmax}}\|v^T Y\|^2\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p><span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span> sort <span class="math inline">\(|\hat v|\)</span> to get a <strong>partial ranking</strong></p>
+</div>
+<div class="fragment">
+<p><strong>Aggregation</strong>: Majority vote on <span class="math inline">\(k\)</span> top experts according to <span class="math inline">\(|\hat v|\)</span></p>
+</div>
+</section>
+<section id="result-on-obi-wan-method" class="slide level2">
+<h2>Result on Obi-Wan Method</h2>
+<div class="fragment">
+<div style="font-size: 100%;">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Theorem 1 <span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span></strong></p>
+</div>
+<div class="callout-content">
+<p>In submodel where <span style="background-color: yellow;"><span class="math inline">\(\mathrm{rk}(M)= 1\)</span></span>, <span class="math inline">\(\hat x^{(\mathrm{Obi-Wan})}\)</span> achieves minimax risk up to polylogs: <span class="math display">\[\mathcal R(n,d, \lambda, \hat x^{(\mathrm{Obi-Wan})}) \lesssim \frac{d}{\lambda} \quad \textbf{(minimax)}\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div style="font-size: 100%;">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Theorem 2 <span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span></strong></p>
+</div>
+<div class="callout-content">
+<p>In the model where <span class="math inline">\(M_{\pi^*\eta^*}\)</span> is <span style="background-color: yellow;">bi-isotonic</span> up to polylogs: <span class="math display">\[\mathcal R(n,d, \lambda, \hat x^{(\mathrm{Obi-Wan})}) \lesssim \frac{\sqrt{n}d}{\lambda} \quad \textbf{(not minimax)}\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="iterative-spectral-voting" class="title-slide slide level1 center">
+<h1>Iterative Spectral Voting</h1>
+
+</section>
+<section id="subsampling" class="slide level2">
+<h2>Subsampling</h2>
+<div class="fragment">
+<p>Let <span class="math inline">\(T \geq 1\)</span>. We generate <span class="math inline">\(T\)</span> samples <span class="math inline">\((Y^{(1)}, \dots, Y^{(T)})\)</span> from <span class="math inline">\(Y\)</span>.</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;">Put <span class="math inline">\(Y_{ik}\)</span> uniformly at random</span> into one of the <span class="math inline">\(Y^{(s)}\)</span>.</p>
+<ul>
+<li class="fragment"><span class="math inline">\(Y_{ik}^{(s)}= 0\)</span> for all <span class="math inline">\(s\)</span> except one, which is <span class="math inline">\(Y_{ik}\)</span></li>
+<li class="fragment">The <span class="math inline">\((Y^{(s)})\)</span>’s are <span style="background-color: orange;">not independent</span>!</li>
+<li class="fragment">Technical trick: condition on the sampling scheme</li>
+</ul>
+</div>
+</section>
+<section id="pca-step" class="slide level2">
+<h2>PCA Step</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[\hat v = \underset{\|v\|=1}{\mathrm{argmax}}\|v^T Y^{(1)}\|^2 \quad \text{and} \quad \tilde v = \hat v \land \sqrt{\lambda / T}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Main idea: if <span class="math inline">\(M\)</span> is <strong>isotonic</strong>, then up to a polylog</p>
+<div class="square-tip">
+<p><span class="math display">\[\|MM^T\|_{\mathrm{op}} \gtrsim \|M\|_F^2\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Idea for the proof: if <span class="math inline">\(\|M\|_F^2 \gg \frac{d}{\lambda}\)</span>, then <span class="math inline">\(\|\tilde v^T M\| \gtrsim \|M\|_F^2\)</span></p>
+</div>
+</section>
+<section id="voting-step" class="slide level2">
+<h2>Voting Step</h2>
+<div class="fragment">
+<p>Define the weighted vote vector</p>
+<div class="square-def">
+<p><span class="math display">\[\hat w = \tilde v^T Y^{(2)}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Define the estimated label as</p>
+<div class="square-def">
+<p><span class="math display">\[\hat x_k^{(1)} = \mathrm{sign}(\hat w_k)\mathbf{1}\bigg\{|\hat w_k| \gg \sqrt{\sum_{i=1}^n \tilde v_i B_{ik}^{(2)}}\bigg\}\]</span></p>
+</div>
+</div>
+</section>
+<section id="iterate" class="slide level2">
+<h2>Iterate</h2>
+<div class="fragment">
+<p>Repeat PCA Step + Voting Step on <span class="math inline">\(Y \mathrm{diag}(\hat x \neq 0)\)</span> a polylogarithmic number of times.</p>
+</div>
+<div class="fragment">
+<p>We get <span class="math inline">\(\hat x^{(1)}, \hat x^{(2)}, \dots, \hat x^{(T)}\)</span></p>
+</div>
+<div class="fragment">
+<p>Output <span class="math inline">\(\hat x^{(T)}\)</span></p>
+<p><span class="math inline">\(\newcommand{\and}{\quad \mathrm{and} \quad}\)</span></p>
+</div>
+</section>
+<section id="proof-idea" class="slide level2">
+<h2>Proof Idea</h2>
+<div class="fragment">
+<p>Let <span style="background-color: yellow;"><span class="math inline">\(M(t) = M\mathrm{diag}(x^{(t-1)} = 0)\)</span></span></p>
+</div>
+<div class="fragment">
+<p>While <span style="background-color: yellow;"><span class="math inline">\(M(t) \gg d/\lambda\)</span></span>, we prove that</p>
+<div class="square-def">
+<p><span class="math display">\[\|\tilde v^TM(t)\|_2^2 \gtrsim \|M\|_F^2 \and \|\tilde v^TM(t+1)\|_2^2 \lesssim d/\lambda\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>By Pythagoeran Theorem, we have</p>
+<div class="square-def">
+<p><span class="math display">\[\|M(t)\|_F^2 - \|M(t+1)\|_F^2 \geq \|\tilde v M(t)\|_2^2 - \|\tilde v^TM(t+1)\|_2^2\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>This leads to <span style="background-color: yellow;">exponential decay of <span class="math inline">\(\|M(t)\|_F^2\)</span></span> until <span class="math inline">\(M(t) \leq d/\lambda\)</span></p>
+</div>
+</section></section>
+<section>
+<section id="simulations" class="title-slide slide level1 center">
+<h1>Simulations</h1>
+
+</section>
+<section id="synthetic-data" class="slide level2">
+<h2>Synthetic Data</h2>
+<div class="columns">
+<div class="column" style="width:70%;">
+<div class="fragment" data-fragment-index="1">
+<p><img data-src="generated_matrices.svg" style="width:80.0%"></p>
+</div>
+<div class="fragment" data-fragment-index="3">
+<p><img data-src="monte_carlo_N100_nd1000_T10.png"></p>
+</div>
+</div><div class="column" style="width:30%;">
+<p>&nbsp;</p>
+<div class="fragment" data-fragment-index="2">
+<p><strong>Black</strong>: <span class="math inline">\(M_{ik}=0\)</span><br>
+<strong>Blue</strong>: <span class="math inline">\(M_{ik} = h\)</span></p>
+</div>
+</div></div>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

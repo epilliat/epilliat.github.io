@@ -1,0 +1,682 @@
+---
+title: "Recovering Labels from Crowdsourced Data"
+bibliography: biblio.bib
+csl: apa.csl
+citation-location: margin
+suppress-bibliography: true
+subtitle: "An Optimal and Polynomial Time Method"
+format: 
+  revealjs:
+    incremental: true
+    slide-number: true
+    callout-icon: false
+smaller: false
+css: "styles.css"
+#filters:
+  #- parse-latex
+---
+
+
+
+## Crowdsourcing Problem with Binary Tasks
+
+- **Image Classification**: "Does this image contain a dog?"
+- **Text Moderation**: "Is this comment toxic or offensive?"
+- **Sentiment Analysis**: "Does this review express positive sentiment?"
+- **Data Verification**: "Is this information factually correct?"
+
+
+## Main Question
+
+. . .
+
+Given [$n$ workers]{style="background-color: yellow;"} and [$d$ binary tasks]{style="background-color: yellow;"}
+
+. . .
+
+A proportion $\lambda$ of observations
+
+. . .
+
+How can we accurately [recover the **labels**]{style="background-color: yellow;"}?
+
+
+## Illustration 
+
+- Two binary tasks with labels in $\{\color{green}{-1},\color{blue}{+1}\}$
+- **Unknown** vector $x^*$ of labels with $d=9$ tasks
+$x^*= (\color{blue}{+1},\color{blue}{+1},\color{green}{-1},\color{blue}{+1},\color{green}{-1},\color{blue}{+1},\color{blue}{+1},\color{blue}{+1},\color{blue}{+1})$
+
+::: {.r-stack}
+
+::: {.fragment .fade-in-then-out}
+
+::: {.center}
+$$
+Y=\left(\begin{array}{ccccccccc}
+\color{green}{-1} & \color{blue}{+1} & \color{green}{-1} & \color{blue}{+1} & \color{blue}{+1} & \color{green}{-1} & \color{green}{-1} & \color{blue}{+1} & \color{blue}{+1} \\
+\color{blue}{+1} & \color{blue}{+1} & \color{blue}{+1} & \color{blue}{+1} & \color{green}{-1} & \color{blue}{+1} & \color{blue}{+1} & \color{green}{-1} & \color{blue}{+1} \\
+\color{blue}{+1} & \color{green}{-1} & \color{green}{-1} & \color{blue}{+1} & \color{green}{-1} & \color{blue}{+1} & \color{green}{-1} & \color{blue}{+1} & \color{blue}{+1} \\
+\color{green}{-1} & \color{blue}{+1} & \color{blue}{+1} & \color{blue}{+1} & \color{green}{-1} & \color{blue}{+1} & \color{blue}{+1} & \color{blue}{+1} & \color{blue}{+1}
+\end{array}\right)
+$$
+:::
+:::
+
+::: {.fragment}
+::: {.center}
+$$
+Y=\left(\begin{array}{ccccccccc}
+\color{red}{0} & \color{blue}{+1} & \color{green}{-1} & \color{blue}{+1} & \color{red}{0} & \color{green}{-1} & \color{green}{-1} & \color{blue}{+1} & \color{blue}{+1} \\
+\color{red}{0} & \color{blue}{+1} & \color{red}{0} & \color{blue}{+1} & \color{green}{-1} & \color{red}{0} & \color{blue}{+1} & \color{green}{-1} & \color{blue}{+1} \\
+\color{blue}{+1} & \color{green}{-1} & \color{green}{-1} & \color{blue}{+1} & \color{green}{-1} & \color{blue}{+1} & \color{red}{0} & \color{blue}{+1} & \color{blue}{+1} \\
+\color{green}{-1} & \color{blue}{+1} & \color{blue}{+1} & \color{red}{0} & \color{green}{-1} & \color{blue}{+1} & \color{red}{0} & \color{red}{0} & \color{red}{0}
+\end{array}\right)
+$$
+:::
+:::
+
+:::
+- Rate of observations: $\color{red}{\lambda= 0.72}$
+
+
+## Observation Model
+
+. . .
+
+Given workers $i\in\{1, \dots, n\}$ and tasks $k\in\{1, \dots, d\}$
+
+. . .
+
+We observe
+  
+::: {.square-def}
+$$
+Y_{ik} = B_{ik}(M_{ik}x_k^* + E_{ik}) \enspace 
+$$
+:::
+
+
+- Where: 
+
+  1. $M_{ik} \in [0,1]$
+  2. $E_{ik}$ are independent and $1$-subGaussian
+  3. $B_{ik}$ are iid Bernoulli $\lambda \in [0,1]$
+
+## Observation Model
+
+. . .
+
+We observe
+
+::: {.square-def}
+$$Y = B\odot(M\mathrm{diag}(x^*) + E) \in \mathbb R^{n \times d}$$
+:::
+
+where $\odot$ is the Hadamard product.
+
+
+- $M \in [0,1]^{n \times d}$ is the **ability** matrix
+- $x^*$ is the vector of **unknown** labels
+- $E$ is a matrix of independent **noise**
+- $B$ is a Bernoulli "mask" matrix, modelling **partial observations**
+
+## Bernoulli Observation SubModel
+
+$$Y = B\odot(M\mathrm{diag}(x^*) + E) \in \mathbb R^{n \times d}$$
+
+
+:::{.callout-note .fragment .nonincremental style="font-size:120%"}
+## Bernoulli submodel [@shah2020permutation]
+$$
+\begin{aligned}\label{eq:bernoulli_model}
+    Y_{ik} = \begin{cases}
+        x^*_k \text{ with proba } \lambda\left(\frac{1+M_{ik}}{2}\right)
+        \\
+        -x^*_k \text{ with proba } \lambda\left(\frac{1-M_{ik}}{2}\right)\\
+        0 \text{ with proba } 1-\lambda
+        \end{cases}
+\end{aligned}
+$$
+
+:::
+
+. . .
+
+$\frac{1+M_{ik}}{2}$ is the proba that $i$ answers **correctly** to task $k$.
+
+. . .
+
+$\lambda$ is the probability of observing worker/task pair $(i,k)$
+
+## Shape Constraints
+
+- $M \in [0,1]^{n \times d}$ represents the **ability** matrix of worker/task pairs
+- We assume that [$M$ is isotonic up to a permutation $\pi^*$]{style="background-color: yellow;"} , that is
+
+:::{.r-stack}
+:::{.fragment .fade-in-then-out}
+$$
+M_{\pi^*}=\left(\begin{array}{ccccccccc}
+\color{#000099}{0.9} & \color{#000099}{0.8} & \color{#000099}{0.9} & \color{#000099}{1\phantom{.0}} \\
+\color{#4B0082}{0.8} & \color{#4B0082}{0.7} & \color{#4B0082}{0.9} & \color{#4B0082}{0.8} \\
+\color{#990066}{0.6} & \color{#990066}{0.7} & \color{#990066}{0.7} & \color{#990066}{0.6} \\
+\color{#CC0000}{0.5} & \color{#CC0000}{0.7} & \color{#CC0000}{0.5} & \color{#CC0000}{0.6}
+\end{array}\right)
+$$
+:::
+
+:::{.fragment}
+$$
+M_{\phantom{{\pi^*}}}=\left(\begin{array}{ccccccccc}
+\color{#990066}{0.6} & \color{#990066}{0.7} & \color{#990066}{0.7} & \color{#990066}{0.6} \\
+\color{#CC0000}{0.5} & \color{#CC0000}{0.7} & \color{#CC0000}{0.5} & \color{#CC0000}{0.6} \\
+\color{#000099}{0.9} & \color{#000099}{0.8} & \color{#000099}{0.9} & \color{#000099}{1\phantom{.0}} \\
+\color{#4B0082}{0.8} & \color{#4B0082}{0.7} & \color{#4B0082}{0.9} & \color{#4B0082}{0.8}
+\end{array}\right)
+$$
+:::
+:::
+
+## Shape Constraints
+- For all $k = 1, \dots, d$,
+$$
+M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
+$$
+- It means that the [rows are uniformly increasing]{style="background-color: yellow;"}
+- A worker $i$ is better **on average** than $j$, if it is better on **all tasks** on average
+
+## Illustration when $x^*$ is Known
+
+:::{.r-stack}
+
+![](IllustrationsCrowdsourcing/imshow22_n150_d150_scale0.1.png){.fragment width=60% fig-align="center"}
+
+![](IllustrationsCrowdsourcing/imshow22_n150_d150_scale0.2.png){.fragment width=60% fig-align="center"}
+
+![](IllustrationsCrowdsourcing/imshow22_n150_d150_scale0.4.png){.fragment width=60% fig-align="center"}
+
+:::
+
+## Crowdsourcing Problems
+
+:::{.callout-note style="font-size:120%"}
+## Setting
+$$ Y = B\odot(M \mathrm{diag}(x^*) + E)$$
+**Shape constraint**: $\exists \pi^*$ s.t. $M_{\pi^*} \in [0,1]^{n \times d}$ is **isotonic**
+:::
+
+
+
+::: {.columns}
+::: {.column}
+
+:::{.fragment}
+### Objectives
+:::
+
+::: {.fragment}
+**Recovering** the labels
+:::
+::: {.fragment}
+**Ranking** the workers 
+:::
+::: {.fragment}
+**Estimating** their abilities
+:::
+:::
+::: {.column}
+
+:::{.fragment}
+### Losses
+:::
+
+:::{.fragment}
+$\phantom{\color{purple}{\mathbb E}}\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2$
+:::
+:::{.fragment}
+$\phantom{\color{purple}{\mathbb E}}\|M_{\pi^*} - M_{\hat \pi}\|_F^2$\
+:::
+:::{.fragment}
+$\phantom{\color{purple}{\mathbb E}}\|M - \hat M\|_F^2$
+:::
+:::
+:::
+
+:::{.fragment style="font-size:120%;color"}
+These three objectives are closely intertwined!
+:::
+
+## Crowdsourcing Problems
+
+:::{.nonincremental}
+:::{.callout-note style="font-size:120%"}
+## Setting
+$$ Y = B\odot(M \mathrm{diag}(x^*) + E)$$
+**Shape constraint**: $\exists \pi^*$ s.t. $M_{\pi^*} \in [0,1]^{n \times d}$ is **isotonic**
+:::
+
+
+
+::: {.columns}
+::: {.column}
+
+### Objectives
+
+
+**Recovering** the labels \
+
+**Ranking** the workers \
+
+**Estimating** their abilities
+:::
+
+::: {.column}
+
+### Risks
+
+
+$\color{purple}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2]$\
+
+$\color{purple}{\mathbb E}[\|M_{\pi^*} - M_{\hat \pi}\|_F^2]$\
+
+$\color{purple}{\mathbb E}[\|M - \hat M\|_F^2]$
+:::
+:::
+
+:::{style="font-size:120%;color"}
+These three objectives are closely intertwined!
+:::
+:::
+
+
+## Square Norm Loss VS Hamming Loss
+
+::: {.columns}
+::: {.column}
+::: {.fragment}
+
+::: {.square-def}
+**Hamming Loss**:
+$$ \sum_{k=1}^d \mathbf 1\{\hat x_k \neq x_k^*\}$$
+:::
+:::
+
+
+:::
+
+::: {.column}
+::: {.fragment}
+::: {.square-def}
+**Square Norm Loss**:
+$$ \|M \mathrm{diag}(x^* \neq \hat x)\|_F^2$$
+:::
+
+
+:::
+
+:::
+::: 
+
+- If [workers are bad]{style="background-color: orange;"}, $M$ is small but [Hamming Loss is large]{style="background-color: orange;"}
+- If $M \sim 0$, Hamming loss $\sim d$
+- [Square norm loss]{style="background-color: lightgreen;"} evaluates the [quality of $\hat x$]{style="background-color: lightgreen;"} rather than workers
+
+
+## Other Parametric Models
+
+- [DS: $M_{ik} = q_i$]{style="background-color: yellow;"} [@dawid1979maximum], [@shah2020permutation]
+    - The **abilities** are independent of the tasks
+- [BTL: $M_{ik}=\phi(a_i-b_k)$]{style="background-color: yellow;"} [@bradley1952rank]
+    - $a_i$: abilities of the workers
+    - $b_i$: difficulties of the tasks
+
+:::{.fragment}
+These [parametric]{style="background-color: orange;"} models often [fail to fit data well]{style="background-color: orange;"}
+:::
+
+## Non-Parametric Models
+
+- [**known labels** $x^*$]{style="background-color: lightgreen;"}, [$M_{\pi^*\eta^*}$ is bi-isotonic]{style="background-color: lightblue;"} [@mao2020towards] [@liu2020better]
+- [**known labels** $x^*$]{style="background-color: lightgreen;"}, [$M_{\pi^*}$ is isotonic]{style="background-color: lightblue;"} [@flammarion2019optimal] [@pilliat2024optimal]
+- [**unknown labels** $x^*$]{style="background-color: lightgreen;"}, [$M_{\pi^*\eta^*}$ is bi-isotonic]{style="background-color: lightblue;"} [@shah2020permutation]
+- [**unknown labels** $x^*$]{style="background-color: lightgreen;"}, [$M_{\pi^*}$ is isotonic]{style="background-color: lightblue;"} (this paper)
+
+
+## Risks Recap
+
+\
+
+::: {.columns}
+::: {.column}
+
+### Objectives
+
+\
+
+**Recovering** the labels \
+
+**Ranking** the workers \
+
+**Estimating** their abilities
+:::
+
+::: {.column}
+
+### Risks
+
+\
+
+$\color{purple}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2]$\
+
+$\color{purple}{\mathbb E}[\|M_{\pi^*} - M_{\hat \pi}\|_F^2]$\
+
+$\color{purple}{\mathbb E}[\|M - \hat M\|_F^2]$
+:::
+:::
+
+## MiniMax Recovering Risk
+
+
+:::{.callout-note .fragment}
+## Max risk for recovering labels
+$$\max_{M,\pi^*, x^*}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2]$$
+
+- maximize on all $M$, $\pi^*$, $x^*$ such that $M_{\pi^*}$ is **isotonic**
+:::
+
+:::{.callout-note .fragment}
+## MiniMax risk for recovering labels
+$$\mathcal R^*_{\mathrm{reco}}(n,d,\lambda)=\min_{\hat x}\max_{M,\pi^*, x^*}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2]$$
+
+- minimize on all estimator $\hat x$
+
+:::
+
+## Minimax Risks
+
+:::{.callout-note .fragment}
+## Recovering labels
+$$\mathcal R^*_{\mathrm{reco}}(n,d,\lambda)=\min_{\hat x}\max_{M,\pi^*, x^*}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2]$$
+:::
+
+:::{.callout-note .fragment}
+## Ranking workers
+$$\mathcal R^*_{\mathrm{rk}}(n,d,\lambda)=\min_{\hat \pi}\max_{M,\pi^*, x^*}{\mathbb E}[\|M_{\pi^*} - M_{\hat \pi}\|_F^2]$$
+:::
+
+:::{.callout-note .fragment}
+## Estimating abilities
+$$\mathcal R^*_{\mathrm{est}}(n,d,\lambda)=\min_{\hat M}\max_{M,\pi^*, x^*}{\mathbb E}[\|M- \hat M\|_F^2]$$
+:::
+
+
+## Short Story {style="font-size:90%"}
+
+. . .
+
+[[@shah2020permutation]]{style="background-color: yellow;"}: [recovering $x^*$]{style="background-color: lightblue;"} optimally using a **least square** method, conjectured **NP hard** ([$x^*$ **unknown**, $M_{\pi^*\eta^*}$ **bi-isotonic**]{style="background-color: lightgreen;"}).
+
+. . . 
+
+[[@mao2020towards]]{style="background-color: yellow;"}: [estimating abilities $M$]{style="background-color: lightblue;"} of workers optimally with **least square method** ([$x^*$ **known**, $M_{\pi^*\eta^*}$ **bi-isotonic**]{style="background-color: lightgreen;"})
+
+. . .
+
+[[@liu2020better]]{style="background-color: yellow;"}: [ranking $\pi^*$ and estimating abilities $M$]{style="background-color: lightblue;"}: improve state of the art poly. time ([$x^*$ **known**, $M_{\pi^*\eta^*}$ **bi-isotonic**]{style="background-color: lightgreen;"})
+
+. . .
+
+[[@pilliat2024optimal]]{style="background-color: yellow;"}: [ranking $\pi^*$ and estimating abilities $M$]{style="background-color: lightblue;"}: achieves rates of @liu2020better without bi-isotonic assumption ([$x^*$ **known**, $M_{\pi^*}$ **isotonic**]{style="background-color: lightgreen;"})
+
+. . .
+
+[**This paper**]{style="background-color: yellow;"}: [recovering $x^*$, ranking $\pi^*$ and estimating abilities $M$]{style="background-color: lightblue;"} in poly. time when $n=d$ ([$x^*$ **unknown**, $M_{\pi^*}$ **isotonic**]{style="background-color: lightgreen;"})
+
+
+## Main Results
+
+:::{.callout-note style="font-size=120%" .fragment}
+## Optimal poly. time method
+
+If $\tfrac{1}{\lambda} \leq n \leq d$, there exists a poly. time method $\hat x$ achieving $\mathcal R^*_{\mathrm{reco}}$ up to polylog factors, i.e.
+$$
+\mathcal R_{\mathrm{reco}}(n,d,\lambda, \hat x) \lesssim \mathcal R^*_{\mathrm{reco}}(n,d,\lambda)
+$$
+:::
+
+:::{.callout-note style="font-size=120%" .fragment}
+## Minimax Risk
+If $\tfrac{1}{\lambda} \leq n \leq d$, up to polylogs,
+$$
+\mathcal R^*_{\mathrm{reco}}(n,d,\lambda) \asymp \frac{d}{\lambda}
+$$
+:::
+
+# Methods in the Literature
+
+## Majority Vote
+
+. . .
+
+$$ \hat x^{(maj)}_k = \mathrm{sign} \left( \sum_{i=1}^n Y_{ik} \right) \enspace .$$
+
+. . .
+
+:::{.callout-note}
+## Max risk of majority vote
+
+$$\mathcal R^*_{\mathrm{reco}}(n, d, \lambda, \hat x^{(maj)}) \asymp \tfrac{d \sqrt{n}}{\lambda}$$
+:::
+
+. . .
+
+Worst case ($\lambda=1$): $M \asymp \frac{1}{\sqrt{n}}(\mathbf 1_{n\times d})$
+
+. . .
+
+In this case, [$\hat x^{(maj)}$ is no better than random labelling]{style="background-color: orange;"}
+ and $\|M\mathrm{diag}(\hat x \neq x^*)\|_F^2 \asymp d\sqrt{n}$
+
+## Least square (conjectured NP Hard)
+
+. . .
+
+Minimize 
+
+::: {.square-def}
+$$\|Y- \lambda M' \mathrm{diag}(x)\|_F^2$$
+:::
+
+- over all $x \in \{-1, 1\}^d$
+- and $M'$ **isotonic**, up to a permutation $\pi^*$
+
+. . .
+
+The set of [isotonic matrices is convex]{style="background-color: lightgreen;"}...\
+
+. . .
+
+But [not isotonic matrices up to a permutation $\pi^*$]{style="background-color: orange;"}
+
+. . .
+
+It is minimax optimal [@shah2020permutation]
+
+## OBI-WAN [@shah2020permutation]
+
+. . .
+
+**Idea**: Population term $(M\mathrm{diag}(x^*))(M\mathrm{diag}(x^*))^T$ is [independent of $x^*$]{style="background-color: yellow;"}
+
+. . .
+
+**PCA** Step: 
+
+::: {.square-def}
+$$\hat v = \underset{\|v\|=1}{\mathrm{argmax}}\|v^T Y\|^2$$
+:::
+
+. . .
+
+[@shah2020permutation] sort $|\hat v|$ to get a **partial ranking**
+
+. . .
+
+**Aggregation**: Majority vote on $k$ top experts according to $|\hat v|$
+
+## Result on Obi-Wan Method
+
+. . .
+
+::: {.callout-note style="font-size: 100%;"}
+## Theorem 1 [@shah2020permutation]
+
+In submodel where [$\mathrm{rk}(M)= 1$]{style="background-color: yellow;"}, $\hat x^{(\mathrm{Obi-Wan})}$ achieves minimax risk up to polylogs:
+$$\mathcal R(n,d, \lambda, \hat x^{(\mathrm{Obi-Wan})}) \lesssim \frac{d}{\lambda} \quad \textbf{(minimax)}$$
+
+:::
+
+. . .
+
+::: {.callout-note style="font-size: 100%;"}
+## Theorem 2 [@shah2020permutation]
+
+In the model where $M_{\pi^*\eta^*}$ is [bi-isotonic]{style="background-color: yellow;"} up to polylogs:
+$$\mathcal R(n,d, \lambda, \hat x^{(\mathrm{Obi-Wan})}) \lesssim \frac{\sqrt{n}d}{\lambda} \quad \textbf{(not minimax)}$$
+
+:::
+
+
+# Iterative Spectral Voting
+
+## Subsampling
+
+. . .
+
+Let $T \geq 1$. We generate $T$ samples $(Y^{(1)}, \dots, Y^{(T)})$ from $Y$.
+
+. . .
+
+[Put $Y_{ik}$ uniformly at random]{style="background-color: yellow;"} into one of the $Y^{(s)}$. 
+
+- $Y_{ik}^{(s)}= 0$ for all $s$ except one, which is $Y_{ik}$
+- The $(Y^{(s)})$'s are [not independent]{style="background-color: orange;"}!
+- Technical trick: condition on the sampling scheme
+
+
+## PCA Step
+
+. . .
+
+::: {.square-def}
+$$\hat v = \underset{\|v\|=1}{\mathrm{argmax}}\|v^T Y^{(1)}\|^2 \quad \text{and} \quad \tilde v = \hat v \land \sqrt{\lambda / T}$$
+:::
+
+. . .
+
+Main idea: if $M$ is **isotonic**, then up to a polylog
+
+::: {.square-tip}
+$$\|MM^T\|_{\mathrm{op}} \gtrsim \|M\|_F^2$$
+:::
+
+. . .
+
+Idea for the proof: if $\|M\|_F^2 \gg \frac{d}{\lambda}$, then $\|\tilde v^T M\| \gtrsim \|M\|_F^2$
+
+## Voting Step
+
+. . .
+
+Define the weighted vote vector
+
+::: {.square-def}
+$$\hat w = \tilde v^T Y^{(2)}$$
+:::
+
+. . .
+
+Define the estimated label as
+
+::: {.square-def}
+$$\hat x_k^{(1)} = \mathrm{sign}(\hat w_k)\mathbf{1}\bigg\{|\hat w_k| \gg \sqrt{\sum_{i=1}^n \tilde v_i B_{ik}^{(2)}}\bigg\}$$
+:::
+
+## Iterate
+
+. . .
+
+Repeat PCA Step + Voting Step on $Y \mathrm{diag}(\hat x \neq 0)$ a polylogarithmic number of times.
+
+. . .
+
+We get $\hat x^{(1)}, \hat x^{(2)}, \dots, \hat x^{(T)}$
+
+. . .
+
+Output $\hat x^{(T)}$
+
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+
+
+## Proof Idea
+
+
+. . .
+
+Let [$M(t) = M\mathrm{diag}(x^{(t-1)} = 0)$]{style="background-color: yellow;"} 
+
+. . .
+
+While [$M(t) \gg d/\lambda$]{style="background-color: yellow;"}, we prove that
+
+::: {.square-def}
+$$\|\tilde v^TM(t)\|_2^2 \gtrsim \|M\|_F^2 \and \|\tilde v^TM(t+1)\|_2^2 \lesssim d/\lambda$$
+:::
+
+. . .
+
+By Pythagoeran Theorem, we have
+
+::: {.square-def}
+$$\|M(t)\|_F^2 - \|M(t+1)\|_F^2 \geq \|\tilde v M(t)\|_2^2 - \|\tilde v^TM(t+1)\|_2^2$$
+:::
+
+. . .
+
+This leads to [exponential decay of $\|M(t)\|_F^2$]{style="background-color: yellow;"} until $M(t) \leq d/\lambda$
+
+
+# Simulations
+
+## Synthetic Data
+
+:::: {.columns}
+
+
+::: {.column width="70%"}
+
+:::{.fragment fragment-index=1}
+![](generated_matrices.svg){width=80%}
+:::
+:::{.fragment fragment-index=3}
+![](monte_carlo_N100_nd1000_T10.png)
+:::
+
+:::
+
+
+::: {.column width="30%"}
+
+\ 
+
+::: {.fragment fragment-index=2}
+**Black**: $M_{ik}=0$\
+**Blue**: $M_{ik} = h$
+:::
+
+:::
+
+::::
+
