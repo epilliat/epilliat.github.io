@@ -1,0 +1,246 @@
+---
+title: "The Logistic Model"
+format: 
+  revealjs:
+    incremental: true
+    callout-icon: false
+    code-overflow: scroll
+    code-block-height: 200px
+    #theme: [default, ../custom.scss]
+#julia:
+#  path: "/home/emmanuel/.juliaup/bin/julia"
+smaller: false
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+$\newcommand{\E}{\mathbb E}$
+$\newcommand{\P}{\mathbb P}$
+$\newcommand{\Var}{\mathbb V}$
+$\newcommand{\Cov}{\mathrm{Cov}}$
+$\newcommand{\1}{\mathbf 1}$
+
+# The logit Function as a Link Function
+
+## Context
+
+$Y$ is a binary variable [$Y_k \in \{0,1\}$]{style="background-color: lightblue;"}
+
+. . .
+
+$X = (X^{(1)}, \ldots, X^{(p)})$ are $p$ explanatory variables
+
+. . .
+
+$Y|X = x$ follows a [Bernoulli distribution]{style="background-color: yellow;"} with parameter [$p(x) = P(Y = 1|X = x)$]{style="background-color: lightblue;"}. Model:
+
+. . .
+
+
+::: {.square-def}
+$$p(x) = g^{-1}(x^T\beta)$$
+:::
+
+
+where $g^{-1}$ is a [strictly increasing function]{style="background-color: yellow;"} with values in $[0, 1]$
+
+. . .
+
+**Approach**: We begin by discussing the choice of $g^{-1}$ (or $g$)
+
+## Example: Coronary Heart Disease
+
+**Data Description**: Presence of chd as a function of age
+$Y = \text{chd} \in \{0,1\}$, $X = \text{age}$
+
+. . .
+
+We want to estimate $p(x) = \E(Y|X = x) = \P(\text{chd} = 1|X = x)$ for all $x$
+
+::: {style="text-align: center;"}
+![](images/logit1.png){width=50%}
+:::
+
+
+## Example: Simple Idea
+
+- Group the $x$ values by age class
+- Calculate the proportion of $chd = 1$ in the class containing $x$
+
+. . .
+
+::: {style="text-align: center;"}
+![](images/logit2.png){width=50%}
+:::
+
+## Example: GLM Approach
+
+. . .
+
+**Objective**: We want to model $p(x) = P(\text{chd} = 1|X = x)$ by:
+$$p(x) = g^{-1}(\beta_0 + \beta_1 x)$$
+
+. . .
+
+**Constraint**: We need $g^{-1}$ to have values in $[0, 1]$
+
+## Example: The Logit Model
+
+. . .
+
+:::{style="font-size: 60%;"}
+::: {.square-def}
+
+$$g^{-1}(t) = \frac{e^t}{1 + e^t} \quad \text{i.e.} \quad g(t) = \ln\left(\frac{t}{1-t}\right) = \text{logit}(t)$$
+
+:::
+:::
+
+. . .
+
+::: {.columns}
+
+::: {.column}
+::: {style="text-align: center;"}
+![](images/logit3.png){width=100%}
+:::
+:::
+
+::: {.column}
+\
+\
+Results of $g^{-1}(\hat \beta_0 + \hat \beta_1 x)$ obtained by MLE
+:::
+
+:::
+
+
+
+
+## Example: The Probit Model
+
+. . .
+
+If $\Phi$ is the CDF of a $\mathcal{N}(0, 1)$ distribution, we take [$g^{-1}(t) = \Phi(t)$]{style="background-color: lightblue;"}
+
+
+::: {.columns}
+
+::: {.column}
+::: {style="text-align: center;"}
+![](images/probit.png){width=100%}
+:::
+:::
+
+::: {.column}
+\
+\
+Results of $g^{-1}(\hat \beta_0 + \hat \beta_1 x)$ obtained by MLE
+:::
+
+:::
+
+
+## Example: Model cloglog
+
+. . .
+
+::: {.square-def}
+$$g^{-1}(t) = 1 - e^{-e^t}$$
+:::
+
+. . .
+
+::: {.columns}
+
+::: {.column}
+::: {style="text-align: center;"}
+![](images/cloglog.png){width=100%}
+:::
+:::
+
+::: {.column}
+\
+\
+Results of $g^{-1}(\hat \beta_0 + \hat \beta_1 x)$ obtained by MLE
+:::
+
+:::
+
+
+
+
+## Example: Comparison of the Three Models
+
+. . .
+
+logit and probit give  [approximately the same result]{style="background-color: yellow;"}
+cloglog differs slightly and is not "symmetric"
+
+::: {style="text-align: center;"}
+![](images/logitprobitloglog.png){width=50%}
+:::
+
+## Which Link Function to Choose for Binary Case?
+
+. . .
+
+**Question**: Which link function to choose in practice when $Y$ is binary?
+
+. . .
+
+**Default choice**: By default, we favor the **logit model**
+
+. . .
+
+**Exceptions**: Unless there is a good reason to choose something else (probit model, complementary log-log, or log-log)
+
+. . .
+
+**Next steps**: We return to the 3 usual choices to justify this preference
+
+## Details on the Probit Model
+
+. . .
+
+The probit model is justified when the binary variable $Y|X = x$ comes from thresholding a Gaussian latent variable $Z(x)$:
+
+::: {.square-def}
+$$(Y|X = x) = \mathbf{1}_{Z(x) \geq \tau}$$
+:::
+where [$Z(x) \sim \mathcal{N}(x^T\beta, \sigma^2)$]{style="background-color: lightblue;"}
+
+. . .
+
+If $\Phi$ is the CDF of a $\mathcal N(0,1)$
+$$P(Y = 1|X = x) = P(Z(x) \geq \tau) = \Phi\left(\frac{x^T\beta - \tau}{\sigma}\right)$$
+
+
+## Examples in Probit Model
+
+- $Y$ represents a purchase decision, and $Z(x)$ quantifies the utility of the good
+- $Y$ is a declared psychological state (happiness, depression) and $Z(x)$ is a latent, unobserved measure of personal satisfaction
+
+## Probit vs Logit: Current Trends
+
+. . .
+
+**Econometricians**: The [probit model]{style="background-color: yellow;"} remains relatively popular among [econometricians]{style="background-color: yellow;"}...
+
+. . .
+
+**General trend**: but it tends to be [replaced by the logistic model]{style="background-color: yellow;"}
+
+. . .
+
+**Advantages of logit**: The [logit model has many advantages]{style="background-color: yellow;"} that probit does not have:
+
+- Interpretation of results
+- Explicit formulas
+
+. . .
+
+**Theoretical justification**: CDF of probit close to CDF of logit

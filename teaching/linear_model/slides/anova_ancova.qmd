@@ -1,5 +1,5 @@
 ---
-title: "Analysis of Variance (ANOVA) and of Covariance (ANCOVA)"
+title: "Analysis of Variance - ANOVA, and of Covariance - ANCOVA"
 format: 
   revealjs:
     incremental: true
@@ -912,3 +912,121 @@ Fisher tests are based on the assumption $\varepsilon \sim N(0, \sigma^2 I_n)$
 **Once effects are identified**: perform post-hoc analysis by [examining differences between (crossed) modalities more closely]{style="background-color: yellow;"}, using **Tukey's test** as in one-factor ANOVA
 
 
+# Multi-Factor Analysis with Qualitative Variables
+
+## Principle and Limits
+
+. . .
+
+We seek to explain $Y$ using [$k$ qualitative variables]{style="background-color: yellow;"} $A=X^{(1)}$, $B=X^{(2)}$, $C=X^{(3)}$, ...
+
+. . .
+
+We can assume that [$\E[Y_k]$ depends on each factor and their interactions]{style="background-color: yellow;"}:
+
+- **Two-way interactions**: $AB$, $BC$, $AC$, etc.
+- **Three-way interactions**: $ABC$, etc.
+- **Higher-order interactions**: and potentially more
+
+. . .
+
+::: {.callout-warning}
+This results in $2^k - 1$ possible effects for $k$ factors.
+:::
+
+## Testing Approach
+
+. . .
+
+Each effect can be tested using [linear constraint tests]{style="background-color: yellow;"}. However, this approach presents several challenges:
+
+- **Multiple testing burden**: Too [many tests to perform]{style="background-color: orange;"}
+- **Sample size limitations**: Risk of [insufficient sample sizes]{style="background-color: orange;"} in each crossed modality
+
+. . .
+
+In practice, choices are made to [include only a limited number of effects and interactions]{style="background-color: lightgreen;"} in the analysis.
+
+
+# Covariance Analysis - ANCOVA
+
+## Model Components
+
+. . .
+
+Most general situation: we seek to explain Y using [both quantitative and qualitative variables]{style="background-color: yellow;"}.
+
+. . .
+
+**Quantitative variable effects**: Through each regression coefficient $\beta_j$ associated with each variable
+
+. . .
+
+**Factor effects and interactions**: As in ANOVA analysis
+
+- Main effects of factors (quali. var.)
+- Interactions between factors
+
+. . .
+
+**Mixed interactions**: Effects of interactions between factors and quantitative variables
+
+## Example of Mixed Interaction
+
+- $A \in \{\text{Labrador}, \text{Chihuaha}\}$ 
+- $X^{(1)}$: size of the dog
+- There is [clearly a mixed interraction]{style="background-color: yellow;"} between factor $A$ and $X^{(1)}$!
+
+## Statistical Testing
+
+- Each effect can be tested using a Fisher test.
+
+- Obviously, choices must be made regarding which effects and interactions to include in the model.
+
+# Linear Models in R: Quantitative and Qualitative Variables
+
+
+## Model Without Interaction
+
+. . .
+
+$Y$: quantitative response variable
+
+. . .
+
+$X$: quantitative variable, 
+
+$Z$: factor with $I$ modalities $\{A_1, \dots, A_I\}$
+
+. . .
+
+`lm(Y~X+Z)` estimates the [model without interaction]{style="background-color: yellow;"}, where, for each individual $k = 1, \ldots, n$:
+
+::: {.square-def}
+$$Y_k = m + \beta X_k + \sum_{i=2}^{I} \alpha_i \mathbf{1}\{Z_k=A_i\} + \varepsilon_k$$
+:::
+
+
+*Constraint $\alpha_1 = 0$ is adopted to make the model identifiable.*
+
+## Model With Interaction
+
+. . .
+
+`lm(Y~X+A+X:A)` or `lm(Y~X*A)` estimates the [model with interaction]{style="background-color: yellow;"}:
+
+. . .
+
+::: {.square-def}
+
+$$
+\begin{aligned}
+Y_k &= m + \beta X_k + \sum_{i=2}^{I} \beta_i X_k \mathbf{1}\{Z_k=A_i\} \\
+&+ \sum_{i=2}^{I} \alpha_i \mathbf{1}\{Z_k=A_i\} + \varepsilon_k
+\end{aligned}
+$$
+:::
+
+. . .
+
+**Key Insight:** In the interaction model, the coefficient $\beta$ associated with $X$ varies according to the modality $A_i$.

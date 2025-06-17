@@ -9,7 +9,7 @@
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.22">
 
-  <title>Emmanuel Pilliat – Analysis of Variance (ANOVA) and of Covariance (ANCOVA)</title>
+  <title>Emmanuel Pilliat – Analysis of Variance - ANOVA, and of Covariance - ANCOVA</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -193,7 +193,7 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Analysis of Variance (ANOVA) and of Covariance (ANCOVA)</h1>
+  <h1 class="title">Analysis of Variance - ANOVA, and of Covariance - ANCOVA</h1>
 
 <div class="quarto-title-authors">
 </div>
@@ -1034,8 +1034,132 @@ Y_k &amp;= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\
 <section id="post-hoc-analysis" class="slide level2">
 <h2>Post-Hoc Analysis</h2>
 <p><strong>Once effects are identified</strong>: perform post-hoc analysis by <span style="background-color: yellow;">examining differences between (crossed) modalities more closely</span>, using <strong>Tukey’s test</strong> as in one-factor ANOVA</p>
+</section></section>
+<section>
+<section id="multi-factor-analysis-with-qualitative-variables" class="title-slide slide level1 center">
+<h1>Multi-Factor Analysis with Qualitative Variables</h1>
+
+</section>
+<section id="principle-and-limits" class="slide level2">
+<h2>Principle and Limits</h2>
+<div class="fragment">
+<p>We seek to explain <span class="math inline">\(Y\)</span> using <span style="background-color: yellow;"><span class="math inline">\(k\)</span> qualitative variables</span> <span class="math inline">\(A=X^{(1)}\)</span>, <span class="math inline">\(B=X^{(2)}\)</span>, <span class="math inline">\(C=X^{(3)}\)</span>, …</p>
+</div>
+<div class="fragment">
+<p>We can assume that <span style="background-color: yellow;"><span class="math inline">\(\E[Y_k]\)</span> depends on each factor and their interactions</span>:</p>
+<ul>
+<li class="fragment"><strong>Two-way interactions</strong>: <span class="math inline">\(AB\)</span>, <span class="math inline">\(BC\)</span>, <span class="math inline">\(AC\)</span>, etc.</li>
+<li class="fragment"><strong>Three-way interactions</strong>: <span class="math inline">\(ABC\)</span>, etc.</li>
+<li class="fragment"><strong>Higher-order interactions</strong>: and potentially more</li>
+</ul>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>This results in <span class="math inline">\(2^k - 1\)</span> possible effects for <span class="math inline">\(k\)</span> factors.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="testing-approach" class="slide level2">
+<h2>Testing Approach</h2>
+<div class="fragment">
+<p>Each effect can be tested using <span style="background-color: yellow;">linear constraint tests</span>. However, this approach presents several challenges:</p>
+<ul>
+<li class="fragment"><strong>Multiple testing burden</strong>: Too <span style="background-color: orange;">many tests to perform</span></li>
+<li class="fragment"><strong>Sample size limitations</strong>: Risk of <span style="background-color: orange;">insufficient sample sizes</span> in each crossed modality</li>
+</ul>
+</div>
+<div class="fragment">
+<p>In practice, choices are made to <span style="background-color: lightgreen;">include only a limited number of effects and interactions</span> in the analysis.</p>
+</div>
+</section></section>
+<section>
+<section id="covariance-analysis---ancova" class="title-slide slide level1 center">
+<h1>Covariance Analysis - ANCOVA</h1>
+
+</section>
+<section id="model-components" class="slide level2">
+<h2>Model Components</h2>
+<div class="fragment">
+<p>Most general situation: we seek to explain Y using <span style="background-color: yellow;">both quantitative and qualitative variables</span>.</p>
+</div>
+<div class="fragment">
+<p><strong>Quantitative variable effects</strong>: Through each regression coefficient <span class="math inline">\(\beta_j\)</span> associated with each variable</p>
+</div>
+<div class="fragment">
+<p><strong>Factor effects and interactions</strong>: As in ANOVA analysis</p>
+<ul>
+<li class="fragment">Main effects of factors (quali. var.)</li>
+<li class="fragment">Interactions between factors</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Mixed interactions</strong>: Effects of interactions between factors and quantitative variables</p>
+</div>
+</section>
+<section id="example-of-mixed-interaction" class="slide level2">
+<h2>Example of Mixed Interaction</h2>
+<ul>
+<li class="fragment"><span class="math inline">\(A \in \{\text{Labrador}, \text{Chihuaha}\}\)</span></li>
+<li class="fragment"><span class="math inline">\(X^{(1)}\)</span>: size of the dog</li>
+<li class="fragment">There is <span style="background-color: yellow;">clearly a mixed interraction</span> between factor <span class="math inline">\(A\)</span> and <span class="math inline">\(X^{(1)}\)</span>!</li>
+</ul>
+</section>
+<section id="statistical-testing" class="slide level2">
+<h2>Statistical Testing</h2>
+<ul>
+<li class="fragment"><p>Each effect can be tested using a Fisher test.</p></li>
+<li class="fragment"><p>Obviously, choices must be made regarding which effects and interactions to include in the model.</p></li>
+</ul>
+</section></section>
+<section>
+<section id="linear-models-in-r-quantitative-and-qualitative-variables" class="title-slide slide level1 center">
+<h1>Linear Models in R: Quantitative and Qualitative Variables</h1>
+
+</section>
+<section id="model-without-interaction" class="slide level2">
+<h2>Model Without Interaction</h2>
+<div class="fragment">
+<p><span class="math inline">\(Y\)</span>: quantitative response variable</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(X\)</span>: quantitative variable,</p>
+<p><span class="math inline">\(Z\)</span>: factor with <span class="math inline">\(I\)</span> modalities <span class="math inline">\(\{A_1, \dots, A_I\}\)</span></p>
+</div>
+<div class="fragment">
+<p><code>lm(Y~X+Z)</code> estimates the <span style="background-color: yellow;">model without interaction</span>, where, for each individual <span class="math inline">\(k = 1, \ldots, n\)</span>:</p>
+<div class="square-def">
+<p><span class="math display">\[Y_k = m + \beta X_k + \sum_{i=2}^{I} \alpha_i \mathbf{1}\{Z_k=A_i\} + \varepsilon_k\]</span></p>
+</div>
+<p><em>Constraint <span class="math inline">\(\alpha_1 = 0\)</span> is adopted to make the model identifiable.</em></p>
+</div>
+</section>
+<section id="model-with-interaction" class="slide level2">
+<h2>Model With Interaction</h2>
+<div class="fragment">
+<p><code>lm(Y~X+A+X:A)</code> or <code>lm(Y~X*A)</code> estimates the <span style="background-color: yellow;">model with interaction</span>:</p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[
+\begin{aligned}
+Y_k &amp;= m + \beta X_k + \sum_{i=2}^{I} \beta_i X_k \mathbf{1}\{Z_k=A_i\} \\
+&amp;+ \sum_{i=2}^{I} \alpha_i \mathbf{1}\{Z_k=A_i\} + \varepsilon_k
+\end{aligned}
+\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Key Insight:</strong> In the interaction model, the coefficient <span class="math inline">\(\beta\)</span> associated with <span class="math inline">\(X\)</span> varies according to the modality <span class="math inline">\(A_i\)</span>.</p>
 
 
+</div>
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">

@@ -1,0 +1,482 @@
+---
+title: "Introduction to the Generalized Linear Model"
+format: 
+  revealjs:
+    incremental: true
+    callout-icon: false
+    code-overflow: scroll
+    code-block-height: 200px
+    #theme: [default, ../custom.scss]
+#julia:
+#  path: "/home/emmanuel/.juliaup/bin/julia"
+smaller: false
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+$\newcommand{\E}{\mathbb E}$
+$\newcommand{\P}{\mathbb P}$
+$\newcommand{\Var}{\mathbb V}$
+$\newcommand{\Cov}{\mathrm{Cov}}$
+$\newcommand{\1}{\mathbf 1}$
+
+
+# Limits of the Linear Model
+
+## Recalling the Linear Model
+
+. . .
+
+We observe $Y = (Y_1, \dots, Y_n)$ and $X = (X^{(1)} , . . . , X^{(p)}) \in \mathbb R^{n \times p}$,
+
+. . .
+
+In the Linear Model, We assume that for some **unknown** $\beta$
+
+::: {.square-def}
+$$Y = X\beta + \varepsilon$$
+:::
+
+
+. . . 
+
+The hypothesis can be written in the form $\mathbb E[Y|X] = X\beta$ 
+
+. . .
+
+The OLS estimator of $\beta$ is [$\hat \beta= (X^TX)^{-1}X^TY$]{style="background-color: lightblue;"}
+
+## When this Linearity is Reasonable
+
+. . .
+
+The hypothesis [$\E(Y|X) = X^T\beta$]{style="background-color: lightblue;"} in linear regression models implies that [$\E(Y|X)$ can take any real value]{style="background-color: orange;"}.
+
+. . .
+
+This is [not a restriction when]{style="background-color: lightgreen;"}:
+
+- $Y|X$ follows a Gaussian distribution
+- $Y|X$ follows any other continuous distribution on $\mathbb{R}$
+
+## When it is not
+
+. . .
+
+The linear assumption is **inappropriate** for certain variables $Y$, [particularly when $Y$ is qualitative]{style="background-color: orange;"} or discrete.
+
+. . .
+
+**Binary outcomes** ($Y = 0$ or $1$):
+
+- Return to employment within 3 months
+- Effectiveness of a medical treatment  
+- Credit approval for a bank loan applicant
+
+
+## When it is not
+
+. . .
+
+**Categorical outcomes** ($Y \in \{A_1, \ldots, A_k\}$):
+
+- Customer segmentation into $k$ categories
+
+. . .
+
+**Count data** ($Y \in \mathbb{N}$):
+
+- Number of traffic accident fatalities per month
+
+
+# Objectives of the GLM
+
+
+
+## Key Differences by Response Type
+
+. . .
+
+In all examples, the objective remains to link $Y$ to $X = (X^{(1)}, \ldots, X^{(p)})$ through modeling $\E(Y|X)$.
+
+. . .
+
+However, $\E(Y|X)$ has different interpretations depending on the situation:
+
+- **Binary $Y$**: $Y = 0$ or $1$
+- **Categorical $Y$**: $Y \in \{A_1, \ldots, A_k\}$  
+- **Count data**: $Y \in \mathbb{N}$
+
+. . .
+
+In all these cases, the linear model $\E(Y|X) = X^T\beta$ is inappropriate.
+
+## Objectives of the GLM
+
+. . .
+
+We model $\E(Y|X)$ differently using **generalized linear models**.
+
+As in linear regression, we focus on:
+
+- **Specific effects**: The individual effect of a given regressor, (all other things being equal)
+- **Explanation**: Understanding relationships
+- **Prediction**: Forecasting outcomes
+
+# Modeling $\E(Y|X)$: Three Fundamental Cases
+
+
+## Three Fundamental Cases
+
+. . .
+
+We detail the modeling challenges for $\E(Y|X)$ in three fundamental cases:
+
+- **Case 1: Binary:** $Y$ is binary (takes values 0 or 1)
+
+- **Case 2: Categorical:** $Y \in \{A_1, \ldots, A_k\}$ (general qualitative variable)
+
+- **Case 3: Count:** $Y \in \mathbb{N}$ (count variable)
+
+## Case 1: Binary Case
+
+. . .
+
+Without loss of generality, $Y \in \{0, 1\}$
+
+. . .
+
+If $Y$ models membership in a category $A$, this is equivalent to studying the variable [$Y = \mathbf{1}_A$]{style="background-color: lightblue;"}
+
+. . .
+
+The distribution of $Y$ given $X = x$ is entirely determined by [$p(x) = P(Y = 1|X = x)$]{style="background-color: lightblue;"}
+
+. . .
+
+We deduce [$P(Y = 0|X = x) = 1 - p(x)$]{style="background-color: lightblue;"}
+
+. . .
+
+$Y|X = x$ follows a Bernoulli distribution with parameter $p(x)$
+
+. . .
+
+[$\E(Y|X = x) = p(x)$]{style="background-color: lightblue;"}
+
+. . .
+
+**key constraint**: $p(x) \in [0, 1]$
+
+
+## Modelling $p(x)$
+
+. . .
+
+::: {.square-def}
+$$E(Y|X = x) = P(Y = 1|X = x) = p(x) \in [0, 1]$$
+:::
+
+
+
+. . .
+
+
+**What NOT to do**: $p(x) = x^T\beta$ (for some $\beta \in \mathbb{R}^p$ to be estimated)
+
+. . .
+
+**Proposed approach**: We can propose a model of the type:
+
+::: {.square-def}
+$$p(x) = f(x^T\beta)$$
+:::
+
+
+where $f$ is a function from $\mathbb{R}$ to $[0, 1]$
+
+. . .
+
+
+**Benefits**: Coherent model that depends only on $\beta$
+
+
+## Case 2: Categorical $Y$
+
+. . .
+
+If $Y$ represents membership in $k$ different classes $A_1, \ldots, A_k$, its distribution is determined by the probabilities:
+
+::: {.square-def}
+$$p_j(x) = P(Y \in A_j|X = x), \quad \text{for } j = 1, \ldots, k$$
+:::
+
+
+
+. . .
+
+**Constraint**: $\sum_{j=1}^{k} p_j(x) = 1$ (If $k = 2$, this reduces to the previous case)
+
+. . .
+
+## Case 2: Categorical $Y$
+
+. . .
+
+$Y = (\mathbf{1}_{A_1}, \ldots, \mathbf{1}_{A_k})$ follows a multinomial distribution and:
+
+::: {.square-def}
+$$\E(Y|X = x) = \begin{pmatrix} p_1(x) \\ \vdots \\ p_k(x) \end{pmatrix}$$
+:::
+
+
+
+. . .
+
+## Case 2: Model for Categorical $Y$
+
+. . .
+
+To model $\E(Y|X = x)$, it suffices to model $p_1(x), \ldots, p_{k-1}(x)$ since [$p_k(x) = 1 - \sum_{j=1}^{k-1} p_j(x)$]{style="background-color: lightblue;"}
+
+. . .
+
+**Proposed model**: As in the binary case, we can propose:
+
+::: {.square-def}
+$$p_j(x) = f(x^T\beta_j), \quad j = 1, \ldots, k-1$$
+:::
+
+where $f: \mathbb{R} \to [0,1]$
+
+
+. . .
+
+**Parameters**: There will be [$k-1$ unknown parameters to estimate, each in $\mathbb{R}^p$]{style="background-color: yellow;"} 
+
+
+## Case 3: Count Y - Non-negative Integer Values
+
+. . .
+
+If $Y$ takes integer values, we have for all $x$,
+[$E(Y|X = x) \geq 0$]{style="background-color: lightblue;"}
+
+. . .
+
+**Coherent choice**: A coherent approach is:
+
+::: {.square-def}
+$$\E(Y|X = x) = f(x^T\beta)$$
+:::
+
+
+where $f$ is a function from $\mathbb{R}$ to $[0, +\infty)$
+
+. . .
+
+**Example of possible choice for f**: The exponential function
+
+
+## Model Formulation
+
+. . .
+
+Let $g$ be a strictly [monotonic function]{style="background-color: yellow;"}, called the [link function]{style="background-color: yellow;"}
+
+. . .
+
+A generalized linear model (GLM) establishes a relationship of the type:
+
+::: {.square-def}
+$$g(\E(Y|X = x)) = x^T\beta$$  
+:::
+
+Equivalently,
+
+::: {.square-def}
+$$\E(Y|X = x) = g^{-1}(x^T\beta)$$
+:::
+
+
+. . .
+
+
+## Remarks on Model
+
+- In the previous examples, $g^{-1}$ was denoted $f$
+- We generally assume that the distribution $Y|X$ belongs to the **exponential family**, with unknown parameter $\beta$
+- This allows us to compute the likelihood and facilitates inference
+
+
+# General Objectives
+
+. . .
+
+In a GLM model, the goal is [to estimate $\beta \in \mathbb{R}^p$]{style="background-color: yellow;"}
+
+. . .
+
+Using $n$ independent observations of $(Y, X)$, we use **maximum likelihood estimation** (the [distribution of $Y|X$ being known up to $\beta$]{style="background-color: yellow;"})
+
+. . .
+
+The [link function $g$ is not to be estimated]{style="background-color: orange;"}: we choose it according to the nature of the data.
+
+. . .
+
+Inference and diagnostic tools are available (as in linear regression)
+
+## Remark on the Intercept
+
+. . .
+
+Among the explanatory variables $X^{(1)}, \ldots, X^{(p)}$, we often assume that [$X^{(1)}=\1$]{style="background-color: lightblue;"} to account for the [presence of a constant]{style="background-color: lightblue;"}. Thus:
+$$X\beta = \beta_1 X^{(1)} + \cdots + \beta_p X^{(p)} = \beta_1 + \beta_2 X^{(2)} + \cdots + \beta_p X^{(p)}$$
+
+. . .
+
+**Alternative notation**: Sometimes indexed differently to write $\beta_0 + \beta_1 X^{(1)} + \cdots + \beta_p X^{(p)}$
+
+
+## Example 1: Linear Regression Model
+
+. . .
+
+**Link function**: We recover linear regression by taking the identity link function $g(t) = t$
+
+. . .
+
+**Expected value**: Then:
+
+::: {.square-def}
+$$E(Y|X = x) = g^{-1}(x^T\beta) = x^T\beta$$
+:::
+
+
+. . .
+
+**In the Gaussian linear model**: 
+
+::: {.square-def}
+$$Y|X \sim \mathcal{N}(X\beta, \sigma^2)$$
+:::
+
+
+
+. . .
+
+Linear regression is therefore a **special case** of GLM models!
+
+
+## Example 2: Binary Case $Y \in \{0, 1\}$
+
+. . .
+
+**Link function requirement**: The link function $g$ must satisfy:
+
+::: {.square-def}
+$$E(Y|X = x) = g^{-1}(x^T\beta) \in [0, 1]$$
+:::
+
+
+. . .
+
+Since $Y\in \{0,1\}$, $Y|X$ follows a [Bernoulli distribution]{style="background-color: yellow;"}
+
+::: {.square-def}
+$$Y|X \sim \mathcal{B}(g^{-1}(X^T\beta))$$
+:::
+
+
+## Example 2: Binary Case $Y \in \{0, 1\}$
+
+. . .
+
+::: {.square-def}
+$$Y|X \sim \mathcal{B}(g^{-1}(X^T\beta))$$
+:::
+
+
+**Possible choices for $g^{-1}$**: A CDF of a continuous distrib. on $\mathbb{R}$
+
+. . .
+
+**Standard choice for $g^{-1}$**: The CDF of a logistic distribution:
+
+::: {.square-def}
+
+$$g^{-1}(t) = \frac{e^t}{1 + e^t} \quad \text{i.e.} \quad g(t) = \ln\left(\frac{t}{1-t}\right) = \text{logit}(t)$$
+
+:::
+
+
+. . .
+
+
+
+This leads to the **logistic model**, the [most important model in this chapter]{style="background-color: orange;"}
+
+
+## Example 3: Count Data $Y\in \mathbb N$
+
+
+. . .
+
+**Link function**: [$g(t) = \ln(t)$]{style="background-color: lightblue;"},  $g^{-1}(t) = e^t$ gives:
+
+::: {.square-def}
+$$E(Y|X = x) = g^{-1}(x^T\beta) = e^{x^T\beta}$$
+:::
+
+
+
+. . .
+
+For the distribution of $Y|X$, defined on $\mathbb{N}$, we often assume it follows a [Poisson distribution]{style="background-color: yellow;"} (exp. familily)
+
+. . .
+
+In this context:
+
+::: {.square-def}
+$$Y|X \sim \mathcal{P}(e^{X^T\beta})$$
+:::
+
+
+## Summary
+
+There are **2 choices** to make when setting up a GLM model:
+
+1. The distribution of $Y|X$
+2. The link function $g$ defining $E(Y|X) = g^{-1}(X^T\beta)$
+
+. . .
+
+**Key insight**: The second choice is linked to the first
+
+## The 3 Common Cases
+
+. . .
+
+**Binary** ($Y \in \{0, 1\}$):
+
+→ $Y|X$: it's a [Bernoulli distribution]{style="background-color: yellow;"}\
+→ By default [$g = \text{logit}$]{style="background-color: lightblue;"} (see later)
+
+. . .
+
+**Multi-category** ($Y \in \{A_1, \ldots, A_k\}$):
+
+→ $Y|X$: it's a [multinomial distribution]{style="background-color: yellow;"} \
+→ By default [$g = \text{logit}$]{style="background-color: lightblue;"}
+
+. . .
+
+**Count** ($Y \in \mathbb{N}$):
+
+→ $Y|X$: [Poisson (often)]{style="background-color: yellow;"} or negative binomial \
+→ Choice of $g$: by default [$g = \ln$]{style="background-color: lightblue;"}
