@@ -138,8 +138,8 @@
 <p><span class="math inline">\(\newcommand{\VS}{\quad \mathrm{VS} \quad}\)</span> <span class="math inline">\(\newcommand{\and}{\quad \mathrm{and} \quad}\)</span> <span class="math inline">\(\newcommand{\E}{\mathbb E}\)</span> <span class="math inline">\(\newcommand{\P}{\mathbb P}\)</span> <span class="math inline">\(\newcommand{\Var}{\mathbb V}\)</span> <span class="math inline">\(\newcommand{\Cov}{\mathrm{Cov}}\)</span> <span class="math inline">\(\newcommand{\1}{\mathbf 1}\)</span></p>
 </section>
 <section>
-<section id="the-logit-function-as-a-link-function" class="title-slide slide level1 center">
-<h1>The logit Function as a Link Function</h1>
+<section id="glm-models-for-binary-variables" class="title-slide slide level1 center">
+<h1>GLM Models for Binary Variables</h1>
 
 </section>
 <section id="context" class="slide level2">
@@ -311,6 +311,62 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </div>
 <div class="fragment">
 <p><strong>Theoretical justification</strong>: CDF of probit close to CDF of logit</p>
+</div>
+</section>
+<section id="remarks-on-cloglog-model" class="slide level2">
+<h2>Remarks on cloglog Model</h2>
+<div class="fragment">
+<p>The modeling approach is <span class="math inline">\(p(x) = g^{-1}(x'\beta)\)</span> with</p>
+<div class="square-def">
+<p><span class="math display">\[g(t) = \ln(-\ln(1-t)) \quad \text{i.e.} \quad g^{-1}(t) = 1 - e^{-e^t}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Not symmetric in the sense that <span style="background-color: lightblue;"><span class="math inline">\(g(t) \neq -g(1-t)\)</span></span>.</p>
+<p><span class="math inline">\(p(x)\)</span> approaches <span class="math inline">\(0\)</span> slowly but <span class="math inline">\(1\)</span> very rapidly</p>
+</div>
+<div class="fragment">
+<p>If the opposite is true: take <span class="math inline">\(g(t) = -\ln(-\ln(t))\)</span> (loglog model)</p>
+</div>
+<div class="fragment">
+<p>Useful in <span style="background-color: yellow;">survival models</span> (e.g.&nbsp;Cox)</p>
+</div>
+</section>
+<section id="details-on-the-logit-model" class="slide level2">
+<h2>Details on the Logit Model</h2>
+<ol type="1">
+<li class="fragment"><p>Highly valued interpretation tool: odds-ratios.</p></li>
+<li class="fragment"><p>More “practical” from a theoretical point of view.</p></li>
+<li class="fragment"><p>Natural model in many situations.</p></li>
+</ol>
+</section>
+<section id="theoretical-motivation-of-logit" class="slide level2">
+<h2>Theoretical Motivation of Logit</h2>
+<div class="fragment">
+<p>We will show in exercises that:</p>
+<p><span style="background-color: orange;">If</span> the two groups of individuals associated with <span class="math inline">\(Y = 0\)</span> and <span class="math inline">\(Y = 1\)</span> have a Gaussian distribution of <span class="math inline">\(X\)</span> with different means, i.e.&nbsp;for <span class="math inline">\(m_0 \neq m_1\)</span>,</p>
+<div class="square-def">
+<p><span class="math display">\[X|(Y = 0) \sim \mathcal N(m_0, \Sigma) \and X|(Y = 1) \sim \mathcal N(m_1, \Sigma)\]</span></p>
+</div>
+<p><span style="background-color: orange;">then</span> <span class="math inline">\(\mathbb P(Y = 1|X = x)\)</span> follows a logistic model.</p>
+</div>
+<div class="fragment">
+<p>The previous result remains true for any distribution from the exponential family instead of <span class="math inline">\(\mathcal N\)</span>.</p>
+</div>
+</section>
+<section id="summary-for-binary-variables" class="slide level2">
+<h2>Summary for Binary Variables:</h2>
+<div class="fragment">
+<p>If <span class="math inline">\(Y\)</span> is a binary variable, <span style="background-color: lightblue;"><span class="math inline">\((Y|X = x) \sim \mathcal B(p(x))\)</span></span>.</p>
+<p>In a GLM model for <span class="math inline">\(Y\)</span>, we set <span class="math inline">\(p(x) = g^{-1}(x^T\beta)\)</span> where <span class="math inline">\(g\)</span> is:</p>
+<ul>
+<li class="fragment"><p><span style="background-color: yellow;">by default the logit</span> function, which is the most natural;</p></li>
+<li class="fragment"><p><span style="background-color: yellow;">possibly probit</span> if we have good reasons to justify it (but the results will be similar to logit);</p></li>
+<li class="fragment"><p><span style="background-color: yellow;">cloglog (or loglog)</span> if we have good reasons to justify it (<span style="background-color: yellow;">strong asymmetry of <span class="math inline">\(p(x)\)</span></span>, connection with a Cox model).</p></li>
+</ul>
+</div>
+<div class="fragment">
+<p>In the following, we will <span style="background-color: yellow;">focus on the logit model</span>.</p>
 
 
 </div>

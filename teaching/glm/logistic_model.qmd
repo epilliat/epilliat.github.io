@@ -23,7 +23,7 @@ $\newcommand{\Var}{\mathbb V}$
 $\newcommand{\Cov}{\mathrm{Cov}}$
 $\newcommand{\1}{\mathbf 1}$
 
-# The logit Function as a Link Function
+# GLM Models for Binary Variables
 
 ## Context
 
@@ -244,3 +244,83 @@ $$P(Y = 1|X = x) = P(Z(x) \geq \tau) = \Phi\left(\frac{x^T\beta - \tau}{\sigma}\
 . . .
 
 **Theoretical justification**: CDF of probit close to CDF of logit
+
+
+## Remarks on cloglog Model
+
+. . .
+
+The modeling approach is $p(x) = g^{-1}(x'\beta)$ with
+
+::: {.square-def}
+$$g(t) = \ln(-\ln(1-t)) \quad \text{i.e.} \quad g^{-1}(t) = 1 - e^{-e^t}$$
+:::
+
+
+
+. . .
+
+Not symmetric in the sense that [$g(t) \neq -g(1-t)$]{style="background-color: lightblue;"}.
+
+$p(x)$ approaches $0$ slowly but $1$ very rapidly
+
+. . .
+
+If the opposite is true: take $g(t) = -\ln(-\ln(t))$ (loglog model)
+
+. . .
+
+Useful in [survival models]{style="background-color: yellow;"} (e.g. Cox)
+
+
+## Details on the Logit Model
+
+1. Highly valued interpretation tool: odds-ratios.
+
+2. More "practical" from a theoretical point of view.
+
+3. Natural model in many situations.
+
+
+## Theoretical Motivation of Logit
+
+. . .
+
+We will show in exercises that:
+
+[If]{style="background-color: orange;"} the two groups of individuals associated with $Y = 0$ and $Y = 1$ have a Gaussian distribution of $X$ with different means, i.e. for $m_0 \neq m_1$,
+
+::: {.square-def}
+$$X|(Y = 0) \sim \mathcal N(m_0, \Sigma) \and X|(Y = 1) \sim \mathcal N(m_1, \Sigma)$$
+:::
+
+
+
+[then]{style="background-color: orange;"} $\mathbb P(Y = 1|X = x)$ follows a logistic model.
+
+. . .
+
+The previous result remains true for any distribution from the exponential family instead of $\mathcal N$.
+
+
+## Summary for Binary Variables:
+
+. . .
+
+If $Y$ is a binary variable, [$(Y|X = x) \sim \mathcal B(p(x))$]{style="background-color: lightblue;"}.
+
+In a GLM model for $Y$, we set $p(x) = g^{-1}(x^T\beta)$ where $g$ is:
+
+- [by default the logit]{style="background-color: yellow;"} function, which is the most natural;
+
+
+
+- [possibly probit]{style="background-color: yellow;"} if we have good reasons to justify it (but the results will be similar to logit);
+
+
+- [cloglog (or loglog)]{style="background-color: yellow;"} if we have good reasons to justify it ([strong asymmetry of $p(x)$]{style="background-color: yellow;"}, connection with a Cox model).
+
+. . .
+
+
+In the following, we will [focus on the logit model]{style="background-color: yellow;"}.
