@@ -209,10 +209,10 @@
 <section id="this-talk" class="slide level2">
 <h2>This Talk</h2>
 <aside class="notes">
-<p>My talk will be broken down this problem into 3 parts</p>
-<p>I’ll first introduce the non-parametric isotonic model, as it can be used to tackle all three problems of recovering labels, ranking workers and estimating their abilities</p>
-<p>I’ll endeavor to go over existing methods because I think it is necessary to understand some key insights on the method I introduce in my paper.</p>
-<p>The method I introduce, together with insights will be the last point of my talk</p>
+<p>My talk will break down this problem into three parts.</p>
+<p>I’ll begin by introducing the non-parametric isotonic model, since it offers a framework for addressing all three problems.</p>
+<p>Next, I’ll review existing methods, as I believe understanding these approaches is essential to grasp the key insights behind the method I introduce in my paper.</p>
+<p>The final section will focus on my contribution - the new method I’ve developed and some of the key ideas that emerge from it.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -237,6 +237,22 @@
 </section>
 <section id="illustration" class="slide level2">
 <h2>Illustration</h2>
+<aside class="notes">
+<p>Let me start with a concrete example to illustrate the type of data we’re working with.</p>
+<p>Consider binary tasks where labels are either <span class="math inline">\(-1\)</span> or <span class="math inline">\(+1\)</span>. If we have <span class="math inline">\(9\)</span> tasks, we get a vector <span class="math inline">\(x^*\)</span> of true labels with length <span class="math inline">\(9\)</span>.</p>
+<p>We observe a matrix <span class="math inline">\(Y\)</span> where each entry <span class="math inline">\((i,k)\)</span> represents the response of worker <span class="math inline">\(i\)</span> to task <span class="math inline">\(k\)</span>.</p>
+<p>We model partial observations with rate <span class="math inline">\(\lambda\)</span> — when a worker doesn’t respond to a particular task, we simply put <span class="math inline">\(0\)</span> in that matrix position.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 <ul>
 <li class="fragment">Two binary tasks with labels in <span class="math inline">\(\{\color{green}{-1},\color{blue}{+1}\}\)</span></li>
 <li class="fragment"><strong>Unknown</strong> vector <span class="math inline">\(x^*\)</span> of labels with <span class="math inline">\(d=9\)</span> tasks <span class="math inline">\(x^*= (\color{blue}{+1},\color{blue}{+1},\color{green}{-1},\color{blue}{+1},\color{green}{-1},\color{blue}{+1},\color{blue}{+1},\color{blue}{+1},\color{blue}{+1})\)</span></li>
@@ -273,44 +289,96 @@ Y=\left(\begin{array}{ccccccccc}
 </section>
 <section id="observation-model" class="slide level2">
 <h2>Observation Model</h2>
+<aside class="notes">
+<p>The underlying statistical model can be described as follows. Given a worker <span class="math inline">\(i\)</span> and a task <span class="math inline">\(k\)</span>, we observe their response <span class="math inline">\(Y_{ik}\)</span>, and we assume this relation:</p>
+<ul>
+<li><span class="math inline">\(x^*\)</span> is the vector of unknown true labels</li>
+<li><span class="math inline">\(M_{ik} \in [0,1]\)</span> represents the unknown ability of worker <span class="math inline">\(i\)</span> on task <span class="math inline">\(k\)</span>. For the best experts or easiest tasks, we have <span class="math inline">\(M_{ik} = 1\)</span></li>
+<li><span class="math inline">\(E_{ik}\)</span> is standard sub-Gaussian noise</li>
+<li><span class="math inline">\(B_{ik}\)</span> is a <span class="math inline">\(0\)</span>-<span class="math inline">\(1\)</span> coefficient that indicates whether we observe <span class="math inline">\((i,k)\)</span> or not</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 <div class="fragment">
 <p>Given workers <span class="math inline">\(i\in\{1, \dots, n\}\)</span> and tasks <span class="math inline">\(k\in\{1, \dots, d\}\)</span></p>
 </div>
 <div class="fragment">
-<p>We observe</p>
+<p>We observe <span class="math inline">\(Y_{ik} \in \{-1,0,1\}\)</span></p>
 <div class="square-def">
 <p><span class="math display">\[
 Y_{ik} = B_{ik}(M_{ik}x_k^* + E_{ik}) \enspace
 \]</span></p>
 </div>
-<ul>
-<li class="fragment"><p>Where:</p>
 <ol type="1">
-<li class="fragment"><span class="math inline">\(M_{ik} \in [0,1]\)</span></li>
-<li class="fragment"><span class="math inline">\(E_{ik}\)</span> are independent and <span class="math inline">\(1\)</span>-subGaussian</li>
-<li class="fragment"><span class="math inline">\(B_{ik}\)</span> are iid Bernoulli <span class="math inline">\(\lambda \in [0,1]\)</span></li>
-</ol></li>
-</ul>
+<li class="fragment"><span class="math inline">\(x_k^*\in \{-1,1\}\)</span> <span style="background-color: yellow;">true response</span> of task <span class="math inline">\(k\)</span></li>
+<li class="fragment"><span class="math inline">\(M_{ik} \in [0,1]\)</span> represents the <strong>unknown</strong> <span style="background-color: yellow;">ability of worker <span class="math inline">\(i\)</span> to task <span class="math inline">\(k\)</span></span></li>
+<li class="fragment"><span class="math inline">\(E_{ik}\)</span> are independent and <span style="background-color: yellow;"><span class="math inline">\(1\)</span>-subGaussian noise</span></li>
+<li class="fragment"><span class="math inline">\(B_{ik}\)</span> are iid Bernoulli <span class="math inline">\(\lambda \in [0,1]\)</span>. <span style="background-color: yellow;"><span class="math inline">\(=1\)</span> if <span class="math inline">\((i,k)\)</span> is observed</span></li>
+</ol>
 </div>
 </section>
-<section id="observation-model-1" class="slide level2">
-<h2>Observation Model</h2>
+<section id="alernative-formulation" class="slide level2">
+<h2>Alernative Formulation</h2>
+<aside class="notes">
+<p>In matrix form, we can rewrite the model as follows […] where <span class="math inline">\(\odot\)</span> is the coordinate-wise product between matrices.</p>
+<p>This is equivalent to what I said before, except here <span class="math inline">\(M\)</span>, <span class="math inline">\(E\)</span>, and <span class="math inline">\(B\)</span> are matrices. <span class="math inline">\(B\)</span> can be thought of as a mask matrix.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 <div class="fragment">
 <p>We observe</p>
 <div class="square-def">
 <p><span class="math display">\[Y = B\odot(M\mathrm{diag}(x^*) + E) \in \mathbb R^{n \times d}\]</span></p>
 </div>
 <p>where <span class="math inline">\(\odot\)</span> is the Hadamard product.</p>
+</div>
+<div class="fragment">
 <ul>
-<li class="fragment"><span class="math inline">\(M \in [0,1]^{n \times d}\)</span> is the <strong>ability</strong> matrix</li>
-<li class="fragment"><span class="math inline">\(x^*\)</span> is the vector of <strong>unknown</strong> labels</li>
-<li class="fragment"><span class="math inline">\(E\)</span> is a matrix of independent <strong>noise</strong></li>
-<li class="fragment"><span class="math inline">\(B\)</span> is a Bernoulli “mask” matrix, modelling <strong>partial observations</strong></li>
+<li><span class="math inline">\(M \in [0,1]^{n \times d}\)</span> is the <strong>ability</strong> matrix</li>
+<li><span class="math inline">\(x^*\)</span> is the vector of <strong>unknown</strong> labels</li>
+<li><span class="math inline">\(E\)</span> is a matrix of independent <strong>noise</strong></li>
+<li><span class="math inline">\(B\)</span> is a Bernoulli “mask” matrix, modelling <strong>partial observations</strong></li>
 </ul>
 </div>
 </section>
 <section id="bernoulli-observation-submodel" class="slide level2">
-<h2>Bernoulli Observation SubModel</h2>
+<h2>Bernoulli Observation Submodel</h2>
+<aside class="notes">
+<p>An important example is the Bernoulli Observation Model.</p>
+<p>This is the general model I just presented, and this is the Bernoulli Model, introduced by Shah et al.&nbsp;in 2020.</p>
+<ul>
+<li>It assumes that each worker has probability <span class="math inline">\((1+M_{ik})/2\)</span> of being correct on task <span class="math inline">\(k\)</span></li>
+<li>We observe each response with probability <span class="math inline">\(\lambda\)</span></li>
+</ul>
+<p>This is a submodel because Bernoulli variables are indeed <span class="math inline">\(1\)</span>-subgaussian.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 <p><span class="math display">\[Y = B\odot(M\mathrm{diag}(x^*) + E) \in \mathbb R^{n \times d}\]</span></p>
 <div class="fragment" style="font-size:120%">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
@@ -342,6 +410,21 @@ Y_{ik} = B_{ik}(M_{ik}x_k^* + E_{ik}) \enspace
 </section>
 <section id="shape-constraints" class="slide level2">
 <h2>Shape Constraints</h2>
+<aside class="notes">
+<p>Until now, I have’nt assumed anything on the ability matrix <span class="math inline">\(M\)</span> except that it has coef. in <span class="math inline">\([0,1]\)</span>.</p>
+<p>From now on, we assume that <span class="math inline">\(M\)</span> is isotonic up to a permutation <span class="math inline">\(\pi^*\)</span> of its rows, that is,</p>
+<p>it has increasing columns, up to an unknown permutation <span class="math inline">\(\pi^*\)</span></p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 <ul>
 <li class="fragment"><span class="math inline">\(M \in [0,1]^{n \times d}\)</span> represents the <strong>ability</strong> matrix of worker/task pairs</li>
 <li class="fragment">We assume that <span style="background-color: yellow;"><span class="math inline">\(M\)</span> is isotonic up to a permutation <span class="math inline">\(\pi^*\)</span></span> , that is</li>
@@ -371,16 +454,52 @@ M_{\phantom{{\pi^*}}}=\left(\begin{array}{ccccccccc}
 </section>
 <section id="shape-constraints-1" class="slide level2">
 <h2>Shape Constraints</h2>
+<aside class="notes">
+<p>More formally, the isotonicity constraint can be written as this set of inequalities.</p>
+<p>It means that the rows of <span class="math inline">\(M\)</span> are uniformly increasing.</p>
+<p>For any two workers <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span>, either <span class="math inline">\(i\)</span> or <span class="math inline">\(j\)</span> is uniformly better than the other one.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 <ul>
-<li class="fragment">For all <span class="math inline">\(k = 1, \dots, d\)</span>, <span class="math display">\[
+<li class="fragment">For all <span class="math inline">\(k = 1, \dots, d\)</span>,</li>
+</ul>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[
 M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
-\]</span></li>
+\]</span></p>
+</div>
+<ul>
 <li class="fragment">It means that the <span style="background-color: yellow;">rows are uniformly increasing</span></li>
 <li class="fragment">A worker <span class="math inline">\(i\)</span> is better <strong>on average</strong> than <span class="math inline">\(j\)</span>, if it is better on <strong>all tasks</strong> on average</li>
 </ul>
+</div>
 </section>
 <section id="illustration-when-x-is-known" class="slide level2">
 <h2>Illustration when <span class="math inline">\(x^*\)</span> is Known</h2>
+<aside class="notes">
+<p>Let me illustrate the isotonicity assumption with this picture. This is an isotonic matrix represented in a scale of grays. This is a permuted isotonic matrix, and this is what we might observe.</p>
+<p>Now I’m mostly interested in the regime where the noise is of the same scale as the coefficients of <span class="math inline">\(M\)</span>, so it’s kind of a blurry setting.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 <div class="r-stack">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -398,6 +517,47 @@ M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
 </figure>
 </div>
 </div>
+</section>
+<section id="square-norm-loss-vs-hamming-loss" class="slide level2">
+<h2>Square Norm Loss VS Hamming Loss</h2>
+<aside class="notes">
+<p>Now let move on to the definition of the Square norm loss.</p>
+<p>To motivate its definition, let me recall that the Hamming loss consists simply in summing up all the mistakes we made in the estimation of the true labels.</p>
+<p>For the square norm loss, we rather take the frobenius norm of <span class="math inline">\(M\)</span>, restricted to the column corresponding to tasks on which we did a mistake.</p>
+<ul>
+<li>If workers are bad (<span class="math inline">\(M\)</span> close to <span class="math inline">\(0\)</span>), square norm loss is small but Hamming Loss can be of order <span class="math inline">\(d\)</span></li>
+<li>The square norm loss evaluates the quality of the estimator <span class="math inline">\(\hat x\)</span> instead of the performance of the workers!</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+<div class="columns">
+<div class="column">
+<div class="fragment">
+<div class="square-def">
+<p><strong>Hamming Loss</strong>: <span class="math display">\[ \sum_{k=1}^d \mathbf 1\{\hat x_k \neq x_k^*\}\]</span></p>
+</div>
+</div>
+</div><div class="column">
+<div class="fragment">
+<div class="square-def">
+<p><strong>Square Norm Loss</strong>: <span class="math display">\[ \|M \mathrm{diag}(x^* \neq \hat x)\|_F^2\]</span></p>
+</div>
+</div>
+</div></div>
+<ul>
+<li class="fragment">If <span style="background-color: orange;">workers are bad</span>, <span class="math inline">\(M\)</span> is small but <span style="background-color: orange;">Hamming Loss is large</span></li>
+<li class="fragment">If <span class="math inline">\(M \sim 0\)</span>, Hamming loss <span class="math inline">\(\sim d\)</span></li>
+<li class="fragment"><span style="background-color: lightgreen;">Square norm loss</span> evaluates the <span style="background-color: lightgreen;">quality of <span class="math inline">\(\hat x\)</span></span> rather than workers</li>
+</ul>
 </section>
 <section id="crowdsourcing-problems" class="slide level2">
 <h2>Crowdsourcing Problems</h2>
@@ -479,28 +639,6 @@ M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
 <div style="font-size:120%;color">
 <p>These three objectives are closely intertwined!</p>
 </div>
-</section>
-<section id="square-norm-loss-vs-hamming-loss" class="slide level2">
-<h2>Square Norm Loss VS Hamming Loss</h2>
-<div class="columns">
-<div class="column">
-<div class="fragment">
-<div class="square-def">
-<p><strong>Hamming Loss</strong>: <span class="math display">\[ \sum_{k=1}^d \mathbf 1\{\hat x_k \neq x_k^*\}\]</span></p>
-</div>
-</div>
-</div><div class="column">
-<div class="fragment">
-<div class="square-def">
-<p><strong>Square Norm Loss</strong>: <span class="math display">\[ \|M \mathrm{diag}(x^* \neq \hat x)\|_F^2\]</span></p>
-</div>
-</div>
-</div></div>
-<ul>
-<li class="fragment">If <span style="background-color: orange;">workers are bad</span>, <span class="math inline">\(M\)</span> is small but <span style="background-color: orange;">Hamming Loss is large</span></li>
-<li class="fragment">If <span class="math inline">\(M \sim 0\)</span>, Hamming loss <span class="math inline">\(\sim d\)</span></li>
-<li class="fragment"><span style="background-color: lightgreen;">Square norm loss</span> evaluates the <span style="background-color: lightgreen;">quality of <span class="math inline">\(\hat x\)</span></span> rather than workers</li>
-</ul>
 </section>
 <section id="other-parametric-models" class="slide level2">
 <h2>Other Parametric Models</h2>
@@ -700,7 +838,7 @@ M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
 <p>Worst case (<span class="math inline">\(\lambda=1\)</span>): <span class="math inline">\(M \asymp \frac{1}{\sqrt{n}}(\mathbf 1_{n\times d})\)</span></p>
 </div>
 <div class="fragment">
-<p>In this case, <span style="background-color: orange;"><span class="math inline">\(\hat x^{(maj)}\)</span> is no better than random labelling</span> and <span class="math inline">\(\|M\mathrm{diag}(\hat x \neq x^*)\|_F^2 \asymp d\sqrt{n}\)</span></p>
+<p>In this case, <span style="background-color: orange;"><span class="math inline">\(\hat x^{(maj)}\)</span> is not much better than random labelling</span> and <span class="math inline">\(\|M\mathrm{diag}(\hat x \neq x^*)\|_F^2 \asymp d\sqrt{n}\)</span></p>
 </div>
 </section>
 <section id="least-square-conjectured-np-hard" class="slide level2">
@@ -829,7 +967,7 @@ M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
 <section id="iterate" class="slide level2">
 <h2>Iterate</h2>
 <div class="fragment">
-<p>Repeat PCA Step + Voting Step on <span class="math inline">\(Y \mathrm{diag}(\hat x \neq 0)\)</span> a polylogarithmic number of times.</p>
+<p><span style="background-color: yellow;">Repeat PCA Step + Voting Step</span> on <span class="math inline">\(Y \mathrm{diag}(\hat x \neq 0)\)</span> a polylogarithmic number of times.</p>
 </div>
 <div class="fragment">
 <p>We get <span class="math inline">\(\hat x^{(1)}, \hat x^{(2)}, \dots, \hat x^{(T)}\)</span></p>
@@ -842,7 +980,7 @@ M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
 <section id="proof-idea" class="slide level2">
 <h2>Proof Idea</h2>
 <div class="fragment">
-<p>Let <span style="background-color: yellow;"><span class="math inline">\(M(t) = M\mathrm{diag}(x^{(t-1)} = 0)\)</span></span></p>
+<p>Let <span style="background-color: yellow;"><span class="math inline">\(M(t) = M\mathrm{diag}(\hat x^{(t-1)} = 0)\)</span></span></p>
 </div>
 <div class="fragment">
 <p>While <span style="background-color: yellow;"><span class="math inline">\(M(t) \gg d/\lambda\)</span></span>, we prove that</p>
@@ -890,36 +1028,47 @@ M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
 </section>
 <section id="summary" class="slide level2">
 <h2>Summary</h2>
+<aside class="notes">
+<p>The core of my presentation can be captured in three key points.</p>
+<ul>
+<li>First, the isotonic model is a very flexible, non-parametric framework for describing crowdsourcing data and tackling tasks such as recovering labels and ranking workers.</li>
+<li>Secondly, ISV method is computationally feasible and achieves minimax rates in most interesting regimes.</li>
+<li>Lastly, and this is a surprising result: not knowing the true labels does not make the problem of ranking workers any harder from a statistical perspective</li>
+</ul>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 <ol type="1">
-<li class="fragment"><span style="background-color: yellow;">Non parametric isotonic model</span> for estimating
-<ul>
-<li class="fragment">binary labels</li>
-<li class="fragment">rank of workers</li>
-<li class="fragment">their abilities</li>
-</ul></li>
-<li class="fragment"><span style="background-color: yellow;">Minimax and polynomial time</span> method ISV to do the above three points (at least when <span class="math inline">\(n=d\)</span>)</li>
-<li class="fragment"><span style="background-color: yellow;">Not knowing the labels is not harder</span> than knowing them for
-<ul>
-<li class="fragment">ranking</li>
-<li class="fragment">estimating abilities</li>
-</ul></li>
+<li class="fragment"><span style="background-color: yellow;">Non parametric isotonic model</span> very flexible in crowdsourcing problems</li>
+<li class="fragment"><span style="background-color: yellow;">Minimax and polynomial time</span> method ISV for recovering labels, ranking and estimating abiliti (at least when <span class="math inline">\(n=d\)</span>)</li>
+<li class="fragment"><span style="background-color: yellow;">Not knowing the labels is not harder</span> than knowing them for ranking workers</li>
 </ol>
 </section>
 <section id="main-insights" class="slide level2">
 <h2>Main Insights</h2>
 <ol type="1">
 <li class="fragment">Spectral method because <span style="background-color: lightblue;"><span class="math inline">\(\|M\mathrm{diag}(x^*)(M\mathrm{diag}(x^*))^T\|_{\mathrm{op}}=\|MM^T\|_{\mathrm{op}}\)</span></span> does not depend on <span class="math inline">\(x^*\)</span></li>
-<li class="fragment">Iterate to reduce remaining square norm loss <span style="background-color: lightblue;"><span class="math inline">\(\|M\mathrm{diag}(x^* \neq \hat x)\|_F^2\)</span></span></li>
+<li class="fragment">Iterate to reduce remaining square norm loss <span style="background-color: lightblue;"><span class="math inline">\(\|M\mathrm{diag}(x^* \neq \hat x^{(t)})\|_F^2\)</span></span></li>
 <li class="fragment">Because <span style="background-color: lightblue;"><span class="math inline">\(\|M\|^2_{\mathrm{op}}\gtrsim\|M\|_F^2\)</span></span></li>
 </ol>
 </section>
 <section id="whats-next" class="slide level2">
 <h2>What’s Next?</h2>
-<ul>
-<li class="fragment">Can we do better if we are allowed to select worker task pairs <span class="math inline">\((i,k)\)</span> based on past information?</li>
-</ul>
+<div class="fragment">
+<div style="text-align: center;">
+<p>Can we <span style="background-color: yellow;">do better</span> if we are allowed to select worker task pairs <span class="math inline">\((i,k)\)</span> based on <span style="background-color: yellow;">past information</span>?</p>
+</div>
 
 
+</div>
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">

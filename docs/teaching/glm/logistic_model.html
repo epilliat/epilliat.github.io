@@ -27,6 +27,72 @@
       margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
       vertical-align: middle;
     }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-a9356234971a534880724c4687078043.css">
   <link rel="stylesheet" href="../../../styles.css">
@@ -367,6 +433,1578 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </div>
 <div class="fragment">
 <p>In the following, we will <span style="background-color: yellow;">focus on the logit model</span>.</p>
+</div>
+</section>
+<section id="outline" class="slide level2">
+<h2>Outline</h2>
+<ul>
+<li class="fragment">interpret the model,</li>
+<li class="fragment">estimate <span class="math inline">\(\beta\)</span> from a dataset,</li>
+<li class="fragment">evaluate the quality of estimation,</li>
+<li class="fragment">exploit it to make predictions/classification.</li>
+</ul>
+</section></section>
+<section>
+<section id="model-interpretation" class="title-slide slide level1 center">
+<h1>Model Interpretation</h1>
+
+</section>
+<section id="interpretation-of-the-logistic-model" class="slide level2">
+<h2>Interpretation of the Logistic Model</h2>
+<p>If <span class="math inline">\(x=(x^{(1)}, \dots, x^{(p)}) \in \mathbb R^{p \times 1}\)</span></p>
+<div class="square-def">
+<p><span class="math display">\[p(x) = \text{logit}^{-1}(x^T\beta) = \frac{e^{x^T\beta}}{1 + e^{x^T\beta}}\]</span></p>
+</div>
+<ul>
+<li class="fragment"><p><span class="math inline">\(x^{(j)} \to p(x)\)</span> is increasing if <span class="math inline">\(\beta_j &gt; 0\)</span>, decreasing otherwise.</p></li>
+<li class="fragment"><p>The larger <span class="math inline">\(|\beta_j|\)</span> is, the stronger the discriminatory power of regressor <span class="math inline">\(X^{(j)}\)</span> (a small variation in <span class="math inline">\(x^{(j)}\)</span> can cause a large variation in <span class="math inline">\(p(x)\)</span>).</p></li>
+</ul>
+</section>
+<section id="shape-of-logit-function" class="slide level2">
+<h2>Shape of logit function</h2>
+<div class="fragment">
+<div style="text-align: center;">
+<p><img data-src="images/shape_logit.png" style="width:40.0%"></p>
+</div>
+<p>shape of <span class="math inline">\(x^{(j)} \to p(x)\)</span></p>
+</div>
+</section>
+<section id="example-bmi-study-french-imc" class="slide level2">
+<h2>Example: BMI Study (French: IMC)</h2>
+<p>For each of the 5300 patients, we observe:</p>
+<ul>
+<li class="fragment"><span class="math inline">\(Y\)</span>: 1 if BMI &gt; 35, 0 otherwise</li>
+<li class="fragment">AGE</li>
+<li class="fragment">DBP: low pressure (diastolic)</li>
+<li class="fragment">SEXE: male or female</li>
+<li class="fragment">ACTIV: 1 if intense sports activity, 0 otherwise</li>
+<li class="fragment">WALK: 1 if walking or cycling to work, 0 otherwise</li>
+<li class="fragment">MARITAL: marital status (6 categories: married, widowed, divorced, separated, single or cohabiting)</li>
+</ul>
+</section>
+<section id="model-definition" class="slide level2">
+<h2>Model Definition</h2>
+<div class="fragment">
+<p>We seek to model <span class="math inline">\(P(Y = 1|X)\)</span> where <span class="math inline">\(X\)</span> groups the previous variables (excluding <span class="math inline">\(Y\)</span>).</p>
+</div>
+<div class="fragment">
+<p>In R, we use the <code>glm</code> function with the <code>family=binomial</code> option.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">glm</span>(Y <span class="sc">~</span> AGE <span class="sc">+</span> DBP <span class="sc">+</span> SEXE <span class="sc">+</span> ACTIV <span class="sc">+</span> WALK <span class="sc">+</span> MARITAL, <span class="at">family=</span>binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-results" class="slide level2">
+<h2>Model Results</h2>
+<div class="fragment">
+<div style="font-size: 50%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 15%">
+<col style="width: 16%">
+<col style="width: 12%">
+<col style="width: 18%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>-2.810240</td>
+<td>0.294316</td>
+<td>-9.548</td>
+<td>&lt; 2e-16</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>AGE</td>
+<td>-0.004407</td>
+<td>0.002717</td>
+<td>-1.622</td>
+<td>0.105</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>DBP</td>
+<td>0.017581</td>
+<td>0.003283</td>
+<td>5.356</td>
+<td>8.53e-08</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>SEXEFEMME</td>
+<td>0.544916</td>
+<td>0.081261</td>
+<td>6.706</td>
+<td>2.00e-11</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>WALK1</td>
+<td>-0.409344</td>
+<td>0.095972</td>
+<td>-4.265</td>
+<td>2.00e-05</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>ACTIV1</td>
+<td>-0.789734</td>
+<td>0.126653</td>
+<td>-6.235</td>
+<td>4.51e-10</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>MARITAL2</td>
+<td>0.070132</td>
+<td>0.149638</td>
+<td>0.469</td>
+<td>0.639</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>MARITAL3</td>
+<td>-0.071318</td>
+<td>0.127510</td>
+<td>-0.559</td>
+<td>0.576</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>MARITAL4</td>
+<td>0.188228</td>
+<td>0.206598</td>
+<td>0.911</td>
+<td>0.362</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>MARITAL5</td>
+<td>0.070613</td>
+<td>0.115928</td>
+<td>0.609</td>
+<td>0.542</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>MARITAL6</td>
+<td>-0.150165</td>
+<td>0.157687</td>
+<td>-0.952</td>
+<td>0.341</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="fragment">
+<p>The interpretation is similar to that of a linear regression model.</p>
+</div>
+<div class="fragment">
+<p>We want to remove the MARITAL variable from the model.</p>
+</div>
+</section>
+<section id="model-results-with-age2" class="slide level2">
+<h2>Model Results with <span class="math inline">\(AGE^2\)</span></h2>
+<div class="fragment">
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">glm</span>(Y <span class="sc">~</span> AGE <span class="sc">+</span> <span class="fu">I</span>(AGE<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> DBP <span class="sc">+</span> SEXE <span class="sc">+</span> WALK <span class="sc">+</span> ACTIV, <span class="at">family=</span>binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Gives</p>
+</div>
+<div class="fragment">
+<div style="font-size: 50%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>-3.9564361</td>
+<td>0.3155529</td>
+<td>-12.538</td>
+<td>&lt; 2e-16</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>AGE</td>
+<td>0.0640837</td>
+<td>0.0123960</td>
+<td>5.170</td>
+<td>2.34e-07</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>I(AGE^2)</td>
+<td>-0.0006758</td>
+<td>0.0001260</td>
+<td>-5.364</td>
+<td>8.14e-08</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>DBP</td>
+<td>0.0121546</td>
+<td>0.0033775</td>
+<td>3.599</td>
+<td>0.00032</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>SEXEFEMME</td>
+<td>0.5155651</td>
+<td>0.0776229</td>
+<td>6.642</td>
+<td>3.10e-11</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>WALK1</td>
+<td>-0.4042257</td>
+<td>0.0913195</td>
+<td>-4.426</td>
+<td>9.58e-06</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>ACTIV1</td>
+<td>-0.6573558</td>
+<td>0.1150226</td>
+<td>-5.715</td>
+<td>1.10e-08</td>
+<td>***</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For someone for which WALK1=0 and ACTIV1=0:</p>
+<div style="font-size: 60%;">
+<p><span class="math inline">\(P(Y = 1|\text{AGE}, \text{DBP}) = \text{logit}^{-1}(-3.95 + 0.064 \times \text{AGE} - 0.00068 \times \text{AGE}^2 + 0.0122 \times \text{DBP})\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>For someone for which WALK1=0 and ACTIV1=1:</p>
+<div style="font-size: 60%;">
+<p><span class="math inline">\(P(Y = 1|\text{AGE}, \text{DBP}) = \text{logit}^{-1}(-3.95 + 0.064 \times \text{AGE} - 0.00068 \times \text{AGE}^2 + 0.0122 \times \text{DBP} - 0.657)\)</span></p>
+</div>
+</div>
+</section>
+<section id="odds" class="slide level2">
+<h2>Odds</h2>
+<p>If <span class="math inline">\(p\)</span> is the probability of an event <span class="math inline">\(A\)</span>, then its odds are:</p>
+<div class="square-def">
+<p><span class="math display">\[\text{odds} = \frac{p}{1-p}\]</span></p>
+</div>
+<div class="fragment">
+<p><strong>Betting interpretation</strong> for example, <span class="math inline">\(3\)</span> to <span class="math inline">\(1\)</span> means that for <span class="math inline">\(3\)</span> people betting on <span class="math inline">\(A\)</span>, <span class="math inline">\(1\)</span> person bets on <span class="math inline">\(B\)</span>.</p>
+</div>
+<div class="fragment">
+<p>So a randomly chosen bettor has a probability of <span class="math inline">\(p=3/4\)</span> of betting on <span class="math inline">\(A\)</span> and <span class="math inline">\(1-p=1/4\)</span> on betting on <span class="math inline">\(B\)</span></p>
+</div>
+</section>
+<section id="odds-given-xx" class="slide level2">
+<h2>Odds given <span class="math inline">\(X=x\)</span></h2>
+<div class="fragment">
+<p>Similarly, the odds of obtaining <span class="math inline">\(Y = 1\)</span> given <span class="math inline">\(X = x\)</span> is:</p>
+<div class="square-def">
+<p><span class="math display">\[\text{odds}(x) = \frac{p(x)}{1 - p(x)}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>where <span class="math inline">\(p(x) = P(Y = 1|X = x)\)</span>.</p>
+</div>
+</section>
+<section id="odds-ratio" class="slide level2">
+<h2>Odds Ratio</h2>
+<div class="fragment">
+<p>If two individuals have characteristics <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> respectively, we call the odds ratio between <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>:</p>
+<p><span class="math display">\[OR(x_1, x_2) = \frac{\text{odds}(x_1)}{\text{odds}(x_2)} = \frac{\frac{p(x_1)}{1-p(x_1)}}{\frac{p(x_2)}{1-p(x_2)}}\]</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p><span style="background-color: orange;"><strong>DO NOT CONFUSE ODDS RATIO WITH PROBABILITY RATIO</strong></span></p>
+<p>Only possible exception: if <span class="math inline">\(p(x_1)\)</span> and <span class="math inline">\(p(x_2)\)</span> are very small because then <span class="math inline">\(1 - p(x_1) \approx 1\)</span> and <span class="math inline">\(1 - p(x_2) \approx 1\)</span>, so that <span class="math inline">\(OR(x_1, x_2) \approx p(x_1)/p(x_2)\)</span></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="link-with-proba.-ratio" class="slide level2">
+<h2>Link with Proba. Ratio</h2>
+<div class="fragment">
+<p>However, it remains that:</p>
+<p><span class="math display">\[\begin{aligned}
+OR(x_1, x_2) &gt; 1 &amp;\Leftrightarrow \frac{p(x_1)}{p(x_2)} &gt; 1\\
+OR(x_1, x_2) &lt; 1 &amp;\Leftrightarrow \frac{p(x_1)}{p(x_2)} &lt; 1\\
+OR(x_1, x_2) = 1 &amp;\Leftrightarrow \frac{p(x_1)}{p(x_2)} = 1
+\end{aligned}\]</span></p>
+</div>
+</section>
+<section id="other-property-of-odds-ratio" class="slide level2">
+<h2>Other Property of Odds Ratio</h2>
+<div class="fragment">
+<p><span class="math inline">\(OR(x_1, x_2)\)</span> accentuates the differences compared to <span class="math inline">\(p(x_1)/p(x_2)\)</span>:</p>
+<p><span class="math display">\[\begin{aligned}
+OR(x_1, x_2) &gt; \frac{p(x_1)}{p(x_2)} &amp;\text{ when } OR(x_1, x_2) &gt; 1\\
+OR(x_1, x_2) &lt; \frac{p(x_1)}{p(x_2)} &amp;\text{ when } OR(x_1, x_2) &lt; 1
+\end{aligned}\]</span></p>
+</div>
+</section>
+<section id="examples-using-odds-ratios" class="slide level2">
+<h2>Examples Using Odds Ratios</h2>
+<div class="fragment">
+<p>A logistic regression is most often used to compare the <span style="background-color: lightgreen;">behavior of two individuals</span> with respect to <span style="background-color: lightblue;">the variable of interest</span>.</p>
+</div>
+<div class="fragment">
+<p>Examples:</p>
+<ul>
+<li class="fragment"><span style="background-color: lightgreen;">probability of purchase</span> depending on whether or not one has been the <span style="background-color: lightblue;">subject of a personalized promotion</span>;</li>
+<li class="fragment">for a given vehicle, <span style="background-color: lightgreen;">probability of experiencing a breakdown</span> <span style="background-color: lightblue;">according to age</span>;</li>
+<li class="fragment"><span style="background-color: lightgreen;">probability of recovery</span> according to the <span style="background-color: lightblue;">treatment used</span>;</li>
+</ul>
+</div>
+</section>
+<section id="odds-ratio-in-logistic-regression" class="slide level2">
+<h2>Odds Ratio in Logistic Regression</h2>
+<div class="fragment">
+<p>It holds that <span style="background-color: lightblue;"><span class="math inline">\(\text{odds}(x) = \frac{p(x)}{1 - p(x)} = \exp(x^T \beta)\)</span></span></p>
+<p>Hence,</p>
+<div class="square-def">
+<p><span class="math display">\[OR(x_1, x_2) = \frac{\text{odds}(x_1)}{\text{odds}(x_2)} = \exp((x_1 - x_2)^T \beta)\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>If the two individuals differ only by regressor <span class="math inline">\(j\)</span>, then</p>
+<p><span class="math inline">\(OR(x_1, x_2) = \exp(\beta_j (x_1^{(j)} - x_2^{(j)}))\)</span></p>
+</div>
+<div class="fragment">
+<p>If regressor <span class="math inline">\(j\)</span> is binary (<span class="math inline">\(x_1^{(j)} = 1\)</span> while <span class="math inline">\(x_2^{(j)} = 0\)</span>):</p>
+<p><span class="math inline">\(OR(x_1, x_2) = \exp(\beta_j)\)</span></p>
+</div>
+</section>
+<section id="key-summary-statement" class="slide level2">
+<h2>Key Summary Statement</h2>
+<div class="fragment">
+<p>In a logistic regression model, <span class="math inline">\(\beta_j\)</span> is interpreted as the logarithm of the odds-ratio between two individuals differing by a quantity of <span class="math inline">\(1\)</span> on regressor <span class="math inline">\(j\)</span>, all else being equal.</p>
+</div>
+<div class="fragment">
+<p><strong>In brief:</strong> <span style="background-color: yellow;"><span class="math inline">\(\exp(\beta_j) = OR(x^{(j)} + 1, x^{(j)})\)</span></span></p>
+<p>If regressor <span class="math inline">\(j\)</span> is binary (absence or presence of a certain characteristic):</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\exp(\beta_j)\)</span> is simply the OR between the <span style="background-color: yellow;">presence or absence</span> of this characteristic, all else being equal.</p>
+</div>
+</section>
+<section id="example-1-intense-sports-activity" class="slide level2">
+<h2>Example 1: Intense Sports Activity</h2>
+<div class="fragment">
+<div style="font-size: 50%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>-3.9564361</td>
+<td>0.3155529</td>
+<td>-12.538</td>
+<td>&lt; 2e-16</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>AGE</td>
+<td>0.0640837</td>
+<td>0.0123960</td>
+<td>5.170</td>
+<td>2.34e-07</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>I(AGE^2)</td>
+<td>-0.0006758</td>
+<td>0.0001260</td>
+<td>-5.364</td>
+<td>8.14e-08</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>DBP</td>
+<td>0.0121546</td>
+<td>0.0033775</td>
+<td>3.599</td>
+<td>0.00032</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>SEXEFEMME</td>
+<td>0.5155651</td>
+<td>0.0776229</td>
+<td>6.642</td>
+<td>3.10e-11</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>WALK1</td>
+<td>-0.4042257</td>
+<td>0.0913195</td>
+<td>-4.426</td>
+<td>9.58e-06</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>ACTIV1</td>
+<td>-0.6573558</td>
+<td>0.1150226</td>
+<td>-5.715</td>
+<td>1.10e-08</td>
+<td>***</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="fragment">
+<p>The Odds Ratio corresponding to practicing or not practicing intense sports activity is, all else being equal:</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\exp(-0.657) \approx 0.52\)</span></p>
+</div>
+<div class="fragment">
+<p>The odds of obesity occurrence therefore decrease by half for individuals practicing intense sports activity.</p>
+<p><strong>(The odds, not the probability!)</strong></p>
+</div>
+</section>
+<section id="example-2-diastolic-pressure" class="slide level2">
+<h2>Example 2: Diastolic Pressure</h2>
+<div style="font-size: 50%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>-3.9564361</td>
+<td>0.3155529</td>
+<td>-12.538</td>
+<td>&lt; 2e-16</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>AGE</td>
+<td>0.0640837</td>
+<td>0.0123960</td>
+<td>5.170</td>
+<td>2.34e-07</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>I(AGE^2)</td>
+<td>-0.0006758</td>
+<td>0.0001260</td>
+<td>-5.364</td>
+<td>8.14e-08</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>DBP</td>
+<td>0.0121546</td>
+<td>0.0033775</td>
+<td>3.599</td>
+<td>0.00032</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>SEXEFEMME</td>
+<td>0.5155651</td>
+<td>0.0776229</td>
+<td>6.642</td>
+<td>3.10e-11</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>WALK1</td>
+<td>-0.4042257</td>
+<td>0.0913195</td>
+<td>-4.426</td>
+<td>9.58e-06</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>ACTIV1</td>
+<td>-0.6573558</td>
+<td>0.1150226</td>
+<td>-5.715</td>
+<td>1.10e-08</td>
+<td>***</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The OR for a diastolic pressure difference of <span class="math inline">\(+20\)</span> is:</p>
+<div class="fragment">
+<p><span class="math inline">\(\exp(0.0121546 \times 20) \approx 1.28\)</span></p>
+</div>
+<div class="fragment">
+<p>The odds of obesity occurrence therefore increase by <span class="math inline">\(28\%\)</span>.</p>
+</div>
+</section></section>
+<section>
+<section id="estimation-of-the-parameters" class="title-slide slide level1 center">
+<h1>EStimation of the Parameters</h1>
+
+</section>
+<section id="the-framework" class="slide level2">
+<h2>The Framework</h2>
+<div class="fragment">
+<p>We observe <span class="math inline">\(n\)</span> i.i.d. realizations <span class="math inline">\((Y_i, X_i)\)</span> where <span class="math inline">\(Y_i \in \{0, 1\}\)</span> and <span class="math inline">\(X_i \in \mathbb{R}^p\)</span>.</p>
+</div>
+<div class="fragment">
+<p>We denote <span class="math inline">\(p(x_i) = P(Y_i = 1|X_i = x_i)\)</span>.</p>
+</div>
+</section>
+<section id="the-logistic-model" class="slide level2">
+<h2>The Logistic Model</h2>
+<div class="fragment">
+<p>We assume the logistic model: for all <span class="math inline">\(i\)</span>,</p>
+<div class="square-def">
+<p><span class="math display">\[p(x_i) = \text{logit}^{-1}(x_i^T \beta) = \frac{e^{x_i^T \beta}}{1 + e^{x_i^T \beta}}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>where <span class="math inline">\(\beta = (\beta_1, \ldots, \beta_p)^T\)</span> and <span class="math inline">\(x_i^T \beta = \beta_1 x_i^{(1)} + \cdots + \beta_p x_i^{(p)}\)</span>.</p>
+</div>
+</section>
+<section id="parameter-estimation" class="slide level2">
+<h2>Parameter Estimation</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[p(x_i) = \text{logit}^{-1}(x_i^T \beta) = \frac{e^{x_i^T \beta}}{1 + e^{x_i^T \beta}}\]</span></p>
+</div>
+<p>We will estimate <span class="math inline">\(\beta\)</span> by <span style="background-color: yellow;">maximizing the likelihood</span>.</p>
+</div>
+<div class="fragment">
+<p>We will denote <span style="background-color: lightblue;"><span class="math inline">\(p_\beta(x_i)\)</span></span> to emphasize the dependence of <span style="background-color: lightblue;"><span class="math inline">\(p(x_i)\)</span></span> on <span class="math inline">\(\beta\)</span>.</p>
+</div>
+</section>
+<section id="likelihood-calculation" class="slide level2">
+<h2>Likelihood Calculation</h2>
+<div class="fragment">
+<p>For all <span class="math inline">\(i\)</span>, <span class="math inline">\(Y_i|(X_i = x_i)\)</span> follows the distribution <span class="math inline">\(B(p_\beta(x_i))\)</span>. Therefore</p>
+<div style="font-size: 80%;">
+<div class="square-def">
+<p><span class="math display">\[P(Y_i = y_i|X_i = x_i) = p_\beta(x_i)^{y_i}(1 - p_\beta(x_i))^{1-y_i}\]</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>for all <span class="math inline">\(y_i \in \{0, 1\}\)</span>.</p>
+</div>
+</section>
+<section id="likelihood" class="slide level2">
+<h2>Likelihood</h2>
+<div class="fragment">
+<p>By independence, we obtain the likelihood</p>
+<div class="square-def">
+<p><span class="math display">\[\ell(\beta, y_1, \ldots, y_n, x_1, \ldots, x_n) = \prod_{i=1}^n p_\beta(x_i)^{y_i}(1 - p_\beta(x_i))^{1-y_i}\]</span></p>
+</div>
+</div>
+</section>
+<section id="log-likelihood" class="slide level2">
+<h2>Log-Likelihood</h2>
+<div class="fragment">
+<p>Taking the log and replacing <span class="math inline">\(p(x_i)\)</span> by its expression, we obtain the log-likelihood:</p>
+<div style="font-size: 80%;">
+<div class="square-def">
+<p><span class="math display">\[\begin{aligned}
+L(\beta, y_1, \ldots, y_n, x_1, \ldots, x_n) &amp;= \ln(\ell) \\
+&amp;=\sum_{i=1}^n \left[y_i x_i^T \beta - \ln(1 + e^{x_i^T \beta})\right]
+\end{aligned}\]</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="mle-calculation" class="slide level2">
+<h2>MLE Calculation</h2>
+<div class="fragment">
+<p>The MLE <span class="math inline">\(\hat{\beta}\)</span>, if it exists, cancels the gradient of <span class="math inline">\(L\)</span> with respect to <span class="math inline">\(\beta\)</span>. This gradient equals</p>
+<div class="square-def">
+<p><span class="math display">\[\frac{\partial L}{\partial \beta} = \sum_{i=1}^n x_i \left(y_i - \frac{e^{x_i^T \beta}}{1 + e^{x_i^T \beta}}\right)\]</span></p>
+</div>
+<p>We therefore need to solve a system of <span class="math inline">\(p\)</span> equations with <span class="math inline">\(p\)</span> unknowns.</p>
+</div>
+<div class="fragment">
+<p>But the solution is not explicit: we resort to <span style="background-color: yellow;">numerical methods</span> (Newto-Raphso algo)</p>
+</div>
+</section>
+<section id="remarks" class="slide level2">
+<h2>Remarks</h2>
+<div class="fragment">
+<p>This is a classic situation when using advanced statistical models: we often <span style="background-color: yellow;">resort to optimization algorithms</span>.</p>
+</div>
+<div class="fragment">
+<p>Does the solution exist? Is it unique?</p>
+</div>
+</section>
+<section id="mle-uniqueness" class="slide level2">
+<h2>MLE Uniqueness</h2>
+<div class="fragment">
+<p>Let <span class="math inline">\(X\)</span> be the design matrix <span class="math inline">\((X^{(1)}, \dots, X^{(p)}) \in \mathbb R^{n \times p}\)</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Proposition</strong></p>
+</div>
+<div class="callout-content">
+<p>If <span class="math inline">\(\text{rank}(X) = p\)</span>, then the MLE, if it exists, is unique.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="proof-of-mle-uniqueness" class="slide level2">
+<h2>Proof of MLE Uniqueness</h2>
+<div class="fragment">
+<p>It suffices to show that <span class="math inline">\(L\)</span> is strictly concave in <span class="math inline">\(\beta\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Hessian Matrix of <span class="math inline">\(L\)</span>:</p>
+<p><span class="math display">\[\frac{\partial^2 L}{\partial \beta^2} = -\sum_{i=1}^n p_\beta(x_i)(1 - p_\beta(x_i)) x_i x_i^T\]</span></p>
+</div>
+</section>
+<section id="hessian-properties" class="slide level2">
+<h2>Hessian Properties</h2>
+<div class="fragment">
+<p>It is negative semi-definite. Moreover, for all <span class="math inline">\(u \in \mathbb{R}^p\)</span>,</p>
+<p><span class="math display">\[\begin{aligned}
+u^T \frac{\partial^2 L}{\partial \beta^2} u = 0 &amp;\Leftrightarrow u^T x_i x_i^T u = 0 \text{ for all } i\\
+&amp;\Leftrightarrow u^T x_i = 0 \text{ for all } i\\
+&amp;\Leftrightarrow Xu = 0\\
+&amp;\Leftrightarrow u = 0
+\end{aligned}\]</span></p>
+<p>since <span class="math inline">\(\text{rank}(X) = p\)</span>.</p>
+</div>
+</section>
+<section id="conclusion" class="slide level2">
+<h2>Conclusion</h2>
+<div class="fragment">
+<p>Thus, for all <span class="math inline">\(u \neq 0\)</span>,</p>
+<div class="square-def">
+<p><span class="math display">\[u^T \frac{\partial^2 L}{\partial \beta^2} u &lt; 0\]</span></p>
+</div>
+<p>The Hessian matrix is negative definite and therefore <span class="math inline">\(L\)</span> is strictly concave,</p>
+<p>The MLE is unique</p>
+</div>
+</section>
+<section id="about-mle-existence" class="slide level2">
+<h2>About MLE Existence</h2>
+<div class="fragment">
+<p>Although <span class="math inline">\(L\)</span> is strictly concave, its <span style="background-color: orange;">maximum can occur at infinity</span> (think of the <span class="math inline">\(\ln\)</span> function), in which case <span class="math inline">\(\hat{\beta}\)</span> does not exist.</p>
+</div>
+<div class="fragment">
+<p>This occurs if there is <span style="background-color: yellow;">non-overlap</span>, i.e., separation by a hyperplane of the <span class="math inline">\(x_i\)</span> for which <span class="math inline">\(y_i = 0\)</span> and those for which <span class="math inline">\(y_i = 1\)</span>.</p>
+</div>
+</section>
+<section id="non-overlap-situation" class="slide level2">
+<h2>Non-Overlap Situation</h2>
+<div class="fragment">
+<p>Mathematically, there is non-overlap if there exists <span class="math inline">\(\alpha \in \mathbb{R}^p\)</span> such that</p>
+<p><span class="math display">\[\begin{cases}
+\text{for all } i \text{ such that } y_i = 0, &amp; \alpha^T x_i \geq 0 \\
+\text{for all } i \text{ such that } y_i = 1, &amp; \alpha^T x_i \leq 0
+\end{cases}\]</span></p>
+</div>
+</section>
+<section id="illustration-of-non-overlap-situation" class="slide level2">
+<h2>Illustration of Non-Overlap Situation</h2>
+
+<img data-src="images/non_recouvrement.png" class="r-stretch"></section>
+<section id="non-overlap-and-existence" class="slide level2">
+<h2>Non-Overlap and Existence</h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Proposition (admitted)</strong></p>
+</div>
+<div class="callout-content">
+<p>In case of non-overlap, the estimator <span style="background-color: orange;"><span class="math inline">\(\hat{\beta}\)</span> does not exist</span>, in the sense that <span class="math inline">\(L(\beta)\)</span> is maximal when <span class="math inline">\(\|\beta\| \to \infty\)</span> (in one or several directions).</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>For all <span class="math inline">\(x\)</span>, <span style="background-color: lightblue;"><span class="math inline">\(\hat{p}(x) = \in \{0,1\}\)</span></span>, depending on the position of <span class="math inline">\(x\)</span> relative to the separating hyperplane.</p>
+</div>
+<div class="fragment">
+<p>Nevertheless, there is a “dead zone” in the middle of the <span class="math inline">\(2\)</span> point clouds, because the <span style="background-color: orange;">separating hyperplane is not necessarily unique</span>.</p>
+</div>
+</section>
+<section id="beyond-the-dead-zone" class="slide level2">
+<h2>Beyond the Dead Zone</h2>
+<div class="fragment">
+<p>Beyond this dead zone, classification is very simple (<span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span>).</p>
+</div>
+<div class="fragment">
+<p>But no interpretation of the model is possible (the OR are worth <span class="math inline">\(0\)</span> or <span class="math inline">\(+\infty\)</span>).</p>
+</div>
+</section>
+<section id="existence-and-uniqueness-of-mle" class="slide level2">
+<h2>Existence and Uniqueness of MLE</h2>
+<div class="fragment">
+<p>We say <span style="background-color: yellow;">there is overlap</span> when no hyperplane can separate the red points from the blue points.</p>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Proposition (admitted)</strong></p>
+</div>
+<div class="callout-content">
+<p>If <span class="math inline">\(\text{rank}(X) = p\)</span> and <span style="background-color: yellow;">there is overlap</span>, then the MLE exists and is unique.</p>
+</div>
+</div>
+</div>
+<p>Under these conditions, we <span style="background-color: yellow;">can therefore search for the MLE</span> using the Newton-Raphson algorithm.</p>
+<ol type="1">
+<li class="fragment"><p>the maximum exists,</p></li>
+<li class="fragment"><p>the function to optimize is strictly concave and there is therefore no local maximum, only a global maximum.</p></li>
+</ol>
+</div>
+</section>
+<section id="fisher-information-recall" class="slide level2">
+<h2>Fisher Information (Recall)</h2>
+<div class="fragment">
+<p>Let <span class="math inline">\(X\)</span> be the design matrix (whose rows are the vectors <span class="math inline">\(x_i\)</span>).</p>
+</div>
+<div class="fragment">
+<p>Let <span class="math inline">\(J_n(\beta)\)</span> be the Fisher information matrix:</p>
+<div class="square-def">
+<p><span class="math display">\[J_n(\beta) = -E\left[\frac{\partial^2 L}{\partial \beta^2}(\beta) \right]\]</span></p>
+</div>
+</div>
+</section>
+<section id="asymptotic-efficiency" class="slide level2">
+<h2>Asymptotic Efficiency</h2>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Proposition (admitted)</strong></p>
+</div>
+<div class="callout-content">
+<p>In the logistic regression model, <span style="background-color: yellow;">if</span></p>
+<ol type="1">
+<li class="fragment">the distribution of the regressors <span class="math inline">\((X_1, \ldots, X_p)\)</span> has compact support,</li>
+<li class="fragment"><span class="math inline">\(\text{rank}(X) = p\)</span>,</li>
+<li class="fragment">the smallest eigenvalue of <span class="math inline">\(X^T X\)</span> tends to infinity with <span class="math inline">\(n\)</span>,</li>
+</ol>
+<p><span style="background-color: yellow;">then</span></p>
+<ol type="1">
+<li class="fragment"><p>the maximum likelihood estimator <span class="math inline">\(\hat{\beta}\)</span> is consistent;</p></li>
+<li class="fragment"><p><span class="math inline">\(J_n(\beta)^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)\)</span></p></li>
+</ol>
+<p>where <span class="math inline">\(I_p\)</span> is the identity matrix of size <span class="math inline">\(p\)</span>.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="comments" class="slide level2">
+<h2>Comments</h2>
+<div class="fragment">
+<p>Under these conditions, the MLE therefore exists for sufficiently large <span class="math inline">\(n\)</span>. In fact, there is necessarily overlap when <span class="math inline">\(n\)</span> is large (cf board).</p>
+</div>
+<div class="fragment">
+<p>It is asymptotically efficient (= minimal asymptotic variance)</p>
+</div>
+<div class="fragment">
+<p>The Fisher information matrix <span class="math inline">\(J_n(\beta)\)</span> can be calculated</p>
+</div>
+<div class="fragment">
+<p>We will be able to rely on asymptotic normality to perform tests and construct confidence intervals</p>
+</div>
+</section>
+<section id="comparison-with-linear-regression" class="slide level2">
+<h2>Comparison with Linear Regression</h2>
+<div class="fragment">
+<p>The formula for <span class="math inline">\(\hat{\beta}\)</span> is <span style="background-color: lightgreen;">explicit</span>: <span class="math inline">\(\hat{\beta} = (X^T X)^{-1} X^T Y\)</span>;</p>
+</div>
+<div class="fragment">
+<p>Its expectation and variance are <span style="background-color: lightgreen;">explicit</span>;</p>
+</div>
+<div class="fragment">
+<p>In the Gaussian model (<span class="math inline">\(Y|X\)</span> Gaussian), the distribution of <span class="math inline">\(\hat{\beta}\)</span> is <span style="background-color: lightgreen;">explicit</span>, which allows constructing exact tests (Student, Fisher).</p>
+</div>
+<div class="fragment">
+<p>If the model is not Gaussian, these tests are valid asymptotically.</p>
+</div>
+</section>
+<section id="comparison-with-linear-regression-1" class="slide level2">
+<h2>Comparison with Linear Regression</h2>
+<div class="fragment">
+<p><span style="background-color: orange;">No explicit</span> formula for <span class="math inline">\(\hat{\beta}\)</span>, the solution is obtained numerically;</p>
+</div>
+<div class="fragment">
+<p>We know neither the bias nor the variance of <span class="math inline">\(\hat{\beta}\)</span>;</p>
+</div>
+<div class="fragment">
+<p>The distribution of <span class="math inline">\(Y|X\)</span> is simple (a Bernoulli), but we don’t know the distribution of <span class="math inline">\(\hat{\beta}\)</span>.</p>
+</div>
+<div class="fragment">
+<p>We only know its asymptotic distribution.</p>
+</div>
+<div class="fragment">
+<p>We’ll do <span style="background-color: orange;">asymptotic tests</span>!</p>
+</div>
+</section></section>
+<section>
+<section id="tests-and-confidence-intervals" class="title-slide slide level1 center">
+<h1>Tests and Confidence Intervals</h1>
+
+</section>
+<section id="asymptotic-framework" class="slide level2">
+<h2>Asymptotic Framework</h2>
+<div class="fragment">
+<p>Under “good conditions”,</p>
+<div class="square-def">
+<p><span class="math display">\[J_n(\beta)^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)\]</span></p>
+</div>
+<p>where <span class="math inline">\(J_n(\beta)\)</span> is the Fisher information matrix.</p>
+</div>
+<div class="fragment">
+<p>To build asymptotic tests, we need to understand <span class="math inline">\(J_n(\beta)\)</span> and be able to estimate it.</p>
+</div>
+</section>
+<section id="computation-of-j_nbeta" class="slide level2">
+<h2>Computation of <span class="math inline">\(J_n(\beta)\)</span></h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[J_n(\beta) = -E\left[\frac{\partial^2 L}{\partial \beta^2}(\beta) \bigg| X\right]\]</span></p>
+</div>
+<p>where <span class="math inline">\(L\)</span> is the log-likelihood of the model.</p>
+</div>
+<div class="fragment">
+<p>From the proof of existence of MLE,</p>
+<div class="square-def">
+<p><span class="math display">\[J_n(\beta) = \sum_{i=1}^n p_\beta(x_i)(1 - p_\beta(x_i)) x_i x_i^T\]</span></p>
+</div>
+</div>
+</section>
+<section id="equivalent-form" class="slide level2">
+<h2>Equivalent Form</h2>
+<div class="fragment">
+<p>We can write equivalently</p>
+<div class="square-def">
+<p><span class="math display">\[J_n(\beta) = X^T W_\beta X\]</span></p>
+</div>
+<p>where <span class="math inline">\(X\)</span> is the design matrix and <span class="math inline">\(W_\beta\)</span> is the diagonal matrix</p>
+</div>
+<div class="fragment">
+<div style="font-size: 60%;">
+<div class="square-def">
+<p><span class="math display">\[W_\beta = \begin{pmatrix}
+p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
+0 &amp; p_\beta(x_2)(1 - p_\beta(x_2)) &amp; \cdots &amp; 0 \\
+\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\
+0 &amp; 0 &amp; \cdots &amp; p_\beta(x_n)(1 - p_\beta(x_n))
+\end{pmatrix}\]</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="estimation" class="slide level2">
+<h2>Estimation</h2>
+<div class="fragment">
+<p>To estimate <span class="math inline">\(J_n(\beta)\)</span>, we simply replace <span class="math inline">\(\beta\)</span> by the MLE <span class="math inline">\(\hat{\beta}\)</span></p>
+</div>
+<div class="fragment">
+<p>Under the same regularity assumptions, we can show that</p>
+<div class="square-def">
+<p><span class="math display">\[J_n(\hat{\beta})^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)\]</span></p>
+</div>
+</div>
+</section>
+<section id="estimated-variance-of-hat-beta_j" class="slide level2">
+<h2>Estimated Variance of <span class="math inline">\(\hat \beta_j\)</span></h2>
+<div class="square-def">
+<p><span class="math display">\[J_n(\hat{\beta})^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)\]</span></p>
+</div>
+<div class="fragment">
+<p>Denoting <span style="background-color: lightblue;"><span class="math inline">\(\hat{\sigma}_j^2\)</span></span> the <span class="math inline">\(j\)</span>-th diagonal element of <span style="background-color: lightblue;"><span class="math inline">\(J_n(\hat{\beta})^{-1}\)</span></span>, we obtain (admitted):</p>
+<div class="square-def">
+<p><span class="math display">\[\frac{\hat{\beta}_j - \beta_j}{\hat{\sigma}_j} \xrightarrow{L} N(0, 1)\]</span></p>
+</div>
+</div>
+</section>
+<section id="confidence-interval" class="slide level2">
+<h2>Confidence Interval</h2>
+<div class="fragment">
+<p>We deduce a confidence interval for <span class="math inline">\(\beta_j\)</span>, at asymptotic confidence level <span class="math inline">\(1 - \alpha\)</span>:</p>
+<div class="square-def">
+<p><span class="math display">\[\text{CI}_{1-\alpha}(\beta_j) = \left[\hat{\beta}_j - q_{1-\alpha/2}\hat{\sigma}_j \,;\, \hat{\beta}_j + q_{1-\alpha/2}\hat{\sigma}_j\right]\]</span></p>
+</div>
+<p>where <span class="math inline">\(q(1 - \alpha/2)\)</span> is the quantile of order <span class="math inline">\(1 - \alpha/2\)</span> of the <span class="math inline">\(N(0, 1)\)</span> distribution.</p>
+</div>
+<div class="fragment">
+<p>We verify that we have <span style="background-color: lightblue;"><span class="math inline">\(\P(\beta_j \in \text{CI}_{1-\alpha}(\beta_j)) \to 1 - \alpha\)</span></span>.</p>
+</div>
+</section>
+<section id="significance-test-for-one-coefficient" class="slide level2">
+<h2>Significance Test for One Coefficient</h2>
+<div class="fragment">
+<p>We want to test <span style="background-color: yellow;"><span class="math inline">\(H_0: \beta_j = 0\)</span> against <span class="math inline">\(H_1: \beta_j \neq 0\)</span></span>.</p>
+<p>Under <span class="math inline">\(H_0\)</span> we know that <span style="background-color: lightblue;"><span class="math inline">\(\frac{\hat{\beta}_j}{\hat{\sigma}_j} \xrightarrow{L} N(0, 1)\)</span></span></p>
+<p>We deduce a critical region at asymptotic level <span class="math inline">\(\alpha\)</span>:</p>
+<div class="square-def">
+<p><span class="math display">\[\mathcal R_\alpha = \left\{\frac{|\hat{\beta}_j|}{\hat{\sigma}_j} &gt; q_{1-\alpha/2}\right\}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Indeed <span class="math inline">\(P_{H_0}(\mathcal R_\alpha) \to \alpha\)</span>.</p>
+<p>This test is called the Wald test. (As any other test that relies on asymptotic normality)</p>
+</div>
+</section>
+<section id="p-value" class="slide level2">
+<h2>P-value</h2>
+<div class="fragment">
+<p>Denoting <span class="math inline">\(\Phi\)</span> the cdf of the <span class="math inline">\(\mathcal N(0, 1)\)</span> distribution, the p-value of the test equals</p>
+<div class="square-def">
+<p><span class="math display">\[p\text{-value} = 2\left(1 - \Phi\left(\frac{|\hat{\beta}_j|}{\hat{\sigma}_j}\right)\right)\]</span></p>
+</div>
+</div>
+</section>
+<section id="example-in-r" class="slide level2">
+<h2>Example in R</h2>
+<div class="fragment">
+<div style="font-size: 50%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 19%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>-3.9564361</td>
+<td>0.3155529</td>
+<td>-12.538</td>
+<td>&lt; 2e-16</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>AGE</td>
+<td>0.0640837</td>
+<td>0.0123960</td>
+<td>5.170</td>
+<td>2.34e-07</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>I(AGE^2)</td>
+<td>-0.0006758</td>
+<td>0.0001260</td>
+<td>-5.364</td>
+<td>8.14e-08</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>DBP</td>
+<td>0.0121546</td>
+<td>0.0033775</td>
+<td>3.599</td>
+<td>0.00032</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>SEXEFEMME</td>
+<td>0.5155651</td>
+<td>0.0776229</td>
+<td>6.642</td>
+<td>3.10e-11</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>WALK1</td>
+<td>-0.4042257</td>
+<td>0.0913195</td>
+<td>-4.426</td>
+<td>9.58e-06</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>ACTIV1</td>
+<td>-0.6573558</td>
+<td>0.1150226</td>
+<td>-5.715</td>
+<td>1.10e-08</td>
+<td>***</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="fragment">
+<p>Each columns corresponds resp. to</p>
+<ul>
+<li><span class="math inline">\(\hat \beta_j\)</span></li>
+<li><span class="math inline">\(\hat \sigma_j\)</span></li>
+<li><span class="math inline">\(\hat \beta_j/\hat \sigma_j\)</span> (z-score).</li>
+</ul>
+</div>
+</section>
+<section id="estimation-of-an-odds-ratio" class="slide level2">
+<h2>Estimation of an Odds-Ratio</h2>
+<div class="fragment">
+<p>We consider two individuals <span class="math inline">\(1\)</span> and <span class="math inline">\(2\)</span> who differ only by their regressor <span class="math inline">\(j\)</span>. Then,</p>
+<div class="square-def">
+<p><span class="math display">\[OR(x_1^{(j)}, x_2^{(j)}) = e^{\beta_j(x_1^{(j)} - x_2^{(j)})}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Do we have <span class="math inline">\(OR(x_1^{(j)}, x_2^{(j)})\approx 1\)</span>?</p>
+</div>
+<div class="fragment">
+<p>The estimation of <span class="math inline">\(OR(x_1^{(j)}, x_2^{(j)})\)</span> is simply</p>
+<div class="square-def">
+<p><span class="math display">\[\widehat{OR}(x_1^{(j)}, x_2^{(j)}) = e^{\hat{\beta}_j(x_1^{(j)} - x_2^{(j)})}\]</span></p>
+</div>
+</div>
+</section>
+<section id="important-example" class="slide level2">
+<h2>Important Example</h2>
+<div class="fragment">
+<p>If regressor <span class="math inline">\(j\)</span> is binary with <span class="math inline">\(x_1^{(j)} = 1\)</span> and <span class="math inline">\(x_2^{(j)} = 0\)</span>, then</p>
+<div class="square-def">
+<p><span class="math display">\[\widehat{OR}(x_1^{(j)}, x_2^{(j)}) = e^{\hat{\beta}_j}\]</span></p>
+</div>
+</div>
+</section>
+<section id="asymptotic-ci-for-an-odds-ratio" class="slide level2">
+<h2>Asymptotic CI for an Odds-Ratio</h2>
+<div class="fragment">
+<p>We have seen that an asymptotic CI at confidence level <span class="math inline">\(1 - \alpha\)</span> for <span class="math inline">\({\beta}_j\)</span> is</p>
+<div class="square-def">
+<p><span class="math display">\[\text{CI}_{1-\alpha}(\beta_j) = \left[\hat{\beta}_j - q_{1-\alpha/2}\hat{\sigma}_j \,;\, \hat{\beta}_j + q_{1-\alpha/2}\hat{\sigma}_j\right]= [l,r]\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>If <span class="math inline">\(x_1^{(j)} &gt; x_2^{(j)}\)</span>, an asymptotic CI for <span class="math inline">\(OR(x_1^{(j)}, x_2^{(j)})= e^{\beta_j(x^{(j)}_1 - x^{(j)}_2)}\)</span> at level <span class="math inline">\(1 - \alpha\)</span> is</p>
+<div class="square-def">
+<p><span class="math display">\[\text{CI}_{1-\alpha}(OR(x_1^{(j)}, x_2^{(j)})) = \left[e^{l(x_1^{(j)} - x_2^{(j)})}, e^{r(x_1^{(j)} - x_2^{(j)})}\right]\]</span></p>
+</div>
+</div>
+</section>
+<section id="significance-test-for-an-odds-ratio" class="slide level2">
+<h2>Significance Test for an Odds-Ratio</h2>
+<div class="fragment">
+<p>We generally want to compare <span class="math inline">\(OR(x_1^{(j)}, x_2^{(j)})\)</span> to <span class="math inline">\(1\)</span>.</p>
+<div class="square-def">
+<p><span class="math display">\[OR(x_1^{(j)}, x_2^{(j)}) = 1 \Leftrightarrow e^{\beta_j(x_1^{(j)} - x_2^{(j)})} = 1 \Leftrightarrow \beta_j = 0\]</span></p>
+</div>
+</div>
+</section>
+<section id="two-sided-test" class="slide level2">
+<h2>Two-Sided Test</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(H_0: OR(x_1^{(j)}, x_2^{(j)}) = 1\)</span> VS <span class="math inline">\(H_1: OR(x_1^{(j)}, x_2^{(j)}) &gt; 1\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>amounts to testing <span style="background-color: lightblue;"><span class="math inline">\(H_0: \beta_j = 0\)</span> against <span class="math inline">\(H_1: \beta_j \neq 0\)</span></span>. The Rejection region at level <span class="math inline">\(\alpha\)</span> is</p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[\mathcal R_\alpha = \left\{\frac{|\hat{\beta}_j|}{\hat{\sigma}_j} &gt; q_{1-\alpha/2}\right\}\]</span></p>
+</div>
+</div>
+</section>
+<section id="one-sided-tests" class="slide level2">
+<h2>One-Sided Tests</h2>
+<div class="fragment">
+<p>Nevertheless, for ORs, we <span style="background-color: yellow;">often prefer one-sided tests</span>.</p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(H_0: OR(x_1^{(j)}, x_2^{(j)}) = 1\)</span> VS <span class="math inline">\(H_1: OR(x_1^{(j)}, x_2^{(j)}) &gt; 1\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>If <span class="math inline">\(x_1^{(j)} &gt; x_2^{(j)}\)</span>. Since <span style="background-color: lightblue;"><span class="math inline">\(OR(x_1^{(j)}, x_2^{(j)}) \leq 1 \Leftrightarrow \beta_j \leq 0\)</span></span> rejection region at level <span class="math inline">\(\alpha\)</span> is</p>
+<div class="square-def">
+<p><span class="math display">\[\mathcal R_{\alpha}=\left\{\frac{\hat{\beta}_j}{\hat{\sigma}_j} &gt; q_{1-\alpha}\right\}\]</span></p>
+</div>
+</div>
+</section></section>
+<section>
+<section id="deviance" class="title-slide slide level1 center">
+<h1>Deviance</h1>
+
+</section>
+<section id="saturated-model" class="slide level2">
+<h2>Saturated Model</h2>
+<div class="fragment">
+<p>Suppose we have <span class="math inline">\(n\)</span> observations <span class="math inline">\((Y_1, \dots, Y_n)\)</span> and <span class="math inline">\((X_1, \dots, X_n)\)</span> (categorical)</p>
+</div>
+<div class="fragment">
+<p>Here <span class="math inline">\(X_k\)</span> can represent the vector <span class="math inline">\(X_k = (X^{(1)}_k, \dots, X^{(p)}_k)^T\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Assume that indivudal are iid, with <span style="background-color: lightblue;"><span class="math inline">\(\mathbb P(Y=1|X_k=x) = p(x)\)</span></span>.</p>
+</div>
+<div class="fragment">
+<p>How do we estimate <span class="math inline">\(p(x)\)</span>?</p>
+</div>
+</section>
+<section id="saturated-estimator" class="slide level2">
+<h2>Saturated Estimator</h2>
+<div class="fragment">
+<p>Suppose we have <span class="math inline">\(n\)</span> observations <span class="math inline">\((Y_1, dots, Y_n)\)</span> and <span class="math inline">\((X_1, \dots, X_n)\)</span></p>
+</div>
+<div class="fragment">
+<p><span style="background-color: lightblue;"><span class="math inline">\(n(x) = |\{k:~ X_k = x\}|\)</span></span> (number of indiv. <span class="math inline">\(k\)</span> s.t. <span class="math inline">\(X_k=x\)</span>)</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: lightblue;"><span class="math inline">\(n_1(x) = |\{k:~ X_k = x ~~\text{and}~~Y_k=1\}|\)</span></span></p>
+</div>
+<div class="fragment">
+<p>The saturated model is one that estimates <span class="math inline">\(p(x)\)</span>, for an observed <span class="math inline">\(x\)</span>, by</p>
+<div class="square-def">
+<p><span class="math display">\[\hat{p}_{\text{sat}}(x) = \frac{n_1(x)}{n(x)}\]</span></p>
+</div>
+</div>
+</section>
+<section id="remark" class="slide level2">
+<h2>Remark</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[\hat{p}_{\text{sat}}(x) = \frac{n_1(x)}{n(x)}\]</span></p>
+</div>
+<p><span style="background-color: yellow;">If all observations are distinct</span>, i.e., each observed <span class="math inline">\(x\)</span> is only for a single individual, then for an observed <span class="math inline">\(x\)</span>:</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(n(x) = 1\)</span>, <span class="math inline">\(n_1(x) \in \{0,1\}\)</span>, and <span class="math inline">\(\hat{p}_{\text{sat}}(x) = 0\)</span> or <span class="math inline">\(1\)</span>.</p>
+</div>
+</section>
+<section id="remarks-1" class="slide level2">
+<h2>Remarks</h2>
+<div class="fragment">
+<p>The saturated model is the <span style="background-color: yellow;">simplest model</span> to imagine.</p>
+</div>
+<div class="fragment">
+<p>It fits the data perfectly.</p>
+</div>
+<div class="fragment">
+<p>However, it has <span style="background-color: orange;">no explanatory power</span> (effect of regressors on <span class="math inline">\(Y\)</span>?).</p>
+</div>
+<div class="fragment">
+<p>And it says nothing about <span class="math inline">\(p(x)\)</span> if <span class="math inline">\(x\)</span> is not observed.</p>
+</div>
+<div class="fragment">
+<p>It will serves as a <span style="background-color: yellow;">reference</span> for fit</p>
+</div>
+</section>
+<section id="likelihood-of-saturated-estimator" class="slide level2">
+<h2>Likelihood of Saturated Estimator</h2>
+<div class="fragment">
+<p>For the saturated model with probabilities <span class="math inline">\(p(x)\)</span>, the Log-likelihood is:</p>
+<div style="font-size: 80%;">
+<div class="square-def">
+<p><span class="math display">\[L(y_1, \ldots, y_n|x_1, \ldots, x_n) = \sum_{i=1}^n y_i \ln(p(x_i)) + (1 - y_i) \ln(1 - p(x_i))\]</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>The saturated model minimizes this likelihood, and we denote</p>
+<div style="font-size: 80%;">
+<div class="square-def">
+<p><span class="math display">\[L_{\text{sat}} = \sum_{i=1}^n y_i \ln(\hat p_{\text{sat}}(x_i)) + (1 - y_i) \ln(1 - \hat p_{\text{sat}}(x_i))\]</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="case-1-distinct-observations" class="slide level2">
+<h2>Case 1: Distinct Observations</h2>
+<div class="fragment">
+<p>If all observations <span class="math inline">\(x_i\)</span> are distinct, we have <span class="math inline">\(\hat{p}_{\text{sat}}(x_i) = y_i\)</span> with <span class="math inline">\(y_i \in \{0, 1\}\)</span>. We thus have</p>
+<div class="square-def">
+<p><span class="math display">\[L_{\text{sat}} = 0\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>The saturated estimator has highest possible log-likelihood: it <span style="background-color: orange;">fits the data perfectly</span> (too well).</p>
+</div>
+</section>
+<section id="case-2-non-distinct-observations" class="slide level2">
+<h2>Case 2: Non-Distinct Observations</h2>
+<div class="fragment">
+<p>If the observations <span style="background-color: yellow;"><span class="math inline">\(x_i\)</span> are not distinct</span>, we obtain</p>
+<div style="font-size: 80%;">
+<div class="square-def">
+<p><span class="math display">\[L_{\text{sat}} = \sum_x \left[n_1(x) \ln\left(\frac{n_1(x)}{n(x)}\right) + (n(x) - n_1(x)) \ln\left(1 - \frac{n_1(x)}{n(x)}\right)\right]\]</span></p>
+</div>
+</div>
+<p>where the sum runs over the set of values <span class="math inline">\(x\)</span> taken by the <span class="math inline">\(x_i\)</span>.</p>
+</div>
+</section>
+<section id="deviance-as-a-substitute-for-ssr" class="slide level2">
+<h2>Deviance as a Substitute for SSR</h2>
+</section>
+<section id="definition" class="slide level2">
+<h2>Definition</h2>
+<div class="fragment">
+<p>The deviance of a model measures how much this model <span style="background-color: yellow;">deviates from the saturated model</span> (the ideal model in terms of likelihood).</p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[D = 2(L_{\text{sat}} - L_{\text{mod}})\]</span></p>
+</div>
+<p>where <span class="math inline">\(L_{\text{mod}}\)</span> denotes the log-likelihood for the model parameters.</p>
+</div>
+<div class="fragment">
+<p>We always have <span style="background-color: lightblue;"><span class="math inline">\(D \geq 0\)</span></span>.</p>
+</div>
+<div class="fragment">
+<p>If all observations are distinct, <span class="math inline">\(L_{\text{sat}} = 0\)</span> therefore <span style="background-color: lightblue;"><span class="math inline">\(D = -2L_{\text{mod}}\)</span></span></p>
+</div>
+</section>
+<section id="role-of-deviance-and-computation-in-r" class="slide level2">
+<h2>Role of Deviance and Computation in R</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[D = 2(L_{\text{sat}} - L_{\text{mod}})\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Deviance plays the role of the SSR of a linear model: <span style="background-color: yellow;">the higher the deviance, the less well the model is fitted</span> to the data.</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;">In R</span>, The returned deviance is <span style="background-color: yellow;"><span class="math inline">\(-2L_{\text{mod}}\)</span></span>: the term <span class="math inline">\(L_{\text{sat}}\)</span> is therefore omitted.</p>
+</div>
+</section></section>
+<section>
+<section id="testing" class="title-slide slide level1 center">
+<h1>Testing</h1>
+
+</section>
+<section id="linear-constraint-test" class="slide level2">
+<h2>Linear Constraint Test</h2>
+<div class="fragment">
+<p>As in linear regression, we would like to test <span style="background-color: lightblue;"><span class="math inline">\(H_0: R\beta = 0\)</span> VS <span class="math inline">\(H_1: R\beta \neq 0\)</span></span></p>
+<p>where <span class="math inline">\(R\)</span> is a constraint matrix of size <span style="background-color: lightblue;"><span class="math inline">\((q, p)\)</span></span> of full rank.</p>
+</div>
+<div class="fragment">
+<p>For recall, depending on the choice of <span class="math inline">\(R\)</span> this allows:</p>
+<ul>
+<li class="fragment"><p>testing the minimum: is there at least one relevant regressor?</p></li>
+<li class="fragment"><p>comparing nested models</p></li>
+<li class="fragment"><p>examining the collective significance of a family of regressors</p></li>
+</ul>
+</div>
+</section>
+<section id="linear-constraint-testing-test-procedures" class="slide level2">
+<h2>Linear Constraint Testing: Test Procedures</h2>
+</section>
+<section id="available-procedures" class="slide level2">
+<h2>Available Procedures</h2>
+<div class="fragment">
+<p>In GLM, several test procedures address the problem.</p>
+<p><strong>The Wald test</strong>, based on the asymptotic normality of <span class="math inline">\(\hat{\beta}\)</span>, which generalizes the one seen for testing <span class="math inline">\(\beta_j = 0\)</span> against <span class="math inline">\(\beta_j \neq 0\)</span>.</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;"><strong>The likelihood ratio test</strong></span>, called in this context the <span style="background-color: yellow;">deviance test</span>.</p>
+</div>
+<div class="fragment">
+<p><strong>The score test</strong>, based on the behavior of the gradient of the log-likelihood at the critical point.</p>
+</div>
+<div class="fragment">
+<p><strong>The most used</strong> is the <span style="background-color: yellow;">deviance test</span>.</p>
+</div>
+</section>
+<section id="the-deviance-test-or-likelihood-ratio-test" class="slide level2">
+<h2>The Deviance Test (or Likelihood Ratio Test)</h2>
+<div class="fragment">
+<p>To test <span style="background-color: lightblue;"><span class="math inline">\(H_0: R\beta = 0\)</span> against <span class="math inline">\(H_1: R\beta \neq 0\)</span></span>, the principle of the test is as follows:</p>
+</div>
+<div class="fragment">
+<p>We calculate the MLE in each model to obtain <span class="math inline">\(\hat{\beta}\)</span> in the complete model and <span style="background-color: yellow;"><span class="math inline">\(\hat{\beta}_{H_0}\)</span> in the constrained model</span>.</p>
+</div>
+<div class="fragment">
+<p><strong>Logic</strong>: If <span class="math inline">\(H_0\)</span> is true, the constrained model should be as “likely” as the complete model, so <span style="background-color: yellow;"><span class="math inline">\(L(\hat{\beta})\)</span> and <span class="math inline">\(L(\hat{\beta}_{H_0})\)</span> should be similar</span>.</p>
+</div>
+</section>
+<section id="deviance-test-statistic" class="slide level2">
+<h2>Deviance Test Statistic</h2>
+<div class="fragment">
+<p>The test statistic is the <span style="background-color: yellow;">difference of deviances</span>:</p>
+<div class="square-def">
+<p><span class="math display">\[D_{H_0} - D_{H_1} = 2\left(L(\hat{\beta}) - L(\hat{\beta}_{H_0})\right)\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Under <span class="math inline">\(H_0\)</span>, denoting <span class="math inline">\(q\)</span> the number of constraints, we have the convergence (admitted):</p>
+<div class="square-def">
+<p><span class="math display">\[D_{H_0} - D_{H_1} = 2\left(L(\hat{\beta}) - L(\hat{\beta}_{H_0})\right) \xrightarrow{L} \chi^2_q\]</span></p>
+</div>
+</div>
+</section>
+<section id="rejection-region-and-p-value" class="slide level2">
+<h2>Rejection Region and P-value</h2>
+<div class="fragment">
+<p>The asymp. rejection region at asymptotic level <span class="math inline">\(\alpha\)</span> is therefore</p>
+<div class="square-def">
+<p><span class="math display">\[\mathcal R_\alpha = \{D_{H_0} - D_{H_1} &gt; \chi^2_{q,1-\alpha}\}\]</span></p>
+</div>
+<p>where <span class="math inline">\(\chi^2_{q,1-\alpha}\)</span>: quantile <span class="math inline">\(1 - \alpha\)</span> of a <span class="math inline">\(\chi^2_q\)</span> distribution.</p>
+</div>
+<div class="fragment">
+<p>The p-value equals</p>
+<div class="square-def">
+<p><span class="math display">\[p\text{-value} = 1 - F(D_{H_0} - D_{H_1})\]</span></p>
+</div>
+<p>where <span class="math inline">\(F\)</span> is the cdf of a <span class="math inline">\(\chi^2\)</span> distribution.</p>
+</div>
+</section>
+<section id="special-case-1-significance-test" class="slide level2">
+<h2>Special Case 1: Significance Test</h2>
+<div class="fragment">
+<p>We want to test if a model (having a constant) is significant</p>
+</div>
+<div class="fragment">
+<p>We therefore test <span class="math inline">\(H_0\)</span>: all its <span style="background-color: yellow;">coefficients are zero except the constant</span>. This corresponds to the special case</p>
+<div class="square-def">
+<p><span class="math inline">\(R = [0 | I_{p-1}]\)</span>.</p>
+</div>
+</div>
+<div class="fragment">
+<p>We <span style="background-color: yellow;">compare the deviance of the model to the null deviance <span class="math inline">\(D_0\)</span></span>, corresponding to a model that contains only the constant.</p>
+</div>
+</section>
+<section id="test-statistic" class="slide level2">
+<h2>Test Statistic</h2>
+<div class="fragment">
+<p>The test statistic is <span class="math inline">\(D_0 - D\)</span>. Under <span class="math inline">\(H_0\)</span>, when <span class="math inline">\(n \to \infty\)</span>:</p>
+<div class="square-def">
+<p><span class="math display">\[D_0 - D \sim \chi^2_{p-1}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>The model is therefore significant (relative to the null model) if the sample is in the critical region of asymptotic level <span class="math inline">\(\alpha\)</span>:</p>
+<div class="square-def">
+<p><span class="math display">\[\mathcal R_\alpha = \{D_0 - D &gt; \chi^2_{p-1,1-\alpha/2}\}\]</span></p>
+</div>
+</div>
+</section>
+<section id="special-case-2-nested-models" class="slide level2">
+<h2>Special Case 2: Nested Models</h2>
+<div class="fragment">
+<p>Suppose that model <span style="background-color: yellow;"><span class="math inline">\(1\)</span> (with deviance <span class="math inline">\(D_1\)</span>) is a sub-model of model <span class="math inline">\(2\)</span></span> (with deviance <span class="math inline">\(D_2\)</span>)</p>
+</div>
+<div class="fragment">
+<p>Model <span class="math inline">\(1\)</span> is therefore obtained from model <span class="math inline">\(2\)</span>, with parameter <span class="math inline">\(\beta\)</span>, via a constraint of the type <span class="math inline">\(R\beta = 0\)</span> where <span style="background-color: lightblue;"><span class="math inline">\(R\)</span> is a <span class="math inline">\((q, p)\)</span> matrix</span>.</p>
+</div>
+<div class="fragment">
+<p>Under <span class="math inline">\(H_0: R\beta = 0\)</span>, we have asymptotically <span style="background-color: lightblue;"><span class="math inline">\(D_1 - D_2 \sim \chi^2_q\)</span></span></p>
+</div>
+<div class="fragment">
+<p>Hence the asymptotic test: <span style="background-color: lightblue;"></span>.</p>
+<div class="square-def">
+<p><span class="math inline">\(\mathcal R_\alpha = \{D_1 - D_2 &gt; \chi^2_{q,1 - \alpha}\}\)</span></p>
+</div>
+</div>
+</section>
+<section id="aic-and-bic-criteria" class="slide level2">
+<h2>AIC and BIC Criteria</h2>
+<div class="fragment">
+<p>The AIC and BIC criteria are defined similarly to linear regression, i.e.</p>
+<div class="square-def">
+<p><span class="math inline">\(\text{AIC} = -2L_{\text{mod}} + 2p\)</span></p>
+</div>
+<div class="square-def">
+<p><span class="math inline">\(\text{BIC} = -2L_{\text{mod}} + \ln(n)p\)</span></p>
+</div>
+<p>where <span class="math inline">\(L_{\text{mod}}\)</span> is the log-likelihood of the estimated model.</p>
+</div>
+</section>
+<section id="aic-and-bic-criteria-1" class="slide level2">
+<h2>AIC and BIC Criteria</h2>
+<div class="fragment">
+<p>If we ignore saturated likelihood and set <span class="math inline">\(L_{\text{sat}}=0\)</span>,</p>
+<div class="square-def">
+<p><span class="math inline">\(\text{AIC} = D + 2p\)</span></p>
+</div>
+<div class="square-def">
+<p><span class="math inline">\(\text{BIC} = D + \ln(n)p\)</span></p>
+</div>
+<p><strong>In practice</strong>, we choose the model having the minimal AIC or BIC</p>
+</div>
+<div class="fragment">
+<p>As in linear regression, we can use automatic selection procedures (backward, forward, etc).</p>
+</div>
+</section>
+<section id="example-obesity-study-in-the-united-states" class="slide level2">
+<h2>Example: Obesity Study in the United States</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>model<span class="ot">=</span><span class="fu">glm</span>(Y<span class="sc">~</span>AGE<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>ACTIV<span class="sc">+</span>WALK<span class="sc">+</span>MARITAL, <span class="at">family=</span>binomial)</span>
+<span id="cb3-2"><a></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div style="font-size: 60%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Statistic</th>
+<th>Value</th>
+<th>Degrees of Freedom</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Null deviance</td>
+<td><span class="math inline">\(4610.8\)</span></td>
+<td>on <span class="math inline">\(5300\)</span></td>
+</tr>
+<tr class="even">
+<td>Residual deviance</td>
+<td><span class="math inline">\(4459.5\)</span></td>
+<td>on <span class="math inline">\(5290\)</span></td>
+</tr>
+<tr class="odd">
+<td>AIC</td>
+<td><span class="math inline">\(4481.5\)</span></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="fragment">
+<p>The model deviance is therefore <span class="math inline">\(D = 4459.5\)</span>.</p>
+<p><strong>Significance Test</strong>: We compare <span class="math inline">\(D\)</span> to the null deviance <span class="math inline">\(D_0 = 4610.8\)</span>: <span style="background-color: lightblue;"><span class="math inline">\(D_0 - D = 151.3\)</span></span>. The p-value of the test equals <span style="background-color: lightblue;"><span class="math inline">\(1 - F_{10}(151.3) \approx 0\)</span></span> where <span class="math inline">\(F_{10}\)</span> is the cdf of a <span class="math inline">\(\chi^2_{10}\)</span>.</p>
+</div>
+<div class="fragment">
+<p>The model is significant.</p>
+</div>
+</section>
+<section id="example-significance-test" class="slide level2">
+<h2>Example: Significance Test</h2>
+<div class="fragment">
+<p>We want to test if <code>MARITAL</code> is significant:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>model<span class="ot">=</span><span class="fu">glm</span>(Y<span class="sc">~</span>AGE<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>ACTIV<span class="sc">+</span>WALK, <span class="at">family=</span>binomial)</span>
+<span id="cb4-2"><a></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div style="font-size: 60%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Statistic</th>
+<th>Value</th>
+<th>Degrees of Freedom</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Null deviance</td>
+<td><span class="math inline">\(4610.8\)</span></td>
+<td>on <span class="math inline">\(5300\)</span></td>
+</tr>
+<tr class="even">
+<td>Residual deviance</td>
+<td><span class="math inline">\(4462.7\)</span></td>
+<td>on <span class="math inline">\(5295\)</span></td>
+</tr>
+<tr class="odd">
+<td>AIC</td>
+<td><span class="math inline">\(4474.7\)</span></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="fragment">
+<p>The deviance is now <span class="math inline">\(D_2 = 4462.7\)</span>. To compare with the previous model, we calculate: <span style="background-color: lightblue;"><span class="math inline">\(D_2 - D = 3.2\)</span></span>.</p>
+</div>
+<div class="fragment">
+<p>The p-value of the test equals <span style="background-color: lightblue;"><span class="math inline">\(1 - F_5(3.2) \approx 0.67\)</span></span>, where <span class="math inline">\(F_5\)</span>: cdf of a <span class="math inline">\(\chi^2_5\)</span>.</p>
+<p>We therefore <span style="background-color: yellow;">accept <span class="math inline">\(H_0\)</span></span>: the coefficients related to <span style="background-color: yellow;">MARITAL are zero</span>. (Also confirmed with AIC)</p>
 
 
 </div>

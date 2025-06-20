@@ -89,11 +89,11 @@ A proportion $\lambda$ of observations
 
 My talk will break down this problem into three parts. 
 
-I'll begin by introducing the non-parametric isotonic model, since it offers a framework for addressing all three problems: label recovery, worker ranking, and ability estimation.
+I'll begin by introducing the non-parametric isotonic model, since it offers a framework for addressing all three problems.
 
 Next, I'll review existing methods, as I believe understanding these approaches is essential to grasp the key insights behind the method I introduce in my paper.
 
-The final section will focus on my contribution - the new method I've developed and some of the key insights that emerge from this work.
+The final section will focus on my contribution - the new method I've developed and some of the key ideas that emerge from it.
 
 :::
 
@@ -104,6 +104,18 @@ The final section will focus on my contribution - the new method I've developed 
 # The Isotonic Model
 
 ## Illustration 
+
+::: {.notes}
+
+Let me start with a concrete example to illustrate the type of data we're working with.
+
+Consider binary tasks where labels are either $-1$ or $+1$. If we have $9$ tasks, we get a vector $x^*$ of true labels with length $9$. 
+
+We observe a matrix $Y$ where each entry $(i,k)$ represents the response of worker $i$ to task $k$.
+
+We model partial observations with rate $\lambda$ — when a worker doesn't respond to a particular task, we simply put $0$ in that matrix position.
+
+:::
 
 - Two binary tasks with labels in $\{\color{green}{-1},\color{blue}{+1}\}$
 - **Unknown** vector $x^*$ of labels with $d=9$ tasks
@@ -144,13 +156,25 @@ $$
 
 ## Observation Model
 
+
+::: {.notes}
+
+The underlying statistical model can be described as follows. Given a worker $i$ and a task $k$, we observe their response $Y_{ik}$, and we assume this relation:
+
+- $x^*$ is the vector of unknown true labels
+- $M_{ik} \in [0,1]$ represents the unknown ability of worker $i$ on task $k$. For the best experts or easiest tasks, we have $M_{ik} = 1$
+- $E_{ik}$ is standard sub-Gaussian noise
+- $B_{ik}$ is a $0$-$1$ coefficient that indicates whether we observe $(i,k)$ or not
+
+:::
+
 . . .
 
 Given workers $i\in\{1, \dots, n\}$ and tasks $k\in\{1, \dots, d\}$
 
 . . .
 
-We observe
+We observe $Y_{ik} \in \{-1,0,1\}$
   
 ::: {.square-def}
 $$
@@ -158,15 +182,21 @@ Y_{ik} = B_{ik}(M_{ik}x_k^* + E_{ik}) \enspace
 $$
 :::
 
+1. $x_k^*\in \{-1,1\}$ [true response]{style="background-color: yellow;"} of task $k$ 
+2. $M_{ik} \in [0,1]$ represents the **unknown** [ability of worker $i$ to task $k$]{style="background-color: yellow;"}
+3. $E_{ik}$ are independent and [$1$-subGaussian noise]{style="background-color: yellow;"}
+4. $B_{ik}$ are iid Bernoulli $\lambda \in [0,1]$. [$=1$ if $(i,k)$ is observed]{style="background-color: yellow;"}
 
-- Where: 
+## Alernative Formulation
 
-  1. $M_{ik} \in [0,1]$
-  2. $E_{ik}$ are independent and $1$-subGaussian
-  3. $B_{ik}$ are iid Bernoulli $\lambda \in [0,1]$
+::: {.notes}
 
-## Observation Model
+In matrix form, we can rewrite the model as follows [...]
+where $\odot$ is the coordinate-wise product between matrices.
 
+This is equivalent to what I said before, except here $M$, $E$, and $B$ are matrices. $B$ can be thought of as a mask matrix.
+
+:::
 . . .
 
 We observe
@@ -177,13 +207,31 @@ $$Y = B\odot(M\mathrm{diag}(x^*) + E) \in \mathbb R^{n \times d}$$
 
 where $\odot$ is the Hadamard product.
 
+. . .
+
+
+::: {.nonincremental}
 
 - $M \in [0,1]^{n \times d}$ is the **ability** matrix
 - $x^*$ is the vector of **unknown** labels
 - $E$ is a matrix of independent **noise**
 - $B$ is a Bernoulli "mask" matrix, modelling **partial observations**
+:::
 
-## Bernoulli Observation SubModel
+## Bernoulli Observation Submodel
+
+::: {.notes}
+
+An important example is the Bernoulli Observation Model.
+
+This is the general model I just presented, and this is the Bernoulli Model, introduced by Shah et al. in 2020.
+
+- It assumes that each worker has probability $(1+M_{ik})/2$ of being correct on task $k$
+- We observe each response with probability $\lambda$
+
+This is a submodel because Bernoulli variables are indeed $1$-subgaussian.
+:::
+
 
 $$Y = B\odot(M\mathrm{diag}(x^*) + E) \in \mathbb R^{n \times d}$$
 
@@ -213,6 +261,14 @@ $\lambda$ is the probability of observing worker/task pair $(i,k)$
 
 ## Shape Constraints
 
+::: {.notes}
+Until now, I have'nt assumed anything on the ability matrix $M$ except that it has coef. in $[0,1]$.
+
+From now on, we assume that $M$ is isotonic up to a permutation $\pi^*$ of its rows, that is, 
+
+it has increasing columns, up to an unknown permutation $\pi^*$
+:::
+
 - $M \in [0,1]^{n \times d}$ represents the **ability** matrix of worker/task pairs
 - We assume that [$M$ is isotonic up to a permutation $\pi^*$]{style="background-color: yellow;"} , that is
 
@@ -241,14 +297,35 @@ $$
 :::
 
 ## Shape Constraints
+
+::: {.notes}
+More formally, the isotonicity constraint can be written as this set of inequalities.
+
+It means that the rows of $M$ are uniformly increasing. 
+
+For any two workers $i$ and $j$, either $i$ or $j$ is uniformly better than the other one.
+:::
+
 - For all $k = 1, \dots, d$,
+
+. . .
+
+::: {.square-def}
 $$
 M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
 $$
+:::
+
 - It means that the [rows are uniformly increasing]{style="background-color: yellow;"}
 - A worker $i$ is better **on average** than $j$, if it is better on **all tasks** on average
 
 ## Illustration when $x^*$ is Known
+
+::: {.notes}
+Let me illustrate the isotonicity assumption with this picture. This is an isotonic matrix represented in a scale of grays. This is a permuted isotonic matrix, and this is what we might observe.
+
+Now I'm mostly interested in the regime where the noise is of the same scale as the coefficients of $M$, so it's kind of a blurry setting.
+:::
 
 :::{.r-stack}
 
@@ -259,6 +336,54 @@ $$
 ![](IllustrationsCrowdsourcing/imshow22_n150_d150_scale0.4.png){.fragment width=60% fig-align="center"}
 
 :::
+
+
+
+
+## Square Norm Loss VS Hamming Loss
+
+::: {.notes}
+Now let move on to the definition of the Square norm loss. 
+
+To motivate its definition, let me recall that the Hamming loss consists simply in summing up all the mistakes we made in the estimation of the true labels.
+
+For the square norm loss, we rather take the frobenius norm of $M$, restricted to the column corresponding to tasks on which we did a mistake.
+
+- If workers are bad ($M$ close to $0$), square norm loss is small but Hamming Loss can be of order $d$
+- The square norm loss evaluates the quality of the estimator $\hat x$ instead of the performance of the workers!
+:::
+
+::: {.columns}
+::: {.column}
+::: {.fragment}
+
+::: {.square-def}
+**Hamming Loss**:
+$$ \sum_{k=1}^d \mathbf 1\{\hat x_k \neq x_k^*\}$$
+:::
+:::
+
+
+:::
+
+::: {.column}
+::: {.fragment}
+::: {.square-def}
+**Square Norm Loss**:
+$$ \|M \mathrm{diag}(x^* \neq \hat x)\|_F^2$$
+:::
+
+
+:::
+
+:::
+::: 
+
+- If [workers are bad]{style="background-color: orange;"}, $M$ is small but [Hamming Loss is large]{style="background-color: orange;"}
+- If $M \sim 0$, Hamming loss $\sim d$
+- [Square norm loss]{style="background-color: lightgreen;"} evaluates the [quality of $\hat x$]{style="background-color: lightgreen;"} rather than workers
+
+
 
 ## Crowdsourcing Problems
 
@@ -309,6 +434,9 @@ $\phantom{\color{purple}{\mathbb E}}\|M - \hat M\|_F^2$
 These three objectives are closely intertwined!
 :::
 
+
+
+
 ## Crowdsourcing Problems
 
 :::{.nonincremental}
@@ -351,38 +479,6 @@ These three objectives are closely intertwined!
 :::
 :::
 
-
-## Square Norm Loss VS Hamming Loss
-
-::: {.columns}
-::: {.column}
-::: {.fragment}
-
-::: {.square-def}
-**Hamming Loss**:
-$$ \sum_{k=1}^d \mathbf 1\{\hat x_k \neq x_k^*\}$$
-:::
-:::
-
-
-:::
-
-::: {.column}
-::: {.fragment}
-::: {.square-def}
-**Square Norm Loss**:
-$$ \|M \mathrm{diag}(x^* \neq \hat x)\|_F^2$$
-:::
-
-
-:::
-
-:::
-::: 
-
-- If [workers are bad]{style="background-color: orange;"}, $M$ is small but [Hamming Loss is large]{style="background-color: orange;"}
-- If $M \sim 0$, Hamming loss $\sim d$
-- [Square norm loss]{style="background-color: lightgreen;"} evaluates the [quality of $\hat x$]{style="background-color: lightgreen;"} rather than workers
 
 
 ## Other Parametric Models
@@ -537,7 +633,7 @@ Worst case ($\lambda=1$): $M \asymp \frac{1}{\sqrt{n}}(\mathbf 1_{n\times d})$
 
 . . .
 
-In this case, [$\hat x^{(maj)}$ is no better than random labelling]{style="background-color: orange;"}
+In this case, [$\hat x^{(maj)}$ is not much better than random labelling]{style="background-color: orange;"}
  and $\|M\mathrm{diag}(\hat x \neq x^*)\|_F^2 \asymp d\sqrt{n}$
 
 ## Least square (conjectured NP Hard)
@@ -669,7 +765,7 @@ $$\hat x_k^{(1)} = \mathrm{sign}(\hat w_k)\mathbf{1}\bigg\{|\hat w_k| \gg \sqrt{
 
 . . .
 
-Repeat PCA Step + Voting Step on $Y \mathrm{diag}(\hat x \neq 0)$ a polylogarithmic number of times.
+[Repeat PCA Step + Voting Step]{style="background-color: yellow;"} on $Y \mathrm{diag}(\hat x \neq 0)$ a polylogarithmic number of times.
 
 . . .
 
@@ -687,7 +783,7 @@ $\newcommand{\and}{\quad \mathrm{and} \quad}$
 
 . . .
 
-Let [$M(t) = M\mathrm{diag}(x^{(t-1)} = 0)$]{style="background-color: yellow;"} 
+Let [$M(t) = M\mathrm{diag}(\hat x^{(t-1)} = 0)$]{style="background-color: yellow;"} 
 
 . . .
 
@@ -748,21 +844,31 @@ This leads to [exponential decay of $\|M(t)\|_F^2$]{style="background-color: yel
 
 ## Summary
 
-1. [Non parametric isotonic model]{style="background-color: yellow;"} for estimating
-   - binary labels
-   - rank of workers
-   - their abilities
-2. [Minimax and polynomial time]{style="background-color: yellow;"} method ISV to do the above three points (at least when $n=d$) 
-3. [Not knowing the labels is not harder]{style="background-color: yellow;"} than knowing them for
-   - ranking
-   - estimating abilities
+::: {.notes}
+
+The core of my presentation can be captured in three key points.
+
+- First,  the isotonic model is a very flexible, non-parametric framework for describing crowdsourcing data and tackling tasks such as recovering labels and ranking workers.
+- Secondly, ISV method is computationally feasible and achieves minimax rates in most interesting regimes.
+- Lastly, and this is a surprising result: not knowing the true labels does not make the problem of ranking workers any harder from a statistical perspective
+
+:::
+
+1. [Non parametric isotonic model]{style="background-color: yellow;"} very flexible in crowdsourcing problems
+2. [Minimax and polynomial time]{style="background-color: yellow;"} method ISV for recovering labels, ranking and estimating abiliti (at least when $n=d$) 
+3. [Not knowing the labels is not harder]{style="background-color: yellow;"} than knowing them for ranking workers
 
 ## Main Insights
 
 1. Spectral method because [$\|M\mathrm{diag}(x^*)(M\mathrm{diag}(x^*))^T\|_{\mathrm{op}}=\|MM^T\|_{\mathrm{op}}$]{style="background-color: lightblue;"} does not depend on $x^*$
-2. Iterate to reduce remaining square norm loss [$\|M\mathrm{diag}(x^* \neq \hat x)\|_F^2$]{style="background-color: lightblue;"}
+2. Iterate to reduce remaining square norm loss [$\|M\mathrm{diag}(x^* \neq \hat x^{(t)})\|_F^2$]{style="background-color: lightblue;"}
 3. Because [$\|M\|^2_{\mathrm{op}}\gtrsim\|M\|_F^2$]{style="background-color: lightblue;"}
 
 ## What's Next?
 
-- Can we do better if we are allowed to select worker task pairs $(i,k)$ based on past information?
+. . .
+
+
+::: {style="text-align: center;"}
+Can we [do better]{style="background-color: yellow;"} if we are allowed to select worker task pairs $(i,k)$ based on [past information]{style="background-color: yellow;"}?
+:::
