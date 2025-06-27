@@ -26,11 +26,11 @@ It's a great privilege to address you today and present my latest research on cr
 
 For context, I conducted this research primarily at ENS Lyon as a postdoctoral researcher, building on my previous PhD work in crowdsourcing.
 
-Imagine a group of workers, each assigned with some binary classification tasks. 
+Imagine a group of workers assigned binary classification tasks. 
 
-It means that they must provide binary responses: [YES or NO]{style="background-color: lightgreen;"}. 
+They must provide binary responses: [YES or NO]{style="background-color: lightgreen;"}. 
 
-We can imagine many practical situation where this can happen
+This scenario applies to many practical situations 
 
 - workers might be paid to perform image classification, text moderation, sentiment analysis, or data verification tasks.
 
@@ -87,19 +87,19 @@ A proportion $\lambda$ of observations
 
 ::: {.notes}
 
-I will break down this problem into three parts in my talk. 
+My talk will break down this problem into three parts. 
 
-I'll start by introducing the non-parametric isotonic model, as it offers a simple and flexible framework for addressing these general crowdsourcing problem.
+I'll begin by introducing the non-parametric isotonic model, since it offers a framework for addressing all three problems.
 
-Next, I'll review two existing methods, as I believe it might help to grasp some key insights in the problem of recovering the labels.
+Next, I'll review existing methods, as I believe understanding these approaches is essential to grasp the key insights behind the method I introduce in my paper.
 
-In the final part, I'll go over the new method I have developed and present some of the key ideas that come out.
+The final section will focus on my contribution - the new method I've developed and some of the key ideas that emerge from it.
 
 :::
 
-1. Introducing the non-parametric [isotonic model]{style="background-color: yellow;"}
-2. Presenting already [existing algorithms]{style="background-color: yellow;"}
-3. Iterative Spectral Voting (ISV) algo and [key insights]{style="background-color: yellow;"}
+1. Introducing the non-parametric isotonic model
+2. Presenting already existing algorithms
+3. Iterative Spectral Voting (ISV) algo and Key Insights
 
 # The Isotonic Model
 
@@ -109,13 +109,11 @@ In the final part, I'll go over the new method I have developed and present some
 
 Let me start with a concrete example to illustrate the type of data we're working with.
 
-Consider binary tasks where labels are either $-1$ or $+1$. There is a vector $x^*$ of true labels that we do not know. 
+Consider binary tasks where labels are either $-1$ or $+1$. If we have $9$ tasks, there is a vector $x^*$ of true labels with length $9$. 
 
 We observe a matrix $Y$ where each entry $(i,k)$ represents the response of worker $i$ to task $k$.
 
-We can have missing values. When a worker doesn't respond to a particular task, we simply put $0$ in that matrix position. 
-
-We assume that there is a rate $\lambda$ of partial observation.
+We model partial observations with rate $\lambda \in [0,1]$ — when a worker doesn't respond to a particular task, we simply put $0$ in that matrix position.
 
 :::
 
@@ -164,8 +162,8 @@ $$
 The underlying statistical model can be described as follows. Given a worker $i$ and a task $k$, we observe their response $Y_{ik}$, and we assume this relation:
 
 - $x^*$ is the vector of unknown true labels
-- $M_{ik} \in [0,1]$ represents the unknown ability of worker $i$ on task $k$. If $M_{ik}=1$, it means that worker $i$ is very good at task $k$.
-- $E_{ik}$ are independent subgaussian noise
+- $M_{ik} \in [0,1]$ represents the unknown ability of worker $i$ on task $k$. For the best experts or easiest tasks, we have $M_{ik} = 1$
+- $E_{ik}$ is standard sub-Gaussian noise
 - $B_{ik}$ is a $0$-$1$ coefficient that indicates whether we observe $(i,k)$ or not
 
 :::
@@ -266,7 +264,7 @@ $\lambda \in[0,1]$ is the probability of observing worker/task pair $(i,k)$
 ::: {.notes}
 Until now, I have'nt assumed anything on the ability matrix $M$ except that it has coef. in $[0,1]$.
 
-From now on, we also assume that $M$ is isotonic up to a permutation $\pi^*$ of its rows, that is, 
+From now on, we assume that $M$ is isotonic up to a permutation $\pi^*$ of its rows, that is, 
 
 it has increasing columns, up to an unknown permutation $\pi^*$
 :::
@@ -326,7 +324,7 @@ $$
 ::: {.notes}
 Let me illustrate the isotonicity assumption with this picture. This is an isotonic matrix represented in a scale of grays. This is a permuted isotonic matrix, and this is what we might observe.
 
-Now I'm mostly interested in the statistical limit for finding labels, that is, where the noise is of the same scale as the coefficients of $M$, that's when the picture becomes more blurry.
+Now I'm mostly interested in the statistical limit for finding labels, that is, where the noise is of the same scale as the coefficients of $M$, and when the picture becomes more blurry.
 :::
 
 :::{.r-stack}
@@ -345,11 +343,11 @@ Now I'm mostly interested in the statistical limit for finding labels, that is, 
 ## Square Norm Loss VS Hamming Loss
 
 ::: {.notes}
-Now let me move on to the definition loss for finding $x^*$. 
+Now let move on to the definition of the Square norm loss for finding $x^*$. 
 
-For that purpose, let me first recall that the usual Hamming loss consists simply in summing up all the mistakes we've made in the estimation of the true labels.
+To motivate its definition, let me recall that the Hamming loss consists simply in summing up all the mistakes we made in the estimation of the true labels.
 
-Now for the loss I want to consider here, I rather take the square frobenius norm of $M$, restricted to the columns corresponding to tasks on which we did a mistake estimating $x^*_k$.
+For the square norm loss, we rather take the frobenius norm of $M$, restricted to the column corresponding to tasks on which we did a mistake estimating $x^*_k$.
 
 - If workers are bad ($M$ close to $0$), square norm loss is small but Hamming Loss can be of order $d$
 - The square norm loss is better for my purpose, because it evaluates the quality of the estimator $\hat x$ instead of the performance of the workers!
@@ -391,7 +389,7 @@ $$ \|M \mathrm{diag}(x^* \neq \hat x)\|_F^2$$
 
 
 ::: {.notes}
-A good feature of the isotonic model is that in addition to recovering labels, we can define two other objectives: ranking the workers and estimating their abilities. Each objective corresponds to a similar square norm loss.
+A good feature of the isotonic model is that in addition to recovering labels, we can define two other objectives: ranking the workers and estimating their abilities. Each objective corresponds to a similar squre norm loss.
 
 These three objectives are closely connected in practice.
 :::
@@ -549,12 +547,6 @@ $\color{purple}{\mathbb E}[\|M - \hat M\|_F^2]$
 
 ## MiniMax Risk for Recovering Labels
 
-::: {.notes}
-This brings us to the minimax risk for recovering labels. 
-
-It is simply defined as the risk of the best estimator $\hat x$ in the worst case.
-:::
-
 . . .
 
 ::: {.square-def}
@@ -563,7 +555,7 @@ $$\mathcal R^*_{\mathrm{reco}}(n,d,\lambda)=\min_{\hat x}\max_{M,\pi^*, x^*}{\ma
 :::
 
 
-- maximize square norm loss on all $M$, $\pi^*$, $x^*$ such that $M_{\pi^*}$ is **isotonic**
+- maximize squre norm loss on all $M$, $\pi^*$, $x^*$ such that $M_{\pi^*}$ is **isotonic**
 - minimize on all estimator $\hat x$
 - Similarly, we can define [minimax ranking risk and estimation risks]{style="background-color: yellow;"}
 
@@ -589,102 +581,67 @@ $$\mathcal R^*_{\mathrm{est}}(n,d,\lambda)=\min_{\hat M}\max_{M,\pi^*, x^*}{\mat
 
 ## Short Story {style="font-size:90%"}
 
-::: {.notes}
-For the short story, Shah and co. first considered the more constrained bi-isotonic model, where $M$ has not only increasing columns, but also increasing rows. Their optimal method unfortunately cannot be computed in polynomial time.
+. . .
 
-Then, assuming that the labels are known, there has been considerable work to successively improve the state of the art on ranking and estimation.
+[[@shah2020permutation]]{style="background-color: yellow;"}: [recovering $x^*$]{style="background-color: lightblue;"} optimally using a **least square** method, conjectured **NP hard** ([$x^*$ **unknown**, $M_{\pi^*\eta^*}$ **bi-isotonic**]{style="background-color: lightgreen;"}).
 
-In this work, we address the problem of recovering the labels and show how we can actually recover the results of these previous works.
+. . . 
 
-:::
-
-
+[[@mao2020towards]]{style="background-color: yellow;"}: [estimating abilities $M$]{style="background-color: lightblue;"} of workers optimally with **least square method** ([$x^*$ **known**, $M_{\pi^*\eta^*}$ **bi-isotonic**]{style="background-color: lightgreen;"})
 
 . . .
 
-[[@shah2020permutation]]{style="background-color: lightgreen;"}: recovering $x^*$ optimally but [not in polynomial time]{style="background-color: orange;"}, ([$M_{\pi^*\eta^*}$ **bi-isotonic**]{style="background-color: lightgreen;"}).
+[[@liu2020better]]{style="background-color: yellow;"}: [ranking $\pi^*$ and estimating abilities $M$]{style="background-color: lightblue;"}: improve state of the art poly. time ([$x^*$ **known**, $M_{\pi^*\eta^*}$ **bi-isotonic**]{style="background-color: lightgreen;"})
 
 . . .
 
-[[@mao2020towards],[@liu2020better]]{style="background-color: lightgreen;"}, [@pilliat2024optimal]{style="background-color: lightblue;"}: ranking $\pi^*$ and estimating abilities $M$: improve state of the art poly. time when [$x^*$ **known**,]{style="background-color: orange;"}([$M_{\pi^*\eta^*}$ **bi-isotonic**]{style="background-color: lightgreen;"} or [$M_{\pi^*}$ **isotonic**]{style="background-color: lightblue;"})
+[[@pilliat2024optimal]]{style="background-color: yellow;"}: [ranking $\pi^*$ and estimating abilities $M$]{style="background-color: lightblue;"}: achieves rates of @liu2020better without bi-isotonic assumption ([$x^*$ **known**, $M_{\pi^*}$ **isotonic**]{style="background-color: lightgreen;"})
 
 . . .
 
-[**This paper**]{style="background-color: lightblue;"}: recovering $x^*$, ranking $\pi^*$ and estimating abilities $M$ in poly. time (at least when $n=d$) ([$M_{\pi^*}$ **isotonic**]{style="background-color: lightblue;"})
+[**This paper**]{style="background-color: yellow;"}: [recovering $x^*$, ranking $\pi^*$ and estimating abilities $M$]{style="background-color: lightblue;"} in poly. time when $n=d$ ([$x^*$ **unknown**, $M_{\pi^*}$ **isotonic**]{style="background-color: lightgreen;"})
 
 
 ## Main Results
 
-::: {.notes}
-The main result of my work, is that there exists polynomial time and optimal method for recovering labels. 
-
-By optimal, I mean that it achieves the minimax risk in the worst case, up to polylogs.
-
-Moreover, the minimax risk is of order $d/\lambda$
-:::
-
-
 :::{.callout-note style="font-size=120%" .fragment}
 ## Theorem
 
-If $\tfrac{1}{\lambda} \leq n \leq d$, there exists a [poly. time method $\hat x$ achieving $\mathcal R^*_{\mathrm{reco}}$]{style="background-color: yellow;"}  up to polylog factors, i.e. for all [$M\in[0,1]^{n\times d}$]{style="background-color: lightblue;"}, $\pi^*$ and [$x^* \in \{-1,1\}^d$]{style="background-color: lightblue;"},
+If $\tfrac{1}{\lambda} \leq n \leq d$, there exists a [poly. time method $\hat x$]{style="background-color: yellow;"} achieving $\mathcal R^*_{\mathrm{reco}}$ up to polylog factors, i.e.
 $$
-\max_{M,\pi^*, x^*}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2] \lesssim \mathcal R^*_{\mathrm{reco}}(n,d,\lambda) \enspace .
+\mathcal R_{\mathrm{reco}}(n,d,\lambda, \hat x) \lesssim \mathcal R^*_{\mathrm{reco}}(n,d,\lambda) \enspace .
 $$
-
-::: {.fragment}
 
 Moreover, up to polylogs,
 
-::: {.square-def}
 $$
 \mathcal R^*_{\mathrm{reco}}(n,d,\lambda) \asymp \frac{d}{\lambda} \enspace .
 $$
 :::
 
-
-:::
-
-:::
-
 # Already Existing Methods
-::: {.notes}
-Let me now present a few results on the majority voting and the method from shah et al.
-:::
 
-
-## Majority Voting
-
-::: {.notes}
-The maj voting method simply consists in taking the average of each column of $Y$ to estimate each label.
-
-Unfortunately, it achieves a maximum risk only of order $d \sqrt{n}$. So we have this additional $\sqrt{n}$ compared to the minimax risk.
-
-In the worst case, when $M$ has very small constant coefficients, the majority voting method is not much better than random guessing
-:::
-
+## Majority Vote
 
 . . .
 
-::: {.square-def}
-$\hat x^{(maj)}_k = \mathrm{sign} \left( \sum_{i=1}^n Y_{ik} \right)$
-:::
-
-
+$$ \hat x^{(maj)}_k = \mathrm{sign} \left( \sum_{i=1}^n Y_{ik} \right) \enspace .$$
 
 . . .
 
-[Maximum risk]{style="background-color: yellow;"} of $\hat x^{(maj)}$:
+:::{.callout-note}
+## Max risk of majority vote
 
-::: {.square-def}
-$$\max_{M,\pi^*, x^*}\mathbb E\|M\mathrm{diag}(\hat x^{maj} \neq x^*)\|_F^2 \asymp \tfrac{d \sqrt{n}}{\lambda}$$
+$$\mathcal R^*_{\mathrm{reco}}(n, d, \lambda, \hat x^{(maj)}) \asymp \tfrac{d \sqrt{n}}{\lambda}$$
 :::
-
-
 
 . . .
 
-In the worst case ($\lambda=1$): $M \asymp \frac{1}{\sqrt{n}}(\mathbf 1_{n\times d})$, [$\hat x^{(maj)}$ is not much better than random labelling]{style="background-color: orange;"}
+Worst case ($\lambda=1$): $M \asymp \frac{1}{\sqrt{n}}(\mathbf 1_{n\times d})$
+
+. . .
+
+In this case, [$\hat x^{(maj)}$ is not much better than random labelling]{style="background-color: orange;"}
  and $\|M\mathrm{diag}(\hat x \neq x^*)\|_F^2 \asymp d\sqrt{n}$
 
 
@@ -719,18 +676,9 @@ It is minimax optimal [@shah2020permutation]
 
 ## OBI-WAN [@shah2020permutation]
 
-
-::: {.notes}
-This brings us to the OBI-WAN method of Shah et al. The main idea is to use that $(M\mathrm{diag}(x^*))(M\mathrm{diag}(x^*))^T$ does not depend on $x^*$.
-
-To exploit this fact, Shat et al. compute the leading left eigen vector of $Y$
-
-and provide an estimator of the label based on a partial ranking given by this leading eigenvector
-
-:::
 . . .
 
-**Idea**: Population term [$(M\mathrm{diag}(x^*))(M\mathrm{diag}(x^*))^T= MM^T$]{style="background-color: lightblue;"} is independent of $x^*$
+**Idea**: Population term $(M\mathrm{diag}(x^*))(M\mathrm{diag}(x^*))^T$ is [independent of $x^*$]{style="background-color: yellow;"}
 
 . . .
 
@@ -746,15 +694,9 @@ $$\hat v = \underset{\|v\|=1}{\mathrm{argmax}}\|v^T Y\|^2$$
 
 . . .
 
-**Aggregation**: based on partial ranking given by $|\hat v|$
+**Aggregation**: Majority vote on $k$ top experts according to $|\hat v|$
 
 ## Result on Obi-Wan Method
-
-::: {.notes}
-It turns out that the Obi-Wan method is minimax optimal in a rank $1$ model, it achieves the same rate $d/\lambda$ as in the isotonic model.
-
-Nevertheless, it is not minimax optimal in the non-parametric bi-isotonic model. It is only proven that it achieves the $\sqrt{n}d$ rate, which is comparable to simple majority voting in the worst case.
-:::
 
 . . .
 
@@ -777,14 +719,9 @@ $$\mathbb E\|M\mathrm{diag}(\hat x^{\text{Obi-Wan}} \neq x^*)\|_F^2 \lesssim \fr
 :::
 
 
-# Iterative Spectral Voting
+# Iterative Spectral Voting (Sketch)
 
-::: {.notes}
-To achieve the minimax rate $d/\lambda$, let me now introduce the ISV method
 
-The core of the approach consists in two steps.
-
-:::
 <!-- 
 ## Subsampling
 
@@ -805,49 +742,34 @@ Let $T \geq 1$. We generate $T$ samples $(Y^{(1)}, \dots, Y^{(T)})$ from $Y$.
 
 ## PCA Step
 
-::: {.notes}
-First, compute the leading eigen vector as Shah et al. and to threshold it
-
-The main idea is since $M$ is isotonic, than $M$ is close to low rank.
-
-This is captured by a reverse inequality of this kind on the operator norm
-:::
-
 . . .
 
 ::: {.square-def}
-$$\hat v = \underset{\|v\|=1}{\mathrm{argmax}}\|v^T Y\|^2 \quad \text{and} \quad \tilde v = \hat v \land \sqrt{\lambda / T}$$
+$$\hat v = \underset{\|v\|=1}{\mathrm{argmax}}\|v^T Y^{(1)}\|^2 \quad \text{and} \quad \tilde v = \hat v \land \sqrt{\lambda / T}$$
 :::
 
 . . .
 
-[Main idea]{style="background-color: lightgreen;"}: Since $M$ is **isotonic**, $M$ is [close to low rank]{style="background-color: yellow;"}
+[Main idea]{style="background-color: lightgreen;"}: if $M$ is **isotonic**, then up to a polylog
 
 ::: {.square-tip}
 $$\|MM^T\|_{\mathrm{op}} \gtrsim \|M\|_F^2$$
 :::
 
-. . .
+<!--
 
-Hence, $\hat v$ captures a significant part of the square Frobenius norm: If [$\|M\|_F^2 \gg \frac{d}{\lambda}$]{style="background-color: lightblue;"}, then [$\|\tilde v^T M\| \gtrsim \|M\|_F^2$]{style="background-color: lightblue;"}
+Idea for the proof: if $\|M\|_F^2 \gg \frac{d}{\lambda}$, then $\|\tilde v^T M\| \gtrsim \|M\|_F^2$
 
+-->
 
 ## Voting Step
-
-::: {.notes}
-The second step is to use this thresholded eigen vector to compute $w$
-
-We use it to weight the vote of the workers.
-
-We threshold this weighted vote to get the estimated labels $\hat x_k$
-:::
 
 . . .
 
 Define the weighted vote vector
 
 ::: {.square-def}
-$$\hat w = \tilde v^T Y$$
+$$\hat w = \tilde v^T Y^{(2)}$$
 :::
 
 . . .
@@ -855,28 +777,18 @@ $$\hat w = \tilde v^T Y$$
 Define the estimated label as
 
 ::: {.square-def}
-$$\hat x_k^{(1)} = \mathrm{sign}(\hat w_k)\mathbf{1}\bigg\{|\hat w_k| \gg \sqrt{\sum_{i=1}^n \tilde v_i B_{ik}}\bigg\}$$
+$$\hat x_k^{(1)} = \mathrm{sign}(\hat w_k)\mathbf{1}\bigg\{|\hat w_k| \gg \sqrt{\sum_{i=1}^n \tilde v_i B_{ik}^{(2)}}\bigg\}$$
 :::
 
-## Iterate these two Steps
-
-::: {.notes}
-The idea is then to iterate these two steps.
-
-At each iteration, we keep the labels for which we are certain
-
-And we restrict columns of $Y$ to uncertain label.
-
-We repeat the PCA step on the restricted matrix, and, ultimately, we output the last estimator.
-:::
+## Iterate
 
 . . .
 
-[Keep certain labels]{style="background-color: yellow;"}: if $\hat x^{(t)}_k\neq 0$, set $\hat x^{(t+1)}_k= \hat x^{(t)}_k$.
+[Keep certain labels]{style="background-color: yellow;"}: if $\hat x^{(t)}\neq 0$, set $\hat x^{(t+1)}= \hat x^{(t)}$.
 
 . . .
 
-Restrict columns $k$ of $Y$ to [uncertain labels]{style="background-color: yellow;"} $\hat x^{(t)}_k=0$
+Restrict columns of $Y$ to [uncertain labels]{style="background-color: yellow;"} $\hat x^{(t)}=0$
 
 . . .
 
@@ -892,7 +804,6 @@ Output last estimator $\hat x^{(T)}$
 
 $\newcommand{\and}{\quad \mathrm{and} \quad}$
 
-<!--
 
 ## Proof Idea
 
@@ -924,8 +835,6 @@ $$\|M(t)\|_F^2 - \|M(t+1)\|_F^2 \geq \|\tilde v M(t)\|_2^2 - \|\tilde v^TM(t+1)\
 . . .
 
 This leads to [exponential decay of $\|M(t)\|_F^2$]{style="background-color: yellow;"} until $M(t) \leq d/\lambda$
-
--->
 
 <!--
 
@@ -963,66 +872,31 @@ This leads to [exponential decay of $\|M(t)\|_F^2$]{style="background-color: yel
 
 -->
 
-## Ranking and Estimating Abilities
 
-::: {.notes}
-With this approach we have recovered some of the true labels.
-
-Then, we can do ranking and ability estimation!
-
-To do that, we restrict non zero responses, the responses for which we have a good guess
-
-We use the methods of our previous work to estimate $\pi^*$ and $M$
-
-It turns out that it is minimax optimal in the case where $n=d$
+# Conclusion
 
 
-:::
-
-1. Use ISV to recover labels $\hat x$
-2. Restrict to columns $k$ such that $x^*_k \in \{-1, 1\}$
-3. Use methods from @pilliat2024optimal to estimate $\pi^*$ and $M$
-
-. . .
-
-Minimax optimal e.g. when $n=d$
-
-## Conclusion
+## Summary
 
 ::: {.notes}
 
-Let me wrap up my talk in three key points.
+The core of my presentation can be captured in three key points.
 
-- First, there are three connected problems in crowdsourcing: recovering labels, ranking workers and estimating their abilities.
-- Next, the isotonic model is a very flexible, non-parametric framework to tackle these problems.
-- Most importantly, there exists a method, for these problems that it both computationally feasible and minimax optimal
-
-The main message I want to emphasize here is that, in this setting, not knowing the labels is not much harder than knowing them. 
-At least for ranking workers and estimating their abilities.
-
-The idea is to use the estimation of the labels to rank the workers and to estimate their abilities.
+- First,  the isotonic model is a very flexible, non-parametric framework for describing crowdsourcing data and tackling tasks such as recovering labels and ranking workers.
+- Secondly, ISV method is computationally feasible and achieves minimax rates in most interesting regimes.
+- Lastly, and this is a surprising result: not knowing the true labels does not make the problem of ranking workers any harder from a statistical perspective
 
 :::
 
-1. [Three connected problems]{style="background-color: yellow;"}: recovering labels, ranking workers and estimating their abilities
-2. [Non parametric isotonic model]{style="background-color: yellow;"} very flexible in crowdsourcing problems
-3. [Minimax and polynomial time]{style="background-color: yellow;"} method ISV for recovering labels, ranking and estimating ability (at least when $n=d$) 
+1. [Non parametric isotonic model]{style="background-color: yellow;"} very flexible in crowdsourcing problems
+2. [Minimax and polynomial time]{style="background-color: yellow;"} method ISV for recovering labels, ranking and estimating abiliti (at least when $n=d$) 
+3. [Not knowing the labels is not harder]{style="background-color: yellow;"} than knowing them for ranking workers
 
-. . .
-
-**Take home message**: [Not knowing the labels is not harder]{style="background-color: lightblue;"} than knowing them for ranking or estimating workers' abilities
-
-. . .
-
-**Idea**: [Use the estimation of the labels]{style="background-color: lightblue;"}  to rank the workers and to estimate their abilities
-
-<!--
 ## Main Insights
 
 1. Spectral method because [$\|M\mathrm{diag}(x^*)(M\mathrm{diag}(x^*))^T\|_{\mathrm{op}}=\|MM^T\|_{\mathrm{op}}$]{style="background-color: lightblue;"} does not depend on $x^*$
 2. Iterate to reduce remaining square norm loss [$\|M\mathrm{diag}(x^* \neq \hat x^{(t)})\|_F^2$]{style="background-color: lightblue;"}
 3. Because [$\|M\|^2_{\mathrm{op}}\gtrsim\|M\|_F^2$]{style="background-color: lightblue;"}
-
 
 ## What's Next?
 
@@ -1032,5 +906,3 @@ The idea is to use the estimation of the labels to rank the workers and to estim
 ::: {style="text-align: center;"}
 Can we [do better]{style="background-color: yellow;"} if we are allowed to select worker task pairs $(i,k)$ based on [past information]{style="background-color: yellow;"}?
 :::
-
--->

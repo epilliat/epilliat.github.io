@@ -365,7 +365,7 @@ shape of $x^{(j)} \to p(x)$
 
 For each of the 5300 patients, we observe:
 
-- $Y$: 1 if BMI > 35, 0 otherwise
+- [$Y$: 1 if BMI > 35]{style="background-color: yellow;"}, 0 otherwise
 - AGE
 - DBP: low pressure (diastolic)
 - SEXE: male or female
@@ -440,17 +440,17 @@ Gives
 | ACTIV1      | -0.6573558 | 0.1150226  | -5.715  | 1.10e-08    | ***          |
 :::
 
-For someone for which WALK1=0 and ACTIV1=0:
+For someone for which WALK1=0 and [ACTIV1=0]{style="background-color: yellow;"}:
 
-:::{style="font-size: 60%;"}
+:::{style="font-size: 50%;"}
 $P(Y = 1|\text{AGE}, \text{DBP}) = \text{logit}^{-1}(-3.95 + 0.064 \times \text{AGE} - 0.00068 \times \text{AGE}^2 + 0.0122 \times \text{DBP})$
 :::
 . . .
 
-For someone for which WALK1=0 and ACTIV1=1:
+For someone for which WALK1=0 and [ACTIV1=1]{style="background-color: yellow;"}:
 
-:::{style="font-size: 60%;"}
-$P(Y = 1|\text{AGE}, \text{DBP}) = \text{logit}^{-1}(-3.95 + 0.064 \times \text{AGE} - 0.00068 \times \text{AGE}^2 + 0.0122 \times \text{DBP} - 0.657)$
+:::{style="font-size: 50%;"}
+$P(Y = 1|\text{AGE}, \text{DBP}) = \text{logit}^{-1}(-3.95 + 0.064 \times \text{AGE} - 0.00068 \times \text{AGE}^2 + 0.0122 \times \text{DBP} \color{red}{ - 0.657})$
 :::
 
 
@@ -1082,6 +1082,7 @@ $$J_n(\hat{\beta})^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)$$
 
 ## Estimated Variance of $\hat \beta_j$
 
+. . .
 
 ::: {.square-def}
 $$J_n(\hat{\beta})^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)$$
@@ -1698,7 +1699,7 @@ $\text{BIC} = D + \ln(n)p$
 
 As in linear regression, we can use automatic selection procedures (backward, forward, etc).
 
-## Example: Obesity Study in the United States
+## Example: Obesity Study in the US
 
 . . .
 
@@ -1729,14 +1730,14 @@ The model deviance is therefore $D = 4459.5$.
 The model is significant.
 
 
-## Example: Significance Test
+## Example: Significance Test of MARITAL
 
 . . .
 
-We want to test if `MARITAL` is significant:
+
 
 ```r
-model=glm(Y~AGE+DBP+SEXE+ACTIV+WALK, family=binomial)
+model=glm(Y~AGE+DBP+SEXE+ACTIV+WALK, family=binomial) # We want to test if `MARITAL` is significant
 summary(model)
 ```
 
@@ -1760,3 +1761,384 @@ The p-value of the test equals [$1 - F_5(3.2) \approx 0.67$]{style="background-c
 
 
 We therefore [accept $H_0$]{style="background-color: yellow;"}: the coefficients related to [ MARITAL are zero]{style="background-color: yellow;"}. (Also confirmed with AIC)
+
+## Example: Significance Test of AGE$~^2$
+
+. . .
+
+```r
+model=glm(Y∼AGE+I(AGE2 )+DBP+SEXE+WALK+ACTIV, family=binomial) # We add AGE^2
+summary(model)
+```
+
+:::{style="font-size: 60%;"}
+| Statistic | Value | Degrees of Freedom |
+|-----------|-------|-------------------|
+| Null deviance | $4610.8$ | on $5300$ |
+| Residual deviance | $4439.5$ | on $5294$ |
+| AIC | $4453.5$ | |
+:::
+
+. . .
+
+The deviance test with the previous model has p-value [$1 - F_1(4462.7 - 4439.5) = 1 - F_1(23.2) \approx 10^{-6}$]{style="background-color: lightblue;"}
+
+. . .
+
+This model is [therefore preferable]{style="background-color: yellow;"}, (confirmed with AIC).
+
+. . .
+
+However, we [cannot compare this model with the first]{style="background-color: orange;"} one by deviance test because they are [not nested]{style="background-color: orange;"}.
+
+. . .
+
+We [can however compare their AIC]{style="background-color: lightgreen;"}: this model is preferable.
+
+
+# Classification
+
+## Setup for Prevision
+
+. . .
+
+Suppose we are interested in a new individual for whom
+
+- we know their characteristics $x \in \mathbb{R}^p$,
+- we do not know their $Y$.
+
+. . .
+
+We want to predict $Y$ for this new individual.
+
+## Probability Estimation
+
+. . .
+
+If we have fitted a logistic regression model, we can estimate
+
+::: {.square-def}
+$$p_\beta(x) = P(Y = 1|X = x)$$
+:::
+
+
+
+by
+
+::: {.square-def}
+$$p_{\hat{\beta}}(x) = \text{logit}^{-1}(x^T \hat{\beta}) = \frac{e^{x^T \hat{\beta}}}{1 + e^{x^T \hat{\beta}}}$$
+:::
+
+
+
+## What We Will See
+
+. . .
+
+We will see:
+
+
+1. how to construct a confidence interval around this estimation;
+
+2. how to exploit this estimation to classify the individual in category $Y = 0$ or $Y = 1$.
+
+
+## Asymptotic Distribution
+
+. . .
+
+We know that when $n \to \infty$:
+
+::: {.square-def}
+$$\hat{\beta} \sim N(\beta, (X^T W_{\hat{\beta}} X)^{-1})$$
+:::
+
+Hence, when $n \to \infty$, for any $x \in \mathbb R^p$,
+
+::: {.square-def}
+$$x^T \hat{\beta} \sim N(x^T \beta, x^T (X^T W_{\hat{\beta}} X)^{-1} x)$$
+:::
+
+
+
+## CI for Linear Predictor
+
+. . .
+
+We deduce an asymptotic CI for $x^T \beta$
+
+:::{style="font-size: 80%;"}
+::: {.square-def}
+$$\text{CI}_{1-\alpha}(x^T \beta) = \left[x^T \hat{\beta} \pm q_{1-\alpha/2} \sqrt{x^T (X^T W_{\hat{\beta}} X)^{-1} x}\right]= [l,r]$$
+:::
+:::
+
+
+
+. . .
+
+
+Since $p_{\hat{\beta}}(x) = \text{logit}^{-1}(x^T \hat{\beta})$, applying the [increasing function $\text{logit}^{-1}$]{style="background-color: yellow;"}, we get
+
+::: {.square-def}
+$$\text{CI}_{1-\alpha}(p_\beta(x)) = \left[\text{logit}^{-1}(l), \text{logit}^{-1}(r)\right]$$
+:::
+
+# Prediction
+
+## Setting and Objective
+
+. . .
+
+Suppose we are interested in a [new individual]{style="background-color: yellow;"} for whom
+
+- we know their characteristics $x \in \mathbb{R}^p$,
+- we do not know their $Y$.
+
+. . .
+
+We want to [predict $Y$]{style="background-color: yellow;"} for this [new individual]{style="background-color: yellow;"}.
+
+## Recall in the Logit Model
+
+. . .
+
+If we have [fitted a logistic regression]{style="background-color: yellow;"} model, we can estimate
+
+::: {.square-def}
+$$p_\beta(x) = P(Y = 1|X = x)$$
+:::
+
+
+
+by
+
+. . .
+
+::: {.square-def}
+$$p_{\hat{\beta}}(x) = \text{logit}^{-1}(x^T \hat{\beta}) = \frac{e^{x^T \hat{\beta}}}{1 + e^{x^T \hat{\beta}}}$$
+:::
+
+
+
+## Outline for Prediction
+
+. . .
+
+::: {.square-def}
+$$p_\beta(x) = P(Y = 1|X = x)$$
+:::
+
+We will see:
+
+
+1. how to construct a [confidence interval around the estimation $p_{\hat{\beta}}(x)$]{style="background-color: yellow;"};
+
+
+2. how to exploit this estimation to [classify the new individual]{style="background-color: yellow;"} in category $Y = 0$ or $Y = 1$.
+
+## CI: Asymptotic Distribution of $p_\beta(x)$
+
+. . .
+
+We know that when $n \to \infty$:
+
+::: {.square-def}
+$$\hat{\beta} \sim N(\beta, (X^T W_{\hat{\beta}} X)^{-1})$$
+:::
+
+- $X=(X^{(1)}, \dots, X^{(p)})$ is the $n \times p$ [design matrix]{style="background-color: yellow;"}
+- $W_{\hat{\beta}}$ is the $n \times n$ [diagonal matrix]{style="background-color: yellow;"} with coefs [$p_{\hat \beta}(x_i)(1-p_{\hat \beta}(x_i))$]{style="background-color: lightblue;"}
+
+
+## CI for Linear Predictor
+
+. . .
+
+We deduce that when $n \to +\infty$, [$x^T \hat{\beta} \sim N(x^T \beta, x^T (X^T W_{\hat{\beta}} X)^{-1} x)$ ]{style="background-color: lightblue;"}, and the asymptotic CI of $x^T\beta$:
+
+. . .
+
+::: {.square-def}
+$$\text{CI}_{1-\alpha}(x^T \beta) = \left[x^T \hat{\beta} \pm q_{1-\alpha/2} \sqrt{x^T (X^T W_{\hat{\beta}} X)^{-1} x}\right]$$
+:::
+
+
+
+## CI for Probability $p_{\beta}(x)$
+
+. . .
+
+Since [$p_{\hat{\beta}}(x) = \text{logit}^{-1}(x^T \hat{\beta})$]{style="background-color: lightblue;"}, we have therefore by application of the increasing function $\text{logit}^{-1}$, the CI at asymptotic level $1 - \alpha$:
+
+. . .
+
+:::{style="font-size: 80%;"}
+::: {.square-def}
+$$\text{CI}_{1-\alpha}(p_\beta(x)) = \left[\text{logit}^{-1}\left(x^T \hat{\beta} \pm q_{1-\alpha/2} \sqrt{x^T (X^T W_{\hat{\beta}} X)^{-1} x}\right)\right]$$
+:::
+:::
+
+
+## Classification
+
+. . .
+
+We have estimated $p_\beta(x) = P(Y = 1|X = x)$ by $p_{\hat{\beta}}(x)$.
+
+. . .
+
+For a [threshold to choose $s \in [0, 1]$]{style="background-color: yellow;"}, we use the rule:
+
+::: {.square-def}
+$$\begin{cases}
+\text{if } p_{\hat{\beta}}(x) > s, & \hat{Y} = 1 \\
+\text{if } p_{\hat{\beta}}(x) < s, & \hat{Y} = 0
+\end{cases}$$
+:::
+
+
+
+. . .
+
+The "natural" choice of threshold is $s = 0.5$ but [this choice can be optimized]{style="background-color: yellow;"}.
+
+## Evaluation of Classification Quality
+
+. . .
+
+We proceed by [cross-validation]{style="background-color: yellow;"}: 
+
+. . .
+
+Using a [train sample]{style="background-color: yellow;"}, predict $Y$ on a [test sample]{style="background-color: yellow;"} and form the [confusion matrix]{style="background-color: yellow;"}.
+
+. . .
+
+|        | $Y = 0$ | $Y = 1$ |
+|--------|---------|---------|
+| $\hat{Y} = 0$ | TN | FN |
+| $\hat{Y} = 1$ | FP | TP |
+
+**Reading**: T: true, F:False, N: Negative, P: Positive.
+
+. . .
+
+**FP**: false positives: number of individuals who were classified [positive]{style="background-color: yellow;"} who were actually [negative]{style="background-color: orange;"}
+
+
+## Evaluation of Classification Quality
+. . .
+
+The ideal is to have a confusion matrix that is [as diagonal as possible]{style="background-color: yellow;"}.
+
+. . .
+
+We generally seek to maximize the [following indicators]{style="background-color: yellow;"}:
+
+. . .
+
+::: {.columns}
+::: {.column}
+
+The **sensitivity** (or recall, or true positive rate) estimates [$\P(\hat{Y} = 1|Y = 1)$]{style="background-color: lightblue;"} by 
+
+::: {.square-def}
+$$\frac{\text{TP}}{\text{TP} + \text{FN}}$$
+:::
+
+:::
+::: {.column}
+
+The **specificity** (or selectivity, or true negative rate) estimates [$\P(\hat{Y} = 0|Y = 0)$]{style="background-color: lightblue;"}
+
+::: {.square-def}
+$$\frac{\text{VN}}{\text{VN} + \text{FP}}$$
+:::
+
+:::
+::: 
+
+
+. . .
+
+
+
+
+## Other Indicators
+
+. . .
+
+The **precision** (or positive predictive value) estimates $\P(Y = 1|\hat{Y} = 1)$ by 
+
+::: {.square-def}
+$\frac{\text{VP}}{\text{VP} + \text{FP}}$
+:::
+. . .
+
+The **$F$-score** is the harmonic mean between sensitivity and precision:
+
+::: {.square-def}
+$$F_1 = 2 \frac{\text{precision} \times \text{sensitivity}}{\text{precision} + \text{sensitivity}}$$
+:::
+
+## Choice of Threshold $s$
+
+. . .
+
+For each threshold $s$, from a test sample:
+
+- we can form the confusion matrix
+- calculate scores (sensitivity, $F$-score, etc.)
+
+. . .
+
+We finally choose the [optimal threshold $s$]{style="background-color: yellow;"}, according to the [chosen score]{style="background-color: yellow;"}.
+
+
+## Choosing the score
+
+- It depends on the context of the study
+- It can be much more serious to wrongly predict $\hat{Y} = 0$ than $\hat{Y} = 1$
+
+. . .
+
+
+$\hat Y=1$ (treatment) while the patient is [not ill]{style="background-color: yellow;"} ($Y = 0$)
+
+. . .
+
+$\hat Y=0$ (no treatment) while the patient [has a serious illness]{style="background-color: yellow;"} ($Y=1$)
+
+## ROC Curve
+
+. . .
+
+We can also plot the ROC curve (TP rate as a function of FP rate for $s \in [0, 1]$):
+
+::: {.square-def}
+$$ROC:~~\frac{TP}{TP+FN} = F\left(\frac{FP}{FP+TN}\right)$$
+:::
+
+
+
+. . .
+
+The [AUC (area under the curve)]{style="background-color: yellow;"} is a quality indicator of the model ($0 \leq \text{AUC} \leq 1$). 
+
+. . .
+
+Or equivalently, the [Gini index: $2 \times \text{AUC} - 1$]{style="background-color: yellow;"}.
+
+. . .
+
+**Use**: compare $2$ models by [plotting the 2 ROC curves]{style="background-color: yellow;"}. 
+
+
+## ROC Curve Illustration
+
+. . .
+
+::: {style="text-align: center;"}
+![](images/roc.png)
+:::

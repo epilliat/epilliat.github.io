@@ -139,9 +139,9 @@
 <aside class="notes">
 <p>It’s a great privilege to address you today and present my latest research on crowdsourcing problems.</p>
 <p>For context, I conducted this research primarily at ENS Lyon as a postdoctoral researcher, building on my previous PhD work in crowdsourcing.</p>
-<p>Imagine a group of workers, each assigned with some binary classification tasks.</p>
-<p>It means that they must provide binary responses: <span style="background-color: lightgreen;">YES or NO</span>.</p>
-<p>We can imagine many practical situation where this can happen</p>
+<p>Imagine a group of workers assigned binary classification tasks.</p>
+<p>They must provide binary responses: <span style="background-color: lightgreen;">YES or NO</span>.</p>
+<p>This scenario applies to many practical situations</p>
 <ul>
 <li>workers might be paid to perform image classification, text moderation, sentiment analysis, or data verification tasks.</li>
 </ul>
@@ -209,10 +209,10 @@
 <section id="this-talk" class="slide level2">
 <h2>This Talk</h2>
 <aside class="notes">
-<p>I will break down this problem into three parts in my talk.</p>
-<p>I’ll start by introducing the non-parametric isotonic model, as it offers a simple and flexible framework for addressing these general crowdsourcing problem.</p>
-<p>Next, I’ll review two existing methods, as I believe it might help to grasp some key insights in the problem of recovering the labels.</p>
-<p>In the final part, I’ll go over the new method I have developed and present some of the key ideas that come out.</p>
+<p>My talk will break down this problem into three parts.</p>
+<p>I’ll begin by introducing the non-parametric isotonic model, since it offers a framework for addressing all three problems.</p>
+<p>Next, I’ll review existing methods, as I believe understanding these approaches is essential to grasp the key insights behind the method I introduce in my paper.</p>
+<p>The final section will focus on my contribution - the new method I’ve developed and some of the key ideas that emerge from it.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -225,9 +225,9 @@
           display:block!important;
       }</style></aside>
 <ol type="1">
-<li class="fragment">Introducing the non-parametric <span style="background-color: yellow;">isotonic model</span></li>
-<li class="fragment">Presenting already <span style="background-color: yellow;">existing algorithms</span></li>
-<li class="fragment">Iterative Spectral Voting (ISV) algo and <span style="background-color: yellow;">key insights</span></li>
+<li class="fragment">Introducing the non-parametric isotonic model</li>
+<li class="fragment">Presenting already existing algorithms</li>
+<li class="fragment">Iterative Spectral Voting (ISV) algo and Key Insights</li>
 </ol>
 </section>
 <section>
@@ -239,10 +239,9 @@
 <h2>Illustration</h2>
 <aside class="notes">
 <p>Let me start with a concrete example to illustrate the type of data we’re working with.</p>
-<p>Consider binary tasks where labels are either <span class="math inline">\(-1\)</span> or <span class="math inline">\(+1\)</span>. There is a vector <span class="math inline">\(x^*\)</span> of true labels that we do not know.</p>
+<p>Consider binary tasks where labels are either <span class="math inline">\(-1\)</span> or <span class="math inline">\(+1\)</span>. If we have <span class="math inline">\(9\)</span> tasks, there is a vector <span class="math inline">\(x^*\)</span> of true labels with length <span class="math inline">\(9\)</span>.</p>
 <p>We observe a matrix <span class="math inline">\(Y\)</span> where each entry <span class="math inline">\((i,k)\)</span> represents the response of worker <span class="math inline">\(i\)</span> to task <span class="math inline">\(k\)</span>.</p>
-<p>We can have missing values. When a worker doesn’t respond to a particular task, we simply put <span class="math inline">\(0\)</span> in that matrix position.</p>
-<p>We assume that there is a rate <span class="math inline">\(\lambda\)</span> of partial observation.</p>
+<p>We model partial observations with rate <span class="math inline">\(\lambda \in [0,1]\)</span> — when a worker doesn’t respond to a particular task, we simply put <span class="math inline">\(0\)</span> in that matrix position.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -294,8 +293,8 @@ Y=\left(\begin{array}{ccccccccc}
 <p>The underlying statistical model can be described as follows. Given a worker <span class="math inline">\(i\)</span> and a task <span class="math inline">\(k\)</span>, we observe their response <span class="math inline">\(Y_{ik}\)</span>, and we assume this relation:</p>
 <ul>
 <li><span class="math inline">\(x^*\)</span> is the vector of unknown true labels</li>
-<li><span class="math inline">\(M_{ik} \in [0,1]\)</span> represents the unknown ability of worker <span class="math inline">\(i\)</span> on task <span class="math inline">\(k\)</span>. If <span class="math inline">\(M_{ik}=1\)</span>, it means that worker <span class="math inline">\(i\)</span> is very good at task <span class="math inline">\(k\)</span>.</li>
-<li><span class="math inline">\(E_{ik}\)</span> are independent subgaussian noise</li>
+<li><span class="math inline">\(M_{ik} \in [0,1]\)</span> represents the unknown ability of worker <span class="math inline">\(i\)</span> on task <span class="math inline">\(k\)</span>. For the best experts or easiest tasks, we have <span class="math inline">\(M_{ik} = 1\)</span></li>
+<li><span class="math inline">\(E_{ik}\)</span> is standard sub-Gaussian noise</li>
 <li><span class="math inline">\(B_{ik}\)</span> is a <span class="math inline">\(0\)</span>-<span class="math inline">\(1\)</span> coefficient that indicates whether we observe <span class="math inline">\((i,k)\)</span> or not</li>
 </ul>
 <style type="text/css">
@@ -413,7 +412,7 @@ Y_{ik} = B_{ik}(M_{ik}x_k^* + E_{ik}) \enspace
 <h2>Shape Constraints</h2>
 <aside class="notes">
 <p>Until now, I have’nt assumed anything on the ability matrix <span class="math inline">\(M\)</span> except that it has coef. in <span class="math inline">\([0,1]\)</span>.</p>
-<p>From now on, we also assume that <span class="math inline">\(M\)</span> is isotonic up to a permutation <span class="math inline">\(\pi^*\)</span> of its rows, that is,</p>
+<p>From now on, we assume that <span class="math inline">\(M\)</span> is isotonic up to a permutation <span class="math inline">\(\pi^*\)</span> of its rows, that is,</p>
 <p>it has increasing columns, up to an unknown permutation <span class="math inline">\(\pi^*\)</span></p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -489,7 +488,7 @@ M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
 <h2>Illustration when <span class="math inline">\(x^*\)</span> is Known</h2>
 <aside class="notes">
 <p>Let me illustrate the isotonicity assumption with this picture. This is an isotonic matrix represented in a scale of grays. This is a permuted isotonic matrix, and this is what we might observe.</p>
-<p>Now I’m mostly interested in the statistical limit for finding labels, that is, where the noise is of the same scale as the coefficients of <span class="math inline">\(M\)</span>, that’s when the picture becomes more blurry.</p>
+<p>Now I’m mostly interested in the statistical limit for finding labels, that is, where the noise is of the same scale as the coefficients of <span class="math inline">\(M\)</span>, and when the picture becomes more blurry.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -522,9 +521,9 @@ M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
 <section id="square-norm-loss-vs-hamming-loss" class="slide level2">
 <h2>Square Norm Loss VS Hamming Loss</h2>
 <aside class="notes">
-<p>Now let me move on to the definition loss for finding <span class="math inline">\(x^*\)</span>.</p>
-<p>For that purpose, let me first recall that the usual Hamming loss consists simply in summing up all the mistakes we’ve made in the estimation of the true labels.</p>
-<p>Now for the loss I want to consider here, I rather take the square frobenius norm of <span class="math inline">\(M\)</span>, restricted to the columns corresponding to tasks on which we did a mistake estimating <span class="math inline">\(x^*_k\)</span>.</p>
+<p>Now let move on to the definition of the Square norm loss for finding <span class="math inline">\(x^*\)</span>.</p>
+<p>To motivate its definition, let me recall that the Hamming loss consists simply in summing up all the mistakes we made in the estimation of the true labels.</p>
+<p>For the square norm loss, we rather take the frobenius norm of <span class="math inline">\(M\)</span>, restricted to the column corresponding to tasks on which we did a mistake estimating <span class="math inline">\(x^*_k\)</span>.</p>
 <ul>
 <li>If workers are bad (<span class="math inline">\(M\)</span> close to <span class="math inline">\(0\)</span>), square norm loss is small but Hamming Loss can be of order <span class="math inline">\(d\)</span></li>
 <li>The square norm loss is better for my purpose, because it evaluates the quality of the estimator <span class="math inline">\(\hat x\)</span> instead of the performance of the workers!</li>
@@ -563,7 +562,7 @@ M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
 <section id="crowdsourcing-problems" class="slide level2">
 <h2>Crowdsourcing Problems</h2>
 <aside class="notes">
-<p>A good feature of the isotonic model is that in addition to recovering labels, we can define two other objectives: ranking the workers and estimating their abilities. Each objective corresponds to a similar square norm loss.</p>
+<p>A good feature of the isotonic model is that in addition to recovering labels, we can define two other objectives: ranking the workers and estimating their abilities. Each objective corresponds to a similar squre norm loss.</p>
 <p>These three objectives are closely connected in practice.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -713,26 +712,12 @@ $\color{purple}{\mathbb E}[\|M - \hat M\|_F^2]$
 </section>
 <section id="minimax-risk-for-recovering-labels" class="slide level2">
 <h2>MiniMax Risk for Recovering Labels</h2>
-<aside class="notes">
-<p>This brings us to the minimax risk for recovering labels.</p>
-<p>It is simply defined as the risk of the best estimator <span class="math inline">\(\hat x\)</span> in the worst case.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[\mathcal R^*_{\mathrm{reco}}(n,d,\lambda)=\min_{\hat x}\max_{M,\pi^*, x^*}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2]\]</span></p>
 </div>
 <ul>
-<li class="fragment">maximize square norm loss on all <span class="math inline">\(M\)</span>, <span class="math inline">\(\pi^*\)</span>, <span class="math inline">\(x^*\)</span> such that <span class="math inline">\(M_{\pi^*}\)</span> is <strong>isotonic</strong></li>
+<li class="fragment">maximize squre norm loss on all <span class="math inline">\(M\)</span>, <span class="math inline">\(\pi^*\)</span>, <span class="math inline">\(x^*\)</span> such that <span class="math inline">\(M_{\pi^*}\)</span> is <strong>isotonic</strong></li>
 <li class="fragment">minimize on all estimator <span class="math inline">\(\hat x\)</span></li>
 <li class="fragment">Similarly, we can define <span style="background-color: yellow;">minimax ranking risk and estimation risks</span></li>
 </ul>
@@ -759,48 +744,24 @@ $$\mathcal R^*_{\mathrm{est}}(n,d,\lambda)=\min_{\hat M}\max_{M,\pi^*, x^*}{\mat
 </section>
 <section id="short-story" class="slide level2" style="font-size:90%">
 <h2>Short Story</h2>
-<aside class="notes">
-<p>For the short story, Shah and co. first considered the more constrained bi-isotonic model, where <span class="math inline">\(M\)</span> has not only increasing columns, but also increasing rows. Their optimal method unfortunately cannot be computed in polynomial time.</p>
-<p>Then, assuming that the labels are known, there has been considerable work to successively improve the state of the art on ranking and estimation.</p>
-<p>In this work, we address the problem of recovering the labels and show how we can actually recover the results of these previous works.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment">
-<p><span style="background-color: lightgreen;"><span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span></span>: recovering <span class="math inline">\(x^*\)</span> optimally but <span style="background-color: orange;">not in polynomial time</span>, (<span style="background-color: lightgreen;"><span class="math inline">\(M_{\pi^*\eta^*}\)</span> <strong>bi-isotonic</strong></span>).</p>
+<p><span style="background-color: yellow;"><span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span></span>: <span style="background-color: lightblue;">recovering <span class="math inline">\(x^*\)</span></span> optimally using a <strong>least square</strong> method, conjectured <strong>NP hard</strong> (<span style="background-color: lightgreen;"><span class="math inline">\(x^*\)</span> <strong>unknown</strong>, <span class="math inline">\(M_{\pi^*\eta^*}\)</span> <strong>bi-isotonic</strong></span>).</p>
 </div>
 <div class="fragment">
-<p><span style="background-color: lightgreen;"><span class="citation" data-cites="mao2020towards">(Mao et al., 2020)</span>,<span class="citation" data-cites="liu2020better">(Liu &amp; Moitra, 2020)</span></span>, <span style="background-color: lightblue;"><span class="citation" data-cites="pilliat2024optimal">Pilliat et al. (2024)</span></span>: ranking <span class="math inline">\(\pi^*\)</span> and estimating abilities <span class="math inline">\(M\)</span>: improve state of the art poly. time when <span style="background-color: orange;"><span class="math inline">\(x^*\)</span> <strong>known</strong>,</span>(<span style="background-color: lightgreen;"><span class="math inline">\(M_{\pi^*\eta^*}\)</span> <strong>bi-isotonic</strong></span> or <span style="background-color: lightblue;"><span class="math inline">\(M_{\pi^*}\)</span> <strong>isotonic</strong></span>)</p>
+<p><span style="background-color: yellow;"><span class="citation" data-cites="mao2020towards">(Mao et al., 2020)</span></span>: <span style="background-color: lightblue;">estimating abilities <span class="math inline">\(M\)</span></span> of workers optimally with <strong>least square method</strong> (<span style="background-color: lightgreen;"><span class="math inline">\(x^*\)</span> <strong>known</strong>, <span class="math inline">\(M_{\pi^*\eta^*}\)</span> <strong>bi-isotonic</strong></span>)</p>
 </div>
 <div class="fragment">
-<p><span style="background-color: lightblue;"><strong>This paper</strong></span>: recovering <span class="math inline">\(x^*\)</span>, ranking <span class="math inline">\(\pi^*\)</span> and estimating abilities <span class="math inline">\(M\)</span> in poly. time (at least when <span class="math inline">\(n=d\)</span>) (<span style="background-color: lightblue;"><span class="math inline">\(M_{\pi^*}\)</span> <strong>isotonic</strong></span>)</p>
+<p><span style="background-color: yellow;"><span class="citation" data-cites="liu2020better">(Liu &amp; Moitra, 2020)</span></span>: <span style="background-color: lightblue;">ranking <span class="math inline">\(\pi^*\)</span> and estimating abilities <span class="math inline">\(M\)</span></span>: improve state of the art poly. time (<span style="background-color: lightgreen;"><span class="math inline">\(x^*\)</span> <strong>known</strong>, <span class="math inline">\(M_{\pi^*\eta^*}\)</span> <strong>bi-isotonic</strong></span>)</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;"><span class="citation" data-cites="pilliat2024optimal">(Pilliat et al., 2024)</span></span>: <span style="background-color: lightblue;">ranking <span class="math inline">\(\pi^*\)</span> and estimating abilities <span class="math inline">\(M\)</span></span>: achieves rates of <span class="citation" data-cites="liu2020better">Liu &amp; Moitra (2020)</span> without bi-isotonic assumption (<span style="background-color: lightgreen;"><span class="math inline">\(x^*\)</span> <strong>known</strong>, <span class="math inline">\(M_{\pi^*}\)</span> <strong>isotonic</strong></span>)</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;"><strong>This paper</strong></span>: <span style="background-color: lightblue;">recovering <span class="math inline">\(x^*\)</span>, ranking <span class="math inline">\(\pi^*\)</span> and estimating abilities <span class="math inline">\(M\)</span></span> in poly. time when <span class="math inline">\(n=d\)</span> (<span style="background-color: lightgreen;"><span class="math inline">\(x^*\)</span> <strong>unknown</strong>, <span class="math inline">\(M_{\pi^*}\)</span> <strong>isotonic</strong></span>)</p>
 </div>
 </section>
 <section id="main-results" class="slide level2">
 <h2>Main Results</h2>
-<aside class="notes">
-<p>The main result of my work, is that there exists polynomial time and optimal method for recovering labels.</p>
-<p>By optimal, I mean that it achieves the minimax risk in the worst case, up to polylogs.</p>
-<p>Moreover, the minimax risk is of order <span class="math inline">\(d/\lambda\)</span></p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment" style="font-size=120%">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
@@ -808,17 +769,13 @@ $$\mathcal R^*_{\mathrm{est}}(n,d,\lambda)=\min_{\hat M}\max_{M,\pi^*, x^*}{\mat
 <p><strong>Theorem</strong></p>
 </div>
 <div class="callout-content">
-<p>If <span class="math inline">\(\tfrac{1}{\lambda} \leq n \leq d\)</span>, there exists a <span style="background-color: yellow;">poly. time method <span class="math inline">\(\hat x\)</span> achieving <span class="math inline">\(\mathcal R^*_{\mathrm{reco}}\)</span></span> up to polylog factors, i.e.&nbsp;for all <span style="background-color: lightblue;"><span class="math inline">\(M\in[0,1]^{n\times d}\)</span></span>, <span class="math inline">\(\pi^*\)</span> and <span style="background-color: lightblue;"><span class="math inline">\(x^* \in \{-1,1\}^d\)</span></span>, <span class="math display">\[
-\max_{M,\pi^*, x^*}{\mathbb E}[\|M \mathrm{diag}(x^* \neq \hat x)\|_F^2] \lesssim \mathcal R^*_{\mathrm{reco}}(n,d,\lambda) \enspace .
+<p>If <span class="math inline">\(\tfrac{1}{\lambda} \leq n \leq d\)</span>, there exists a <span style="background-color: yellow;">poly. time method <span class="math inline">\(\hat x\)</span></span> achieving <span class="math inline">\(\mathcal R^*_{\mathrm{reco}}\)</span> up to polylog factors, i.e. <span class="math display">\[
+\mathcal R_{\mathrm{reco}}(n,d,\lambda, \hat x) \lesssim \mathcal R^*_{\mathrm{reco}}(n,d,\lambda) \enspace .
 \]</span></p>
-<div class="fragment">
 <p>Moreover, up to polylogs,</p>
-<div class="square-def">
 <p><span class="math display">\[
 \mathcal R^*_{\mathrm{reco}}(n,d,\lambda) \asymp \frac{d}{\lambda} \enspace .
 \]</span></p>
-</div>
-</div>
 </div>
 </div>
 </div>
@@ -827,50 +784,30 @@ $$\mathcal R^*_{\mathrm{est}}(n,d,\lambda)=\min_{\hat M}\max_{M,\pi^*, x^*}{\mat
 <section>
 <section id="already-existing-methods" class="title-slide slide level1 center">
 <h1>Already Existing Methods</h1>
-<aside class="notes">
-<p>Let me now present a few results on the majority voting and the method from shah et al.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+
 </section>
-<section id="majority-voting" class="slide level2">
-<h2>Majority Voting</h2>
-<aside class="notes">
-<p>The maj voting method simply consists in taking the average of each column of <span class="math inline">\(Y\)</span> to estimate each label.</p>
-<p>Unfortunately, it achieves a maximum risk only of order <span class="math inline">\(d \sqrt{n}\)</span>. So we have this additional <span class="math inline">\(\sqrt{n}\)</span> compared to the minimax risk.</p>
-<p>In the worst case, when <span class="math inline">\(M\)</span> has very small constant coefficients, the majority voting method is not much better than random guessing</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<section id="majority-vote" class="slide level2">
+<h2>Majority Vote</h2>
 <div class="fragment">
-<div class="square-def">
-<p><span class="math inline">\(\hat x^{(maj)}_k = \mathrm{sign} \left( \sum_{i=1}^n Y_{ik} \right)\)</span></p>
+<p><span class="math display">\[ \hat x^{(maj)}_k = \mathrm{sign} \left( \sum_{i=1}^n Y_{ik} \right) \enspace .\]</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Max risk of majority vote</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[\mathcal R^*_{\mathrm{reco}}(n, d, \lambda, \hat x^{(maj)}) \asymp \tfrac{d \sqrt{n}}{\lambda}\]</span></p>
+</div>
+</div>
 </div>
 </div>
 <div class="fragment">
-<p><span style="background-color: yellow;">Maximum risk</span> of <span class="math inline">\(\hat x^{(maj)}\)</span>:</p>
-<div class="square-def">
-<p><span class="math display">\[\max_{M,\pi^*, x^*}\mathbb E\|M\mathrm{diag}(\hat x^{maj} \neq x^*)\|_F^2 \asymp \tfrac{d \sqrt{n}}{\lambda}\]</span></p>
-</div>
+<p>Worst case (<span class="math inline">\(\lambda=1\)</span>): <span class="math inline">\(M \asymp \frac{1}{\sqrt{n}}(\mathbf 1_{n\times d})\)</span></p>
 </div>
 <div class="fragment">
-<p>In the worst case (<span class="math inline">\(\lambda=1\)</span>): <span class="math inline">\(M \asymp \frac{1}{\sqrt{n}}(\mathbf 1_{n\times d})\)</span>, <span style="background-color: orange;"><span class="math inline">\(\hat x^{(maj)}\)</span> is not much better than random labelling</span> and <span class="math inline">\(\|M\mathrm{diag}(\hat x \neq x^*)\|_F^2 \asymp d\sqrt{n}\)</span></p>
+<p>In this case, <span style="background-color: orange;"><span class="math inline">\(\hat x^{(maj)}\)</span> is not much better than random labelling</span> and <span class="math inline">\(\|M\mathrm{diag}(\hat x \neq x^*)\|_F^2 \asymp d\sqrt{n}\)</span></p>
 <!--
 
 ## Least square (conjectured NP Hard)
@@ -903,23 +840,8 @@ It is minimax optimal [@shah2020permutation]
 </section>
 <section id="obi-wan-shah2020permutation" class="slide level2">
 <h2>OBI-WAN <span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span></h2>
-<aside class="notes">
-<p>This brings us to the OBI-WAN method of Shah et al.&nbsp;The main idea is to use that <span class="math inline">\((M\mathrm{diag}(x^*))(M\mathrm{diag}(x^*))^T\)</span> does not depend on <span class="math inline">\(x^*\)</span>.</p>
-<p>To exploit this fact, Shat et al.&nbsp;compute the leading left eigen vector of <span class="math inline">\(Y\)</span></p>
-<p>and provide an estimator of the label based on a partial ranking given by this leading eigenvector</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment">
-<p><strong>Idea</strong>: Population term <span style="background-color: lightblue;"><span class="math inline">\((M\mathrm{diag}(x^*))(M\mathrm{diag}(x^*))^T= MM^T\)</span></span> is independent of <span class="math inline">\(x^*\)</span></p>
+<p><strong>Idea</strong>: Population term <span class="math inline">\((M\mathrm{diag}(x^*))(M\mathrm{diag}(x^*))^T\)</span> is <span style="background-color: yellow;">independent of <span class="math inline">\(x^*\)</span></span></p>
 </div>
 <div class="fragment">
 <p><strong>PCA</strong> Step:</p>
@@ -931,25 +853,11 @@ It is minimax optimal [@shah2020permutation]
 <p><span class="citation" data-cites="shah2020permutation">(Shah et al., 2020)</span> sort <span class="math inline">\(|\hat v|\)</span> to get a <strong>partial ranking</strong></p>
 </div>
 <div class="fragment">
-<p><strong>Aggregation</strong>: based on partial ranking given by <span class="math inline">\(|\hat v|\)</span></p>
+<p><strong>Aggregation</strong>: Majority vote on <span class="math inline">\(k\)</span> top experts according to <span class="math inline">\(|\hat v|\)</span></p>
 </div>
 </section>
 <section id="result-on-obi-wan-method" class="slide level2">
 <h2>Result on Obi-Wan Method</h2>
-<aside class="notes">
-<p>It turns out that the Obi-Wan method is minimax optimal in a rank <span class="math inline">\(1\)</span> model, it achieves the same rate <span class="math inline">\(d/\lambda\)</span> as in the isotonic model.</p>
-<p>Nevertheless, it is not minimax optimal in the non-parametric bi-isotonic model. It is only proven that it achieves the <span class="math inline">\(\sqrt{n}d\)</span> rate, which is comparable to simple majority voting in the worst case.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment">
 <div style="font-size: 100%;">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
@@ -980,22 +888,8 @@ It is minimax optimal [@shah2020permutation]
 </div>
 </section></section>
 <section>
-<section id="iterative-spectral-voting" class="title-slide slide level1 center">
-<h1>Iterative Spectral Voting</h1>
-<aside class="notes">
-<p>To achieve the minimax rate <span class="math inline">\(d/\lambda\)</span>, let me now introduce the ISV method</p>
-<p>The core of the approach consists in two steps.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<section id="iterative-spectral-voting-sketch" class="title-slide slide level1 center">
+<h1>Iterative Spectral Voting (Sketch)</h1>
 <!-- 
 ## Subsampling
 
@@ -1015,89 +909,45 @@ Let $T \geq 1$. We generate $T$ samples $(Y^{(1)}, \dots, Y^{(T)})$ from $Y$.
 </section>
 <section id="pca-step" class="slide level2">
 <h2>PCA Step</h2>
-<aside class="notes">
-<p>First, compute the leading eigen vector as Shah et al.&nbsp;and to threshold it</p>
-<p>The main idea is since <span class="math inline">\(M\)</span> is isotonic, than <span class="math inline">\(M\)</span> is close to low rank.</p>
-<p>This is captured by a reverse inequality of this kind on the operator norm</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment">
 <div class="square-def">
-<p><span class="math display">\[\hat v = \underset{\|v\|=1}{\mathrm{argmax}}\|v^T Y\|^2 \quad \text{and} \quad \tilde v = \hat v \land \sqrt{\lambda / T}\]</span></p>
+<p><span class="math display">\[\hat v = \underset{\|v\|=1}{\mathrm{argmax}}\|v^T Y^{(1)}\|^2 \quad \text{and} \quad \tilde v = \hat v \land \sqrt{\lambda / T}\]</span></p>
 </div>
 </div>
 <div class="fragment">
-<p><span style="background-color: lightgreen;">Main idea</span>: Since <span class="math inline">\(M\)</span> is <strong>isotonic</strong>, <span class="math inline">\(M\)</span> is <span style="background-color: yellow;">close to low rank</span></p>
+<p><span style="background-color: lightgreen;">Main idea</span>: if <span class="math inline">\(M\)</span> is <strong>isotonic</strong>, then up to a polylog</p>
 <div class="square-tip">
 <p><span class="math display">\[\|MM^T\|_{\mathrm{op}} \gtrsim \|M\|_F^2\]</span></p>
 </div>
-</div>
-<div class="fragment">
-<p>Hence, <span class="math inline">\(\hat v\)</span> captures a significant part of the square Frobenius norm: If <span style="background-color: lightblue;"><span class="math inline">\(\|M\|_F^2 \gg \frac{d}{\lambda}\)</span></span>, then <span style="background-color: lightblue;"><span class="math inline">\(\|\tilde v^T M\| \gtrsim \|M\|_F^2\)</span></span></p>
+<!--
+
+Idea for the proof: if $\|M\|_F^2 \gg \frac{d}{\lambda}$, then $\|\tilde v^T M\| \gtrsim \|M\|_F^2$
+
+-->
 </div>
 </section>
 <section id="voting-step" class="slide level2">
 <h2>Voting Step</h2>
-<aside class="notes">
-<p>The second step is to use this thresholded eigen vector to compute <span class="math inline">\(w\)</span></p>
-<p>We use it to weight the vote of the workers.</p>
-<p>We threshold this weighted vote to get the estimated labels <span class="math inline">\(\hat x_k\)</span></p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment">
 <p>Define the weighted vote vector</p>
 <div class="square-def">
-<p><span class="math display">\[\hat w = \tilde v^T Y\]</span></p>
+<p><span class="math display">\[\hat w = \tilde v^T Y^{(2)}\]</span></p>
 </div>
 </div>
 <div class="fragment">
 <p>Define the estimated label as</p>
 <div class="square-def">
-<p><span class="math display">\[\hat x_k^{(1)} = \mathrm{sign}(\hat w_k)\mathbf{1}\bigg\{|\hat w_k| \gg \sqrt{\sum_{i=1}^n \tilde v_i B_{ik}}\bigg\}\]</span></p>
+<p><span class="math display">\[\hat x_k^{(1)} = \mathrm{sign}(\hat w_k)\mathbf{1}\bigg\{|\hat w_k| \gg \sqrt{\sum_{i=1}^n \tilde v_i B_{ik}^{(2)}}\bigg\}\]</span></p>
 </div>
 </div>
 </section>
-<section id="iterate-these-two-steps" class="slide level2">
-<h2>Iterate these two Steps</h2>
-<aside class="notes">
-<p>The idea is then to iterate these two steps.</p>
-<p>At each iteration, we keep the labels for which we are certain</p>
-<p>And we restrict columns of <span class="math inline">\(Y\)</span> to uncertain label.</p>
-<p>We repeat the PCA step on the restricted matrix, and, ultimately, we output the last estimator.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+<section id="iterate" class="slide level2">
+<h2>Iterate</h2>
 <div class="fragment">
-<p><span style="background-color: yellow;">Keep certain labels</span>: if <span class="math inline">\(\hat x^{(t)}_k\neq 0\)</span>, set <span class="math inline">\(\hat x^{(t+1)}_k= \hat x^{(t)}_k\)</span>.</p>
+<p><span style="background-color: yellow;">Keep certain labels</span>: if <span class="math inline">\(\hat x^{(t)}\neq 0\)</span>, set <span class="math inline">\(\hat x^{(t+1)}= \hat x^{(t)}\)</span>.</p>
 </div>
 <div class="fragment">
-<p>Restrict columns <span class="math inline">\(k\)</span> of <span class="math inline">\(Y\)</span> to <span style="background-color: yellow;">uncertain labels</span> <span class="math inline">\(\hat x^{(t)}_k=0\)</span></p>
+<p>Restrict columns of <span class="math inline">\(Y\)</span> to <span style="background-color: yellow;">uncertain labels</span> <span class="math inline">\(\hat x^{(t)}=0\)</span></p>
 </div>
 <div class="fragment">
 <p><span style="background-color: yellow;">Repeat PCA Step + Voting Step</span> on <span class="math inline">\(Y \mathrm{diag}(\hat x^{(t)} \neq 0)\)</span> a polylogarithmic number of times.</p>
@@ -1105,40 +955,31 @@ Let $T \geq 1$. We generate $T$ samples $(Y^{(1)}, \dots, Y^{(T)})$ from $Y$.
 <div class="fragment">
 <p>Output last estimator <span class="math inline">\(\hat x^{(T)}\)</span></p>
 <p><span class="math inline">\(\newcommand{\and}{\quad \mathrm{and} \quad}\)</span></p>
-<!--
-
-## Proof Idea
-
-
-. . .
-
-Let [$M(t) = M\mathrm{diag}(\hat x^{(t-1)} = 0)$]{style="background-color: yellow;"} 
-
-. . .
-
-While [$M(t) \gg d/\lambda$]{style="background-color: yellow;"}, we prove that
-
-:::{style="font-size: 90%;"}
-::: {.square-def}
-$$\|\tilde v^TM(t)\|_2^2 \gtrsim \|M\|_F^2 \and \|\tilde v^TM(t+1)\|_2^2 \lesssim d/\lambda$$
-:::
-:::
-
-. . .
-
-By Pythagoeran Theorem, we have
-
-:::{style="font-size: 90%;"}
-::: {.square-def}
-$$\|M(t)\|_F^2 - \|M(t+1)\|_F^2 \geq \|\tilde v M(t)\|_2^2 - \|\tilde v^TM(t+1)\|_2^2$$
-:::
-:::
-
-. . .
-
-This leads to [exponential decay of $\|M(t)\|_F^2$]{style="background-color: yellow;"} until $M(t) \leq d/\lambda$
-
--->
+</div>
+</section>
+<section id="proof-idea" class="slide level2">
+<h2>Proof Idea</h2>
+<div class="fragment">
+<p>Let <span style="background-color: yellow;"><span class="math inline">\(M(t) = M\mathrm{diag}(\hat x^{(t-1)} = 0)\)</span></span></p>
+</div>
+<div class="fragment">
+<p>While <span style="background-color: yellow;"><span class="math inline">\(M(t) \gg d/\lambda\)</span></span>, we prove that</p>
+<div style="font-size: 90%;">
+<div class="square-def">
+<p><span class="math display">\[\|\tilde v^TM(t)\|_2^2 \gtrsim \|M\|_F^2 \and \|\tilde v^TM(t+1)\|_2^2 \lesssim d/\lambda\]</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>By Pythagoeran Theorem, we have</p>
+<div style="font-size: 90%;">
+<div class="square-def">
+<p><span class="math display">\[\|M(t)\|_F^2 - \|M(t+1)\|_F^2 \geq \|\tilde v M(t)\|_2^2 - \|\tilde v^TM(t+1)\|_2^2\]</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>This leads to <span style="background-color: yellow;">exponential decay of <span class="math inline">\(\|M(t)\|_F^2\)</span></span> until <span class="math inline">\(M(t) \leq d/\lambda\)</span></p>
 <!--
 
 # Simulations
@@ -1175,46 +1016,21 @@ This leads to [exponential decay of $\|M(t)\|_F^2$]{style="background-color: yel
 
 -->
 </div>
+</section></section>
+<section>
+<section id="conclusion" class="title-slide slide level1 center">
+<h1>Conclusion</h1>
+
 </section>
-<section id="ranking-and-estimating-abilities" class="slide level2">
-<h2>Ranking and Estimating Abilities</h2>
+<section id="summary" class="slide level2">
+<h2>Summary</h2>
 <aside class="notes">
-<p>With this approach we have recovered some of the true labels.</p>
-<p>Then, we can do ranking and ability estimation!</p>
-<p>To do that, we restrict non zero responses, the responses for which we have a good guess</p>
-<p>We use the methods of our previous work to estimate <span class="math inline">\(\pi^*\)</span> and <span class="math inline">\(M\)</span></p>
-<p>It turns out that it is minimax optimal in the case where <span class="math inline">\(n=d\)</span></p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-<ol type="1">
-<li class="fragment">Use ISV to recover labels <span class="math inline">\(\hat x\)</span></li>
-<li class="fragment">Restrict to columns <span class="math inline">\(k\)</span> such that <span class="math inline">\(x^*_k \in \{-1, 1\}\)</span></li>
-<li class="fragment">Use methods from <span class="citation" data-cites="pilliat2024optimal">Pilliat et al. (2024)</span> to estimate <span class="math inline">\(\pi^*\)</span> and <span class="math inline">\(M\)</span></li>
-</ol>
-<div class="fragment">
-<p>Minimax optimal e.g.&nbsp;when <span class="math inline">\(n=d\)</span></p>
-</div>
-</section>
-<section id="conclusion" class="slide level2">
-<h2>Conclusion</h2>
-<aside class="notes">
-<p>Let me wrap up my talk in three key points.</p>
+<p>The core of my presentation can be captured in three key points.</p>
 <ul>
-<li>First, there are three connected problems in crowdsourcing: recovering labels, ranking workers and estimating their abilities.</li>
-<li>Next, the isotonic model is a very flexible, non-parametric framework to tackle these problems.</li>
-<li>Most importantly, there exists a method, for these problems that it both computationally feasible and minimax optimal</li>
+<li>First, the isotonic model is a very flexible, non-parametric framework for describing crowdsourcing data and tackling tasks such as recovering labels and ranking workers.</li>
+<li>Secondly, ISV method is computationally feasible and achieves minimax rates in most interesting regimes.</li>
+<li>Lastly, and this is a surprising result: not knowing the true labels does not make the problem of ranking workers any harder from a statistical perspective</li>
 </ul>
-<p>The main message I want to emphasize here is that, in this setting, not knowing the labels is not much harder than knowing them. At least for ranking workers and estimating their abilities.</p>
-<p>The idea is to use the estimation of the labels to rank the workers and to estimate their abilities.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1227,33 +1043,25 @@ This leads to [exponential decay of $\|M(t)\|_F^2$]{style="background-color: yel
           display:block!important;
       }</style></aside>
 <ol type="1">
-<li class="fragment"><span style="background-color: yellow;">Three connected problems</span>: recovering labels, ranking workers and estimating their abilities</li>
 <li class="fragment"><span style="background-color: yellow;">Non parametric isotonic model</span> very flexible in crowdsourcing problems</li>
-<li class="fragment"><span style="background-color: yellow;">Minimax and polynomial time</span> method ISV for recovering labels, ranking and estimating ability (at least when <span class="math inline">\(n=d\)</span>)</li>
+<li class="fragment"><span style="background-color: yellow;">Minimax and polynomial time</span> method ISV for recovering labels, ranking and estimating abiliti (at least when <span class="math inline">\(n=d\)</span>)</li>
+<li class="fragment"><span style="background-color: yellow;">Not knowing the labels is not harder</span> than knowing them for ranking workers</li>
 </ol>
+</section>
+<section id="main-insights" class="slide level2">
+<h2>Main Insights</h2>
+<ol type="1">
+<li class="fragment">Spectral method because <span style="background-color: lightblue;"><span class="math inline">\(\|M\mathrm{diag}(x^*)(M\mathrm{diag}(x^*))^T\|_{\mathrm{op}}=\|MM^T\|_{\mathrm{op}}\)</span></span> does not depend on <span class="math inline">\(x^*\)</span></li>
+<li class="fragment">Iterate to reduce remaining square norm loss <span style="background-color: lightblue;"><span class="math inline">\(\|M\mathrm{diag}(x^* \neq \hat x^{(t)})\|_F^2\)</span></span></li>
+<li class="fragment">Because <span style="background-color: lightblue;"><span class="math inline">\(\|M\|^2_{\mathrm{op}}\gtrsim\|M\|_F^2\)</span></span></li>
+</ol>
+</section>
+<section id="whats-next" class="slide level2">
+<h2>What’s Next?</h2>
 <div class="fragment">
-<p><strong>Take home message</strong>: <span style="background-color: lightblue;">Not knowing the labels is not harder</span> than knowing them for ranking or estimating workers’ abilities</p>
+<div style="text-align: center;">
+<p>Can we <span style="background-color: yellow;">do better</span> if we are allowed to select worker task pairs <span class="math inline">\((i,k)\)</span> based on <span style="background-color: yellow;">past information</span>?</p>
 </div>
-<div class="fragment">
-<p><strong>Idea</strong>: <span style="background-color: lightblue;">Use the estimation of the labels</span> to rank the workers and to estimate their abilities</p>
-<!--
-## Main Insights
-
-1. Spectral method because [$\|M\mathrm{diag}(x^*)(M\mathrm{diag}(x^*))^T\|_{\mathrm{op}}=\|MM^T\|_{\mathrm{op}}$]{style="background-color: lightblue;"} does not depend on $x^*$
-2. Iterate to reduce remaining square norm loss [$\|M\mathrm{diag}(x^* \neq \hat x^{(t)})\|_F^2$]{style="background-color: lightblue;"}
-3. Because [$\|M\|^2_{\mathrm{op}}\gtrsim\|M\|_F^2$]{style="background-color: lightblue;"}
-
-
-## What's Next?
-
-. . .
-
-
-::: {style="text-align: center;"}
-Can we [do better]{style="background-color: yellow;"} if we are allowed to select worker task pairs $(i,k)$ based on [past information]{style="background-color: yellow;"}?
-:::
-
--->
 
 
 </div>

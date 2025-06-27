@@ -1,0 +1,543 @@
+---
+title: "Counting Models"
+format: 
+  revealjs:
+    incremental: true
+    callout-icon: false
+    code-overflow: scroll
+    code-block-height: 200px
+    #theme: [default, ../custom.scss]
+#julia:
+#  path: "/home/emmanuel/.juliaup/bin/julia"
+smaller: false
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+$\newcommand{\E}{\mathbb E}$
+$\newcommand{\P}{\mathbb P}$
+$\newcommand{\Var}{\mathbb V}$
+$\newcommand{\Cov}{\mathrm{Cov}}$
+$\newcommand{\1}{\mathbf 1}$
+
+
+
+# Introduction
+
+## This Class
+
+# Log-Linear Poisson Model
+
+## Poisson Regression Model
+
+## Model Assumption
+
+. . .
+
+We assume that 
+
+::: {.square-def}
+$$Y_i|X_i=x_i \sim P(\lambda_\beta(x_i))\quad \text{with} \quad \lambda_\beta(x) = \exp(x^T \beta)$$
+:::
+
+with $\lambda_\beta(x) = \exp(x^T \beta)$.
+
+. . .
+
+In particular, [$\mathbb E[Y_i|X_i=x_i] = \lambda_\beta(x)$]{style="background-color: lightblue;"}
+
+. . .
+
+::: {.callout-warning}
+$Y|X$ follows a Poisson distribution but not $Y$! 
+
+(We can only say that it is a mixture of Poisson)
+:::
+
+## Illustration
+
+. . .
+
+**Example**: binary regressor $X$ (with as many $X = 0$ as $X = 1$)
+
+. . .
+
+::: {.square-def}
+$Y|(X = 0) \sim P(2) \and Y|(X = 1) \sim P(10)$
+:::
+
+
+
+![](images/poisson_mix.png){width=90%}
+
+
+## Rate Ratio
+
+. . .
+
+There is [no notion of OR]{style="background-color: orange;"} since we are not estimating a probability (or a probability ratio) but an expectation.
+
+. . .
+
+The equivalent notion here is the [rate ratio (RR)]{style="background-color: lightgreen;"}, $\lambda(x)$ being seen as an average rate of occurrence of $Y$.
+
+. . .
+
+For two characteristics $x_1$ and $x_2$, the rate ratio is simply:
+
+::: {.square-def}
+$$RR(x_1, x_2) = \frac{\lambda_\beta(x_1)}{\lambda_\beta(x_2)} = \exp((x_1 - x_2)^T \beta)$$
+:::
+
+## Particular Cases for Rate Ratio
+
+. . .
+
+
+
+. . .
+
+**Single Regressor Difference**: If $x_1$ and $x_2$ differ only by regressor $j$:
+
+[$RR(x_1, x_2) = \exp((x_{1j} - x_{2j})\beta_j)$]{style="background-color: lightblue;"}
+
+. . .
+
+**Binary regressor**: ($x_{1j} = 1$ and $x_{2j} = 0$): [$RR_j = e^{\beta_j}$]{style="background-color: lightblue;"}.
+
+
+## Log-Likelihood
+
+. . .
+
+::: {.square-def}
+$$P(Y = k|X = x) = e^{-\lambda_\beta(x)} \frac{\lambda_\beta(x)^k}{k!}$$
+:::
+
+. . .
+
+Thus the [sample likelihood]{style="background-color: yellow;"} equals [$\prod_{i=1}^n e^{-\lambda_\beta(x_i)} \frac{\lambda_\beta(x_i)^{y_i}}{y_i!}$]{style="background-color: lightblue;"}
+
+. . .
+
+Since $\lambda_\beta(x) = \exp(x^T \beta)$, the [log-likelihood]{style="background-color: yellow;"} therefore equals
+
+::: {.square-def}
+$$L = \sum_{i=1}^n \left[y_i x_i^T \beta - e^{x_i^T \beta} - \ln(y_i!)\right]$$
+:::
+
+
+## Estimation of $\beta$ by MLE
+
+. . .
+
+By setting the gradient with respect to $\beta$ to zero, we find that the MLE $\hat{\beta}$ must verify:
+
+::: {.square-def}
+$$\sum_{i=1}^n y_i x_i = \sum_{i=1}^n \lambda_{\hat{\beta}}(x_i) x_i$$
+:::
+
+. . .
+
+This is a system with $p$ unknowns (recall that [$x_i \in \mathbb R^p$]{style="background-color: orange;"}) that we [solve numerically]{style="background-color: yellow;"}.
+
+. . .
+
+## Properties of $\hat \beta$
+
+. . .
+
+Under regularity conditions, when $n \to \infty$:
+
+::: {.square-def}
+$$\hat{\beta} \sim N(\beta, (X^T W_{\hat{\beta}} X)^{-1})$$
+:::
+
+
+where $W_{\hat{\beta}} = \text{diag}(\lambda_{\hat{\beta}}(x_1), \ldots, \lambda_{\hat{\beta}}(x_n))$.
+
+. . .
+
+We can therefore perform [Wald significance tests]{style="background-color: yellow;"}.
+
+
+## Validation: Deviance
+. . .
+
+The [saturated model]{style="background-color: yellow;"} (one parameter per different observation) leads to
+
+::: {.square-def}
+$$\hat{\lambda}(x) = \frac{y_x}{n_x}$$
+:::
+
+
+
+- [$y_x = \sum_{i:x_i=x} y_i$]{style="background-color: lightblue;"} is the total number of $Y$ observed for characteristic $x$ on the sample
+- [$n_x = \sum_{i:x_i=x} 1$]{style="background-color: lightblue;"} is the number of times $x$ was observed.
+
+## Saturated Log-Likelihood
+
+. . .
+
+The log-likelihood of the saturated model therefore equals:
+
+::: {.square-def}
+$$L_{\text{sat}} = \sum_x \left[y_x \ln\left(\frac{y_x}{n_x}\right) - y_x\right] - \text{cste}$$
+:::
+
+
+
+where $\text{cste} = \sum_{i=1}^n \ln(y_i!)$.
+
+## Deviance Formula
+
+. . .
+
+Thus the deviance equals
+
+:::{style="font-size: 80%;"}
+::: {.square-def}
+$$D = 2(L_{\text{sat}} - L_{\text{mod}}) = 2\sum_x y_x \ln\left(\frac{y_x}{n_x \lambda_{\hat{\beta}}(x)}\right) - (y_x - n_x \lambda_{\hat{\beta}}(x))$$
+:::
+:::
+
+
+. . .
+
+[If a constant is in the model]{style="background-color: yellow;"} (one coordinate of $x$ equals $1$), we have from the likelihood equations $\sum_x y_x = \sum_x n_x \lambda_{\hat{\beta}}(x)$ and then
+
+:::{style="font-size: 80%;"}
+::: {.square-def}
+$$D = 2\sum_x y_x \ln\left(\frac{y_x}{\hat{y}_x}\right)$$
+:::
+:::
+
+
+
+where $\hat{y}_x = n_x \lambda_{\hat{\beta}}(x)$ are the expected theoretical counts.
+
+
+## Validation: Deviance Test
+
+. . .
+
+As in logistic regression, we can [compare two nested models by a deviance test]{style="background-color: yellow;"} (or likelihood ratio test)
+
+. . .
+
+If [model 2 has $q$ fewer]{style="background-color: yellow;"} parameters compared to model 1, we have under $H_0$: "the $q$ coefficients in question are zero":
+
+::: {.square-def}
+$$D_2 - D_1 = 2(L_1 - L_2) \xrightarrow{L} \chi^2_q$$
+:::
+
+Rejection region at level $\alpha$:
+
+::: {.square-def}
+$$\text{CR}_\alpha = \{D_2 - D_1 > \chi^2_q(1-\alpha)\}$$
+:::
+
+
+
+## Global Significance Test
+
+. . .
+
+The global significance test corresponds to the case where model 2 contains only the constant. 
+
+. . .
+
+In this case [$D_2 = D_0$]{style="background-color: lightblue;"} and [$q = p - 1$]{style="background-color: lightblue;"}.
+
+## Validation: Graphical Inspection
+
+. . .
+
+Plot the predicted counts [$\hat{y}_x = n_x \lambda_{\hat{\beta}}(x)$]{style="background-color: lightblue;"} against the observed counts [$y_x$]{style="background-color: lightblue;"}.
+
+. . .
+
+::: {.callout-warning}
+the predicted counts $\hat{y}_x$ represent the expectation of [the expected counts given $x$]{style="background-color: orange;"}. 
+
+It is therefore normal that the observed counts [$y_x$ are dispersed around the $\hat{y}_x$]{style="background-color: orange;"}
+:::
+
+. . .
+
+It is appropriate to have sufficiently large "classes" $x$ ([$n_x > 5$]{style="background-color: lightblue;"}) for the graph to be relevant.
+
+
+## Alternative Graphical Validation
+
+. . .
+
+**Idea**: empirical distribution of $Y$ VS its predicted distribution.
+
+. . .
+
+The [empirical distribution of $Y$]{style="background-color: yellow;"} is simply given by
+
+::: {.square-def}
+$p_k = \frac{1}{n}\sum_{i=1}^n \mathbf{1}_{y_i = k}, \quad k \in \mathbb{N}$
+:::
+
+. . .
+
+While its predicted distribution is given by
+
+::: {.square-def}
+$\hat{p}_k = \frac{1}{n}\sum_{i=1}^n \hat{P}(Y = k|X = x_i), \quad k \in \mathbb{N}$
+:::
+
+. . .
+
+where $\hat{P}(Y = k|X = x_i)$ is the poisson distribution $\mathcal P(\lambda_{\hat{\beta}}(x_i))$, i.e., [$\hat{P}(Y = k|X = x_i) = \frac{\lambda_{\hat{\beta}}(x_i)^k e^{-\lambda_{\hat{\beta}}(x_i)}}{k!}$]{style="background-color: lightblue;"}
+
+with [$\lambda_{\hat{\beta}}(x_i) = \exp(x_i^T \hat{\beta})$]{style="background-color: lightblue;"}.
+
+
+## Example: Number of Plant Species
+
+. . .
+
+Number of plant species recorded on a plot according to soil pH (Neutral, Acidic or Basic) and biomass collected.
+
+| Species | pH | Biomass |
+|---------|-----|---------|
+| 14 | low | 3.538 |
+| 31 | mid | 0.740 |
+| 36 | high | 7.242 |
+| 20 | mid | 3.216 |
+| ... | ... | ... |
+. . .
+
+We want to model $Y =$ "Species" as a [function of pH and Biomass]{style="background-color: yellow;"}.
+
+
+## Example: R output
+
+. . .
+
+```r
+glm(Species ∼ pH + Biomass, family=poisson)
+```
+. . .
+
+:::{style="font-size: 60%;"}
+| Coefficient | Estimate | Std. Error | z value | Pr(>|z|) | Significance |
+|-------------|----------|------------|---------|----------|--------------|
+| (Intercept) | 3.84894 | 0.05281 | 72.885 | < 2e-16 | *** |
+| pHlow | -1.13639 | 0.06720 | -16.910 | < 2e-16 | *** |
+| pHmid | -0.44516 | 0.05486 | -8.114 | 4.88e-16 | *** |
+| Biomass | -0.12756 | 0.01014 | -12.579 | < 2e-16 | *** |
+
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+Null deviance: 452.346 \
+Residual deviance: 99.242  \
+AIC: 526.43
+:::
+
+
+## Example: Number of Plant Species
+
+. . .
+
+Thus, the average number of species, given pH and Biomass, is estimated as
+
+:::{style="font-size: 80%;"}
+[$\lambda_{\hat{\beta}}(\text{pH}, \text{Biomass}) = \exp(3.85 - 1.14 \mathbf{1}_{\text{pH=low}} - 0.46 \mathbf{1}_{\text{pH=mid}} - 0.13 \text{Biomass})$]{style="background-color: lightblue;"}
+:::
+
+. . .
+
+Rate Ratio for low pH (acidic) compared to high pH (basic):
+
+:::{style="font-size: 80%;"}
+[$RR(\text{acidic}, \text{basic}) = \exp(-1.14) = 0.32$]{style="background-color: lightblue;"}
+:::
+
+. . .
+
+On average, there are therefore about [3 times fewer]{style="background-color: yellow;"} species in acidic soil than in basic soil.
+
+
+## Example: Interraction Ph-Biomass
+
+. . .
+
+We can try to introduce an interaction between pH and Biomass
+
+```r
+glm(Species ~ pH + Biomass + pH:Biomass, family=poisson)
+```
+
+
+:::{style="font-size: 60%;"}
+| Coefficient | Estimate | Std. Error | z value | Pr(>|z|) | Significance |
+|-------------|----------|------------|---------|----------|--------------|
+| (Intercept) | 3.76812 | 0.06153 | 61.240 | < 2e-16 | *** |
+| pHlow | -0.81557 | 0.10284 | -7.931 | 2.18e-15 | *** |
+| pHmid | -0.33146 | 0.09217 | -3.596 | 0.000323 | *** |
+| Biomass | -0.10713 | 0.01249 | -8.577 | < 2e-16 | *** |
+| pHlow:Biomass | -0.15503 | 0.04003 | -3.873 | 0.000108 | *** |
+| pHmid:Biomass | -0.03189 | 0.02308 | -1.382 | 0.166954 |  |
+
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+Null deviance: 452.346  
+Residual deviance: 83.201  
+AIC: 514.39
+:::
+
+
+## Example: Model Comparison
+
+. . .
+
+The model with [interaction seems preferable]{style="background-color: yellow;"} (via AIC and deviance test).
+
+. . .
+
+The average number of species, given pH and Biomass, is this time:
+
+:::{style="font-size: 80%;"}
+::: {.square-def}
+$$\begin{aligned}
+\lambda_{\hat{\beta}}(\text{pH}, \text{Bm}) &= \exp(3.77 - 0.82 \mathbf{1}_{\text{pH=low}} - 0.33 \mathbf{1}_{\text{pH=mid}}) \\
+&- 0.11\text{Bm} - 0.16\text{Bm}\mathbf{1}_{\text{pH=low}} - 0.032\text{Bm}\mathbf{1}_{\text{pH=mid}}
+\end{aligned}$$
+:::
+:::
+
+
+
+## Example: Bm-dependent RR
+
+. . .
+
+The Rate Ratio for low pH (acidic) compared to high pH (basic) depends on Biomass and equals:
+
+:::{style="font-size: 80%;"}
+::: {.square-def}
+$RR(\text{acidic}, \text{basic}) = \exp(-0.82 - 0.16\text{Bm})$
+:::
+:::
+
+::: {style="text-align: center;"}
+![](images/biomass_interraction.png){width=40%}
+:::
+
+
+## Example: Predicted vs Observed Counts
+
+. . .
+
+Predicted mean counts $\hat{y}_i = \lambda_{\hat{\beta}}(\text{pH}_i, \text{Biomass}_i)$ as a function of observed counts $y_i$.
+
+::: {style="text-align: center;"}
+![](images/species_prediction.png){width=40%}
+:::
+
+
+## Model Predictions by pH
+
+. . .
+
+**Lines**: predicted mean counts by pH as a function of biomass
+
+**Points**: observed counts by pH as a function of biomass
+
+
+::: {style="text-align: center;"}
+![](images/prediction_by_ph.png){width=40%}
+:::
+
+**Black**: pH=basic; **Green**: pH=neutral; **Red**: pH=acidic
+
+
+## Predicted Distribution
+
+. . .
+
+Histogram: empirical distribution\
+Points: predicted distribution
+
+::: {style="text-align: center;"}
+![](images/distribution_species.png){width=50%}
+:::
+
+# Overdispersion
+
+## Model Limitations
+
+. . .
+
+When we model $Y|(X = x) \sim \mathcal P(\lambda(x))$, we have
+
+::: {.square-def}
+$$\E(Y|X = x) = \lambda(x)$$
+:::
+
+
+
+. . .
+
+but also
+
+::: {.square-def}
+$$\Var(Y|X = x) = \lambda(x)$$
+:::
+
+
+
+. . .
+
+This constraint is a limitation of the Poisson model.
+
+## Overdispersion
+
+. . .
+
+Some data are [overdispersed]{style="background-color: lightblue;"}, in the sense that
+
+::: {.square-def}
+$$\Var(Y|X = x) > \E(Y|X = x)$$
+:::
+
+
+
+. . .
+
+More rarely, we can find underdispersed data.
+
+. . .
+
+In case of overdispersion, the estimated variance of estimators is underestimated.
+
+
+## How to Detect Overdispersion?
+
+. . .
+
+By assuming that $\Var(Y|X = x) = \phi \E(Y|X = x)$ where $\phi > 0$, we can estimate $\phi$ by
+
+::: {.square-def}
+$$\hat{\phi} = \frac{1}{n-p} \sum_{i=1}^n \frac{(y_i - \hat{y}_i)^2}{\hat{y}_i}$$
+:::
+
+
+
+and test if $\phi = 1$ or not (if $\phi = 1$, $\hat{\phi} \sim N(1, 1/n)$ when $n \to \infty$).
+
+. . .
+
+We can fit a [negative binomial model]{style="background-color: yellow;"} (cf the following), and test if it is better than the Poisson model.

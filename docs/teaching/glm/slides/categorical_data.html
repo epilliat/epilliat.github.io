@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.22">
+
+  <title>Emmanuel Pilliat – Models for Categorical Data</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/theme/quarto-a9356234971a534880724c4687078043.css">
+  <link rel="stylesheet" href="../../../styles.css">
+  <link href="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Models for Categorical Data</h1>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section class="slide level2">
+
+<p><span class="math inline">\(\newcommand{\VS}{\quad \mathrm{VS} \quad}\)</span> <span class="math inline">\(\newcommand{\and}{\quad \mathrm{and} \quad}\)</span> <span class="math inline">\(\newcommand{\E}{\mathbb E}\)</span> <span class="math inline">\(\newcommand{\P}{\mathbb P}\)</span> <span class="math inline">\(\newcommand{\Var}{\mathbb V}\)</span> <span class="math inline">\(\newcommand{\Cov}{\mathrm{Cov}}\)</span> <span class="math inline">\(\newcommand{\1}{\mathbf 1}\)</span></p>
+</section>
+<section>
+<section id="introduction" class="title-slide slide level1 center">
+<h1>Introduction</h1>
+
+</section>
+<section id="this-class" class="slide level2">
+<h2>This Class</h2>
+<div class="fragment">
+<p>For each individual <span class="math inline">\(i\)</span>, <span class="math inline">\(Y_i\)</span> takes now <span style="background-color: yellow;"><span class="math inline">\(K\)</span> values</span></p>
+</div>
+<div class="fragment">
+<p>Two class of models:</p>
+<ul>
+<li class="fragment"><strong>Nominal</strong>: no relation a priori between the <span class="math inline">\(K\)</span> values</li>
+<li class="fragment"><strong>Ordinal</strong>: a natural relation exists between these values</li>
+</ul>
+</div>
+</section></section>
+<section>
+<section id="nominal-logistic-model" class="title-slide slide level1 center">
+<h1>Nominal Logistic Model</h1>
+
+</section>
+<section id="binary-case" class="slide level2">
+<h2>Binary Case</h2>
+<div class="fragment">
+<p>In the binary case (<span class="math inline">\(K = 2\)</span>), the <span style="background-color: yellow;">logistic model</span> assumes that there exists <span class="math inline">\(\beta \in \mathbb{R}^p\)</span> such that:</p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[\frac{p^{(1)}(x)}{p^{(0)}(x)} = e^{x^T \beta}\]</span></p>
+</div>
+<p>(because <span class="math inline">\(\frac{p^{(1)}(x)}{p^{(0)}(x)} = \frac{p^{(1)}(x)}{1-p^{(1)}(x)}\)</span>)</p>
+</div>
+<div class="fragment">
+<p>Category “<span class="math inline">\(0\)</span>” can be seen as a <span style="background-color: yellow;">reference category</span>.</p>
+</div>
+</section>
+<section id="general-case" class="slide level2">
+<h2>General Case</h2>
+<div class="fragment">
+<p>In the general case (<span class="math inline">\(K\)</span> arbitrary), the <span style="background-color: yellow;">nominal logistic model</span> (or multinomial, or reference category model) similarly assumes for <span class="math inline">\(k \in \{1, \ldots, K-1\}\)</span>:</p>
+<div class="square-def">
+<p><span class="math display">\[\frac{p^{(k)}(x)}{p^{(0)}(x)} = e^{x^T \beta^{(k)}}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>where <span class="math inline">\(\beta^{(k)} \in \mathbb{R}^p\)</span> is the parameter associated with category <span class="math inline">\(k\)</span>.</p>
+<p><span style="background-color: yellow;">Category “<span class="math inline">\(0\)</span>” is the reference</span> category, whose probability is deduced from the others.</p>
+</div>
+<div class="fragment">
+<p>There are in total <span style="background-color: yellow;"><span class="math inline">\((K-1) \times p\)</span> unknown parameters</span>.</p>
+</div>
+</section>
+<section id="probability-formulas" class="slide level2">
+<h2>Probability Formulas</h2>
+<div class="fragment">
+<p>We deduce that in this model, for all <span class="math inline">\(k \in \{1, \ldots, K-1\}\)</span>,</p>
+<div class="square-def">
+<p><span class="math display">\[p^{(k)}(x) = p_\beta^{(k)}(x) = \frac{e^{x^T \beta^{(k)}}}{1 + \sum_{r=1}^{K-1} e^{x^T \beta^{(r)}}}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[p^{(0)}(x) = p_\beta^{(0)}(x) = \frac{1}{1 + \sum_{r=1}^{K-1} e^{x^T \beta^{(r)}}}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>(which is consistent with the previous formula by taking <span class="math inline">\(\beta^{(0)} = 0\)</span>)</p>
+</div>
+</section>
+<section id="remarks" class="slide level2">
+<h2>Remarks</h2>
+<div class="fragment">
+<p>We note that each <span style="background-color: lightblue;"><span class="math inline">\(p_\beta^{(k)}(x)\)</span></span> depends on all parameters <span class="math inline">\(\beta = (\beta^{(1)}, \ldots, \beta^{(K-1)})\)</span> and <span style="background-color: orange;">not only on <span class="math inline">\(\beta^{(k)}\)</span></span></p>
+</div>
+<div class="fragment">
+<p>Hence the notation <span style="background-color: lightblue;"><span class="math inline">\(p_\beta^{(k)}(x)\)</span></span> with the <span style="background-color: yellow;">index <span class="math inline">\(\beta\)</span></span>.</p>
+</div>
+</section>
+<section id="odd-ratio-of-yk" class="slide level2">
+<h2>Odd Ratio of <span class="math inline">\(Y=k\)</span></h2>
+<div class="fragment">
+<p><span style="background-color: lightblue;"><span class="math inline">\(\beta^{(k)} \in \mathbb R^p\)</span></span> depends on the reference category.</p>
+</div>
+<div class="fragment">
+<p>We call <span style="background-color: yellow;">“odds” of event <span class="math inline">\(Y = k\)</span></span>, the ratio <span style="background-color: lightblue;"><span class="math inline">\(p_\beta^{(k)}(x)/p_\beta^{(0)}(x)\)</span></span>.</p>
+<p><span style="background-color: yellow;">The OR of <span class="math inline">\(Y = k\)</span></span> for <span style="background-color: yellow;">two characteristics <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span></span> is therefore</p>
+<div class="square-def">
+<p><span class="math display">\[OR^{(k)}(x_1, x_2) = \frac{p_\beta^{(k)}(x_1)/p_\beta^{(0)}(x_1)}{p_\beta^{(k)}(x_2)/p_\beta^{(0)}(x_2)} = e^{(x_1 - x_2)^T \beta^{(k)}}\]</span></p>
+</div>
+</div>
+</section>
+<section id="interpretation-of-odds-ratio" class="slide level2">
+<h2>Interpretation of Odds Ratio</h2>
+<div class="fragment">
+<p><span style="background-color: lightblue;"><span class="math inline">\(OR^{(k)}(x_1, x_2)\)</span></span> <span style="background-color: yellow;">depends only on <span class="math inline">\(\beta^{(k)}\)</span></span>, and even, only on <span class="math inline">\(\beta_j^{(k)}\)</span> if <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> differ only by regressor <span class="math inline">\(X^{(j)}\)</span>.</p>
+</div>
+<div class="fragment">
+<p>While probabilities <span style="background-color: orange;"><span class="math inline">\(p_\beta^{(k)}(x)\)</span> depend on other <span class="math inline">\(\beta^{(k')}\)</span></span>, <span class="math inline">\(k'\neq k\)</span>!!</p>
+</div>
+<div class="fragment">
+<p>We find the <span style="background-color: yellow;">same interpretation</span> of OR as in logistic regression, except that here the odds is <span style="background-color: yellow;">relative to the reference</span> category.</p>
+</div>
+<div class="fragment">
+<p>It is therefore important to <span style="background-color: yellow;">judiciously choose the reference</span> category for interpretations.</p>
+</div>
+</section>
+<section id="change-of-reference" class="slide level2">
+<h2>Change of Reference</h2>
+<div class="fragment">
+<p>That said, for two categories <span class="math inline">\(k \neq l\)</span>, the probability ratio</p>
+<div class="square-def">
+<p><span class="math display">\[\frac{p_\beta^{(k)}(x)}{p_\beta^{(l)}(x)} = e^{x^T(\beta^{(k)} - \beta^{(l)})}\]</span></p>
+</div>
+<p><span style="background-color: lightgreen;">does not depend on the chosen reference category</span>.</p>
+</div>
+<div class="fragment">
+<p>Similarly, the value of probabilities <span style="background-color: lightblue;"><span class="math inline">\(p_\beta^{(k)}(x)\)</span></span> and their estimation <span style="background-color: lightgreen;">do not depend on the chosen reference category either.</span></p>
+</div>
+</section>
+<section id="change-of-reference-justification" class="slide level2">
+<h2>Change of Reference, Justification</h2>
+<div class="fragment">
+<p>If the <span style="background-color: yellow;">reference category is <span class="math inline">\(Y = j\)</span></span>, denoting the associated parameters <span style="background-color: lightblue;"><span class="math inline">\(\gamma^{(k)}\)</span></span>, <span class="math inline">\(k \neq j\)</span>, and <span style="background-color: lightblue;"><span class="math inline">\(\gamma^{(j)} = 0\)</span></span>,</p>
+</div>
+<div class="fragment">
+<p>we have the relation <span style="background-color: lightblue;"><span class="math inline">\(\gamma^{(k)} = \beta^{(k)} - \beta^{(j)}\)</span></span>.</p>
+</div>
+</section>
+<section id="maximum-likelihood-estimation" class="slide level2">
+<h2>Maximum Likelihood Estimation</h2>
+<div class="fragment">
+<p>For each individual <span class="math inline">\(i\)</span>, <span style="background-color: lightblue;"><span class="math inline">\(Y_i|X_i = x\)</span></span> follows a <span style="background-color: yellow;">multinomial distribution</span> <span style="background-color: lightblue;"><span class="math inline">\(\mathrm{Mult}(1,(p_\beta^{(0)}(x), \ldots, p_\beta^{(K-1)}(x)))\)</span></span>.</p>
+</div>
+<div class="fragment">
+<p>The likelihood of a sample <span class="math inline">\((Y_1|X_1 = x_1), \ldots, (Y_n|X_n = x_n)\)</span> is written:</p>
+<div class="square-def">
+<p><span class="math display">\[\prod_{i=1}^n \prod_{k=0}^{K-1} \left(p_\beta^{(k)}(x_i)\right)^{\mathbf{1}\{Y_i = k\}}\]</span></p>
+</div>
+</div>
+</section>
+<section id="log-likelihood" class="slide level2">
+<h2>Log-Likelihood</h2>
+<div class="fragment">
+<p>Therefore the log-likelihood</p>
+<div class="square-def">
+<p><span class="math display">\[L = \sum_{i=1}^n \sum_{k=0}^{K-1} \mathbf{1}_{Y_i = k} \ln\left(p_\beta^{(k)}(x_i)\right)\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>In the case of the <span style="background-color: yellow;">nominal logistic model</span>, we deduce (cf board)</p>
+<div style="font-size: 90%;">
+<div class="square-def">
+<p><span class="math display">\[L = \sum_{i=1}^n \left[\sum_{k=1}^{K-1} x_i^T \beta^{(k)} \mathbf{1}_{y_i = k} - \ln\left(1 + \sum_{k=1}^{K-1} e^{x_i^T \beta^{(k)}}\right)\right]\]</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="maximum-likelihood-estimator-of-beta" class="slide level2">
+<h2>Maximum Likelihood Estimator of <span class="math inline">\(\beta\)</span></h2>
+<div class="fragment">
+<p>By setting the gradient of <span class="math inline">\(L\)</span> to zero, we obtain that <span class="math inline">\(\hat{\beta} = (\hat{\beta}^{(1)}, \ldots, \hat{\beta}^{(K-1)})\)</span> must verify, for all <span class="math inline">\(k \in \{1, \ldots, K-1\}\)</span>:</p>
+<div class="square-def">
+<p><span class="math display">\[\sum_{i=1}^n x_i \mathbf{1}_{y_i = k} = \sum_{i=1}^n x_i p_{\hat{\beta}}^{(k)}(x_i)\]</span></p>
+</div>
+<ul>
+<li class="fragment"><p><span class="math inline">\(K-1\)</span> equations, each with <span class="math inline">\(p\)</span> parameters, i.e.&nbsp;<span style="background-color: lightblue;"><span class="math inline">\((K-1) \times p\)</span> equations</span>.</p></li>
+<li class="fragment"><p>We solve it numerically to find <span style="background-color: lightblue;"><span class="math inline">\(\hat{\beta}\)</span> of size <span class="math inline">\((K-1) \times p\)</span></span>.</p></li>
+</ul>
+</div>
+</section>
+<section id="uniqueness-and-existence" class="slide level2">
+<h2>Uniqueness and Existence</h2>
+<div class="fragment">
+<p>As in logistic regression:</p>
+<p>We can show that <span style="background-color: yellow;"><span class="math inline">\(L\)</span> is strictly concave</span> as soon as <span class="math inline">\(\text{rank}(X) = p\)</span>.</p>
+</div>
+<div class="fragment">
+<p>This ensures the uniqueness of the MLE (if it exists).</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;">Existence</span> is ensured <span style="background-color: orange;">if no category is separated from the others</span> by a hyperplane.</p>
+</div>
+</section>
+<section id="asymptotic-normality" class="slide level2">
+<h2>Asymptotic Normality</h2>
+<div class="fragment">
+<p>Under regularity assumptions similar to the case of logistic regression, we have</p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[J_n(\beta)^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_{(K-1) \times p})\]</span></p>
+</div>
+<p>where <span style="background-color: lightblue;"><span class="math inline">\(J_n(\beta)\)</span></span> is the <span style="background-color: yellow;">Fisher information matrix</span> and <span class="math inline">\(I_{(K-1) \times p}\)</span> is the identity matrix of size <span class="math inline">\((K-1) \times p\)</span>.</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: lightblue;"><span class="math inline">\(J_n(\beta)\)</span></span>, not detailed here, is a matrix of <span style="background-color: lightblue;"><span class="math inline">\((K-1) \times (K-1)\)</span> blocks</span>, each having a similar form to the <span style="background-color: yellow;">Fisher information matrix</span> of logistic regression.</p>
+</div>
+</section>
+<section id="inference-tools" class="slide level2">
+<h2>Inference Tools</h2>
+<div class="fragment">
+<p>The inference tools are based on the asymptotic distribution of <span class="math inline">\(\hat{\beta}\)</span> and are <span style="background-color: yellow;">similar to those of logistic regression</span>:</p>
+</div>
+<div class="fragment">
+<p>The <span style="background-color: lightblue;">significance of each coefficient</span> can be tested by an (asymptotic) <span style="background-color: lightblue;">Wald test</span>.</p>
+</div>
+<div class="fragment">
+<p>Confidence intervals, for coefficients and OR, are deduced analogously.</p>
+</div>
+</section>
+<section id="model-selection-criteria" class="slide level2">
+<h2>Model Selection Criteria</h2>
+<div class="fragment">
+<p>Deviance is defined similarly: <span style="background-color: lightblue;"><span class="math inline">\(D = 2(L_{\text{sat}} - L_{\text{mod}})\)</span></span>.</p>
+</div>
+<div class="fragment">
+<p>As we do for logistic regression:</p>
+<ul>
+<li class="fragment">We can test the significance of the model,</li>
+<li class="fragment">or compare two nested models.</li>
+<li class="fragment">Use the AIC, BIC criteria. Since we have <span class="math inline">\(p(K-1)\)</span> parameters:</li>
+</ul>
+</div>
+<div class="fragment">
+<div style="font-size: 80%;">
+<div class="square-def">
+<p><span class="math inline">\(\text{AIC} = D + 2p(K-1) \and \text{BIC} = D + \ln(n)p(K-1)\)</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="example-car-equipment-preference" class="slide level2">
+<h2>Example: Car Equipment Preference</h2>
+<div class="fragment">
+<p>Preference for an equipped car (with air conditioning and power steering), according to age group and gender.</p>
+</div>
+<div class="fragment">
+<div style="font-size: 60%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Gender</th>
+<th>Age Category</th>
+<th>Not Important</th>
+<th>Important</th>
+<th>Very Important</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Female</td>
+<td>18-23</td>
+<td>26</td>
+<td>12</td>
+<td>7</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>24-40</td>
+<td>9</td>
+<td>21</td>
+<td>15</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>&gt;40</td>
+<td>5</td>
+<td>14</td>
+<td>41</td>
+</tr>
+<tr class="even">
+<td>Male</td>
+<td>18-23</td>
+<td>40</td>
+<td>17</td>
+<td>8</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>24-40</td>
+<td>17</td>
+<td>15</td>
+<td>12</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>&gt;40</td>
+<td>8</td>
+<td>15</td>
+<td>18</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="model-setup" class="slide level2">
+<h2>Model Setup</h2>
+<div class="fragment">
+<p>We want to model the variable <span style="background-color: yellow;"><span class="math inline">\(Y =\)</span> “importance” (3 categories)</span></p>
+</div>
+<div class="fragment">
+<p>The regressors are <span style="background-color: lightblue;">gender (2 classes)</span> and <span style="background-color: lightgreen;">age (3 classes)</span>.</p>
+</div>
+<div class="fragment">
+<p>These are <span style="background-color: orange;">grouped observations</span>: each category gender/age is observed for several individuals</p>
+</div>
+</section>
+<section id="r-implementation" class="slide level2">
+<h2>R Implementation</h2>
+<div class="fragment">
+<p>Under R, we can use the <code>vglm</code> function from the VGAM library:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">vglm</span>(Y <span class="sc">~</span> age <span class="sc">+</span> sexe, <span class="at">family=</span>multinomial) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div style="font-size: 50%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept):1</td>
+<td>-0.5908</td>
+<td>0.2840</td>
+<td>-2.080</td>
+<td>0.037484</td>
+<td>*</td>
+</tr>
+<tr class="even">
+<td>(Intercept):2</td>
+<td>-1.0391</td>
+<td>0.3305</td>
+<td>-3.144</td>
+<td>0.001667</td>
+<td>**</td>
+</tr>
+<tr class="odd">
+<td>age2:1</td>
+<td>1.1283</td>
+<td>0.3416</td>
+<td>3.302</td>
+<td>0.000958</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>age2:2</td>
+<td>1.4781</td>
+<td>0.4009</td>
+<td>3.687</td>
+<td>0.000227</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>age3:1</td>
+<td>1.5877</td>
+<td>0.4029</td>
+<td>3.941</td>
+<td>8.12e-05</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>age3:2</td>
+<td>2.9168</td>
+<td>0.4229</td>
+<td>6.897</td>
+<td>5.32e-12</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>sexeM:1</td>
+<td>-0.3881</td>
+<td>0.3005</td>
+<td>-1.292</td>
+<td>0.196510</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>sexeM:2</td>
+<td>-0.8130</td>
+<td>0.3210</td>
+<td>-2.532</td>
+<td>0.011326</td>
+<td>*</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code>Names of linear predictors: log(mu[,2]/mu[,1]), log(mu[,3]/mu[,1])</code></p>
+</div>
+</section>
+<section id="r-output-remarks" class="slide level2">
+<h2>R output, remarks</h2>
+<ul>
+<li class="fragment">In the output <span class="math inline">\(Y\)</span> is encoded 1, 2 or 3 (from “Not important” to “Very important”)</li>
+<li class="fragment">We estimate <span style="background-color: lightblue;"><span class="math inline">\(p^{(2)}(x)/p^{(1)}(x)\)</span></span> and <span style="background-color: lightgreen;"><span class="math inline">\(p^{(3)}(x)/p^{(1)}(x)\)</span></span>, the <span style="background-color: yellow;">first category being the reference</span>.</li>
+<li class="fragment">The reference category for <span class="math inline">\(Y\)</span> is <span style="background-color: yellow;"><span class="math inline">\(Y = 1\)</span> (“Not important”)</span></li>
+<li class="fragment">Age is encoded 1, 2 or 3 (increasing)</li>
+<li class="fragment"><span class="math inline">\((3-1) + (2-1) + 1 = 4\)</span> parameters for each <span style="background-color: lightblue;"><span class="math inline">\(p^{(2)}(x)/p^{(1)}(x)\)</span></span> and <span style="background-color: lightgreen;"><span class="math inline">\(p^{(3)}(x)/p^{(1)}(x)\)</span></span></li>
+<li class="fragment"><span style="background-color: yellow;"><span class="math inline">\(2\times 4=8\)</span></span> parameters to estimate!</li>
+</ul>
+</section>
+<section id="output" class="slide level2">
+<h2>Output</h2>
+<div style="font-size: 80%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept):1</td>
+<td>-0.5908</td>
+<td>0.2840</td>
+<td>-2.080</td>
+<td>0.037484</td>
+<td>*</td>
+</tr>
+<tr class="even">
+<td>(Intercept):2</td>
+<td>-1.0391</td>
+<td>0.3305</td>
+<td>-3.144</td>
+<td>0.001667</td>
+<td>**</td>
+</tr>
+<tr class="odd">
+<td>age2:1</td>
+<td>1.1283</td>
+<td>0.3416</td>
+<td>3.302</td>
+<td>0.000958</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>age2:2</td>
+<td>1.4781</td>
+<td>0.4009</td>
+<td>3.687</td>
+<td>0.000227</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>age3:1</td>
+<td>1.5877</td>
+<td>0.4029</td>
+<td>3.941</td>
+<td>8.12e-05</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>age3:2</td>
+<td>2.9168</td>
+<td>0.4229</td>
+<td>6.897</td>
+<td>5.32e-12</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>sexeM:1</td>
+<td>-0.3881</td>
+<td>0.3005</td>
+<td>-1.292</td>
+<td>0.196510</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>sexeM:2</td>
+<td>-0.8130</td>
+<td>0.3210</td>
+<td>-2.532</td>
+<td>0.011326</td>
+<td>*</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="example-calculation" class="slide level2">
+<h2>Example Calculation</h2>
+<div class="fragment">
+<p>For example, for a <span style="background-color: yellow;">woman aged 18 to 23 years</span> (Age cat. and Gender Cat. are zero):</p>
+<div class="square-def">
+<p><span class="math inline">\(\frac{P(Y = \text{"Important"}|\text{Woman 18-23})}{P(Y = \text{"Not important"}|\text{Woman 18-23})} = \exp(-0.59) \approx 0.55\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p><span style="background-color: lightblue;">For a man</span> of the <span style="background-color: lightblue;">same age group</span>, this ratio equals <span style="background-color: lightblue;"><span class="math inline">\(\exp(-0.59 - 0.3881) \approx 0.38\)</span></span></p>
+</div>
+<div class="fragment">
+<p>The <span style="background-color: lightgreen;">OR between a man and a woman</span> for the <span style="background-color: lightgreen;">“Very important”</span> preference relative to <span style="background-color: lightgreen;">“Not important”</span> equals <span style="background-color: lightgreen;"><span class="math inline">\(\exp(-0.813) = 0.44\)</span></span></p>
+</div>
+<div class="fragment">
+<p>This odds is therefore more than double among women…</p>
+</div>
+</section></section>
+<section>
+<section id="ordinal-logistic-model" class="title-slide slide level1 center">
+<h1>Ordinal Logistic Model</h1>
+
+</section>
+<section id="context" class="slide level2">
+<h2>Context</h2>
+<div class="fragment">
+<p>If the categories of <span class="math inline">\(Y\)</span> follow a <span style="background-color: yellow;">natural order</span>:</p>
+</div>
+<div class="fragment">
+<p>We can obviously ignore it and use the <span style="background-color: lightblue;">previous nominal model</span>: it is very general but has <span style="background-color: lightblue;">many parameters</span>.</p>
+</div>
+<div class="fragment">
+<p>But we can <span style="background-color: yellow;">take advantage of this structure</span> to simplify the model (fewer parameters, easier interpretation).</p>
+</div>
+</section>
+<section id="recalling-nominal-model" class="slide level2">
+<h2>Recalling Nominal Model</h2>
+<div class="fragment">
+<p>In consistency with the logistic model, we have focused on the “odds”</p>
+<div class="square-def">
+<p><span class="math display">\[\frac{P(Y = k|X = x)}{P(Y = 0|X = x)} = \frac{p^{(k)}(x)}{p^{(0)}(x)}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>This OR quantifies <span style="background-color: yellow;">how much the “odds” of <span class="math inline">\(P(Y = k)\)</span> is modified</span> between <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>, relative to the reference category <span class="math inline">\(Y = 0\)</span>.</p>
+</div>
+<div class="fragment">
+<p>In the <span style="background-color: yellow;">ordinal case</span>, we will model “odds” that are easier to interpret.</p>
+</div>
+</section>
+<section id="section" class="slide level2 center">
+<h2></h2>
+<div style="text-align: center;">
+<div style="font-size: 150%;">
+<p>Which Odds to Model When Categories Are Ordered?</p>
+</div>
+</div>
+</section>
+<section id="other-odds-for-ordered-categories" class="slide level2">
+<h2>Other Odds for Ordered Categories</h2>
+<div class="fragment">
+<p>Odds for <span style="background-color: yellow;">adjacent categories</span> model:</p>
+<div class="square-def">
+<p><span class="math inline">\(Odds(x)=\frac{P(Y = k|X = x)}{P(Y = k-1|X = x)}\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Odds for <span style="background-color: yellow;">continuous ratio</span> logistic model:</p>
+<div class="square-def">
+<p><span class="math inline">\(Odds(x)=\frac{P(Y = k|X = x)}{P(Y \leq k-1|X = x)}\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Odds for <span style="background-color: yellow;">proportional odds</span> model (<span style="background-color: yellow;">most used</span>):</p>
+<div class="square-def">
+<p><span class="math inline">\(Odds(x)=\frac{P(Y \leq k|X = x)}{P(Y &gt; k|X = x)}\)</span></p>
+</div>
+</div>
+</section>
+<section id="cumulative-model" class="slide level2">
+<h2>Cumulative Model</h2>
+<div class="fragment">
+<p>The idea is to construct <span style="background-color: yellow;">logistic models for the binary variables <span class="math inline">\(\mathbf{1}_{Y \leq k}\)</span></span>, for all <span class="math inline">\(k \in \{0, \ldots, K-2\}\)</span>.</p>
+</div>
+<div class="fragment">
+<p>This gives in full generality the <span style="background-color: orange;">cumulative model</span></p>
+<div class="square-def">
+<p><span class="math display">\[\begin{aligned}
+\text{logit}(\P(Y \leq k|X = x)) &amp;= \ln\left(\frac{\P(Y \leq k|X = x)}{\P(Y &gt; k|X = x)}\right) \\
+&amp;= x^T \beta^{(k)}\end{aligned}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p><span style="background-color: lightblue;"><span class="math inline">\(p(K-1)\)</span> parameters</span> but is different from the nominal model.</p>
+</div>
+</section>
+<section id="proportional-odds-model" class="slide level2">
+<h2>Proportional Odds Model</h2>
+<div class="fragment">
+<p>Assumption: the effect of regressors (except the constant) is constant regardless of the categories:</p>
+<div class="square-def">
+<p><span class="math display">\[\text{logit}(\P(Y \leq k|X = x)) = \beta_0^{(k)} + \beta^T X^*\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>where <span class="math inline">\(X^* \in \mathbb{R}^{p-1}\)</span> denotes the vector of regressors other than the constant.</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: lightblue;"><span class="math inline">\((K-1) + (p-1)\)</span> parameters</span> (this is much less).</p>
+</div>
+</section>
+<section id="constraints-in-proportional-odds" class="slide level2">
+<h2>Constraints in Proportional Odds</h2>
+<div class="fragment">
+<p>Since for any <span class="math inline">\(k\)</span>,</p>
+<div style="font-size: 90%;">
+<div class="square-def">
+<p><span class="math inline">\(\text{logit}(P(Y \leq k|X = x)) \leq \text{logit}(P(Y \leq k+1|X = x))\)</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>the proportional odds model must verify, for all <span class="math inline">\(x \in \mathbb R^p\)</span>:</p>
+<div class="square-def">
+<p><span class="math inline">\(\beta_0^{(0)} \leq \dots \leq \beta_0^{(K-2)}\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>This constraint is imposed during estimation.</p>
+</div>
+</section>
+<section id="motivation-for-proportional-odds" class="slide level2">
+<h2>Motivation for Proportional Odds</h2>
+<div class="fragment">
+<p>Suppose that the classes <span style="background-color: yellow;"><span class="math inline">\(Y = k\)</span> come from the discretization</span> of a continuous <span style="background-color: yellow;">latent variable <span class="math inline">\(Z\)</span></span>:<br>
+</p>
+</div>
+<div class="fragment">
+<p>for <span class="math inline">\(\alpha_{-1} = -\infty\)</span>, <span class="math inline">\(\alpha_0 &lt; \cdots &lt; \alpha_{K-1}\)</span> and <span class="math inline">\(k \in \{0, \ldots, K-1\}\)</span>,</p>
+<div class="square-def">
+<p><span class="math display">\[\1\{Y=k\} = \1\{\alpha_{k-1} \leq Z &lt; \alpha_k\}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Example: <span class="math inline">\(Z\)</span> is a grade, and <span class="math inline">\(Y\)</span> the distinction level</p>
+</div>
+</section>
+<section id="motivation-for-proportional-odds-1" class="slide level2">
+<h2>Motivation for Proportional Odds</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(\1\{Y=k\} = \1\{\alpha_{k-1} \leq Z &lt; \alpha_k\}\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Suppose there exists a linear relationship between <span class="math inline">\(Z\)</span> and the regressors <span class="math inline">\(X\)</span>:</p>
+<div class="square-def">
+<p><span class="math display">\[Z = \beta^T X + \varepsilon\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>where <span style="background-color: lightblue;"><span class="math inline">\(\varepsilon\)</span></span> follows a distribution with <span style="background-color: lightblue;">cdf <span class="math inline">\(F\)</span></span>. Then</p>
+<div class="square-def">
+<p><span class="math display">\[P(Y \leq k) = F(\alpha_k - \beta^T X)\]</span></p>
+</div>
+</div>
+</section>
+<section id="motivation-for-proportional-odds-2" class="slide level2">
+<h2>Motivation for Proportional Odds</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[P(Y \leq k) = F(\alpha_k - \beta^T X)\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>The dependence on <span class="math inline">\(X\)</span> does not depend on <span class="math inline">\(k\)</span>.</p>
+</div>
+<div class="fragment">
+<p>If <span style="background-color: lightblue;"><span class="math inline">\(F = \text{logit}^{-1}\)</span></span>, we obtain the proportional odds model.</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: lightgreen;">Other choices of <span class="math inline">\(F\)</span></span> are possible (probit,…) but the OR become <span style="background-color: lightgreen;">less interpretable</span>.</p>
+</div>
+</section>
+<section id="section-1" class="slide level2 center">
+<h2></h2>
+<div style="text-align: center;">
+<div style="font-size: 150%;">
+<p>Why “Proportional Odds”?</p>
+</div>
+</div>
+</section>
+<section id="model-assumption" class="slide level2">
+<h2>Model Assumption</h2>
+<div class="fragment">
+<p>The proportional odds model assumes that for <span class="math inline">\(k \in \{0, \ldots, K-2\}\)</span>,</p>
+<div class="square-def">
+<p><span class="math display">\[\frac{P(Y \leq k|X = x)}{P(Y &gt; k|X = x)} = e^{\beta_0^{(k)} + \beta^T X^*}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>This is the odds of <span class="math inline">\(Y \leq k\)</span> given <span class="math inline">\(X=x\)</span>.</p>
+</div>
+</section>
+<section id="proportional-log-odds-ratio" class="slide level2">
+<h2>Proportional log Odds Ratio</h2>
+<div class="fragment">
+<p>The odds-ratio of <span class="math inline">\(Y \leq k\)</span> between two individuals with regressors <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> respectively therefore equals</p>
+<div class="square-def">
+<p><span class="math display">\[OR(x_1, x_2) = \exp(\beta^T(x_1^* - x_2^*))\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>This OR does <span style="background-color: yellow;">not depend on <span class="math inline">\(k\)</span></span>.</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\ln(OR(x_1, x_2))\)</span> is “proportional” to <span class="math inline">\((x_1^* - x_2^*)\)</span>, the “constant” of <span style="background-color: yellow;">proportionality <span class="math inline">\(\beta\)</span> (actually a vector) being independent of <span class="math inline">\(k\)</span></span>.</p>
+</div>
+</section>
+<section id="equality-of-slopes" class="slide level2">
+<h2>Equality of Slopes</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(\text{logit}(P(Y \leq k|X)) = \beta_0^{(k)} + \beta^T X^*\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>implies that the following <span style="background-color: yellow;"><span class="math inline">\(K-1\)</span> sets</span></p>
+<div class="square-def">
+<p><span class="math inline">\(\{\text{logit}(P(Y \leq k|X=x)), ~ x \in \mathbb R^p\}\)</span></p>
+</div>
+<p>are <span style="background-color: yellow;">parallel hyperplanes</span>.</p>
+<ul>
+<li class="fragment"><p>They indeed all have the same normal vector <span class="math inline">\(\beta\)</span>.</p></li>
+<li class="fragment"><p>They differ only by the intercept constant <span class="math inline">\(\beta_0^{(k)}\)</span>.</p></li>
+<li class="fragment"><p>To validate the proportional odds model, it is appropriate <span style="background-color: yellow;">to test</span> whether this property is true.</p></li>
+</ul>
+</div>
+</section>
+<section id="parallel-hyperplane-illustration" class="slide level2">
+<h2>Parallel Hyperplane, Illustration</h2>
+<p>Equality of slopes, or not…</p>
+<div class="r-stack">
+<p><img data-src="images/proportional_odds1.png" class="fragment"></p>
+<p><img data-src="images/proportional_odds2.png" class="fragment"></p>
+</div>
+</section>
+<section id="slope-equality-test-formulation" class="slide level2">
+<h2>Slope Equality Test, Formulation</h2>
+<div class="fragment">
+<p>We start from the general cumulative model</p>
+<div class="square-def">
+<p><span class="math inline">\(\frac{P(Y \leq k|X = x)}{P(Y &gt; k|X = x)} = e^{x^T \beta^{(k)}}\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>We test if the parameters (<span style="background-color: yellow;">except the constant</span>) are equal regardless of <span class="math inline">\(k\)</span>. Writing <span class="math inline">\(\beta^{(k)} = (\beta_0^{(k)}, \ldots, \beta_{p-1}^{(k)})\)</span>, <span style="background-color: yellow;"><span class="math inline">\(\beta_0^{(k)}\)</span> being the constant</span>, we test:</p>
+<div style="font-size: 80%;">
+<p><span class="math display">\[H_0: \begin{cases}
+\beta_1^{(0)} = \cdots = \beta_1^{(K-2)} \\
+\vdots \\
+\beta_{p-1}^{(0)} = \cdots = \beta_{p-1}^{(K-2)}
+\end{cases}\]</span></p>
+</div>
+</div>
+</section>
+<section id="section-2" class="slide level2 center">
+<h2></h2>
+<div class="fragment">
+<p>This can be done by a <span style="background-color: yellow;">deviance test</span> (likelihood ratio) by comparing the general cumulative model and the proportional odds model.</p>
+</div>
+</section>
+<section id="inference" class="slide level2">
+<h2>Inference</h2>
+<div class="fragment">
+<p><strong>Recall</strong>: the <span class="math inline">\((Y_i|X_i = x_i)\)</span> being independent and multinomially distributed, the log-likelihood is</p>
+<div class="square-def">
+<p><span class="math display">\[L = \sum_{i=1}^n \sum_{k=0}^{K-1} \mathbf{1}\{Y_i = k\} \ln(p_\beta^{(k)}(x_i))\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>For the <span style="background-color: yellow;">cumulative model</span> and the <span style="background-color: yellow;">proportional odds model</span>:</p>
+<ul>
+<li class="fragment">we can deduce the form of <span class="math inline">\(p_\beta^{(k)}\)</span></li>
+<li class="fragment">we then maximize <span class="math inline">\(L\)</span> in <span class="math inline">\(\beta\)</span> to obtain <span class="math inline">\(\hat{\beta}\)</span> (by numerical methods)</li>
+</ul>
+</div>
+</section>
+<section id="tests" class="slide level2">
+<h2>Tests</h2>
+<div class="fragment">
+<p>As usual:</p>
+</div>
+<div class="fragment">
+<p>We can compare <span class="math inline">\(L_{\text{mod}} = L(\hat{\beta})\)</span> <span style="background-color: yellow;">with other nested models</span> to perform a likelihood ratio test (i.e., deviance test).</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: lightblue;"><span class="math inline">\(\hat{\beta} - \beta\)</span></span> follows asymptotically a <span style="background-color: lightblue;"><span class="math inline">\(N(0, J_n(\beta)^{-1})\)</span></span>, where <span class="math inline">\(J_n(\beta)\)</span> is the negative of the Hessian of <span class="math inline">\(L\)</span>.</p>
+</div>
+<div class="fragment">
+<p>We can therefore perform <span style="background-color: yellow;">Wald tests</span>.</p>
+</div>
+</section>
+<section id="example-car-equipment-study" class="slide level2">
+<h2>Example: Car Equipment Study</h2>
+</section>
+<section id="data-table" class="slide level2">
+<h2>Data Table</h2>
+<div style="font-size: 50%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Gender</th>
+<th>Age Category</th>
+<th>Not Important</th>
+<th>Important</th>
+<th>Very Important</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Female</td>
+<td>18-23</td>
+<td>26</td>
+<td>12</td>
+<td>7</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>24-40</td>
+<td>9</td>
+<td>21</td>
+<td>15</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>&gt;40</td>
+<td>5</td>
+<td>14</td>
+<td>41</td>
+</tr>
+<tr class="even">
+<td>Male</td>
+<td>18-23</td>
+<td>40</td>
+<td>17</td>
+<td>8</td>
+</tr>
+<tr class="odd">
+<td></td>
+<td>24-40</td>
+<td>17</td>
+<td>15</td>
+<td>12</td>
+</tr>
+<tr class="even">
+<td></td>
+<td>&gt;40</td>
+<td>8</td>
+<td>15</td>
+<td>18</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<p>We want to model the variable <span class="math inline">\(Y =\)</span> “importance” (3 categories)</p>
+</div>
+<div class="fragment">
+<p>The regressors are gender (2 classes) and age (3 classes).</p>
+</div>
+<div class="fragment">
+<p>We have already modeled <span class="math inline">\(Y\)</span> using a multinomial model.</p>
+</div>
+<div class="fragment">
+<p>In fact <span style="background-color: yellow;"><span class="math inline">\(Y\)</span> is an ordinal variable</span>: we will exploit this.</p>
+</div>
+</section>
+<section id="example-proportional-odds-model" class="slide level2">
+<h2>Example: Proportional Odds Model</h2>
+<p>We estimate a proportional odds model:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">vglm</span>(Y <span class="sc">~</span> age <span class="sc">+</span> sexe, <span class="at">family=</span><span class="fu">cumulative</span>(<span class="at">parallel=</span><span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="fragment">
+<div style="font-size: 60%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept):1</td>
+<td>0.04354</td>
+<td>0.23030</td>
+<td>0.189</td>
+<td>0.8501</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>(Intercept):2</td>
+<td>1.65498</td>
+<td>0.25360</td>
+<td>6.526</td>
+<td>6.76e-11</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>age2</td>
+<td>-1.14710</td>
+<td>0.27727</td>
+<td>-4.137</td>
+<td>3.52e-05</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>age3</td>
+<td>-2.23246</td>
+<td>0.29042</td>
+<td>-7.687</td>
+<td>1.50e-14</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>sexeM</td>
+<td>0.57622</td>
+<td>0.22611</td>
+<td>2.548</td>
+<td>0.0108</td>
+<td>*</td>
+</tr>
+</tbody>
+</table>
+<p>Signif. codes: 0 ’’ 0.001 ’’ 0.01 ’’ 0.05 ‘.’ 0.1 ’ ’ 1<br>
+Names of linear predictors: logitlink(P[Y&lt;=1]), logitlink(P[Y&lt;=2])<br>
+Residual deviance: 4.5321 on 7 degrees of freedom<br>
+Log-likelihood: -25.6671 on 7 degrees of freedom<br>
+</p>
+</div>
+</div>
+</section>
+<section id="example-underlying-models" class="slide level2">
+<h2>Example: Underlying Models</h2>
+<div class="fragment">
+<p><span class="math inline">\(K-1=2\)</span> models (because only the intercepts differs)</p>
+</div>
+<div class="fragment">
+<p>In total: <span style="background-color: lightblue;"><span class="math inline">\((K-1) + (p-1) = (3-1) + (4-1) = 5\)</span></span> parameters (instead of <span class="math inline">\(4\times 2=8\)</span>)</p>
+<ul>
+<li class="fragment">Model 1: odds between not important and (imortant or very important)</li>
+<li class="fragment">Model 2: odds between (not important or important) and very important</li>
+</ul>
+</div>
+</section>
+<section id="example-interpretation" class="slide level2">
+<h2>Example: Interpretation</h2>
+<div class="fragment">
+<p>For a woman aged 18 to 23 years</p>
+<div class="square-def">
+<p><span class="math inline">\(\frac{P(\text{"Not important"}|\text{Woman 18-23})}{P(\text{"Important or very important"}|\text{Woman 18-23})} = e^{0.043} \approx 1.04\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>For a woman aged over 40 years</p>
+<div class="square-def">
+<p><span class="math inline">\(\frac{P(\text{"Not important"}|\text{Woman &gt;40})}{P(\text{"Important or very important"}|\text{Woman &gt;40})} = e^{0.043-2.23} \approx 0.11\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>The OR <span style="background-color: lightblue;"><span class="math inline">\(e^{0.57622} = 1.78\)</span></span> shows that the odds of having a lower preference is <span class="math inline">\(1.78\)</span> times higher for men than for women.</p>
+</div>
+</section>
+<section id="example-testing-slope-equality" class="slide level2">
+<h2>Example: Testing Slope Equality</h2>
+<div class="fragment">
+<p>We test between the full cumulative and proportional odds model.</p>
+</div>
+<div class="fragment">
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">vglm</span>(Y <span class="sc">~</span> age <span class="sc">+</span> sexe, <span class="at">family=</span>cumulative) <span class="co"># To fit with the general cumulative model, we use</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>and we note the log-likelihood which equals <span class="math inline">\(-25.3164\)</span>.</p>
+</div>
+<div class="fragment">
+<p>That of the proportional odds model was <span class="math inline">\(-25.6671\)</span>.</p>
+</div>
+<div class="fragment">
+<p>The deviance test statistic therefore equals <span class="math inline">\(2 \times (25.6671 - 25.3164) = 0.7\)</span>.</p>
+</div>
+<div class="fragment">
+<p>We compare to a <span class="math inline">\(\chi^2_{(K-2)(p-1)} = \chi^2_3\)</span> distribution: there is no reason to reject <span class="math inline">\(H_0\)</span> and therefore the proportional odds model is preferable to the cumulative model.</p>
+</div>
+</section>
+<section id="comparison-with-nominal-model" class="slide level2">
+<h2>Comparison with Nominal Model</h2>
+<div class="fragment">
+<p>To compare the proportional odds model with the nominal model:</p>
+</div>
+<div class="fragment">
+<p>We cannot use a deviance test because the two models are not nested.</p>
+</div>
+<div class="fragment">
+<p>Nevertheless, the AIC and BIC (not reported here) are in favor of the proportional odds model</p>
+</div>
+</section>
+<section id="bar-plot-of-estimated-probability" class="slide level2">
+<h2>Bar Plot of Estimated Probability</h2>
+<div class="fragment">
+<p>In the proportional odds ratio model:</p>
+<p><img data-src="images/bar_plot_cars.png" style="width:50.0%"></p>
+
+
+</div>
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>
