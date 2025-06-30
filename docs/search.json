@@ -28,18 +28,18 @@
     "text": "Introduction\n\nThank you for having me here today.\nFor context, much of this work was conducted during my postdoctoral position at ENS Lyon, where was able to build upon my earlier PhD research in crowdsourcing.\nSo, let’s start with a scenario. Picture a group of workers, and each one is given binary classification tasks.\nFor each task, they need to make yes-or-no decisions.\nThere are many situations where this happens. Think of image classification, text moderation, or sentiment analysis\n\n\nWorkers are given binary tasks to which they have to give a response: YES or NO\nExamples\n\nImage Classification: “Does this image contain a dog?”\nText Moderation: “Is this comment toxic or offensive?”\nSentiment Analysis: “Does this review express positive sentiment?”"
   },
   {
-    "objectID": "research/presentations/crowdsourcing/presentation.html#objectives",
-    "href": "research/presentations/crowdsourcing/presentation.html#objectives",
+    "objectID": "research/presentations/crowdsourcing/presentation.html#questions",
+    "href": "research/presentations/crowdsourcing/presentation.html#questions",
     "title": "Recovering Labels from Crowdsourced Data",
-    "section": "Objectives",
-    "text": "Objectives\n\nGiven their responses, three natural questions emerge\n\nwhat are the actual true labels?\nCan we compare workers and identify who performs better or worse?\nHow well do workers perform on a given task?\n\nI will touch on all these issues during my talk, but my primary focus will be on the central question of recovering the true labels.\n\n\nGiven their responses, we have 3 questions\n\nrecover the true label?\nrank the workers?\nestimate their abilities?\n\n\n\nMain Quetion: How can we accurately recover the labels?"
+    "section": "Questions",
+    "text": "Questions\n\nThree natural questions emerge\n\nwhat are the actual true labels?\nCan we compare workers and identify who performs better or worse?\nHow well do workers perform on a given task?\n\nI will touch on all these issues during my talk, but my primary focus will be on the central question of recovering the true labels.\n\n\n3 questions\n\nrecover the true label?\nrank the workers?\nestimate their abilities?\n\n\n\nMain Quetion: How can we accurately recover the labels?"
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#this-talk",
     "href": "research/presentations/crowdsourcing/presentation.html#this-talk",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "This Talk",
-    "text": "This Talk\n\nI will break down my presentation in 3 parts.\nI’ll start by introducing isotonic model.\nNext, I’ll review two existing methods.\nIn the final part, I’ll go over minimax optimal and polynomial time method for this problem.\n\n\nIntroducing the non-parametric isotonic model and main result\nPresenting two already existing algorithms\nIterative Spectral Voting (ISV) algo and key insights"
+    "text": "This Talk\n\nI will break down my presentation in 3 parts.\nI’ll start by introducing isotonic model.\nNext, I’ll review two existing methods.\nIn the final part, I’ll go over an optimal and computationnally feasible method for this problem.\n\n\nIntroducing the non-parametric isotonic model and main result\nPresenting two already existing algorithms\nIterative Spectral Voting (ISV) algo and key insights"
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#illustration",
@@ -56,39 +56,11 @@
     "text": "Observation Model\n\nWe assume that the matrix of responses follows this model.\n\n\\(x^*\\) is the vector of unknown labels\n\\(M \\in [0,1]^{n \\times d}\\) is the ability matrix. If \\(M_{ik}=1\\), it means that worker \\(i\\) is very good at question \\(k\\), and \\(M_{ik}=0\\) means that they answer randomly.\n\\(E\\) is a matrix of independent sub-gaussian noise\nThis odot is a Hadamard Product so you can think of \\(B\\) as a Bernoulli mask matrix.\n\n\n\nWe observe\n\n\\[Y = B\\odot(M\\mathrm{diag}(x^*) + E) \\in \\mathbb R^{n \\times d}\\]\n\nwhere \\(\\odot\\) is the Hadamard product.\n\n\\(x^*\\in \\{-1, 1\\}^d\\) is the vector of unknown labels\n\\(M \\in [0,1]^{n \\times d}\\) is the ability matrix\n\\(E\\) is a matrix of independent sub-gaussian noise\n\\(B\\) is a Bernoulli \\(\\mathcal B(\\lambda)\\) “mask” matrix, modelling partial observations"
   },
   {
-    "objectID": "research/presentations/crowdsourcing/presentation.html#alernative-formulation",
-    "href": "research/presentations/crowdsourcing/presentation.html#alernative-formulation",
-    "title": "Recovering Labels from Crowdsourced Data",
-    "section": "Alernative Formulation",
-    "text": "Alernative Formulation\n\nIn matrix form, we can rewrite the model as follows. This is just equivalent to what I’ve just said.\nYou can think of \\(B\\) as a mask matrix for partial observations.\n\n\nWe observe\n\n\\[Y = B\\odot(M\\mathrm{diag}(x^*) + E) \\in \\mathbb R^{n \\times d}\\]\n\nwhere \\(\\odot\\) is the Hadamard product.\n\n\n\n\\(M \\in [0,1]^{n \\times d}\\) is the ability matrix\n\\(x^*\\) is the vector of unknown labels\n\\(E\\) is a matrix of independent noise\n\\(B\\) is a Bernoulli “mask” matrix, modelling partial observations"
-  },
-  {
-    "objectID": "research/presentations/crowdsourcing/presentation.html#bernoulli-observation-submodel",
-    "href": "research/presentations/crowdsourcing/presentation.html#bernoulli-observation-submodel",
-    "title": "Recovering Labels from Crowdsourced Data",
-    "section": "Bernoulli Observation Submodel",
-    "text": "Bernoulli Observation Submodel\n\nAn important example is the Bernoulli Case, introduced by Shah et al. in 2020.\n\nIt assumes that each worker has probability \\((1+M_{ik})/2\\) of being correct on task \\(k\\)\nWe observe each response with probability \\(\\lambda\\)\n\n\n\\[Y = B\\odot(M\\mathrm{diag}(x^*) + E) \\in \\mathbb R^{n \\times d}\\]\n\n\n\n\nBernoulli submodel (Shah et al., 2020)\n\n\n\\[\n\\begin{aligned}\\label{eq:bernoulli_model}\n    Y_{ik} = \\begin{cases}\n        x^*_k \\text{ with proba } \\lambda\\left(\\frac{1+M_{ik}}{2}\\right)\n        \\\\\n        -x^*_k \\text{ with proba } \\lambda\\left(\\frac{1-M_{ik}}{2}\\right)\\\\\n        0 \\text{ with proba } 1-\\lambda\n        \\end{cases}\n\\end{aligned}\n\\]\n\n\n\n\n\n\\(\\frac{1+M_{ik}}{2}\\) is the proba that \\(i\\) answers correctly to task \\(k\\).\n\n\n\\(\\lambda \\in[0,1]\\) is the probability of observing worker/task pair \\((i,k)\\)"
-  },
-  {
     "objectID": "research/presentations/crowdsourcing/presentation.html#shape-constraints",
     "href": "research/presentations/crowdsourcing/presentation.html#shape-constraints",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Shape Constraints",
     "text": "Shape Constraints\n\nUntil now, I have’nt assumed anything on the ability matrix \\(M\\) except that it has coef. in \\([0,1]\\).\nFrom now on, we also assume that \\(M\\) is isotonic up to a permutation \\(\\pi^*\\) of its rows, that is,\nit has increasing columns, up to an unknown permutation \\(\\pi^*\\)\nIt means that, on average, a worker \\(i\\) is either uniformly better or uniformly worse than another worker \\(j\\)\n\n\n\\(M \\in [0,1]^{n \\times d}\\) represents the ability matrix of worker/task pairs\nWe assume that \\(M\\) is isotonic up to a permutation \\(\\pi^*\\) , that is\n\n\n\n\\[\nM_{\\pi^*}=\\left(\\begin{array}{ccccccccc}\n\\color{#000099}{0.9} & \\color{#000099}{0.8} & \\color{#000099}{0.9} & \\color{#000099}{1\\phantom{.0}} \\\\\n\\color{#4B0082}{0.8} & \\color{#4B0082}{0.7} & \\color{#4B0082}{0.9} & \\color{#4B0082}{0.8} \\\\\n\\color{#990066}{0.6} & \\color{#990066}{0.7} & \\color{#990066}{0.7} & \\color{#990066}{0.6} \\\\\n\\color{#CC0000}{0.5} & \\color{#CC0000}{0.7} & \\color{#CC0000}{0.5} & \\color{#CC0000}{0.6}\n\\end{array}\\right)\n\\]\n\n\n\\[\nM_{\\phantom{{\\pi^*}}}=\\left(\\begin{array}{ccccccccc}\n\\color{#990066}{0.6} & \\color{#990066}{0.7} & \\color{#990066}{0.7} & \\color{#990066}{0.6} \\\\\n\\color{#CC0000}{0.5} & \\color{#CC0000}{0.7} & \\color{#CC0000}{0.5} & \\color{#CC0000}{0.6} \\\\\n\\color{#000099}{0.9} & \\color{#000099}{0.8} & \\color{#000099}{0.9} & \\color{#000099}{1\\phantom{.0}} \\\\\n\\color{#4B0082}{0.8} & \\color{#4B0082}{0.7} & \\color{#4B0082}{0.9} & \\color{#4B0082}{0.8}\n\\end{array}\\right)\n\\]"
-  },
-  {
-    "objectID": "research/presentations/crowdsourcing/presentation.html#shape-constraints-1",
-    "href": "research/presentations/crowdsourcing/presentation.html#shape-constraints-1",
-    "title": "Recovering Labels from Crowdsourced Data",
-    "section": "Shape Constraints",
-    "text": "Shape Constraints\n\nMore formally, the isotonicity constraint can be written as this set of inequalities.\nIt means that the rows of \\(M\\) are uniformly increasing.\nFor any two workers \\(i\\) and \\(j\\), either \\(i\\) or \\(j\\) is uniformly better than the other one.\n\n\nFor all \\(k = 1, \\dots, d\\),\n\n\n\n\\[\nM_{\\pi^*(1), k}\\geq \\dots \\geq M_{\\pi^*(n),k}\n\\]\n\n\nIt means that the rows are uniformly increasing\nA worker \\(i\\) is better on average than \\(j\\), if it is better on all tasks on average"
-  },
-  {
-    "objectID": "research/presentations/crowdsourcing/presentation.html#illustration-when-x-is-known",
-    "href": "research/presentations/crowdsourcing/presentation.html#illustration-when-x-is-known",
-    "title": "Recovering Labels from Crowdsourced Data",
-    "section": "Illustration when \\(x^*\\) is Known",
-    "text": "Illustration when \\(x^*\\) is Known\n\nThis is an isotonic matrix, and this is a shuffled isotonic matrix.\nIf \\(x^*\\) was known, we would observe this bottom right picture."
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#square-norm-loss-vs-hamming-loss",
@@ -119,13 +91,6 @@
     "text": "MiniMax Risk for Recovering Labels\n\nThis brings us to the minimax risk for recovering labels.\nIt is defined as the risk of the best estimator \\(\\hat x\\) in the worst case.\n\n\n\n\\[\\mathcal R^*_{\\mathrm{reco}}(n,d,\\lambda)=\\min_{\\hat x}\\max_{M,\\pi^*, x^*}{\\mathbb E}[\\|M \\mathrm{diag}(x^* \\neq \\hat x)\\|_F^2]\\]\n\n\nminimize on all estimator \\(\\hat x\\)\nmaximize square norm loss on all \\(M\\), \\(\\pi^*\\), \\(x^*\\) such that \\(M_{\\pi^*}\\) is isotonic"
   },
   {
-    "objectID": "research/presentations/crowdsourcing/presentation.html#short-story",
-    "href": "research/presentations/crowdsourcing/presentation.html#short-story",
-    "title": "Recovering Labels from Crowdsourced Data",
-    "section": "Short Story",
-    "text": "Short Story\n\nTo make a long story short, Shah and co. first considered the more constrained bi-isotonic model, where \\(M\\) has not only increasing columns, but also increasing rows. Unfortunately, their optimal method cannot be computed in polynomial time.\nSubsequently, assuming that the labels are known, there has been considerable effort to improve the state of the art on ranking and estimation.\nIn this work, we address the problem of recovering the labels in polynomial time and how we can recover past results on ranking and estimation\n\n\n(Shah et al., 2020): recovering \\(x^*\\) optimally but not in poly. time, (\\(M_{\\pi^*\\eta^*}\\) bi-isotonic).\n\n\n(Mao et al., 2020),(Liu & Moitra, 2020), Pilliat et al. (2024): ranking \\(\\pi^*\\) and estimating abilities \\(M\\): improve state of the art poly. time when \\(x^*\\) known,(\\(M_{\\pi^*\\eta^*}\\) bi-isotonic or \\(M_{\\pi^*}\\) isotonic)\n\n\nThis work: recovering \\(x^*\\) in poly. time and recovering (most of the) past results on ranking and estimation (\\(M_{\\pi^*}\\) isotonic)"
-  },
-  {
     "objectID": "research/presentations/crowdsourcing/presentation.html#main-results",
     "href": "research/presentations/crowdsourcing/presentation.html#main-results",
     "title": "Recovering Labels from Crowdsourced Data",
@@ -151,7 +116,7 @@
     "href": "research/presentations/crowdsourcing/presentation.html#result-on-obi-wan-method",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Result on Obi-Wan Method",
-    "text": "Result on Obi-Wan Method\n\nIt turns out that the Obi-Wan method is minimax optimal in a rank \\(1\\) model, it achieves the rate \\(d/\\lambda\\).\nHowever, it is not minimax optimal in the isotonic model. It is only proven to achieve rate that is comparable to majority voting in the worst case.\n\n\n\n\n\n\nTheorem 1 (Shah et al., 2020)\n\n\nIn submodel where \\(\\mathrm{rk}(M)= 1\\), \\(\\hat x^{(\\mathrm{Obi-Wan})}\\) achieves minimax risk up to polylogs: \\[\\mathbb E\\|M\\mathrm{diag}(\\hat x^{\\text{Obi-Wan}} \\neq x^*)\\|_F^2 \\lesssim \\frac{d}{\\lambda} \\quad \\textbf{(minimax)}\\]\n\n\n\n\n\n\n\n\n\n\nTheorem 2 (Shah et al., 2020)\n\n\nIn the model where \\(M_{\\pi^*\\eta^*}\\) is bi-isotonic up to polylogs: \\[\\mathbb E\\|M\\mathrm{diag}(\\hat x^{\\text{Obi-Wan}} \\neq x^*)\\|_F^2 \\lesssim \\frac{d\\sqrt{n}}{\\lambda} \\quad \\textbf{(not minimax)}\\]"
+    "text": "Result on Obi-Wan Method\n\nIt turns out that the Obi-Wan method is minimax optimal in a rank \\(1\\) model, it achieves the rate \\(d/\\lambda\\).\nHowever, it is not minimax optimal in the isotonic model. It only achieves a rate that is comparable to majority voting in the worst case.\n\n\n\n\n\n\nTheorem 1 (Shah et al., 2020)\n\n\nIn submodel where \\(\\mathrm{rk}(M)= 1\\), \\(\\hat x^{(\\mathrm{Obi-Wan})}\\) achieves minimax risk up to polylogs: \\[\\mathbb E\\|M\\mathrm{diag}(\\hat x^{\\text{Obi-Wan}} \\neq x^*)\\|_F^2 \\lesssim \\frac{d}{\\lambda} \\quad \\textbf{(minimax)}\\]\n\n\n\n\n\n\n\n\n\n\nTheorem 2 (Shah et al., 2020)\n\n\nIn the model where \\(M_{\\pi^*\\eta^*}\\) is bi-isotonic up to polylogs: \\[\\mathbb E\\|M\\mathrm{diag}(\\hat x^{\\text{Obi-Wan}} \\neq x^*)\\|_F^2 \\lesssim \\frac{d\\sqrt{n}}{\\lambda} \\quad \\textbf{(not minimax)}\\]"
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#pca-step",
@@ -5074,19 +5039,5 @@
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Synthetic Data",
     "text": "Synthetic Data\n\n\n\n\n\n\n\n\n\n \n\nBlack: \\(M_{ik}=0\\)\nBlue: \\(M_{ik} = h\\)"
-  },
-  {
-    "objectID": "research/presentations/crowdsourcing/presentation.html#bernoulli-observation-model",
-    "href": "research/presentations/crowdsourcing/presentation.html#bernoulli-observation-model",
-    "title": "Recovering Labels from Crowdsourced Data",
-    "section": "Bernoulli Observation Model",
-    "text": "Bernoulli Observation Model\n\nIn this talk, I’ll assume a model based on Bernoulli random variables, as introduced by Shah et al. in 2020.\n\nEach worker has proba \\((1+M_{ik})/2\\) of being correct on task \\(k\\). \\(M_{ik}=1\\) means that worker \\(i\\) knows perfectly the answer and \\(M_{ik}=0\\) means that they answer randomly.\nWe observe each response with probability \\(\\lambda\\)\n\n\n\n\n\\[\n\\begin{aligned}\\label{eq:bernoulli_model}\n    Y_{ik} = \\begin{cases}\n        x^*_k \\text{ with proba } \\lambda\\left(\\frac{1+M_{ik}}{2}\\right)\n        \\\\\n        -x^*_k \\text{ with proba } \\lambda\\left(\\frac{1-M_{ik}}{2}\\right)\\\\\n        0 \\text{ with proba } 1-\\lambda\n        \\end{cases}\n\\end{aligned}\n\\]\n\n\n\\(\\frac{1+M_{ik}}{2}\\) is the proba that \\(i\\) answers correctly to task \\(k\\).\n\\(\\lambda \\in[0,1]\\) is the probability of observing worker/task pair.\n\\(Y = B\\odot (M\\mathrm{diag}(x^*) + E)\\) where \\(E\\) is has indep. subgaussian entries and \\(B_{ik} \\sim \\mathcal B(\\lambda)\\)"
-  },
-  {
-    "objectID": "research/presentations/crowdsourcing/presentation.html#questions",
-    "href": "research/presentations/crowdsourcing/presentation.html#questions",
-    "title": "Recovering Labels from Crowdsourced Data",
-    "section": "Questions",
-    "text": "Questions\n\nThree natural questions emerge\n\nwhat are the actual true labels?\nCan we compare workers and identify who performs better or worse?\nHow well do workers perform on a given task?\n\nI will touch on all these issues during my talk, but my primary focus will be on the central question of recovering the true labels.\n\n\n3 questions\n\nrecover the true label?\nrank the workers?\nestimate their abilities?\n\n\n\nMain Quetion: How can we accurately recover the labels?"
   }
 ]
