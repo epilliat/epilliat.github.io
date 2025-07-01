@@ -1959,6 +1959,209 @@
     "text": "How to Detect Overdispersion?\n\nBy assuming that \\(\\Var(Y|X = x) = \\phi \\E(Y|X = x)\\) where \\(\\phi &gt; 0\\), we can estimate \\(\\phi\\) by\n\n\\[\\hat{\\phi} = \\frac{1}{n-p} \\sum_{i=1}^n \\frac{(y_i - \\hat{y}_i)^2}{\\hat{y}_i}\\]\n\nand test if \\(\\phi = 1\\) or not (if \\(\\phi = 1\\), \\(\\hat{\\phi} \\sim N(1, 1/n)\\) when \\(n \\to \\infty\\)).\n\n\nWe can fit a negative binomial model (cf the following), and test if it is better than the Poisson model."
   },
   {
+    "objectID": "teaching/glm/slides/counting_models.html#the-quasi-poisson-model",
+    "href": "teaching/glm/slides/counting_models.html#the-quasi-poisson-model",
+    "title": "Counting Models",
+    "section": "The Quasi-Poisson Model",
+    "text": "The Quasi-Poisson Model\n\nEstimate \\(E(Y|X = x) = \\lambda_\\beta(x)\\) with \\(\\lambda_\\beta(x) = \\exp(x^T \\beta)\\) in the same way as with a Poisson model (same likelihood).\nEstimate \\(\\phi\\) as in the previous slide.\nEstimate the variance of \\(\\hat{\\beta}\\) taking into account \\(\\hat{\\phi}\\)."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#quasi-poisson-vs-poisson-model",
+    "href": "teaching/glm/slides/counting_models.html#quasi-poisson-vs-poisson-model",
+    "title": "Counting Models",
+    "section": "Quasi-Poisson VS Poisson Model",
+    "text": "Quasi-Poisson VS Poisson Model\n\nThe estimated coefficients \\(\\hat{\\beta}\\) are identical.\nThe predictions \\(\\hat{y}_i = \\exp(\\lambda_{\\hat{\\beta}}(x_i))\\) are identical.\nOnly the estimation of standard errors differ, and therefore possibly the significance of coefficients.\n\n\nThe estimation procedure does not rely on the “true” likelihood (because of \\(\\phi\\)): we therefore do not have access to \\(L_{\\text{mod}}\\)."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-plant-species-with-quasi-poisson",
+    "href": "teaching/glm/slides/counting_models.html#example-plant-species-with-quasi-poisson",
+    "title": "Counting Models",
+    "section": "Example: Plant Species with Quasi Poisson",
+    "text": "Example: Plant Species with Quasi Poisson\n\nglm(Species∼ pH+ Biomass+ pH:Biomass, family=quasipoisson)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCoefficient\nEstimate\nStd. Error\nt value\nPr(&gt;\nt\n\n\n\n\n(Intercept)\n3.76812\n0.06144\n61.332\n&lt; 2e-16\n***\n\n\npHlow\n-0.81557\n0.10268\n-7.943\n7.90e-12\n***\n\n\npHmid\n-0.33146\n0.09203\n-3.602\n0.000534\n***\n\n\nBiomass\n-0.10713\n0.01247\n-8.590\n3.97e-13\n***\n\n\npHlow:Biomass\n-0.15503\n0.03997\n-3.878\n0.000208\n***\n\n\npHmid:Biomass\n-0.03189\n0.02304\n-1.384\n0.169985\n\n\n\n\nSignif. codes: 0 ‘’ 0.001 ’’ 0.01 ’’ 0.05 ‘.’ 0.1 ’ ’ 1\n(Dispersion parameter for quasipoisson family taken to be 0.9970074)\nNull deviance: 452.346 on 89 degrees of freedom\nResidual deviance: 83.201 on 84 degrees of freedom\nAIC: NA"
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#interpretation",
+    "href": "teaching/glm/slides/counting_models.html#interpretation",
+    "title": "Counting Models",
+    "section": "Interpretation",
+    "text": "Interpretation\n\n\\(\\hat{\\phi} = 0.997 \\approx 1\\) therefore there was no overdispersion issue\n\n\nThe Residual deviance is incorrect: it’s that of the Poisson model."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#negative-binomial-distribution",
+    "href": "teaching/glm/slides/counting_models.html#negative-binomial-distribution",
+    "title": "Counting Models",
+    "section": "Negative Binomial Distribution",
+    "text": "Negative Binomial Distribution\n\nAlternative to Poisson: Negative Binomial (NB), which depends on 2 parameters:\n\nits expectation \\(\\lambda &gt; 0\\)\nthe “number of successes” (or size) \\(\\theta &gt; 0\\)\n\n\n\nIf \\(Y \\sim NB(\\lambda, \\theta)\\), then for all \\(k \\in \\mathbb{N}\\),\n\n\\[P(Y = k) = \\frac{\\Gamma(k + \\theta)}{\\Gamma(k + 1)\\Gamma(\\theta)} \\left(\\frac{\\lambda}{\\lambda + \\theta}\\right)^k \\left(\\frac{\\theta}{\\lambda + \\theta}\\right)^\\theta\\]"
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#properties-of-negative-binomial",
+    "href": "teaching/glm/slides/counting_models.html#properties-of-negative-binomial",
+    "title": "Counting Models",
+    "section": "Properties of Negative Binomial",
+    "text": "Properties of Negative Binomial\n\nThe expectation of \\(NB(\\lambda, \\theta)\\) equals \\(\\lambda\\).\nThe variance of \\(NB(\\lambda, \\theta)\\) equals \\(\\lambda + \\lambda^2/\\theta\\).\n\n\nThis distribution can therefore model overdispersion (but not underdispersion).\n\n\nIf \\(\\theta \\to +\\infty\\), \\(NB(\\lambda, \\theta) \\approx P(\\lambda)\\).\n\n\nThe Poisson distribution is therefore a special case of the NB distribution."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#illustration-of-nb",
+    "href": "teaching/glm/slides/counting_models.html#illustration-of-nb",
+    "title": "Counting Models",
+    "section": "Illustration of NB",
+    "text": "Illustration of NB"
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#negative-binomial-glm-model",
+    "href": "teaching/glm/slides/counting_models.html#negative-binomial-glm-model",
+    "title": "Counting Models",
+    "section": "Negative Binomial GLM Model",
+    "text": "Negative Binomial GLM Model\n\nThe negative binomial GLM model assumes that\n\n\\[Y|(X = x) \\sim NB(\\lambda(x), \\theta)\\]\n\nwhere as usual \\(\\lambda(x) = \\exp(x^T \\beta)\\)."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#inference-an-other-tools-in-nb-glm-model",
+    "href": "teaching/glm/slides/counting_models.html#inference-an-other-tools-in-nb-glm-model",
+    "title": "Counting Models",
+    "section": "Inference an other Tools in NB GLM model",
+    "text": "Inference an other Tools in NB GLM model\n\nThe estimation of \\(\\beta\\) and \\(\\theta\\) is done by maximum likelihood\n\n\nAll usual inference tools are available:\n\nWald tests; Deviance; AIC, BIC.\n\n\n\nIf \\(\\hat{\\theta}\\) is large, this is equivalent to the Poisson model.\n\n\nWe can test the interest of the NB model compared to the Poisson model by inspecting \\(\\hat{\\theta}\\), or by comparing their AIC and BIC criteria."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-plant-species-and-nb-model",
+    "href": "teaching/glm/slides/counting_models.html#example-plant-species-and-nb-model",
+    "title": "Counting Models",
+    "section": "Example: Plant Species and NB Model",
+    "text": "Example: Plant Species and NB Model\n\nglm.nb(Species∼ pH+ Biomass+ pH:Biomass)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCoefficient\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n3.76813\n0.06154\n61.235\n&lt; 2e-16\n***\n\n\npHlow\n-0.81557\n0.10284\n-7.930\n2.19e-15\n***\n\n\npHmid\n-0.33146\n0.09217\n-3.596\n0.000323\n***\n\n\nBiomass\n-0.10713\n0.01249\n-8.577\n&lt; 2e-16\n***\n\n\npHlow:Biomass\n-0.15503\n0.04003\n-3.873\n0.000108\n***\n\n\npHmid:Biomass\n-0.03189\n0.02308\n-1.382\n0.166978\n\n\n\n\nSignif. codes: 0 ‘’ 0.001 ’’ 0.01 ’’ 0.05 ‘.’ 0.1 ’ ’ 1\n(Dispersion parameter for Negative Binomial(212058.3) family taken to be 1)\nNull deviance: 452.307 on 89 degrees of freedom\nResidual deviance: 83.194 on 84 degrees of freedom\nAIC: 516.39\n\n\n\n\\(\\hat{\\theta} = 212058.3\\) therefore the model is equivalent to the Poisson model.\n\n\nThis is confirmed via the AIC."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#the-problem",
+    "href": "teaching/glm/slides/counting_models.html#the-problem",
+    "title": "Counting Models",
+    "section": "The Problem",
+    "text": "The Problem\n\nWhen \\(Y\\) is a count variable, it is not uncommon for \\(Y = 0\\) to appear very often in the sample.\n\n\nExample 1: \\(Y\\): amount of rain (in mm) that fell each day.\n\n\nExample 2: \\(Y\\): amount of alcohol (in glasses) consumed each week."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#model-inadequacy",
+    "href": "teaching/glm/slides/counting_models.html#model-inadequacy",
+    "title": "Counting Models",
+    "section": "Model Inadequacy",
+    "text": "Model Inadequacy\n\nA Poisson or Negative Binomial model is not adapted.\n\n\nGenerally two “populations” that explain this phenomenon:\n\none for which \\(Y = 0\\) systematically\none for which \\(Y \\geq 0\\) (or \\(Y &gt; 0\\))\n\n\n\nWe can consider two modelings in this spirit:\n\nThe zero-inflated model (\\(Y = 0\\) versus \\(Y \\geq 0\\))\nThe Hurdle model (\\(Y = 0\\) versus \\(Y &gt; 0\\))\n\n\n\nWe present below the zero-inflated model."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#zip-model-definition",
+    "href": "teaching/glm/slides/counting_models.html#zip-model-definition",
+    "title": "Counting Models",
+    "section": "ZIP Model Definition",
+    "text": "ZIP Model Definition\n\nThe ZIP (Zero-Inflated Poisson) model assumes that\n\n\\[Y|(X = x) = \\begin{cases}\n0 & \\text{with probability } q(x) \\\\\nP(\\lambda(x)) & \\text{with probability } 1 - q(x)\n\\end{cases}\\]\n\nwhere\n\n\\[\\lambda(x) = \\exp(x^T \\beta) \\quad \\text{and} \\quad q(x) = \\text{logit}^{-1}(x^T \\gamma)\\]"
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#two-mixed-populations",
+    "href": "teaching/glm/slides/counting_models.html#two-mixed-populations",
+    "title": "Counting Models",
+    "section": "Two Mixed Populations",
+    "text": "Two Mixed Populations\n\nThus two populations mix:\n\nFor one, \\(Y\\) is always \\(0\\). For the other, \\(Y \\in \\mathbb{N}\\).\nA logistic model explains membership to one or the other population.\nA Poisson log-linear model is used for the second."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#probability-distribution",
+    "href": "teaching/glm/slides/counting_models.html#probability-distribution",
+    "title": "Counting Models",
+    "section": "Probability Distribution",
+    "text": "Probability Distribution\n\nWith this model, we therefore have\n\n\\(P(Y = 0|X = x) = q_\\gamma(x) + (1 - q_\\gamma(x))e^{-\\lambda_\\beta(x)}\\)\n\n\n\n\n\\(P(Y = k|X = x) = (1 - q_\\gamma(x))e^{-\\lambda_\\beta(x)} \\frac{\\lambda_\\beta(x)^k}{k!}\\)\n\nwhere \\(\\lambda_\\beta(x) = \\exp(x^T \\beta)\\) and \\(q_\\gamma(x) = \\text{logit}^{-1}(x^T \\gamma)\\).\n\n\nWe deduce\n\n\\(E(Y|X = x) = (1 - q_\\gamma(x))\\lambda_\\beta(x)\\)"
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#inference",
+    "href": "teaching/glm/slides/counting_models.html#inference",
+    "title": "Counting Models",
+    "section": "Inference",
+    "text": "Inference\n\nFor inference:\n\nWe can write the log-likelihood as a function of \\(\\beta\\) and \\(\\gamma\\)\nWe obtain estimators by maximum likelihood\nAnd we have access to usual inference tools\n\n\n\nUnder R: zeroinfl function from the pscl package."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#zinb-model-definition",
+    "href": "teaching/glm/slides/counting_models.html#zinb-model-definition",
+    "title": "Counting Models",
+    "section": "ZINB Model Definition",
+    "text": "ZINB Model Definition\n\nSimilarly, the ZINB (Zero-Inflated Negative Binomial) model is\n\n\\[Y|(X = x) = \\begin{cases}\n0 & \\text{with probability } q(x) \\\\\nNB(\\lambda(x), \\theta) & \\text{with probability } 1 - q(x)\n\\end{cases}\\]\n\nwhere \\(\\theta &gt; 0\\) and\n\\(\\lambda(x) = \\exp(x^T \\beta) \\quad \\text{and} \\quad q(x) = \\text{logit}^{-1}(x^T \\gamma)\\)\n\n\nUnder R: zeroinfl function with the option dist=\"negbin\"."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-horseshoe-crabs",
+    "href": "teaching/glm/slides/counting_models.html#example-horseshoe-crabs",
+    "title": "Counting Models",
+    "section": "Example: Horseshoe Crabs",
+    "text": "Example: Horseshoe Crabs\n\nNumber of male satellites on female horseshoe crabs.\n\n\n\n\n\n\n\n\nWe want to model the number of satellites (satell) as a function of the weight of the horseshoe crab (weight) and its color (color, from 1 to 4, ≈ age)."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-poisson-log-linear-model",
+    "href": "teaching/glm/slides/counting_models.html#example-poisson-log-linear-model",
+    "title": "Counting Models",
+    "section": "Example: Poisson log-linear Model :",
+    "text": "Example: Poisson log-linear Model :\n\nglm(satell∼weight+color,family=’poisson’,data=crabs)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCoefficient\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n0.08855\n0.25443\n0.348\n0.72783\n\n\n\nweight\n0.54588\n0.06749\n8.088\n6.05e-16\n***\n\n\ncolor\n-0.17282\n0.06155\n-2.808\n0.00499\n**\n\n\n\nSignif. codes: 0 ‘’ 0.001 ’’ 0.01 ’’ 0.05 ‘.’ 0.1 ’ ’ 1\n(Dispersion parameter for poisson family taken to be 1)\nNull deviance: 632.79 on 172 degrees of freedom\nResidual deviance: 552.79 on 170 degrees of freedom\nAIC: 914.09\n\nThe model is significant but the fit is poor (the deviance is very high)"
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-log-linear-poisson",
+    "href": "teaching/glm/slides/counting_models.html#example-log-linear-poisson",
+    "title": "Counting Models",
+    "section": "Example: Log-Linear Poisson",
+    "text": "Example: Log-Linear Poisson\n\n\n\n\nIn red: empirical distribution of satell on the sample\nPoints: predicted distribution"
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-nb-model",
+    "href": "teaching/glm/slides/counting_models.html#example-nb-model",
+    "title": "Counting Models",
+    "section": "Example: NB Model",
+    "text": "Example: NB Model\n\nglm.nb(satell∼weight+color,data=crabs)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nCoefficient\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-0.3220\n0.5540\n-0.581\n0.561\n\n\n\nweight\n0.7072\n0.1612\n4.387\n1.15e-05\n***\n\n\ncolor\n-0.1734\n0.1199\n-1.445\n0.148\n\n\n\n\nSignif. codes: 0 ‘’ 0.001 ’’ 0.01 ’’ 0.05 ‘.’ 0.1 ’ ’ 1\n(Dispersion parameter for Negative Binomial(0.9555) family taken to be 1)\nNull deviance: 219.50 on 172 degrees of freedom\nResidual deviance: 196.64 on 170 degrees of freedom\nAIC: 754.45\n\n\n\nIt’s better… (by the way: color doesn’t seem significant)"
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-nb-model-1",
+    "href": "teaching/glm/slides/counting_models.html#example-nb-model-1",
+    "title": "Counting Models",
+    "section": "Example: NB Model",
+    "text": "Example: NB Model\n\n\n\n\nStill not very satisfactory."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-zip-model",
+    "href": "teaching/glm/slides/counting_models.html#example-zip-model",
+    "title": "Counting Models",
+    "section": "Example: ZIP Model",
+    "text": "Example: ZIP Model\n\nzeroinfl(satell∼weight | weight+color,dist=\"poisson\",data=crabs)\n\n\n\nCount model coefficients (poisson with log link):\n\n\n\n\n\n\n\n\n\n\n\nCoefficient\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n1.00152\n0.20793\n4.817\n1.46e-06\n***\n\n\nweight\n0.19020\n0.07572\n2.512\n0.012\n*\n\n\n\nZero-inflation model coefficients (binomial with logit link):\n\n\n\n\n\n\n\n\n\n\n\nCoefficient\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n1.9621\n1.1448\n1.714\n0.0866\n.\n\n\nweight\n-1.6630\n0.3943\n-4.218\n2.47e-05\n***\n\n\ncolor\n0.5329\n0.2305\n2.312\n0.0208\n*\n\n\n\nSignif. codes: 0 ‘’ 0.001 ’’ 0.01 ’’ 0.05 ‘.’ 0.1 ’ ’ 1\nNumber of iterations in BFGS optimization: 9\nLog-likelihood: -360.8 on 5 Df"
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-zip-model-1",
+    "href": "teaching/glm/slides/counting_models.html#example-zip-model-1",
+    "title": "Counting Models",
+    "section": "Example: ZIP Model",
+    "text": "Example: ZIP Model\n\nWe see the estimation result explaining the mixture of the two “populations” forming the model.\n\n\nFirst population: Poisson log-linear model with expectation \\(\\lambda\\) where \\(\\lambda(\\text{weight}) = \\exp(1 + 0.19 \\times \\text{weight})\\)\n\n\nSecond population is \\(0\\). The probability \\(q\\) of belonging to the second one is\n\\(q(\\text{wgt}, \\text{col}) = \\text{logit}^{-1}(1.96 - 1.66 \\times \\text{wgt} + 0.53 \\times \\text{col})\\)"
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-zip-model-2",
+    "href": "teaching/glm/slides/counting_models.html#example-zip-model-2",
+    "title": "Counting Models",
+    "section": "Example: ZIP Model",
+    "text": "Example: ZIP Model\n\n\n\n\nMuch more convincing."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-zinb-model",
+    "href": "teaching/glm/slides/counting_models.html#example-zinb-model",
+    "title": "Counting Models",
+    "section": "Example: ZINB Model",
+    "text": "Example: ZINB Model\n\nzeroinfl(satell∼weight | weight+color,dist=\"negbin\",data=crabs)\n\n\n\nCount model coefficients (negbin with log link):\n\n\n\n\n\n\n\n\n\n\n\nCoefficient\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n0.8961\n0.3070\n2.919\n0.00351\n**\n\n\nweight\n0.2169\n0.1125\n1.928\n0.05383\n.\n\n\nLog(theta)\n1.5802\n0.3574\n4.422\n9.79e-06\n***\n\n\n\nZero-inflation model coefficients (binomial with logit link):\n\n\n\n\n\n\n\n\n\n\n\nCoefficient\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n1.8663\n1.2415\n1.503\n0.133\n\n\n\nweight\n-1.7531\n0.4429\n-3.958\n7.55e-05\n***\n\n\ncolor\n0.5985\n0.2572\n2.326\n0.020\n*\n\n\n\nSignif. codes: 0 ‘’ 0.001 ’’ 0.01 ’’ 0.05 ‘.’ 0.1 ’ ’ 1\nTheta = 4.8558\nNumber of iterations in BFGS optimization: 11\nLog-likelihood: -349.9 on 6 Df"
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-zinb-model-1",
+    "href": "teaching/glm/slides/counting_models.html#example-zinb-model-1",
+    "title": "Counting Models",
+    "section": "Example: ZINB Model",
+    "text": "Example: ZINB Model"
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#zinb-model-interpretation",
+    "href": "teaching/glm/slides/counting_models.html#zinb-model-interpretation",
+    "title": "Counting Models",
+    "section": "ZINB Model Interpretation",
+    "text": "ZINB Model Interpretation\n\nThe output is read in the same way as for the ZIP model\n\n\nThere is the parameter \\(\\theta\\) in addition, from the NB distribution\n\n\n\\(\\theta\\) is not “infinite”: the model therefore does not reduce to the ZIP model.\n\nA deviance test shows that ZINB is preferable to ZIP\nThis is also confirmed by the AIC and BIC criteria."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#example-conclusion",
+    "href": "teaching/glm/slides/counting_models.html#example-conclusion",
+    "title": "Counting Models",
+    "section": "Example: Conclusion",
+    "text": "Example: Conclusion\n\nA portion of horseshoe crabs (the smallest and oldest) have no male satellites.\n\n\nThe probability of belonging to this population is estimated at\n\\(q(\\text{wht}, \\text{col}) = \\text{logit}^{-1}(1.87 - 1.75 \\times \\text{wht} + 0.60 \\times \\text{col})\\)\n\n\nFor the other portion of horseshoe crabs, they have on average more satellites the larger they are. This average is estimated at\n\\(\\lambda(\\text{wht}) = \\exp(0.90 + 0.22 \\times \\text{wht})\\)\n\n\nDistribution cna be modeled as \\(NB(\\lambda(\\text{wht}), \\theta)\\) where \\(\\theta = 4.86\\)."
+  },
+  {
     "objectID": "teaching/glm/slides/Introduction_glm.html#recalling-the-linear-model",
     "href": "teaching/glm/slides/Introduction_glm.html#recalling-the-linear-model",
     "title": "Introduction to the Generalized Linear Model",

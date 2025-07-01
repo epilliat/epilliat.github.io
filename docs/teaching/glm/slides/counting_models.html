@@ -762,6 +762,827 @@ Points: predicted distribution</p>
 </div>
 <div class="fragment">
 <p>We can fit a <span style="background-color: yellow;">negative binomial model</span> (cf the following), and test if it is better than the Poisson model.</p>
+</div>
+</section>
+<section id="the-quasi-poisson-model" class="slide level2">
+<h2>The Quasi-Poisson Model</h2>
+<ol type="1">
+<li class="fragment"><p>Estimate <span style="background-color: lightblue;"><span class="math inline">\(E(Y|X = x) = \lambda_\beta(x)\)</span></span> with <span style="background-color: lightblue;"><span class="math inline">\(\lambda_\beta(x) = \exp(x^T \beta)\)</span></span> in the same way as with a Poisson model (same likelihood).</p></li>
+<li class="fragment"><p>Estimate <span class="math inline">\(\phi\)</span> as in the previous slide.</p></li>
+<li class="fragment"><p>Estimate the variance of <span class="math inline">\(\hat{\beta}\)</span> taking into account <span class="math inline">\(\hat{\phi}\)</span>.</p></li>
+</ol>
+</section>
+<section id="quasi-poisson-vs-poisson-model" class="slide level2">
+<h2>Quasi-Poisson VS Poisson Model</h2>
+<ul>
+<li class="fragment">The estimated coefficients <span class="math inline">\(\hat{\beta}\)</span> are <span style="background-color: lightgreen;">identical</span>.</li>
+<li class="fragment">The predictions <span class="math inline">\(\hat{y}_i = \exp(\lambda_{\hat{\beta}}(x_i))\)</span> are <span style="background-color: lightgreen;">identical</span>.</li>
+<li class="fragment">Only the <span style="background-color: orange;">estimation of standard errors differ</span>, and therefore possibly the significance of coefficients.</li>
+</ul>
+<div class="fragment">
+<p>The estimation procedure does not rely on the “true” likelihood (because of <span class="math inline">\(\phi\)</span>): <span style="background-color: orange;">we therefore do not have access to <span class="math inline">\(L_{\text{mod}}\)</span></span>.</p>
+</div>
+</section>
+<section id="example-plant-species-with-quasi-poisson" class="slide level2">
+<h2>Example: Plant Species with Quasi Poisson</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">glm</span>(Species∼ pH<span class="sc">+</span> Biomass<span class="sc">+</span> pH<span class="sc">:</span>Biomass, <span class="at">family=</span>quasipoisson)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div style="font-size: 60%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>t value</th>
+<th>Pr(&gt;</th>
+<th>t</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>3.76812</td>
+<td>0.06144</td>
+<td>61.332</td>
+<td>&lt; 2e-16</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>pHlow</td>
+<td>-0.81557</td>
+<td>0.10268</td>
+<td>-7.943</td>
+<td>7.90e-12</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>pHmid</td>
+<td>-0.33146</td>
+<td>0.09203</td>
+<td>-3.602</td>
+<td>0.000534</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>Biomass</td>
+<td>-0.10713</td>
+<td>0.01247</td>
+<td>-8.590</td>
+<td>3.97e-13</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>pHlow:Biomass</td>
+<td>-0.15503</td>
+<td>0.03997</td>
+<td>-3.878</td>
+<td>0.000208</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>pHmid:Biomass</td>
+<td>-0.03189</td>
+<td>0.02304</td>
+<td>-1.384</td>
+<td>0.169985</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Signif. codes: 0 ‘<em><strong>’ 0.001 ’</strong>’ 0.01 ’</em>’ 0.05 ‘.’ 0.1 ’ ’ 1</p>
+<p>(Dispersion parameter for quasipoisson family taken to be 0.9970074)</p>
+<p>Null deviance: 452.346 on 89 degrees of freedom<br>
+Residual deviance: 83.201 on 84 degrees of freedom<br>
+AIC: NA</p>
+</div>
+</div>
+</section>
+<section id="interpretation" class="slide level2">
+<h2>Interpretation</h2>
+<div class="fragment">
+<p><span class="math inline">\(\hat{\phi} = 0.997 \approx 1\)</span> therefore there was no overdispersion issue</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: orange;">The Residual deviance is incorrect</span>: it’s that of the Poisson model.</p>
+</div>
+</section>
+<section id="negative-binomial-distribution" class="slide level2">
+<h2>Negative Binomial Distribution</h2>
+<div class="fragment">
+<p>Alternative to Poisson: Negative Binomial (NB), which depends on 2 parameters:</p>
+<ul>
+<li class="fragment">its expectation <span class="math inline">\(\lambda &gt; 0\)</span></li>
+<li class="fragment">the “number of successes” (or size) <span class="math inline">\(\theta &gt; 0\)</span></li>
+</ul>
+</div>
+<div class="fragment">
+<p>If <span class="math inline">\(Y \sim NB(\lambda, \theta)\)</span>, then for all <span class="math inline">\(k \in \mathbb{N}\)</span>,</p>
+<div class="square-def">
+<p><span class="math display">\[P(Y = k) = \frac{\Gamma(k + \theta)}{\Gamma(k + 1)\Gamma(\theta)} \left(\frac{\lambda}{\lambda + \theta}\right)^k \left(\frac{\theta}{\lambda + \theta}\right)^\theta\]</span></p>
+</div>
+</div>
+</section>
+<section id="properties-of-negative-binomial" class="slide level2">
+<h2>Properties of Negative Binomial</h2>
+<ul>
+<li class="fragment"><p><span style="background-color: lightblue;">The expectation</span> of <span class="math inline">\(NB(\lambda, \theta)\)</span> equals <span style="background-color: lightblue;"><span class="math inline">\(\lambda\)</span></span>.</p></li>
+<li class="fragment"><p><span style="background-color: lightgreen;">The variance</span> of <span class="math inline">\(NB(\lambda, \theta)\)</span> equals <span style="background-color: lightgreen;"><span class="math inline">\(\lambda + \lambda^2/\theta\)</span></span>.</p></li>
+</ul>
+<div class="fragment">
+<p>This distribution can therefore model <span style="background-color: yellow;">overdispersion</span> (but not underdispersion).</p>
+</div>
+<div class="fragment">
+<p>If <span style="background-color: lightblue;"><span class="math inline">\(\theta \to +\infty\)</span>, <span class="math inline">\(NB(\lambda, \theta) \approx P(\lambda)\)</span></span>.</p>
+</div>
+<div class="fragment">
+<p>The Poisson distribution is therefore a special case of the NB distribution.</p>
+</div>
+</section>
+<section id="illustration-of-nb" class="slide level2">
+<h2>Illustration of NB</h2>
+
+<img data-src="../images/negative_binomials.png" class="r-stretch"></section>
+<section id="negative-binomial-glm-model" class="slide level2">
+<h2>Negative Binomial GLM Model</h2>
+<div class="fragment">
+<p>The negative binomial GLM model assumes that</p>
+<div class="square-def">
+<p><span class="math display">\[Y|(X = x) \sim NB(\lambda(x), \theta)\]</span></p>
+</div>
+<p>where as usual <span style="background-color: lightblue;"><span class="math inline">\(\lambda(x) = \exp(x^T \beta)\)</span></span>.</p>
+</div>
+</section>
+<section id="inference-an-other-tools-in-nb-glm-model" class="slide level2">
+<h2>Inference an other Tools in NB GLM model</h2>
+<div class="fragment">
+<p>The estimation of <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\theta\)</span> is done by <span style="background-color: yellow;">maximum likelihood</span></p>
+</div>
+<div class="fragment">
+<p>All usual inference tools are available:</p>
+<ul>
+<li class="fragment"><span style="background-color: lightblue;">Wald tests</span>; <span style="background-color: lightgreen;">Deviance</span>; <span style="background-color: yellow;">AIC, BIC</span>.</li>
+</ul>
+</div>
+<div class="fragment">
+<p>If <span class="math inline">\(\hat{\theta}\)</span> is large, this is equivalent to the Poisson model.</p>
+</div>
+<div class="fragment">
+<p>We can test the interest of the NB model <span style="background-color: yellow;">compared to the Poisson model</span> by inspecting <span class="math inline">\(\hat{\theta}\)</span>, or by <span style="background-color: yellow;">comparing their AIC and BIC criteria.</span></p>
+</div>
+</section>
+<section id="example-plant-species-and-nb-model" class="slide level2">
+<h2>Example: Plant Species and NB Model</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="fu">glm.nb</span>(Species∼ pH<span class="sc">+</span> Biomass<span class="sc">+</span> pH<span class="sc">:</span>Biomass)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div style="font-size: 50%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>3.76813</td>
+<td>0.06154</td>
+<td>61.235</td>
+<td>&lt; 2e-16</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>pHlow</td>
+<td>-0.81557</td>
+<td>0.10284</td>
+<td>-7.930</td>
+<td>2.19e-15</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>pHmid</td>
+<td>-0.33146</td>
+<td>0.09217</td>
+<td>-3.596</td>
+<td>0.000323</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>Biomass</td>
+<td>-0.10713</td>
+<td>0.01249</td>
+<td>-8.577</td>
+<td>&lt; 2e-16</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>pHlow:Biomass</td>
+<td>-0.15503</td>
+<td>0.04003</td>
+<td>-3.873</td>
+<td>0.000108</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>pHmid:Biomass</td>
+<td>-0.03189</td>
+<td>0.02308</td>
+<td>-1.382</td>
+<td>0.166978</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Signif. codes: 0 ‘<em><strong>’ 0.001 ’</strong>’ 0.01 ’</em>’ 0.05 ‘.’ 0.1 ’ ’ 1</p>
+<p>(Dispersion parameter for Negative Binomial(212058.3) family taken to be 1)</p>
+<p>Null deviance: 452.307 on 89 degrees of freedom<br>
+Residual deviance: 83.194 on 84 degrees of freedom<br>
+AIC: 516.39</p>
+</div>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\hat{\theta} = 212058.3\)</span> therefore the model is equivalent to the Poisson model.</p>
+</div>
+<div class="fragment">
+<p>This is confirmed via the AIC.</p>
+</div>
+</section></section>
+<section>
+<section id="zero-inflated-models" class="title-slide slide level1 center">
+<h1>Zero-inflated Models</h1>
+
+</section>
+<section id="the-problem" class="slide level2">
+<h2>The Problem</h2>
+<div class="fragment">
+<p>When <span class="math inline">\(Y\)</span> is a count variable, it is not uncommon for <span style="background-color: yellow;"><span class="math inline">\(Y = 0\)</span> to appear very often</span> in the sample.</p>
+</div>
+<div class="fragment">
+<p><strong>Example 1</strong>: <span class="math inline">\(Y\)</span>: amount of rain (in mm) that fell each day.</p>
+</div>
+<div class="fragment">
+<p><strong>Example 2</strong>: <span class="math inline">\(Y\)</span>: amount of alcohol (in glasses) consumed each week.</p>
+</div>
+<div class="fragment">
+<div style="text-align: center;">
+<p><img data-src="../images/zero_inflated_dist.png" style="width:30.0%"></p>
+</div>
+</div>
+</section>
+<section id="model-inadequacy" class="slide level2">
+<h2>Model Inadequacy</h2>
+<div class="fragment">
+<p>A <span style="background-color: orange;">Poisson or Negative Binomial</span> model is <span style="background-color: orange;">not adapted</span>.</p>
+</div>
+<div class="fragment">
+<p>Generally two “populations” that explain this phenomenon:</p>
+<ul>
+<li class="fragment">one for which <span class="math inline">\(Y = 0\)</span> systematically</li>
+<li class="fragment">one for which <span class="math inline">\(Y \geq 0\)</span> (or <span class="math inline">\(Y &gt; 0\)</span>)</li>
+</ul>
+</div>
+<div class="fragment">
+<p>We can consider two modelings in this spirit:</p>
+<ul>
+<li class="fragment">The <span style="background-color: yellow;">zero-inflated</span> model (<span class="math inline">\(Y = 0\)</span> versus <span class="math inline">\(Y \geq 0\)</span>)</li>
+<li class="fragment">The Hurdle model (<span class="math inline">\(Y = 0\)</span> versus <span class="math inline">\(Y &gt; 0\)</span>)</li>
+</ul>
+</div>
+<div class="fragment">
+<p>We present below the <span style="background-color: yellow;">zero-inflated</span> model.</p>
+</div>
+</section>
+<section id="zip-model-definition" class="slide level2">
+<h2>ZIP Model Definition</h2>
+<div class="fragment">
+<p>The ZIP (Zero-Inflated Poisson) model assumes that</p>
+<div class="square-def">
+<p><span class="math display">\[Y|(X = x) = \begin{cases}
+0 &amp; \text{with probability } q(x) \\
+P(\lambda(x)) &amp; \text{with probability } 1 - q(x)
+\end{cases}\]</span></p>
+</div>
+<p>where</p>
+<div class="square-def">
+<p><span class="math display">\[\lambda(x) = \exp(x^T \beta) \quad \text{and} \quad q(x) = \text{logit}^{-1}(x^T \gamma)\]</span></p>
+</div>
+</div>
+</section>
+<section id="two-mixed-populations" class="slide level2">
+<h2>Two Mixed Populations</h2>
+<div class="fragment">
+<p>Thus two populations mix:</p>
+<ul>
+<li class="fragment">For one, <span class="math inline">\(Y\)</span> is always <span class="math inline">\(0\)</span>. For the other, <span class="math inline">\(Y \in \mathbb{N}\)</span>.</li>
+<li class="fragment">A logistic model explains membership to one or the other population.</li>
+<li class="fragment">A Poisson log-linear model is used for the second.</li>
+</ul>
+</div>
+</section>
+<section id="probability-distribution" class="slide level2">
+<h2>Probability Distribution</h2>
+<div class="fragment">
+<p>With this model, we therefore have</p>
+<div class="square-def">
+<p><span class="math inline">\(P(Y = 0|X = x) = q_\gamma(x) + (1 - q_\gamma(x))e^{-\lambda_\beta(x)}\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(P(Y = k|X = x) = (1 - q_\gamma(x))e^{-\lambda_\beta(x)} \frac{\lambda_\beta(x)^k}{k!}\)</span></p>
+</div>
+<p>where <span style="background-color: lightblue;"><span class="math inline">\(\lambda_\beta(x) = \exp(x^T \beta)\)</span> and <span class="math inline">\(q_\gamma(x) = \text{logit}^{-1}(x^T \gamma)\)</span></span>.</p>
+</div>
+<div class="fragment">
+<p>We deduce</p>
+<div class="square-def">
+<p><span class="math inline">\(E(Y|X = x) = (1 - q_\gamma(x))\lambda_\beta(x)\)</span></p>
+</div>
+</div>
+</section>
+<section id="inference" class="slide level2">
+<h2>Inference</h2>
+<div class="fragment">
+<p>For inference:</p>
+<ul>
+<li class="fragment">We can write the log-likelihood as a function of <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\gamma\)</span></li>
+<li class="fragment">We obtain estimators by maximum likelihood</li>
+<li class="fragment">And we have access to usual inference tools</li>
+</ul>
+</div>
+<div class="fragment">
+<p>Under R: <code>zeroinfl</code> function from the <code>pscl</code> package.</p>
+</div>
+</section>
+<section id="zinb-model-definition" class="slide level2">
+<h2>ZINB Model Definition</h2>
+<div class="fragment">
+<p>Similarly, the ZINB (Zero-Inflated Negative Binomial) model is</p>
+<div class="square-def">
+<p><span class="math display">\[Y|(X = x) = \begin{cases}
+0 &amp; \text{with probability } q(x) \\
+NB(\lambda(x), \theta) &amp; \text{with probability } 1 - q(x)
+\end{cases}\]</span></p>
+</div>
+<p>where <span class="math inline">\(\theta &gt; 0\)</span> and</p>
+<p><span style="background-color: lightblue;"><span class="math inline">\(\lambda(x) = \exp(x^T \beta) \quad \text{and} \quad q(x) = \text{logit}^{-1}(x^T \gamma)\)</span></span></p>
+</div>
+<div class="fragment">
+<p>Under R: <code>zeroinfl</code> function with the option <code>dist="negbin"</code>.</p>
+</div>
+</section>
+<section id="example-horseshoe-crabs" class="slide level2">
+<h2>Example: Horseshoe Crabs</h2>
+<div class="fragment">
+<p>Number of male satellites on female horseshoe crabs.</p>
+</div>
+<div class="fragment">
+<div style="text-align: center;">
+<p><img data-src="../images/zinb1.png" style="width:40.0%"></p>
+</div>
+</div>
+<div class="fragment">
+<div style="font-size: 80%;">
+<p>We want to model the number of satellites (<code>satell</code>) as a function of the weight of the horseshoe crab (<code>weight</code>) and its color (<code>color</code>, from 1 to 4, ≈ age).</p>
+</div>
+</div>
+</section>
+<section id="example-poisson-log-linear-model" class="slide level2">
+<h2>Example: Poisson log-linear Model :</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="fu">glm</span>(satell∼weight<span class="sc">+</span>color,<span class="at">family=</span>’poisson’,<span class="at">data=</span>crabs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div style="font-size: 50%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>0.08855</td>
+<td>0.25443</td>
+<td>0.348</td>
+<td>0.72783</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>weight</td>
+<td>0.54588</td>
+<td>0.06749</td>
+<td>8.088</td>
+<td>6.05e-16</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>color</td>
+<td>-0.17282</td>
+<td>0.06155</td>
+<td>-2.808</td>
+<td>0.00499</td>
+<td>**</td>
+</tr>
+</tbody>
+</table>
+<p>Signif. codes: 0 ‘<em><strong>’ 0.001 ’</strong>’ 0.01 ’</em>’ 0.05 ‘.’ 0.1 ’ ’ 1</p>
+<p>(Dispersion parameter for poisson family taken to be 1)</p>
+<p>Null deviance: 632.79 on 172 degrees of freedom<br>
+Residual deviance: 552.79 on 170 degrees of freedom<br>
+AIC: 914.09</p>
+</div>
+<p>The model is significant but the fit is poor (the deviance is very high)</p>
+</div>
+</section>
+<section id="example-log-linear-poisson" class="slide level2">
+<h2>Example: Log-Linear Poisson</h2>
+<div style="text-align: center;">
+<p><img data-src="../images/zinb2.png" style="width:40.0%"></p>
+</div>
+<ul>
+<li class="fragment">In red: empirical distribution of satell on the sample</li>
+<li class="fragment">Points: predicted distribution</li>
+</ul>
+</section>
+<section id="example-nb-model" class="slide level2">
+<h2>Example: NB Model</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="fu">glm.nb</span>(satell∼weight<span class="sc">+</span>color,<span class="at">data=</span>crabs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div style="font-size: 60%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>-0.3220</td>
+<td>0.5540</td>
+<td>-0.581</td>
+<td>0.561</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>weight</td>
+<td>0.7072</td>
+<td>0.1612</td>
+<td>4.387</td>
+<td>1.15e-05</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>color</td>
+<td>-0.1734</td>
+<td>0.1199</td>
+<td>-1.445</td>
+<td>0.148</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Signif. codes: 0 ‘<em><strong>’ 0.001 ’</strong>’ 0.01 ’</em>’ 0.05 ‘.’ 0.1 ’ ’ 1</p>
+<p>(Dispersion parameter for Negative Binomial(0.9555) family taken to be 1)</p>
+<p>Null deviance: 219.50 on 172 degrees of freedom<br>
+Residual deviance: 196.64 on 170 degrees of freedom<br>
+AIC: 754.45</p>
+</div>
+</div>
+<div class="fragment">
+<p>It’s better… (by the way: color doesn’t seem significant)</p>
+</div>
+</section>
+<section id="example-nb-model-1" class="slide level2">
+<h2>Example: NB Model</h2>
+<div style="text-align: center;">
+<p><img data-src="../images/zinb3.png" style="width:40.0%"></p>
+</div>
+<div class="fragment">
+<p>Still not very satisfactory.</p>
+</div>
+</section>
+<section id="example-zip-model" class="slide level2">
+<h2>Example: ZIP Model</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="fu">zeroinfl</span>(satell∼weight <span class="sc">|</span> weight<span class="sc">+</span>color,<span class="at">dist=</span><span class="st">"poisson"</span>,<span class="at">data=</span>crabs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div style="font-size: 50%;">
+<p><strong>Count model coefficients (poisson with log link):</strong></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>1.00152</td>
+<td>0.20793</td>
+<td>4.817</td>
+<td>1.46e-06</td>
+<td>***</td>
+</tr>
+<tr class="even">
+<td>weight</td>
+<td>0.19020</td>
+<td>0.07572</td>
+<td>2.512</td>
+<td>0.012</td>
+<td>*</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Zero-inflation model coefficients (binomial with logit link):</strong></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>1.9621</td>
+<td>1.1448</td>
+<td>1.714</td>
+<td>0.0866</td>
+<td>.</td>
+</tr>
+<tr class="even">
+<td>weight</td>
+<td>-1.6630</td>
+<td>0.3943</td>
+<td>-4.218</td>
+<td>2.47e-05</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>color</td>
+<td>0.5329</td>
+<td>0.2305</td>
+<td>2.312</td>
+<td>0.0208</td>
+<td>*</td>
+</tr>
+</tbody>
+</table>
+<p>Signif. codes: 0 ‘<em><strong>’ 0.001 ’</strong>’ 0.01 ’</em>’ 0.05 ‘.’ 0.1 ’ ’ 1</p>
+<p>Number of iterations in BFGS optimization: 9<br>
+Log-likelihood: -360.8 on 5 Df</p>
+</div>
+</div>
+</section>
+<section id="example-zip-model-1" class="slide level2">
+<h2>Example: ZIP Model</h2>
+<div class="fragment">
+<p>We see the estimation result <span style="background-color: yellow;">explaining the mixture</span> of the two “populations” forming the model.</p>
+</div>
+<div class="fragment">
+<p>First population: <span style="background-color: yellow;">Poisson log-linear model</span> with expectation <span class="math inline">\(\lambda\)</span> where <span style="background-color: lightblue;"><span class="math inline">\(\lambda(\text{weight}) = \exp(1 + 0.19 \times \text{weight})\)</span></span></p>
+</div>
+<div class="fragment">
+<p>Second population is <span class="math inline">\(0\)</span>. The probability <span class="math inline">\(q\)</span> of belonging to the second one is</p>
+<p><span style="background-color: lightblue;"><span class="math inline">\(q(\text{wgt}, \text{col}) = \text{logit}^{-1}(1.96 - 1.66 \times \text{wgt} + 0.53 \times \text{col})\)</span></span></p>
+</div>
+</section>
+<section id="example-zip-model-2" class="slide level2">
+<h2>Example: ZIP Model</h2>
+<div style="text-align: center;">
+<p><img data-src="../images/zinb4.png" style="width:40.0%"></p>
+</div>
+<div class="fragment">
+<p>Much more convincing.</p>
+</div>
+</section>
+<section id="example-zinb-model" class="slide level2">
+<h2>Example: ZINB Model</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="fu">zeroinfl</span>(satell∼weight <span class="sc">|</span> weight<span class="sc">+</span>color,<span class="at">dist=</span><span class="st">"negbin"</span>,<span class="at">data=</span>crabs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div style="font-size: 60%;">
+<p><strong>Count model coefficients (negbin with log link):</strong></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>0.8961</td>
+<td>0.3070</td>
+<td>2.919</td>
+<td>0.00351</td>
+<td>**</td>
+</tr>
+<tr class="even">
+<td>weight</td>
+<td>0.2169</td>
+<td>0.1125</td>
+<td>1.928</td>
+<td>0.05383</td>
+<td>.</td>
+</tr>
+<tr class="odd">
+<td>Log(theta)</td>
+<td>1.5802</td>
+<td>0.3574</td>
+<td>4.422</td>
+<td>9.79e-06</td>
+<td>***</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Zero-inflation model coefficients (binomial with logit link):</strong></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 14%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 14%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Coefficient</th>
+<th>Estimate</th>
+<th>Std. Error</th>
+<th>z value</th>
+<th>Pr(&gt;</th>
+<th>z</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>(Intercept)</td>
+<td>1.8663</td>
+<td>1.2415</td>
+<td>1.503</td>
+<td>0.133</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>weight</td>
+<td>-1.7531</td>
+<td>0.4429</td>
+<td>-3.958</td>
+<td>7.55e-05</td>
+<td>***</td>
+</tr>
+<tr class="odd">
+<td>color</td>
+<td>0.5985</td>
+<td>0.2572</td>
+<td>2.326</td>
+<td>0.020</td>
+<td>*</td>
+</tr>
+</tbody>
+</table>
+<p>Signif. codes: 0 ‘<em><strong>’ 0.001 ’</strong>’ 0.01 ’</em>’ 0.05 ‘.’ 0.1 ’ ’ 1</p>
+<p>Theta = 4.8558<br>
+Number of iterations in BFGS optimization: 11<br>
+Log-likelihood: -349.9 on 6 Df</p>
+</div>
+</div>
+</section>
+<section id="example-zinb-model-1" class="slide level2">
+<h2>Example: ZINB Model</h2>
+<div style="text-align: center;">
+<p><img data-src="../images/zinb5.png" style="width:40.0%"></p>
+</div>
+</section>
+<section id="zinb-model-interpretation" class="slide level2">
+<h2>ZINB Model Interpretation</h2>
+<div class="fragment">
+<p>The output is read in the same way as for the ZIP model</p>
+</div>
+<div class="fragment">
+<p>There is the parameter <span class="math inline">\(\theta\)</span> in addition, from the NB distribution</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\theta\)</span> is not “infinite”: the model therefore does not reduce to the ZIP model.</p>
+<ul>
+<li class="fragment"><p>A deviance test shows that ZINB is preferable to ZIP</p></li>
+<li class="fragment"><p>This is also confirmed by the AIC and BIC criteria.</p></li>
+</ul>
+</div>
+</section>
+<section id="example-conclusion" class="slide level2">
+<h2>Example: Conclusion</h2>
+<div class="fragment">
+<p>A portion of horseshoe crabs (the smallest and oldest) have no male satellites.</p>
+</div>
+<div class="fragment">
+<p>The probability of belonging to this population is estimated at</p>
+<p><span style="background-color: lightblue;"><span class="math inline">\(q(\text{wht}, \text{col}) = \text{logit}^{-1}(1.87 - 1.75 \times \text{wht} + 0.60 \times \text{col})\)</span></span></p>
+</div>
+<div class="fragment">
+<p>For the other portion of horseshoe crabs, they have on average more satellites the larger they are. This average is estimated at</p>
+<p><span style="background-color: lightblue;"><span class="math inline">\(\lambda(\text{wht}) = \exp(0.90 + 0.22 \times \text{wht})\)</span></span></p>
+</div>
+<div class="fragment">
+<p>Distribution cna be modeled as <span style="background-color: lightblue;"><span class="math inline">\(NB(\lambda(\text{wht}), \theta)\)</span> where <span class="math inline">\(\theta = 4.86\)</span></span>.</p>
 
 
 </div>

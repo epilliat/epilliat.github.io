@@ -541,3 +541,577 @@ and test if $\phi = 1$ or not (if $\phi = 1$, $\hat{\phi} \sim N(1, 1/n)$ when $
 . . .
 
 We can fit a [negative binomial model]{style="background-color: yellow;"} (cf the following), and test if it is better than the Poisson model.
+
+
+## The Quasi-Poisson Model
+
+
+1. Estimate [$E(Y|X = x) = \lambda_\beta(x)$]{style="background-color: lightblue;"} with [$\lambda_\beta(x) = \exp(x^T \beta)$]{style="background-color: lightblue;"} in the same way as with a Poisson model (same likelihood).
+
+2. Estimate $\phi$ as in the previous slide.
+
+3. Estimate the variance of $\hat{\beta}$ taking into account $\hat{\phi}$.
+
+## Quasi-Poisson VS Poisson Model
+
+- The estimated coefficients $\hat{\beta}$ are [identical]{style="background-color: lightgreen;"}.
+- The predictions $\hat{y}_i = \exp(\lambda_{\hat{\beta}}(x_i))$ are [identical]{style="background-color: lightgreen;"}.
+- Only the [estimation of standard errors differ]{style="background-color: orange;"}, and therefore possibly the significance of coefficients.
+
+. . .
+
+The estimation procedure does not rely on the "true" likelihood (because of $\phi$): [we therefore do not have access to $L_{\text{mod}}$]{style="background-color: orange;"}.
+
+
+## Example: Plant Species with Quasi Poisson
+
+. . .
+
+```r
+glm(Species∼ pH+ Biomass+ pH:Biomass, family=quasipoisson)
+```
+
+. . .
+
+:::{style="font-size: 60%;"}
+| Coefficient | Estimate | Std. Error | t value | Pr(>|t|) | Significance |
+|-------------|----------|------------|---------|----------|--------------|
+| (Intercept) | 3.76812 | 0.06144 | 61.332 | < 2e-16 | *** |
+| pHlow | -0.81557 | 0.10268 | -7.943 | 7.90e-12 | *** |
+| pHmid | -0.33146 | 0.09203 | -3.602 | 0.000534 | *** |
+| Biomass | -0.10713 | 0.01247 | -8.590 | 3.97e-13 | *** |
+| pHlow:Biomass | -0.15503 | 0.03997 | -3.878 | 0.000208 | *** |
+| pHmid:Biomass | -0.03189 | 0.02304 | -1.384 | 0.169985 |  |
+
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for quasipoisson family taken to be 0.9970074)
+
+Null deviance: 452.346 on 89 degrees of freedom  
+Residual deviance: 83.201 on 84 degrees of freedom  
+AIC: NA
+:::
+
+## Interpretation
+
+. . .
+
+$\hat{\phi} = 0.997 \approx 1$ therefore there was no overdispersion issue
+
+. . .
+
+[The Residual deviance is incorrect]{style="background-color: orange;"}: it's that of the Poisson model.
+
+
+## Negative Binomial Distribution
+
+. . .
+
+Alternative to Poisson: Negative Binomial (NB), which depends on 2 parameters:
+
+- its expectation $\lambda > 0$
+- the "number of successes" (or size) $\theta > 0$
+
+. . .
+
+If $Y \sim NB(\lambda, \theta)$, then for all $k \in \mathbb{N}$,
+
+::: {.square-def}
+$$P(Y = k) = \frac{\Gamma(k + \theta)}{\Gamma(k + 1)\Gamma(\theta)} \left(\frac{\lambda}{\lambda + \theta}\right)^k \left(\frac{\theta}{\lambda + \theta}\right)^\theta$$
+:::
+
+
+
+## Properties of Negative Binomial
+
+- [The expectation]{style="background-color: lightblue;"} of $NB(\lambda, \theta)$ equals [$\lambda$]{style="background-color: lightblue;"}.
+
+- [The variance]{style="background-color: lightgreen;"} of $NB(\lambda, \theta)$ equals [$\lambda + \lambda^2/\theta$]{style="background-color: lightgreen;"}.
+
+. . .
+
+This distribution can therefore model [overdispersion]{style="background-color: yellow;"} (but not underdispersion).
+
+. . .
+
+If [ $\theta \to +\infty$, $NB(\lambda, \theta) \approx P(\lambda)$]{style="background-color: lightblue;"}.
+
+. . .
+
+The Poisson distribution is therefore a special case of the NB distribution.
+
+
+## Illustration of NB
+
+![](../images/negative_binomials.png)
+
+
+## Negative Binomial GLM Model
+
+. . .
+
+The negative binomial GLM model assumes that
+
+::: {.square-def}
+$$Y|(X = x) \sim NB(\lambda(x), \theta)$$
+:::
+
+
+
+where as usual [$\lambda(x) = \exp(x^T \beta)$]{style="background-color: lightblue;"}.
+
+## Inference an other Tools in NB GLM model
+
+. . .
+
+The estimation of $\beta$ and $\theta$ is done by [maximum likelihood]{style="background-color: yellow;"}
+
+. . .
+
+All usual inference tools are available:
+
+
+- [Wald tests]{style="background-color: lightblue;"}; [Deviance]{style="background-color: lightgreen;"}; [AIC, BIC]{style="background-color: yellow;"}.
+
+
+. . .
+
+If $\hat{\theta}$ is large, this is equivalent to the Poisson model.
+
+. . .
+
+We can test the interest of the  NB model [compared to the Poisson model]{style="background-color: yellow;"} by inspecting $\hat{\theta}$, or by [comparing their AIC and BIC criteria.]{style="background-color: yellow;"}
+
+## Example: Plant Species and NB Model
+
+. . .
+
+```r
+glm.nb(Species∼ pH+ Biomass+ pH:Biomass)
+```
+
+. . .
+
+:::{style="font-size: 50%;"}
+| Coefficient | Estimate | Std. Error | z value | Pr(>|z|) | Significance |
+|-------------|----------|------------|---------|----------|--------------|
+| (Intercept) | 3.76813 | 0.06154 | 61.235 | < 2e-16 | *** |
+| pHlow | -0.81557 | 0.10284 | -7.930 | 2.19e-15 | *** |
+| pHmid | -0.33146 | 0.09217 | -3.596 | 0.000323 | *** |
+| Biomass | -0.10713 | 0.01249 | -8.577 | < 2e-16 | *** |
+| pHlow:Biomass | -0.15503 | 0.04003 | -3.873 | 0.000108 | *** |
+| pHmid:Biomass | -0.03189 | 0.02308 | -1.382 | 0.166978 |  |
+
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Negative Binomial(212058.3) family taken to be 1)
+
+Null deviance: 452.307 on 89 degrees of freedom  
+Residual deviance: 83.194 on 84 degrees of freedom  
+AIC: 516.39
+:::
+
+. . .
+
+$\hat{\theta} = 212058.3$ therefore the model is equivalent to the Poisson model.
+
+. . .
+
+This is confirmed via the AIC.
+
+
+# Zero-inflated Models
+
+## The Problem
+
+. . .
+
+When $Y$ is a count variable, it is not uncommon for [$Y = 0$ to appear very often]{style="background-color: yellow;"} in the sample.
+
+. . .
+
+**Example 1**: $Y$: amount of rain (in mm) that fell each day.
+
+. . .
+
+**Example 2**: $Y$: amount of alcohol (in glasses) consumed each week.
+
+. . .
+
+::: {style="text-align: center;"}
+![](../images/zero_inflated_dist.png){width=30%}
+:::
+
+
+## Model Inadequacy
+
+. . .
+
+A [Poisson or Negative Binomial]{style="background-color: orange;"} model is [not adapted]{style="background-color: orange;"}.
+
+. . .
+
+Generally two "populations" that explain this phenomenon:
+
+
+- one for which $Y = 0$ systematically
+- one for which $Y \geq 0$ (or $Y > 0$)
+
+. . .
+
+We can consider two modelings in this spirit:
+
+
+- The [zero-inflated]{style="background-color: yellow;"} model ($Y = 0$ versus $Y \geq 0$)
+- The Hurdle model ($Y = 0$ versus $Y > 0$)
+
+. . .
+
+We present below the [zero-inflated]{style="background-color: yellow;"} model.
+
+
+## ZIP Model Definition
+
+. . .
+
+The ZIP (Zero-Inflated Poisson) model assumes that
+
+::: {.square-def}
+$$Y|(X = x) = \begin{cases}
+0 & \text{with probability } q(x) \\
+P(\lambda(x)) & \text{with probability } 1 - q(x)
+\end{cases}$$
+:::
+
+
+
+where
+
+::: {.square-def}
+$$\lambda(x) = \exp(x^T \beta) \quad \text{and} \quad q(x) = \text{logit}^{-1}(x^T \gamma)$$
+:::
+
+
+
+## Two Mixed Populations
+
+. . .
+
+Thus two populations mix:
+
+- For one, $Y$ is always $0$. For the other, $Y \in \mathbb{N}$.
+- A logistic model explains membership to one or the other population.
+- A Poisson log-linear model is used for the second.
+
+
+## Probability Distribution
+
+. . .
+
+With this model, we therefore have
+
+::: {.square-def}
+$P(Y = 0|X = x) = q_\gamma(x) + (1 - q_\gamma(x))e^{-\lambda_\beta(x)}$
+:::
+
+. . .
+
+::: {.square-def}
+$P(Y = k|X = x) = (1 - q_\gamma(x))e^{-\lambda_\beta(x)} \frac{\lambda_\beta(x)^k}{k!}$
+:::
+
+where [$\lambda_\beta(x) = \exp(x^T \beta)$ and $q_\gamma(x) = \text{logit}^{-1}(x^T \gamma)$]{style="background-color: lightblue;"}.
+
+. . .
+
+We deduce
+
+::: {.square-def}
+$E(Y|X = x) = (1 - q_\gamma(x))\lambda_\beta(x)$
+:::
+
+
+## Inference
+
+. . .
+
+For inference:
+
+- We can write the log-likelihood as a function of $\beta$ and $\gamma$
+- We obtain estimators by maximum likelihood
+- And we have access to usual inference tools
+
+. . .
+
+Under R: `zeroinfl` function from the `pscl` package.
+
+
+## ZINB Model Definition
+
+. . .
+
+Similarly, the ZINB (Zero-Inflated Negative Binomial) model is
+
+::: {.square-def}
+$$Y|(X = x) = \begin{cases}
+0 & \text{with probability } q(x) \\
+NB(\lambda(x), \theta) & \text{with probability } 1 - q(x)
+\end{cases}$$
+:::
+
+
+
+where $\theta > 0$ and
+
+[$\lambda(x) = \exp(x^T \beta) \quad \text{and} \quad q(x) = \text{logit}^{-1}(x^T \gamma)$]{style="background-color: lightblue;"}
+
+
+. . .
+
+Under R: `zeroinfl` function with the option `dist="negbin"`.
+
+## Example: Horseshoe Crabs
+
+. . .
+
+Number of male satellites on female horseshoe crabs.
+
+. . .
+
+::: {style="text-align: center;"}
+![](../images/zinb1.png){width=40%}
+:::
+
+. . .
+
+:::{style="font-size: 80%;"}
+
+We want to model the number of satellites (`satell`) as a function of the weight of the horseshoe crab (`weight`) and its color (`color`, from 1 to 4, ≈ age).
+:::
+
+. . .
+
+
+## Example: Poisson log-linear Model :
+
+. . . 
+
+```r
+glm(satell∼weight+color,family=’poisson’,data=crabs)
+```
+
+. . .
+
+:::{style="font-size: 50%;"}
+| Coefficient | Estimate | Std. Error | z value | Pr(>|z|) | Significance |
+|-------------|----------|------------|---------|----------|--------------|
+| (Intercept) | 0.08855 | 0.25443 | 0.348 | 0.72783 |  |
+| weight | 0.54588 | 0.06749 | 8.088 | 6.05e-16 | *** |
+| color | -0.17282 | 0.06155 | -2.808 | 0.00499 | ** |
+
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+Null deviance: 632.79 on 172 degrees of freedom  
+Residual deviance: 552.79 on 170 degrees of freedom  
+AIC: 914.09
+:::
+
+The model is significant but the fit is poor (the deviance is very high)
+
+
+## Example: Log-Linear Poisson
+
+::: {style="text-align: center;"}
+![](../images/zinb2.png){width=40%}
+:::
+
+- In red: empirical distribution of satell on the sample
+- Points: predicted distribution
+
+
+## Example: NB Model
+
+. . .
+
+```r
+glm.nb(satell∼weight+color,data=crabs)
+```
+
+. . .
+
+:::{style="font-size: 60%;"}
+| Coefficient | Estimate | Std. Error | z value | Pr(>|z|) | Significance |
+|-------------|----------|------------|---------|----------|--------------|
+| (Intercept) | -0.3220 | 0.5540 | -0.581 | 0.561 |  |
+| weight | 0.7072 | 0.1612 | 4.387 | 1.15e-05 | *** |
+| color | -0.1734 | 0.1199 | -1.445 | 0.148 |  |
+
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for Negative Binomial(0.9555) family taken to be 1)
+
+Null deviance: 219.50 on 172 degrees of freedom  
+Residual deviance: 196.64 on 170 degrees of freedom  
+AIC: 754.45
+:::
+
+. . .
+
+It's better... (by the way: color doesn't seem significant)
+
+
+## Example: NB Model
+
+::: {style="text-align: center;"}
+![](../images/zinb3.png){width=40%}
+:::
+
+. . .
+
+Still not very satisfactory.
+
+## Example: ZIP Model
+
+. . .
+
+```r
+zeroinfl(satell∼weight | weight+color,dist="poisson",data=crabs)
+```
+
+. . .
+
+:::{style="font-size: 50%;"}
+**Count model coefficients (poisson with log link):**
+
+| Coefficient | Estimate | Std. Error | z value | Pr(>|z|) | Significance |
+|-------------|----------|------------|---------|----------|--------------|
+| (Intercept) | 1.00152 | 0.20793 | 4.817 | 1.46e-06 | *** |
+| weight | 0.19020 | 0.07572 | 2.512 | 0.012 | * |
+
+**Zero-inflation model coefficients (binomial with logit link):**
+
+| Coefficient | Estimate | Std. Error | z value | Pr(>|z|) | Significance |
+|-------------|----------|------------|---------|----------|--------------|
+| (Intercept) | 1.9621 | 1.1448 | 1.714 | 0.0866 | . |
+| weight | -1.6630 | 0.3943 | -4.218 | 2.47e-05 | *** |
+| color | 0.5329 | 0.2305 | 2.312 | 0.0208 | * |
+
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Number of iterations in BFGS optimization: 9  
+Log-likelihood: -360.8 on 5 Df
+:::
+
+
+## Example: ZIP Model
+
+
+. . .
+
+We see the estimation result [explaining the mixture]{style="background-color: yellow;"} of the two "populations" forming the model.
+
+. . .
+
+First population: [Poisson log-linear model]{style="background-color: yellow;"} with expectation $\lambda$ where
+[$\lambda(\text{weight}) = \exp(1 + 0.19 \times \text{weight})$]{style="background-color: lightblue;"}
+
+. . .
+
+Second population is $0$. The probability $q$ of belonging to the second one is
+
+[$q(\text{wgt}, \text{col}) = \text{logit}^{-1}(1.96 - 1.66 \times \text{wgt} + 0.53 \times \text{col})$]{style="background-color: lightblue;"}
+
+
+## Example: ZIP Model
+
+::: {style="text-align: center;"}
+![](../images/zinb4.png){width=40%}
+:::
+
+. . .
+
+Much more convincing.
+
+## Example: ZINB Model
+
+. . .
+
+```r
+zeroinfl(satell∼weight | weight+color,dist="negbin",data=crabs)
+```
+
+. . .
+
+
+:::{style="font-size: 60%;"}
+**Count model coefficients (negbin with log link):**
+
+| Coefficient | Estimate | Std. Error | z value | Pr(>|z|) | Significance |
+|-------------|----------|------------|---------|----------|--------------|
+| (Intercept) | 0.8961 | 0.3070 | 2.919 | 0.00351 | ** |
+| weight | 0.2169 | 0.1125 | 1.928 | 0.05383 | . |
+| Log(theta) | 1.5802 | 0.3574 | 4.422 | 9.79e-06 | *** |
+
+**Zero-inflation model coefficients (binomial with logit link):**
+
+| Coefficient | Estimate | Std. Error | z value | Pr(>|z|) | Significance |
+|-------------|----------|------------|---------|----------|--------------|
+| (Intercept) | 1.8663 | 1.2415 | 1.503 | 0.133 |  |
+| weight | -1.7531 | 0.4429 | -3.958 | 7.55e-05 | *** |
+| color | 0.5985 | 0.2572 | 2.326 | 0.020 | * |
+
+Signif. codes: 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Theta = 4.8558  
+Number of iterations in BFGS optimization: 11  
+Log-likelihood: -349.9 on 6 Df
+:::
+
+## Example: ZINB Model
+
+::: {style="text-align: center;"}
+![](../images/zinb5.png){width=40%}
+:::
+
+## ZINB Model Interpretation
+
+. . .
+
+The output is read in the same way as for the ZIP model
+
+
+. . .
+
+There is the parameter $\theta$ in addition, from the NB distribution
+
+. . .
+
+$\theta$ is not "infinite": the model therefore does not reduce to the ZIP model.
+
+- A deviance test shows that ZINB is preferable to ZIP
+
+- This is also confirmed by the AIC and BIC criteria.
+
+## Example: Conclusion
+
+. . .
+
+A portion of horseshoe crabs (the smallest and oldest) have no male satellites.
+
+. . .
+
+The probability of belonging to this population is estimated at
+
+[$q(\text{wht}, \text{col}) = \text{logit}^{-1}(1.87 - 1.75 \times \text{wht} + 0.60 \times \text{col})$]{style="background-color: lightblue;"}
+
+. . .
+
+For the other portion of horseshoe crabs, they have on average more satellites the larger they are. This average is estimated at
+
+[$\lambda(\text{wht}) = \exp(0.90 + 0.22 \times \text{wht})$]{style="background-color: lightblue;"}
+
+. . .
+
+Distribution cna be modeled as [ $NB(\lambda(\text{wht}), \theta)$ where $\theta = 4.86$]{style="background-color: lightblue;"}.
