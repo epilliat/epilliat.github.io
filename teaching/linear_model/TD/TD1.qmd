@@ -1,0 +1,137 @@
+---
+title: "TD1"
+format: 
+  html:
+    incremental: true
+    callout-icon: false
+    theme: [default]
+smaller: true
+css: ../../../styles.css
+
+---
+
+# Linear and Generalized Regression - Tutorial 1
+
+## Exercise 1. Empirical Mean
+
+Let $z_1, ..., z_n \in \mathbb R$ be observations of a variable $Z$.
+
+1. Determine the value $\hat{m}$ that minimizes the quadratic distance to the data $S(m) = \sum_{i=1}^{n}(z_i - m)^2$.
+
+2. The quantity $\hat{m}$ actually corresponds to the ordinary least squares estimation in a linear regression model: $Y = X\beta + \epsilon$. Specify what $Y$, $X$, $\beta$ and $\epsilon$ are.
+
+3. Recover the result from the first question using the general formula for the least squares estimator: $\hat{\beta} = (X'X)^{-1}X'Y$.
+
+## Exercise 2. Recognizing a Linear Regression Model
+
+Are the following models linear regression models? If not, can we apply a transformation to reduce them to one? For each linear regression model of the type $Y = X\beta + \epsilon$, specify what $Y$, $X$, $\beta$ and $\epsilon$ are.
+
+1. We observe $(x_i, y_i)$, $i = 1, ..., n$ theoretically linked by the relation $y_i = a + bx_i + \epsilon_i$, $i = 1, ..., n$, where the variables $\epsilon_i$ are centered, with variance $\sigma^2$ and uncorrelated. We want to estimate $a$ and $b$.
+
+2. We observe $(x_i, y_i)$, $i = 1, ..., n$ theoretically linked by the relation $y_i = a_1x_i + a_2x_i^2 + \epsilon_i$, $i = 1, ..., n$, where the variables $\epsilon_i$ are centered, with variance $\sigma^2$ and uncorrelated. We want to estimate $a_1$ and $a_2$.
+
+3. We collect for different countries ($i = 1, ..., n$) their production $P_i$, their capital $K_i$, their labor factor $T_i$ which are theoretically linked by the Cobb-Douglas relation $P = \alpha_1K^{\alpha_2}T^{\alpha_3}$. We want to verify this relation and estimate $\alpha_1$, $\alpha_2$ and $\alpha_3$.
+
+4. The rate of active product $y$ in a medication is supposed to evolve over time $t$ according to the relation $y = \beta_1e^{-\beta_2t}$. We have measurements of $n$ rates $y_i$ taken at $n$ times $t_i$. We want to verify this relation and estimate $\beta_1$ and $\beta_2$.
+
+5. Same problem as previously but the theoretical model between the observations is written $y_i = \beta_1e^{-\beta_2t_i} + u_i$, $i = 1, ..., n$, where the variables $u_i$ are centered, with variance $\sigma^2$ and uncorrelated.
+
+## Exercise 3. Simple Regression
+
+We consider the simple linear regression model where we observe $n$ realizations $(x_i, y_i)$, $i = 1, ..., n$ linked by the relation $y_i = \beta_0 + \beta_1x_i + \epsilon_i$, $i = 1, ..., n$. We assume that the $x_i$ are deterministic and that the variables $\epsilon_i$ are centered, with variance $\sigma^2$ and uncorrelated with each other.
+
+1. Write the model in matrix form.
+
+2. What minimization problem is the least squares estimator $\hat{\beta} = (\hat{\beta}_0, \hat{\beta}_1)$ the solution to?
+
+3. We can find $\hat{\beta}$ by setting the gradient of the function to minimize to zero. This has already been done and the solutions should be known by heart: what are they?
+
+4. Find $\hat{\beta}$ using the general formula $\hat{\beta} = (X'X)^{-1}X'Y$.
+
+5. Justify why the regression line necessarily passes through the point $(\bar{x}_n, \bar{y}_n)$.
+
+6. We want to predict the value $y_o$ associated with the value $x_o$ of a new individual, assuming that the latter follows exactly the same model as the $n$ previous individuals. What is the prediction $\hat{y}_o$ of $y_o$?
+
+7. Show that the expectation of the prediction error $y_o - \hat{y}_o$ is zero.
+
+8. For a general linear regression model, the variance of the prediction error associated with a new regressor vector $x$, of dimension $p$, is (cf. course): $\sigma^2 (x'(X'X)^{-1}x + 1)$. Show that here this variance can be rewritten as:
+  $$\sigma^2 \left( 1 + \frac{1}{n} + \frac{(x_o - \bar{x}_n)^2}{\sum_{i=1}^{n}(x_i - \bar{x}_n)^2} \right)$$
+
+9. Discuss the quality of the prediction depending on whether $x_o$ is close or not to the empirical mean $\bar{x}_n$.
+
+10. What happens if $n$ is large?
+
+## Exercise 4. Other Small Questions on Simple Linear Regression
+
+We consider the simple linear regression model where we observe $n$ realizations $(x_i, y_i)$, $i = 1, ..., n$ linked by the theoretical relation $y_i = \beta_0 + \beta_1x_i + \epsilon_i$, $i = 1, ..., n$.
+
+1. What are the standard assumptions on the modeling errors $\epsilon_i$?
+
+2. Under what assumption is the model identifiable, in the sense that $\beta_0$ and $\beta_1$ are uniquely defined?
+
+3. Under what assumption does the OLS estimator of $\beta_0$ and $\beta_1$ exist?
+
+4. Do the variables $y_i$ have the same expectation?
+
+5. Does the regression line estimated from the observations $(x_i, y_i)$ always pass through the point $(\bar{x}_n, \bar{y}_n)$?
+
+6. Are the OLS estimators of coefficients $\beta_0$ and $\beta_1$ independent?
+
+7. Is it possible to find estimators of the regression coefficients with lower variance than that of the OLS estimators?
+
+## Exercise 5. Convergence of Estimators
+
+We place ourselves as in the previous exercise in the framework of a simple regression model. We recall that the design matrix $X$ and the matrix $(X'X)^{-1}$ are in this case:
+
+$$X = \begin{pmatrix} 1 & x_1 \\ \vdots & \vdots \\ 1 & x_n \end{pmatrix}, \quad (X'X)^{-1} = \frac{1}{\sum_{i=1}^{n}(x_i - \bar{x}_n)^2} \begin{pmatrix} \frac{1}{n}\sum_{i=1}^{n} x_i^2 & -\bar{x}_n \\ -\bar{x}_n & 1 \end{pmatrix}$$
+
+We will examine some examples of design, that is, the distribution of values $x_1, \ldots, x_n$, and verify the convergence (or not) of the OLS estimators of parameters $\beta_0$ and $\beta_1$ in each case.
+
+1. Recall what the mean squared error of $\hat{\beta}$, the OLS estimator of $\beta = \begin{pmatrix} \beta_0 \\ \beta_1 \end{pmatrix}$, is.
+
+2. In this first example, we place ourselves in the case where the observations take place at regularly spaced intervals, and become more and more numerous with $n$. Without loss of generality, we thus assume that $x_i = i$ for all $i = 1, \ldots, n$.
+  a. Give the limit of the matrix $V(\hat{\beta})$ when $n \to \infty$.
+  
+  b. Deduce the asymptotic behavior in quadratic mean of $\hat{\beta}_0$ and $\hat{\beta}_1$.
+
+3. Same question when the observations become more and more dense in an interval (for simplicity: the interval $[0, 1]$). We thus assume that $x_i = i/n$ for all $i = 1, \ldots, n$.
+
+4. We place ourselves here in a case where the observations are poorly dispersed: we assume that $x_i = 1/i$ for all $i = 1, \ldots, n$. Thus the observations concentrate at 0. What about the asymptotic behavior in quadratic mean of $\hat{\beta}_0$ and $\hat{\beta}_1$?
+
+5. In the previous examples, the $x_i$ were deterministic. We now assume that the $x_i$ are random, i.i.d, square integrable and with non-zero variance. We also assume that the $x_i$ and the modeling errors $\epsilon_i$ are independent. This situation can be seen as the random equivalent of the deterministic situations treated in questions 2 and 3 (depending on whether the law of the $x_i$ is discrete or continuous).
+  a. Express $\hat{\beta} - \beta$ as a function of the matrix $X$ and the vector $\epsilon$.
+  
+  b. Deduce that $\hat{\beta}$ converges almost surely to $\beta$ when $n \to \infty$.
+
+## Exercise 6. Candy Consumption
+
+Data, published by the Chicago Tribune in 1993, show candy consumption in millions of pounds and population in millions of inhabitants in 17 countries, in 1991. We denote $y_i$ the consumption and $x_i$ the population of the $i$-th country, $i = 1, \ldots, 17$. We are given the following values:
+
+$$\sum_{i=1}^{17} x_i = 751.8, \quad \sum_{i=1}^{17} y_i = 13683.8, \quad \sum_{i=1}^{17} x_i^2 = 97913.92$$
+
+$$\sum_{i=1}^{17} y_i^2 = 36404096.44, \quad \sum_{i=1}^{17} x_i y_i = 1798166.66$$
+
+We want to link candy consumption as a function of the population of each country using a linear regression model (with constant).
+
+1. Write the equation of the envisaged model, for each country, specifying the assumptions made.
+
+| $\alpha \backslash q$ | 14   | 15   | 16   | 17   | 18   |
+|----------------------|------|------|------|------|------|
+| 0.01                 | 2.62 | 2.60 | 2.58 | 2.57 | 2.55 |
+| 0.025                | 2.14 | 2.13 | 2.12 | 2.11 | 2.10 |
+| 0.05                 | 1.76 | 1.75 | 1.75 | 1.74 | 1.73 |
+| 0.10                 | 1.35 | 1.34 | 1.34 | 1.33 | 1.33 |
+
+**Table 1:** Quantiles of order $1 - \alpha$ of a Student distribution with $q$ degrees of freedom, for different values of $\alpha$ and $q$.
+
+2. Give the expressions of the OLS estimators of the slope and the intercept of the model, as a function of the sums given above. Deduce their values.
+
+3. Give the expression of an unbiased estimator of the variance of the modeling error, as a function of the sums given above. Deduce its value.
+
+4. What is the theoretical variance of the OLS estimators? How to estimate it? Deduce an estimation of the standard deviation of each estimator (one can rely on the expression of $(X'X)^{-1}$ recalled in exercise 5).
+
+5. Test if the slope of the regression is significantly different from 0, recalling the underlying assumptions. For the numerical application, perform a test at the 5% level using the quantiles given in table 1.
+
+6. Give the expression of the p-value of the previous test. We do not ask to perform the numerical application, but at least to give an approximate value.
+
+7. Similarly test if the intercept is significantly different from 0, on one hand by fixing the level at 5% and on the other hand by roughly evaluating the associated p-value.

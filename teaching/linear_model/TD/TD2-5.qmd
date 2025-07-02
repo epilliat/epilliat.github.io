@@ -1,0 +1,237 @@
+---
+title: "TD2-5"
+format: 
+  html:
+    incremental: true
+    callout-icon: false
+    theme: [default]
+smaller: true
+css: ../../../styles.css
+---
+
+## Exercise 1. R Practical Work on Eucalyptus Data
+
+We want to explain the height of eucalyptus trees as a function of their circumference using simple linear regression. We have measurements of heights (ht) and circumferences (circ) of 1429 eucalyptus trees, which are found in the file "eucalyptus.txt".
+
+1. Extract and represent the data in the plane.
+
+2. Perform the regression $y = \beta_1 + \beta_2 x + \epsilon$ where $y$ represents the height and $x$ the circumference. Comment on the results.
+
+3. What is the theoretical formula for $\hat{\beta}_1$ and $\hat{\beta}_2$? Recover the estimates provided by R using it.
+
+4. Calculate a 95% confidence interval for $\beta_1$ and $\beta_2$, assuming normality of the data.
+
+5. If the noise $\epsilon$ does not follow a normal distribution, do the previous confidence intervals remain valid?
+
+6. Plot the estimator of the regression line and a 95% confidence interval for it. What do you deduce about the quality of the estimation?
+
+7. We now want to predict the height of a new series of eucalyptus trees with circumferences 50, 100, 150 and 200. Give the estimators of the size of each of them and the associated 95% prediction intervals, assuming normality of the data.
+   
+8. Add to the graphical representation of question 6 the prediction intervals (associated with the same circumference values).
+
+9.  If the noise $\epsilon$ does not follow a normal distribution, do the previous prediction intervals remain valid?
+
+## Exercise 2. The Fisher Test and R²
+
+We consider a multiple linear regression model $y = X\beta + \epsilon$ where $\beta \in \mathbb{R}^p$, $X$ is a matrix of size $(n, p)$ and $\epsilon$ is a random vector of size $n$, centered and with covariance matrix $\sigma^2 I_n$ ($I_n$ is the identity matrix).
+
+We want to test $q$ linear constraints on the parameter $\beta$, that is to test $H_0: R\beta = 0$ against $H_1: R\beta \neq 0$, where $R$ is a matrix of size $(q, p)$.
+
+We denote $SCR$ the residual sum of squares of the initial model, and $SCR_c$ the residual sum of squares of the constrained model (that is, for which hypothesis $H_0$ is verified).
+
+1. Recall the statistic used to perform this test. We will denote it $F$ and give its expression as a function of $SCR$ and $SCR_c$.
+
+2. What distribution does this statistic follow under $H_0$ when $\epsilon$ follows a normal distribution? What can we say about its distribution if no normality assumption is made on $\epsilon$?
+
+3. Show that if a constant is present in the constrained model,
+  $$F = \frac{R^2 - R^2_c}{1 - R^2} \cdot \frac{n - p}{q}$$
+  where $R^2$ (respectively $R^2_c$) denotes the coefficient of determination of the initial model (respectively of the constrained model).
+
+
+## Exercise 3. R Practical Work on Ice Cream Consumption
+
+We study ice cream consumption in the United States over a period of 30 weeks from March 18, 1950 to July 11, 1953. The variables are the period (from week 1 to week 30), and on average over each period: ice cream consumption per person ("Consumption", in 1/2 liter), ice cream price ("Price", in dollars), average weekly household wage ("Income", in dollars), and temperature ("Temp", in degrees Fahrenheit). The data are available in the file "icecream-R.dat".
+
+1. Extract the data and represent consumption as a function of the different variables.
+
+2. We propose to linearly regress consumption on the three variables "Price", "Income" and "Temp", further assuming that a constant is present in the model. We denote the constant $\beta_1$ and the three coefficients associated with the previous variables respectively $\beta_2$, $\beta_3$ and $\beta_4$. Perform the estimation phase of this regression and comment on the sign of the estimated coefficients.
+
+3. Test the global significance of the proposed model, i.e. $H_0: \beta_2 = \beta_3 = \beta_4 = 0$, using the global Fisher test.
+
+4. Test the significance of the "Price" variable in this model at the 5% level. Similarly test the significance of "Income", then of "Temp".
+
+5. Compare the previous complete model and the model without the "Price" variable using a Fisher test:
+  1. By basing the calculation on the residual sum of squares of each model;
+  2. By basing the calculation on the coefficient of determination of each model;
+  3. By using the linearHypothesis function from the car library.
+  4. By using the anova function.
+  What is the difference between this test and the Student test for significance of the "Price" variable?
+
+6. Compare the complete model and the model without the "Price" variable and without the constant using a Fisher test. Proceed according to the 4 methods described above. Comment.
+
+7. We now want to predict ice cream consumption for the following data: $Price = 0.3$, $Income = 85$ and $Temp = 65$. Propose the prediction that seems best to you in view of the models studied previously. Give a 95% prediction interval around this prediction.
+
+8. Under what assumption is the previous prediction interval valid? Verify it by observing the QQ-plot of the regression residuals and by performing a statistical test.
+
+9. Verify the other assumptions by recalling the definition and calculating the VIF ("Variance Inflation Factor") of each explanatory variable and by performing a graphical analysis of the residuals.
+
+10. Observe the 3D scatter plot of the variables "Consumption", "Income" and "Temp", and the fit by the linear model, using scatter3d from the car library.
+
+## Exercise 4. The Multiple Correlation Coefficient With or Without Constant
+
+We consider the regression model
+$$y_i = \beta_0 + \beta_1 x_i^{(1)} + \cdots + \beta_p x_i^{(p)} + \epsilon_i, \quad i = 1, \ldots, n, \quad (*)$$
+where the variables $\epsilon_i$ are centered, with variance $\sigma^2$ and uncorrelated. We set $Y = (y_1, \ldots, y_n)^T$, $X^{(k)} = (x_1^{(k)}, \ldots, x_n^{(k)})^T$ and $\mathbf{1} = (1, \ldots, 1)^T$. We assume that the variables $X^{(k)}$ are not linearly related to $\mathbf{1}$. We denote $\bar{y}$ the empirical mean of $Y$ and $\hat{Y} = \hat{\beta}_0 \mathbf{1} + \hat{\beta}_1 X^{(1)} + \cdots + \hat{\beta}_p X^{(p)}$ where the estimators are those obtained by ordinary least squares.
+
+1. What does $\hat{Y}$ represent geometrically? Represent on a diagram the vectors $Y$, $\hat{Y}$, $\bar{y}\mathbf{1}$, $Y - \bar{y}\mathbf{1}$, $\hat{Y} - \bar{y}\mathbf{1}$ and $\hat{\epsilon}$.
+
+2. Deduce the following equalities:
+  (a) $\sum_{i=1}^n y_i^2 = \sum_{i=1}^n \hat{\epsilon}_i^2 + \sum_{i=1}^n \hat{y}_i^2$
+  (b) $\sum_{i=1}^n (y_i - \bar{y})^2 = \sum_{i=1}^n \hat{\epsilon}_i^2 + \sum_{i=1}^n (\hat{y}_i - \bar{y})^2$
+
+3. We consider the ratios:
+  $$R_1^2 = \frac{\sum_{i=1}^n \hat{y}_i^2}{\sum_{i=1}^n y_i^2}, \quad R_2^2 = \frac{\sum_{i=1}^n (\hat{y}_i - \bar{y})^2}{\sum_{i=1}^n (y_i - \bar{y})^2}$$
+  Justify that $R_1^2 \geq R_2^2$. In what case do we have equality?
+
+4. What is the definition of the multiple correlation coefficient for model $(*)$?
+
+5. We now consider a regression model without constant, that is we fix $\beta_0 = 0$ in $(*)$. Do the equalities shown in 2) remain valid? What is in this case the definition of the multiple correlation coefficient?
+
+6. After estimation of model $(*)$ with or without the constant, we obtain $R^2 = 0.72$ with the constant and $R^2 = 0.96$ without the constant. Is the introduction of the constant relevant?
+
+## Exercise 5. The Interpretation of R² as Multiple Correlation Coefficient
+
+We place ourselves in a regression model containing a constant. We define
+$$\rho(Y, X) = \sup_\beta \text{cor}(Y, X\beta)$$
+where cor denotes the empirical correlation. This quantity is therefore the maximum correlation that can be obtained between $Y$ and a linear combination of the explanatory variables.
+
+1. Show that
+  $$\text{cor}(Y, X\beta) = \frac{(X\hat{\beta} - \bar{Y}\mathbf{1})^T(X\beta - \bar{X}\beta\mathbf{1})}{\|Y - \bar{Y}\mathbf{1}\| \|X\beta - \bar{X}\beta\mathbf{1}\|}$$
+  where $\hat{\beta}$ is the OLS estimator of the regression of $Y$ on $X$, and $\bar{X}$ denotes the vector of $p$ empirical means of each explanatory variable.
+
+2. Deduce that for all $\beta$, $\text{cor}(Y, X\beta)^2 \leq R^2$, where $R^2$ is the multiple correlation coefficient of the regression of $Y$ on $X$.
+
+3. Show that the previous bound is attained when $\beta = \hat{\beta}$.
+
+4. Conclude that $\rho(Y, X)^2 = R^2$ justifying the terminology "multiple correlation coefficient".
+
+## Exercise 6. Effect of Multicollinearity
+
+We consider a model with two explanatory variables, assumed to be centered. From the estimation on $n$ individuals, we obtained the following matrices $X^TX$ and $X^TY$:
+$$X^TX = \begin{pmatrix} 200 & 150 \\ 150 & 113 \end{pmatrix}, \quad X^TY = \begin{pmatrix} 350 \\ 263 \end{pmatrix}$$
+
+The removal of one observation modified these matrices as follows:
+$$X^TX = \begin{pmatrix} 199 & 149 \\ 149 & 112 \end{pmatrix}, \quad X^TY = \begin{pmatrix} 347.5 \\ 261.5 \end{pmatrix}$$
+
+1. Calculate the estimated coefficients of the regression in both cases.
+
+2. Calculate the linear correlation coefficient between the two explanatory variables.
+
+3. Comment.
+
+## Exercise 7. Modeling the Daily Maximum Ozone Concentration
+
+The dataset "ozone.txt" contains the maximum ozone concentration (maxO3) measured each day of summer 2001 in Rennes. It also contains temperatures, cloudiness and wind speed measured at 9am, 12pm and 3pm (respectively T9, T12, T15, Ne9, Ne12, Ne15 and Vx9, Vx12, Vx15), as well as the main wind direction and the presence or absence of rain. We want to best explain ozone concentration using the variables available in the dataset.
+
+1. Analyze the scatter plot and linear correlation between maxO3 and each of the available quantitative variables (i.e. T9, T12, T15, Ne9, Ne12, Ne15, Vx9, Vx12 and Vx15). Is it reasonable to assume that there is a linear relationship between maxO3 and these variables?
+
+2. Fit the linear regression model explaining maxO3 as a function of all the previous quantitative variables. Test the significance of each of the explanatory variables in this model. Is the result in agreement with the observations from the previous question? Also test the global significance of the model. Comment.
+
+3. Calculate the VIF (Variance Inflation Factor) for each of the explanatory variables of the previous model. How do these values explain the results of the Student tests performed above?
+
+4. We decide to remove variables from the previous model. Which variables seem natural to remove in view of the previous question? Fit the new proposed model and repeat the analyses performed in the two previous questions.
+
+5. Implement automatic selection of the best possible sub-model of the "large" model fitted in question 2, according to the BIC criterion. You can use the regsubsets function from the leaps library (then plot.regsubsets) or step. Compare the selected model with the model chosen in the previous question.
+
+6. Apply the previous automatic selection based on other criteria than BIC. Are the selected models the same? If not, which one seems preferable?
+
+7. Analyze the residuals of the model selected in the previous question through graphical representations and by performing tests of homoscedasticity and non-correlation of residuals. Do all the assumptions of a linear model seem verified?
+
+8. In order to solve the problem of auto-correlation of residuals, we propose to add the maximum ozone from the previous day to the model. Create this variable, which we will name maxO3v and add it to the dataset. Do we observe a linear relationship between maxO3 and maxO3v?
+
+9. Fit the regression model containing maxO3v as an additional explanatory variable. Analyze the fitting results: are the assumptions of a linear model verified?
+
+10. Compare this last model to the model without maxO3v using a Fisher test and by comparing the different selection criteria (AIC, BIC, Mallows' Cp, adjusted R²).
+
+## Exercise 8. Comparison of Model Selection Criteria
+
+We consider a linear regression model aiming to explain $Y$ as a function of variables $X^{(1)}, \ldots, X^{(p)}$. We want to choose between the model with $X^{(p)}$ and the model without $X^{(p)}$ (the other variables being included in both cases), based on a sample of $n$ individuals.
+
+We denote $F$ the statistic:
+$$F = (n - p) \frac{SCR_c - SCR}{SCR}$$
+where $SCR$ denotes the residual sum of squares in the model with $X^{(p)}$, and $SCR_c$ denotes the residual sum of squares in the model without $X^{(p)}$.
+
+1. By applying a Fisher test for nested models, according to what decision rule, based on $F$, will we choose to include variable $X^{(p)}$ in the model?
+
+2. We recall that the adjusted $R^2$ in a model with $k$ variables and $n$ individuals is defined by
+  $$R_a^2 = 1 - \frac{n-1}{n-k} \frac{SCR_k}{SCT}$$
+  where $SCR_k$ denotes the residual sum of squares in the model, and $SCT$ the total sum of squares.
+  Show that we will decide to include $X^{(p)}$ according to the adjusted $R^2$ criterion if $F > 1$.
+
+3. We recall that Mallows' $C_p$ in a model with $k$ variables and $n$ individuals is defined by
+  $$C_p = \frac{SCR_k}{\hat{\sigma}^2} - n + 2k$$
+  where $SCR_k$ denotes the residual sum of squares in the model, and $\hat{\sigma}^2$ is an estimator of $\sigma^2$ based on the largest possible model. We will take here $\hat{\sigma}^2 = SCR/(n-p)$, where $SCR$ denotes the residual sum of squares in the model with $X^{(p)}$.
+  Show that we will decide to include $X^{(p)}$ according to Mallows' $C_p$ criterion if $F > 2$.
+
+4. We recall that the AIC criterion in a model with $k$ variables, $n$ individuals, with Gaussian residuals, is defined by
+  $$AIC = n(1 + \log(2\pi)) + n \log \frac{SCR_k}{n} + 2(k+1)$$
+  where $SCR_k$ denotes the residual sum of squares in the model.
+  Show that we will decide to include $X^{(p)}$ according to the AIC criterion if $F > (n-p)(e^{2/n} - 1)$.
+
+5. We recall that the BIC criterion (also sometimes called SBC) in a model with $k$ variables, $n$ individuals, with Gaussian residuals, is defined by
+  $$BIC = n(1 + \log(2\pi)) + n \log \frac{SCR_k}{n} + \log(n)(k+1)$$
+  where $SCR_k$ denotes the residual sum of squares in the model.
+  Show that we will decide to include $X^{(p)}$ according to the BIC criterion if $F > (n-p)(e^{\log(n)/n} - 1)$.
+
+6. Admitting that the 95% quantiles of a Fisher distribution with degrees of freedom $(1, \nu)$ take their values in the interval $[3.8, 5]$ as soon as $\nu > 10$, rank the previous criteria from most conservative (i.e. tending to refuse more easily the introduction of $X^{(p)}$) to least conservative (i.e. tending to accept more easily the introduction of $X^{(p)}$). You can use a Taylor expansion for the study of AIC and BIC criteria, assuming that $n$ is sufficiently large.
+
+## Exercise 9. Over-fitting Probability of Selection Criteria
+
+We place ourselves in the framework of the previous exercise, but we further assume that variable $X^{(p)}$ is not significant in the model (i.e. its coefficient is zero in the regression) and that the residuals are i.i.d. Gaussian. We admit the results stated in the questions of the previous exercise.
+
+1. What distribution does the statistic $F$ follow? Show that when $n \to \infty$, this distribution is equivalent to a $\chi^2(1)$ distribution.
+
+2. When implementing the Fisher test for nested models at level $\alpha \in [0,1]$, what is the probability of deciding (wrongly) to include variable $X^{(p)}$ in the model?
+
+3. What does the previous probability tend to if we base the decision on $R_a^2$?
+
+4. Same question if the decision is based on Mallows' $C_p$.
+
+5. Same question if the decision is based on the AIC criterion.
+
+6. Same question if the decision is based on the BIC criterion.
+
+7. Which criterion is preferable to choose if we want to minimize the risk of including one too many variables in the model?
+
+**Complement:** In the inverse situation where $X^{(p)}$ is significant in the model and it is therefore preferable to include it, we can show (but it is more difficult) that by relying on any of the above criteria, the probability of deciding (wrongly) not to include $X^{(p)}$ tends to 0 when $n \to \infty$.
+
+## Exercise 10. ANCOVA: Return to Ozone Modeling
+
+We consider again the "ozone.txt" data studied in exercise 7. We want to take advantage of the qualitative variables present in the dataset (i.e. the presence or absence of rain, and the main wind direction) to possibly improve the model built in exercise 7.
+
+1. We take again the model selected in exercise 7, namely "maxO3" as a function of "T12", "Ne9", "Vx9" and "maxO3v" where "maxO3v" represents the maximum ozone concentration from the previous day (create this variable if needed). Fit this model to the data.
+
+2. Graphically represent "maxO3" as a function of the presence of rain. Does a relationship seem present? Confirm it with a statistical test.
+
+3. Add to the model from the first question the "rain" variable in the most general way possible (i.e. by including an interaction with each variable in addition to an effect on the constant). Test the significance of these additions by performing a Fisher test for nested models between this model and the initial model.
+
+4. Similarly test the simpler model in which only an additive effect of the "rain" variable is integrated, and not its interactions with other variables. Is the result in disagreement with the graphical analysis of question 2? How to explain the result?
+
+5. Similarly: graphically represent "maxO3" as a function of wind direction and study the relevance of including a wind effect in the initial model.
+
+## Exercise 11. Generalized Least Squares
+
+Consider a multiple linear regression model
+$$Y = X\beta + \epsilon$$
+where $\beta \in \mathbb{R}^p$, $X$ is a matrix of size $n \times p$ and $\epsilon$ is a random vector of size $n$, centered. We consider here the situation where the variables $\epsilon_i$ are no longer homoscedastic and uncorrelated, but in general $V(\epsilon) = \Sigma$ where $\Sigma$ is an invertible matrix. We assume in this exercise that $\Sigma$ is known (in practice it should be estimated).
+
+1. Specify the matrix $\Sigma$ when the variables $\epsilon_i$ are uncorrelated but heteroscedastic with variance $\sigma_i^2$ $(i = 1, \ldots, n)$.
+
+2. Determine the expectation and variance of the ordinary least squares estimator $\hat{\beta}$ (in the general case of any matrix $\Sigma$).
+
+3. For $S \in \mathbb{R}^n$ and $T \in \mathbb{R}^n$, we define the inner product between $S$ and $T$ associated with matrix $\Sigma^{-1}$ by $S'\Sigma^{-1}T$, and therefore the norm of $T$ associated with $\Sigma^{-1}$ is $\|T\|_\Sigma^2 = T'\Sigma^{-1}T$.
+  Show that the explicit form of the generalized least squares estimator $\hat{\beta}_G$ defined as the minimizer of $\|Y - X\beta\|_\Sigma$ is
+  $$\hat{\beta}_G = (X'\Sigma^{-1}X)^{-1}X'\Sigma^{-1}Y$$
+  Deduce its expectation and variance.
+
+4. Show that the covariance matrix between $\hat{\beta}$ and $\hat{\beta}_G$ is equal to the variance-covariance matrix of $\hat{\beta}_G$. Deduce that $\hat{\beta}_G$ is better than $\hat{\beta}$ in the sense of quadratic cost.
