@@ -13,8 +13,57 @@ css: ../../../styles.css
 
 AI was used to assist with the formatting and writing of the proofs on this page.
 
+# Estimation of $\hat \beta$
 
-# Gauss Markov
+## Formula
+
+By definition of the orthogonal projection, the vector $Y - X\hat{\beta}$ is orthogonal to any vector in the space $[X]$, in particular to each of the vectors $X^{(j)}$. Thus, for $j = 1, \ldots, p$, the scalar product between $Y - X\hat{\beta}$ and $X^{(j)}$ is zero, i.e.
+
+$$\left(X^{(j)}\right)^T(Y - X\hat{\beta}) = 0.$$
+
+Since this relation is true for all $j = 1, \ldots, p$, we have
+
+$$X^T(Y - X\hat{\beta}) = 0,$$
+
+where this time $0$ denotes the zero vector of size $p$. This implies $X^T X\hat{\beta} = X^T Y$. Finally, the hypothesis $\text{rg}(X) = p$ guarantees that the matrix $X^T X$ is invertible, and we obtain the result 
+
+$$\hat{\beta} = (X^T X)^{-1}X^T Y.$$
+
+## Expectation
+
+We compute:
+
+$$\mathbb{E}(\hat{\beta}) = \mathbb{E}((X^T X)^{-1}X^T Y) = (X^T X)^{-1}X^T \mathbb{E}(Y)$$
+
+since $(X^T X)^{-1}X^T$ is a deterministic matrix and expectation is linear. Furthermore
+
+$$\mathbb{E}(Y) = \mathbb{E}(X\beta + \varepsilon) = X\beta + \mathbb{E}(\varepsilon) = X\beta$$
+
+since $\mathbb{E}(\varepsilon) = 0$. We indeed obtain $\mathbb{E}(\hat{\beta}) = (X^T X)^{-1}X^T X\beta = \beta$.
+
+
+## Variance
+
+For the variance, let us recall that for any deterministic matrix $A$ and for any random vector $Z$, $\mathbb{V}(AZ) = A\mathbb{V}(Z)A^T$. We thus have
+
+$$\mathbb{V}(\hat{\beta}) = \mathbb{V}((X^T X)^{-1}X^T Y) = (X^T X)^{-1}X^T \mathbb{V}(Y)((X^T X)^{-1}X^T)^T.$$
+
+Now $\mathbb{V}(Y) = \mathbb{V}(X\beta + \varepsilon) = \mathbb{V}(\varepsilon) = \sigma^2 I_n$ and $((X^T X)^{-1}X^T)^T = (X^T)^T ((X^T X)^{-1})^T = X(X^T X)^{-1}$, since the matrix $X^T X$ (and therefore also $(X^T X)^{-1}$) is symmetric.
+
+We therefore arrive at
+
+$$\mathbb{V}(\hat{\beta}) = (X^T X)^{-1}X^T \sigma^2 I_n X(X^T X)^{-1} = \sigma^2(X^T X)^{-1}X^T X(X^T X)^{-1} = \sigma^2(X^T X)^{-1}.$$
+
+
+### Convergence of $\hat \beta$
+
+Concerning convergence in quadratic mean, let us recall that the mean squared error, defined by $\text{MSE}(\hat{\beta}) = \mathbb{E}(\|\hat{\beta} - \beta\|^2)$, decomposes into "variance + bias$^2$" which translates in the vectorial case to
+
+$$\text{MSE}(\hat{\beta}) = \mathbb{V}(\hat{\beta}) + (\mathbb{E}(\hat{\beta}) - \beta)^T(\mathbb{E}(\hat{\beta}) - \beta).$$
+
+Since $\mathbb{E}(\hat{\beta}) = \beta$, we have $\text{MSE}(\hat{\beta}) = \mathbb{V}(\hat{\beta}) = \sigma^2(X^T X)^{-1}$. This quantity tends to $0$ when $n \to +\infty$ as soon as $(X^T X)^{-1}$ tends to $0$ when $n \to +\infty$.
+
+## Gauss Markov
 
 $\newcommand{\VS}{\quad \mathrm{VS} \quad}$
 $\newcommand{\and}{\quad \mathrm{and} \quad}$
@@ -23,7 +72,6 @@ $\newcommand{\P}{\mathbb P}$
 $\newcommand{\Var}{\mathbb V}$
 
 ::: {.callout-note}
-## Gauss-Markov
 
 Under the same assumptions, if $\tilde \beta$ is another [linear and unbiased estimator]{style="background-color: yellow;"} then $$\mathbb V(\hat \beta) \preceq \mathbb V(\tilde \beta),$$
 
@@ -31,65 +79,30 @@ where $A\preceq B$  means that $B-A$ is a symmetric positive semidefinite matrix
 
 :::
 
-## Proof of the Gauss-Markov Theorem
 
-### Setup
-Let $\tilde{\beta} = CY$ be any linear unbiased estimator of $\beta$, where $C$ is an $n \times p$ matrix of constants.
+With the previous notations, since $\tilde{\beta} = MY$ is assumed to be unbiased, we have $\mathbb{E}(\tilde{\beta}) = \beta$ for all $\beta$, that is $M\mathbb{E}(Y) = \beta$, in other words $MX\beta = \beta$ for all $\beta$. This last relation means that $MX = I_p$, which is the only matrix satisfying this equality for all $\beta$.
 
-### Step 1: Unbiasedness Constraint
-Since $\tilde{\beta}$ is unbiased: $\E[\tilde{\beta}] = \beta$ for all $\beta$
+There are several ways to prove the theorem. One of them consists in starting from the calculation of the covariance matrix between $\tilde{\beta}$ and $\hat{\beta}$:
 
-$$\E[\tilde{\beta}] = \E[CY] = \E[C(X\beta + \varepsilon)]$$
+$$\text{Cov}(\tilde{\beta}, \hat{\beta}) = \mathbb{E}((\tilde{\beta} - \mathbb{E}(\tilde{\beta}))(\hat{\beta} - \mathbb{E}(\hat{\beta}))^T).$$
 
-$$= CX\beta + C\E[\varepsilon] = CX\beta$$
+Now $\tilde{\beta} - \mathbb{E}(\tilde{\beta}) = MY - \beta = M(X\beta + \varepsilon) - \beta = M\varepsilon$ since $MX\beta = \beta$. Similarly $\hat{\beta} - \mathbb{E}(\hat{\beta}) = (X^TX)^{-1}X^T\varepsilon$ (this is the case $M = (X^TX)^{-1}X^T$). We therefore obtain
 
-For unbiasedness: $CX\beta = \beta$ for all $\beta$
+$$\text{Cov}(\tilde{\beta}, \hat{\beta}) = \mathbb{E}(M\varepsilon\varepsilon^T((X^TX)^{-1}X^T)^T) = M\mathbb{E}(\varepsilon\varepsilon^T)X(X^TX)^{-1}.$$
 
-Therefore: $CX = I$ (the $p \times p$ identity matrix)
+Now since $\varepsilon$ is centered, $\mathbb{E}(\varepsilon\varepsilon^T) = \mathbb{V}(\varepsilon) = \sigma^2I_n$, and since $MX = I_p$ we conclude
 
-### Step 2: Express Any Linear Unbiased Estimator
-Since $CX = I$, we can write:
-$$C = (X^TX)^{-1}X^T + D$$
+$$\text{Cov}(\tilde{\beta}, \hat{\beta}) = \sigma^2(X^TX)^{-1}.$$
 
-where $D$ is any matrix satisfying $DX = 0$.
+This means that $\text{Cov}(\tilde{\beta}, \hat{\beta}) = \mathbb{V}(\hat{\beta})$. We wish at this stage to use the Cauchy-Schwarz inequality, but since this last equality concerns matrices, we must first reduce to scalars. Let $c$ be any vector of dimension $p$. From the previous equality we deduce $c^T\text{Cov}(\tilde{\beta}, \hat{\beta})c = c^T\mathbb{V}(\hat{\beta})c$, that is $\text{Cov}(c^T\tilde{\beta}, c^T\hat{\beta}) = \mathbb{V}(c^T\hat{\beta})$. This equality concerns scalars. We now apply the Cauchy-Schwarz inequality:
 
-*Verification*: $(X^TX)^{-1}X^TX + DX = I + 0 = I$ ✓
+$$\mathbb{V}(c^T\hat{\beta}) = \text{Cov}(c^T\tilde{\beta}, c^T\hat{\beta}) \leq \sqrt{\mathbb{V}(c^T\tilde{\beta})\mathbb{V}(c^T\hat{\beta})}.$$
 
-### Step 3: Express the Estimator
-$$\tilde{\beta} = CY = [(X^TX)^{-1}X^T + D]Y$$
+By simplifying both sides by $\sqrt{\mathbb{V}(c^T\hat{\beta})}$, we arrive at
 
-$$= (X^TX)^{-1}X^TY + DY$$
+$$\sqrt{\mathbb{V}(c^T\hat{\beta})} \leq \sqrt{\mathbb{V}(c^T\tilde{\beta})},$$
 
-$$= \hat{\beta} + DY$$
-
-### Step 4: Calculate Variance
-$$\text{Var}(\tilde{\beta}) = \text{Var}(\hat{\beta} + DY)$$
-
-$$= \text{Var}(\hat{\beta}) + \text{Var}(DY) + 2\text{Cov}(\hat{\beta}, DY)$$
-
-### Step 5: Show Covariance Term is Zero
-$$\text{Cov}(\hat{\beta}, DY) = \text{Cov}((X^TX)^{-1}X^TY, DY)$$
-
-$$= (X^TX)^{-1}X^T \text{Cov}(Y, Y) D^T$$
-
-$$= (X^TX)^{-1}X^T (\sigma^2I) D^T$$
-
-$$= \sigma^2(X^TX)^{-1}X^TD^T$$
-
-Since $DX = 0$, we have $X^TD^T = 0$, therefore:
-$$\text{Cov}(\hat{\beta}, DY) = 0$$
-
-### Step 6: Final Comparison
-$$\text{Var}(\tilde{\beta}) = \text{Var}(\hat{\beta}) + \text{Var}(DY)$$
-
-$$= \sigma^2(X^TX)^{-1} + \sigma^2DD^T$$
-
-Since $DD^T \succeq 0$ (positive semidefinite), we have:
-
-$$\text{Var}(\tilde{\beta}) - \text{Var}(\hat{\beta}) = \sigma^2DD^T \succeq 0$$
-
-### Conclusion
-This proves that $\text{Var}(\hat{\beta}) \preceq \text{Var}(\tilde{\beta})$ in the matrix sense, establishing that the OLS estimator $\hat{\beta}$ has minimum variance among all linear unbiased estimators. □
+and therefore $\mathbb{V}(c^T\hat{\beta}) \leq \mathbb{V}(c^T\tilde{\beta})$. Since this inequality is valid for any vector $c$, this means that $\mathbb{V}(\tilde{\beta}) - \mathbb{V}(\hat{\beta})$ is positive semi-definite, which is what we wanted to show.
 
 
 
