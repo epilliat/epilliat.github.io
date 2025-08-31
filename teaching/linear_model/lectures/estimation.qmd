@@ -177,7 +177,7 @@ $$\mathbb{V}(\hat{\sigma}^2) = \frac{1}{(n-p)^2}\mathbb{E}[\hat \sigma^4] - \sig
 
 We assume here that $\varepsilon$ has distribution $\mathcal N(0, \sigma^2 I_n)$.
 
-## Maximum Likelihood Estimator
+## Maximum Likelihood Estimator {#proof-mle}
 
 ::: {.callout-note}
 ## MLE
@@ -193,8 +193,6 @@ Let $\hat \beta_{MLE}$ and $\hat \sigma_{MLE}^2$ be the MLE of $\beta$ and $\sig
 - $\hat{\beta}$ and $\hat{\sigma}^2$ are independent
 
 :::
-
-## Proof {#proof-mle}
 
 ### Setup
 Model: $Y = X\beta + \varepsilon$ where $\varepsilon \sim N(0, \sigma^2 I_n)$
@@ -276,7 +274,7 @@ This confirms $\hat{\sigma}^2$ is a maximum.
 
 
 
-# $\hat \beta$ is an Efficient Estimator in the Gaussian Model {#efficient-beta}
+## $\hat \beta$ is an Efficient Estimator in the Gaussian Model {#efficient-beta}
 
 ::: {.callout-note}
 ## Theorem
@@ -288,19 +286,15 @@ for [any]{style="background-color: yellow;"} estimator $\tilde \beta$
 
 :::
 
-## Setup
-Consider the linear regression model:
-$$Y = X\beta + \varepsilon, \quad \varepsilon \sim N(0, \sigma^2 I)$$
+### Cramer-Rao Lower Bound
 
-We want to prove that $\hat \beta = (X^TX)^{-1}X^TY$ is efficient.
-
-## Definition of Efficiency
-An unbiased estimator is efficient if it achieves the Cramér-Rao lower bound:
-$$\text{Var}(\hat \beta) = [I(\beta)]^{-1}$$
+It holds that for any estimator $\tilde \beta$,
+$$\mathbb V(\tilde \beta) \succeq [I(\beta)]^{-1}$$
 where $I(\beta)$ is the Fisher Information Matrix.
-This comes from the [Cramér-Rao lower bound](../notes/cramer-rao.qmd) 
+This comes from the [Cramér-Rao lower bound](../notes/cramer-rao.qmd).
+Hence, it is enough to prove that $\mathbb V(\tilde \beta) = [I(\beta)]^{-1}$.
 
-## Step 1: Fisher Information Matrix
+### Fisher Information Matrix
 
 The log-likelihood function is:
 $$\ell(\beta, \sigma^2) = -\frac{n}{2}\log(2\pi) - \frac{n}{2}\log(\sigma^2) - \frac{1}{2\sigma^2}(Y - X\beta)^T(Y - X\beta)$$
@@ -311,43 +305,12 @@ $$\frac{\partial \ell}{\partial \beta} = \frac{1}{\sigma^2}X^T(Y - X\beta)$$
 Second derivative:
 $$\frac{\partial^2 \ell}{\partial \beta \partial \beta^T} = -\frac{1}{\sigma^2}X^TX$$
 
-Fisher Information Matrix for $\beta$:
-$$I(\beta) = -\mathbb{E}\left[\frac{\partial^2 \ell}{\partial \beta \partial \beta^T}\right] = \frac{1}{\sigma^2}X^TX$$
+Hence, we obtain that
+$$[I(\beta)]^{-1} = -\left(\mathbb{E}\left[\frac{\partial^2 \ell}{\partial \beta \partial \beta^T}\right]\right)^{-1} = \sigma^2(X^TX)^{-1} = \mathbb V(\hat \beta) \enspace ,$$
 
-Cramér-Rao lower bound:
-$$[I(\beta)]^{-1} = \sigma^2(X^TX)^{-1}$$
+which proves that $\hat \beta$ is an efficient estimator of $\beta$.
 
-## Step 2: Variance of $\hat \beta$
-
-$$\hat \beta = (X^TX)^{-1}X^TY = (X^TX)^{-1}X^T(X\beta + \varepsilon) = \beta + (X^TX)^{-1}X^T\varepsilon$$
-
-Since $\varepsilon \sim N(0, \sigma^2 I)$:
-$$\text{Var}(\hat \beta) = \text{Var}((X^TX)^{-1}X^T\varepsilon)$$
-
-$$= (X^TX)^{-1}X^T \cdot \text{Var}(\varepsilon) \cdot X(X^TX)^{-1}$$
-
-$$= (X^TX)^{-1}X^T \cdot \sigma^2 I \cdot X(X^TX)^{-1}$$
-
-$$= \sigma^2(X^TX)^{-1}X^TX(X^TX)^{-1}$$
-
-$$= \sigma^2(X^TX)^{-1}$$
-
-## Step 3: Verification of Efficiency
-
-We have shown:
-- Cramér-Rao bound: $[I(\beta)]^{-1} = \sigma^2(X^TX)^{-1}$
-- Variance of $\hat \beta$: $\text{Var}(\hat \beta) = \sigma^2(X^TX)^{-1}$
-
-Since:
-$$\text{Var}(\hat \beta) = [I(\beta)]^{-1}$$
-
-The estimator $\hat \beta$ achieves the Cramér-Rao lower bound.
-
-## Conclusion
-
-Therefore, $\hat \beta = (X^TX)^{-1}X^TY$ is an efficient estimator of $\beta$ in the Gaussian linear regression model.
-
-## Additional Notes
+### Additional Notes
 
 - This efficiency holds specifically under the normality assumption
 - $\hat \beta$ is also the Best Linear Unbiased Estimator (BLUE) by the Gauss-Markov theorem

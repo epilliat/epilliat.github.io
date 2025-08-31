@@ -178,7 +178,7 @@
 <p><strong><span class="math inline">\(R^2\)</span> if <span class="math inline">\(\1 \not \in [X]\)</span></strong></p>
 </div>
 <div class="callout-content">
-<p><span class="math display">\[R^2 = \frac{\|\widehat Y\|^2}{\|Y\|^2} = 1 - \frac{SCR}{\|Y\|^2}\]</span></p>
+<p><span class="math display">\[R^2 = \frac{\|\widehat Y\|^2}{\|Y\|^2} = 1 - \frac{SSR}{\|Y\|^2}\]</span></p>
 </div>
 </div>
 </div>
@@ -201,7 +201,7 @@
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong><span class="math inline">\(R^2\)</span> if <span class="math inline">\(\1 \in [X]\)</span></strong></p>
+<p><strong><span class="math inline">\(R_a^2\)</span> if <span class="math inline">\(\1 \in [X]\)</span></strong></p>
 </div>
 <div class="callout-content">
 <p><span class="math display">\[R^2_a = 1-\frac{n-1}{n-p}\frac{SSR}{SST}\]</span></p>
@@ -212,20 +212,20 @@
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong><span class="math inline">\(R^2\)</span> if <span class="math inline">\(\1 \not \in [X]\)</span></strong></p>
+<p><strong><span class="math inline">\(R_a^2\)</span> if <span class="math inline">\(\1 \not \in [X]\)</span></strong></p>
 </div>
 <div class="callout-content">
-<p><span class="math display">\[R^2_a = 1 - \frac{n}{n-p}\frac{SCR}{\|Y\|^2}\]</span></p>
+<p><span class="math display">\[R^2_a = 1 - \frac{n}{n-p}\frac{SSR}{\|Y\|^2}\]</span></p>
 </div>
 </div>
 </div>
 </div></div>
 </div>
 <div class="fragment">
-<p>With a <span style="background-color: yellow;">new variable</span>, <span class="math inline">\(SCR\)</span> decreases but <span style="background-color: yellow;"><span class="math inline">\(p \to p+1\)</span></span></p>
+<p>With a <span style="background-color: yellow;">new variable</span>, <span class="math inline">\(SSR\)</span> decreases but <span style="background-color: yellow;"><span class="math inline">\(p \to p+1\)</span></span></p>
 </div>
 <div class="fragment">
-<p><span style="background-color: yellow;"><span class="math inline">\(R_a^2\)</span>​ only decreases</span> when adding a new variable <span style="background-color: yellow;">if that variable significantly</span> reduces the residual sum of squares. ()</p>
+<p><span style="background-color: yellow;"><span class="math inline">\(R_a^2\)</span>​ only decreases</span> when adding a new variable <span style="background-color: yellow;">if that variable significantly</span> reduces the residual sum of squares.</p>
 </div>
 </section>
 <section id="r-output-interpretation" class="slide level2">
@@ -259,13 +259,18 @@ Multiple R-squared:  0.9353,    Adjusted R-squared:  0.9331 </code></pre>
 <p>We want to test <strong>q linear constraints</strong> on the coefficient vector <span class="math inline">\(\beta \in \mathbb R^p\)</span>.</p>
 </div>
 <div class="fragment">
-<p>This is formulated as: <span class="math display">\[H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0\]</span></p>
-<p>where <strong>R</strong> is a (q × p) constraint matrix encoding the restrictions, with <span class="math inline">\(q \leq p\)</span>.</p>
+<p>This is formulated as:</p>
+<div class="square-def">
+<p><span class="math display">\[H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0\]</span></p>
+</div>
+<p>where <strong>R</strong> is a <span class="math inline">\((q × p)\)</span> constraint matrix encoding the restrictions, with <span class="math inline">\(q \leq p\)</span>.</p>
 </div>
 </section>
 <section id="common-test-types" class="slide level2">
 <h2>Common Test Types</h2>
-<p><span class="math display">\[H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0\]</span></p>
+<div class="square-def">
+<p><span class="math inline">\(H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0\)</span></p>
+</div>
 <ul>
 <li class="fragment"><strong>Student’s t-test</strong>: is variable <span class="math inline">\(j\)</span> significant?<br>
 <span style="background-color: lightblue;"><span class="math inline">\(H_0: \beta_j = 0\)</span> vs <span class="math inline">\(H_1: \beta_j \neq 0\)</span></span></li>
@@ -328,12 +333,14 @@ Multiple R-squared:  0.9353,    Adjusted R-squared:  0.9331 </code></pre>
 </div>
 <div class="fragment">
 <p>Only one constraint: <span class="math inline">\(q=1\)</span>, so that</p>
+<div style="font-size: 80%;">
 <div class="square-def">
-<p><span class="math display">\[ F = (n-p) \frac{SCR_c-SCR}{SCR} \sim \mathcal F(1,n-p) \sim \mathcal T^2(n-p)\]</span></p>
+<p><span class="math display">\[ F = (n-p) \frac{SSR_c-SSR}{SSR} \sim \mathcal F(1,n-p) \sim \mathcal T^2(n-p)\]</span></p>
+</div>
 </div>
 </div>
 <div class="fragment">
-<p>In fact, Here <span class="math inline">\(F = \big(\tfrac{\hat \beta_j}{\hat \sigma_{\hat \beta_j}}\big)^2\)</span> so <span style="background-color: yellow;"><span class="math inline">\(F\)</span> is the student test</span> presented before</p>
+<p>In fact, Here <span class="math inline">\(F = \big(\tfrac{\hat \beta_j}{\hat \sigma_{\hat \beta_j}}\big)^2\)</span> so <span style="background-color: yellow;"><span class="math inline">\(F\)</span> is the squared student test statistic</span> presented before</p>
 </div>
 </section>
 <section id="particular-case-2-global-fisher-test" class="slide level2">
@@ -342,7 +349,9 @@ Multiple R-squared:  0.9353,    Adjusted R-squared:  0.9331 </code></pre>
 <div class="square-def">
 <p><span class="math inline">\(H_0: \beta_2= \dots = \beta_p=0\)</span> VS <span class="math inline">\(H_1\)</span>: contrary</p>
 </div>
-<p><span class="math inline">\(q = p-1\)</span> in this case . . .</p>
+<p><span class="math inline">\(q = p-1\)</span> in this case</p>
+</div>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[F = \frac{n-p}{p-1}\frac{SSE}{SSR} = \frac{n-p}{p-1}\frac{R^2}{1-R^2} \sim \mathcal F(p-1, n-p)\]</span></p>
 </div>
@@ -357,7 +366,7 @@ Multiple R-squared:  0.9353,    Adjusted R-squared:  0.9331 </code></pre>
 </div>
 <div class="fragment">
 <div class="square-def">
-<p><span class="math display">\[F = \frac{n-p}{q}\frac{SCR_c - SCR}{SCR} \sim \mathcal F(q, n-p)\]</span></p>
+<p><span class="math display">\[F = \frac{n-p}{q}\frac{SSR_c - SSR}{SSR} \sim \mathcal F(q, n-p)\]</span></p>
 </div>
 </div>
 <div class="fragment">

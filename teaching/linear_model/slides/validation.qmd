@@ -60,7 +60,7 @@ $$R^2 = \frac{SSE}{SST} = 1-\frac{SSR}{SST}$$
 ::: {.callout-note}
 ## $R^2$ if $\1 \not \in [X]$
 
-$$R^2 = \frac{\|\widehat Y\|^2}{\|Y\|^2} = 1 - \frac{SCR}{\|Y\|^2}$$
+$$R^2 = \frac{\|\widehat Y\|^2}{\|Y\|^2} = 1 - \frac{SSR}{\|Y\|^2}$$
 :::
 ::: 
 
@@ -81,15 +81,15 @@ Main flaw of $R^2$: [adding a new variables decreases $R^2$]{style="background-c
 ::: {.columns}
 ::: {.column}
 ::: {.callout-note}
-## $R^2$ if $\1 \in [X]$
+## $R_a^2$ if $\1 \in [X]$
 $$R^2_a = 1-\frac{n-1}{n-p}\frac{SSR}{SST}$$
 :::
 :::
 ::: {.column}
 ::: {.callout-note}
-## $R^2$ if $\1 \not \in [X]$
+## $R_a^2$ if $\1 \not \in [X]$
 
-$$R^2_a = 1 - \frac{n}{n-p}\frac{SCR}{\|Y\|^2}$$
+$$R^2_a = 1 - \frac{n}{n-p}\frac{SSR}{\|Y\|^2}$$
 :::
 ::: 
 
@@ -97,11 +97,11 @@ $$R^2_a = 1 - \frac{n}{n-p}\frac{SCR}{\|Y\|^2}$$
 
 . . .
 
-With a [new variable]{style="background-color: yellow;"}, $SCR$ decreases but [$p \to p+1$]{style="background-color: yellow;"}
+With a [new variable]{style="background-color: yellow;"}, $SSR$ decreases but [$p \to p+1$]{style="background-color: yellow;"}
 
 . . .
 
-[$R_a^2$​ only decreases]{style="background-color: yellow;"} when adding a new variable [if that variable significantly]{style="background-color: yellow;"} reduces the residual sum of squares. ()
+[$R_a^2$​ only decreases]{style="background-color: yellow;"} when adding a new variable [if that variable significantly]{style="background-color: yellow;"} reduces the residual sum of squares.
 
 
 ## R output interpretation
@@ -139,13 +139,22 @@ We want to test **q linear constraints** on the coefficient vector $\beta \in \m
 . . .
 
 This is formulated as:
+
+::: {.square-def}
 $$H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0$$
 
-where **R** is a (q × p) constraint matrix encoding the restrictions, with $q \leq p$.
+:::
+
+
+where **R** is a $(q × p)$ constraint matrix encoding the restrictions, with $q \leq p$.
 
 ## Common Test Types
 
-$$H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0$$
+::: {.square-def}
+$H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0$
+
+:::
+
 
 - **Student's t-test**: is variable $j$ significant? \
 [$H_0: \beta_j = 0$ vs $H_1: \beta_j \neq 0$]{style="background-color: lightblue;"}
@@ -215,15 +224,17 @@ $H_0: \beta_j=0$ VS $H_1:\beta_j\neq 0$
 
 Only one constraint: $q=1$, so that
 
+:::{style="font-size: 80%;"}
 ::: {.square-def}
-$$ F = (n-p) \frac{SCR_c-SCR}{SCR} \sim \mathcal F(1,n-p) \sim \mathcal T^2(n-p)$$
+$$ F = (n-p) \frac{SSR_c-SSR}{SSR} \sim \mathcal F(1,n-p) \sim \mathcal T^2(n-p)$$
+:::
 :::
 
 
 
 . . .
 
-In fact, Here $F = \big(\tfrac{\hat \beta_j}{\hat \sigma_{\hat \beta_j}}\big)^2$ so [$F$ is the student test]{style="background-color: yellow;"} presented before
+In fact, Here $F = \big(\tfrac{\hat \beta_j}{\hat \sigma_{\hat \beta_j}}\big)^2$ so [$F$ is the squared student test statistic]{style="background-color: yellow;"} presented before
 
 
 ## Particular Case 2: Global Fisher Test
@@ -235,6 +246,7 @@ $H_0: \beta_2= \dots = \beta_p=0$ VS $H_1$: contrary
 :::
 
 $q = p-1$ in this case
+
 . . .
 
 ::: {.square-def}
@@ -254,7 +266,7 @@ $H_0: \beta_{p-q+1}= \dots = \beta_p=0$ VS $H_1$: contrary
 . . .
 
 ::: {.square-def}
-$$F = \frac{n-p}{q}\frac{SCR_c - SCR}{SCR} \sim \mathcal F(q, n-p)$$
+$$F = \frac{n-p}{q}\frac{SSR_c - SSR}{SSR} \sim \mathcal F(q, n-p)$$
 :::
 
 . . .
