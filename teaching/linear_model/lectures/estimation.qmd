@@ -11,8 +11,6 @@ css: ../../../styles.css
   #- parse-latex
 ---
 
-AI was used to assist with the formatting and writing of the proofs on this page.
-
 # Estimation of $\hat \beta$
 
 ## Formula
@@ -25,9 +23,18 @@ Since this relation is true for all $j = 1, \ldots, p$, we have
 
 $$X^T(Y - X\hat{\beta}) = 0,$$
 
+::: {.callout-tip}
+## Other possible idea
+We get the same equation if we instead use that the gradient of $\|Y-X\beta\|_2^2$ must be $0$ at $\beta=\hat \beta$.
+:::
+
 where this time $0$ denotes the zero vector of size $p$. This implies $X^T X\hat{\beta} = X^T Y$. Finally, the hypothesis $\text{rg}(X) = p$ guarantees that the matrix $X^T X$ is invertible, and we obtain the result 
 
-$$\hat{\beta} = (X^T X)^{-1}X^T Y.$$
+::: {.square-def}
+$$\hat{\beta} = (X^T X)^{-1}X^T Y \enspace .$$
+:::
+
+
 
 ## Expectation
 
@@ -39,7 +46,13 @@ since $(X^T X)^{-1}X^T$ is a deterministic matrix and expectation is linear. Fur
 
 $$\mathbb{E}(Y) = \mathbb{E}(X\beta + \varepsilon) = X\beta + \mathbb{E}(\varepsilon) = X\beta$$
 
-since $\mathbb{E}(\varepsilon) = 0$. We indeed obtain $\mathbb{E}(\hat{\beta}) = (X^T X)^{-1}X^T X\beta = \beta$.
+since $\mathbb{E}(\varepsilon) = 0$. We indeed obtain 
+
+::: {.square-def}
+$$\mathbb{E}(\hat{\beta}) = (X^T X)^{-1}X^T X\beta = \beta \enspace .$$
+:::
+
+
 
 
 ## Variance
@@ -54,14 +67,24 @@ We therefore arrive at
 
 $$\mathbb{V}(\hat{\beta}) = (X^T X)^{-1}X^T \sigma^2 I_n X(X^T X)^{-1} = \sigma^2(X^T X)^{-1}X^T X(X^T X)^{-1} = \sigma^2(X^T X)^{-1}.$$
 
+Hence the result:
+
+::: {.square-def}
+$$\mathbb{V}(\hat{\beta}) = \sigma^2(X^T X)^{-1}.$$
+:::
+
+
+
 
 ### Convergence of $\hat \beta$
 
-Concerning convergence in quadratic mean, let us recall that the mean squared error, defined by $\text{MSE}(\hat{\beta}) = \mathbb{E}(\|\hat{\beta} - \beta\|^2)$, decomposes into "variance + bias$^2$" which translates in the vectorial case to
+For the vector estimator $\hat{\beta}$, the mean squared error is a **scalar** defined by:
+$$\text{MSE}(\hat{\beta}) = \mathbb{E}[\|\hat{\beta} - \beta\|^2]$$
 
-$$\text{MSE}(\hat{\beta}) = \mathbb{V}(\hat{\beta}) + (\mathbb{E}(\hat{\beta}) - \beta)^T(\mathbb{E}(\hat{\beta}) - \beta).$$
+The MSE decomposes into variance plus squared bias. For a vector estimator:
+$$\text{MSE}(\hat{\beta}) = \mathbb{E}[\|\hat{\beta} - \beta\|^2] = \mathbb{E}[\text{Tr}((\hat{\beta} - \beta)(\hat{\beta} - \beta)^T)]= \text{Tr}(\mathbb{E}[(\hat{\beta} - \beta)(\hat{\beta} - \beta)^T])=\sigma^2 \text{Tr}((X^TX)^{-1})$$
 
-Since $\mathbb{E}(\hat{\beta}) = \beta$, we have $\text{MSE}(\hat{\beta}) = \mathbb{V}(\hat{\beta}) = \sigma^2(X^T X)^{-1}$. This quantity tends to $0$ when $n \to +\infty$ as soon as $(X^T X)^{-1}$ tends to $0$ when $n \to +\infty$.
+Hence, we have convergence as soon as $\text{Tr}((X^TX)^{-1})$ goes to $0$ as $n \to \infty$.
 
 ## Gauss Markov
 
@@ -80,7 +103,7 @@ where $A\preceq B$  means that $B-A$ is a symmetric positive semidefinite matrix
 :::
 
 
-With the previous notations, since $\tilde{\beta} = MY$ is assumed to be unbiased, we have $\mathbb{E}(\tilde{\beta}) = \beta$ for all $\beta$, that is $M\mathbb{E}(Y) = \beta$, in other words $MX\beta = \beta$ for all $\beta$. This last relation means that $MX = I_p$, which is the only matrix satisfying this equality for all $\beta$.
+Since $\tilde \beta$ is a linear estimator, then there exists a known matrix $M$ such that $\tilde \beta = MY$.  Since it is also assumed to be unbiased, we have $\mathbb{E}(\tilde{\beta}) = \beta$ for all $\beta$, that is $M\mathbb{E}(Y) = \beta$, in other words $MX\beta = \beta$ for all $\beta$. This last relation means that $MX = I_p$, which is the only matrix satisfying this equality for all $\beta$.
 
 There are several ways to prove the theorem. One of them consists in starting from the calculation of the covariance matrix between $\tilde{\beta}$ and $\hat{\beta}$:
 
@@ -106,9 +129,53 @@ and therefore $\mathbb{V}(c^T\hat{\beta}) \leq \mathbb{V}(c^T\tilde{\beta})$. Si
 
 
 
+# Estimation of $\hat \sigma^2$
+
+## Expectation (unbiasedness)
+
+First, let's verify that $\hat{\sigma}^2$ is unbiased:
+
+$$\hat{\varepsilon} = P_{[X]^\perp}Y = P_{[X]^\perp}(X\beta + \varepsilon) = P_{[X]^\perp}\varepsilon$$
+
+since $P_{[X]^\perp}X = 0$.
+
+Therefore:
+$$\hat \sigma^2=\|\hat{\varepsilon}\|^2 = \varepsilon^T P_{[X]^\perp}\varepsilon$$
+
+Since $P_{[X]^\perp}$ is idempotent and symmetric with $\text{tr}(P_{[X]^\perp}) = n - p$:
+
+$$\mathbb{E}[\|\hat{\varepsilon}\|^2] = \mathbb{E}[\varepsilon^T P_{[X]^\perp}\varepsilon] = \sigma^2 \text{tr}(P_{[X]^\perp}) = \sigma^2(n-p)$$
+
+Thus:
+$$\mathbb{E}[\hat{\sigma}^2] = \frac{1}{n-p}\mathbb{E}[\|\hat{\varepsilon}\|^2] = \sigma^2$$
 
 
-# Maximum Likelihood Estimators for Linear Regression
+## Variance
+
+
+For the variance, assume that $\mathbb E[\varepsilon_i] = \mu_4 < +\infty$. We have
+$$\mathbb{V}(\hat{\sigma}^2) = \mathbb{E}[\hat{\sigma}^4] - (\mathbb{E}[\hat{\sigma}^2])^2 = \mathbb{E}[\hat{\sigma}^4] - \sigma^4$$
+
+A computation gives
+$$\mathbb{E}[\hat \sigma^4] = \mathbb{E}[(\varepsilon^  T P_{[X]^\perp}\varepsilon)^2]$$
+
+Hence,
+
+$$\mathbb{E}[\hat \sigma^4] = \sigma^4[\text{tr}(P_{[X]^\perp})^2 + 2\text{tr}(P_{[X]^\perp}^2)] + (\mu_4 - 3\sigma^4)\text{tr}(P_{[X]^\perp}^2)$$
+
+We have
+
+$P_{[X]^\perp}^2 = P_{[X]^\perp}$, so $\text{tr}(P_{[X]^\perp}^2) = \text{tr}(P_{[X]^\perp}) = n-p$
+
+Therefore:
+$$\mathbb{E}[\hat \sigma^4] = \sigma^4[(n-p)^2 + 2(n-p)] + (\mu_4 - 3\sigma^4)(n-p)$$
+
+This gives us:
+$$\mathbb{V}(\hat{\sigma}^2) = \frac{1}{(n-p)^2}\mathbb{E}[\hat \sigma^4] - \sigma^4 = \frac{2\sigma^4}{n-p} + \frac{\mu_4 - 3\sigma^4}{(n-p)^2}$$
+
+# Gaussian Case
+
+We assume here that $\varepsilon$ has distribution $\mathcal N(0, \sigma^2 I_n)$.
 
 ## Maximum Likelihood Estimator
 
@@ -130,21 +197,19 @@ Let $\hat \beta_{MLE}$ and $\hat \sigma_{MLE}^2$ be the MLE of $\beta$ and $\sig
 ## Proof {#proof-mle}
 
 ### Setup
-Model: $Y = X\beta + \varepsilon$ where $\varepsilon \sim N(0, \sigma^2 I)$
+Model: $Y = X\beta + \varepsilon$ where $\varepsilon \sim N(0, \sigma^2 I_n)$
 
-This means: $Y \sim N(X\beta, \sigma^2 I)$
-
-### Likelihood Function
+This means: $Y \sim N(X\beta, \sigma^2 I_n)$
 
 For $n$ observations, the likelihood function is:
 
 $$L(\beta, \sigma^2) = (2\pi\sigma^2)^{-n/2} \exp\left(-\frac{1}{2\sigma^2} (Y - X\beta)^T(Y - X\beta)\right)$$
 
-### Log-Likelihood Function
-
+::: {.square-def}
 $$\ell(\beta, \sigma^2) = \log L(\beta, \sigma^2) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T(Y - X\beta)$$
+:::
 
-$$\ell(\beta, \sigma^2) = -\frac{n}{2} \log(2\pi) - \frac{n}{2} \log(\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T(Y - X\beta)$$
+
 
 ### Finding MLE for $\beta$
 
@@ -160,7 +225,12 @@ $$X^TY - X^TX\hat{\beta}_{MLE} = 0$$
 $$X^TX\hat{\beta}_{MLE} = X^Ty$$
 
 Therefore: 
+
+::: {.square-def}
 $$\hat{\beta}_{MLE} = (X^TX)^{-1}X^Ty$$
+:::
+
+
 
 ### Finding MLE for $\sigma^2$
 
@@ -175,7 +245,12 @@ Multiplying by $2\sigma^4$:
 $$-n\sigma^2 + (y - X\hat{\beta}_{MLE})^T(y - X\hat{\beta}_{MLE}) = 0$$
 
 Therefore: 
+
+::: {.square-def}
 $$\hat{\sigma}^2 = \frac{1}{n} (y - X\hat{\beta}_{MLE})^T(y - X\hat{\beta}_{MLE}) = \frac{SSR}{n}$$
+
+:::
+
 
 ### Verification (Second-Order Conditions)
 
