@@ -278,7 +278,7 @@
 </div>
 </div>
 <div class="fragment">
-<p>Notice that <span class="math inline">\(I-P_{[X]}= P_{[X]^{\perp}}\)</span> is the orthogonal projection on <span class="math inline">\([X]^{\perp} = \{\alpha\in \mathbb R^p:~ X\alpha =0\}\)</span></p>
+<p>Notice that <span class="math inline">\(I-P_{[X]}= P_{[X]^{\perp}}\)</span> is the orthogonal projection on <span class="math inline">\([X]^{\perp} = \{\alpha\in \mathbb R^n:~ X^T\alpha =0\}\)</span></p>
 </div>
 </section>
 <section id="illustration" class="slide level2">
@@ -423,7 +423,7 @@ Y &amp;= \widehat Y + \hat \varepsilon &amp; \quad \text{(estimation)}
 <div class="callout-content">
 <p>If <span class="math inline">\(rk(X)=p\)</span>, <span class="math inline">\(\E[\varepsilon]=0\)</span> and <span class="math inline">\(\Var(\varepsilon)= \sigma^2I_n\)</span>, then</p>
 <p><span class="math display">\[\hat \sigma^2 = \frac{1}{n-p}\sum_{i=1}^n \hat \varepsilon_i^2=\frac{\mathrm{SSR}}{n-p}\]</span></p>
-<p>is an <span style="background-color: yellow;">unbiased</span> estimator of <span class="math inline">\(\sigma^2\)</span>. If moreover the <span class="math inline">\(\varepsilon_i\)</span>’s are iid, then <span class="math inline">\(\hat \sigma^2\)</span> is a <span style="background-color: yellow;">consistent</span> estimator.</p>
+<p>is an <span style="background-color: yellow;">unbiased</span> estimator of <span class="math inline">\(\sigma^2\)</span>. If moreover the <span class="math inline">\(\varepsilon_i\)</span>’s are iid, then <span class="math inline">\(\hat \sigma^2\)</span> is a <span style="background-color: yellow;">consistent</span> estimator. <a href="../../../teaching/linear_model/lectures/estimation.html#variance-1">Proof</a></p>
 </div>
 </div>
 </div>
@@ -498,13 +498,13 @@ Y &amp;= \widehat Y + \hat \varepsilon &amp; \quad \text{(estimation)}
 <div class="callout-content">
 <p>In the Gaussian Model, <span class="math inline">\(\hat \beta\)</span> is an <span style="background-color: yellow;">efficient</span> estimator of <span class="math inline">\(\hat \beta\)</span>. This means that <span class="math display">\[
 \Var(\hat \beta) \preceq \Var(\tilde \beta)\; ,
-\]</span> for <span style="background-color: yellow;">any</span> estimator <span class="math inline">\(\tilde \beta\)</span>. See <a href="../../../teaching/linear_model/lectures/estimation.html#efficient-beta">Proof</a></p>
+\]</span> for <span style="background-color: yellow;">any unbiased</span> estimator <span class="math inline">\(\tilde \beta\)</span>. See <a href="../../../teaching/linear_model/lectures/estimation.html#efficient-beta">Proof</a></p>
 </div>
 </div>
 </div>
 <ul>
 <li class="fragment">This is stronger than Gauss-Markov</li>
-<li class="fragment">Better than <span style="background-color: yellow;">any <span class="math inline">\(\tilde \beta\)</span></span>, not only <span style="background-color: yellow;">linear <span class="math inline">\(\tilde  \beta\)</span></span>. <span class="math inline">\(\hat \beta\)</span> is “BUE” (Best Unbiased Estimator)</li>
+<li class="fragment">Better than <span style="background-color: yellow;">any unbiased <span class="math inline">\(\tilde \beta\)</span></span>, not only <span style="background-color: yellow;">linear <span class="math inline">\(\tilde  \beta\)</span></span>. <span class="math inline">\(\hat \beta\)</span> is “BUE” (Best Unbiased Estimator)</li>
 <li class="fragment">If <span style="background-color: yellow;"><span class="math inline">\(n\)</span> is large</span>, most of the result in Gaussian case remains valid.</li>
 </ul>
 </div>
@@ -535,7 +535,7 @@ Y &amp;= \widehat Y + \hat \varepsilon &amp; \quad \text{(estimation)}
 </div>
 <div class="fragment">
 <div style="font-size: 80%;">
-<p><span class="math inline">\(\mathbb V(\hat{\beta}) = \sigma^2 (X^T X)^{-1}\)</span> implies that <span class="math inline">\(\mathbb V(\hat{\beta}_j) = \sigma^2 (X^T X)^{-1}_{jj}\)</span>. <span class="math inline">\(\hat{\sigma}^2_{\hat{\beta}_j}:=\hat\sigma^2 (X^T X)^{-1}\)</span> is an estimator of <span class="math inline">\(\sqrt{\mathbb V(\hat{\beta}_j)}\)</span></p>
+<p><span class="math inline">\(\mathbb V(\hat{\beta}) = \sigma^2 (X^T X)^{-1}\)</span> implies that <span class="math inline">\(\mathbb V(\hat{\beta}_j) = \sigma^2 (X^T X)^{-1}_{jj}\)</span>. <span class="math inline">\(\hat{\sigma}^2_{\hat{\beta}_j}:=\hat\sigma^2 (X^T X)^{-1}\)</span> is an estimator of <span class="math inline">\(\mathbb V(\hat{\beta}_j)\)</span></p>
 </div>
 </div>
 </section>
@@ -692,16 +692,19 @@ Y &amp;= \widehat Y + \hat \varepsilon &amp; \quad \text{(estimation)}
 <p>We deduce the <span style="background-color: yellow;">prediction interval</span></p>
 <div style="font-size: 90%;">
 <div class="square-def">
-<p><span class="math display">\[PI_{1-\alpha}(Y_o)=\left[\hat Y_o \pm \sqrt{\color{blue}{\hat \sigma^2X_o(X^TX)^{-1}X_o^T} + \color{red}{\hat \sigma^2}}\right]\]</span></p>
+<p><span class="math inline">\(PI_{1-\alpha}(Y_o)=\left[\hat Y_o \pm t\sqrt{\color{blue}{\hat \sigma^2X_o(X^TX)^{-1}X_o^T} + \color{red}{\hat \sigma^2}}\right]\)</span></p>
 </div>
 </div>
-<p>such that <span class="math inline">\(\P(Y_o \in PI_{1-\alpha})= 1-\alpha\)</span></p>
+<p>where <span class="math inline">\(t\)</span> is the <span class="math inline">\(1-\alpha/2\)</span> quantile of <span class="math inline">\(\mathcal T(n-p)\)</span>.</p>
+</div>
+<div class="fragment">
+<p>We have <span class="math inline">\(\P(Y_o \in PI_{1-\alpha})= 1-\alpha\)</span></p>
 </div>
 <div class="fragment">
 <p>If we only want to estimate <span class="math inline">\(\mathbb E[Y_o]=X_o \beta\)</span>, (point on the hyperplane), we get the <span style="background-color: yellow;">confidence interval</span></p>
 <div style="font-size: 90%;">
 <div class="square-def">
-<p><span class="math display">\[CI_{1-\alpha}(X_o\beta)=\left[\hat Y_o \pm \sqrt{\color{blue}{\hat \sigma^2X_o(X^TX)^{-1}X_o^T}}\right]\]</span></p>
+<p><span class="math inline">\(CI_{1-\alpha}(X_o\beta)=\left[\hat Y_o \pm \sqrt{\color{blue}{\hat \sigma^2X_o(X^TX)^{-1}X_o^T}}\right]\)</span></p>
 </div>
 </div>
 </div>

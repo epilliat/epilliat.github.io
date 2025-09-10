@@ -167,17 +167,18 @@ window.Quarto = {
   <li><a href="#estimation-of-hat-sigma2" id="toc-estimation-of-hat-sigma2" class="nav-link" data-scroll-target="#estimation-of-hat-sigma2">Estimation of <span class="math inline">\(\hat \sigma^2\)</span></a>
   <ul class="incremental collapse">
   <li><a href="#expectation-unbiasedness" id="toc-expectation-unbiasedness" class="nav-link" data-scroll-target="#expectation-unbiasedness">Expectation (unbiasedness)</a></li>
-  <li><a href="#variance-1" id="toc-variance-1" class="nav-link" data-scroll-target="#variance-1">Variance</a></li>
+  <li><a href="#var_sigma" id="toc-var_sigma" class="nav-link" data-scroll-target="#var_sigma">Variance</a>
+  <ul class="incremental collapse">
+  <li><a href="#variance-in-the-gaussian-case-simpler-proof" id="toc-variance-in-the-gaussian-case-simpler-proof" class="nav-link" data-scroll-target="#variance-in-the-gaussian-case-simpler-proof">Variance in the Gaussian case (simpler proof)</a></li>
+  <li><a href="#bounded-fourth-moment-case-more-technical" id="toc-bounded-fourth-moment-case-more-technical" class="nav-link" data-scroll-target="#bounded-fourth-moment-case-more-technical">Bounded fourth moment case (more technical)</a></li>
+  </ul></li>
   </ul></li>
   <li><a href="#gaussian-case" id="toc-gaussian-case" class="nav-link" data-scroll-target="#gaussian-case">Gaussian Case</a>
   <ul class="incremental collapse">
   <li><a href="#proof-mle" id="toc-proof-mle" class="nav-link" data-scroll-target="#proof-mle">Maximum Likelihood Estimator</a>
   <ul class="incremental collapse">
   <li><a href="#setup" id="toc-setup" class="nav-link" data-scroll-target="#setup">Setup</a></li>
-  <li><a href="#finding-mle-for-beta" id="toc-finding-mle-for-beta" class="nav-link" data-scroll-target="#finding-mle-for-beta">Finding MLE for <span class="math inline">\(\beta\)</span></a></li>
-  <li><a href="#finding-mle-for-sigma2" id="toc-finding-mle-for-sigma2" class="nav-link" data-scroll-target="#finding-mle-for-sigma2">Finding MLE for <span class="math inline">\(\sigma^2\)</span></a></li>
-  <li><a href="#verification-second-order-conditions" id="toc-verification-second-order-conditions" class="nav-link" data-scroll-target="#verification-second-order-conditions">Verification (Second-Order Conditions)</a></li>
-  <li><a href="#key-properties" id="toc-key-properties" class="nav-link" data-scroll-target="#key-properties">Key Properties</a></li>
+  <li><a href="#MLE" id="toc-MLE" class="nav-link" data-scroll-target="#MLE">Existence and Uniqueness of Global Maximum</a></li>
   </ul></li>
   <li><a href="#efficient-beta" id="toc-efficient-beta" class="nav-link" data-scroll-target="#efficient-beta"><span class="math inline">\(\hat \beta\)</span> is an Efficient Estimator in the Gaussian Model</a>
   <ul class="incremental collapse">
@@ -307,18 +308,55 @@ Note
 <p>Therefore: <span class="math display">\[\hat \sigma^2=\|\hat{\varepsilon}\|^2 = \varepsilon^T P_{[X]^\perp}\varepsilon\]</span></p>
 <p>Since <span class="math inline">\(P_{[X]^\perp}\)</span> is idempotent and symmetric with <span class="math inline">\(\text{tr}(P_{[X]^\perp}) = n - p\)</span>:</p>
 <p><span class="math display">\[\mathbb{E}[\|\hat{\varepsilon}\|^2] = \mathbb{E}[\varepsilon^T P_{[X]^\perp}\varepsilon] = \sigma^2 \text{tr}(P_{[X]^\perp}) = \sigma^2(n-p)\]</span></p>
-<p>Thus: <span class="math display">\[\mathbb{E}[\hat{\sigma}^2] = \frac{1}{n-p}\mathbb{E}[\|\hat{\varepsilon}\|^2] = \sigma^2\]</span></p>
+<p>Thus:</p>
+<div class="square-def">
+<p><span class="math display">\[\mathbb{E}[\hat{\sigma}^2] = \frac{1}{n-p}\mathbb{E}[\|\hat{\varepsilon}\|^2] = \sigma^2\]</span></p>
+</div>
 </section>
-<section id="variance-1" class="level2">
-<h2 class="anchored" data-anchor-id="variance-1">Variance</h2>
-<p>For the variance, assume that <span class="math inline">\(\mathbb E[\varepsilon_i] = \mu_4 &lt; +\infty\)</span>. We have <span class="math display">\[\mathbb{V}(\hat{\sigma}^2) = \mathbb{E}[\hat{\sigma}^4] - (\mathbb{E}[\hat{\sigma}^2])^2 = \mathbb{E}[\hat{\sigma}^4] - \sigma^4\]</span></p>
-<p>A computation gives <span class="math display">\[\mathbb{E}[\hat \sigma^4] = \mathbb{E}[(\varepsilon^  T P_{[X]^\perp}\varepsilon)^2]\]</span></p>
-<p>Hence,</p>
-<p><span class="math display">\[\mathbb{E}[\hat \sigma^4] = \sigma^4[\text{tr}(P_{[X]^\perp})^2 + 2\text{tr}(P_{[X]^\perp}^2)] + (\mu_4 - 3\sigma^4)\text{tr}(P_{[X]^\perp}^2)\]</span></p>
-<p>We have</p>
-<p><span class="math inline">\(P_{[X]^\perp}^2 = P_{[X]^\perp}\)</span>, so <span class="math inline">\(\text{tr}(P_{[X]^\perp}^2) = \text{tr}(P_{[X]^\perp}) = n-p\)</span></p>
-<p>Therefore: <span class="math display">\[\mathbb{E}[\hat \sigma^4] = \sigma^4[(n-p)^2 + 2(n-p)] + (\mu_4 - 3\sigma^4)(n-p)\]</span></p>
-<p>This gives us: <span class="math display">\[\mathbb{V}(\hat{\sigma}^2) = \frac{1}{(n-p)^2}\mathbb{E}[\hat \sigma^4] - \sigma^4 = \frac{2\sigma^4}{n-p} + \frac{\mu_4 - 3\sigma^4}{(n-p)^2}\]</span></p>
+<section id="var_sigma" class="level2">
+<h2 class="anchored" data-anchor-id="var_sigma">Variance</h2>
+<p><strong>Setup:</strong> Consider the linear regression model <span class="math inline">\(Y = X\beta + \varepsilon\)</span> where:</p>
+<ul class="incremental">
+<li><span class="math inline">\(\hat{\varepsilon} = P_{[X]^\perp}\varepsilon\)</span> with <span class="math inline">\(P_{[X]^\perp} = I - X(X^TX)^{-1}X^T\)</span></li>
+<li><span class="math inline">\(P_{[X]^\perp}\)</span> is symmetric and idempotent with <span class="math inline">\(\text{tr}(P_{[X]^\perp}) = n - p\)</span></li>
+</ul>
+<p>The estimator is: <span class="math inline">\(\hat{\sigma}^2 = \frac{1}{n-p}\|\hat{\varepsilon}\|^2 = \frac{1}{n-p}\varepsilon^T P_{[X]^\perp}\varepsilon\)</span></p>
+<section id="variance-in-the-gaussian-case-simpler-proof" class="level3">
+<h3 class="anchored" data-anchor-id="variance-in-the-gaussian-case-simpler-proof">Variance in the Gaussian case (simpler proof)</h3>
+<p>Let us first assume that <span class="math inline">\(\varepsilon \sim \mathcal{N}(0, \sigma^2 I_n)\)</span></p>
+<p><strong>Key Observation:</strong> Since <span class="math inline">\(P_{[X]^\perp}\)</span> is idempotent with rank <span class="math inline">\(n-p\)</span>, its eigenvalues are <span class="math inline">\((n-p)\)</span> ones and <span class="math inline">\(p\)</span> zeros. By spectral decomposition: <span class="math display">\[P_{[X]^\perp} = Q\Lambda Q^T\]</span> where <span class="math inline">\(Q\)</span> is orthogonal and <span class="math inline">\(\Lambda = \text{diag}(1, \ldots, 1, 0, \ldots, 0)\)</span>.</p>
+<p><strong>Transform to Standard Form:</strong> Let <span class="math inline">\(Z = Q^T\varepsilon \sim \mathcal{N}(0, \sigma^2 I_n)\)</span>. Then: <span class="math display">\[\varepsilon^T P_{[X]^\perp}\varepsilon = Z^T\Lambda Z = \sum_{i=1}^{n-p} Z_i^2\]</span></p>
+<p><strong>Chi-Square Distribution:</strong> Since <span class="math inline">\(Z_i \stackrel{iid}{\sim} \mathcal{N}(0, \sigma^2)\)</span>: <span class="math display">\[\frac{(n-p)\hat{\sigma}^2}{\sigma^2} = \sum_{i=1}^{n-p} \left(\frac{Z_i}{\sigma}\right)^2 \sim \chi^2_{n-p}\]</span></p>
+<p><strong>Moments from Chi-Square:</strong> Using properties of <span class="math inline">\(\chi^2_{n-p}\)</span>: - <span class="math inline">\(\mathbb{E}[\hat{\sigma}^2] = \sigma^2\)</span> (unbiased) - <span class="math inline">\(\mathbb{V}(\hat{\sigma}^2) = \frac{2\sigma^4}{n-p}\)</span></p>
+<p><strong>L² Consistency:</strong> Since <span class="math inline">\(\hat{\sigma}^2\)</span> is unbiased:</p>
+<div class="square-def">
+<p><span class="math display">\[\mathbb{E}[(\hat{\sigma}^2 - \sigma^2)^2] = \mathbb{V}(\hat{\sigma}^2) = \frac{2\sigma^4}{n-p} \to 0 \text{ as } n \to \infty\]</span></p>
+</div>
+<p>Therefore, <span class="math inline">\(\hat{\sigma}^2 \xrightarrow{L^2} \sigma^2\)</span> as <span class="math inline">\(n \to \infty\)</span>.</p>
+<p><strong>Bonus:</strong> We also get the exact distribution: <span class="math inline">\(\frac{(n-p)\hat{\sigma}^2}{\sigma^2} \sim \chi^2_{n-p}\)</span> for all <span class="math inline">\(n\)</span>.</p>
+</section>
+<section id="bounded-fourth-moment-case-more-technical" class="level3">
+<h3 class="anchored" data-anchor-id="bounded-fourth-moment-case-more-technical">Bounded fourth moment case (more technical)</h3>
+<p>Now we do not assume that <span class="math inline">\(\epsilon\)</span> is a gaussian vector. We assume the <span class="math inline">\(\varepsilon_i\)</span> are iid, such that</p>
+<ul class="incremental">
+<li><span class="math inline">\(\mathbb E[\varepsilon_i]=0\)</span></li>
+<li><span class="math inline">\(\mathbb V[\varepsilon_i] = \sigma^2\)</span></li>
+<li><span class="math inline">\(\mathbb E[\varepsilon_i^4]= \mu_4 &lt; \infty\)</span> <span class="math display">\[\mathbb{V}(\hat{\sigma}^2) = \mathbb{E}[\hat{\sigma}^4] - (\mathbb{E}[\hat{\sigma}^2])^2 = \mathbb{E}[\hat{\sigma}^4] - \sigma^4\]</span></li>
+</ul>
+<p>We have <span class="math display">\[\mathbb{E}[\hat \sigma^4] = \mathbb{E}[(\varepsilon^  T P_{[X]^\perp}\varepsilon)^2]\]</span></p>
+<p>Hence, the computation of the <a href="../../../teaching/linear_model/notes/variance_quadratic_form.html">variance of a quadratic form</a> gives</p>
+<p><span class="math display">\[\mathbb V(\hat \sigma^2) = \frac{1}{(n-p)^2}\left(2\sigma^4\text{tr}(P_{[X]^\perp}^2) + (\mu_4 - 3\sigma^4)\sum_{i}(P_{[X]^\perp})_{ii}^2 \right) \enspace .\]</span></p>
+<p>The fact that <span class="math inline">\(P_{[X]^\perp}^2=P_{[X]^\perp}\)</span> and <span class="math inline">\(\text{tr}(P_{[X]^\perp}) = n-p\)</span> gives We have</p>
+<div class="square-def">
+<p><span class="math display">\[\mathbb V(\hat \sigma^2) = \frac{1}{(n-p)^2}\left(2\sigma^4(n-p) + (\mu_4 - 3\sigma^4)\sum_{i}(P_{[X]^\perp})_{ii}^2\right) \enspace .\]</span></p>
+</div>
+<p>Since <span class="math inline">\((P_{[X]^\perp})_{ii} = e_i^TP_{[X]^\perp}e_i \in [0,1]\)</span> (the eigen values of an orthogonal projector are in <span class="math inline">\(\{0,1\}\)</span>), we have <span class="math inline">\((P_{[X]^\perp})_{ii}^2 \leq (P_{[X]^\perp})_{ii}\)</span>.</p>
+<p>Therefore:</p>
+<div class="square-def">
+<p><span class="math display">\[\mathbb V(\hat \sigma^2) \leq \frac{1}{(n-p)}\left(2\sigma^4 + (\mu_4 - 3\sigma^4)\right) \to 0\]</span></p>
+</div>
+<p>when <span class="math inline">\(n \to \infty\)</span>.</p>
+</section>
 </section>
 </section>
 <section id="gaussian-case" class="level1">
@@ -350,51 +388,24 @@ MLE
 <p>Model: <span class="math inline">\(Y = X\beta + \varepsilon\)</span> where <span class="math inline">\(\varepsilon \sim N(0, \sigma^2 I_n)\)</span></p>
 <p>This means: <span class="math inline">\(Y \sim N(X\beta, \sigma^2 I_n)\)</span></p>
 <p>For <span class="math inline">\(n\)</span> observations, the likelihood function is:</p>
-<p><span class="math display">\[L(\beta, \sigma^2) = (2\pi\sigma^2)^{-n/2} \exp\left(-\frac{1}{2\sigma^2} (Y - X\beta)^T(Y - X\beta)\right)\]</span></p>
+<p><span class="math display">\[L(\beta, \sigma^2) = (2\pi\sigma^2)^{-n/2} \exp\left(-\frac{1}{2\sigma^2} \|Y - X\beta\|^2\right)\]</span></p>
 <div class="square-def">
-<p><span class="math display">\[\ell(\beta, \sigma^2) = \log L(\beta, \sigma^2) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T(Y - X\beta)\]</span></p>
+<p><span class="math display">\[\ell(\beta, \sigma^2) = \log L(\beta, \sigma^2) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \|Y - X\beta\|^2\]</span></p>
 </div>
 </section>
-<section id="finding-mle-for-beta" class="level3">
-<h3 class="anchored" data-anchor-id="finding-mle-for-beta">Finding MLE for <span class="math inline">\(\beta\)</span></h3>
-<p>Taking the partial derivative with respect to <span class="math inline">\(\beta\)</span>:</p>
-<p><span class="math display">\[\frac{\partial \ell}{\partial \beta} = \frac{1}{\sigma^2} X^T(Y - X\beta)\]</span></p>
-<p>Setting equal to zero: <span class="math display">\[X^T(Y - X\hat{\beta}_{MLE}) = 0\]</span></p>
-<p><span class="math display">\[X^TY - X^TX\hat{\beta}_{MLE} = 0\]</span></p>
-<p><span class="math display">\[X^TX\hat{\beta}_{MLE} = X^Ty\]</span></p>
-<p>Therefore:</p>
+<section id="MLE" class="level3">
+<h3 class="anchored" data-anchor-id="MLE">Existence and Uniqueness of Global Maximum</h3>
+<p>Let <span class="math inline">\(\beta^*\)</span> be the minimizer of <span class="math inline">\(\|Y-X\tilde \beta\|\)</span> over all <span class="math inline">\(\tilde \beta \in \mathbb R^p\)</span>. <span class="math inline">\(\beta^*\)</span> the OLS estimator by definition, and it satisfies <span class="math inline">\(\ell(\beta, \sigma^2) \leq -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \|Y - X\beta^*\|^2 = \ell(\beta^*, \sigma^2)\)</span>. Since <span class="math inline">\(p &lt; n\)</span>, we almost surely have that <span class="math inline">\(Y \not \in [X]\)</span>, so that <span class="math inline">\(\|Y - X\beta^*\|^2 &gt; 0\)</span>.</p>
+<p>Now that <span class="math inline">\(\beta^*\)</span> is fixed, the function <span class="math inline">\(\sigma^2 \to -\frac{n}{2} \log(2\pi\sigma^2  ) - \frac{1}{2\sigma^2} \|Y - X\beta^*\|^2\)</span> is concave on <span class="math inline">\((0, +\infty)\)</span>, and cancelling the gradient gives that it achieves its maximum at <span class="math inline">\((\sigma^*)^2 = \frac{1}{n}\|Y - X\beta^*\|^2\)</span>.</p>
+<p>Hence, we obtain that for any <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\sigma\)</span>, <span class="math inline">\(\ell(\beta, \sigma^2) \leq \ell(\beta^*, \sigma^2) \leq \ell(\beta^*, (\sigma^*)^2)\)</span>. We just proved that <span class="math inline">\((\beta^*, (\sigma^*))^2\)</span> is the unique global maximum, which implies that</p>
 <div class="square-def">
-<p><span class="math display">\[\hat{\beta}_{MLE} = (X^TX)^{-1}X^Ty\]</span></p>
+<p><span class="math display">\[
+\begin{aligned}
+\hat \beta_{MLE}&amp;= \beta^* = \hat \beta \\
+\hat \sigma_{MLE}&amp;= \sigma^* = \frac{1}{n}\|Y-X\hat \beta\|^2
+\end{aligned}
+\]</span></p>
 </div>
-</section>
-<section id="finding-mle-for-sigma2" class="level3">
-<h3 class="anchored" data-anchor-id="finding-mle-for-sigma2">Finding MLE for <span class="math inline">\(\sigma^2\)</span></h3>
-<p>Taking the partial derivative with respect to <span class="math inline">\(\sigma^2\)</span>:</p>
-<p><span class="math display">\[\frac{\partial \ell}{\partial \sigma^2} = -\frac{n}{2\sigma^2} + \frac{1}{2\sigma^4} (Y - X\beta)^T(Y - X\beta)\]</span></p>
-<p>Setting equal to zero: <span class="math display">\[-\frac{n}{2\sigma^2} + \frac{1}{2\sigma^4} (Y - X\hat{\beta}_{MLE})^T(Y - X\hat{\beta}_{MLE}) = 0\]</span></p>
-<p>Multiplying by <span class="math inline">\(2\sigma^4\)</span>: <span class="math display">\[-n\sigma^2 + (y - X\hat{\beta}_{MLE})^T(y - X\hat{\beta}_{MLE}) = 0\]</span></p>
-<p>Therefore:</p>
-<div class="square-def">
-<p><span class="math display">\[\hat{\sigma}^2 = \frac{1}{n} (y - X\hat{\beta}_{MLE})^T(y - X\hat{\beta}_{MLE}) = \frac{SSR}{n}\]</span></p>
-</div>
-</section>
-<section id="verification-second-order-conditions" class="level3">
-<h3 class="anchored" data-anchor-id="verification-second-order-conditions">Verification (Second-Order Conditions)</h3>
-<p>The Hessian matrix has:</p>
-<p><span class="math display">\[\frac{\partial^2 \ell}{\partial \beta \partial \beta'} = -\frac{1}{\sigma^2} X^TX\]</span></p>
-<p>This is negative definite (assuming <span class="math inline">\(X^TX\)</span> is invertible), confirming <span class="math inline">\(\hat{\beta}\)</span> is a maximum.</p>
-<p><span class="math display">\[\frac{\partial^2 \ell}{\partial (\sigma^2)^2} = \frac{n}{2\sigma^4} - \frac{1}{\sigma^6} (y - X\beta)^T(y - X\beta)\]</span></p>
-<p>At the MLE: <span class="math inline">\(\frac{\partial^2 \ell}{\partial (\sigma^2)^2}\bigg|_{\hat{\sigma}^2} = \frac{n}{2\sigma^4} - \frac{n}{\sigma^4} = -\frac{n}{2\sigma^4} &lt; 0\)</span></p>
-<p>This confirms <span class="math inline">\(\hat{\sigma}^2\)</span> is a maximum.</p>
-</section>
-<section id="key-properties" class="level3">
-<h3 class="anchored" data-anchor-id="key-properties">Key Properties</h3>
-<ul class="incremental">
-<li>Consistency: Both estimators are consistent</li>
-<li>Bias: <span class="math inline">\(\hat{\beta}\)</span> is unbiased, but <span class="math inline">\(\hat{\sigma}^2\)</span> is biased (divides by <span class="math inline">\(n\)</span> instead of <span class="math inline">\(n-k\)</span>)</li>
-<li>Efficiency: Under normality, these MLEs achieve the Cramér-Rao lower bound</li>
-<li>Relationship to OLS: <span class="math inline">\(\hat{\beta}_{MLE} = \hat{\beta}_{OLS}\)</span> under normality assumption</li>
-</ul>
 </section>
 </section>
 <section id="efficient-beta" class="level2">

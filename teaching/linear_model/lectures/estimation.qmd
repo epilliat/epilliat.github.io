@@ -147,31 +147,89 @@ Since $P_{[X]^\perp}$ is idempotent and symmetric with $\text{tr}(P_{[X]^\perp})
 $$\mathbb{E}[\|\hat{\varepsilon}\|^2] = \mathbb{E}[\varepsilon^T P_{[X]^\perp}\varepsilon] = \sigma^2 \text{tr}(P_{[X]^\perp}) = \sigma^2(n-p)$$
 
 Thus:
+
+::: {.square-def}
 $$\mathbb{E}[\hat{\sigma}^2] = \frac{1}{n-p}\mathbb{E}[\|\hat{\varepsilon}\|^2] = \sigma^2$$
+:::
 
 
-## Variance
 
 
-For the variance, assume that $\mathbb E[\varepsilon_i] = \mu_4 < +\infty$. We have
+## Variance {#var_sigma}
+
+**Setup:** Consider the linear regression model $Y = X\beta + \varepsilon$ where:
+
+- $\hat{\varepsilon} = P_{[X]^\perp}\varepsilon$ with $P_{[X]^\perp} = I - X(X^TX)^{-1}X^T$
+- $P_{[X]^\perp}$ is symmetric and idempotent with $\text{tr}(P_{[X]^\perp}) = n - p$
+
+The estimator is: $\hat{\sigma}^2 = \frac{1}{n-p}\|\hat{\varepsilon}\|^2 = \frac{1}{n-p}\varepsilon^T P_{[X]^\perp}\varepsilon$
+
+### Variance in the Gaussian case (simpler proof)
+
+Let us first assume that $\varepsilon \sim \mathcal{N}(0, \sigma^2 I_n)$
+
+**Key Observation:** Since $P_{[X]^\perp}$ is idempotent with rank $n-p$, its eigenvalues are $(n-p)$ ones and $p$ zeros. By spectral decomposition:
+$$P_{[X]^\perp} = Q\Lambda Q^T$$
+where $Q$ is orthogonal and $\Lambda = \text{diag}(1, \ldots, 1, 0, \ldots, 0)$.
+
+**Transform to Standard Form:** Let $Z = Q^T\varepsilon \sim \mathcal{N}(0, \sigma^2 I_n)$. Then:
+$$\varepsilon^T P_{[X]^\perp}\varepsilon = Z^T\Lambda Z = \sum_{i=1}^{n-p} Z_i^2$$
+
+**Chi-Square Distribution:** Since $Z_i \stackrel{iid}{\sim} \mathcal{N}(0, \sigma^2)$:
+$$\frac{(n-p)\hat{\sigma}^2}{\sigma^2} = \sum_{i=1}^{n-p} \left(\frac{Z_i}{\sigma}\right)^2 \sim \chi^2_{n-p}$$
+
+**Moments from Chi-Square:** Using properties of $\chi^2_{n-p}$:
+- $\mathbb{E}[\hat{\sigma}^2] = \sigma^2$ (unbiased)
+- $\mathbb{V}(\hat{\sigma}^2) = \frac{2\sigma^4}{n-p}$
+
+**L² Consistency:** Since $\hat{\sigma}^2$ is unbiased:
+
+::: {.square-def}
+$$\mathbb{E}[(\hat{\sigma}^2 - \sigma^2)^2] = \mathbb{V}(\hat{\sigma}^2) = \frac{2\sigma^4}{n-p} \to 0 \text{ as } n \to \infty$$
+:::
+
+
+
+Therefore, $\hat{\sigma}^2 \xrightarrow{L^2} \sigma^2$ as $n \to \infty$.
+
+**Bonus:** We also get the exact distribution: $\frac{(n-p)\hat{\sigma}^2}{\sigma^2} \sim \chi^2_{n-p}$ for all $n$.
+
+### Bounded fourth moment case (more technical)
+
+Now we do not assume that $\epsilon$ is a gaussian vector. We assume the $\varepsilon_i$ are iid, such that 
+
+- $\mathbb E[\varepsilon_i]=0$
+- $\mathbb V[\varepsilon_i] = \sigma^2$
+- $\mathbb E[\varepsilon_i^4]= \mu_4 < \infty$
 $$\mathbb{V}(\hat{\sigma}^2) = \mathbb{E}[\hat{\sigma}^4] - (\mathbb{E}[\hat{\sigma}^2])^2 = \mathbb{E}[\hat{\sigma}^4] - \sigma^4$$
 
-A computation gives
+We have
 $$\mathbb{E}[\hat \sigma^4] = \mathbb{E}[(\varepsilon^  T P_{[X]^\perp}\varepsilon)^2]$$
 
-Hence,
 
-$$\mathbb{E}[\hat \sigma^4] = \sigma^4[\text{tr}(P_{[X]^\perp})^2 + 2\text{tr}(P_{[X]^\perp}^2)] + (\mu_4 - 3\sigma^4)\text{tr}(P_{[X]^\perp}^2)$$
 
+Hence, the computation of the [variance of a quadratic form](../notes/variance_quadratic_form.qmd) gives
+
+$$\mathbb V(\hat \sigma^2) = \frac{1}{(n-p)^2}\left(2\sigma^4\text{tr}(P_{[X]^\perp}^2) + (\mu_4 - 3\sigma^4)\sum_{i}(P_{[X]^\perp})_{ii}^2 \right) \enspace .$$
+
+The fact that $P_{[X]^\perp}^2=P_{[X]^\perp}$ and $\text{tr}(P_{[X]^\perp}) = n-p$ gives
 We have
 
-$P_{[X]^\perp}^2 = P_{[X]^\perp}$, so $\text{tr}(P_{[X]^\perp}^2) = \text{tr}(P_{[X]^\perp}) = n-p$
+::: {.square-def}
+$$\mathbb V(\hat \sigma^2) = \frac{1}{(n-p)^2}\left(2\sigma^4(n-p) + (\mu_4 - 3\sigma^4)\sum_{i}(P_{[X]^\perp})_{ii}^2\right) \enspace .$$
+:::
+
+Since $(P_{[X]^\perp})_{ii} = e_i^TP_{[X]^\perp}e_i \in [0,1]$ (the eigen values of an orthogonal projector are in $\{0,1\}$), we have $(P_{[X]^\perp})_{ii}^2 \leq (P_{[X]^\perp})_{ii}$.
 
 Therefore:
-$$\mathbb{E}[\hat \sigma^4] = \sigma^4[(n-p)^2 + 2(n-p)] + (\mu_4 - 3\sigma^4)(n-p)$$
 
-This gives us:
-$$\mathbb{V}(\hat{\sigma}^2) = \frac{1}{(n-p)^2}\mathbb{E}[\hat \sigma^4] - \sigma^4 = \frac{2\sigma^4}{n-p} + \frac{\mu_4 - 3\sigma^4}{(n-p)^2}$$
+::: {.square-def}
+$$\mathbb V(\hat \sigma^2) \leq \frac{1}{(n-p)}\left(2\sigma^4 + (\mu_4 - 3\sigma^4)\right) \to 0$$
+:::
+
+
+
+when $n \to \infty$.
 
 # Gaussian Case
 
@@ -201,77 +259,32 @@ This means: $Y \sim N(X\beta, \sigma^2 I_n)$
 
 For $n$ observations, the likelihood function is:
 
-$$L(\beta, \sigma^2) = (2\pi\sigma^2)^{-n/2} \exp\left(-\frac{1}{2\sigma^2} (Y - X\beta)^T(Y - X\beta)\right)$$
+$$L(\beta, \sigma^2) = (2\pi\sigma^2)^{-n/2} \exp\left(-\frac{1}{2\sigma^2} \|Y - X\beta\|^2\right)$$
 
 ::: {.square-def}
-$$\ell(\beta, \sigma^2) = \log L(\beta, \sigma^2) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} (Y - X\beta)^T(Y - X\beta)$$
+$$\ell(\beta, \sigma^2) = \log L(\beta, \sigma^2) = -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \|Y - X\beta\|^2$$
 :::
 
 
+### Existence and Uniqueness of Global Maximum {#MLE}
 
-### Finding MLE for $\beta$
+Let $\beta^*$ be the minimizer of $\|Y-X\tilde \beta\|$ over all $\tilde \beta \in \mathbb R^p$. $\beta^*$ the OLS estimator by definition, and it satisfies
+$\ell(\beta, \sigma^2) \leq -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \|Y - X\beta^*\|^2 = \ell(\beta^*, \sigma^2)$. 
+Since $p < n$, we almost surely have that $Y \not \in [X]$, so that $\|Y - X\beta^*\|^2 > 0$.
 
-Taking the partial derivative with respect to $\beta$:
+Now that $\beta^*$ is fixed, the function $\sigma^2 \to -\frac{n}{2} \log(2\pi\sigma^2  ) - \frac{1}{2\sigma^2} \|Y - X\beta^*\|^2$ is concave on $(0, +\infty)$, and cancelling the gradient gives that it achieves its maximum at $(\sigma^*)^2 = \frac{1}{n}\|Y - X\beta^*\|^2$. 
 
-$$\frac{\partial \ell}{\partial \beta} = \frac{1}{\sigma^2} X^T(Y - X\beta)$$
-
-Setting equal to zero:
-$$X^T(Y - X\hat{\beta}_{MLE}) = 0$$
-
-$$X^TY - X^TX\hat{\beta}_{MLE} = 0$$
-
-$$X^TX\hat{\beta}_{MLE} = X^Ty$$
-
-Therefore: 
+Hence, we obtain that for any $\beta$ and $\sigma$, $\ell(\beta, \sigma^2) \leq \ell(\beta^*, \sigma^2) \leq \ell(\beta^*, (\sigma^*)^2)$.
+We just proved that $(\beta^*, (\sigma^*))^2$ is the unique global maximum, which implies that 
 
 ::: {.square-def}
-$$\hat{\beta}_{MLE} = (X^TX)^{-1}X^Ty$$
+$$
+\begin{aligned}
+\hat \beta_{MLE}&= \beta^* = \hat \beta \\
+\hat \sigma_{MLE}&= \sigma^* = \frac{1}{n}\|Y-X\hat \beta\|^2
+\end{aligned}
+$$
 :::
-
-
-
-### Finding MLE for $\sigma^2$
-
-Taking the partial derivative with respect to $\sigma^2$:
-
-$$\frac{\partial \ell}{\partial \sigma^2} = -\frac{n}{2\sigma^2} + \frac{1}{2\sigma^4} (Y - X\beta)^T(Y - X\beta)$$
-
-Setting equal to zero:
-$$-\frac{n}{2\sigma^2} + \frac{1}{2\sigma^4} (Y - X\hat{\beta}_{MLE})^T(Y - X\hat{\beta}_{MLE}) = 0$$
-
-Multiplying by $2\sigma^4$:
-$$-n\sigma^2 + (y - X\hat{\beta}_{MLE})^T(y - X\hat{\beta}_{MLE}) = 0$$
-
-Therefore: 
-
-::: {.square-def}
-$$\hat{\sigma}^2 = \frac{1}{n} (y - X\hat{\beta}_{MLE})^T(y - X\hat{\beta}_{MLE}) = \frac{SSR}{n}$$
-
-:::
-
-
-### Verification (Second-Order Conditions)
-
-The Hessian matrix has:
-
-$$\frac{\partial^2 \ell}{\partial \beta \partial \beta'} = -\frac{1}{\sigma^2} X^TX$$
-
-This is negative definite (assuming $X^TX$ is invertible), confirming $\hat{\beta}$ is a maximum.
-
-$$\frac{\partial^2 \ell}{\partial (\sigma^2)^2} = \frac{n}{2\sigma^4} - \frac{1}{\sigma^6} (y - X\beta)^T(y - X\beta)$$
-
-At the MLE: $\frac{\partial^2 \ell}{\partial (\sigma^2)^2}\bigg|_{\hat{\sigma}^2} = \frac{n}{2\sigma^4} - \frac{n}{\sigma^4} = -\frac{n}{2\sigma^4} < 0$
-
-This confirms $\hat{\sigma}^2$ is a maximum.
-
-### Key Properties
-
-- Consistency: Both estimators are consistent
-- Bias: $\hat{\beta}$ is unbiased, but $\hat{\sigma}^2$ is biased (divides by $n$ instead of $n-k$)
-- Efficiency: Under normality, these MLEs achieve the Cramér-Rao lower bound
-- Relationship to OLS: $\hat{\beta}_{MLE} = \hat{\beta}_{OLS}$ under normality assumption
-
-
 
 
 ## $\hat \beta$ is an Efficient Estimator in the Gaussian Model {#efficient-beta}

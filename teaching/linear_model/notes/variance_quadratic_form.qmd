@@ -1,0 +1,75 @@
+---
+title: "Variance of a Quadratic Form"
+format: 
+  html:
+    incremental: true
+    callout-icon: false
+    theme: [default]
+smaller: true
+css: ../../../styles.css
+---
+
+
+**Setup:** Consider the quadratic form $Q = \varepsilon^T A \varepsilon$ where:
+
+- $\varepsilon_i$ are i.i.d. with $\mathbb{E}[\varepsilon_i] = 0$, $\mathbb{E}[\varepsilon_i^2] = \sigma^2$, $\mathbb{E}[\varepsilon_i^4] = \mu_4$
+- $A$ is a symmetric $n \times n$ matrix ($A^T = A$)
+
+**Computing the Expectation:**
+$$\mathbb{E}[Q] = \mathbb{E}\left[\sum_{i,j} A_{ij}\varepsilon_i\varepsilon_j\right] = \sum_{i,j} A_{ij}\mathbb{E}[\varepsilon_i\varepsilon_j] = \sigma^2 \sum_i A_{ii} = \sigma^2 \text{tr}(A)$$
+
+**Computing the Second Moment:**
+$$Q^2 = \left(\sum_{i,j} A_{ij}\varepsilon_i\varepsilon_j\right)^2 = \sum_{i,j,k,\ell} A_{ij}A_{k\ell}\varepsilon_i\varepsilon_j\varepsilon_k\varepsilon_\ell$$
+
+Taking expectation:
+$$\mathbb{E}[Q^2] = \sum_{i,j,k,\ell} A_{ij}A_{k\ell}\mathbb{E}[\varepsilon_i\varepsilon_j\varepsilon_k\varepsilon_\ell]$$
+
+**Fourth Moment Structure:** For i.i.d. $\varepsilon_i$ with mean zero:
+$$\mathbb{E}[\varepsilon_i\varepsilon_j\varepsilon_k\varepsilon_\ell] = \begin{cases}
+\mu_4 & \text{if } i = j = k = \ell \\
+\sigma^4 & \text{if two pairs of equal indices} \\
+0 & \text{otherwise}
+\end{cases}$$
+
+**Computing Each Contribution:**
+
+*All indices equal $(i = j = k = \ell)$:*
+$$\mu_4 \sum_i A_{ii}^2$$
+
+*Pattern $(i = j \neq k = \ell)$:*
+$$\sigma^4 \sum_{i \neq k} A_{ii}A_{kk} = \sigma^4[\text{tr}(A)^2 - \sum_i A_{ii}^2]$$
+
+*Pattern $(i = k \neq j = \ell)$:*
+$$\sigma^4 \sum_{i,j} A_{ij}^2 = \sigma^4 \text{tr}(A^2)$$
+
+*Pattern $(i = \ell \neq j = k)$:*
+Since $A$ is symmetric: $A_{ij} = A_{ji}$
+$$\sigma^4 \sum_{i,j} A_{ij}A_{ji} = \sigma^4 \sum_{i,j} A_{ij}^2 = \sigma^4 \text{tr}(A^2)$$
+
+**Final Formula for Second Moment:**
+$$\mathbb{E}[Q^2] = \mu_4 \sum_i A_{ii}^2 + \sigma^4[\text{tr}(A)^2 - \sum_i A_{ii}^2] + 2\sigma^4 \text{tr}(A^2)$$
+
+Rearranging:
+$$\mathbb{E}[Q^2] = \sigma^4[\text{tr}(A)^2 + 2\text{tr}(A^2)] + (\mu_4 - 3\sigma^4)\sum_i A_{ii}^2$$
+
+**Variance of Q:**
+$$\mathbb{V}(Q) = \mathbb{E}[Q^2] - [\mathbb{E}[Q]]^2 = \mathbb{E}[Q^2] - \sigma^4[\text{tr}(A)]^2$$
+
+::: {.square-def}
+$$\mathbb{V}(Q) = 2\sigma^4 \text{tr}(A^2) + (\mu_4 - 3\sigma^4)\sum_i A_{ii}^2$$
+:::
+
+
+
+**Special Cases:**
+
+*Gaussian errors ($\mu_4 = 3\sigma^4$):*
+$$\mathbb{V}(Q) = 2\sigma^4 \text{tr}(A^2)$$
+
+*Idempotent matrix ($A^2 = A$):*
+$$\mathbb{V}(Q) = 2\sigma^4 \text{tr}(A) + (\mu_4 - 3\sigma^4)\sum_i A_{ii}^2$$
+
+*Projection matrix (idempotent with $A_{ii} \in [0,1]$):*
+$$\sum_i A_{ii}^2 \leq \sum_i A_{ii} = \text{tr}(A)$$
+Therefore:
+$$\mathbb{V}(Q) \leq 2\sigma^4 \text{tr}(A) + |\mu_4 - 3\sigma^4|\text{tr}(A)$$

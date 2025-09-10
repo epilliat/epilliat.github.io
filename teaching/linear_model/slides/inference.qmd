@@ -121,7 +121,7 @@ $$Y = \underbrace{P_{[X]}Y}_{\widehat Y} + \underbrace{(I-P_{[X]})Y}_{"residuals
 
 . . .
 
-Notice that $I-P_{[X]}= P_{[X]^{\perp}}$ is the orthogonal projection on $[X]^{\perp} = \{\alpha\in \mathbb R^p:~ X\alpha =0\}$
+Notice that $I-P_{[X]}= P_{[X]^{\perp}}$ is the orthogonal projection on $[X]^{\perp} = \{\alpha\in \mathbb R^n:~ X^T\alpha =0\}$
 
 
 
@@ -252,7 +252,6 @@ $$
 We estimate $\sigma^2$ with 
 
 ::: {.square-def}
-
 $$\hat \sigma^2 = \frac{1}{n-p}\sum_{i=1}^n \hat \varepsilon_i^2$$
 :::
 
@@ -269,7 +268,7 @@ If $rk(X)=p$, $\E[\varepsilon]=0$ and $\Var(\varepsilon)= \sigma^2I_n$, then
 
 $$\hat \sigma^2 = \frac{1}{n-p}\sum_{i=1}^n \hat \varepsilon_i^2=\frac{\mathrm{SSR}}{n-p}$$
 
-is an [unbiased]{style="background-color: yellow;"} estimator of $\sigma^2$. If moreover the $\varepsilon_i$'s are iid, then $\hat \sigma^2$ is a [consistent]{style="background-color: yellow;"} estimator.
+is an [unbiased]{style="background-color: yellow;"} estimator of $\sigma^2$. If moreover the $\varepsilon_i$'s are iid, then $\hat \sigma^2$ is a [consistent]{style="background-color: yellow;"} estimator. [Proof](../lectures/estimation.qmd#variance-1)
 
 :::
 
@@ -347,12 +346,12 @@ In the Gaussian Model, $\hat \beta$ is an [efficient]{style="background-color: y
 $$
 \Var(\hat \beta) \preceq \Var(\tilde \beta)\; ,
 $$
-for [any]{style="background-color: yellow;"} estimator $\tilde \beta$. See [Proof](../lectures/estimation.qmd#efficient-beta)
+for [any unbiased]{style="background-color: yellow;"} estimator $\tilde \beta$. See [Proof](../lectures/estimation.qmd#efficient-beta)
 
 :::
 
 - This is stronger than Gauss-Markov
-- Better than [any $\tilde \beta$]{style="background-color: yellow;"}, not only [linear $\tilde  \beta$]{style="background-color: yellow;"}. $\hat \beta$ is "BUE" (Best Unbiased Estimator)
+- Better than [any unbiased $\tilde \beta$]{style="background-color: yellow;"}, not only [linear $\tilde  \beta$]{style="background-color: yellow;"}. $\hat \beta$ is "BUE" (Best Unbiased Estimator)
 - If [$n$ is large]{style="background-color: yellow;"}, most of the result in Gaussian case remains valid.
 
 
@@ -381,7 +380,7 @@ $$ \frac{\hat \beta_j - \beta_j}{\hat \sigma \sqrt{(X^T X)^{-1}_{jj}}} \sim \mat
 
 :::{style="font-size: 80%;"}
 $\mathbb V(\hat{\beta}) = \sigma^2 (X^T X)^{-1}$ implies that $\mathbb V(\hat{\beta}_j) = \sigma^2 (X^T X)^{-1}_{jj}$. 
-$\hat{\sigma}^2_{\hat{\beta}_j}:=\hat\sigma^2 (X^T X)^{-1}$ is an estimator of $\sqrt{\mathbb V(\hat{\beta}_j)}$
+$\hat{\sigma}^2_{\hat{\beta}_j}:=\hat\sigma^2 (X^T X)^{-1}$ is an estimator of $\mathbb V(\hat{\beta}_j)$
 
 :::
 
@@ -569,11 +568,15 @@ We deduce the [prediction interval ]{style="background-color: yellow;"}
 
 :::{style="font-size: 90%;"}
 ::: {.square-def}
-$$PI_{1-\alpha}(Y_o)=\left[\hat Y_o \pm \sqrt{\color{blue}{\hat \sigma^2X_o(X^TX)^{-1}X_o^T} + \color{red}{\hat \sigma^2}}\right]$$
+$PI_{1-\alpha}(Y_o)=\left[\hat Y_o \pm t\sqrt{\color{blue}{\hat \sigma^2X_o(X^TX)^{-1}X_o^T} + \color{red}{\hat \sigma^2}}\right]$
 :::
 :::
 
-such that $\P(Y_o \in PI_{1-\alpha})= 1-\alpha$
+where $t$ is the $1-\alpha/2$ quantile of $\mathcal T(n-p)$.
+
+. . .
+
+We have $\P(Y_o \in PI_{1-\alpha})= 1-\alpha$
 
 
 . . .
@@ -582,7 +585,7 @@ If we only want to estimate $\mathbb E[Y_o]=X_o \beta$, (point on the hyperplane
 
 :::{style="font-size: 90%;"}
 ::: {.square-def}
-$$CI_{1-\alpha}(X_o\beta)=\left[\hat Y_o \pm \sqrt{\color{blue}{\hat \sigma^2X_o(X^TX)^{-1}X_o^T}}\right]$$
+$CI_{1-\alpha}(X_o\beta)=\left[\hat Y_o \pm \sqrt{\color{blue}{\hat \sigma^2X_o(X^TX)^{-1}X_o^T}}\right]$
 :::
 :::
 
