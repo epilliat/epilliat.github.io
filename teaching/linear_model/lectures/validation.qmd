@@ -12,87 +12,59 @@ where:
 
 ## Proof
 
-### 1. Setup and Key Spaces
+Define
 
-Define the following spaces:
-
-- $V = [X] \subseteq \mathbb{R}^n$ (column space of $X$)
 - $V_0 = \{X\beta : R\beta = 0\} = X(\text{Ker}(R))$ (constrained subspace)
 
-Since $\text{rank}(X) = p$ and $\text{rank}(R) = q$:
+Since $\text{rank}(X) = p$ and $\text{rank}(R) = q$, it holds that $\dim(\text{Ker}(R)) = p - q$.
 
-- By rank-nullity theorem: $\dim(\text{Ker}(R)) = p - q$
-- Since $X$ has full column rank, the map $\beta \mapsto X\beta$ is injective
-- Therefore: $\dim(V_0) = \dim(X(\text{Ker}(R))) = \dim(\text{Ker}(R)) = p - q$
-- Also: $\dim(V) = p$
+Since $X$ has full column rank, the $\beta \mapsto X\beta$ is injective
+Therefore: $\dim(V_0) = \dim(X(\text{Ker}(R))) = \dim(\text{Ker}(R)) = p - q$.
 
-### 2. Orthogonal Decomposition
 
-Since $V_0 \subseteq V$, we can decompose $V$ as:
-$$V = V_0 \oplus V_0^{\perp_V}$$
+We have that 
 
-where $V_0^{\perp_V}$ is the orthogonal complement of $V_0$ within $V$, with:
-$$\dim(V_0^{\perp_V}) = \dim(V) - \dim(V_0) = p - (p-q) = q$$
+- $SSR = \|P_{[X]^\perp} Y\|^2$
+- $SSR_c = \|P_{V_0^\perp}Y\|^2$
 
-### 3. Projection Operators
 
-- $\hat{y} = P_V y$ is the projection of $y$ onto $V$ (unconstrained fit)
-- $\hat{y}_c = P_{V_0} y$ is the projection of $y$ onto $V_0$ (constrained fit)
+Let us now decompose
 
-### 4. Decomposition of SSR Difference
+$$
+Y = P_{[X]^\perp} Y + (P_{V_0^\perp} - P_{[X]^\perp})Y
+$$
 
-Since $V_0 \subseteq V$, we have $\hat{y}_c \in V$, and by the Pythagorean theorem:
-$$\|y - \hat{y}_c\|^2 = \|y - \hat{y}\|^2 + \|\hat{y} - \hat{y}_c\|^2$$
+The first term correspond to the residuals, and let us now analyse the second term. For this we use the following useful Lemma.
 
-This gives us:
-$$SSR_c = SSR + \|\hat{y} - \hat{y}_c\|^2$$
+::: {.callout}
+## Useful Lemma
 
-Since $\hat{y} - \hat{y}_c = P_V y - P_{V_0} y = P_{V_0^{\perp_V}} y$:
-$$SSR_c - SSR = \|P_{V_0^{\perp_V}} y\|^2$$
+If $E$ $F$ are two subspace of $\mathbb R^n$ such that $E \subset F$, and if $P_E$, $P_F$ are the orthogonal projectors on $E$ and $F$, then
 
-### 5. Distribution Under $H_0$
+$P_EP_F = P_FP_E = P_E$.
+:::
 
-Under $H_0: R\beta = 0$, we have $\mathbb{E}[y] = X\beta \in V_0$, which implies:
-- $P_{V_0} \mathbb{E}[y] = X\beta$
-- $P_{V_0^{\perp_V}} \mathbb{E}[y] = 0$
+Hence, projecting the above decomposition on $V_0^\perp$, we get
 
-Since $y = X\beta + \varepsilon$ with $\varepsilon \sim N(0, \sigma^2 I_n)$:
+::: {.square-def}
+$$
+P_{V_0^\perp}Y = P_{[X]^\perp} Y + (P_{V_0^\perp} - P_{[X]^\perp})Y
+$$
+:::
 
-**For the numerator:**
-$$P_{V_0^{\perp_V}} y = P_{V_0^{\perp_V}} \varepsilon \sim N(0, \sigma^2 P_{V_0^{\perp_V}})$$
 
-Since $P_{V_0^{\perp_V}}$ is a projection onto a $q$-dimensional space:
-$$\frac{1}{\sigma^2}\|P_{V_0^{\perp_V}} y\|^2 = \frac{SSR_c - SSR}{\sigma^2} \sim \chi^2_q$$
 
-**For the denominator:**
-$$P_{V^{\perp}} y = P_{V^{\perp}} \varepsilon \sim N(0, \sigma^2 P_{V^{\perp}})$$
+Here, $V_0 \subset [X]$ so that $[X]^\perp \subset V_0^{\perp}$, and we check that
 
-Since $P_{V^{\perp}}$ is a projection onto an $(n-p)$-dimensional space:
-$$\frac{1}{\sigma^2}\|P_{V^{\perp}} y\|^2 = \frac{SSR}{\sigma^2} \sim \chi^2_{n-p}$$
+$(P_{V_0^\perp} - P_{[X]^\perp})^2 = (P_{V_0^\perp} - P_{[X]^\perp})= (P_{V_0^\perp} - P_{[X]^\perp})^T$
 
-### 6. Independence
+so that [$P_{V_0^\perp} - P_{[X]^\perp}$ is an orthogonal projector]{style="background-color: lightblue;"} on a subspace of dimension $tr(V_0^\perp) - tr(P_{[X]^\perp}) = n-(p-q)-(n-p) = q$
 
-The projections $P_{V_0^{\perp_V}}$ and $P_{V^{\perp}}$ are orthogonal because:
+Since $P_{[X]^\perp}(P_{V_0^\perp} - P_{[X]^\perp}) = P_{[X]^\perp}P_{[X]^\perp}-P_{[X]^\perp}P_{[X]^\perp} = 0$, we also have that [$P_{[X]^\perp} Y$ and $(P_{V_0^\perp} - P_{[X]^\perp})Y$ are orthogonal]{style="background-color: lightblue;"}.
 
-- $V_0^{\perp_V} \subseteq V$
-- $V \perp V^{\perp}$
-- Therefore $V_0^{\perp_V} \perp V^{\perp}$
+Hence, by the Cochran Theorem, $P_{[X]^\perp} Y$ and $(P_{V_0^\perp} - P_{[X]^\perp})Y$ are indpendent and 
 
-This implies $P_{V_0^{\perp_V}} \varepsilon$ and $P_{V^{\perp}} \varepsilon$ are independent.
-
-### 7. Final Result
-
-The F-statistic is:
-$$F = \frac{(SSR_c - SSR)/q}{SSR/(n-p)} = \frac{\chi^2_q/q}{\chi^2_{n-p}/(n-p)}$$
-
-Since this is the ratio of two independent chi-squared random variables divided by their respective degrees of freedom, we have:
-$$F \sim F(q, n-p)$$
-
-## Geometric Interpretation
-
-The F-statistic measures the relative magnitude of:
-
-- The projection onto $V_0^{\perp_V}$ (the constraint violation space within the model)
-- The projection onto $V^{\perp}$ (the residual space)
-
-Under $H_0$, both projections capture only noise, leading to the F-distribution. Large values of $F$ suggest the constraint $R\beta = 0$ is violated.
+- $SSR=\|P_{[X]^\perp} Y\|^2 = \|P_{[X]^\perp} \varepsilon\|^2$ has distribution $\chi^2(n-p)$
+- Under $H_0$, $X\beta \in V_0$ so that $SSR_c=\|P_{V_0^\perp}Y\|^2 = P_{V_0^\perp}(X\beta + \varepsilon) = P_{V_0^\perp}(\varepsilon)$
+- Hence, sill under $H_0$, $SSR_c -SSR = \|(P_{V_0^\perp} - P_{[X]^\perp}) \varepsilon\|^2$ has distribution $\chi^2(q)$
+- $SSR$ and $SSR_c - SSR$ are independent since they are projections on orthogonal subspaces of $\varepsilon \sim \mathcal N(0, \sigma^2I_n)$

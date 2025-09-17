@@ -157,17 +157,7 @@ window.Quarto = {
   <li><a href="#F-Test" id="toc-F-Test" class="nav-link active" data-scroll-target="#F-Test">F-Test for Linear Constraints</a>
   <ul class="collapse">
   <li><a href="#theorem" id="toc-theorem" class="nav-link" data-scroll-target="#theorem">Theorem</a></li>
-  <li><a href="#proof" id="toc-proof" class="nav-link" data-scroll-target="#proof">Proof</a>
-  <ul class="collapse">
-  <li><a href="#setup-and-key-spaces" id="toc-setup-and-key-spaces" class="nav-link" data-scroll-target="#setup-and-key-spaces">1. Setup and Key Spaces</a></li>
-  <li><a href="#orthogonal-decomposition" id="toc-orthogonal-decomposition" class="nav-link" data-scroll-target="#orthogonal-decomposition">2. Orthogonal Decomposition</a></li>
-  <li><a href="#projection-operators" id="toc-projection-operators" class="nav-link" data-scroll-target="#projection-operators">3. Projection Operators</a></li>
-  <li><a href="#decomposition-of-ssr-difference" id="toc-decomposition-of-ssr-difference" class="nav-link" data-scroll-target="#decomposition-of-ssr-difference">4. Decomposition of SSR Difference</a></li>
-  <li><a href="#distribution-under-h_0" id="toc-distribution-under-h_0" class="nav-link" data-scroll-target="#distribution-under-h_0">5. Distribution Under <span class="math inline">\(H_0\)</span></a></li>
-  <li><a href="#independence" id="toc-independence" class="nav-link" data-scroll-target="#independence">6. Independence</a></li>
-  <li><a href="#final-result" id="toc-final-result" class="nav-link" data-scroll-target="#final-result">7. Final Result</a></li>
-  </ul></li>
-  <li><a href="#geometric-interpretation" id="toc-geometric-interpretation" class="nav-link" data-scroll-target="#geometric-interpretation">Geometric Interpretation</a></li>
+  <li><a href="#proof" id="toc-proof" class="nav-link" data-scroll-target="#proof">Proof</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -192,72 +182,53 @@ window.Quarto = {
 </section>
 <section id="proof" class="level2">
 <h2 class="anchored" data-anchor-id="proof">Proof</h2>
-<section id="setup-and-key-spaces" class="level3">
-<h3 class="anchored" data-anchor-id="setup-and-key-spaces">1. Setup and Key Spaces</h3>
-<p>Define the following spaces:</p>
+<p>Define</p>
 <ul>
-<li><span class="math inline">\(V = [X] \subseteq \mathbb{R}^n\)</span> (column space of <span class="math inline">\(X\)</span>)</li>
 <li><span class="math inline">\(V_0 = \{X\beta : R\beta = 0\} = X(\text{Ker}(R))\)</span> (constrained subspace)</li>
 </ul>
-<p>Since <span class="math inline">\(\text{rank}(X) = p\)</span> and <span class="math inline">\(\text{rank}(R) = q\)</span>:</p>
+<p>Since <span class="math inline">\(\text{rank}(X) = p\)</span> and <span class="math inline">\(\text{rank}(R) = q\)</span>, it holds that <span class="math inline">\(\dim(\text{Ker}(R)) = p - q\)</span>.</p>
+<p>Since <span class="math inline">\(X\)</span> has full column rank, the <span class="math inline">\(\beta \mapsto X\beta\)</span> is injective Therefore: <span class="math inline">\(\dim(V_0) = \dim(X(\text{Ker}(R))) = \dim(\text{Ker}(R)) = p - q\)</span>.</p>
+<p>We have that</p>
 <ul>
-<li>By rank-nullity theorem: <span class="math inline">\(\dim(\text{Ker}(R)) = p - q\)</span></li>
-<li>Since <span class="math inline">\(X\)</span> has full column rank, the map <span class="math inline">\(\beta \mapsto X\beta\)</span> is injective</li>
-<li>Therefore: <span class="math inline">\(\dim(V_0) = \dim(X(\text{Ker}(R))) = \dim(\text{Ker}(R)) = p - q\)</span></li>
-<li>Also: <span class="math inline">\(\dim(V) = p\)</span></li>
+<li><span class="math inline">\(SSR = \|P_{[X]^\perp} Y\|^2\)</span></li>
+<li><span class="math inline">\(SSR_c = \|P_{V_0^\perp}Y\|^2\)</span></li>
 </ul>
-</section>
-<section id="orthogonal-decomposition" class="level3">
-<h3 class="anchored" data-anchor-id="orthogonal-decomposition">2. Orthogonal Decomposition</h3>
-<p>Since <span class="math inline">\(V_0 \subseteq V\)</span>, we can decompose <span class="math inline">\(V\)</span> as: <span class="math display">\[V = V_0 \oplus V_0^{\perp_V}\]</span></p>
-<p>where <span class="math inline">\(V_0^{\perp_V}\)</span> is the orthogonal complement of <span class="math inline">\(V_0\)</span> within <span class="math inline">\(V\)</span>, with: <span class="math display">\[\dim(V_0^{\perp_V}) = \dim(V) - \dim(V_0) = p - (p-q) = q\]</span></p>
-</section>
-<section id="projection-operators" class="level3">
-<h3 class="anchored" data-anchor-id="projection-operators">3. Projection Operators</h3>
+<p>Let us now decompose</p>
+<p><span class="math display">\[
+Y = P_{[X]^\perp} Y + (P_{V_0^\perp} - P_{[X]^\perp})Y
+\]</span></p>
+<p>The first term correspond to the residuals, and let us now analyse the second term. For this we use the following useful Lemma.</p>
+<div class="callout callout-style-simple callout-none no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Useful Lemma
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If <span class="math inline">\(E\)</span> <span class="math inline">\(F\)</span> are two subspace of <span class="math inline">\(\mathbb R^n\)</span> such that <span class="math inline">\(E \subset F\)</span>, and if <span class="math inline">\(P_E\)</span>, <span class="math inline">\(P_F\)</span> are the orthogonal projectors on <span class="math inline">\(E\)</span> and <span class="math inline">\(F\)</span>, then</p>
+<p><span class="math inline">\(P_EP_F = P_FP_E = P_E\)</span>.</p>
+</div>
+</div>
+<p>Hence, projecting the above decomposition on <span class="math inline">\(V_0^\perp\)</span>, we get</p>
+<div class="square-def">
+<p><span class="math display">\[
+P_{V_0^\perp}Y = P_{[X]^\perp} Y + (P_{V_0^\perp} - P_{[X]^\perp})Y
+\]</span></p>
+</div>
+<p>Here, <span class="math inline">\(V_0 \subset [X]\)</span> so that <span class="math inline">\([X]^\perp \subset V_0^{\perp}\)</span>, and we check that</p>
+<p><span class="math inline">\((P_{V_0^\perp} - P_{[X]^\perp})^2 = (P_{V_0^\perp} - P_{[X]^\perp})= (P_{V_0^\perp} - P_{[X]^\perp})^T\)</span></p>
+<p>so that <span style="background-color: lightblue;"><span class="math inline">\(P_{V_0^\perp} - P_{[X]^\perp}\)</span> is an orthogonal projector</span> on a subspace of dimension <span class="math inline">\(tr(V_0^\perp) - tr(P_{[X]^\perp}) = n-(p-q)-(n-p) = q\)</span></p>
+<p>Since <span class="math inline">\(P_{[X]^\perp}(P_{V_0^\perp} - P_{[X]^\perp}) = P_{[X]^\perp}P_{[X]^\perp}-P_{[X]^\perp}P_{[X]^\perp} = 0\)</span>, we also have that <span style="background-color: lightblue;"><span class="math inline">\(P_{[X]^\perp} Y\)</span> and <span class="math inline">\((P_{V_0^\perp} - P_{[X]^\perp})Y\)</span> are orthogonal</span>.</p>
+<p>Hence, by the Cochran Theorem, <span class="math inline">\(P_{[X]^\perp} Y\)</span> and <span class="math inline">\((P_{V_0^\perp} - P_{[X]^\perp})Y\)</span> are indpendent and</p>
 <ul>
-<li><span class="math inline">\(\hat{y} = P_V y\)</span> is the projection of <span class="math inline">\(y\)</span> onto <span class="math inline">\(V\)</span> (unconstrained fit)</li>
-<li><span class="math inline">\(\hat{y}_c = P_{V_0} y\)</span> is the projection of <span class="math inline">\(y\)</span> onto <span class="math inline">\(V_0\)</span> (constrained fit)</li>
+<li><span class="math inline">\(SSR=\|P_{[X]^\perp} Y\|^2 = \|P_{[X]^\perp} \varepsilon\|^2\)</span> has distribution <span class="math inline">\(\chi^2(n-p)\)</span></li>
+<li>Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(X\beta \in V_0\)</span> so that <span class="math inline">\(SSR_c=\|P_{V_0^\perp}Y\|^2 = P_{V_0^\perp}(X\beta + \varepsilon) = P_{V_0^\perp}(\varepsilon)\)</span></li>
+<li>Hence, sill under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(SSR_c -SSR = \|(P_{V_0^\perp} - P_{[X]^\perp}) \varepsilon\|^2\)</span> has distribution <span class="math inline">\(\chi^2(q)\)</span></li>
+<li><span class="math inline">\(SSR\)</span> and <span class="math inline">\(SSR_c - SSR\)</span> are independent since they are projections on orthogonal subspaces of <span class="math inline">\(\varepsilon \sim \mathcal N(0, \sigma^2I_n)\)</span></li>
 </ul>
-</section>
-<section id="decomposition-of-ssr-difference" class="level3">
-<h3 class="anchored" data-anchor-id="decomposition-of-ssr-difference">4. Decomposition of SSR Difference</h3>
-<p>Since <span class="math inline">\(V_0 \subseteq V\)</span>, we have <span class="math inline">\(\hat{y}_c \in V\)</span>, and by the Pythagorean theorem: <span class="math display">\[\|y - \hat{y}_c\|^2 = \|y - \hat{y}\|^2 + \|\hat{y} - \hat{y}_c\|^2\]</span></p>
-<p>This gives us: <span class="math display">\[SSR_c = SSR + \|\hat{y} - \hat{y}_c\|^2\]</span></p>
-<p>Since <span class="math inline">\(\hat{y} - \hat{y}_c = P_V y - P_{V_0} y = P_{V_0^{\perp_V}} y\)</span>: <span class="math display">\[SSR_c - SSR = \|P_{V_0^{\perp_V}} y\|^2\]</span></p>
-</section>
-<section id="distribution-under-h_0" class="level3">
-<h3 class="anchored" data-anchor-id="distribution-under-h_0">5. Distribution Under <span class="math inline">\(H_0\)</span></h3>
-<p>Under <span class="math inline">\(H_0: R\beta = 0\)</span>, we have <span class="math inline">\(\mathbb{E}[y] = X\beta \in V_0\)</span>, which implies: - <span class="math inline">\(P_{V_0} \mathbb{E}[y] = X\beta\)</span> - <span class="math inline">\(P_{V_0^{\perp_V}} \mathbb{E}[y] = 0\)</span></p>
-<p>Since <span class="math inline">\(y = X\beta + \varepsilon\)</span> with <span class="math inline">\(\varepsilon \sim N(0, \sigma^2 I_n)\)</span>:</p>
-<p><strong>For the numerator:</strong> <span class="math display">\[P_{V_0^{\perp_V}} y = P_{V_0^{\perp_V}} \varepsilon \sim N(0, \sigma^2 P_{V_0^{\perp_V}})\]</span></p>
-<p>Since <span class="math inline">\(P_{V_0^{\perp_V}}\)</span> is a projection onto a <span class="math inline">\(q\)</span>-dimensional space: <span class="math display">\[\frac{1}{\sigma^2}\|P_{V_0^{\perp_V}} y\|^2 = \frac{SSR_c - SSR}{\sigma^2} \sim \chi^2_q\]</span></p>
-<p><strong>For the denominator:</strong> <span class="math display">\[P_{V^{\perp}} y = P_{V^{\perp}} \varepsilon \sim N(0, \sigma^2 P_{V^{\perp}})\]</span></p>
-<p>Since <span class="math inline">\(P_{V^{\perp}}\)</span> is a projection onto an <span class="math inline">\((n-p)\)</span>-dimensional space: <span class="math display">\[\frac{1}{\sigma^2}\|P_{V^{\perp}} y\|^2 = \frac{SSR}{\sigma^2} \sim \chi^2_{n-p}\]</span></p>
-</section>
-<section id="independence" class="level3">
-<h3 class="anchored" data-anchor-id="independence">6. Independence</h3>
-<p>The projections <span class="math inline">\(P_{V_0^{\perp_V}}\)</span> and <span class="math inline">\(P_{V^{\perp}}\)</span> are orthogonal because:</p>
-<ul>
-<li><span class="math inline">\(V_0^{\perp_V} \subseteq V\)</span></li>
-<li><span class="math inline">\(V \perp V^{\perp}\)</span></li>
-<li>Therefore <span class="math inline">\(V_0^{\perp_V} \perp V^{\perp}\)</span></li>
-</ul>
-<p>This implies <span class="math inline">\(P_{V_0^{\perp_V}} \varepsilon\)</span> and <span class="math inline">\(P_{V^{\perp}} \varepsilon\)</span> are independent.</p>
-</section>
-<section id="final-result" class="level3">
-<h3 class="anchored" data-anchor-id="final-result">7. Final Result</h3>
-<p>The F-statistic is: <span class="math display">\[F = \frac{(SSR_c - SSR)/q}{SSR/(n-p)} = \frac{\chi^2_q/q}{\chi^2_{n-p}/(n-p)}\]</span></p>
-<p>Since this is the ratio of two independent chi-squared random variables divided by their respective degrees of freedom, we have: <span class="math display">\[F \sim F(q, n-p)\]</span></p>
-</section>
-</section>
-<section id="geometric-interpretation" class="level2">
-<h2 class="anchored" data-anchor-id="geometric-interpretation">Geometric Interpretation</h2>
-<p>The F-statistic measures the relative magnitude of:</p>
-<ul>
-<li>The projection onto <span class="math inline">\(V_0^{\perp_V}\)</span> (the constraint violation space within the model)</li>
-<li>The projection onto <span class="math inline">\(V^{\perp}\)</span> (the residual space)</li>
-</ul>
-<p>Under <span class="math inline">\(H_0\)</span>, both projections capture only noise, leading to the F-distribution. Large values of <span class="math inline">\(F\)</span> suggest the constraint <span class="math inline">\(R\beta = 0\)</span> is violated.</p>
 
 
 </section>
