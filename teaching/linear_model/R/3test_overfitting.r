@@ -21,6 +21,8 @@ results <- data.frame(
 # Fit models of increasing polynomial degree
 models_list <- list()
 
+lm(Y~ X + X^2, data=data)
+
 for (degree in 1:max_degree) {
     # Create polynomial formula
     if (degree == 1) {

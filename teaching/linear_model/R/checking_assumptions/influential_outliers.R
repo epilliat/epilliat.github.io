@@ -183,28 +183,7 @@ diagnostics <- data.frame(
     Influential = cooks_d > 4 / n_obs
 )
 
-# Display summary of special points
-cat("================== DATA SUMMARY ==================\n\n")
-cat(sprintf("Total observations: %d\n", n_obs))
-cat(sprintf("Normal points: %d\n", sum(point_types == "Normal")))
-cat(sprintf("Special points: %d\n\n", sum(point_types != "Normal")))
-
-cat("Special points added:\n")
-cat("1. Point #51: High Leverage Only (X=15, Y≈expected)\n")
-cat("2. Point #52: Outlier Only (X=5, Y=15)\n")
-cat("3. Point #53: Influential (X=14, Y=5)\n")
-cat("4. Point #54: Influential (X=-2, Y=12)\n\n")
-
-# Display key diagnostic measures
-cat("================== DIAGNOSTIC MEASURES FOR SPECIAL POINTS ==================\n\n")
-key_points <- diagnostics[diagnostics$Type != "Normal", ]
-print(key_points[, c("Observation", "Type", "X", "Y", "Leverage", "Stud_Residual", "Cooks_D")])
-
-cat("\nThresholds used:\n")
-cat(sprintf("  High leverage: h_ii > %.3f (2p/n = 2*%d/%d)\n", leverage_threshold, p, n_obs))
-cat(sprintf("  Outlier: |Studentized Residual| > 2\n"))
-cat(sprintf("  Influential: Cook's D > %.3f (4/n)\n\n", 4 / n_obs))
-
+diagnostics
 # ==============================================================================
 # DIAGNOSTIC PLOTS
 # ==============================================================================
@@ -339,3 +318,4 @@ par(mfrow = c(1, 1))
 # ==============================================================================
 # COMPARING MODELS WITH AND WITHOUT INFLUENTIAL POINTS
 # =======================================
+

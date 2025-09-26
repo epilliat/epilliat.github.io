@@ -30,4 +30,9 @@ summary(model)
 # %%
 
 
-# Under the black box
+# Under the black box for Global Fisher Test
+R = 
+summary(model)$fstatistic[1]
+library(pracma)  # for nullspace function
+V <- nullspace(R)  # Returns a matrix whose columns form a basis for Ker(R)
+# where k = dim(Ker(R)) = p - rank(R)

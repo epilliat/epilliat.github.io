@@ -20,7 +20,6 @@ Y <- 5 + 3 * X + rnorm(n, mean = 0, sd = 5)
 
 # Create dataframe
 data <- data.frame(X = X, Y = Y)
-
 # ----------------------------------------
 # 2. COMPARING MANUAL vs AUTOMATIC INTERCEPT
 # ----------------------------------------
@@ -29,8 +28,10 @@ data <- data.frame(X = X, Y = Y)
 
 # Method 1: Manually adding intercept column
 X_manual <- cbind(intercept = 1, X = X) # Add column of 1s for intercept
+
 df_manual <- as.data.frame(X_manual)
 model_manual <- lm(Y ~ intercept + X - 1, data = cbind(Y = Y, df_manual)) # -1 removes automatic intercept # nolint: line_length_linter.
+
 
 summary(model_manual)
 
