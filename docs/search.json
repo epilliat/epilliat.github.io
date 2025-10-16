@@ -4086,7 +4086,7 @@
     "href": "teaching/linear_model/slides/anova_ancova.html#context-notations",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Context, Notations",
-    "text": "Context, Notations\n\nWe seek to explain \\(Y\\) using a single qualitative variable \\(A\\).\nWe observe \\((Y, X)\\), and define\n\n\n\n\n\\[N_i = \\sum_{k=1}^n \\mathbf 1\\{X_k=i\\} \\and \\overline Y_i = \\frac{1}{N_i}\\sum_{k=1}^n Y_k \\mathbf 1\\{X_k=i\\}\\]\n\n\n\n\nTotal mean:\n\\(Y_i = \\frac{1}{N}\\sum_{k=1}^n Y_k = \\frac{1}{N}\\sum_{i=1}^I\\sum N_i \\overline Y_i\\)"
+    "text": "Context, Notations\n\nWe seek to explain \\(Y\\) using a single qualitative variable \\(X\\).\nWe observe \\((Y, X)\\), and define\n\n\n\n\n\\[N_i = \\sum_{k=1}^n \\mathbf 1\\{X_k=i\\} \\and \\overline Y_i = \\frac{1}{N_i}\\sum_{k=1}^n Y_k \\mathbf 1\\{X_k=i\\}\\]\n\n\n\n\nTotal mean:\n\\(\\overline Y = \\frac{1}{N}\\sum_{k=1}^n Y_k = \\frac{1}{N}\\sum_{i=1}^I N_i \\overline Y_i\\)"
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#setting",
@@ -4128,7 +4128,14 @@
     "href": "teaching/linear_model/slides/anova_ancova.html#model-with-constant",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Model with Constant",
-    "text": "Model with Constant\n\nIf we want to model the constant (intercept) and \\(I-1\\) modalities, we assume\n\n\\[Y_k = \\mu_1+\\sum_{i=2}^I (\\mu_i-\\mu_1) \\mathbf{1}\\{X_k=A_i\\} + \\varepsilon_k\\]\n\n\n\nWhy \\(\\mu_i - \\mu_1\\) and not just \\(\\mu_i\\)?\n\n\\(\\E[Y_k | X_k=A_i] = \\mu_1 + \\mu_i - \\mu_1 = \\mu_i\\)\n\\(\\sum_{i=2}^{I}\\{X_k = A_i\\} = 1\\) (collinearity problem)"
+    "text": "Model with Constant\n\nIf we want to model the constant (intercept) and \\(I\\) modalities, we assume\n\n\\[Y_k = m+\\sum_{i=2}^I \\alpha_i \\mathbf{1}\\{X_k=A_i\\} + \\varepsilon_k\\]\n\n\n\nEquivalently,\n\n\\(Y = m \\mathbf{1} + \\sum_{i=2}^I \\alpha_i\\mathbf{1}_{A_i}+\\varepsilon\\)"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/anova_ancova.html#colinearity-issues-and-constraints",
+    "href": "teaching/linear_model/slides/anova_ancova.html#colinearity-issues-and-constraints",
+    "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
+    "section": "Colinearity issues and constraints",
+    "text": "Colinearity issues and constraints\n\n\\(Y_k = m+\\sum_{i=2}^I \\alpha_i \\mathbf{1}\\{X_k=A_i\\} + \\varepsilon_k\\)\n\n\n\n\\(\\sum_{i=1}^I \\mathbf{1}_{A_i} = \\mathbf{1}\\)\n\n\n\nWe have \\(I+1\\) parameters instead of \\(I\\). We have to set one constraint:\n\n\\(m=0\\) (model without intercept). Here, \\(\\alpha_i= \\mu_i\\)\n\\(\\alpha_1 =0\\). In this case, we set \\(\\alpha_i = \\mu_i-\\mu_1\\) (default in R)."
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#in-r",
@@ -4142,14 +4149,28 @@
     "href": "teaching/linear_model/slides/anova_ancova.html#estimation-of-mu",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Estimation of \\(\\mu\\)",
-    "text": "Estimation of \\(\\mu\\)\n\nWhichever the model we choose (with constant or not), estimation of \\(\\mu_i=\\E[Y_k|X_k=A_i]\\) is the same. Same for \\(\\Var(\\varepsilon_k)=\\sigma^2\\).\n\n\n\n\n\nProposition\n\n\nIn category \\(i\\), OLS estimation of \\(\\mu_i\\) leads to:\n\n\\(\\hat{\\mu}_i = \\frac{1}{N_i}\\sum_{k=1}^n Y_k \\1\\{X_k=A_i\\} = \\overline{Y}_i\\)\n\nAn unbiased estimator of \\(\\sigma^2\\) is\n\n\\(\\hat{\\sigma}^2 = \\frac{1}{n-I} \\sum_{k=1}^{n}\\sum_{i=1}^I (Y_{k} - \\overline{Y}_i)^2\\1\\{X_k=A_i\\}\\)\n\n\n\n\n\n\nProof (OLS): derive \\(\\sum_{k=1}^n (Y_k - \\mu'_i)^2\\) with respect to \\(\\mu'_i\\)"
+    "text": "Estimation of \\(\\mu\\)\n\nWhichever the model we choose (with constant or not), estimation of \\(\\mu_i=\\E[Y_k|X_k=A_i]\\) is the same. Same for \\(\\Var(\\varepsilon_k)=\\sigma^2\\).\n\n\n\n\n\nProposition\n\n\nIn category \\(i\\), OLS estimation of \\(\\mu_i\\) leads to:\n\n\\(\\hat{\\mu}_i = \\frac{1}{N_i}\\sum_{k=1}^n Y_k \\1\\{X_k=A_i\\} = \\overline{Y}_i\\)\n\nAn unbiased estimator of \\(\\sigma^2\\) is\n\n\\(\\hat{\\sigma}^2 = \\frac{1}{n-I} \\sum_{k=1}^{n}\\sum_{i=1}^I (Y_{k} - \\overline{Y}_i)^2\\1\\{X_k=A_i\\}\\)"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/anova_ancova.html#idea-of-proof-projections",
+    "href": "teaching/linear_model/slides/anova_ancova.html#idea-of-proof-projections",
+    "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
+    "section": "Idea of Proof: Projections",
+    "text": "Idea of Proof: Projections\n\nWe write \\(\\mathbf 1_i = (\\1\\{X_1=A_i\\}, \\dots, \\1\\{X_n=A_i\\})^T\\), and \\(E = span(\\mathbf 1_1, \\dots, \\mathbf 1_I)\\)\n\n\nThen, the OLS is exactly\n\\(\\hat \\mu = \\mathrm{argmin}_{\\mu' \\in E}\\|Y - \\mu'\\|_2^2 = P_E Y\\)\n\n\nFor \\(\\hat \\sigma\\), \\(\\mathbb E[((I-P_E)\\varepsilon)^T(I-P_E)\\varepsilon]= \\sigma^2 (n-I)\\)"
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#testing-for-factor-effect-anova-test",
     "href": "teaching/linear_model/slides/anova_ancova.html#testing-for-factor-effect-anova-test",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Testing for Factor Effect (ANOVA Test)",
-    "text": "Testing for Factor Effect (ANOVA Test)\n\nWe want to test \\(H_0: \\mu_1 = \\cdots = \\mu_I\\).\nThis is a linear constraints test! (See previous chapters)\n\n\n\n\n\nProposition\n\n\nIf \\(\\varepsilon \\sim N(0, \\sigma^2 I_n)\\), then under \\(H_0: \\mu_1 = \\cdots = \\mu_I\\):\n\\[F = \\frac{SSB/(I-1)}{SSW/(n-I)} \\sim F(I-1, n-I)\\]\n\n\\(SSB = \\sum_{i=1}^I N_i (\\overline{Y}_i - \\overline{Y})^2\\)\n\\(SSW = \\sum_{i=1}^I \\sum_{k=1}^{n} (Y_{k} - \\overline{Y}_i)^2\\1\\{X_k=A_i\\}\\)\n\nCritical region at level \\(\\alpha\\): \\(RC_\\alpha = \\{F &gt; f_{I-1,n-I}(1-\\alpha)\\}\\)"
+    "text": "Testing for Factor Effect (ANOVA Test)\n\nWe want to test \\(H_0: \\mu_1 = \\cdots = \\mu_I\\).\nThis is a linear constraints test! (See previous chapters)\n\n\n\n\n\nProposition\n\n\nIf \\(\\varepsilon \\sim N(0, \\sigma^2 I_n)\\), then under \\(H_0: \\mu_1 = \\cdots = \\mu_I\\):\n\\[F = \\frac{SSB/(I-1)}{SSW/(n-I)} \\sim F(I-1, n-I)\\]\n\n\\(SSB = \\sum_{i=1}^I N_i (\\overline{Y}_i - \\overline{Y})^2\\)\n\\(SSW = \\sum_{i=1}^I \\sum_{k=1}^{n} (Y_{k} - \\overline{Y}_i)^2\\1\\{X_k=A_i\\}\\)\n\nCritical region at level \\(\\alpha\\): \\(CR_\\alpha = \\{F &gt; f_{I-1,n-I}(1-\\alpha)\\}\\)"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/anova_ancova.html#idea-of-proof",
+    "href": "teaching/linear_model/slides/anova_ancova.html#idea-of-proof",
+    "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
+    "section": "Idea of proof",
+    "text": "Idea of proof\nUsing the previous projection \\(P_E = \\sum_{i=1}^I \\frac{1}{N_i}\\mathbf{1}_i\\mathbf{1}_i^T\\), we have the decomposition\n\n\\[Y - P_0Y = Y-P_E Y + P_E Y - P_0 Y\\]"
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#link-with-previous-chapter",
@@ -4198,28 +4219,28 @@
     "href": "teaching/linear_model/slides/anova_ancova.html#individual-tests",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Individual Tests",
-    "text": "Individual Tests\nTo test each \\(H_0^{i,j}: \\mu_i = \\mu_j\\), we use the critical regions:\n\n\n\n\\[RC_\\alpha^{i,j} = \\left\\{|\\overline{Y}_i - \\overline{Y}_j| &gt; \\frac{\\hat{\\sigma}}{\\sqrt{2}} \\sqrt{\\frac{1}{n_i} + \\frac{1}{n_j}} \\cdot Q_{I,n-I}(1-\\alpha)\\right\\}\\]\n\n\nwhere \\(Q_{I,n-I}(1-\\alpha)\\) denotes the \\((1-\\alpha)\\) quantile of a tukey distribution \\(Q(I,n-I)\\) of degrees \\((I, n-I)\\)."
+    "text": "Individual Tests\nTo test each \\(H_0^{i,j}: \\mu_i = \\mu_j\\), we use the critical regions:\n\n\n\n\\[CR_\\alpha^{i,j} = \\left\\{|\\overline{Y}_i - \\overline{Y}_j| &gt; \\frac{\\hat{\\sigma}}{\\sqrt{2}} \\sqrt{\\frac{1}{n_i} + \\frac{1}{n_j}} \\cdot Q_{I,n-I}(1-\\alpha)\\right\\}\\]\n\n\nwhere \\(Q_{I,n-I}(1-\\alpha)\\) denotes the \\((1-\\alpha)\\) quantile of a tukey distribution \\(Q(I,n-I)\\) of degrees \\((I, n-I)\\)."
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#key-properties-of-tukeys-test",
     "href": "teaching/linear_model/slides/anova_ancova.html#key-properties-of-tukeys-test",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Key Properties of Tukey’s Test",
-    "text": "Key Properties of Tukey’s Test\nThe form of the previous \\(RC_\\alpha^{i,j}\\) ensures that: \\[\\mathbb{P}_{\\mu_1 = \\cdots = \\mu_I}\\left(\\bigcup_{(i,j)} H_1^{i,j}\\right) = \\alpha\\]\nInterpretation: If all null hypotheses \\(H_0^{i,j}\\) are true (\\(\\mu_1 = \\cdots = \\mu_I\\)), then the probability of concluding at least one \\(H_1^{i,j}\\) equals \\(\\alpha\\).\n\nThis is the simultaneous Type I error rate equals \\(\\alpha\\)."
+    "text": "Key Properties of Tukey’s Test\nThe form of the previous \\(CR_\\alpha^{i,j}\\) ensures that: \\[\\mathbb{P}_{\\mu_1 = \\cdots = \\mu_I}\\left(\\bigcup_{(i,j)} \\{Y \\in CR_\\alpha^{i,j}\\}\\right) = \\alpha\\]\nInterpretation: If all null hypotheses \\(H_0^{i,j}\\) are true (\\(\\mu_1 = \\cdots = \\mu_I\\)), then the probability of concluding at least one \\(H_1^{i,j}\\) equals \\(\\alpha\\).\n\nThis is the simultaneous Type I error rate."
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#comparison-with-students-tests",
     "href": "teaching/linear_model/slides/anova_ancova.html#comparison-with-students-tests",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Comparison with Student’s tests",
-    "text": "Comparison with Student’s tests\n\nIndividual Student’s t-tests at level \\(\\alpha\\): only guarantee \\(\\mathbb{P}_{\\mu_i = \\mu_j}(H_1^{i,j}) = \\alpha\\)\nWhen cumulated: \\(\\mathbb{P}_{\\mu_1 = \\cdots = \\mu_I}\\left[\\cup_{(i,j)} H_1^{i,j}\\right] \\approx 1\\) → false positives\n\n\nAdvantage\nWith Tukey’s test, two significantly different means are truly different, not just due to false positives.\nIn R: TukeyHSD"
+    "text": "Comparison with Student’s tests\n\nIndividual Student’s t-tests \\(T^{i,j}\\) at level \\(\\alpha\\): only guarantee \\(\\mathbb{P}_{\\mu_i = \\mu_j}(T^{i,j}=1) = \\alpha\\)\nWhen cumulated: \\(\\mathbb{P}_{\\mu_1 = \\cdots = \\mu_I}\\left[\\cup_{(i,j)}\\{T^{i,j}=1\\}\\right] \\approx 1\\) → false positives\n\n\nAdvantage\nWith Tukey’s test, two significantly different means are truly different, not just due to false positives.\nIn R: TukeyHSD"
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#example-of-r-output",
     "href": "teaching/linear_model/slides/anova_ancova.html#example-of-r-output",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Example of R output",
-    "text": "Example of R output\n\nHomoscedasticity Test:\nleveneTest(Loss∼Exercise)\nWe get\nLevene’s Test for Homogeneity of Variance (center = median)\nDf F value Pr(&gt;F)\ngroup 3 0.6527 0.584\n68\n\n\nHomoscedasticity is ok. ANOVA?\nreg=lm(Loss∼Exercise) # Exercise has 4 categories\nanova(reg)\n\n\nWe get\nResponse: Loss\n         Df Sum Sq Mean Sq F value    Pr(&gt;F)    \nExercise   3 712.56  237.519  20.657 1.269e-09 ***\nResiduals 68 781.89   11.498"
+    "text": "Example of R output\n\nHomoscedasticity Test:\nleveneTest(Loss∼Exercise)\nWe get\nLevene’s Test for Homogeneity of Variance (center = median)\n      Df   F value  Pr(&gt;F)\ngroup 3    0.6527   0.584\n      68\n\n\nHomoscedasticity is ok. ANOVA?\nreg=lm(Loss∼Exercise) # Exercise has 4 categories\nanova(reg)\n\n\nWe get\nResponse: Loss\n         Df Sum Sq Mean Sq F value    Pr(&gt;F)    \nExercise   3 712.56  237.519  20.657 1.269e-09 ***\nResiduals 68 781.89   11.498"
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#results-interpretation",
@@ -4233,7 +4254,7 @@
     "href": "teaching/linear_model/slides/anova_ancova.html#r-example-post-hoc-analysis",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "R Example: Post-hoc Analysis",
-    "text": "R Example: Post-hoc Analysis\n\nWe finish by analyzing the mean differences more precisely:\n\n\nTukeyHSD(aov(Loss~Exercise))\n\n\nExercise\n     diff        lwr        upr     p adj\n2-1  7.1666667   4.1897551 10.1435782 0.0000001\n3-1  3.8888889   0.9119773  6.8658005 0.0053823\n4-1 -0.6111111  -3.5880227  2.3658005 0.9487355\n3-2 -3.2777778  -6.2546894 -0.3008662 0.0252761\n4-2 -7.7777778 -10.7546894 -4.8008662 0.0000000\n4-3 -4.5000000  -7.4769116 -1.5230884 0.0009537\nConclusion: All differences are significant, except between exercise 4 and exercise 1."
+    "text": "R Example: Post-hoc Analysis\n\nWe finish by analyzing the mean differences more precisely:\n\n\nTukeyHSD(aov(Loss~Exercise))\n\n\nExercise\n     diff        lwr        upr     p adj\n2-1  7.1666667   4.1897551 10.1435782 0.0000001\n3-1  3.8888889   0.9119773  6.8658005 0.0053823\n4-1 -0.6111111  -3.5880227  2.3658005 0.9487355\n3-2 -3.2777778  -6.2546894 -0.3008662 0.0252761\n4-2 -7.7777778 -10.7546894 -4.8008662 0.0000000\n4-3 -4.5000000  -7.4769116 -1.5230884 0.0009537\n\n\nConclusion: All differences are significant, except between exercise 4 and exercise 1."
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#setting-1",
@@ -4352,7 +4373,14 @@
     "href": "teaching/linear_model/slides/anova_ancova.html#testing-the-interaction",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Testing the Interaction",
-    "text": "Testing the Interaction\n\nFor testing the interaction, \\(H_0^{(AB)}: \\gamma_{ij} = 0\\) for all \\(i, j\\)\n\n\nWe the linear constraint test statistic \\(F = \\frac{n-p}{q} \\frac{(SSR_c - SSR)}{SSR}\\)\nwhere \\(SSR_c\\) corresponds to the sum of squares of the residuals in the space \\(\\gamma_{ij}=0\\) for all \\((i,j)\\).\n\n\n\n\\[F^{(AB)} = \\frac{S_{AB}^2/(I-1)(J-1)}{S_R^2/(n-IJ)}\\]\n\nWhen \\(\\varepsilon \\sim \\mathcal N(0, \\sigma^2 I_n)\\), \\(F^{(AB)} \\sim \\mathcal F((I-1)(J-1), n-IJ)\\)"
+    "text": "Testing the Interaction\n\nFor testing the interaction, \\(H_0^{(AB)}: \\gamma_{ij} = 0\\) for all \\(i, j\\)\n\n\nWe the linear constraint test statistic \\(F = \\frac{n-p}{q} \\frac{(SSR_c - SSR)}{SSR}\\)\nwhere \\(SSR_c\\) corresponds to the sum of squares of the residuals in the space \\(\\gamma_{ij}=0\\) for all \\((i,j)\\)."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/anova_ancova.html#testing-the-interaction-1",
+    "href": "teaching/linear_model/slides/anova_ancova.html#testing-the-interaction-1",
+    "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
+    "section": "Testing the Interaction",
+    "text": "Testing the Interaction\n\n\n\\[F^{(AB)} = \\frac{S_{AB}^2/(I-1)(J-1)}{S_R^2/(n-IJ)}\\]\n\nWhen \\(\\varepsilon \\sim \\mathcal N(0, \\sigma^2 I_n)\\), \\(F^{(AB)} \\sim \\mathcal F((I-1)(J-1), n-IJ)\\)"
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#testing-the-effect-of-a",

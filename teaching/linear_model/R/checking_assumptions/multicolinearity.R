@@ -14,12 +14,12 @@ n <- 100 # number of observations
 
 # Highly correlated explanatory variables
 X1 <- rnorm(n, mean = 50, sd = 10)
-X2 <- 2 * X1 + rnorm(n, mean = 0, sd = 0.1) # X2 highly correlated with X1
-X3 <- X1 + X2 + rnorm(n, mean = 0, sd = 0.1) # X3 combination of X1 and X2
+X2 <- 2 * X1 + rnorm(n, mean = 0, sd = 1) # X2 highly correlated with X1
+X3 <- X1 + X2 + rnorm(n, mean = 0, sd = 1) # X3 combination of X1 and X2
 X4 <- rnorm(n, mean = 30, sd = 8) # X4 independent
 
 # Dependent variable: Y truly depends on these variables
-Y <- 10 + 2 * X1 + 1.5 * X2 - 0.5 * X3 + 0 * X4 + rnorm(n, mean = 0, sd = 10)
+Y <- 10 + 2 * X1 + 1.5 * X2 - 0.5 * X3 + 1.5 * X4 + rnorm(n, mean = 0, sd = 10)
 
 # Create dataframe
 data <- data.frame(Y, X1, X2, X3, X4)
@@ -32,41 +32,24 @@ eigen(U)$values
 # 2. PRELIMINARY EXPLORATION
 # ----------------------------------------
 
-cat("=== CORRELATIONS BETWEEN VARIABLES ===\n")
+
 cor_matrix <- cor(data)
 print(round(cor_matrix, 2))
-
-cat("\n=== IMPORTANT OBSERVATION ===\n")
-cat("Y is strongly correlated with X1 (r =", round(cor(Y, X1), 2), ")\n")
-cat("Y is strongly correlated with X2 (r =", round(cor(Y, X2), 2), ")\n")
-cat("Y is strongly correlated with X3 (r =", round(cor(Y, X3), 2), ")\n")
-cat("BUT X1, X2 and X3 are also highly correlated with each other!\n\n")
 
 # ----------------------------------------
 # 3. REGRESSION WITH MULTICOLLINEARITY
 # ----------------------------------------
 
-cat("=== FULL MODEL (WITH MULTICOLLINEARITY) ===\n")
+
 model_full <- lm(Y ~ X1 + X2 + X3 + X4, data = data)
 summary(model_full)
-
-cat("\n=== PROBLEM DETECTED ===\n")
-cat("- High R²:", round(summary(model_full)$r.squared, 3), "\n")
-cat("- BUT few significant variables despite strong correlations!\n")
-cat("- Standard errors are inflated\n\n")
 
 # ----------------------------------------
 # 4. DIAGNOSIS: CALCULATE VIF
 # ----------------------------------------
 
-cat("=== VARIANCE INFLATION FACTORS (VIF) ===\n")
 vif_values <- vif(model_full)
 print(vif_values)
-
-cat("\n=== INTERPRETATION ===\n")
-cat("VIF > 10 : Severe multicollinearity\n")
-cat("VIF > 5  : Concerning multicollinearity\n")
-cat("→ X1, X2 and X3 have very high VIF values!\n\n")
 
 # ----------------------------------------
 # 5. VISUALIZE THE PROBLEM

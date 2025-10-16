@@ -56,7 +56,7 @@ We'll see that these situations **reduce to the case** of the previous chapter.
 
 . . .
 
-We seek to explain $Y$ using a **single qualitative variable** $A$.
+We seek to explain $Y$ using a **single qualitative variable** $X$.
 
 We observe $(Y, X)$, and define
 
@@ -73,7 +73,7 @@ $$N_i = \sum_{k=1}^n \mathbf 1\{X_k=i\} \and \overline Y_i = \frac{1}{N_i}\sum_{
 
 Total mean:
 
-$Y_i = \frac{1}{N}\sum_{k=1}^n Y_k = \frac{1}{N}\sum_{i=1}^I\sum N_i \overline Y_i$
+$\overline Y = \frac{1}{N}\sum_{k=1}^n Y_k = \frac{1}{N}\sum_{i=1}^I N_i \overline Y_i$
 
 . . .
 
@@ -161,18 +161,42 @@ $$Y = X\mu + \varepsilon$$
 
 . . .
 
-If we want to model the constant (intercept) and $I-1$ modalities, we assume
+If we want to model the constant (intercept) and $I$ modalities, we assume
 
 ::: {.square-def}
-$$Y_k = \mu_1+\sum_{i=2}^I (\mu_i-\mu_1) \mathbf{1}\{X_k=A_i\} + \varepsilon_k$$
+$$Y_k = m+\sum_{i=2}^I \alpha_i \mathbf{1}\{X_k=A_i\} + \varepsilon_k$$
 :::
 
 . . .
 
-Why $\mu_i - \mu_1$ and not just $\mu_i$?
+Equivalently,
 
-- $\E[Y_k | X_k=A_i] = \mu_1 + \mu_i - \mu_1 = \mu_i$
-- $\sum_{i=2}^{I}\{X_k = A_i\} = 1$ (collinearity problem)
+::: {.square-def}
+$Y = m \mathbf{1} + \sum_{i=2}^I \alpha_i\mathbf{1}_{A_i}+\varepsilon$
+:::
+
+
+## Colinearity issues and constraints
+
+::: {.square-def}
+$Y_k = m+\sum_{i=2}^I \alpha_i \mathbf{1}\{X_k=A_i\} + \varepsilon_k$
+:::
+
+. . .
+
+::: {.square-def}
+$\sum_{i=1}^I \mathbf{1}_{A_i} = \mathbf{1}$
+:::
+
+
+
+. . .
+
+We have $I+1$ parameters instead of $I$. We have to set one constraint:
+
+- $m=0$ (model without intercept). Here, [$\alpha_i= \mu_i$]{style="background-color: yellow;"}
+- $\alpha_1 =0$. In this case, we set [$\alpha_i = \mu_i-\mu_1$]{style="background-color: yellow;"} (default in R).
+
 
 ## In R
 
@@ -225,9 +249,21 @@ An unbiased estimator of $\sigma^2$ is
 - $\hat{\sigma}^2 = \frac{1}{n-I} \sum_{k=1}^{n}\sum_{i=1}^I (Y_{k} - \overline{Y}_i)^2\1\{X_k=A_i\}$
 :::
 
+## Idea of Proof: Projections
+
 . . .
 
-Proof (OLS): derive $\sum_{k=1}^n (Y_k - \mu'_i)^2$ with respect to $\mu'_i$
+We write $\mathbf 1_i = (\1\{X_1=A_i\}, \dots, \1\{X_n=A_i\})^T$, and $E = span(\mathbf 1_1, \dots, \mathbf 1_I)$
+
+. . .
+
+Then, the OLS is exactly
+
+$\hat \mu = \mathrm{argmin}_{\mu' \in E}\|Y - \mu'\|_2^2 = P_E Y$
+
+. . .
+
+For $\hat \sigma$,  $\mathbb E[((I-P_E)\varepsilon)^T(I-P_E)\varepsilon]= \sigma^2 (n-I)$
 
 ## Testing for Factor Effect (ANOVA Test)
 
@@ -248,8 +284,19 @@ $$F = \frac{SSB/(I-1)}{SSW/(n-I)} \sim F(I-1, n-I)$$
 - $SSB = \sum_{i=1}^I N_i (\overline{Y}_i - \overline{Y})^2$
 - $SSW = \sum_{i=1}^I \sum_{k=1}^{n} (Y_{k} - \overline{Y}_i)^2\1\{X_k=A_i\}$
 
-**Critical region** at level $\alpha$: $RC_\alpha = \{F > f_{I-1,n-I}(1-\alpha)\}$
+**Critical region** at level $\alpha$: $CR_\alpha = \{F > f_{I-1,n-I}(1-\alpha)\}$
 :::
+
+## Idea of proof
+
+Using the previous projection $P_E = \sum_{i=1}^I \frac{1}{N_i}\mathbf{1}_i\mathbf{1}_i^T$, we have the decomposition
+
+::: {.square-def}
+$$Y - P_0Y = Y-P_E Y + P_E Y - P_0 Y$$
+:::
+
+
+
 
 ## Link with previous chapter
 
@@ -377,7 +424,7 @@ To test each [$H_0^{i,j}: \mu_i = \mu_j$]{style="background-color: lightblue;"},
 
 :::{style="font-size: 80%;"}
 ::: {.square-def}
-$$RC_\alpha^{i,j} = \left\{|\overline{Y}_i - \overline{Y}_j| > \frac{\hat{\sigma}}{\sqrt{2}} \sqrt{\frac{1}{n_i} + \frac{1}{n_j}} \cdot Q_{I,n-I}(1-\alpha)\right\}$$
+$$CR_\alpha^{i,j} = \left\{|\overline{Y}_i - \overline{Y}_j| > \frac{\hat{\sigma}}{\sqrt{2}} \sqrt{\frac{1}{n_i} + \frac{1}{n_j}} \cdot Q_{I,n-I}(1-\alpha)\right\}$$
 :::
 :::
 
@@ -387,19 +434,19 @@ where $Q_{I,n-I}(1-\alpha)$ denotes the $(1-\alpha)$ quantile of a [tukey distri
 
 ## Key Properties of Tukey's Test
 
-The form of the previous $RC_\alpha^{i,j}$ ensures that:
-$$\mathbb{P}_{\mu_1 = \cdots = \mu_I}\left(\bigcup_{(i,j)} H_1^{i,j}\right) = \alpha$$
+The form of the previous $CR_\alpha^{i,j}$ ensures that:
+$$\mathbb{P}_{\mu_1 = \cdots = \mu_I}\left(\bigcup_{(i,j)} \{Y \in CR_\alpha^{i,j}\}\right) = \alpha$$
 
 **Interpretation**: If all null hypotheses $H_0^{i,j}$ are true ($\mu_1 = \cdots = \mu_I$), then the probability of concluding at least one $H_1^{i,j}$ equals $\alpha$.
 
 . . .
 
-This is the **simultaneous Type I error rate** equals $\alpha$.
+This is the **simultaneous Type I error rate**.
 
 ## Comparison with Student's tests
 
-- **Individual Student's t-tests** at level $\alpha$: only guarantee $\mathbb{P}_{\mu_i = \mu_j}(H_1^{i,j}) = \alpha$
-- **When cumulated**: $\mathbb{P}_{\mu_1 = \cdots = \mu_I}\left[\cup_{(i,j)} H_1^{i,j}\right] \approx 1$ → **false positives**
+- **Individual Student's t-tests** $T^{i,j}$ at level $\alpha$: only guarantee $\mathbb{P}_{\mu_i = \mu_j}(T^{i,j}=1) = \alpha$
+- **When cumulated**: $\mathbb{P}_{\mu_1 = \cdots = \mu_I}\left[\cup_{(i,j)}\{T^{i,j}=1\}\right] \approx 1$ → **false positives**
 
 . . .
 
@@ -423,9 +470,9 @@ We get
 
 ```
 Levene’s Test for Homogeneity of Variance (center = median)
-Df F value Pr(>F)
-group 3 0.6527 0.584
-68
+      Df   F value  Pr(>F)
+group 3    0.6527   0.584
+      68
 ```
 
 . . .
@@ -483,6 +530,8 @@ Exercise
 4-2 -7.7777778 -10.7546894 -4.8008662 0.0000000
 4-3 -4.5000000  -7.4769116 -1.5230884 0.0009537
 ```
+
+. . .
 
 **Conclusion**: All differences are significant, except between exercise 4 and exercise 1.
 
@@ -817,6 +866,8 @@ We the linear constraint test statistic $F = \frac{n-p}{q} \frac{(SSR_c - SSR)}{
 
 where $SSR_c$ corresponds to the sum of squares of the residuals in [the space $\gamma_{ij}=0$ for all $(i,j)$]{style="background-color: yellow;"}.
 
+
+## Testing the Interaction
 
 . . .
 

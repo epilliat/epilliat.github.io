@@ -239,7 +239,7 @@
 <section id="context-notations" class="slide level2">
 <h2>Context, Notations</h2>
 <div class="fragment">
-<p>We seek to explain <span class="math inline">\(Y\)</span> using a <strong>single qualitative variable</strong> <span class="math inline">\(A\)</span>.</p>
+<p>We seek to explain <span class="math inline">\(Y\)</span> using a <strong>single qualitative variable</strong> <span class="math inline">\(X\)</span>.</p>
 <p>We observe <span class="math inline">\((Y, X)\)</span>, and define</p>
 </div>
 <div class="fragment">
@@ -251,7 +251,7 @@
 </div>
 <div class="fragment">
 <p>Total mean:</p>
-<p><span class="math inline">\(Y_i = \frac{1}{N}\sum_{k=1}^n Y_k = \frac{1}{N}\sum_{i=1}^I\sum N_i \overline Y_i\)</span></p>
+<p><span class="math inline">\(\overline Y = \frac{1}{N}\sum_{k=1}^n Y_k = \frac{1}{N}\sum_{i=1}^I N_i \overline Y_i\)</span></p>
 </div>
 </section>
 <section id="setting" class="slide level2">
@@ -331,16 +331,33 @@ X=\begin{pmatrix}
 <section id="model-with-constant" class="slide level2">
 <h2>Model with Constant</h2>
 <div class="fragment">
-<p>If we want to model the constant (intercept) and <span class="math inline">\(I-1\)</span> modalities, we assume</p>
+<p>If we want to model the constant (intercept) and <span class="math inline">\(I\)</span> modalities, we assume</p>
 <div class="square-def">
-<p><span class="math display">\[Y_k = \mu_1+\sum_{i=2}^I (\mu_i-\mu_1) \mathbf{1}\{X_k=A_i\} + \varepsilon_k\]</span></p>
+<p><span class="math display">\[Y_k = m+\sum_{i=2}^I \alpha_i \mathbf{1}\{X_k=A_i\} + \varepsilon_k\]</span></p>
 </div>
 </div>
 <div class="fragment">
-<p>Why <span class="math inline">\(\mu_i - \mu_1\)</span> and not just <span class="math inline">\(\mu_i\)</span>?</p>
+<p>Equivalently,</p>
+<div class="square-def">
+<p><span class="math inline">\(Y = m \mathbf{1} + \sum_{i=2}^I \alpha_i\mathbf{1}_{A_i}+\varepsilon\)</span></p>
+</div>
+</div>
+</section>
+<section id="colinearity-issues-and-constraints" class="slide level2">
+<h2>Colinearity issues and constraints</h2>
+<div class="square-def">
+<p><span class="math inline">\(Y_k = m+\sum_{i=2}^I \alpha_i \mathbf{1}\{X_k=A_i\} + \varepsilon_k\)</span></p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(\sum_{i=1}^I \mathbf{1}_{A_i} = \mathbf{1}\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>We have <span class="math inline">\(I+1\)</span> parameters instead of <span class="math inline">\(I\)</span>. We have to set one constraint:</p>
 <ul>
-<li class="fragment"><span class="math inline">\(\E[Y_k | X_k=A_i] = \mu_1 + \mu_i - \mu_1 = \mu_i\)</span></li>
-<li class="fragment"><span class="math inline">\(\sum_{i=2}^{I}\{X_k = A_i\} = 1\)</span> (collinearity problem)</li>
+<li class="fragment"><span class="math inline">\(m=0\)</span> (model without intercept). Here, <span style="background-color: yellow;"><span class="math inline">\(\alpha_i= \mu_i\)</span></span></li>
+<li class="fragment"><span class="math inline">\(\alpha_1 =0\)</span>. In this case, we set <span style="background-color: yellow;"><span class="math inline">\(\alpha_i = \mu_i-\mu_1\)</span></span> (default in R).</li>
 </ul>
 </div>
 </section>
@@ -391,8 +408,18 @@ X=\begin{pmatrix}
 </div>
 </div>
 </div>
+</section>
+<section id="idea-of-proof-projections" class="slide level2">
+<h2>Idea of Proof: Projections</h2>
 <div class="fragment">
-<p>Proof (OLS): derive <span class="math inline">\(\sum_{k=1}^n (Y_k - \mu'_i)^2\)</span> with respect to <span class="math inline">\(\mu'_i\)</span></p>
+<p>We write <span class="math inline">\(\mathbf 1_i = (\1\{X_1=A_i\}, \dots, \1\{X_n=A_i\})^T\)</span>, and <span class="math inline">\(E = span(\mathbf 1_1, \dots, \mathbf 1_I)\)</span></p>
+</div>
+<div class="fragment">
+<p>Then, the OLS is exactly</p>
+<p><span class="math inline">\(\hat \mu = \mathrm{argmin}_{\mu' \in E}\|Y - \mu'\|_2^2 = P_E Y\)</span></p>
+</div>
+<div class="fragment">
+<p>For <span class="math inline">\(\hat \sigma\)</span>, <span class="math inline">\(\mathbb E[((I-P_E)\varepsilon)^T(I-P_E)\varepsilon]= \sigma^2 (n-I)\)</span></p>
 </div>
 </section>
 <section id="testing-for-factor-effect-anova-test" class="slide level2">
@@ -414,10 +441,17 @@ X=\begin{pmatrix}
 <li class="fragment"><span class="math inline">\(SSB = \sum_{i=1}^I N_i (\overline{Y}_i - \overline{Y})^2\)</span></li>
 <li class="fragment"><span class="math inline">\(SSW = \sum_{i=1}^I \sum_{k=1}^{n} (Y_{k} - \overline{Y}_i)^2\1\{X_k=A_i\}\)</span></li>
 </ul>
-<p><strong>Critical region</strong> at level <span class="math inline">\(\alpha\)</span>: <span class="math inline">\(RC_\alpha = \{F &gt; f_{I-1,n-I}(1-\alpha)\}\)</span></p>
+<p><strong>Critical region</strong> at level <span class="math inline">\(\alpha\)</span>: <span class="math inline">\(CR_\alpha = \{F &gt; f_{I-1,n-I}(1-\alpha)\}\)</span></p>
 </div>
 </div>
 </div>
+</div>
+</section>
+<section id="idea-of-proof" class="slide level2">
+<h2>Idea of proof</h2>
+<p>Using the previous projection <span class="math inline">\(P_E = \sum_{i=1}^I \frac{1}{N_i}\mathbf{1}_i\mathbf{1}_i^T\)</span>, we have the decomposition</p>
+<div class="square-def">
+<p><span class="math display">\[Y - P_0Y = Y-P_E Y + P_E Y - P_0 Y\]</span></p>
 </div>
 </section>
 <section id="link-with-previous-chapter" class="slide level2">
@@ -538,7 +572,7 @@ X=\begin{pmatrix}
 <div class="fragment">
 <div style="font-size: 80%;">
 <div class="square-def">
-<p><span class="math display">\[RC_\alpha^{i,j} = \left\{|\overline{Y}_i - \overline{Y}_j| &gt; \frac{\hat{\sigma}}{\sqrt{2}} \sqrt{\frac{1}{n_i} + \frac{1}{n_j}} \cdot Q_{I,n-I}(1-\alpha)\right\}\]</span></p>
+<p><span class="math display">\[CR_\alpha^{i,j} = \left\{|\overline{Y}_i - \overline{Y}_j| &gt; \frac{\hat{\sigma}}{\sqrt{2}} \sqrt{\frac{1}{n_i} + \frac{1}{n_j}} \cdot Q_{I,n-I}(1-\alpha)\right\}\]</span></p>
 </div>
 </div>
 <p>where <span class="math inline">\(Q_{I,n-I}(1-\alpha)\)</span> denotes the <span class="math inline">\((1-\alpha)\)</span> quantile of a <span style="background-color: yellow;">tukey distribution <span class="math inline">\(Q(I,n-I)\)</span></span> of degrees <span class="math inline">\((I, n-I)\)</span>.</p>
@@ -546,17 +580,17 @@ X=\begin{pmatrix}
 </section>
 <section id="key-properties-of-tukeys-test" class="slide level2">
 <h2>Key Properties of Tukey’s Test</h2>
-<p>The form of the previous <span class="math inline">\(RC_\alpha^{i,j}\)</span> ensures that: <span class="math display">\[\mathbb{P}_{\mu_1 = \cdots = \mu_I}\left(\bigcup_{(i,j)} H_1^{i,j}\right) = \alpha\]</span></p>
+<p>The form of the previous <span class="math inline">\(CR_\alpha^{i,j}\)</span> ensures that: <span class="math display">\[\mathbb{P}_{\mu_1 = \cdots = \mu_I}\left(\bigcup_{(i,j)} \{Y \in CR_\alpha^{i,j}\}\right) = \alpha\]</span></p>
 <p><strong>Interpretation</strong>: If all null hypotheses <span class="math inline">\(H_0^{i,j}\)</span> are true (<span class="math inline">\(\mu_1 = \cdots = \mu_I\)</span>), then the probability of concluding at least one <span class="math inline">\(H_1^{i,j}\)</span> equals <span class="math inline">\(\alpha\)</span>.</p>
 <div class="fragment">
-<p>This is the <strong>simultaneous Type I error rate</strong> equals <span class="math inline">\(\alpha\)</span>.</p>
+<p>This is the <strong>simultaneous Type I error rate</strong>.</p>
 </div>
 </section>
 <section id="comparison-with-students-tests" class="slide level2">
 <h2>Comparison with Student’s tests</h2>
 <ul>
-<li class="fragment"><strong>Individual Student’s t-tests</strong> at level <span class="math inline">\(\alpha\)</span>: only guarantee <span class="math inline">\(\mathbb{P}_{\mu_i = \mu_j}(H_1^{i,j}) = \alpha\)</span></li>
-<li class="fragment"><strong>When cumulated</strong>: <span class="math inline">\(\mathbb{P}_{\mu_1 = \cdots = \mu_I}\left[\cup_{(i,j)} H_1^{i,j}\right] \approx 1\)</span> → <strong>false positives</strong></li>
+<li class="fragment"><strong>Individual Student’s t-tests</strong> <span class="math inline">\(T^{i,j}\)</span> at level <span class="math inline">\(\alpha\)</span>: only guarantee <span class="math inline">\(\mathbb{P}_{\mu_i = \mu_j}(T^{i,j}=1) = \alpha\)</span></li>
+<li class="fragment"><strong>When cumulated</strong>: <span class="math inline">\(\mathbb{P}_{\mu_1 = \cdots = \mu_I}\left[\cup_{(i,j)}\{T^{i,j}=1\}\right] \approx 1\)</span> → <strong>false positives</strong></li>
 </ul>
 <div class="fragment">
 <h3 id="advantage">Advantage</h3>
@@ -571,9 +605,9 @@ X=\begin{pmatrix}
 <div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">leveneTest</span>(Loss∼Exercise)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>We get</p>
 <pre><code>Levene’s Test for Homogeneity of Variance (center = median)
-Df F value Pr(&gt;F)
-group 3 0.6527 0.584
-68</code></pre>
+      Df   F value  Pr(&gt;F)
+group 3    0.6527   0.584
+      68</code></pre>
 </div>
 <div class="fragment">
 <p>Homoscedasticity is ok. ANOVA?</p>
@@ -616,6 +650,8 @@ Residuals 68 781.89   11.498</code></pre>
 3-2 -3.2777778  -6.2546894 -0.3008662 0.0252761
 4-2 -7.7777778 -10.7546894 -4.8008662 0.0000000
 4-3 -4.5000000  -7.4769116 -1.5230884 0.0009537</code></pre>
+</div>
+<div class="fragment">
 <p><strong>Conclusion</strong>: All differences are significant, except between exercise 4 and exercise 1.</p>
 </div>
 </section></section>
@@ -904,6 +940,9 @@ Y_k &amp;= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\
 <p>We the linear constraint test statistic <span class="math inline">\(F = \frac{n-p}{q} \frac{(SSR_c - SSR)}{SSR}\)</span></p>
 <p>where <span class="math inline">\(SSR_c\)</span> corresponds to the sum of squares of the residuals in <span style="background-color: yellow;">the space <span class="math inline">\(\gamma_{ij}=0\)</span> for all <span class="math inline">\((i,j)\)</span></span>.</p>
 </div>
+</section>
+<section id="testing-the-interaction-1" class="slide level2">
+<h2>Testing the Interaction</h2>
 <div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[F^{(AB)} = \frac{S_{AB}^2/(I-1)(J-1)}{S_R^2/(n-IJ)}\]</span></p>
