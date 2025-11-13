@@ -1,0 +1,211 @@
+---
+title: "TD2-5"
+format: 
+  html:
+    incremental: true
+    callout-icon: false
+    theme: [default]
+smaller: true
+css: ../../../styles.css
+---
+
+# Linear and Generalized Regression - Tutorial 6-7-8
+
+## Exercise 1
+
+The dataset "chdage.txt", available in Moodle, contains data from 100 patients aged 20 to 69 years (variable `age`), some of whom have coronary heart disease (variable `chd` taking values `Yes` or `No`).
+
+1. Import this data into R as a data.frame. Observe the content of each variable and transform their class if necessary.
+
+2. Propose one or more graphical visualization(s) to analyze the potential relationship between the variables `chd` and `age`.
+
+3. Is a relationship apparent? What simple statistical test would confirm it?
+
+4. Let $Y = \mathbb{1}_{\text{chd}=\text{Yes}}$ and $p(x) = \mathbb{P}(Y = 1 \mid \text{age} = x)$. Give the distribution of $Y$ given that $\text{age} = x$ as a function of $p(x)$.
+
+5. Based on this distribution, give the likelihood of the observations $(y_1, \ldots, y_n)$ as a function of $(p(x_1), \ldots, p(x_n))$ where $x_i$ denotes the age of individual $i$ and $y_i = 1$ if the latter has coronary heart disease.
+
+6. As a first estimate of $p(x)$, we implement the following approach:
+   
+   (a) Use the 8 age groups proposed via the variable `agegrp` in the dataset, which forms 8 groups of individuals associated with these classes. Calculate $\bar{x}_1, \ldots, \bar{x}_8$, the midpoint of each age class.
+   
+   (b) Calculate the proportions of `chd = Yes` in each group, denoted $\hat{p}_1, \ldots, \hat{p}_8$ (one can use the functions `table` and `prop.table`).
+
+7. To analyze the quality of the previous estimate, transform the variable `chd` into a numerical variable taking the two values 0 and 1, and represent on the same graph the scatter plot of `age` and `chd` (recoded) and the estimated proportions in each class $(\bar{x}_k, \hat{p}_k)$ for $k = 1, \ldots, 8$.
+   
+   What are the virtues and limitations of this estimation procedure?
+
+8. We decide to model $p(x)$ using a logistic regression model with parameter $\beta = (\beta_0, \beta_1) \in \mathbb{R}^2$. What hypothesis does this imply about the expression of $p(x)$? Is this compatible with the previous graph? What other modeling alternative(s) could we suggest?
+
+9. Write the log-likelihood of the logistic model as a function of $\beta$ and deduce the system that the maximum likelihood estimator $\hat{\beta}$ must solve. Can this system be solved analytically?
+
+10. Calculate the maximum likelihood estimator using the `glm` function.
+
+11. Recall the theoretical definition of the odds ratio of having coronary heart disease between an individual of age $x_1$ and an individual of age $x_2$. What is its value for the previous model when the 2 individuals are 10 years apart (that is, $x_1 = x_2 + 10$)?
+
+12. We are now interested in the probability ratio (not the odds ratio) of having coronary heart disease between an individual of age $x_1$ and an individual of age $x_2$. What is this ratio for the previous model when the 2 individuals are 10 years apart (that is, $x_1 = x_2 + 10$)? We can represent this ratio as a function of $x_2$, for $x_2$ taking values from 20 to 70 years.
+
+We recall that under "good conditions", the maximum likelihood estimator $\hat{\beta}$ in a logistic regression model with $p$ explanatory variables and $n$ individuals satisfies the following convergence in distribution, when $n \to \infty$,
+
+$$J_n(\beta)^{1/2} (\hat{\beta} - \beta) \xrightarrow{\mathcal{L}} \mathcal{N}(0_p, I_p),$$
+
+where $J_n(\beta)$ is the Fisher information matrix. The latter has the expression
+
+$$J_n(\beta) = X^T W_\beta X$$
+
+where $X$ is the design matrix and $W_\beta$ is the diagonal matrix
+
+$$W_\beta = \begin{pmatrix}
+p_\beta(x_1)(1 - p_\beta(x_1)) & 0 & & \\
+0 & \ddots & & \\
+& & \ddots & 0 \\
+& & 0 & p_\beta(x_n)(1 - p_\beta(x_n))
+\end{pmatrix}.$$
+
+13. Justify that an asymptotic approximation of the distribution of $(\hat{\beta} - \beta)$ is $\mathcal{N}(0_p, J_n^{-1}(\beta))$.
+
+14. How can we exploit this result to estimate the standard deviation of each coordinate of $\hat{\beta}$? Give the concrete procedure to apply, but it is not required to implement it numerically.
+
+15. This estimation procedure is used by the `glm` function. Using its output, give an estimate of the standard deviation of $\hat{\beta}_0$ and $\hat{\beta}_1$.
+
+16. Construct an asymptotic 95% confidence interval for the parameter $\beta_1$.
+
+17. According to the previous question, is the parameter $\beta_1$ different from 0 at the 5% asymptotic error level? What is the name of this test procedure? Give the p-value associated with this test and verify that it agrees with the output of `glm`.
+
+18. Calculate the deviance test statistic for the significance of the GLM model (relative to the null model). Deduce the p-value and conclude at the 10%, 5%, and 1% error levels. Compare with the results of the test performed in R using the `anova` function applied to the model, with the option `test="Chisq"`.
+
+19. Repeat the graph from question 7 and superimpose (in the form of a curve) the predicted values $\hat{p}(x)$ by the logistic model, calculated for a grid of values of $x$ covering the range taken by the observations. One can use the `predict` function associated with the option `type="response"`.
+
+20. Starting from the convergence in distribution of $\hat{\beta}$ recalled above, deduce a confidence interval at the 95% asymptotic level for $p(x)$. Add this confidence interval for each $x$ considered to the previous graph. One can profitably exploit the option `se=TRUE` of the `predict` function in the case `type="link"`.
+
+## Exercise 2 (The logistic model is natural)
+
+We have a pair of random variables $(X, Y)$ where $Y$ is binary and $X$ takes values in $\mathbb{R}^d$. We denote $p = \mathbb{P}(Y = 1)$, $f_0(\cdot)$ the conditional density of $X$ given that $Y = 0$ and $f_1(\cdot)$ the conditional density of $X$ given that $Y = 1$. We further denote
+
+$$h(x) = \log \frac{f_1(x)}{f_0(x)} + \log \frac{p}{1 - p}, \quad x \in \mathbb{R}^d.$$
+
+1. Show that for all $x$
+
+$$\mathbb{P}(Y = 1 \mid X = x) = \frac{1}{1 + e^{-h(x)}}.$$
+
+2. Recall that a distribution on $\mathbb{R}^d$ belongs to the exponential family if its density can be written as $a(x)b(\theta)e^{\theta^T T(x)}$, for some parameter $\theta \in \mathbb{R}^q$, where $a$ and $b$ are positive functions and $T : \mathbb{R}^d \to \mathbb{R}^q$ is a function called the sufficient statistic.
+   
+   Show that if the conditional densities $f_0$ and $f_1$ belong to the same exponential family and differ only in the value of their associated parameter, then $\mathbb{P}(Y = 1 \mid X = x)$ follows exactly a logistic regression model, specifying the parameter and variables.
+
+## Exercise 3 (The logistic model is natural (bis))
+
+**Preamble:** Entropy is a quantity found in thermodynamics to measure the state of disorder or randomness of a system. In the same spirit, it is also found in information theory and probability to quantify the disorder or amount of randomness that a probability distribution incorporates. A physical system tends to naturally evolve towards a state of maximum entropy. Following this principle, it is natural, to describe a given random experiment, to choose probability distributions that maximize entropy. This is the principle we will apply to seek to best choose $\mathbb{P}(Y = 1)$ when $Y$ is binary.
+
+Mathematically, given $Y$ a binary variable and $p = \mathbb{P}(Y = 1)$, the entropy of the distribution of $Y$ equals
+
+$$-p \log(p) - (1 - p) \log(1 - p).$$
+
+The entropy of a vector of independent binary variables $Y_1, \ldots, Y_n$ is simply the sum of the individual entropies.
+
+1. Without any source of constraint, what is the maximum entropy distribution of a binary variable?
+
+2. Suppose now that we have a sample of $n$ pairs $(Y_i, X_i)$ where $X_i$ is a random variable in $\mathbb{R}^d$. We denote $p_i(x_i) = \mathbb{P}(Y_i = 1 \mid X_i = x_i)$, $i = 1, \ldots, n$.
+   
+   A priori, without using any information contained in the sample, what are the values of $p_i(x_i)$ that maximize entropy?
+
+3. We want to find the $p_i(x_i)$ that maximize entropy while being consistent with the observations. This amounts to including constraints on the possible $p_i(x_i)$. We choose the constraints:
+
+$$\sum_{i=1}^n y_i x_i = \sum_{i=1}^n p_i(x_i) x_i.$$
+
+(Since $x_i$ is a vector of size $d$, this is indeed a system of $d$ constraints). These constraints are quite natural: we want the average of the $x_i$ of individuals in the positive group ($y_i = 1$) to coincide with the average of the $x_i$ weighted by the probability that $y_i$ equals 1. In particular (for the constant variable 1), we want the proportion of $y_i = 1$ to coincide with the sum of probabilities.
+
+Find the $p_i(x_i)$ that maximize entropy while satisfying the previous constraints. One can give the solution up to an unknown (vector) constant.
+
+4. What is the connection with logistic regression?
+
+## Exercise 4 (Break data)
+
+We consider the `break` data, available on the Moodle course page. This dataset, of size $n = 33$, contains three variables related to the state of an automobile:
+
+- A variable `fault` that equals 1 if the car concerned had a breakdown, 0 otherwise;
+- A variable `age` that gives the age of the car;
+- A variable `brand` that gives the brand of the car.
+
+The goal of the exercise is to model the variable `fault`.
+
+1. Import the data into R and recode the class of each variable if necessary.
+
+2. Graphically observe the potential relationship between `fault` and `age` on the one hand, and between `fault` and `brand` on the other hand.
+
+3. We want to implement a logistic regression model explaining the probability of having a breakdown as a function of the car's age and its brand. Launch this modeling in R and write the mathematical formula of the obtained model. In particular, specify the specific estimated model for cars of brand 0, then brand 1, then brand 2.
+
+4. Analyze the overall quality of the model.
+
+5. Repeat the modeling including only the variable `age` in the model. Is it better?
+
+6. The scatter plot between the variable `age` and the variable `fault` seems to suggest that breakdowns occur at the beginning of the vehicle's life ("teething problems" or "break-in") and at the end of life (wear breakdowns). This behavior of the breakdown probability in the form of a parabola encourages us to try to include a quadratic term in the variable `age`. Make this addition to the model also including the variable `brand` and analyze the results. Is the model significant?
+
+7. What is the odds ratio associated with brand "2" relative to brand "0" of the variable `brand`? Interpret this value and give a 95% confidence interval around this estimate. Is the inclusion of the variable `brand` in the model relevant?
+
+## Exercise 5 (Mental data)
+
+We consider the `mental` data, contained in the file `mental.txt` available on the Moodle course page. This dataset, of size $n = 40$, is extracted from a study on the mental health of adults living in Alachua County, Florida, USA. It contains three variables:
+
+- A variable `impair` describing the mental state of the person concerned, from 1 (healthy) to 4 (in poor health),
+- A variable `ses` that equals 1 if the person has a high socioeconomic status, 0 otherwise,
+- A variable `life` measuring the number and intensity of upheavals the person has experienced over the past three years, from 0 (no change) to 9 (very significant changes).
+
+The goal of the exercise is to model the variable `impair`.
+
+1. Import the data into R. Is the variable `ses` qualitative or quantitative? Same question for the variable `life`. Change their class in R if needed.
+
+2. Perform a small descriptive study to identify a potential relationship between the variable `impair` and the other variables in the dataset.
+
+3. Mathematically write the proportional cumulative logistic regression model without interaction term linking `impair` to `ses` and `life`, and allowing estimation of the probabilities that `impair = 1`, `≤ 2` and `≤ 3`. How many coefficients does this model have?
+
+4. Estimate the coefficients of this model using the `vglm` function from the `VGAM` package, associated with the option `family = cumulative(parallel=TRUE)`. Check that the number of coefficients is indeed as expected.
+
+5. Write the mathematical definition of the odds ratio associated with the variable `ses` and interpret this quantity.
+
+6. Give an asymptotic 95% confidence interval for the parameter related to the variable `ses`.
+
+7. Deduce an asymptotic 95% confidence interval for the associated odds ratio.
+
+8. Is there an influence of socioeconomic status on mental health status at the 5% level? And at the 10% level?
+
+9. We want to see if a more complex model would fit the data better. Mathematically write then estimate a proportional cumulative logistic regression model with interaction term. Interpret the obtained result. Is this model significantly better, at the 5% asymptotic error level?
+
+10. Same question with a cumulative logistic regression model without proportional structure, but without interaction term.
+
+11. Conversely, could we propose a simpler model?
+
+12. Finally, we decide not to exploit the fact that the variable `impair` is ordinal, and to model it by a multinomial logistic model. Compare this approach to the previous modeling.
+
+## Exercise 6 (Ants data)
+
+The goal of the study is to study the diversity of ants at the Nouragues experimental site in French Guiana. 1 m² of litter was collected at several locations in 4 different forests (the plateau forest GPWT, the liana forest FLWT, the transition forest FTWT, and the Inselberg forest INWT). Each sample was weighed (variable `Weight`) and the number of different species present in the sample was recorded (variable `Effectif`). Finally, the collection conditions (humid or dry, variable `Conditions`) were noted to test their influence on the presence of ants.
+
+1. Import the data into R and transform categorical variables into factors.
+
+2. Perform a small descriptive study to identify a potential relationship between the number of observed species and the other available variables.
+
+3. Model the variable `Effectifs` as a function of all available variables by a Poisson log-linear model, including all their possible interactions. Analyze the model output.
+
+4. Using the `step` function, perform a stepwise backward selection of the best sub-model of the previous model according to the AIC criterion, then according to the BIC criterion. Similarly perform a stepwise forward selection. Compare the obtained choices.
+
+5. The inconsistency in the previous backward and forward selections suggests that there may be an alternative sub-model (not tested by these algorithms) that is even better. This encourages us to perform an exhaustive selection of the best sub-model, as proposed by the `regsubsets` function in linear regression. Unfortunately, the latter does not work with the Poisson model. If we wanted to implement this exhaustive selection ourselves, justify that there would be 30 sub-models (with constant) to test, counting the most general model.
+
+6. We admit that at the end of such an exhaustive selection, the best sub-model in terms of AIC and BIC is the one whose `Weight` coefficients are broken down into as many crossed modalities as contained in the factors `Site` and `Conditions` (that is, 8), but which has an identical intercept for all crossed modalities of `Site` and `Conditions`. Estimate this model, calculate its AIC and BIC and compare with those of the previously selected models.
+
+7. As an alternative, we want to try to fit a negative binomial generalized model. If we include all possible interactions, does this approach seem preferable to the Poisson model?
+
+8. After an exhaustive selection, we admit that the best negative binomial sub-model in terms of AIC involves the same variables as the best Poisson model. On the other hand, for the BIC criterion, it is the model involving only `Weight` and `Site`, in which the coefficient of `Weight` varies according to `Site`, but the intercept is constant. Estimate these two models and calculate their AIC and BIC.
+
+9. Given the experts' opinion, it seems important that the model takes into account humidity conditions. What final model should be retained?
+
+10. Write the equation of the retained model according to the different sites and collection conditions.
+
+11. According to the selected model, what is the probability of observing more than 15 species on an INWT type soil in dry weather, based on a soil sample weighing 10kg? Same question if the weather is humid.
+
+## Exercise 7 (Horseshoe Crabs data)
+
+The `crabs` dataset contains observations of 173 female horseshoe crabs. These are marine animals that resemble crabs having a horseshoe shape. For each female horseshoe crab, we record its color `color` (coded from 1 to 4, from lightest to darkest), its width `width`, its weight `weight`, and `satell`: the number of satellite male horseshoe crabs (that is, attached to the female). Color is a sign of the age of the horseshoe crab, the latter tending to darken over time. We seek to model the number `satell` as a function of the available variables.
+
+1. Implement a Poisson log-linear model and a negative binomial model. Evaluate their quality. In particular, one can discuss the relevance of considering the variable `color` as a quantitative variable or a factor.
+
+2. Improve the modeling by taking into account zero inflation.

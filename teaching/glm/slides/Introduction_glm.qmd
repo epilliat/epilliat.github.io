@@ -2,6 +2,7 @@
 title: "Introduction to the Generalized Linear Model"
 format: 
   revealjs:
+    show-notes: false
     incremental: true
     callout-icon: false
     code-overflow: scroll
@@ -28,13 +29,15 @@ $\newcommand{\1}{\mathbf 1}$
 
 ## Recalling the Linear Model
 
+
+
 . . .
 
 We observe $Y = (Y_1, \dots, Y_n)$ and $X = (X^{(1)} , . . . , X^{(p)}) \in \mathbb R^{n \times p}$,
 
 . . .
 
-In the Linear Model, We assume that for some **unknown** $\beta$
+In the Linear Model, We assume that for some **unknown** $\beta$, $\sigma^2$ where $\varepsilon \sim \mathcal N(0, \sigma^2 I_n)$,
 
 ::: {.square-def}
 $$Y = X\beta + \varepsilon$$
@@ -51,6 +54,8 @@ The OLS estimator of $\beta$ is [$\hat \beta= (X^TX)^{-1}X^TY$]{style="backgroun
 
 ## When this Linearity is Reasonable
 
+
+
 . . .
 
 The hypothesis [$\E(Y|X) = X^T\beta$]{style="background-color: lightblue;"} in linear regression models implies that [$\E(Y|X)$ can take any real value]{style="background-color: orange;"}.
@@ -60,36 +65,39 @@ The hypothesis [$\E(Y|X) = X^T\beta$]{style="background-color: lightblue;"} in l
 This is [not a restriction when]{style="background-color: lightgreen;"}:
 
 - $Y|X$ follows a Gaussian distribution
-- $Y|X$ follows any other continuous distribution on $\mathbb{R}$
+- $Y|X$ follows any other "nice" continuous distribution on $\mathbb{R}$
 
 ## When it is not
+
+
 
 . . .
 
 The linear assumption is **inappropriate** for certain variables $Y$, [particularly when $Y$ is qualitative]{style="background-color: orange;"} or discrete.
 
+
+
+
+## When it is not
+
+
 . . .
 
 **Binary outcomes** ($Y = 0$ or $1$):
 
-- Return to employment within 3 months
-- Effectiveness of a medical treatment  
-- Credit approval for a bank loan applicant
-
-
-## When it is not
+- disease presence
 
 . . .
 
 **Categorical outcomes** ($Y \in \{A_1, \ldots, A_k\}$):
 
-- Customer segmentation into $k$ categories
+- Transportation choice: $\{$ Car, Bus, Bike $\}$
 
 . . .
 
 **Count data** ($Y \in \mathbb{N}$):
 
-- Number of traffic accident fatalities per month
+- Number of traffic accident per month
 
 
 # Objectives of the GLM
@@ -97,6 +105,8 @@ The linear assumption is **inappropriate** for certain variables $Y$, [particula
 
 
 ## Key Differences by Response Type
+
+
 
 . . .
 
@@ -116,6 +126,8 @@ In all these cases, the linear model $\E(Y|X) = X^T\beta$ is inappropriate.
 
 ## Objectives of the GLM
 
+
+
 . . .
 
 We model $\E(Y|X)$ differently using **generalized linear models**.
@@ -131,6 +143,8 @@ As in linear regression, we focus on:
 
 ## Three Fundamental Cases
 
+
+
 . . .
 
 We detail the modeling challenges for $\E(Y|X)$ in three fundamental cases:
@@ -142,6 +156,8 @@ We detail the modeling challenges for $\E(Y|X)$ in three fundamental cases:
 - **Case 3: Count:** $Y \in \mathbb{N}$ (count variable)
 
 ## Case 1: Binary Case
+
+
 
 . . .
 
@@ -173,6 +189,8 @@ $Y|X = x$ follows a Bernoulli distribution with parameter $p(x)$
 
 
 ## Modelling $p(x)$
+
+
 
 . . .
 
@@ -206,6 +224,8 @@ where $f$ is a function from $\mathbb{R}$ to $[0, 1]$
 
 ## Case 2: Categorical $Y$
 
+
+
 . . .
 
 If $Y$ represents membership in $k$ different classes $A_1, \ldots, A_k$, its distribution is determined by the probabilities:
@@ -224,6 +244,8 @@ $$p_j(x) = P(Y \in A_j|X = x), \quad \text{for } j = 1, \ldots, k$$
 
 ## Case 2: Categorical $Y$
 
+
+
 . . .
 
 $Y = (\mathbf{1}_{A_1}, \ldots, \mathbf{1}_{A_k})$ follows a multinomial distribution and:
@@ -237,6 +259,8 @@ $$\E(Y|X = x) = \begin{pmatrix} p_1(x) \\ \vdots \\ p_k(x) \end{pmatrix}$$
 . . .
 
 ## Case 2: Model for Categorical $Y$
+
+
 
 . . .
 
@@ -260,6 +284,8 @@ where $f: \mathbb{R} \to [0,1]$
 
 ## Case 3: Count Y - Non-negative Integer Values
 
+
+
 . . .
 
 If $Y$ takes integer values, we have for all $x$,
@@ -282,6 +308,8 @@ where $f$ is a function from $\mathbb{R}$ to $[0, +\infty)$
 
 
 ## Model Formulation
+
+
 
 . . .
 
@@ -307,12 +335,16 @@ $$\E(Y|X = x) = g^{-1}(x^T\beta)$$
 
 ## Remarks on Model
 
+
+
 - In the previous examples, $g^{-1}$ was denoted $f$
 - We generally assume that the distribution $Y|X$ belongs to the **exponential family**, with unknown parameter $\beta$
 - This allows us to compute the likelihood and facilitates inference
 
 
 # General Objectives
+
+
 
 . . .
 
@@ -332,10 +364,12 @@ Inference and diagnostic tools are available (as in linear regression)
 
 ## Remark on the Intercept
 
+
+
 . . .
 
 Among the explanatory variables $X^{(1)}, \ldots, X^{(p)}$, we often assume that [$X^{(1)}=\1$]{style="background-color: lightblue;"} to account for the [presence of a constant]{style="background-color: lightblue;"}. Thus:
-$$X\beta = \beta_1 X^{(1)} + \cdots + \beta_p X^{(p)} = \beta_1 + \beta_2 X^{(2)} + \cdots + \beta_p X^{(p)}$$
+$$X\beta = \beta_1 X^{(1)} + \cdots + \beta_p X^{(p)}$$
 
 . . .
 
@@ -343,6 +377,8 @@ $$X\beta = \beta_1 X^{(1)} + \cdots + \beta_p X^{(p)} = \beta_1 + \beta_2 X^{(2)
 
 
 ## Example 1: Linear Regression Model
+
+
 
 . . .
 
@@ -374,6 +410,8 @@ Linear regression is therefore a **special case** of GLM models!
 
 ## Example 2: Binary Case $Y \in \{0, 1\}$
 
+
+
 . . .
 
 **Link function requirement**: The link function $g$ must satisfy:
@@ -393,6 +431,8 @@ $$Y|X \sim \mathcal{B}(g^{-1}(X^T\beta))$$
 
 
 ## Example 2: Binary Case $Y \in \{0, 1\}$
+
+
 
 . . .
 
@@ -424,6 +464,8 @@ This leads to the **logistic model**, the [most important model in this chapter]
 ## Example 3: Count Data $Y\in \mathbb N$
 
 
+
+
 . . .
 
 **Link function**: [$g(t) = \ln(t)$]{style="background-color: lightblue;"},  $g^{-1}(t) = e^t$ gives:
@@ -449,6 +491,8 @@ $$Y|X \sim \mathcal{P}(e^{X^T\beta})$$
 
 ## Summary
 
+
+
 There are **2 choices** to make when setting up a GLM model:
 
 1. The distribution of $Y|X$
@@ -459,6 +503,8 @@ There are **2 choices** to make when setting up a GLM model:
 **Key insight**: The second choice is linked to the first
 
 ## The 3 Common Cases
+
+
 
 . . .
 
@@ -480,3 +526,8 @@ There are **2 choices** to make when setting up a GLM model:
 
 → $Y|X$: [Poisson (often)]{style="background-color: yellow;"} or negative binomial \
 → Choice of $g$: by default [$g = \ln$]{style="background-color: lightblue;"}
+
+
+## Next
+
+[logistic model](logistic_model.qmd)

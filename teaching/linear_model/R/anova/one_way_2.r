@@ -58,7 +58,7 @@ summary(model_interaction)
 grand_mean <- coef(model_sum)[1]
 fertA_effect <- coef(model_sum)[2]
 fertB_effect <- coef(model_sum)[3]
-fertC_effect <- -(fertA_effect + fertB_effect) # Sum to zero constraint
+fertC_effect <- (fertA_effect + fertB_effect) # Sum to zero constraint
 waterLow_effect_sum <- coef(model_sum)[4]
 waterHigh_effect_sum <- -waterLow_effect_sum # Sum to zero constraint
 

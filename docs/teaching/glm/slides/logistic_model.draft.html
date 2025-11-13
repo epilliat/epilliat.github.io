@@ -318,7 +318,7 @@ window.Quarto = {
   <li><a href="#roc-curve-illustration" id="toc-roc-curve-illustration" class="nav-link" data-scroll-target="#roc-curve-illustration">ROC Curve Illustration</a></li>
   </ul></li>
   </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="logistic_model.html"><i class="bi bi-file-slides"></i>RevealJS</a></li></ul></div></nav>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="logistic_model.draft.html"><i class="bi bi-file-slides"></i>RevealJS</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -347,6 +347,15 @@ window.Quarto = {
 <h1>GLM Models for Binary Variables</h1>
 <section id="context" class="level2">
 <h2 class="anchored" data-anchor-id="context">Context</h2>
+<div class="notes">
+<p>Let’s now focus specifically on the binary case and work through it in detail.</p>
+<p>Y is a binary variable—Y_k is in {0,1}.</p>
+<p>X equals (X^(1) through X^(p)) are our p explanatory variables or regressors.</p>
+<p>Y given X equals x follows a Bernoulli distribution with parameter p(x), which equals the probability that Y equals 1 given X equals x.</p>
+<p>We model p(x) as g-inverse of x-transpose-beta.</p>
+<p>Where g-inverse is a strictly increasing function with values in [0,1]. This ensures our probabilities are valid.</p>
+<p>We’ll begin by discussing how to choose g-inverse—or equivalently, the link function g.</p>
+</div>
 <p><span class="math inline">\(Y\)</span> is a binary variable <span style="background-color: lightblue;"><span class="math inline">\(Y_k \in \{0,1\}\)</span></span></p>
 <p>. . .</p>
 <p><span class="math inline">\(X = (X^{(1)}, \ldots, X^{(p)})\)</span> are <span class="math inline">\(p\)</span> regressors</p>
@@ -362,6 +371,12 @@ window.Quarto = {
 </section>
 <section id="example-coronary-heart-disease" class="level2">
 <h2 class="anchored" data-anchor-id="example-coronary-heart-disease">Example: Coronary Heart Disease</h2>
+<div class="notes">
+<p>Let’s work through a concrete example to see how this works in practice.</p>
+<p>We have data on the presence of coronary heart disease—chd—as a function of age. So Y equals chd, taking values 0 or 1, and X equals age.</p>
+<p>We want to estimate p(x)— the probability that a given individual with characteristics x suffers from coronary heart desease</p>
+<p>Here’s a scatter plot of the raw data. Each point is either 0 or 1 in functino of age. As you can see, it’s hard to discern a pattern directly.</p>
+</div>
 <p>. . .</p>
 <p><strong>Data Description</strong>: Presence of chd as a function of age <span class="math inline">\(Y = \text{chd} \in \{0,1\}\)</span>, <span class="math inline">\(X = \text{age}\)</span></p>
 <p>. . .</p>
@@ -372,6 +387,11 @@ window.Quarto = {
 </section>
 <section id="example-simple-idea" class="level2">
 <h2 class="anchored" data-anchor-id="example-simple-idea">Example: Simple Idea</h2>
+<div class="notes">
+<p>A simple first approach to understand the relationship.</p>
+<p>We can group the x values by age class, then calculate the proportion of chd equals 1 in each class containing x.</p>
+<p>Now we see something clearer! The proportion increases with age. But this approach is crude and doesn’t give us a smooth model.</p>
+</div>
 <ul>
 <li>Group the <span class="math inline">\(x\)</span> values by age class</li>
 <li>Calculate the proportion of <span class="math inline">\(chd = 1\)</span> in the class containing <span class="math inline">\(x\)</span></li>
@@ -383,6 +403,12 @@ window.Quarto = {
 </section>
 <section id="example-glm-approach" class="level2">
 <h2 class="anchored" data-anchor-id="example-glm-approach">Example: GLM Approach</h2>
+<div class="notes">
+<p>The GLM approach gives us a smoother model.</p>
+<p>We want to model p(x)—the probability that chd equals 1 given X equals x—as g-inverse of (beta_0 plus beta_1 times x).</p>
+<p>This is a simple model with just an intercept and a slope. The age effect is captured by beta_1.</p>
+<p>We need g-inverse to have values in [0,1] to ensure valid probabilities.</p>
+</div>
 <p>. . .</p>
 <p><strong>Objective</strong>: We want to model <span class="math inline">\(p(x) = P(\text{chd} = 1|X = x)\)</span> by: <span class="math display">\[p(x) = g^{-1}(\beta_0 + \beta_1 x)\]</span></p>
 <p>. . .</p>
@@ -390,6 +416,11 @@ window.Quarto = {
 </section>
 <section id="example-the-logit-model" class="level2">
 <h2 class="anchored" data-anchor-id="example-the-logit-model">Example: The Logit Model</h2>
+<div class="notes">
+<p>Let’s try the logit link—the most common choice.</p>
+<p>g-inverse(t) equals e^t over (1 plus e^t), which means g(t) equals the natural log of t over (1 minus t)—the logit function.</p>
+<p>Here are the results of g-inverse of (beta-hat_0 plus beta-hat_1 times x), obtained by maximum likelihood estimation. Notice how smooth the curve is, and how it respects the bounds—staying between 0 and 1.</p>
+</div>
 <p>. . .</p>
 <div style="font-size: 60%;">
 <div class="square-def">
@@ -411,6 +442,11 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="example-the-probit-model" class="level2">
 <h2 class="anchored" data-anchor-id="example-the-probit-model">Example: The Probit Model</h2>
+<div class="notes">
+<p>What if we use a different link function?</p>
+<p>If Phi is the CDF of a standard normal distribution, we take g-inverse(t) equals Phi(t).</p>
+<p>Here are the results using the probit model with g-inverse of (beta-hat_0 plus beta-hat_1 times x), again obtained by MLE. Very similar to the logit model!</p>
+</div>
 <p>. . .</p>
 <p>If <span class="math inline">\(\Phi\)</span> is the CDF of a <span class="math inline">\(\mathcal{N}(0, 1)\)</span> distribution, we take <span style="background-color: lightblue;"><span class="math inline">\(g^{-1}(t) = \Phi(t)\)</span></span></p>
 <div class="columns">
@@ -427,6 +463,11 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="example-model-cloglog" class="level2">
 <h2 class="anchored" data-anchor-id="example-model-cloglog">Example: Model cloglog</h2>
+<div class="notes">
+<p>Let’s try one more: the complementary log-log model.</p>
+<p>g-inverse(t) equals 1 minus e to the negative e^t.</p>
+<p>Here are the results. Notice this curve is not symmetric—it rises differently on the left versus the right compared to logit and probit.</p>
+</div>
 <p>. . .</p>
 <div class="square-def">
 <p><span class="math display">\[g^{-1}(t) = 1 - e^{-e^t}\]</span></p>
@@ -446,6 +487,12 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="example-comparison-of-the-three-models" class="level2">
 <h2 class="anchored" data-anchor-id="example-comparison-of-the-three-models">Example: Comparison of the Three Models</h2>
+<div class="notes">
+<p>Let’s compare all three models side by side.</p>
+<p>Logit and probit give approximately the same result—the curves are nearly identical.</p>
+<p>The cloglog differs slightly and is not symmetric. It approaches 1 much faster than it appraoches 0</p>
+<p>Here they are overlaid. For this data, the choice doesn’t matter much, but in principle there are differences.</p>
+</div>
 <p>. . .</p>
 <p>logit and probit give <span style="background-color: yellow;">approximately the same result</span> cloglog differs slightly and is not “symmetric”</p>
 <div style="text-align: center;">
@@ -454,6 +501,11 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="which-link-function-to-choose-for-binary-case" class="level2">
 <h2 class="anchored" data-anchor-id="which-link-function-to-choose-for-binary-case">Which Link Function to Choose for Binary Case?</h2>
+<div class="notes">
+<p>By default, we favor the logit model. This is the main choice for most applications.</p>
+<p>However, there are exceptions. We might choose something else - such as the probit model, complementary log-log, or log-log - when there’s a good reason to do so.</p>
+<p>In the next few slides, we’ll return to the three usual choices and justify why logit is typically preferred.</p>
+</div>
 <p>. . .</p>
 <p><strong>Question</strong>: Which link function to choose in practice when <span class="math inline">\(Y\)</span> is binary?</p>
 <p>. . .</p>
@@ -465,6 +517,13 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="details-on-the-probit-model" class="level2">
 <h2 class="anchored" data-anchor-id="details-on-the-probit-model">Details on the Probit Model</h2>
+<div class="notes">
+<p>The probit model has a specific theoretical justification. It’s appropriate when the binary variable Y given X equals x comes from thresholding a Gaussian latent variable Z of x.</p>
+<p>Mathematically, Y given X equals x is the indicator that Z of x is greater than or equal to some threshold tau.</p>
+<p>The key assumption is that Z of x follows a normal distribution with mean x transpose beta and variance sigma squared.</p>
+<p>Let’s see what this implies for probabilities. If Phi is the cumulative distribution function of a standard normal distribution - that’s a normal with mean zero and variance one - then the probability that Y equals 1 given X equals x can be expressed as the probability that Z of x is at least tau. This equals Phi of the quantity x transpose beta minus tau, all divided by sigma.</p>
+<p>This formulation shows how the probit model naturally arises from a latent variable framework.</p>
+</div>
 <p>. . .</p>
 <p>The probit model is justified when the binary variable <span class="math inline">\(Y|X = x\)</span> comes from thresholding a Gaussian latent variable <span class="math inline">\(Z(x)\)</span>:</p>
 <div class="square-def">
@@ -476,6 +535,12 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="examples-in-probit-model" class="level2">
 <h2 class="anchored" data-anchor-id="examples-in-probit-model">Examples in Probit Model</h2>
+<div class="notes">
+<p>Let me give you two concrete examples where the probit model makes intuitive sense.</p>
+<p>First example: Y represents a purchase decision - whether someone buys a product or not. Here, Z of x quantifies the utility or satisfaction the person would get from the good. When this utility exceeds a threshold, they make the purchase.</p>
+<p>Second example: Y is a declared psychological state, such as whether someone reports being happy or depressed. In this case, Z of x represents a latent, unobserved measure of personal satisfaction. The binary outcome we observe is just whether this latent satisfaction crosses a certain threshold.</p>
+<p>In both cases, the idea of an underlying continuous variable being thresholded to create a binary outcome is very natural.</p>
+</div>
 <ul>
 <li><span class="math inline">\(Y\)</span> represents a purchase decision, and <span class="math inline">\(Z(x)\)</span> quantifies the utility of the good</li>
 <li><span class="math inline">\(Y\)</span> is a declared psychological state (happiness, depression) and <span class="math inline">\(Z(x)\)</span> is a latent, unobserved measure of personal satisfaction</li>
@@ -483,6 +548,14 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="probit-vs-logit-current-trends" class="level2">
 <h2 class="anchored" data-anchor-id="probit-vs-logit-current-trends">Probit vs Logit: Current Trends</h2>
+<div class="notes">
+<p>The probit model remains relatively popular among econometricians. There’s a tradition of using it in economics research.</p>
+<p>However, the general trend is that it’s increasingly being replaced by the logistic model across many fields.</p>
+<p>Why is this happening? The logit model has many advantages that probit does not have. Let me highlight two key ones:</p>
+<p>First, interpretation of results. The logit model allows us to work with odds ratios, which are very intuitive to interpret.</p>
+<p>Second, explicit formulas. The logit model has closed-form expressions that make computation and interpretation easier.</p>
+<p>From a theoretical perspective, there’s also good justification for this trend. The cumulative distribution function of the probit model is actually quite close to the CDF of the logit model, so we’re not losing much by switching.</p>
+</div>
 <p>. . .</p>
 <p><strong>Econometricians</strong>: The <span style="background-color: yellow;">probit model</span> remains relatively popular among <span style="background-color: yellow;">econometricians</span>…</p>
 <p>. . .</p>
@@ -498,6 +571,13 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="remarks-on-cloglog-model" class="level2">
 <h2 class="anchored" data-anchor-id="remarks-on-cloglog-model">Remarks on cloglog Model</h2>
+<div class="notes">
+<p>Now let’s turn to the complementary log-log, or cloglog, model.</p>
+<p>For cloglog, the link function g of t is the natural log of negative log of one minus t. The inverse link is therefore g inverse of t equals one minus e to the negative e to the t.</p>
+<p>An important property of this link function is that it’s not symmetric. Specifically, g of t does not equal negative g of one minus t. What this means in practice is that p of x approaches zero slowly, but approaches one very rapidly.</p>
+<p>If the opposite behavior is true in your data - if probabilities approach one slowly but zero rapidly - you should use the log-log model instead, where g of t equals negative natural log of negative natural log of t.</p>
+<p>The cloglog model is particularly useful in survival models, such as Cox model where this kind of loglog appears naturally.</p>
+</div>
 <p>. . .</p>
 <p>The modeling approach is <span class="math inline">\(p(x) = g^{-1}(x^T\beta)\)</span> with</p>
 <div class="square-def">
@@ -513,6 +593,12 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="details-on-the-logit-model" class="level2">
 <h2 class="anchored" data-anchor-id="details-on-the-logit-model">Details on the Logit Model</h2>
+<div class="notes">
+<p>Let me give you three compelling reasons why the logit model is our preferred choice for binary regression.</p>
+<p>First, it provides a highly valued interpretation tool: odds ratios. These allow us to communicate results in an intuitive way that’s meaningful across many fields, from medicine to social sciences to marketing.</p>
+<p>Second, it’s more practical from a theoretical point of view. The mathematical properties make it easier to work with, and we have good theoretical foundations for why it arises naturally.</p>
+<p>Third, the logit model is the natural model in many situations. As we’ll see in the next slide, it emerges automatically under common distributional assumptions.</p>
+</div>
 <ol type="1">
 <li><p>Highly valued interpretation tool: odds-ratios.</p></li>
 <li><p>More “practical” from a theoretical point of view.</p></li>
@@ -521,6 +607,14 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="theoretical-motivation-of-logit" class="level2">
 <h2 class="anchored" data-anchor-id="theoretical-motivation-of-logit">Theoretical Motivation of Logit</h2>
+<div class="notes">
+<p>Now let’s see a beautiful theoretical result that explains why logit is so natural.</p>
+<p>We will show in exercises that there’s an important connection between the logit model and Gaussian distributions.</p>
+<p>Here’s the setup: If the two groups of individuals associated with Y equals 0 and Y equals 1 have a Gaussian distribution of X with different means - that is, for m_0 not equal to m_1, we have X given Y equals 0 follows a normal distribution with mean m_0 and covariance Sigma, and X given Y equals 1 follows a normal distribution with mean m_1 and the same covariance Sigma - then the probability that Y equals 1 given X equals x automatically follows a logistic model.</p>
+<p>This is a powerful result! It tells us that whenever we have two normally distributed groups that differ in their means but share the same covariance structure, the logit model emerges naturally.</p>
+<p>And there’s more. The previous result remains true for any exponential family instead normal distributions. So this property of the logit model is quite general - it’s not limited to just Gaussian distributions.</p>
+<p>This theoretical foundation helps explain why the logit model appears so frequently in practice.</p>
+</div>
 <p>. . .</p>
 <p>We will show in exercises that:</p>
 <p><span style="background-color: orange;">If</span> the two groups of individuals associated with <span class="math inline">\(Y = 0\)</span> and <span class="math inline">\(Y = 1\)</span> have a Gaussian distribution of <span class="math inline">\(X\)</span> with different means, i.e.&nbsp;for <span class="math inline">\(m_0 \neq m_1\)</span>,</p>
@@ -533,6 +627,16 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="summary-for-binary-variables" class="level2">
 <h2 class="anchored" data-anchor-id="summary-for-binary-variables">Summary for Binary Variables:</h2>
+<div class="notes">
+<p>Let’s summarize our discussion about modeling binary variables.</p>
+<p>If Y is a binary variable, then Y given X equals x follows a Bernoulli distribution with parameter p of x.</p>
+<p>In a GLM model for Y, we set p of x equals g inverse of x transpose beta, where g is the link function. Now, which link function should we choose?</p>
+<p>By default, we use the logit function, which is the most natural choice for all the reasons we’ve discussed: odds ratio interpretation, theoretical justification, and mathematical convenience.</p>
+<p>Possibly, we might use probit if we have good reasons to justify it - for example, if there’s a clear latent variable story. But keep in mind that the results will typically be very similar to logit, so unless you have a compelling reason, logit is simpler.</p>
+<p>We might use cloglog, or its mirror image loglog, if we have good reasons to justify it. The main reasons would be: first, strong asymmetry in p of x - probabilities that approach zero and one at very different rates - and second, a connection with a Cox model when dealing with discretized survival data.</p>
+<p>In the following sections, we will focus on the logit model, since it’s the default choice and the most widely applicable.</p>
+<p>This completes our journey through link function selection for binary outcomes. The key takeaway is: start with logit, and only consider alternatives when you have a specific, justifiable reason to do so.</p>
+</div>
 <p>. . .</p>
 <p>If <span class="math inline">\(Y\)</span> is a binary variable, <span style="background-color: lightblue;"><span class="math inline">\((Y|X = x) \sim \mathcal B(p(x))\)</span></span>.</p>
 <p>In a GLM model for <span class="math inline">\(Y\)</span>, we set <span class="math inline">\(p(x) = g^{-1}(x^T\beta)\)</span> where <span class="math inline">\(g\)</span> is:</p>
@@ -546,6 +650,11 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="outline" class="level2">
 <h2 class="anchored" data-anchor-id="outline">Outline</h2>
+<div class="notes">
+<p>Now that we’ve established why the logit model is our preferred choice, let’s see how to work with it in practice.</p>
+<p>We’ll cover four essential aspects: First, how to interpret the model and understand what the coefficients tell us. Second, how to estimate beta from a dataset. Third, how to evaluate the quality of our estimation. And fourth, how to exploit the model to make predictions and perform classification.</p>
+<p>Let’s begin with model interpretation.</p>
+</div>
 <ul>
 <li>interpret the model,</li>
 <li>estimate <span class="math inline">\(\beta\)</span> from a dataset,</li>
@@ -558,6 +667,14 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 <h1>Model Interpretation</h1>
 <section id="interpretation-of-the-logistic-model" class="level2">
 <h2 class="anchored" data-anchor-id="interpretation-of-the-logistic-model">Interpretation of the Logistic Model</h2>
+<div class="notes">
+<p>Let’s start with the mathematical form of the logistic model.</p>
+<p>If x is a vector with p components - x superscript 1 through x superscript p - then our model is:</p>
+<p>p of x equals logit inverse of x transpose beta, which equals e to the x transpose beta, divided by 1 plus e to the x transpose beta.</p>
+<p>What does this tell us about how each variable affects the probability?</p>
+<p>First key point: p of x is increasing with x^{(j)} if beta j is positive, and decreasing otherwise. So the sign of the coefficient tells us the direction of the effect.</p>
+<p>Second key point: The larger the absolute value of beta j, the stronger the discriminatory power of regressor X j. In other words, when the coefficient has a large magnitude, a small variation in x j can cause a large variation in p of x.</p>
+</div>
 <p>If <span class="math inline">\(x=(x^{(1)}, \dots, x^{(p)}) \in \mathbb R^{p \times 1}\)</span></p>
 <div class="square-def">
 <p><span class="math display">\[p(x) = \text{logit}^{-1}(x^T\beta) = \frac{e^{x^T\beta}}{1 + e^{x^T\beta}}\]</span></p>
@@ -569,6 +686,11 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="shape-of-logit-function" class="level2">
 <h2 class="anchored" data-anchor-id="shape-of-logit-function">Shape of logit function</h2>
+<div class="notes">
+<p>Let me show you what this relationship looks like visually.</p>
+<p>The shape of the function that maps x superscript j to p of x has this characteristic S-curve, or sigmoid shape. You can see how the probability transitions smoothly from near zero to near one as the predictor increases. The steepness of this S-curve in the middle region is determined by the magnitude of beta j - larger coefficients create steeper transitions.</p>
+<p>This S-shaped relationship is one of the appealing features of the logistic model - it naturally constrains probabilities to lie between zero and one, and it has this smooth, interpretable transition region.</p>
+</div>
 <p>. . .</p>
 <div style="text-align: center;">
 <p><img src="../images/shape_logit.png" class="img-fluid" style="width:40.0%"></p>
@@ -577,6 +699,12 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="example-bmi-study-french-imc" class="level2">
 <h2 class="anchored" data-anchor-id="example-bmi-study-french-imc">Example: BMI Study (French: IMC)</h2>
+<div class="notes">
+<p>Let’s look at a concrete example to make this more tangible. This is a BMI study with French data - BMI is called IMC in French.</p>
+<p>For each of 5,300 patients, we observe several variables:</p>
+<p>Our outcome variable Y is binary: it equals 1 if BMI is greater than 35, and 0 otherwise. So we’re trying to predict obesity.</p>
+<p>Our predictor variables include: AGE in years, DBP which is diastolic blood pressure - that’s the low pressure measurement, SEXE indicating male or female, ACTIV which equals 1 if the person engages in intense sports activity and 0 otherwise, WALK which equals 1 if they walk or cycle to work and 0 otherwise, and MARITAL which is marital status with 6 categories: married, widowed, divorced, separated, single, or cohabiting.</p>
+</div>
 <p>For each of the 5300 patients, we observe:</p>
 <ul>
 <li><span style="background-color: yellow;"><span class="math inline">\(Y\)</span>: 1 if BMI &gt; 35</span>, 0 otherwise</li>
@@ -590,6 +718,12 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="model-definition" class="level2">
 <h2 class="anchored" data-anchor-id="model-definition">Model Definition</h2>
+<div class="notes">
+<p>Our goal is to model the probability that Y equals 1 given X, where X groups all the predictor variables we just mentioned, excluding Y of course.</p>
+<p>In R, implementing this is straightforward. We use the glm function - that’s generalized linear model - with the family equals binomial option. This tells R we’re doing logistic regression.</p>
+<p>The syntax would be: glm of Y tilde AGE plus DBP plus SEXE plus ACTIV plus WALK plus MARITAL, with family equals binomial.</p>
+<p>The tilde notation means “is modeled by” and the plus signs indicate we’re including all these variables as predictors.</p>
+</div>
 <p>. . .</p>
 <p>We seek to model <span class="math inline">\(P(Y = 1|X)\)</span> where <span class="math inline">\(X\)</span> groups the previous variables (excluding <span class="math inline">\(Y\)</span>).</p>
 <p>. . .</p>
@@ -598,6 +732,16 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="model-results" class="level2">
 <h2 class="anchored" data-anchor-id="model-results">Model Results</h2>
+<div class="notes">
+<p>Now let’s look at what the model produces.</p>
+<p>The output gives us estimated coefficients, as in linear regression</p>
+<p>Looking at the significant variables - those marked with asterisks - we see several interesting patterns:</p>
+<p>DBP, diastolic blood pressure, has a positive coefficient and is highly significant. Higher blood pressure is associated with higher probability of obesity.</p>
+<p>Being female - SEXE FEMME - has a positive significant coefficient, indicating women in this sample have higher probability of high BMI.</p>
+<p>WALK1 and ACTIV1 both have negative coefficients and are highly significant. This makes intuitive sense: people who walk or cycle to work, and people who engage in intense physical activity, have lower probability of high BMI.</p>
+<p>AGE appears not to be significant in this simple linear form.</p>
+<p>Looking at the marital status variables - MARITAL 2 through 6 - none of them are statistically significant. This suggests we want to remove the MARITAL variable from the model to simplify it.</p>
+</div>
 <p>. . .</p>
 <div style="font-size: 50%;">
 <table class="caption-top table">
@@ -718,6 +862,16 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="model-results-with-age2" class="level2">
 <h2 class="anchored" data-anchor-id="model-results-with-age2">Model Results with <span class="math inline">\(AGE^2\)</span></h2>
+<div class="notes">
+<p>Perhaps AGE has a non-linear effect. Let’s try adding AGE squared to the model.</p>
+<p>In R, we write: glm of Y tilde AGE plus I of AGE squared</p>
+<p>Now look at what happens.</p>
+<p>Both AGE and AGE squared are now highly significant! The positive coefficient on AGE and negative coefficient on AGE squared suggests an inverted U-shape relationship: the probability of high BMI increases with age initially, then decreases at older ages.</p>
+<p>All our other key variables remain significant with similar interpretations.</p>
+<p>For someone for which WALK1 equals 0 and ACTIV1 equals 0 - so they don’t walk to work and don’t do intense sports - the probability that Y equals 1 given their age and blood pressure is: logit inverse of negative 3.95 plus 0.064 times AGE minus 0.00068 times AGE squared plus 0.0122 times DBP.</p>
+<p>Now, for someone for which WALK1 equals 0 and ACTIV1 equals 1 - they do engage in intense sports activity - we get the same formula but we subtract 0.657. That’s the coefficient of ACTIV1 in red. This person has a lower probability of high BMI, all else being equal, and we can quantify exactly how much lower.</p>
+<p>This demonstrates how we can use the fitted model to compute predicted probabilities for individuals with different covariate profiles.</p>
+</div>
 <p>. . .</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glm</span>(Y <span class="sc">~</span> AGE <span class="sc">+</span> <span class="fu">I</span>(AGE<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> DBP <span class="sc">+</span> SEXE <span class="sc">+</span> WALK <span class="sc">+</span> ACTIV, <span class="at">family=</span>binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Gives</p>
@@ -814,6 +968,11 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="odds" class="level2">
 <h2 class="anchored" data-anchor-id="odds">Odds</h2>
+<div class="notes">
+<p>Let’s look at how odds relate to probability. When we know the probability pp of an event, its odds are simply p/(1−p)p/(1−p). For example, if the probability of winning is 0.75, then the odds are 0.75/0.25=30.75/0.25=3. That means the event is three times as likely to happen than not to happen.</p>
+<p>​</p>
+<p>In betting, when you hear “odds 3 to 1,” it means for every 3 people who bet on event A, there’s 1 person betting against it. That also means, if you pick a random bettor, there’s a 3 out of 4 chance they chose A, giving you a probability p=3/4p=3/4 and for not-A, 1/41/4.</p>
+</div>
 <div class="square-def">
 <p><span class="math display">\[\text{odds} = \frac{p}{1-p}\]</span></p>
 </div>
@@ -824,6 +983,10 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="odds-given-xx" class="level2">
 <h2 class="anchored" data-anchor-id="odds-given-xx">Odds given <span class="math inline">\(X=x\)</span></h2>
+<div class="notes">
+<p>​</p>
+<p>Just like before, if we consider the probability of an event given some condition—say, the odds of Y=1Y=1 given X=xX=x—we use p(x)p(x) to denote the probability. The odds in this case are odds(x)=p(x)1−p(x)odds(x)=1−p(x)p(x), where p(x)=P(Y=1∣X=x)p(x)=P(Y=1∣X=x) If <span class="math inline">\(p\)</span> is the probability of an event <span class="math inline">\(A\)</span>, then its odds are:</p>
+</div>
 <p>. . .</p>
 <p>Similarly, the odds of obtaining <span class="math inline">\(Y = 1\)</span> given <span class="math inline">\(X = x\)</span> is:</p>
 <div class="square-def">
@@ -834,6 +997,14 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </section>
 <section id="odds-ratio" class="level2">
 <h2 class="anchored" data-anchor-id="odds-ratio">Odds Ratio</h2>
+<div class="notes">
+<p>Now let’s talk about the odds ratio, which compares odds between two different individuals or groups.</p>
+<p>If we have two people with characteristics x1x1 and x2x2, the odds ratio tells us how the odds compare between them. It’s calculated as OR(x1,x2)=odds(x1)odds(x2)OR(x1,x2)=odds(x2)odds(x1), which expands to that double fraction you see on the slide.</p>
+<p>Here’s something really important though: don’t confuse odds ratio with probability ratio. They’re not the same thing.</p>
+<p>The odds ratio is a ratio of odds, not probabilities. So if someone has odds of 3 and another person has odds of 1.5, the odds ratio is 2. But that doesn’t mean one person has twice the probability of the other.</p>
+<p>There’s only one exception to watch out for: when both probabilities are very small—say, less than 0.1. In that case, 1−p(x1)1−p(x1) is approximately 1, and 1−p(x2)1−p(x2) is also approximately 1. So the denominators basically cancel out, and the odds ratio becomes pretty close to the probability ratio. But this only works for rare events.</p>
+<p>Otherwise, always remember: odds ratios and probability ratios are different beasts, so don’t treat them the same way.</p>
+</div>
 <p>. . .</p>
 <p>If two individuals have characteristics <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> respectively, we call the odds ratio between <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>:</p>
 <p><span class="math display">\[OR(x_1, x_2) = \frac{\text{odds}(x_1)}{\text{odds}(x_2)} = \frac{\frac{p(x_1)}{1-p(x_1)}}{\frac{p(x_2)}{1-p(x_2)}}\]</span></p>
@@ -855,6 +1026,9 @@ Warning
 </section>
 <section id="link-with-proba.-ratio" class="level2">
 <h2 class="anchored" data-anchor-id="link-with-proba.-ratio">Link with Proba. Ratio</h2>
+<div class="notes">
+
+</div>
 <p>. . .</p>
 <p>However, it remains that:</p>
 <p><span class="math display">\[\begin{aligned}
