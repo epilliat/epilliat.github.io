@@ -19,20 +19,6 @@ css: "styles.css"
 
 ## Introduction
 
-
-::: {.notes}
-
-Thank you for having me here today.
-
-For context, much of this work was conducted during my postdoctoral position at ENS Lyon, where  was able to build upon my earlier PhD research in crowdsourcing.
-
-So, let's start with a scenario. Picture a group of workers, and each one is given binary classification tasks. 
-
-For each task, they need to make yes-or-no decisions.
-
-There are many situations where this happens. Think of image classification, text moderation, or sentiment analysis
-:::
-
 . . .
 
 [Workers]{style="background-color: yellow;"} are given [binary tasks]{style="background-color: yellow;"} to which they have to give a response: YES or NO
@@ -45,18 +31,6 @@ Examples
 
 ## Questions
 
-::: {.notes}
-
-Three natural questions emerge
-
-- what are the actual true labels?
-- Can we compare workers and identify who performs better or worse?
-- How well do workers perform on a given task?
-
-I will touch on all these issues during my talk, but my primary focus will be on the central question of recovering the true labels.
-
-
-:::
 . . .
 
 [3 questions]{style="background-color: yellow;"}
@@ -73,17 +47,6 @@ I will touch on all these issues during my talk, but my primary focus will be on
 ## This Talk
 
 
-::: {.notes}
-
-I will break down my presentation in 3 parts. 
-
-I'll start by introducing isotonic model.
-
-Next, I'll review two existing methods. 
-
-In the final part, I'll go over an optimal and computationnally feasible method for this problem.
-
-:::
 
 1. Introducing the non-parametric [isotonic model]{style="background-color: yellow;"} and main result
 2. Presenting two already [existing algorithms]{style="background-color: yellow;"}
@@ -143,54 +106,8 @@ $$
 :::
 - Rate of observations: $\color{red}{\lambda= 0.72}$
 
-<!--
 ## Observation Model
 
-
-::: {.notes}
-
-Given a worker $i$ and a task $k$, we observe the response $Y_{ik}$, and we assume this observation model:
-
-- $x^*_k$ is the unknown label of task $k$
-- $M_{ik} \in [0,1]$ represents the unknown ability of worker $i$ on task $k$. If $M_{ik}=1$, it means that worker $i$ is very good at task $k$.
-- $E_{ik}$ are independent subgaussian noise
-- $B_{ik}$ is a $0$-$1$ coefficient that indicates whether worker $i$ considers task $k$ or not
-
-:::
-
-. . .
-
-Given workers $i\in\{1, \dots, n\}$ and tasks $k\in\{1, \dots, d\}$
-
-. . .
-
-We observe $Y_{ik} \in \{-1,0,1\}$
-  
-::: {.square-def}
-$$
-Y_{ik} = B_{ik}(M_{ik}x_k^* + E_{ik}) \enspace 
-$$
-:::
-
-1. $x_k^*\in \{-1,1\}$ [true response]{style="background-color: yellow;"} of task $k$ 
-2. $M_{ik} \in [0,1]$ represents the **unknown** [ability of worker $i$ to task $k$]{style="background-color: yellow;"}
-3. $E_{ik}$ are independent and [$1$-subGaussian noise]{style="background-color: yellow;"}
-4. $B_{ik}$ are iid Bernoulli $\lambda \in [0,1]$. [$=1$ if $(i,k)$ is observed]{style="background-color: yellow;"}
-
--->
-
-## Observation Model
-
-::: {.notes}
-
-We assume that the matrix of responses follows this model.
-
-- $x^*$ is the vector of **unknown** labels
-- $E$ is a matrix of independent sub-gaussian **noise**
-- $M \in [0,1]^{n \times d}$ is the **unknown ability** matrix. If $M_{ik}=1$, it means that worker $i$ is very good at question $k$, and $M_{ik}=0$ means that they answer randomly. 
-- This odot is a Hadamard Product so you can think of $B$ as a Bernoulli mask matrix.
-
-:::
 . . .
 
 We observe
@@ -248,15 +165,6 @@ $$
 
 ## Shape Constraints
 
-::: {.notes}
-Until now, I have'nt assumed anything on the ability matrix $M$ except that it has coef. in $[0,1]$.
-
-From now on, we also assume that $M$ is isotonic up to a permutation $\pi^*$ of its rows, that is, 
-
-it has increasing columns, up to an unknown permutation $\pi^*$
-
-It means that, on average, a worker $i$ is either uniformly better or uniformly worse than another worker $j$ 
-:::
 
 - $M \in [0,1]^{n \times d}$ represents the **ability** matrix of worker/task pairs
 - We assume that [$M$ is isotonic up to a permutation $\pi^*$]{style="background-color: yellow;"} , that is
@@ -596,15 +504,6 @@ In this work, we address the problem of recovering the labels in polynomial time
 
 ## Main Results
 
-::: {.notes}
-The main result I want to present, is that there is no computational-statistical gap here.
-
-There is a polynomial-time methods which nearly achieves the minimax risk for recovering the labels.
-
-
-Moreover, the minimax risk is of order $d/\lambda$
-:::
-
 
 :::{.callout-note style="font-size=120%" .fragment}
 ## Theorem
@@ -630,9 +529,7 @@ $$
 :::
 
 # Already Existing Methods
-::: {.notes}
-Let me now shortly present two existing methods
-:::
+
 
 
 ## Majority Voting
@@ -751,12 +648,8 @@ $$\mathbb E\|M\mathrm{diag}(\hat x^{\text{Obi-Wan}} \neq x^*)\|_F^2 \lesssim \fr
 
 # Iterative Spectral Voting
 
-::: {.notes}
-To achieve the $d/\lambda$ rate in the isotonic model, let me now introduce iterative spectral voting
 
-The core of the approach consists in iterating two steps: PCA and weighted voting.
 
-:::
 <!-- 
 ## Subsampling
 
@@ -799,9 +692,8 @@ $$\|MM^T\|_{\mathrm{op}} \gtrsim \|M\|_F^2$$
 
 ## Voting Step
 
-::: {.notes}
-Without going into too much details, the idea is then to do define weights and perform weighted votes.
-:::
+
+
 
 . . .
 
@@ -821,11 +713,7 @@ $$\hat x_k^{(1)} = \mathrm{sign}(\hat w_k)\mathbf{1}\bigg\{|\hat w_k| \gg \sqrt{
 
 ## Iterate these two Steps
 
-::: {.notes}
-We then iterate these PCA and voting steps on labels that are left uncertain,
 
-until we get a final estimator.
-:::
 
 . . .
 
@@ -922,17 +810,7 @@ This leads to [exponential decay of $\|M(t)\|_F^2$]{style="background-color: yel
 
 ## Ranking and Estimating Abilities
 
-::: {.notes}
-This approach allows us to recover some of the true labels.
 
-Then, we can do ranking and ability estimation!
-
-To do that, we first restrict matrix of responses $Y$ to the labels for which we have a good guess
-
-Then, we use previous work in the litterature to estimate $\pi^*$ and $M$
-
-
-:::
 
 1. Use ISV to [recover some labels $\hat x$]{style="background-color: yellow;"}
 2. [Restrict]{style="background-color: yellow;"} to columns $k$ such that $\hat x_k \in \{-1, 1\}$
@@ -940,15 +818,6 @@ Then, we use previous work in the litterature to estimate $\pi^*$ and $M$
 
 ## Conclusion
 
-::: {.notes}
-
-Let me wrap up my talk in three key points.
-
-- First, there are three interconnected problems in crowdsourcing: recovering labels, ranking workers and estimating their abilities.
-- Second, we use the isotonic model because it's very flexible for tackling these problems.
-- Most importantly, there is no computational statistical gap.
-
-:::
 
 1. [Three connected problems]{style="background-color: yellow;"}: recovering labels, ranking workers and estimating their abilities
 2. [Non parametric isotonic model]{style="background-color: yellow;"} very flexible in crowdsourcing problems

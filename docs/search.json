@@ -25,21 +25,21 @@
     "href": "research/presentations/crowdsourcing/presentation.html#introduction",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Introduction",
-    "text": "Introduction\n\nThank you for having me here today.\nFor context, much of this work was conducted during my postdoctoral position at ENS Lyon, where was able to build upon my earlier PhD research in crowdsourcing.\nSo, let’s start with a scenario. Picture a group of workers, and each one is given binary classification tasks.\nFor each task, they need to make yes-or-no decisions.\nThere are many situations where this happens. Think of image classification, text moderation, or sentiment analysis\n\n\nWorkers are given binary tasks to which they have to give a response: YES or NO\nExamples\n\nImage Classification: “Does this image contain a dog?”\nText Moderation: “Is this comment toxic or offensive?”\nSentiment Analysis: “Does this review express positive sentiment?”"
+    "text": "Introduction\n\nWorkers are given binary tasks to which they have to give a response: YES or NO\nExamples\n\nImage Classification: “Does this image contain a dog?”\nText Moderation: “Is this comment toxic or offensive?”\nSentiment Analysis: “Does this review express positive sentiment?”"
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#questions",
     "href": "research/presentations/crowdsourcing/presentation.html#questions",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Questions",
-    "text": "Questions\n\nThree natural questions emerge\n\nwhat are the actual true labels?\nCan we compare workers and identify who performs better or worse?\nHow well do workers perform on a given task?\n\nI will touch on all these issues during my talk, but my primary focus will be on the central question of recovering the true labels.\n\n\n3 questions\n\nrecover the true label?\nrank the workers?\nestimate their abilities?\n\n\n\nMain Quetion: How can we accurately recover the labels?"
+    "text": "Questions\n\n3 questions\n\nrecover the true label?\nrank the workers?\nestimate their abilities?\n\n\n\nMain Quetion: How can we accurately recover the labels?"
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#this-talk",
     "href": "research/presentations/crowdsourcing/presentation.html#this-talk",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "This Talk",
-    "text": "This Talk\n\nI will break down my presentation in 3 parts.\nI’ll start by introducing isotonic model.\nNext, I’ll review two existing methods.\nIn the final part, I’ll go over an optimal and computationnally feasible method for this problem.\n\n\nIntroducing the non-parametric isotonic model and main result\nPresenting two already existing algorithms\nIterative Spectral Voting (ISV) algo and key insights"
+    "text": "This Talk\n\nIntroducing the non-parametric isotonic model and main result\nPresenting two already existing algorithms\nIterative Spectral Voting (ISV) algo and key insights"
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#illustration",
@@ -53,14 +53,14 @@
     "href": "research/presentations/crowdsourcing/presentation.html#observation-model",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Observation Model",
-    "text": "Observation Model\n\nWe assume that the matrix of responses follows this model.\n\n\\(x^*\\) is the vector of unknown labels\n\\(E\\) is a matrix of independent sub-gaussian noise\n\\(M \\in [0,1]^{n \\times d}\\) is the unknown ability matrix. If \\(M_{ik}=1\\), it means that worker \\(i\\) is very good at question \\(k\\), and \\(M_{ik}=0\\) means that they answer randomly.\nThis odot is a Hadamard Product so you can think of \\(B\\) as a Bernoulli mask matrix.\n\n\n\nWe observe\n\n\\[Y = B\\odot(M\\mathrm{diag}(x^*) + E) \\in \\mathbb R^{n \\times d}\\]\n\nwhere \\(\\odot\\) is the Hadamard product.\n\n\\(x^*\\in \\{-1, 1\\}^d\\) is the vector of unknown labels\n\\(E\\) is a matrix of independent sub-gaussian noise\n\\(M \\in [0,1]^{n \\times d}\\) is the unknown ability matrix.\n\\(B\\) is a Bernoulli \\(\\mathcal B(\\lambda)\\) “mask” matrix, modelling partial observations"
+    "text": "Observation Model\n\nWe observe\n\n\\[Y = B\\odot(M\\mathrm{diag}(x^*) + E) \\in \\mathbb R^{n \\times d}\\]\n\nwhere \\(\\odot\\) is the Hadamard product.\n\n\\(x^*\\in \\{-1, 1\\}^d\\) is the vector of unknown labels\n\\(E\\) is a matrix of independent sub-gaussian noise\n\\(M \\in [0,1]^{n \\times d}\\) is the unknown ability matrix.\n\\(B\\) is a Bernoulli \\(\\mathcal B(\\lambda)\\) “mask” matrix, modelling partial observations"
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#shape-constraints",
     "href": "research/presentations/crowdsourcing/presentation.html#shape-constraints",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Shape Constraints",
-    "text": "Shape Constraints\n\nUntil now, I have’nt assumed anything on the ability matrix \\(M\\) except that it has coef. in \\([0,1]\\).\nFrom now on, we also assume that \\(M\\) is isotonic up to a permutation \\(\\pi^*\\) of its rows, that is,\nit has increasing columns, up to an unknown permutation \\(\\pi^*\\)\nIt means that, on average, a worker \\(i\\) is either uniformly better or uniformly worse than another worker \\(j\\)\n\n\n\\(M \\in [0,1]^{n \\times d}\\) represents the ability matrix of worker/task pairs\nWe assume that \\(M\\) is isotonic up to a permutation \\(\\pi^*\\) , that is\n\n\n\n\\[\nM_{\\pi^*}=\\left(\\begin{array}{ccccccccc}\n\\color{#000099}{0.9} & \\color{#000099}{0.8} & \\color{#000099}{0.9} & \\color{#000099}{1\\phantom{.0}} \\\\\n\\color{#4B0082}{0.8} & \\color{#4B0082}{0.7} & \\color{#4B0082}{0.9} & \\color{#4B0082}{0.8} \\\\\n\\color{#990066}{0.6} & \\color{#990066}{0.7} & \\color{#990066}{0.7} & \\color{#990066}{0.6} \\\\\n\\color{#CC0000}{0.5} & \\color{#CC0000}{0.7} & \\color{#CC0000}{0.5} & \\color{#CC0000}{0.6}\n\\end{array}\\right)\n\\]\n\n\n\\[\nM_{\\phantom{{\\pi^*}}}=\\left(\\begin{array}{ccccccccc}\n\\color{#990066}{0.6} & \\color{#990066}{0.7} & \\color{#990066}{0.7} & \\color{#990066}{0.6} \\\\\n\\color{#CC0000}{0.5} & \\color{#CC0000}{0.7} & \\color{#CC0000}{0.5} & \\color{#CC0000}{0.6} \\\\\n\\color{#000099}{0.9} & \\color{#000099}{0.8} & \\color{#000099}{0.9} & \\color{#000099}{1\\phantom{.0}} \\\\\n\\color{#4B0082}{0.8} & \\color{#4B0082}{0.7} & \\color{#4B0082}{0.9} & \\color{#4B0082}{0.8}\n\\end{array}\\right)\n\\]"
+    "text": "Shape Constraints\n\n\\(M \\in [0,1]^{n \\times d}\\) represents the ability matrix of worker/task pairs\nWe assume that \\(M\\) is isotonic up to a permutation \\(\\pi^*\\) , that is\n\n\n\n\\[\nM_{\\pi^*}=\\left(\\begin{array}{ccccccccc}\n\\color{#000099}{0.9} & \\color{#000099}{0.8} & \\color{#000099}{0.9} & \\color{#000099}{1\\phantom{.0}} \\\\\n\\color{#4B0082}{0.8} & \\color{#4B0082}{0.7} & \\color{#4B0082}{0.9} & \\color{#4B0082}{0.8} \\\\\n\\color{#990066}{0.6} & \\color{#990066}{0.7} & \\color{#990066}{0.7} & \\color{#990066}{0.6} \\\\\n\\color{#CC0000}{0.5} & \\color{#CC0000}{0.7} & \\color{#CC0000}{0.5} & \\color{#CC0000}{0.6}\n\\end{array}\\right)\n\\]\n\n\n\\[\nM_{\\phantom{{\\pi^*}}}=\\left(\\begin{array}{ccccccccc}\n\\color{#990066}{0.6} & \\color{#990066}{0.7} & \\color{#990066}{0.7} & \\color{#990066}{0.6} \\\\\n\\color{#CC0000}{0.5} & \\color{#CC0000}{0.7} & \\color{#CC0000}{0.5} & \\color{#CC0000}{0.6} \\\\\n\\color{#000099}{0.9} & \\color{#000099}{0.8} & \\color{#000099}{0.9} & \\color{#000099}{1\\phantom{.0}} \\\\\n\\color{#4B0082}{0.8} & \\color{#4B0082}{0.7} & \\color{#4B0082}{0.9} & \\color{#4B0082}{0.8}\n\\end{array}\\right)\n\\]"
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#square-norm-loss-vs-hamming-loss",
@@ -95,7 +95,7 @@
     "href": "research/presentations/crowdsourcing/presentation.html#main-results",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Main Results",
-    "text": "Main Results\n\nThe main result I want to present, is that there is no computational-statistical gap here.\nThere is a polynomial-time methods which nearly achieves the minimax risk for recovering the labels.\nMoreover, the minimax risk is of order \\(d/\\lambda\\)\n\n\n\n\n\nTheorem\n\n\nIf \\(\\tfrac{1}{\\lambda} \\leq n \\leq d\\), there exists a poly. time method \\(\\hat x\\) achieving \\(\\mathcal R^*_{\\mathrm{reco}}\\) up to polylog factors, i.e. for all \\(M\\in[0,1]^{n\\times d}\\), \\(\\pi^*\\) and \\(x^* \\in \\{-1,1\\}^d\\), \\[\n\\max_{M,\\pi^*, x^*}{\\mathbb E}[\\|M \\mathrm{diag}(x^* \\neq \\hat x)\\|_F^2] \\lesssim \\mathcal R^*_{\\mathrm{reco}}(n,d,\\lambda) \\enspace .\n\\]\n\nMoreover, up to polylogs,\n\n\\[\n\\mathcal R^*_{\\mathrm{reco}}(n,d,\\lambda) \\asymp \\frac{d}{\\lambda} \\enspace .\n\\]"
+    "text": "Main Results\n\n\n\n\nTheorem\n\n\nIf \\(\\tfrac{1}{\\lambda} \\leq n \\leq d\\), there exists a poly. time method \\(\\hat x\\) achieving \\(\\mathcal R^*_{\\mathrm{reco}}\\) up to polylog factors, i.e. for all \\(M\\in[0,1]^{n\\times d}\\), \\(\\pi^*\\) and \\(x^* \\in \\{-1,1\\}^d\\), \\[\n\\max_{M,\\pi^*, x^*}{\\mathbb E}[\\|M \\mathrm{diag}(x^* \\neq \\hat x)\\|_F^2] \\lesssim \\mathcal R^*_{\\mathrm{reco}}(n,d,\\lambda) \\enspace .\n\\]\n\nMoreover, up to polylogs,\n\n\\[\n\\mathcal R^*_{\\mathrm{reco}}(n,d,\\lambda) \\asymp \\frac{d}{\\lambda} \\enspace .\n\\]"
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#majority-voting",
@@ -130,28 +130,28 @@
     "href": "research/presentations/crowdsourcing/presentation.html#voting-step",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Voting Step",
-    "text": "Voting Step\n\nWithout going into too much details, the idea is then to do define weights and perform weighted votes.\n\n\nDefine the weighted vote vector (on second sample)\n\n\\[\\hat w = \\hat v^T Y\\]\n\n\n\nDefine the estimated label as\n\n\\[\\hat x_k^{(1)} = \\mathrm{sign}(\\hat w_k)\\mathbf{1}\\bigg\\{|\\hat w_k| \\gg \\sqrt{\\sum_{i=1}^n \\hat v_i B_{ik}}\\bigg\\}\\]"
+    "text": "Voting Step\n\nDefine the weighted vote vector (on second sample)\n\n\\[\\hat w = \\hat v^T Y\\]\n\n\n\nDefine the estimated label as\n\n\\[\\hat x_k^{(1)} = \\mathrm{sign}(\\hat w_k)\\mathbf{1}\\bigg\\{|\\hat w_k| \\gg \\sqrt{\\sum_{i=1}^n \\hat v_i B_{ik}}\\bigg\\}\\]"
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#iterate-these-two-steps",
     "href": "research/presentations/crowdsourcing/presentation.html#iterate-these-two-steps",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Iterate these two Steps",
-    "text": "Iterate these two Steps\n\nWe then iterate these PCA and voting steps on labels that are left uncertain,\nuntil we get a final estimator.\n\n\nKeep certain labels: if \\(\\hat x^{(t)}_k\\neq 0\\), set \\(\\hat x^{(t+1)}_k= \\hat x^{(t)}_k\\).\n\n\nRestrict columns \\(k\\) of \\(Y\\) to uncertain labels \\(\\hat x^{(t)}_k=0\\)\n\n\nRepeat PCA Step + Voting Step on \\(Y \\mathrm{diag}(\\hat x^{(t)} \\neq 0)\\) a polylogarithmic number of times.\n\n\nOutput last estimator \\(\\hat x^{(T)}\\)\n\\(\\newcommand{\\and}{\\quad \\mathrm{and} \\quad}\\)"
+    "text": "Iterate these two Steps\n\nKeep certain labels: if \\(\\hat x^{(t)}_k\\neq 0\\), set \\(\\hat x^{(t+1)}_k= \\hat x^{(t)}_k\\).\n\n\nRestrict columns \\(k\\) of \\(Y\\) to uncertain labels \\(\\hat x^{(t)}_k=0\\)\n\n\nRepeat PCA Step + Voting Step on \\(Y \\mathrm{diag}(\\hat x^{(t)} \\neq 0)\\) a polylogarithmic number of times.\n\n\nOutput last estimator \\(\\hat x^{(T)}\\)\n\\(\\newcommand{\\and}{\\quad \\mathrm{and} \\quad}\\)"
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#ranking-and-estimating-abilities",
     "href": "research/presentations/crowdsourcing/presentation.html#ranking-and-estimating-abilities",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Ranking and Estimating Abilities",
-    "text": "Ranking and Estimating Abilities\n\nThis approach allows us to recover some of the true labels.\nThen, we can do ranking and ability estimation!\nTo do that, we first restrict matrix of responses \\(Y\\) to the labels for which we have a good guess\nThen, we use previous work in the litterature to estimate \\(\\pi^*\\) and \\(M\\)\n\n\nUse ISV to recover some labels \\(\\hat x\\)\nRestrict to columns \\(k\\) such that \\(\\hat x_k \\in \\{-1, 1\\}\\)\nUse methods from Pilliat et al. (2024) to estimate \\(\\pi^*\\) and \\(M\\)"
+    "text": "Ranking and Estimating Abilities\n\nUse ISV to recover some labels \\(\\hat x\\)\nRestrict to columns \\(k\\) such that \\(\\hat x_k \\in \\{-1, 1\\}\\)\nUse methods from Pilliat et al. (2024) to estimate \\(\\pi^*\\) and \\(M\\)"
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation.html#conclusion",
     "href": "research/presentations/crowdsourcing/presentation.html#conclusion",
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Conclusion",
-    "text": "Conclusion\n\nLet me wrap up my talk in three key points.\n\nFirst, there are three interconnected problems in crowdsourcing: recovering labels, ranking workers and estimating their abilities.\nSecond, we use the isotonic model because it’s very flexible for tackling these problems.\nMost importantly, there is no computational statistical gap.\n\n\n\nThree connected problems: recovering labels, ranking workers and estimating their abilities\nNon parametric isotonic model very flexible in crowdsourcing problems\nNo computational-statistical gap recovering labels, ranking or estimating ability"
+    "text": "Conclusion\n\nThree connected problems: recovering labels, ranking workers and estimating their abilities\nNon parametric isotonic model very flexible in crowdsourcing problems\nNo computational-statistical gap recovering labels, ranking or estimating ability"
   },
   {
     "objectID": "teaching.html",
@@ -1473,7 +1473,7 @@
     "href": "teaching/glm/slides/counting_models.html#model-assumption",
     "title": "Counting Models",
     "section": "Model Assumption",
-    "text": "Model Assumption\n\nWe assume that\n\n\\[Y_i|X_i=x_i \\sim P(\\lambda_\\beta(x_i))\\quad \\text{with} \\quad \\lambda_\\beta(x) = \\exp(x^T \\beta)\\]\n\nwith \\(\\lambda_\\beta(x) = \\exp(x^T \\beta)\\).\n\n\nIn particular, \\(\\mathbb E[Y_i|X_i=x_i] = \\lambda_\\beta(x)\\)\n\n\n\n\n\nWarning\n\n\n\\(Y|X\\) follows a Poisson distribution but not \\(Y\\)!\n(We can only say that it is a mixture of Poisson)"
+    "text": "Model Assumption\n\nWe assume that\n\n\\[Y_i|X_i=x_i \\sim P(\\lambda_\\beta(x_i))\\quad \\text{with} \\quad \\lambda_\\beta(x) = \\exp(x^T \\beta)\\]\n\nwith \\(\\lambda_\\beta(x) = \\exp(x^T \\beta)\\).\n\n\nIn particular, \\(\\mathbb E[Y_i|X_i=x_i] = \\lambda_\\beta(x)\\)\n\n\n\n\n\nWarning\n\n\n\\(Y|X\\) follows a Poisson distribution but not \\(Y\\) if \\(X\\) is random!\n(We can only say that it is a mixture of Poisson)"
   },
   {
     "objectID": "teaching/glm/slides/counting_models.html#illustration",
@@ -1564,7 +1564,7 @@
     "href": "teaching/glm/slides/counting_models.html#alternative-graphical-validation",
     "title": "Counting Models",
     "section": "Alternative Graphical Validation",
-    "text": "Alternative Graphical Validation\n\nIdea: empirical distribution of \\(Y\\) VS its predicted distribution.\n\n\nThe empirical distribution of \\(Y\\) is simply given by\n\n\\(p_k = \\frac{1}{n}\\sum_{i=1}^n \\mathbf{1}_{y_i = k}, \\quad k \\in \\mathbb{N}\\)\n\n\n\nWhile its predicted distribution is given by\n\n\\(\\hat{p}_k = \\frac{1}{n}\\sum_{i=1}^n \\hat{P}(Y = k|X = x_i), \\quad k \\in \\mathbb{N}\\)\n\n\n\nwhere \\(\\hat{P}(Y = k|X = x_i)\\) is the poisson distribution \\(\\mathcal P(\\lambda_{\\hat{\\beta}}(x_i))\\), i.e., \\(\\hat{P}(Y = k|X = x_i) = \\frac{\\lambda_{\\hat{\\beta}}(x_i)^k e^{-\\lambda_{\\hat{\\beta}}(x_i)}}{k!}\\)\nwith \\(\\lambda_{\\hat{\\beta}}(x_i) = \\exp(x_i^T \\hat{\\beta})\\)."
+    "text": "Alternative Graphical Validation\n\nIdea: empirical distribution of \\(Y\\) VS its predicted distribution.\n\n\nThe empirical distribution of \\(Y\\) is simply given by\n\n\\(p_k = \\frac{1}{n}\\sum_{i=1}^n \\mathbf{1}_{y_i = k}, \\quad k \\in \\mathbb{N}\\)\n\n\n\nWhile its predicted distribution is given by\n\n\\(\\hat{p}_k = \\frac{1}{n}\\sum_{i=1}^n \\hat{P}(Y = k|X = x_i), \\quad k \\in \\mathbb{N}\\)\n\n\n\nwhere \\(\\hat{P}(Y = k|X = x_i)\\) is the poisson distribution \\(\\mathcal P(\\lambda_{\\hat{\\beta}}(x_i))\\), i.e., \\(\\hat{P}(Y = k|X = x_i) = \\frac{\\lambda_{\\hat{\\beta}}(x_i)^k e^{-\\lambda_{\\hat{\\beta}}(x_i)}}{k!}\\)"
   },
   {
     "objectID": "teaching/glm/slides/counting_models.html#example-number-of-plant-species",
@@ -2023,70 +2023,70 @@
     "href": "teaching/glm/slides/logistic_model.html#context",
     "title": "The Logistic Model",
     "section": "Context",
-    "text": "Context\n\\(Y\\) is a binary variable \\(Y_k \\in \\{0,1\\}\\)\n. . .\n\\(X = (X^{(1)}, \\ldots, X^{(p)})\\) are \\(p\\) regressors\n. . .\n\\(Y|X = x\\) follows a Bernoulli distribution with parameter \\(p(x) = P(Y = 1|X = x)\\). Model:\n. . .\n\n\\[p(x) = g^{-1}(x^T\\beta)\\]\n\nwhere \\(g^{-1}\\) is a strictly increasing function with values in \\([0, 1]\\)\n. . .\nApproach: We begin by discussing the choice of \\(g^{-1}\\) (or \\(g\\))"
+    "text": "Context\n\\(Y\\) is a binary variable \\(Y_k \\in \\{0,1\\}\\)\n\n\\(X = (X^{(1)}, \\ldots, X^{(p)})\\) are \\(p\\) regressors\n\n\n\\(Y|X = x\\) follows a Bernoulli distribution with parameter \\(p(x) = P(Y = 1|X = x)\\). Model:\n\n\n\n\\[p(x) = g^{-1}(x^T\\beta)\\]\n\nwhere \\(g^{-1}\\) is a strictly increasing function with values in \\([0, 1]\\)\n\n\nApproach: We begin by discussing the choice of \\(g^{-1}\\) (or \\(g\\))"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-coronary-heart-disease",
     "href": "teaching/glm/slides/logistic_model.html#example-coronary-heart-disease",
     "title": "The Logistic Model",
     "section": "Example: Coronary Heart Disease",
-    "text": "Example: Coronary Heart Disease\n. . .\nData Description: Presence of chd as a function of age \\(Y = \\text{chd} \\in \\{0,1\\}\\), \\(X = \\text{age}\\)\n. . .\nWe want to estimate \\(p(x) = \\E(Y|X = x) = \\P(\\text{chd} = 1|X = x)\\) for all \\(x\\)"
+    "text": "Example: Coronary Heart Disease\n\nData Description: Presence of chd as a function of age \\(Y = \\text{chd} \\in \\{0,1\\}\\), \\(X = \\text{age}\\)\n\n\nWe want to estimate \\(p(x) = \\E(Y|X = x) = \\P(\\text{chd} = 1|X = x)\\) for all \\(x\\)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-simple-idea",
     "href": "teaching/glm/slides/logistic_model.html#example-simple-idea",
     "title": "The Logistic Model",
     "section": "Example: Simple Idea",
-    "text": "Example: Simple Idea\n\nGroup the \\(x\\) values by age class\nCalculate the proportion of \\(chd = 1\\) in the class containing \\(x\\)\n\n. . ."
+    "text": "Example: Simple Idea\n\nGroup the \\(x\\) values by age class\nCalculate the proportion of \\(chd = 1\\) in the class containing \\(x\\)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-glm-approach",
     "href": "teaching/glm/slides/logistic_model.html#example-glm-approach",
     "title": "The Logistic Model",
     "section": "Example: GLM Approach",
-    "text": "Example: GLM Approach\n. . .\nObjective: We want to model \\(p(x) = P(\\text{chd} = 1|X = x)\\) by: \\[p(x) = g^{-1}(\\beta_0 + \\beta_1 x)\\]\n. . .\nConstraint: We need \\(g^{-1}\\) to have values in \\([0, 1]\\)"
+    "text": "Example: GLM Approach\n\nObjective: We want to model \\(p(x) = P(\\text{chd} = 1|X = x)\\) by: \\[p(x) = g^{-1}(\\beta_0 + \\beta_1 x)\\]\n\n\nConstraint: We need \\(g^{-1}\\) to have values in \\([0, 1]\\)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-the-logit-model",
     "href": "teaching/glm/slides/logistic_model.html#example-the-logit-model",
     "title": "The Logistic Model",
     "section": "Example: The Logit Model",
-    "text": "Example: The Logit Model\n. . .\n\n\n\\[g^{-1}(t) = \\frac{e^t}{1 + e^t} \\quad \\text{i.e.} \\quad g(t) = \\ln\\left(\\frac{t}{1-t}\\right) = \\text{logit}(t)\\]\n\n\n. . .\n\n\n\n\n\n\n\n\nResults of \\(g^{-1}(\\hat \\beta_0 + \\hat \\beta_1 x)\\) obtained by MLE"
+    "text": "Example: The Logit Model\n\n\n\n\\[g^{-1}(t) = \\frac{e^t}{1 + e^t} \\quad \\text{i.e.} \\quad g(t) = \\ln\\left(\\frac{t}{1-t}\\right) = \\text{logit}(t)\\]\n\n\n\n\n\n\n\n\n\n\n\n\nResults of \\(g^{-1}(\\hat \\beta_0 + \\hat \\beta_1 x)\\) obtained by MLE"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-the-probit-model",
     "href": "teaching/glm/slides/logistic_model.html#example-the-probit-model",
     "title": "The Logistic Model",
     "section": "Example: The Probit Model",
-    "text": "Example: The Probit Model\n. . .\nIf \\(\\Phi\\) is the CDF of a \\(\\mathcal{N}(0, 1)\\) distribution, we take \\(g^{-1}(t) = \\Phi(t)\\)\n\n\n\n\n\n\n\n\nResults of \\(g^{-1}(\\hat \\beta_0 + \\hat \\beta_1 x)\\) obtained by MLE"
+    "text": "Example: The Probit Model\n\nIf \\(\\Phi\\) is the CDF of a \\(\\mathcal{N}(0, 1)\\) distribution, we take \\(g^{-1}(t) = \\Phi(t)\\)\n\n\n\n\n\n\n\n\nResults of \\(g^{-1}(\\hat \\beta_0 + \\hat \\beta_1 x)\\) obtained by MLE"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-model-cloglog",
     "href": "teaching/glm/slides/logistic_model.html#example-model-cloglog",
     "title": "The Logistic Model",
     "section": "Example: Model cloglog",
-    "text": "Example: Model cloglog\n. . .\n\n\\[g^{-1}(t) = 1 - e^{-e^t}\\]\n\n. . .\n\n\n\n\n\n\n\n\nResults of \\(g^{-1}(\\hat \\beta_0 + \\hat \\beta_1 x)\\) obtained by MLE"
+    "text": "Example: Model cloglog\n\n\n\\[g^{-1}(t) = 1 - e^{-e^t}\\]\n\n\n\n\n\n\n\n\n\n\n\nResults of \\(g^{-1}(\\hat \\beta_0 + \\hat \\beta_1 x)\\) obtained by MLE"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-comparison-of-the-three-models",
     "href": "teaching/glm/slides/logistic_model.html#example-comparison-of-the-three-models",
     "title": "The Logistic Model",
     "section": "Example: Comparison of the Three Models",
-    "text": "Example: Comparison of the Three Models\n. . .\nlogit and probit give approximately the same result cloglog differs slightly and is not “symmetric”"
+    "text": "Example: Comparison of the Three Models\n\nlogit and probit give approximately the same result cloglog differs slightly and is not “symmetric”"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#which-link-function-to-choose-for-binary-case",
     "href": "teaching/glm/slides/logistic_model.html#which-link-function-to-choose-for-binary-case",
     "title": "The Logistic Model",
     "section": "Which Link Function to Choose for Binary Case?",
-    "text": "Which Link Function to Choose for Binary Case?\n. . .\nQuestion: Which link function to choose in practice when \\(Y\\) is binary?\n. . .\nDefault choice: By default, we favor the logit model\n. . .\nExceptions: Unless there is a good reason to choose something else (probit model, complementary log-log, or log-log)\n. . .\nNext steps: We return to the 3 usual choices to justify this preference"
+    "text": "Which Link Function to Choose for Binary Case?\n\nQuestion: Which link function to choose in practice when \\(Y\\) is binary?\n\n\nDefault choice: By default, we favor the logit model\n\n\nExceptions: Unless there is a good reason to choose something else (probit model, complementary log-log, or log-log)\n\n\nNext steps: We return to the 3 usual choices to justify this preference"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#details-on-the-probit-model",
     "href": "teaching/glm/slides/logistic_model.html#details-on-the-probit-model",
     "title": "The Logistic Model",
     "section": "Details on the Probit Model",
-    "text": "Details on the Probit Model\n. . .\nThe probit model is justified when the binary variable \\(Y|X = x\\) comes from thresholding a Gaussian latent variable \\(Z(x)\\):\n\n\\[(Y|X = x) = \\mathbf{1}_{Z(x) \\geq \\tau}\\]\n\nwhere \\(Z(x) \\sim \\mathcal{N}(x^T\\beta, \\sigma^2)\\)\n. . .\nIf \\(\\Phi\\) is the CDF of a \\(\\mathcal N(0,1)\\) \\[P(Y = 1|X = x) = P(Z(x) \\geq \\tau) = \\Phi\\left(\\frac{x^T\\beta - \\tau}{\\sigma}\\right)\\]"
+    "text": "Details on the Probit Model\n\nThe probit model is justified when the binary variable \\(Y|X = x\\) comes from thresholding a Gaussian latent variable \\(Z(x)\\):\n\n\\[(Y|X = x) = \\mathbf{1}_{Z(x) \\geq \\tau}\\]\n\nwhere \\(Z(x) \\sim \\mathcal{N}(x^T\\beta, \\sigma^2)\\)\n\n\nIf \\(\\Phi\\) is the CDF of a \\(\\mathcal N(0,1)\\) \\[P(Y = 1|X = x) = P(Z(x) \\geq \\tau) = \\Phi\\left(\\frac{x^T\\beta - \\tau}{\\sigma}\\right)\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#examples-in-probit-model",
@@ -2100,14 +2100,14 @@
     "href": "teaching/glm/slides/logistic_model.html#probit-vs-logit-current-trends",
     "title": "The Logistic Model",
     "section": "Probit vs Logit: Current Trends",
-    "text": "Probit vs Logit: Current Trends\n. . .\nEconometricians: The probit model remains relatively popular among econometricians…\n. . .\nGeneral trend: but it tends to be replaced by the logistic model\n. . .\nAdvantages of logit: The logit model has many advantages that probit does not have:\n\nInterpretation of results\nExplicit formulas\n\n. . .\nTheoretical justification: CDF of probit close to CDF of logit"
+    "text": "Probit vs Logit: Current Trends\n\nEconometricians: The probit model remains relatively popular among econometricians…\n\n\nGeneral trend: but it tends to be replaced by the logistic model\n\n\nAdvantages of logit: The logit model has many advantages that probit does not have:\n\nInterpretation of results\nExplicit formulas\n\n\n\nTheoretical justification: CDF of probit close to CDF of logit"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#remarks-on-cloglog-model",
     "href": "teaching/glm/slides/logistic_model.html#remarks-on-cloglog-model",
     "title": "The Logistic Model",
     "section": "Remarks on cloglog Model",
-    "text": "Remarks on cloglog Model\n. . .\nThe modeling approach is \\(p(x) = g^{-1}(x^T\\beta)\\) with\n\n\\[g(t) = \\ln(-\\ln(1-t)) \\quad \\text{i.e.} \\quad g^{-1}(t) = 1 - e^{-e^t}\\]\n\n. . .\nNot symmetric in the sense that \\(g(t) \\neq -g(1-t)\\).\n\\(p(x)\\) approaches \\(0\\) slowly but \\(1\\) very rapidly\n. . .\nIf the opposite is true: take \\(g(t) = -\\ln(-\\ln(t))\\) (loglog model)\n. . .\nUseful in survival models (e.g. Cox)"
+    "text": "Remarks on cloglog Model\n\nThe modeling approach is \\(p(x) = g^{-1}(x^T\\beta)\\) with\n\n\\[g(t) = \\ln(-\\ln(1-t)) \\quad \\text{i.e.} \\quad g^{-1}(t) = 1 - e^{-e^t}\\]\n\n\n\nNot symmetric in the sense that \\(g(t) \\neq -g(1-t)\\).\n\\(p(x)\\) approaches \\(0\\) slowly but \\(1\\) very rapidly\n\n\nIf the opposite is true: take \\(g(t) = -\\ln(-\\ln(t))\\) (loglog model)\n\n\nUseful in survival models (e.g. Cox)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#details-on-the-logit-model",
@@ -2121,14 +2121,14 @@
     "href": "teaching/glm/slides/logistic_model.html#theoretical-motivation-of-logit",
     "title": "The Logistic Model",
     "section": "Theoretical Motivation of Logit",
-    "text": "Theoretical Motivation of Logit\n. . .\nWe will show in exercises that:\nIf the two groups of individuals associated with \\(Y = 0\\) and \\(Y = 1\\) have a Gaussian distribution of \\(X\\) with different means, i.e. for \\(m_0 \\neq m_1\\),\n\n\\(X|(Y = 0) \\sim \\mathcal N(m_0, \\Sigma) \\and X|(Y = 1) \\sim \\mathcal N(m_1, \\Sigma)\\)\n\nthen \\(\\mathbb P(Y = 1|X = x)\\) follows a logistic model.\n. . .\nThe previous result remains true for any distribution from the exponential family instead of \\(\\mathcal N\\)."
+    "text": "Theoretical Motivation of Logit\n\nWe will show in exercises that:\nIf the two groups of individuals associated with \\(Y = 0\\) and \\(Y = 1\\) have a Gaussian distribution of \\(X\\) with different means, i.e. for \\(m_0 \\neq m_1\\),\n\n\\(X|(Y = 0) \\sim \\mathcal N(m_0, \\Sigma) \\and X|(Y = 1) \\sim \\mathcal N(m_1, \\Sigma)\\)\n\nthen \\(\\mathbb P(Y = 1|X = x)\\) follows a logistic model.\n\n\nThe previous result remains true for any distribution from the exponential family instead of \\(\\mathcal N\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#summary-for-binary-variables",
     "href": "teaching/glm/slides/logistic_model.html#summary-for-binary-variables",
     "title": "The Logistic Model",
     "section": "Summary for Binary Variables:",
-    "text": "Summary for Binary Variables:\n. . .\nIf \\(Y\\) is a binary variable, \\((Y|X = x) \\sim \\mathcal B(p(x))\\).\nIn a GLM model for \\(Y\\), we set \\(p(x) = g^{-1}(x^T\\beta)\\) where \\(g\\) is:\n\nby default the logit function, which is the most natural;\npossibly probit if we have good reasons to justify it (but the results will be similar to logit);\ncloglog (or loglog) if we have good reasons to justify it (strong asymmetry of \\(p(x)\\), connection with a Cox model).\n\n. . .\nIn the following, we will focus on the logit model."
+    "text": "Summary for Binary Variables:\n\nIf \\(Y\\) is a binary variable, \\((Y|X = x) \\sim \\mathcal B(p(x))\\).\nIn a GLM model for \\(Y\\), we set \\(p(x) = g^{-1}(x^T\\beta)\\) where \\(g\\) is:\n\nby default the logit function, which is the most natural;\npossibly probit if we have good reasons to justify it (but the results will be similar to logit);\ncloglog (or loglog) if we have good reasons to justify it (strong asymmetry of \\(p(x)\\), connection with a Cox model).\n\n\n\nIn the following, we will focus on the logit model."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#outline",
@@ -2149,7 +2149,7 @@
     "href": "teaching/glm/slides/logistic_model.html#shape-of-logit-function",
     "title": "The Logistic Model",
     "section": "Shape of logit function",
-    "text": "Shape of logit function\n. . .\n\n\n\nshape of \\(x^{(j)} \\to p(x)\\)"
+    "text": "Shape of logit function\n\n\n\n\nshape of \\(x^{(j)} \\to p(x)\\)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-bmi-study-french-imc",
@@ -2163,189 +2163,189 @@
     "href": "teaching/glm/slides/logistic_model.html#model-definition",
     "title": "The Logistic Model",
     "section": "Model Definition",
-    "text": "Model Definition\n. . .\nWe seek to model \\(P(Y = 1|X)\\) where \\(X\\) groups the previous variables (excluding \\(Y\\)).\n. . .\nIn R, we use the glm function with the family=binomial option.\nglm(Y ~ AGE + DBP + SEXE + ACTIV + WALK + MARITAL, family=binomial)"
+    "text": "Model Definition\n\nWe seek to model \\(P(Y = 1|X)\\) where \\(X\\) groups the previous variables (excluding \\(Y\\)).\n\n\nIn R, we use the glm function with the family=binomial option.\nglm(Y ~ AGE + DBP + SEXE + ACTIV + WALK + MARITAL, family=binomial)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#model-results",
     "href": "teaching/glm/slides/logistic_model.html#model-results",
     "title": "The Logistic Model",
     "section": "Model Results",
-    "text": "Model Results\n. . .\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-2.810240\n0.294316\n-9.548\n&lt; 2e-16\n***\n\n\nAGE\n-0.004407\n0.002717\n-1.622\n0.105\n\n\n\nDBP\n0.017581\n0.003283\n5.356\n8.53e-08\n***\n\n\nSEXEFEMME\n0.544916\n0.081261\n6.706\n2.00e-11\n***\n\n\nWALK1\n-0.409344\n0.095972\n-4.265\n2.00e-05\n***\n\n\nACTIV1\n-0.789734\n0.126653\n-6.235\n4.51e-10\n***\n\n\nMARITAL2\n0.070132\n0.149638\n0.469\n0.639\n\n\n\nMARITAL3\n-0.071318\n0.127510\n-0.559\n0.576\n\n\n\nMARITAL4\n0.188228\n0.206598\n0.911\n0.362\n\n\n\nMARITAL5\n0.070613\n0.115928\n0.609\n0.542\n\n\n\nMARITAL6\n-0.150165\n0.157687\n-0.952\n0.341\n\n\n\n\n\n. . .\nThe interpretation is similar to that of a linear regression model.\n. . .\nWe want to remove the MARITAL variable from the model."
+    "text": "Model Results\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-2.810240\n0.294316\n-9.548\n&lt; 2e-16\n***\n\n\nAGE\n-0.004407\n0.002717\n-1.622\n0.105\n\n\n\nDBP\n0.017581\n0.003283\n5.356\n8.53e-08\n***\n\n\nSEXEFEMME\n0.544916\n0.081261\n6.706\n2.00e-11\n***\n\n\nWALK1\n-0.409344\n0.095972\n-4.265\n2.00e-05\n***\n\n\nACTIV1\n-0.789734\n0.126653\n-6.235\n4.51e-10\n***\n\n\nMARITAL2\n0.070132\n0.149638\n0.469\n0.639\n\n\n\nMARITAL3\n-0.071318\n0.127510\n-0.559\n0.576\n\n\n\nMARITAL4\n0.188228\n0.206598\n0.911\n0.362\n\n\n\nMARITAL5\n0.070613\n0.115928\n0.609\n0.542\n\n\n\nMARITAL6\n-0.150165\n0.157687\n-0.952\n0.341\n\n\n\n\n\n\n\nThe interpretation is similar to that of a linear regression model.\n\n\nWe want to remove the MARITAL variable from the model."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#model-results-with-age2",
     "href": "teaching/glm/slides/logistic_model.html#model-results-with-age2",
     "title": "The Logistic Model",
     "section": "Model Results with \\(AGE^2\\)",
-    "text": "Model Results with \\(AGE^2\\)\n. . .\nglm(Y ~ AGE + I(AGE^2) + DBP + SEXE + WALK + ACTIV, family=binomial)\nGives\n. . .\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-3.9564361\n0.3155529\n-12.538\n&lt; 2e-16\n***\n\n\nAGE\n0.0640837\n0.0123960\n5.170\n2.34e-07\n***\n\n\nI(AGE^2)\n-0.0006758\n0.0001260\n-5.364\n8.14e-08\n***\n\n\nDBP\n0.0121546\n0.0033775\n3.599\n0.00032\n***\n\n\nSEXEFEMME\n0.5155651\n0.0776229\n6.642\n3.10e-11\n***\n\n\nWALK1\n-0.4042257\n0.0913195\n-4.426\n9.58e-06\n***\n\n\nACTIV1\n-0.6573558\n0.1150226\n-5.715\n1.10e-08\n***\n\n\n\n\nFor someone for which WALK1=0 and ACTIV1=0:\n\n\\(P(Y = 1|\\text{AGE}, \\text{DBP}) = \\text{logit}^{-1}(-3.95 + 0.064 \\times \\text{AGE} - 0.00068 \\times \\text{AGE}^2 + 0.0122 \\times \\text{DBP})\\)\n\n. . .\nFor someone for which WALK1=0 and ACTIV1=1:\n\n\\(P(Y = 1|\\text{AGE}, \\text{DBP}) = \\text{logit}^{-1}(-3.95 + 0.064 \\times \\text{AGE} - 0.00068 \\times \\text{AGE}^2 + 0.0122 \\times \\text{DBP} \\color{red}{ - 0.657})\\)"
+    "text": "Model Results with \\(AGE^2\\)\n\nglm(Y ~ AGE + I(AGE^2) + DBP + SEXE + WALK + ACTIV, family=binomial)\nGives\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-3.9564361\n0.3155529\n-12.538\n&lt; 2e-16\n***\n\n\nAGE\n0.0640837\n0.0123960\n5.170\n2.34e-07\n***\n\n\nI(AGE^2)\n-0.0006758\n0.0001260\n-5.364\n8.14e-08\n***\n\n\nDBP\n0.0121546\n0.0033775\n3.599\n0.00032\n***\n\n\nSEXEFEMME\n0.5155651\n0.0776229\n6.642\n3.10e-11\n***\n\n\nWALK1\n-0.4042257\n0.0913195\n-4.426\n9.58e-06\n***\n\n\nACTIV1\n-0.6573558\n0.1150226\n-5.715\n1.10e-08\n***\n\n\n\n\nFor someone for which WALK1=0 and ACTIV1=0:\n\n\\(P(Y = 1|\\text{AGE}, \\text{DBP}) = \\text{logit}^{-1}(-3.95 + 0.064 \\times \\text{AGE} - 0.00068 \\times \\text{AGE}^2 + 0.0122 \\times \\text{DBP})\\)\n\n\n\nFor someone for which WALK1=0 and ACTIV1=1:\n\n\\(P(Y = 1|\\text{AGE}, \\text{DBP}) = \\text{logit}^{-1}(-3.95 + 0.064 \\times \\text{AGE} - 0.00068 \\times \\text{AGE}^2 + 0.0122 \\times \\text{DBP} \\color{red}{ - 0.657})\\)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#odds",
     "href": "teaching/glm/slides/logistic_model.html#odds",
     "title": "The Logistic Model",
     "section": "Odds",
-    "text": "Odds\n\n\\[\\text{odds} = \\frac{p}{1-p}\\]\n\n. . .\nBetting interpretation for example, \\(3\\) to \\(1\\) means that for \\(3\\) people betting on \\(A\\), \\(1\\) person bets on \\(B\\).\n. . .\nSo a randomly chosen bettor has a probability of \\(p=3/4\\) of betting on \\(A\\) and \\(1-p=1/4\\) on betting on \\(B\\)"
+    "text": "Odds\n\n\\[\\text{odds} = \\frac{p}{1-p}\\]\n\n\nBetting interpretation for example, \\(3\\) to \\(1\\) means that for \\(3\\) people betting on \\(A\\), \\(1\\) person bets on \\(B\\).\n\n\nSo a randomly chosen bettor has a probability of \\(p=3/4\\) of betting on \\(A\\) and \\(1-p=1/4\\) on betting on \\(B\\)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#odds-given-xx",
     "href": "teaching/glm/slides/logistic_model.html#odds-given-xx",
     "title": "The Logistic Model",
     "section": "Odds given \\(X=x\\)",
-    "text": "Odds given \\(X=x\\)\n. . .\nSimilarly, the odds of obtaining \\(Y = 1\\) given \\(X = x\\) is:\n\n\\[\\text{odds}(x) = \\frac{p(x)}{1 - p(x)}\\]\n\n. . .\nwhere \\(p(x) = P(Y = 1|X = x)\\)."
+    "text": "Odds given \\(X=x\\)\n\nSimilarly, the odds of obtaining \\(Y = 1\\) given \\(X = x\\) is:\n\n\\[\\text{odds}(x) = \\frac{p(x)}{1 - p(x)}\\]\n\n\n\nwhere \\(p(x) = P(Y = 1|X = x)\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#odds-ratio",
     "href": "teaching/glm/slides/logistic_model.html#odds-ratio",
     "title": "The Logistic Model",
     "section": "Odds Ratio",
-    "text": "Odds Ratio\n. . .\nIf two individuals have characteristics \\(x_1\\) and \\(x_2\\) respectively, we call the odds ratio between \\(x_1\\) and \\(x_2\\):\n\\[OR(x_1, x_2) = \\frac{\\text{odds}(x_1)}{\\text{odds}(x_2)} = \\frac{\\frac{p(x_1)}{1-p(x_1)}}{\\frac{p(x_2)}{1-p(x_2)}}\\]\n. . .\n\n\n\n\n\n\nWarning\n\n\n\nDO NOT CONFUSE ODDS RATIO WITH PROBABILITY RATIO\nOnly possible exception: if \\(p(x_1)\\) and \\(p(x_2)\\) are very small because then \\(1 - p(x_1) \\approx 1\\) and \\(1 - p(x_2) \\approx 1\\), so that \\(OR(x_1, x_2) \\approx p(x_1)/p(x_2)\\)"
+    "text": "Odds Ratio\n\nIf two individuals have characteristics \\(x_1\\) and \\(x_2\\) respectively, we call the odds ratio between \\(x_1\\) and \\(x_2\\):\n\\[OR(x_1, x_2) = \\frac{\\text{odds}(x_1)}{\\text{odds}(x_2)} = \\frac{\\frac{p(x_1)}{1-p(x_1)}}{\\frac{p(x_2)}{1-p(x_2)}}\\]\n\n\n\n\n\nWarning\n\n\nDO NOT CONFUSE ODDS RATIO WITH PROBABILITY RATIO\nOnly possible exception: if \\(p(x_1)\\) and \\(p(x_2)\\) are very small because then \\(1 - p(x_1) \\approx 1\\) and \\(1 - p(x_2) \\approx 1\\), so that \\(OR(x_1, x_2) \\approx p(x_1)/p(x_2)\\)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#link-with-proba.-ratio",
     "href": "teaching/glm/slides/logistic_model.html#link-with-proba.-ratio",
     "title": "The Logistic Model",
     "section": "Link with Proba. Ratio",
-    "text": "Link with Proba. Ratio\n. . .\nHowever, it remains that:\n\\[\\begin{aligned}\nOR(x_1, x_2) &gt; 1 &\\Leftrightarrow \\frac{p(x_1)}{p(x_2)} &gt; 1\\\\\nOR(x_1, x_2) &lt; 1 &\\Leftrightarrow \\frac{p(x_1)}{p(x_2)} &lt; 1\\\\\nOR(x_1, x_2) = 1 &\\Leftrightarrow \\frac{p(x_1)}{p(x_2)} = 1\n\\end{aligned}\\]"
+    "text": "Link with Proba. Ratio\n\nHowever, it remains that:\n\\[\\begin{aligned}\nOR(x_1, x_2) &gt; 1 &\\Leftrightarrow \\frac{p(x_1)}{p(x_2)} &gt; 1\\\\\nOR(x_1, x_2) &lt; 1 &\\Leftrightarrow \\frac{p(x_1)}{p(x_2)} &lt; 1\\\\\nOR(x_1, x_2) = 1 &\\Leftrightarrow \\frac{p(x_1)}{p(x_2)} = 1\n\\end{aligned}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#other-property-of-odds-ratio",
     "href": "teaching/glm/slides/logistic_model.html#other-property-of-odds-ratio",
     "title": "The Logistic Model",
     "section": "Other Property of Odds Ratio",
-    "text": "Other Property of Odds Ratio\n. . .\n\\(OR(x_1, x_2)\\) accentuates the differences compared to \\(p(x_1)/p(x_2)\\):\n\\[\\begin{aligned}\nOR(x_1, x_2) &gt; \\frac{p(x_1)}{p(x_2)} &\\text{ when } OR(x_1, x_2) &gt; 1\\\\\nOR(x_1, x_2) &lt; \\frac{p(x_1)}{p(x_2)} &\\text{ when } OR(x_1, x_2) &lt; 1\n\\end{aligned}\\]"
+    "text": "Other Property of Odds Ratio\n\n\\(OR(x_1, x_2)\\) accentuates the differences compared to \\(p(x_1)/p(x_2)\\):\n\\[\\begin{aligned}\nOR(x_1, x_2) &gt; \\frac{p(x_1)}{p(x_2)} &\\text{ when } OR(x_1, x_2) &gt; 1\\\\\nOR(x_1, x_2) &lt; \\frac{p(x_1)}{p(x_2)} &\\text{ when } OR(x_1, x_2) &lt; 1\n\\end{aligned}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#examples-using-odds-ratios",
     "href": "teaching/glm/slides/logistic_model.html#examples-using-odds-ratios",
     "title": "The Logistic Model",
     "section": "Examples Using Odds Ratios",
-    "text": "Examples Using Odds Ratios\n. . .\nA logistic regression is most often used to compare the behavior of two individuals with respect to the variable of interest.\n. . .\nExamples:\n\nprobability of purchase depending on whether or not one has been the subject of a personalized promotion;\nfor a given vehicle, probability of experiencing a breakdown according to age;\nprobability of recovery according to the treatment used;"
+    "text": "Examples Using Odds Ratios\n\nA logistic regression is most often used to compare the behavior of two individuals with respect to the variable of interest.\n\n\nExamples:\n\nprobability of purchase depending on whether or not one has been the subject of a personalized promotion;\nfor a given vehicle, probability of experiencing a breakdown according to age;\nprobability of recovery according to the treatment used;"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#odds-ratio-in-logistic-regression",
     "href": "teaching/glm/slides/logistic_model.html#odds-ratio-in-logistic-regression",
     "title": "The Logistic Model",
     "section": "Odds Ratio in Logistic Regression",
-    "text": "Odds Ratio in Logistic Regression\n. . .\nIt holds that \\(\\text{odds}(x) = \\frac{p(x)}{1 - p(x)} = \\exp(x^T \\beta)\\)\nHence,\n\n\\(OR(x_1, x_2) = \\frac{\\text{odds}(x_1)}{\\text{odds}(x_2)} = \\exp((x_1 - x_2)^T \\beta)\\)\n\n. . .\nIf the two individuals differ only by regressor \\(j\\), then\n\\(OR(x_1, x_2) = \\exp(\\beta_j (x_1^{(j)} - x_2^{(j)}))\\)\n. . .\nIf regressor \\(j\\) is binary (\\(x_1^{(j)} = 1\\) while \\(x_2^{(j)} = 0\\)):\n\\(OR(x_1, x_2) = \\exp(\\beta_j)\\)"
+    "text": "Odds Ratio in Logistic Regression\n\nIt holds that \\(\\text{odds}(x) = \\frac{p(x)}{1 - p(x)} = \\exp(x^T \\beta)\\)\nHence,\n\n\\(OR(x_1, x_2) = \\frac{\\text{odds}(x_1)}{\\text{odds}(x_2)} = \\exp((x_1 - x_2)^T \\beta)\\)\n\n\n\nIf the two individuals differ only by regressor \\(j\\), then\n\\(OR(x_1, x_2) = \\exp(\\beta_j (x_1^{(j)} - x_2^{(j)}))\\)\n\n\nIf regressor \\(j\\) is binary (\\(x_1^{(j)} = 1\\) while \\(x_2^{(j)} = 0\\)):\n\\(OR(x_1, x_2) = \\exp(\\beta_j)\\)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#key-summary-statement",
     "href": "teaching/glm/slides/logistic_model.html#key-summary-statement",
     "title": "The Logistic Model",
     "section": "Key Summary Statement",
-    "text": "Key Summary Statement\n. . .\nIn a logistic regression model, \\(\\beta_j\\) is interpreted as the logarithm of the odds-ratio between two individuals differing by a quantity of \\(1\\) on regressor \\(j\\), all else being equal.\n. . .\nIn brief: \\(\\exp(\\beta_j) = OR(x^{(j)} + 1, x^{(j)})\\)\nIf regressor \\(j\\) is binary (absence or presence of a certain characteristic):\n. . .\n\\(\\exp(\\beta_j)\\) is simply the OR between the presence or absence of this characteristic, all else being equal."
+    "text": "Key Summary Statement\n\nIn a logistic regression model, \\(\\beta_j\\) is interpreted as the logarithm of the odds-ratio between two individuals differing by a quantity of \\(1\\) on regressor \\(j\\), all else being equal.\n\n\nIn brief: \\(\\exp(\\beta_j) = OR(x^{(j)} + 1, x^{(j)})\\)\nIf regressor \\(j\\) is binary (absence or presence of a certain characteristic):\n\n\n\\(\\exp(\\beta_j)\\) is simply the OR between the presence or absence of this characteristic, all else being equal."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-1-intense-sports-activity",
     "href": "teaching/glm/slides/logistic_model.html#example-1-intense-sports-activity",
     "title": "The Logistic Model",
     "section": "Example 1: Intense Sports Activity",
-    "text": "Example 1: Intense Sports Activity\n. . .\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-3.9564361\n0.3155529\n-12.538\n&lt; 2e-16\n***\n\n\nAGE\n0.0640837\n0.0123960\n5.170\n2.34e-07\n***\n\n\nI(AGE^2)\n-0.0006758\n0.0001260\n-5.364\n8.14e-08\n***\n\n\nDBP\n0.0121546\n0.0033775\n3.599\n0.00032\n***\n\n\nSEXEFEMME\n0.5155651\n0.0776229\n6.642\n3.10e-11\n***\n\n\nWALK1\n-0.4042257\n0.0913195\n-4.426\n9.58e-06\n***\n\n\nACTIV1\n-0.6573558\n0.1150226\n-5.715\n1.10e-08\n***\n\n\n\n\n. . .\nThe Odds Ratio corresponding to practicing or not practicing intense sports activity is, all else being equal:\n. . .\n\\(\\exp(-0.657) \\approx 0.52\\)\n. . .\nThe odds of obesity occurrence therefore decrease by half for individuals practicing intense sports activity.\n(The odds, not the probability!)"
+    "text": "Example 1: Intense Sports Activity\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-3.9564361\n0.3155529\n-12.538\n&lt; 2e-16\n***\n\n\nAGE\n0.0640837\n0.0123960\n5.170\n2.34e-07\n***\n\n\nI(AGE^2)\n-0.0006758\n0.0001260\n-5.364\n8.14e-08\n***\n\n\nDBP\n0.0121546\n0.0033775\n3.599\n0.00032\n***\n\n\nSEXEFEMME\n0.5155651\n0.0776229\n6.642\n3.10e-11\n***\n\n\nWALK1\n-0.4042257\n0.0913195\n-4.426\n9.58e-06\n***\n\n\nACTIV1\n-0.6573558\n0.1150226\n-5.715\n1.10e-08\n***\n\n\n\n\n\n\nThe Odds Ratio corresponding to practicing or not practicing intense sports activity is, all else being equal:\n\n\n\\(\\exp(-0.657) \\approx 0.52\\)\n\n\nThe odds of obesity occurrence therefore decrease by half for individuals practicing intense sports activity.\n(The odds, not the probability!)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-2-diastolic-pressure",
     "href": "teaching/glm/slides/logistic_model.html#example-2-diastolic-pressure",
     "title": "The Logistic Model",
     "section": "Example 2: Diastolic Pressure",
-    "text": "Example 2: Diastolic Pressure\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-3.9564361\n0.3155529\n-12.538\n&lt; 2e-16\n***\n\n\nAGE\n0.0640837\n0.0123960\n5.170\n2.34e-07\n***\n\n\nI(AGE^2)\n-0.0006758\n0.0001260\n-5.364\n8.14e-08\n***\n\n\nDBP\n0.0121546\n0.0033775\n3.599\n0.00032\n***\n\n\nSEXEFEMME\n0.5155651\n0.0776229\n6.642\n3.10e-11\n***\n\n\nWALK1\n-0.4042257\n0.0913195\n-4.426\n9.58e-06\n***\n\n\nACTIV1\n-0.6573558\n0.1150226\n-5.715\n1.10e-08\n***\n\n\n\n\nThe OR for a diastolic pressure difference of \\(+20\\) is:\n. . .\n\\(\\exp(0.0121546 \\times 20) \\approx 1.28\\)\n. . .\nThe odds of obesity occurrence therefore increase by \\(28\\%\\)."
+    "text": "Example 2: Diastolic Pressure\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-3.9564361\n0.3155529\n-12.538\n&lt; 2e-16\n***\n\n\nAGE\n0.0640837\n0.0123960\n5.170\n2.34e-07\n***\n\n\nI(AGE^2)\n-0.0006758\n0.0001260\n-5.364\n8.14e-08\n***\n\n\nDBP\n0.0121546\n0.0033775\n3.599\n0.00032\n***\n\n\nSEXEFEMME\n0.5155651\n0.0776229\n6.642\n3.10e-11\n***\n\n\nWALK1\n-0.4042257\n0.0913195\n-4.426\n9.58e-06\n***\n\n\nACTIV1\n-0.6573558\n0.1150226\n-5.715\n1.10e-08\n***\n\n\n\n\nThe OR for a diastolic pressure difference of \\(+20\\) is:\n\n\\(\\exp(0.0121546 \\times 20) \\approx 1.28\\)\n\n\nThe odds of obesity occurrence therefore increase by \\(28\\%\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#the-framework",
     "href": "teaching/glm/slides/logistic_model.html#the-framework",
     "title": "The Logistic Model",
     "section": "The Framework",
-    "text": "The Framework\n. . .\nWe observe \\(n\\) i.i.d. realizations \\((Y_i, X_i)\\) where \\(Y_i \\in \\{0, 1\\}\\) and \\(X_i \\in \\mathbb{R}^p\\).\n. . .\nWe denote \\(p(x_i) = P(Y_i = 1|X_i = x_i)\\)."
+    "text": "The Framework\n\nWe observe \\(n\\) i.i.d. realizations \\((Y_i, X_i)\\) where \\(Y_i \\in \\{0, 1\\}\\) and \\(X_i \\in \\mathbb{R}^p\\).\n\n\nWe denote \\(p(x_i) = P(Y_i = 1|X_i = x_i)\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#the-logistic-model",
     "href": "teaching/glm/slides/logistic_model.html#the-logistic-model",
     "title": "The Logistic Model",
     "section": "The Logistic Model",
-    "text": "The Logistic Model\n. . .\nWe assume the logistic model: for all \\(i\\),\n\n\\[p(x_i) = \\text{logit}^{-1}(x_i^T \\beta) = \\frac{e^{x_i^T \\beta}}{1 + e^{x_i^T \\beta}}\\]\n\n. . .\nwhere \\(\\beta = (\\beta_1, \\ldots, \\beta_p)^T\\) and \\(x_i^T \\beta = \\beta_1 x_i^{(1)} + \\cdots + \\beta_p x_i^{(p)}\\)."
+    "text": "The Logistic Model\n\nWe assume the logistic model: for all \\(i\\),\n\n\\[p(x_i) = \\text{logit}^{-1}(x_i^T \\beta) = \\frac{e^{x_i^T \\beta}}{1 + e^{x_i^T \\beta}}\\]\n\n\n\nwhere \\(\\beta = (\\beta_1, \\ldots, \\beta_p)^T\\) and \\(x_i^T \\beta = \\beta_1 x_i^{(1)} + \\cdots + \\beta_p x_i^{(p)}\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#parameter-estimation",
     "href": "teaching/glm/slides/logistic_model.html#parameter-estimation",
     "title": "The Logistic Model",
     "section": "Parameter Estimation",
-    "text": "Parameter Estimation\n. . .\n\n\\[p(x_i) = \\text{logit}^{-1}(x_i^T \\beta) = \\frac{e^{x_i^T \\beta}}{1 + e^{x_i^T \\beta}}\\]\n\nWe will estimate \\(\\beta\\) by maximizing the likelihood.\n. . .\nWe will denote \\(p_\\beta(x_i)\\) to emphasize the dependence of \\(p(x_i)\\) on \\(\\beta\\)."
+    "text": "Parameter Estimation\n\n\n\\[p(x_i) = \\text{logit}^{-1}(x_i^T \\beta) = \\frac{e^{x_i^T \\beta}}{1 + e^{x_i^T \\beta}}\\]\n\nWe will estimate \\(\\beta\\) by maximizing the likelihood.\n\n\nWe will denote \\(p_\\beta(x_i)\\) to emphasize the dependence of \\(p(x_i)\\) on \\(\\beta\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#likelihood-calculation",
     "href": "teaching/glm/slides/logistic_model.html#likelihood-calculation",
     "title": "The Logistic Model",
     "section": "Likelihood Calculation",
-    "text": "Likelihood Calculation\n. . .\nFor all \\(i\\), \\(Y_i|(X_i = x_i)\\) follows the distribution \\(B(p_\\beta(x_i))\\). Therefore\n\n\n\\[P(Y_i = y_i|X_i = x_i) = p_\\beta(x_i)^{y_i}(1 - p_\\beta(x_i))^{1-y_i}\\]\n\n\n. . .\nfor all \\(y_i \\in \\{0, 1\\}\\)."
+    "text": "Likelihood Calculation\n\nFor all \\(i\\), \\(Y_i|(X_i = x_i)\\) follows the distribution \\(B(p_\\beta(x_i))\\). Therefore\n\n\n\\[P(Y_i = y_i|X_i = x_i) = p_\\beta(x_i)^{y_i}(1 - p_\\beta(x_i))^{1-y_i}\\]\n\n\n\n\nfor all \\(y_i \\in \\{0, 1\\}\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#likelihood",
     "href": "teaching/glm/slides/logistic_model.html#likelihood",
     "title": "The Logistic Model",
     "section": "Likelihood",
-    "text": "Likelihood\n. . .\nBy independence, we obtain the likelihood\n\n\\[\\ell(\\beta, y_1, \\ldots, y_n, x_1, \\ldots, x_n) = \\prod_{i=1}^n p_\\beta(x_i)^{y_i}(1 - p_\\beta(x_i))^{1-y_i}\\]"
+    "text": "Likelihood\n\nBy independence, we obtain the likelihood\n\n\\[\\ell(\\beta, y_1, \\ldots, y_n, x_1, \\ldots, x_n) = \\prod_{i=1}^n p_\\beta(x_i)^{y_i}(1 - p_\\beta(x_i))^{1-y_i}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#log-likelihood",
     "href": "teaching/glm/slides/logistic_model.html#log-likelihood",
     "title": "The Logistic Model",
     "section": "Log-Likelihood",
-    "text": "Log-Likelihood\n. . .\nTaking the log and replacing \\(p(x_i)\\) by its expression, we obtain the log-likelihood:\n\n\n\\[\\begin{aligned}\nL(\\beta, y_1, \\ldots, y_n, x_1, \\ldots, x_n) &= \\ln(\\ell) \\\\\n&=\\sum_{i=1}^n \\left[y_i x_i^T \\beta - \\ln(1 + e^{x_i^T \\beta})\\right]\n\\end{aligned}\\]"
+    "text": "Log-Likelihood\n\nTaking the log and replacing \\(p(x_i)\\) by its expression, we obtain the log-likelihood:\n\n\n\\[\\begin{aligned}\nL(\\beta, y_1, \\ldots, y_n, x_1, \\ldots, x_n) &= \\ln(\\ell) \\\\\n&=\\sum_{i=1}^n \\left[y_i x_i^T \\beta - \\ln(1 + e^{x_i^T \\beta})\\right]\n\\end{aligned}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#mle-calculation",
     "href": "teaching/glm/slides/logistic_model.html#mle-calculation",
     "title": "The Logistic Model",
     "section": "MLE Calculation",
-    "text": "MLE Calculation\n. . .\nThe MLE \\(\\hat{\\beta}\\), if it exists, cancels the gradient of \\(L\\) with respect to \\(\\beta\\). This gradient equals\n\n\\[\\frac{\\partial L}{\\partial \\beta} = \\sum_{i=1}^n x_i \\left(y_i - \\frac{e^{x_i^T \\beta}}{1 + e^{x_i^T \\beta}}\\right)\\]\n\nWe therefore need to solve a system of \\(p\\) equations with \\(p\\) unknowns.\n. . .\nBut the solution is not explicit: we resort to numerical methods (Newto-Raphso algo)"
+    "text": "MLE Calculation\n\nThe MLE \\(\\hat{\\beta}\\), if it exists, cancels the gradient of \\(L\\) with respect to \\(\\beta\\). This gradient equals\n\n\\[\\frac{\\partial L}{\\partial \\beta} = \\sum_{i=1}^n x_i \\left(y_i - \\frac{e^{x_i^T \\beta}}{1 + e^{x_i^T \\beta}}\\right)\\]\n\nWe therefore need to solve a system of \\(p\\) equations with \\(p\\) unknowns.\n\n\nBut the solution is not explicit: we resort to numerical methods (Newto-Raphso algo)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#remarks",
     "href": "teaching/glm/slides/logistic_model.html#remarks",
     "title": "The Logistic Model",
     "section": "Remarks",
-    "text": "Remarks\n. . .\nThis is a classic situation when using advanced statistical models: we often resort to optimization algorithms.\n. . .\nDoes the solution exist? Is it unique?"
+    "text": "Remarks\n\nThis is a classic situation when using advanced statistical models: we often resort to optimization algorithms.\n\n\nDoes the solution exist? Is it unique?"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#mle-uniqueness",
     "href": "teaching/glm/slides/logistic_model.html#mle-uniqueness",
     "title": "The Logistic Model",
     "section": "MLE Uniqueness",
-    "text": "MLE Uniqueness\n. . .\nLet \\(X\\) be the design matrix \\((X^{(1)}, \\dots, X^{(p)}) \\in \\mathbb R^{n \\times p}\\)\n. . .\n\n\n\n\n\n\nProposition\n\n\n\nIf \\(\\text{rank}(X) = p\\), then the MLE, if it exists, is unique."
+    "text": "MLE Uniqueness\n\nLet \\(X\\) be the design matrix \\((X^{(1)}, \\dots, X^{(p)}) \\in \\mathbb R^{n \\times p}\\)\n\n\n\n\n\nProposition\n\n\nIf \\(\\text{rank}(X) = p\\), then the MLE, if it exists, is unique."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#proof-of-mle-uniqueness",
     "href": "teaching/glm/slides/logistic_model.html#proof-of-mle-uniqueness",
     "title": "The Logistic Model",
     "section": "Proof of MLE Uniqueness",
-    "text": "Proof of MLE Uniqueness\n. . .\nIt suffices to show that \\(L\\) is strictly concave in \\(\\beta\\).\n. . .\nHessian Matrix of \\(L\\):\n\\[\\frac{\\partial^2 L}{\\partial \\beta^2} = -\\sum_{i=1}^n p_\\beta(x_i)(1 - p_\\beta(x_i)) x_i x_i^T\\]"
+    "text": "Proof of MLE Uniqueness\n\nIt suffices to show that \\(L\\) is strictly concave in \\(\\beta\\).\n\n\nHessian Matrix of \\(L\\):\n\\[\\frac{\\partial^2 L}{\\partial \\beta^2} = -\\sum_{i=1}^n p_\\beta(x_i)(1 - p_\\beta(x_i)) x_i x_i^T\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#hessian-properties",
     "href": "teaching/glm/slides/logistic_model.html#hessian-properties",
     "title": "The Logistic Model",
     "section": "Hessian Properties",
-    "text": "Hessian Properties\n. . .\nIt is negative semi-definite. Moreover, for all \\(u \\in \\mathbb{R}^p\\),\n\\[\\begin{aligned}\nu^T \\frac{\\partial^2 L}{\\partial \\beta^2} u = 0 &\\Leftrightarrow u^T x_i x_i^T u = 0 \\text{ for all } i\\\\\n&\\Leftrightarrow u^T x_i = 0 \\text{ for all } i\\\\\n&\\Leftrightarrow Xu = 0\\\\\n&\\Leftrightarrow u = 0\n\\end{aligned}\\]\nsince \\(\\text{rank}(X) = p\\)."
+    "text": "Hessian Properties\n\nIt is negative semi-definite. Moreover, for all \\(u \\in \\mathbb{R}^p\\),\n\\[\\begin{aligned}\nu^T \\frac{\\partial^2 L}{\\partial \\beta^2} u = 0 &\\Leftrightarrow u^T x_i x_i^T u = 0 \\text{ for all } i\\\\\n&\\Leftrightarrow u^T x_i = 0 \\text{ for all } i\\\\\n&\\Leftrightarrow Xu = 0\\\\\n&\\Leftrightarrow u = 0\n\\end{aligned}\\]\nsince \\(\\text{rank}(X) = p\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#conclusion",
     "href": "teaching/glm/slides/logistic_model.html#conclusion",
     "title": "The Logistic Model",
     "section": "Conclusion",
-    "text": "Conclusion\n. . .\nThus, for all \\(u \\neq 0\\),\n\n\\[u^T \\frac{\\partial^2 L}{\\partial \\beta^2} u &lt; 0\\]\n\nThe Hessian matrix is negative definite and therefore \\(L\\) is strictly concave,\nThe MLE is unique"
+    "text": "Conclusion\n\nThus, for all \\(u \\neq 0\\),\n\n\\[u^T \\frac{\\partial^2 L}{\\partial \\beta^2} u &lt; 0\\]\n\nThe Hessian matrix is negative definite and therefore \\(L\\) is strictly concave,\nThe MLE is unique"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#about-mle-existence",
     "href": "teaching/glm/slides/logistic_model.html#about-mle-existence",
     "title": "The Logistic Model",
     "section": "About MLE Existence",
-    "text": "About MLE Existence\n. . .\nAlthough \\(L\\) is strictly concave, its maximum can occur at infinity (think of the \\(\\ln\\) function), in which case \\(\\hat{\\beta}\\) does not exist.\n. . .\nThis occurs if there is non-overlap, i.e., separation by a hyperplane of the \\(x_i\\) for which \\(y_i = 0\\) and those for which \\(y_i = 1\\)."
+    "text": "About MLE Existence\n\nAlthough \\(L\\) is strictly concave, its maximum can occur at infinity (think of the \\(\\ln\\) function), in which case \\(\\hat{\\beta}\\) does not exist.\n\n\nThis occurs if there is non-overlap, i.e., separation by a hyperplane of the \\(x_i\\) for which \\(y_i = 0\\) and those for which \\(y_i = 1\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#non-overlap-situation",
     "href": "teaching/glm/slides/logistic_model.html#non-overlap-situation",
     "title": "The Logistic Model",
     "section": "Non-Overlap Situation",
-    "text": "Non-Overlap Situation\n. . .\nMathematically, there is non-overlap if there exists \\(\\alpha \\in \\mathbb{R}^p\\) such that\n\\[\\begin{cases}\n\\text{for all } i \\text{ such that } y_i = 0, & \\alpha^T x_i \\geq 0 \\\\\n\\text{for all } i \\text{ such that } y_i = 1, & \\alpha^T x_i \\leq 0\n\\end{cases}\\]"
+    "text": "Non-Overlap Situation\n\nMathematically, there is non-overlap if there exists \\(\\alpha \\in \\mathbb{R}^p\\) such that\n\\[\\begin{cases}\n\\text{for all } i \\text{ such that } y_i = 0, & \\alpha^T x_i \\geq 0 \\\\\n\\text{for all } i \\text{ such that } y_i = 1, & \\alpha^T x_i \\leq 0\n\\end{cases}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#illustration-of-non-overlap-situation",
@@ -2359,210 +2359,210 @@
     "href": "teaching/glm/slides/logistic_model.html#non-overlap-and-existence",
     "title": "The Logistic Model",
     "section": "Non-Overlap and Existence",
-    "text": "Non-Overlap and Existence\n. . .\n\n\n\n\n\n\nProposition (admitted)\n\n\n\nIn case of non-overlap, the estimator \\(\\hat{\\beta}\\) does not exist, in the sense that \\(L(\\beta)\\) is maximal when \\(\\|\\beta\\| \\to \\infty\\) (in one or several directions).\n\n\n. . .\nFor all \\(x\\), \\(\\hat{p}(x) = \\in \\{0,1\\}\\), depending on the position of \\(x\\) relative to the separating hyperplane.\n. . .\nNevertheless, there is a “dead zone” in the middle of the \\(2\\) point clouds, because the separating hyperplane is not necessarily unique."
+    "text": "Non-Overlap and Existence\n\n\n\n\nProposition (admitted)\n\n\nIn case of non-overlap, the estimator \\(\\hat{\\beta}\\) does not exist, in the sense that \\(L(\\beta)\\) is maximal when \\(\\|\\beta\\| \\to \\infty\\) (in one or several directions).\n\n\n\n\n\nFor all \\(x\\), \\(\\hat{p}(x) = \\in \\{0,1\\}\\), depending on the position of \\(x\\) relative to the separating hyperplane.\n\n\nNevertheless, there is a “dead zone” in the middle of the \\(2\\) point clouds, because the separating hyperplane is not necessarily unique."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#beyond-the-dead-zone",
     "href": "teaching/glm/slides/logistic_model.html#beyond-the-dead-zone",
     "title": "The Logistic Model",
     "section": "Beyond the Dead Zone",
-    "text": "Beyond the Dead Zone\n. . .\nBeyond this dead zone, classification is very simple (\\(0\\) or \\(1\\)).\n. . .\nBut no interpretation of the model is possible (the OR are worth \\(0\\) or \\(+\\infty\\))."
+    "text": "Beyond the Dead Zone\n\nBeyond this dead zone, classification is very simple (\\(0\\) or \\(1\\)).\n\n\nBut no interpretation of the model is possible (the OR are worth \\(0\\) or \\(+\\infty\\))."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#existence-and-uniqueness-of-mle",
     "href": "teaching/glm/slides/logistic_model.html#existence-and-uniqueness-of-mle",
     "title": "The Logistic Model",
     "section": "Existence and Uniqueness of MLE",
-    "text": "Existence and Uniqueness of MLE\n. . .\nWe say there is overlap when no hyperplane can separate the red points from the blue points.\n. . .\n\n\n\n\n\n\nProposition (admitted)\n\n\n\nIf \\(\\text{rank}(X) = p\\) and there is overlap, then the MLE exists and is unique.\n\n\nUnder these conditions, we can therefore search for the MLE using the Newton-Raphson algorithm.\n\nthe maximum exists,\nthe function to optimize is strictly concave and there is therefore no local maximum, only a global maximum."
+    "text": "Existence and Uniqueness of MLE\n\nWe say there is overlap when no hyperplane can separate the red points from the blue points.\n\n\n\n\n\nProposition (admitted)\n\n\nIf \\(\\text{rank}(X) = p\\) and there is overlap, then the MLE exists and is unique.\n\n\n\nUnder these conditions, we can therefore search for the MLE using the Newton-Raphson algorithm.\n\nthe maximum exists,\nthe function to optimize is strictly concave and there is therefore no local maximum, only a global maximum."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#fisher-information-recall",
     "href": "teaching/glm/slides/logistic_model.html#fisher-information-recall",
     "title": "The Logistic Model",
     "section": "Fisher Information (Recall)",
-    "text": "Fisher Information (Recall)\n. . .\nLet \\(X\\) be the design matrix (whose rows are the vectors \\(x_i\\)).\n. . .\nLet \\(J_n(\\beta)\\) be the Fisher information matrix:\n\n\\[J_n(\\beta) = -E\\left[\\frac{\\partial^2 L}{\\partial \\beta^2}(\\beta) \\right]\\]"
+    "text": "Fisher Information (Recall)\n\nLet \\(X\\) be the design matrix (whose rows are the vectors \\(x_i\\)).\n\n\nLet \\(J_n(\\beta)\\) be the Fisher information matrix:\n\n\\[J_n(\\beta) = -E\\left[\\frac{\\partial^2 L}{\\partial \\beta^2}(\\beta) \\right]\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#asymptotic-efficiency",
     "href": "teaching/glm/slides/logistic_model.html#asymptotic-efficiency",
     "title": "The Logistic Model",
     "section": "Asymptotic Efficiency",
-    "text": "Asymptotic Efficiency\n\n\n\n\n\n\nProposition (admitted)\n\n\n\nIn the logistic regression model, if\n\nthe distribution of the regressors \\((X_1, \\ldots, X_p)\\) has compact support,\n\\(\\text{rank}(X) = p\\),\nthe smallest eigenvalue of \\(X^T X\\) tends to infinity with \\(n\\),\n\nthen\n\nthe maximum likelihood estimator \\(\\hat{\\beta}\\) is consistent;\n\\(J_n(\\beta)^{1/2}(\\hat{\\beta} - \\beta) \\xrightarrow{L} N(0, I_p)\\)\n\nwhere \\(I_p\\) is the identity matrix of size \\(p\\)."
+    "text": "Asymptotic Efficiency\n\n\n\nProposition (admitted)\n\n\nIn the logistic regression model, if\n\nthe distribution of the regressors \\((X_1, \\ldots, X_p)\\) has compact support,\n\\(\\text{rank}(X) = p\\),\nthe smallest eigenvalue of \\(X^T X\\) tends to infinity with \\(n\\),\n\nthen\n\nthe maximum likelihood estimator \\(\\hat{\\beta}\\) is consistent;\n\\(J_n(\\beta)^{1/2}(\\hat{\\beta} - \\beta) \\xrightarrow{L} N(0, I_p)\\)\n\nwhere \\(I_p\\) is the identity matrix of size \\(p\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#comments",
     "href": "teaching/glm/slides/logistic_model.html#comments",
     "title": "The Logistic Model",
     "section": "Comments",
-    "text": "Comments\n. . .\nUnder these conditions, the MLE therefore exists for sufficiently large \\(n\\). In fact, there is necessarily overlap when \\(n\\) is large.\n. . .\nIt is asymptotically efficient (= minimal asymptotic variance)\n. . .\nThe Fisher information matrix \\(J_n(\\beta)\\) can be calculated\n. . .\nWe will be able to rely on asymptotic normality to perform tests and construct confidence intervals"
+    "text": "Comments\n\nUnder these conditions, the MLE therefore exists for sufficiently large \\(n\\). In fact, there is necessarily overlap when \\(n\\) is large.\n\n\nIt is asymptotically efficient (= minimal asymptotic variance)\n\n\nThe Fisher information matrix \\(J_n(\\beta)\\) can be calculated\n\n\nWe will be able to rely on asymptotic normality to perform tests and construct confidence intervals"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#comparison-with-linear-regression",
     "href": "teaching/glm/slides/logistic_model.html#comparison-with-linear-regression",
     "title": "The Logistic Model",
     "section": "Comparison with Linear Regression",
-    "text": "Comparison with Linear Regression\n. . .\nThe formula for \\(\\hat{\\beta}\\) is explicit: \\(\\hat{\\beta} = (X^T X)^{-1} X^T Y\\);\n. . .\nIts expectation and variance are explicit;\n. . .\nIn the Gaussian model (\\(Y|X\\) Gaussian), the distribution of \\(\\hat{\\beta}\\) is explicit, which allows constructing exact tests (Student, Fisher).\n. . .\nIf the model is not Gaussian, these tests are valid asymptotically."
+    "text": "Comparison with Linear Regression\n\nThe formula for \\(\\hat{\\beta}\\) is explicit: \\(\\hat{\\beta} = (X^T X)^{-1} X^T Y\\);\n\n\nIts expectation and variance are explicit;\n\n\nIn the Gaussian model (\\(Y|X\\) Gaussian), the distribution of \\(\\hat{\\beta}\\) is explicit, which allows constructing exact tests (Student, Fisher).\n\n\nIf the model is not Gaussian, these tests are valid asymptotically."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#comparison-with-linear-regression-1",
     "href": "teaching/glm/slides/logistic_model.html#comparison-with-linear-regression-1",
     "title": "The Logistic Model",
     "section": "Comparison with Linear Regression",
-    "text": "Comparison with Linear Regression\n. . .\nNo explicit formula for \\(\\hat{\\beta}\\), the solution is obtained numerically;\n. . .\nWe know neither the bias nor the variance of \\(\\hat{\\beta}\\);\n. . .\nThe distribution of \\(Y|X\\) is simple (a Bernoulli), but we don’t know the distribution of \\(\\hat{\\beta}\\).\n. . .\nWe only know its asymptotic distribution.\n. . .\nWe’ll do asymptotic tests!"
+    "text": "Comparison with Linear Regression\n\nNo explicit formula for \\(\\hat{\\beta}\\), the solution is obtained numerically;\n\n\nWe know neither the bias nor the variance of \\(\\hat{\\beta}\\);\n\n\nThe distribution of \\(Y|X\\) is simple (a Bernoulli), but we don’t know the distribution of \\(\\hat{\\beta}\\).\n\n\nWe only know its asymptotic distribution.\n\n\nWe’ll do asymptotic tests!"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#asymptotic-framework",
     "href": "teaching/glm/slides/logistic_model.html#asymptotic-framework",
     "title": "The Logistic Model",
     "section": "Asymptotic Framework",
-    "text": "Asymptotic Framework\n. . .\nUnder “good conditions”,\n\n\\[J_n(\\beta)^{1/2}(\\hat{\\beta} - \\beta) \\xrightarrow{L} N(0, I_p)\\]\n\nwhere \\(J_n(\\beta)\\) is the Fisher information matrix.\n. . .\nTo build asymptotic tests, we need to understand \\(J_n(\\beta)\\) and be able to estimate it."
+    "text": "Asymptotic Framework\n\nUnder “good conditions”,\n\n\\[J_n(\\beta)^{1/2}(\\hat{\\beta} - \\beta) \\xrightarrow{L} N(0, I_p)\\]\n\nwhere \\(J_n(\\beta)\\) is the Fisher information matrix.\n\n\nTo build asymptotic tests, we need to understand \\(J_n(\\beta)\\) and be able to estimate it."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#computation-of-j_nbeta",
     "href": "teaching/glm/slides/logistic_model.html#computation-of-j_nbeta",
     "title": "The Logistic Model",
     "section": "Computation of \\(J_n(\\beta)\\)",
-    "text": "Computation of \\(J_n(\\beta)\\)\n. . .\n\n\\[J_n(\\beta) = -E\\left[\\frac{\\partial^2 L}{\\partial \\beta^2}(\\beta) \\bigg| X\\right]\\]\n\nwhere \\(L\\) is the log-likelihood of the model.\n. . .\nFrom the proof of existence of MLE,\n\n\\[J_n(\\beta) = \\sum_{i=1}^n p_\\beta(x_i)(1 - p_\\beta(x_i)) x_i x_i^T\\]"
+    "text": "Computation of \\(J_n(\\beta)\\)\n\n\n\\[J_n(\\beta) = -E\\left[\\frac{\\partial^2 L}{\\partial \\beta^2}(\\beta) \\bigg| X\\right]\\]\n\nwhere \\(L\\) is the log-likelihood of the model.\n\n\nFrom the proof of existence of MLE,\n\n\\[J_n(\\beta) = \\sum_{i=1}^n p_\\beta(x_i)(1 - p_\\beta(x_i)) x_i x_i^T\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#equivalent-form",
     "href": "teaching/glm/slides/logistic_model.html#equivalent-form",
     "title": "The Logistic Model",
     "section": "Equivalent Form",
-    "text": "Equivalent Form\n. . .\nWe can write equivalently\n\n\\[J_n(\\beta) = X^T W_\\beta X\\]\n\nwhere \\(X\\) is the design matrix and \\(W_\\beta\\) is the diagonal matrix\n. . .\n\n\n\\[W_\\beta = \\begin{pmatrix}\np_\\beta(x_1)(1 - p_\\beta(x_1)) & 0 & \\cdots & 0 \\\\\n0 & p_\\beta(x_2)(1 - p_\\beta(x_2)) & \\cdots & 0 \\\\\n\\vdots & \\vdots & \\ddots & \\vdots \\\\\n0 & 0 & \\cdots & p_\\beta(x_n)(1 - p_\\beta(x_n))\n\\end{pmatrix}\\]"
+    "text": "Equivalent Form\n\nWe can write equivalently\n\n\\[J_n(\\beta) = X^T W_\\beta X\\]\n\nwhere \\(X\\) is the design matrix and \\(W_\\beta\\) is the diagonal matrix\n\n\n\n\n\\[W_\\beta = \\begin{pmatrix}\np_\\beta(x_1)(1 - p_\\beta(x_1)) & 0 & \\cdots & 0 \\\\\n0 & p_\\beta(x_2)(1 - p_\\beta(x_2)) & \\cdots & 0 \\\\\n\\vdots & \\vdots & \\ddots & \\vdots \\\\\n0 & 0 & \\cdots & p_\\beta(x_n)(1 - p_\\beta(x_n))\n\\end{pmatrix}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#estimation",
     "href": "teaching/glm/slides/logistic_model.html#estimation",
     "title": "The Logistic Model",
     "section": "Estimation",
-    "text": "Estimation\n. . .\nTo estimate \\(J_n(\\beta)\\), we simply replace \\(\\beta\\) by the MLE \\(\\hat{\\beta}\\)\n. . .\nUnder the same regularity assumptions, we can show that\n\n\\[J_n(\\hat{\\beta})^{1/2}(\\hat{\\beta} - \\beta) \\xrightarrow{L} N(0, I_p)\\]"
+    "text": "Estimation\n\nTo estimate \\(J_n(\\beta)\\), we simply replace \\(\\beta\\) by the MLE \\(\\hat{\\beta}\\)\n\n\nUnder the same regularity assumptions, we can show that\n\n\\[J_n(\\hat{\\beta})^{1/2}(\\hat{\\beta} - \\beta) \\xrightarrow{L} N(0, I_p)\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#estimated-variance-of-hat-beta_j",
     "href": "teaching/glm/slides/logistic_model.html#estimated-variance-of-hat-beta_j",
     "title": "The Logistic Model",
     "section": "Estimated Variance of \\(\\hat \\beta_j\\)",
-    "text": "Estimated Variance of \\(\\hat \\beta_j\\)\n. . .\n\n\\[J_n(\\hat{\\beta})^{1/2}(\\hat{\\beta} - \\beta) \\xrightarrow{L} N(0, I_p)\\]\n\n. . .\nDenoting \\(\\hat{\\sigma}_j^2\\) the \\(j\\)-th diagonal element of \\(J_n(\\hat{\\beta})^{-1}\\), we obtain (admitted):\n\n\\[\\frac{\\hat{\\beta}_j - \\beta_j}{\\hat{\\sigma}_j} \\xrightarrow{L} N(0, 1)\\]"
+    "text": "Estimated Variance of \\(\\hat \\beta_j\\)\n\n\n\\[J_n(\\hat{\\beta})^{1/2}(\\hat{\\beta} - \\beta) \\xrightarrow{L} N(0, I_p)\\]\n\n\n\nDenoting \\(\\hat{\\sigma}_j^2\\) the \\(j\\)-th diagonal element of \\(J_n(\\hat{\\beta})^{-1}\\), we obtain (admitted):\n\n\\[\\frac{\\hat{\\beta}_j - \\beta_j}{\\hat{\\sigma}_j} \\xrightarrow{L} N(0, 1)\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#confidence-interval",
     "href": "teaching/glm/slides/logistic_model.html#confidence-interval",
     "title": "The Logistic Model",
     "section": "Confidence Interval",
-    "text": "Confidence Interval\n. . .\nWe deduce a confidence interval for \\(\\beta_j\\), at asymptotic confidence level \\(1 - \\alpha\\):\n\n\\[\\text{CI}_{1-\\alpha}(\\beta_j) = \\left[\\hat{\\beta}_j - q_{1-\\alpha/2}\\hat{\\sigma}_j \\,;\\, \\hat{\\beta}_j + q_{1-\\alpha/2}\\hat{\\sigma}_j\\right]\\]\n\nwhere \\(q(1 - \\alpha/2)\\) is the quantile of order \\(1 - \\alpha/2\\) of the \\(N(0, 1)\\) distribution.\n. . .\nWe verify that we have \\(\\P(\\beta_j \\in \\text{CI}_{1-\\alpha}(\\beta_j)) \\to 1 - \\alpha\\)."
+    "text": "Confidence Interval\n\nWe deduce a confidence interval for \\(\\beta_j\\), at asymptotic confidence level \\(1 - \\alpha\\):\n\n\\[\\text{CI}_{1-\\alpha}(\\beta_j) = \\left[\\hat{\\beta}_j - q_{1-\\alpha/2}\\hat{\\sigma}_j \\,;\\, \\hat{\\beta}_j + q_{1-\\alpha/2}\\hat{\\sigma}_j\\right]\\]\n\nwhere \\(q(1 - \\alpha/2)\\) is the quantile of order \\(1 - \\alpha/2\\) of the \\(N(0, 1)\\) distribution.\n\n\nWe verify that we have \\(\\P(\\beta_j \\in \\text{CI}_{1-\\alpha}(\\beta_j)) \\to 1 - \\alpha\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#significance-test-for-one-coefficient",
     "href": "teaching/glm/slides/logistic_model.html#significance-test-for-one-coefficient",
     "title": "The Logistic Model",
     "section": "Significance Test for One Coefficient",
-    "text": "Significance Test for One Coefficient\n. . .\nWe want to test \\(H_0: \\beta_j = 0\\) against \\(H_1: \\beta_j \\neq 0\\).\nUnder \\(H_0\\) we know that \\(\\frac{\\hat{\\beta}_j}{\\hat{\\sigma}_j} \\xrightarrow{L} N(0, 1)\\)\nWe deduce a critical region at asymptotic level \\(\\alpha\\):\n\n\\[\\mathcal R_\\alpha = \\left\\{\\frac{|\\hat{\\beta}_j|}{\\hat{\\sigma}_j} &gt; q_{1-\\alpha/2}\\right\\}\\]\n\n. . .\nIndeed \\(P_{H_0}(\\mathcal R_\\alpha) \\to \\alpha\\).\nThis test is called the Wald test. (As any other test that relies on asymptotic normality)"
+    "text": "Significance Test for One Coefficient\n\nWe want to test \\(H_0: \\beta_j = 0\\) against \\(H_1: \\beta_j \\neq 0\\).\nUnder \\(H_0\\) we know that \\(\\frac{\\hat{\\beta}_j}{\\hat{\\sigma}_j} \\xrightarrow{L} N(0, 1)\\)\nWe deduce a critical region at asymptotic level \\(\\alpha\\):\n\n\\[\\mathcal R_\\alpha = \\left\\{\\frac{|\\hat{\\beta}_j|}{\\hat{\\sigma}_j} &gt; q_{1-\\alpha/2}\\right\\}\\]\n\n\n\nIndeed \\(P_{H_0}(\\mathcal R_\\alpha) \\to \\alpha\\).\nThis test is called the Wald test. (As any other test that relies on asymptotic normality)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#p-value",
     "href": "teaching/glm/slides/logistic_model.html#p-value",
     "title": "The Logistic Model",
     "section": "P-value",
-    "text": "P-value\n. . .\nDenoting \\(\\Phi\\) the cdf of the \\(\\mathcal N(0, 1)\\) distribution, the p-value of the test equals\n\n\\[p\\text{-value} = 2\\left(1 - \\Phi\\left(\\frac{|\\hat{\\beta}_j|}{\\hat{\\sigma}_j}\\right)\\right)\\]"
+    "text": "P-value\n\nDenoting \\(\\Phi\\) the cdf of the \\(\\mathcal N(0, 1)\\) distribution, the p-value of the test equals\n\n\\[p\\text{-value} = 2\\left(1 - \\Phi\\left(\\frac{|\\hat{\\beta}_j|}{\\hat{\\sigma}_j}\\right)\\right)\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-in-r",
     "href": "teaching/glm/slides/logistic_model.html#example-in-r",
     "title": "The Logistic Model",
     "section": "Example in R",
-    "text": "Example in R\n. . .\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-3.9564361\n0.3155529\n-12.538\n&lt; 2e-16\n***\n\n\nAGE\n0.0640837\n0.0123960\n5.170\n2.34e-07\n***\n\n\nI(AGE^2)\n-0.0006758\n0.0001260\n-5.364\n8.14e-08\n***\n\n\nDBP\n0.0121546\n0.0033775\n3.599\n0.00032\n***\n\n\nSEXEFEMME\n0.5155651\n0.0776229\n6.642\n3.10e-11\n***\n\n\nWALK1\n-0.4042257\n0.0913195\n-4.426\n9.58e-06\n***\n\n\nACTIV1\n-0.6573558\n0.1150226\n-5.715\n1.10e-08\n***\n\n\n\n\n. . .\nEach columns corresponds resp. to\n\n\n\\(\\hat \\beta_j\\)\n\\(\\hat \\sigma_j\\)\n\\(\\hat \\beta_j/\\hat \\sigma_j\\) (z-score)."
+    "text": "Example in R\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-3.9564361\n0.3155529\n-12.538\n&lt; 2e-16\n***\n\n\nAGE\n0.0640837\n0.0123960\n5.170\n2.34e-07\n***\n\n\nI(AGE^2)\n-0.0006758\n0.0001260\n-5.364\n8.14e-08\n***\n\n\nDBP\n0.0121546\n0.0033775\n3.599\n0.00032\n***\n\n\nSEXEFEMME\n0.5155651\n0.0776229\n6.642\n3.10e-11\n***\n\n\nWALK1\n-0.4042257\n0.0913195\n-4.426\n9.58e-06\n***\n\n\nACTIV1\n-0.6573558\n0.1150226\n-5.715\n1.10e-08\n***\n\n\n\n\n\n\nEach columns corresponds resp. to\n\n\\(\\hat \\beta_j\\)\n\\(\\hat \\sigma_j\\)\n\\(\\hat \\beta_j/\\hat \\sigma_j\\) (z-score)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#estimation-of-an-odds-ratio",
     "href": "teaching/glm/slides/logistic_model.html#estimation-of-an-odds-ratio",
     "title": "The Logistic Model",
     "section": "Estimation of an Odds-Ratio",
-    "text": "Estimation of an Odds-Ratio\n. . .\nWe consider two individuals \\(1\\) and \\(2\\) who differ only by their regressor \\(j\\). Then,\n\n\\[OR(x_1^{(j)}, x_2^{(j)}) = e^{\\beta_j(x_1^{(j)} - x_2^{(j)})}\\]\n\n. . .\nDo we have \\(OR(x_1^{(j)}, x_2^{(j)})\\approx 1\\)?\n. . .\nThe estimation of \\(OR(x_1^{(j)}, x_2^{(j)})\\) is simply\n\n\\[\\widehat{OR}(x_1^{(j)}, x_2^{(j)}) = e^{\\hat{\\beta}_j(x_1^{(j)} - x_2^{(j)})}\\]"
+    "text": "Estimation of an Odds-Ratio\n\nWe consider two individuals \\(1\\) and \\(2\\) who differ only by their regressor \\(j\\). Then,\n\n\\[OR(x_1^{(j)}, x_2^{(j)}) = e^{\\beta_j(x_1^{(j)} - x_2^{(j)})}\\]\n\n\n\nDo we have \\(OR(x_1^{(j)}, x_2^{(j)})\\approx 1\\)?\n\n\nThe estimation of \\(OR(x_1^{(j)}, x_2^{(j)})\\) is simply\n\n\\[\\widehat{OR}(x_1^{(j)}, x_2^{(j)}) = e^{\\hat{\\beta}_j(x_1^{(j)} - x_2^{(j)})}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#important-example",
     "href": "teaching/glm/slides/logistic_model.html#important-example",
     "title": "The Logistic Model",
     "section": "Important Example",
-    "text": "Important Example\n. . .\nIf regressor \\(j\\) is binary with \\(x_1^{(j)} = 1\\) and \\(x_2^{(j)} = 0\\), then\n\n\\[\\widehat{OR}(x_1^{(j)}, x_2^{(j)}) = e^{\\hat{\\beta}_j}\\]"
+    "text": "Important Example\n\nIf regressor \\(j\\) is binary with \\(x_1^{(j)} = 1\\) and \\(x_2^{(j)} = 0\\), then\n\n\\[\\widehat{OR}(x_1^{(j)}, x_2^{(j)}) = e^{\\hat{\\beta}_j}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#asymptotic-ci-for-an-odds-ratio",
     "href": "teaching/glm/slides/logistic_model.html#asymptotic-ci-for-an-odds-ratio",
     "title": "The Logistic Model",
     "section": "Asymptotic CI for an Odds-Ratio",
-    "text": "Asymptotic CI for an Odds-Ratio\n. . .\nWe have seen that an asymptotic CI at confidence level \\(1 - \\alpha\\) for \\({\\beta}_j\\) is\n\n\\[\\text{CI}_{1-\\alpha}(\\beta_j) = \\left[\\hat{\\beta}_j - q_{1-\\alpha/2}\\hat{\\sigma}_j \\,;\\, \\hat{\\beta}_j + q_{1-\\alpha/2}\\hat{\\sigma}_j\\right]= [l,r]\\]\n\n. . .\nIf \\(x_1^{(j)} &gt; x_2^{(j)}\\), an asymptotic CI for \\(OR(x_1^{(j)}, x_2^{(j)})= e^{\\beta_j(x^{(j)}_1 - x^{(j)}_2)}\\) at level \\(1 - \\alpha\\) is\n\n\\[\\text{CI}_{1-\\alpha}(OR(x_1^{(j)}, x_2^{(j)})) = \\left[e^{l(x_1^{(j)} - x_2^{(j)})}, e^{r(x_1^{(j)} - x_2^{(j)})}\\right]\\]"
+    "text": "Asymptotic CI for an Odds-Ratio\n\nWe have seen that an asymptotic CI at confidence level \\(1 - \\alpha\\) for \\({\\beta}_j\\) is\n\n\\[\\text{CI}_{1-\\alpha}(\\beta_j) = \\left[\\hat{\\beta}_j - q_{1-\\alpha/2}\\hat{\\sigma}_j \\,;\\, \\hat{\\beta}_j + q_{1-\\alpha/2}\\hat{\\sigma}_j\\right]= [l,r]\\]\n\n\n\nIf \\(x_1^{(j)} &gt; x_2^{(j)}\\), an asymptotic CI for \\(OR(x_1^{(j)}, x_2^{(j)})= e^{\\beta_j(x^{(j)}_1 - x^{(j)}_2)}\\) at level \\(1 - \\alpha\\) is\n\n\\[\\text{CI}_{1-\\alpha}(OR(x_1^{(j)}, x_2^{(j)})) = \\left[e^{l(x_1^{(j)} - x_2^{(j)})}, e^{r(x_1^{(j)} - x_2^{(j)})}\\right]\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#significance-test-for-an-odds-ratio",
     "href": "teaching/glm/slides/logistic_model.html#significance-test-for-an-odds-ratio",
     "title": "The Logistic Model",
     "section": "Significance Test for an Odds-Ratio",
-    "text": "Significance Test for an Odds-Ratio\n. . .\nWe generally want to compare \\(OR(x_1^{(j)}, x_2^{(j)})\\) to \\(1\\).\n\n\\[OR(x_1^{(j)}, x_2^{(j)}) = 1 \\Leftrightarrow e^{\\beta_j(x_1^{(j)} - x_2^{(j)})} = 1 \\Leftrightarrow \\beta_j = 0\\]"
+    "text": "Significance Test for an Odds-Ratio\n\nWe generally want to compare \\(OR(x_1^{(j)}, x_2^{(j)})\\) to \\(1\\).\n\n\\[OR(x_1^{(j)}, x_2^{(j)}) = 1 \\Leftrightarrow e^{\\beta_j(x_1^{(j)} - x_2^{(j)})} = 1 \\Leftrightarrow \\beta_j = 0\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#two-sided-test",
     "href": "teaching/glm/slides/logistic_model.html#two-sided-test",
     "title": "The Logistic Model",
     "section": "Two-Sided Test",
-    "text": "Two-Sided Test\n. . .\n\n\\(H_0: OR(x_1^{(j)}, x_2^{(j)}) = 1\\) VS \\(H_1: OR(x_1^{(j)}, x_2^{(j)}) \\neq 1\\)\n\n. . .\namounts to testing \\(H_0: \\beta_j = 0\\) against \\(H_1: \\beta_j \\neq 0\\). The Rejection region at level \\(\\alpha\\) is\n. . .\n\n\\[\\mathcal R_\\alpha = \\left\\{\\frac{|\\hat{\\beta}_j|}{\\hat{\\sigma}_j} &gt; q_{1-\\alpha/2}\\right\\}\\]"
+    "text": "Two-Sided Test\n\n\n\\(H_0: OR(x_1^{(j)}, x_2^{(j)}) = 1\\) VS \\(H_1: OR(x_1^{(j)}, x_2^{(j)}) \\neq 1\\)\n\n\n\namounts to testing \\(H_0: \\beta_j = 0\\) against \\(H_1: \\beta_j \\neq 0\\). The Rejection region at level \\(\\alpha\\) is\n\n\n\n\\[\\mathcal R_\\alpha = \\left\\{\\frac{|\\hat{\\beta}_j|}{\\hat{\\sigma}_j} &gt; q_{1-\\alpha/2}\\right\\}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#one-sided-tests",
     "href": "teaching/glm/slides/logistic_model.html#one-sided-tests",
     "title": "The Logistic Model",
     "section": "One-Sided Tests",
-    "text": "One-Sided Tests\n. . .\nNevertheless, for ORs, we often prefer one-sided tests.\n. . .\n\n\\(H_0: OR(x_1^{(j)}, x_2^{(j)}) = 1\\) VS \\(H_1: OR(x_1^{(j)}, x_2^{(j)}) &gt; 1\\)\n\n. . .\nIf \\(x_1^{(j)} &gt; x_2^{(j)}\\). Since \\(OR(x_1^{(j)}, x_2^{(j)}) \\geq 1 \\Leftrightarrow \\beta_j \\geq 0\\) rejection region at level \\(\\alpha\\) is\n\n\\[\\mathcal R_{\\alpha}=\\left\\{\\frac{\\hat{\\beta}_j}{\\hat{\\sigma}_j} &gt; q_{1-\\alpha}\\right\\}\\]"
+    "text": "One-Sided Tests\n\nNevertheless, for ORs, we often prefer one-sided tests.\n\n\n\n\\(H_0: OR(x_1^{(j)}, x_2^{(j)}) = 1\\) VS \\(H_1: OR(x_1^{(j)}, x_2^{(j)}) &gt; 1\\)\n\n\n\nIf \\(x_1^{(j)} &gt; x_2^{(j)}\\). Since \\(OR(x_1^{(j)}, x_2^{(j)}) \\geq 1 \\Leftrightarrow \\beta_j \\geq 0\\) rejection region at level \\(\\alpha\\) is\n\n\\[\\mathcal R_{\\alpha}=\\left\\{\\frac{\\hat{\\beta}_j}{\\hat{\\sigma}_j} &gt; q_{1-\\alpha}\\right\\}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#saturated-model",
     "href": "teaching/glm/slides/logistic_model.html#saturated-model",
     "title": "The Logistic Model",
     "section": "Saturated Model",
-    "text": "Saturated Model\n. . .\nSuppose we have \\(n\\) observations \\((Y_1, \\dots, Y_n)\\) and \\((X_1, \\dots, X_n)\\) (categorical)\n. . .\nHere \\(X_k\\) can represent the vector \\(X_k = (X^{(1)}_k, \\dots, X^{(p)}_k)^T\\).\n. . .\nAssume that indivudal are iid, with \\(\\mathbb P(Y=1|X_k=x) = p(x)\\).\n. . .\nHow do we estimate \\(p(x)\\)?"
+    "text": "Saturated Model\n\nSuppose we have \\(n\\) observations \\((Y_1, \\dots, Y_n)\\) and \\((X_1, \\dots, X_n)\\) (categorical)\n\n\nHere \\(X_k\\) can represent the vector \\(X_k = (X^{(1)}_k, \\dots, X^{(p)}_k)^T\\).\n\n\nAssume that indivudal are iid, with \\(\\mathbb P(Y=1|X_k=x) = p(x)\\).\n\n\nHow do we estimate \\(p(x)\\)?"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#saturated-estimator",
     "href": "teaching/glm/slides/logistic_model.html#saturated-estimator",
     "title": "The Logistic Model",
     "section": "Saturated Estimator",
-    "text": "Saturated Estimator\n. . .\nSuppose we have \\(n\\) observations \\((Y_1, \\dots, Y_n)\\) and \\((X_1, \\dots, X_n)\\)\n. . .\n\\(n(x) = |\\{k:~ X_k = x\\}|\\) (number of indiv. \\(k\\) s.t. \\(X_k=x\\))\n. . .\n\\(n_1(x) = |\\{k:~ X_k = x ~~\\text{and}~~Y_k=1\\}|\\)\n. . .\nThe saturated model is one that estimates \\(p(x)\\), for an observed \\(x\\), by\n\n\\[\\hat{p}_{\\text{sat}}(x) = \\frac{n_1(x)}{n(x)}\\]"
+    "text": "Saturated Estimator\n\nSuppose we have \\(n\\) observations \\((Y_1, \\dots, Y_n)\\) and \\((X_1, \\dots, X_n)\\)\n\n\n\\(n(x) = |\\{k:~ X_k = x\\}|\\) (number of indiv. \\(k\\) s.t. \\(X_k=x\\))\n\n\n\\(n_1(x) = |\\{k:~ X_k = x ~~\\text{and}~~Y_k=1\\}|\\)\n\n\nThe saturated model is one that estimates \\(p(x)\\), for an observed \\(x\\), by\n\n\\[\\hat{p}_{\\text{sat}}(x) = \\frac{n_1(x)}{n(x)}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#remark",
     "href": "teaching/glm/slides/logistic_model.html#remark",
     "title": "The Logistic Model",
     "section": "Remark",
-    "text": "Remark\n. . .\n\n\\[\\hat{p}_{\\text{sat}}(x) = \\frac{n_1(x)}{n(x)}\\]\n\nIf all observations are distinct, i.e., each observed \\(x\\) is only for a single individual, then for an observed \\(x\\):\n. . .\n\\(n(x) = 1\\), \\(n_1(x) \\in \\{0,1\\}\\), and \\(\\hat{p}_{\\text{sat}}(x) = 0\\) or \\(1\\)."
+    "text": "Remark\n\n\n\\[\\hat{p}_{\\text{sat}}(x) = \\frac{n_1(x)}{n(x)}\\]\n\nIf all observations are distinct, i.e., each observed \\(x\\) is only for a single individual, then for an observed \\(x\\):\n\n\n\\(n(x) = 1\\), \\(n_1(x) \\in \\{0,1\\}\\), and \\(\\hat{p}_{\\text{sat}}(x) = 0\\) or \\(1\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#remarks-1",
     "href": "teaching/glm/slides/logistic_model.html#remarks-1",
     "title": "The Logistic Model",
     "section": "Remarks",
-    "text": "Remarks\n. . .\nThe saturated model is the simplest model to imagine.\n. . .\nIt fits the data perfectly.\n. . .\nHowever, it has no explanatory power (effect of regressors on \\(Y\\)?).\n. . .\nAnd it says nothing about \\(p(x)\\) if \\(x\\) is not observed.\n. . .\nIt will serves as a reference for fit"
+    "text": "Remarks\n\nThe saturated model is the simplest model to imagine.\n\n\nIt fits the data perfectly.\n\n\nHowever, it has no explanatory power (effect of regressors on \\(Y\\)?).\n\n\nAnd it says nothing about \\(p(x)\\) if \\(x\\) is not observed.\n\n\nIt will serves as a reference for fit"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#likelihood-of-saturated-estimator",
     "href": "teaching/glm/slides/logistic_model.html#likelihood-of-saturated-estimator",
     "title": "The Logistic Model",
     "section": "Likelihood of Saturated Estimator",
-    "text": "Likelihood of Saturated Estimator\n. . .\nFor the saturated model with probabilities \\(p(x)\\), the Log-likelihood is:\n\n\n\\[L(y_1, \\ldots, y_n|x_1, \\ldots, x_n) = \\sum_{i=1}^n y_i \\ln(p(x_i)) + (1 - y_i) \\ln(1 - p(x_i))\\]\n\n\n. . .\nThe saturated model minimizes this likelihood, and we denote\n\n\n\\[L_{\\text{sat}} = \\sum_{i=1}^n y_i \\ln(\\hat p_{\\text{sat}}(x_i)) + (1 - y_i) \\ln(1 - \\hat p_{\\text{sat}}(x_i))\\]"
+    "text": "Likelihood of Saturated Estimator\n\nFor the saturated model with probabilities \\(p(x)\\), the Log-likelihood is:\n\n\n\\[L(y_1, \\ldots, y_n|x_1, \\ldots, x_n) = \\sum_{i=1}^n y_i \\ln(p(x_i)) + (1 - y_i) \\ln(1 - p(x_i))\\]\n\n\n\n\nThe saturated model minimizes this likelihood, and we denote\n\n\n\\[L_{\\text{sat}} = \\sum_{i=1}^n y_i \\ln(\\hat p_{\\text{sat}}(x_i)) + (1 - y_i) \\ln(1 - \\hat p_{\\text{sat}}(x_i))\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#case-1-distinct-observations",
     "href": "teaching/glm/slides/logistic_model.html#case-1-distinct-observations",
     "title": "The Logistic Model",
     "section": "Case 1: Distinct Observations",
-    "text": "Case 1: Distinct Observations\n. . .\nIf all observations \\(x_i\\) are distinct, we have \\(\\hat{p}_{\\text{sat}}(x_i) = y_i\\) with \\(y_i \\in \\{0, 1\\}\\). We thus have\n\n\\[L_{\\text{sat}} = 0\\]\n\n. . .\nThe saturated estimator has highest possible log-likelihood: it fits the data perfectly (too well)."
+    "text": "Case 1: Distinct Observations\n\nIf all observations \\(x_i\\) are distinct, we have \\(\\hat{p}_{\\text{sat}}(x_i) = y_i\\) with \\(y_i \\in \\{0, 1\\}\\). We thus have\n\n\\[L_{\\text{sat}} = 0\\]\n\n\n\nThe saturated estimator has highest possible log-likelihood: it fits the data perfectly (too well)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#case-2-non-distinct-observations",
     "href": "teaching/glm/slides/logistic_model.html#case-2-non-distinct-observations",
     "title": "The Logistic Model",
     "section": "Case 2: Non-Distinct Observations",
-    "text": "Case 2: Non-Distinct Observations\n. . .\nIf the observations \\(x_i\\) are not distinct, we obtain\n\n\n\\[L_{\\text{sat}} = \\sum_x \\left[n_1(x) \\ln\\left(\\frac{n_1(x)}{n(x)}\\right) + (n(x) - n_1(x)) \\ln\\left(1 - \\frac{n_1(x)}{n(x)}\\right)\\right]\\]\n\n\nwhere the sum runs over the set of values \\(x\\) taken by the \\(x_i\\)."
+    "text": "Case 2: Non-Distinct Observations\n\nIf the observations \\(x_i\\) are not distinct, we obtain\n\n\n\\[L_{\\text{sat}} = \\sum_x \\left[n_1(x) \\ln\\left(\\frac{n_1(x)}{n(x)}\\right) + (n(x) - n_1(x)) \\ln\\left(1 - \\frac{n_1(x)}{n(x)}\\right)\\right]\\]\n\n\nwhere the sum runs over the set of values \\(x\\) taken by the \\(x_i\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#deviance-as-a-substitute-for-ssr",
@@ -2583,14 +2583,14 @@
     "href": "teaching/glm/slides/logistic_model.html#role-of-deviance-and-computation-in-r",
     "title": "The Logistic Model",
     "section": "Role of Deviance and Computation in R",
-    "text": "Role of Deviance and Computation in R\n. . .\n\n\\[D = 2(L_{\\text{sat}} - L_{\\text{mod}})\\]\n\n. . .\nDeviance plays the role of the SSR of a linear model: the higher the deviance, the less well the model is fitted to the data.\n. . .\nIn R, The returned deviance is \\(-2L_{\\text{mod}}\\): the term \\(L_{\\text{sat}}\\) is therefore omitted."
+    "text": "Role of Deviance and Computation in R\n\n\n\\[D = 2(L_{\\text{sat}} - L_{\\text{mod}})\\]\n\n\n\nDeviance plays the role of the SSR of a linear model: the higher the deviance, the less well the model is fitted to the data.\n\n\nIn R, The returned deviance is \\(-2L_{\\text{mod}}\\): the term \\(L_{\\text{sat}}\\) is therefore omitted."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#linear-constraint-test",
     "href": "teaching/glm/slides/logistic_model.html#linear-constraint-test",
     "title": "The Logistic Model",
     "section": "Linear Constraint Test",
-    "text": "Linear Constraint Test\n. . .\nAs in linear regression, we would like to test \\(H_0: R\\beta = 0\\) VS \\(H_1: R\\beta \\neq 0\\)\nwhere \\(R\\) is a constraint matrix of size \\((q, p)\\) of full rank.\n. . .\nFor recall, depending on the choice of \\(R\\) this allows:\n\ntesting the minimum: is there at least one relevant regressor?\ncomparing nested models\nexamining the collective significance of a family of regressors"
+    "text": "Linear Constraint Test\n\nAs in linear regression, we would like to test \\(H_0: R\\beta = 0\\) VS \\(H_1: R\\beta \\neq 0\\)\nwhere \\(R\\) is a constraint matrix of size \\((q, p)\\) of full rank.\n\n\nFor recall, depending on the choice of \\(R\\) this allows:\n\ntesting the minimum: is there at least one relevant regressor?\ncomparing nested models\nexamining the collective significance of a family of regressors"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#linear-constraint-testing-test-procedures",
@@ -2604,63 +2604,63 @@
     "href": "teaching/glm/slides/logistic_model.html#available-procedures",
     "title": "The Logistic Model",
     "section": "Available Procedures",
-    "text": "Available Procedures\n. . .\nIn GLM, several test procedures address the problem.\nThe Wald test, based on the asymptotic normality of \\(\\hat{\\beta}\\), which generalizes the one seen for testing \\(\\beta_j = 0\\) against \\(\\beta_j \\neq 0\\).\n. . .\nThe likelihood ratio test, called in this context the deviance test.\n. . .\nThe score test, based on the behavior of the gradient of the log-likelihood at the critical point.\n. . .\nThe most used is the deviance test."
+    "text": "Available Procedures\n\nIn GLM, several test procedures address the problem.\nThe Wald test, based on the asymptotic normality of \\(\\hat{\\beta}\\), which generalizes the one seen for testing \\(\\beta_j = 0\\) against \\(\\beta_j \\neq 0\\).\n\n\nThe likelihood ratio test, called in this context the deviance test.\n\n\nThe score test, based on the behavior of the gradient of the log-likelihood at the critical point.\n\n\nThe most used is the deviance test."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#the-deviance-test-or-likelihood-ratio-test",
     "href": "teaching/glm/slides/logistic_model.html#the-deviance-test-or-likelihood-ratio-test",
     "title": "The Logistic Model",
     "section": "The Deviance Test (or Likelihood Ratio Test)",
-    "text": "The Deviance Test (or Likelihood Ratio Test)\n. . .\nTo test \\(H_0: R\\beta = 0\\) against \\(H_1: R\\beta \\neq 0\\), the principle of the test is as follows:\n. . .\nWe calculate the MLE in each model to obtain \\(\\hat{\\beta}\\) in the complete model and \\(\\hat{\\beta}_{H_0}\\) in the constrained model.\n. . .\nLogic: If \\(H_0\\) is true, the constrained model should be as “likely” as the complete model, so \\(L(\\hat{\\beta})\\) and \\(L(\\hat{\\beta}_{H_0})\\) should be similar."
+    "text": "The Deviance Test (or Likelihood Ratio Test)\n\nTo test \\(H_0: R\\beta = 0\\) against \\(H_1: R\\beta \\neq 0\\), the principle of the test is as follows:\n\n\nWe calculate the MLE in each model to obtain \\(\\hat{\\beta}\\) in the complete model and \\(\\hat{\\beta}_{H_0}\\) in the constrained model.\n\n\nLogic: If \\(H_0\\) is true, the constrained model should be as “likely” as the complete model, so \\(L(\\hat{\\beta})\\) and \\(L(\\hat{\\beta}_{H_0})\\) should be similar."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#deviance-test-statistic",
     "href": "teaching/glm/slides/logistic_model.html#deviance-test-statistic",
     "title": "The Logistic Model",
     "section": "Deviance Test Statistic",
-    "text": "Deviance Test Statistic\n. . .\nThe test statistic is the difference of deviances:\n\n\\[D_{H_0} - D_{H_1} = 2\\left(L(\\hat{\\beta}) - L(\\hat{\\beta}_{H_0})\\right)\\]\n\n. . .\nUnder \\(H_0\\), denoting \\(q\\) the number of constraints, we have the convergence (admitted):\n\n\\[D_{H_0} - D_{H_1} = 2\\left(L(\\hat{\\beta}) - L(\\hat{\\beta}_{H_0})\\right) \\xrightarrow{L} \\chi^2_q\\]"
+    "text": "Deviance Test Statistic\n\nThe test statistic is the difference of deviances:\n\n\\[D_{H_0} - D_{H_1} = 2\\left(L(\\hat{\\beta}) - L(\\hat{\\beta}_{H_0})\\right)\\]\n\n\n\nUnder \\(H_0\\), denoting \\(q\\) the number of constraints, we have the convergence (admitted):\n\n\\[D_{H_0} - D_{H_1} = 2\\left(L(\\hat{\\beta}) - L(\\hat{\\beta}_{H_0})\\right) \\xrightarrow{L} \\chi^2_q\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#rejection-region-and-p-value",
     "href": "teaching/glm/slides/logistic_model.html#rejection-region-and-p-value",
     "title": "The Logistic Model",
     "section": "Rejection Region and P-value",
-    "text": "Rejection Region and P-value\n. . .\nThe asymp. rejection region at asymptotic level \\(\\alpha\\) is therefore\n\n\\[\\mathcal R_\\alpha = \\{D_{H_0} - D_{H_1} &gt; \\chi^2_{q,1-\\alpha}\\}\\]\n\nwhere \\(\\chi^2_{q,1-\\alpha}\\): quantile \\(1 - \\alpha\\) of a \\(\\chi^2_q\\) distribution.\n. . .\nThe p-value equals\n\n\\[p\\text{-value} = 1 - F(D_{H_0} - D_{H_1})\\]\n\nwhere \\(F\\) is the cdf of a \\(\\chi^2_q\\) distribution."
+    "text": "Rejection Region and P-value\n\nThe asymp. rejection region at asymptotic level \\(\\alpha\\) is therefore\n\n\\[\\mathcal R_\\alpha = \\{D_{H_0} - D_{H_1} &gt; \\chi^2_{q,1-\\alpha}\\}\\]\n\nwhere \\(\\chi^2_{q,1-\\alpha}\\): quantile \\(1 - \\alpha\\) of a \\(\\chi^2_q\\) distribution.\n\n\nThe p-value equals\n\n\\[p\\text{-value} = 1 - F(D_{H_0} - D_{H_1})\\]\n\nwhere \\(F\\) is the cdf of a \\(\\chi^2_q\\) distribution."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#special-case-1-significance-test",
     "href": "teaching/glm/slides/logistic_model.html#special-case-1-significance-test",
     "title": "The Logistic Model",
     "section": "Special Case 1: Significance Test",
-    "text": "Special Case 1: Significance Test\n. . .\nWe want to test if a model (having a constant) is significant\n. . .\nWe therefore test \\(H_0\\): all its coefficients are zero except the constant. This corresponds to the special case\n\n\\(R = [0 | I_{p-1}]\\).\n\n. . .\nWe compare the deviance of the model to the null deviance \\(D_0\\), corresponding to a model that contains only the constant."
+    "text": "Special Case 1: Significance Test\n\nWe want to test if a model (having a constant) is significant\n\n\nWe therefore test \\(H_0\\): all its coefficients are zero except the constant. This corresponds to the special case\n\n\\(R = [0 | I_{p-1}]\\).\n\n\n\nWe compare the deviance of the model to the null deviance \\(D_0\\), corresponding to a model that contains only the constant."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#test-statistic",
     "href": "teaching/glm/slides/logistic_model.html#test-statistic",
     "title": "The Logistic Model",
     "section": "Test Statistic",
-    "text": "Test Statistic\n. . .\nThe test statistic is \\(D_0 - D\\). Under \\(H_0\\), when \\(n \\to \\infty\\):\n\n\\[D_0 - D \\sim \\chi^2_{p-1}\\]\n\n. . .\nThe model is therefore significant (relative to the null model) if the sample is in the critical region of asymptotic level \\(\\alpha\\):\n\n\\[\\mathcal R_\\alpha = \\{D_0 - D &gt; \\chi^2_{p-1,1-\\alpha/2}\\}\\]"
+    "text": "Test Statistic\n\nThe test statistic is \\(D_0 - D\\). Under \\(H_0\\), when \\(n \\to \\infty\\):\n\n\\[D_0 - D \\sim \\chi^2_{p-1}\\]\n\n\n\nThe model is therefore significant (relative to the null model) if the sample is in the critical region of asymptotic level \\(\\alpha\\):\n\n\\[\\mathcal R_\\alpha = \\{D_0 - D &gt; \\chi^2_{p-1,1-\\alpha/2}\\}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#special-case-2-nested-models",
     "href": "teaching/glm/slides/logistic_model.html#special-case-2-nested-models",
     "title": "The Logistic Model",
     "section": "Special Case 2: Nested Models",
-    "text": "Special Case 2: Nested Models\n. . .\nSuppose that model \\(1\\) (with deviance \\(D_1\\)) is a sub-model of model \\(2\\) (with deviance \\(D_2\\))\n. . .\nModel \\(1\\) is therefore obtained from model \\(2\\), with parameter \\(\\beta\\), via a constraint of the type \\(R\\beta = 0\\) where \\(R\\) is a \\((q, p)\\) matrix.\n. . .\nUnder \\(H_0: R\\beta = 0\\), we have asymptotically \\(D_1 - D_2 \\sim \\chi^2_q\\)\n. . .\nHence the asymptotic test: .\n\n\\(\\mathcal R_\\alpha = \\{D_1 - D_2 &gt; \\chi^2_{q,1 - \\alpha}\\}\\)"
+    "text": "Special Case 2: Nested Models\n\nSuppose that model \\(1\\) (with deviance \\(D_1\\)) is a sub-model of model \\(2\\) (with deviance \\(D_2\\))\n\n\nModel \\(1\\) is therefore obtained from model \\(2\\), with parameter \\(\\beta\\), via a constraint of the type \\(R\\beta = 0\\) where \\(R\\) is a \\((q, p)\\) matrix.\n\n\nUnder \\(H_0: R\\beta = 0\\), we have asymptotically \\(D_1 - D_2 \\sim \\chi^2_q\\)\n\n\nHence the asymptotic test: .\n\n\\(\\mathcal R_\\alpha = \\{D_1 - D_2 &gt; \\chi^2_{q,1 - \\alpha}\\}\\)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#aic-and-bic-criteria",
     "href": "teaching/glm/slides/logistic_model.html#aic-and-bic-criteria",
     "title": "The Logistic Model",
     "section": "AIC and BIC Criteria",
-    "text": "AIC and BIC Criteria\n. . .\nThe AIC and BIC criteria are defined similarly to linear regression, i.e.\n\n\\(\\text{AIC} = -2L_{\\text{mod}} + 2p\\)\n\n\n\\(\\text{BIC} = -2L_{\\text{mod}} + \\ln(n)p\\)\n\nwhere \\(L_{\\text{mod}}\\) is the log-likelihood of the estimated model."
+    "text": "AIC and BIC Criteria\n\nThe AIC and BIC criteria are defined similarly to linear regression, i.e.\n\n\\(\\text{AIC} = -2L_{\\text{mod}} + 2p\\)\n\n\n\\(\\text{BIC} = -2L_{\\text{mod}} + \\ln(n)p\\)\n\nwhere \\(L_{\\text{mod}}\\) is the log-likelihood of the estimated model."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#aic-and-bic-criteria-1",
     "href": "teaching/glm/slides/logistic_model.html#aic-and-bic-criteria-1",
     "title": "The Logistic Model",
     "section": "AIC and BIC Criteria",
-    "text": "AIC and BIC Criteria\n. . .\nIf we ignore saturated likelihood and set \\(L_{\\text{sat}}=0\\),\n\n\\(\\text{AIC} = D + 2p\\)\n\n\n\\(\\text{BIC} = D + \\ln(n)p\\)\n\nIn practice, we choose the model having the minimal AIC or BIC\n. . .\nAs in linear regression, we can use automatic selection procedures (backward, forward, etc)."
+    "text": "AIC and BIC Criteria\n\nIf we ignore saturated likelihood and set \\(L_{\\text{sat}}=0\\),\n\n\\(\\text{AIC} = D + 2p\\)\n\n\n\\(\\text{BIC} = D + \\ln(n)p\\)\n\nIn practice, we choose the model having the minimal AIC or BIC\n\n\nAs in linear regression, we can use automatic selection procedures (backward, forward, etc)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-obesity-study-in-the-us",
@@ -2674,14 +2674,14 @@
     "href": "teaching/glm/slides/logistic_model.html#example-significance-test-of-marital",
     "title": "The Logistic Model",
     "section": "Example: Significance Test of MARITAL",
-    "text": "Example: Significance Test of MARITAL\n. . .\nmodel=glm(Y~AGE+DBP+SEXE+ACTIV+WALK, family=binomial) # We want to test if `MARITAL` is significant\nsummary(model)\n. . .\n\n\n\n\nStatistic\nValue\nDegrees of Freedom\n\n\n\n\nNull deviance\n\\(4610.8\\)\non \\(5300\\)\n\n\nResidual deviance\n\\(4462.7\\)\non \\(5295\\)\n\n\nAIC\n\\(4474.7\\)\n\n\n\n\n\n. . .\nThe deviance is now \\(D_2 = 4462.7\\). To compare with the previous model, we calculate: \\(D_2 - D = 3.2\\).\n. . .\nThe p-value of the test equals \\(1 - F_5(3.2) \\approx 0.67\\), where \\(F_5\\): cdf of a \\(\\chi^2_5\\).\nWe therefore accept \\(H_0\\): the coefficients related to MARITAL are zero. (Also confirmed with AIC)"
+    "text": "Example: Significance Test of MARITAL\n\nmodel=glm(Y~AGE+DBP+SEXE+ACTIV+WALK, family=binomial) # We want to test if `MARITAL` is significant\nsummary(model)\n\n\n\n\n\n\nStatistic\nValue\nDegrees of Freedom\n\n\n\n\nNull deviance\n\\(4610.8\\)\non \\(5300\\)\n\n\nResidual deviance\n\\(4462.7\\)\non \\(5295\\)\n\n\nAIC\n\\(4474.7\\)\n\n\n\n\n\n\n\nThe deviance is now \\(D_2 = 4462.7\\). To compare with the previous model, we calculate: \\(D_2 - D = 3.2\\).\n\n\nThe p-value of the test equals \\(1 - F_5(3.2) \\approx 0.67\\), where \\(F_5\\): cdf of a \\(\\chi^2_5\\).\nWe therefore accept \\(H_0\\): the coefficients related to MARITAL are zero. (Also confirmed with AIC)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-significance-test-of-age2",
     "href": "teaching/glm/slides/logistic_model.html#example-significance-test-of-age2",
     "title": "The Logistic Model",
     "section": "Example: Significance Test of AGE\\(~^2\\)",
-    "text": "Example: Significance Test of AGE\\(~^2\\)\n. . .\nmodel=glm(Y∼AGE+I(AGE2 )+DBP+SEXE+WALK+ACTIV, family=binomial) # We add AGE^2\nsummary(model)\n\n\n\n\nStatistic\nValue\nDegrees of Freedom\n\n\n\n\nNull deviance\n\\(4610.8\\)\non \\(5300\\)\n\n\nResidual deviance\n\\(4439.5\\)\non \\(5294\\)\n\n\nAIC\n\\(4453.5\\)\n\n\n\n\n\n. . .\nThe deviance test with the previous model has p-value \\(1 - F_1(4462.7 - 4439.5) = 1 - F_1(23.2) \\approx 10^{-6}\\)\n. . .\nThis model is therefore preferable, (confirmed with AIC).\n. . .\nHowever, we cannot compare this model with the first one by deviance test because they are not nested.\n. . .\nWe can however compare their AIC: this model is preferable."
+    "text": "Example: Significance Test of AGE\\(~^2\\)\n\nmodel=glm(Y∼AGE+I(AGE2 )+DBP+SEXE+WALK+ACTIV, family=binomial) # We add AGE^2\nsummary(model)\n\n\n\n\nStatistic\nValue\nDegrees of Freedom\n\n\n\n\nNull deviance\n\\(4610.8\\)\non \\(5300\\)\n\n\nResidual deviance\n\\(4439.5\\)\non \\(5294\\)\n\n\nAIC\n\\(4453.5\\)\n\n\n\n\n\n\n\nThe deviance test with the previous model has p-value \\(1 - F_1(4462.7 - 4439.5) = 1 - F_1(23.2) \\approx 10^{-6}\\)\n\n\nThis model is therefore preferable, (confirmed with AIC).\n\n\nHowever, we cannot compare this model with the first one by deviance test because they are not nested.\n\n\nWe can however compare their AIC: this model is preferable."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#setup-for-prevision",
@@ -2716,35 +2716,35 @@
     "href": "teaching/glm/slides/logistic_model.html#ci-for-linear-predictor",
     "title": "The Logistic Model",
     "section": "CI for Linear Predictor",
-    "text": "CI for Linear Predictor\n. . .\nWe deduce that when \\(n \\to +\\infty\\), \\(x^T \\hat{\\beta} \\sim N(x^T \\beta, x^T (X^T W_{\\hat{\\beta}} X)^{-1} x)\\), and the asymptotic CI of \\(x^T\\beta\\):\n. . .\n\n\\[\\text{CI}_{1-\\alpha}(x^T \\beta) = \\left[x^T \\hat{\\beta} \\pm q_{1-\\alpha/2} \\sqrt{x^T (X^T W_{\\hat{\\beta}} X)^{-1} x}\\right]\\]"
+    "text": "CI for Linear Predictor\n\nWe deduce that when \\(n \\to +\\infty\\), \\(x^T \\hat{\\beta} \\sim N(x^T \\beta, x^T (X^T W_{\\hat{\\beta}} X)^{-1} x)\\), and the asymptotic CI of \\(x^T\\beta\\):\n\n\n\n\\[\\text{CI}_{1-\\alpha}(x^T \\beta) = \\left[x^T \\hat{\\beta} \\pm q_{1-\\alpha/2} \\sqrt{x^T (X^T W_{\\hat{\\beta}} X)^{-1} x}\\right]\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#setting-and-objective",
     "href": "teaching/glm/slides/logistic_model.html#setting-and-objective",
     "title": "The Logistic Model",
     "section": "Setting and Objective",
-    "text": "Setting and Objective\n. . .\nSuppose we are interested in a new individual for whom\n\nwe know their characteristics \\(x \\in \\mathbb{R}^p\\),\nwe do not know their \\(Y\\).\n\n. . .\nWe want to predict \\(Y\\) for this new individual."
+    "text": "Setting and Objective\n\nSuppose we are interested in a new individual for whom\n\nwe know their characteristics \\(x \\in \\mathbb{R}^p\\),\nwe do not know their \\(Y\\).\n\n\n\nWe want to predict \\(Y\\) for this new individual."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#recall-in-the-logit-model",
     "href": "teaching/glm/slides/logistic_model.html#recall-in-the-logit-model",
     "title": "The Logistic Model",
     "section": "Recall in the Logit Model",
-    "text": "Recall in the Logit Model\n. . .\nIf we have fitted a logistic regression model, we can estimate\n\n\\[p_\\beta(x) = P(Y = 1|X = x)\\]\n\nby\n. . .\n\n\\[p_{\\hat{\\beta}}(x) = \\text{logit}^{-1}(x^T \\hat{\\beta}) = \\frac{e^{x^T \\hat{\\beta}}}{1 + e^{x^T \\hat{\\beta}}}\\]"
+    "text": "Recall in the Logit Model\n\nIf we have fitted a logistic regression model, we can estimate\n\n\\[p_\\beta(x) = P(Y = 1|X = x)\\]\n\nby\n\n\n\n\\[p_{\\hat{\\beta}}(x) = \\text{logit}^{-1}(x^T \\hat{\\beta}) = \\frac{e^{x^T \\hat{\\beta}}}{1 + e^{x^T \\hat{\\beta}}}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#outline-for-prediction",
     "href": "teaching/glm/slides/logistic_model.html#outline-for-prediction",
     "title": "The Logistic Model",
     "section": "Outline for Prediction",
-    "text": "Outline for Prediction\n. . .\n\n\\[p_\\beta(x) = P(Y = 1|X = x)\\]\n\nWe will see:\n\nhow to construct a confidence interval around the estimation \\(p_{\\hat{\\beta}}(x)\\);\nhow to exploit this estimation to classify the new individual in category \\(Y = 0\\) or \\(Y = 1\\)."
+    "text": "Outline for Prediction\n\n\n\\[p_\\beta(x) = P(Y = 1|X = x)\\]\n\nWe will see:\n\nhow to construct a confidence interval around the estimation \\(p_{\\hat{\\beta}}(x)\\);\nhow to exploit this estimation to classify the new individual in category \\(Y = 0\\) or \\(Y = 1\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#ci-asymptotic-distribution-of-p_betax",
     "href": "teaching/glm/slides/logistic_model.html#ci-asymptotic-distribution-of-p_betax",
     "title": "The Logistic Model",
     "section": "CI: Asymptotic Distribution of \\(p_\\beta(x)\\)",
-    "text": "CI: Asymptotic Distribution of \\(p_\\beta(x)\\)\n. . .\nWe know that when \\(n \\to \\infty\\):\n\n\\[\\hat{\\beta} \\sim N(\\beta, (X^T W_{\\hat{\\beta}} X)^{-1})\\]\n\n\n\\(X=(X^{(1)}, \\dots, X^{(p)})\\) is the \\(n \\times p\\) design matrix\n\\(W_{\\hat{\\beta}}\\) is the \\(n \\times n\\) diagonal matrix with coefs \\(p_{\\hat \\beta}(x_i)(1-p_{\\hat \\beta}(x_i))\\)"
+    "text": "CI: Asymptotic Distribution of \\(p_\\beta(x)\\)\n\nWe know that when \\(n \\to \\infty\\):\n\n\\[\\hat{\\beta} \\sim N(\\beta, (X^T W_{\\hat{\\beta}} X)^{-1})\\]\n\n\n\\(X=(X^{(1)}, \\dots, X^{(p)})\\) is the \\(n \\times p\\) design matrix\n\\(W_{\\hat{\\beta}}\\) is the \\(n \\times n\\) diagonal matrix with coefs \\(p_{\\hat \\beta}(x_i)(1-p_{\\hat \\beta}(x_i))\\)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#ci-for-linear-predictor-1",
@@ -2758,7 +2758,7 @@
     "href": "teaching/glm/slides/logistic_model.html#ci-for-probability-p_betax",
     "title": "The Logistic Model",
     "section": "CI for Probability \\(p_{\\beta}(x)\\)",
-    "text": "CI for Probability \\(p_{\\beta}(x)\\)\n. . .\nSince \\(p_{\\hat{\\beta}}(x) = \\text{logit}^{-1}(x^T \\hat{\\beta})\\), we have therefore by application of the increasing function \\(\\text{logit}^{-1}\\), the CI at asymptotic level \\(1 - \\alpha\\):\n. . .\n\n\n\\[\\text{CI}_{1-\\alpha}(p_\\beta(x)) = \\left[\\text{logit}^{-1}\\left(x^T \\hat{\\beta} \\pm q_{1-\\alpha/2} \\sqrt{x^T (X^T W_{\\hat{\\beta}} X)^{-1} x}\\right)\\right]\\]"
+    "text": "CI for Probability \\(p_{\\beta}(x)\\)\n\nSince \\(p_{\\hat{\\beta}}(x) = \\text{logit}^{-1}(x^T \\hat{\\beta})\\), we have therefore by application of the increasing function \\(\\text{logit}^{-1}\\), the CI at asymptotic level \\(1 - \\alpha\\):\n\n\n\n\n\\[\\text{CI}_{1-\\alpha}(p_\\beta(x)) = \\left[\\text{logit}^{-1}\\left(x^T \\hat{\\beta} \\pm q_{1-\\alpha/2} \\sqrt{x^T (X^T W_{\\hat{\\beta}} X)^{-1} x}\\right)\\right]\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#classification-1",
@@ -2772,49 +2772,49 @@
     "href": "teaching/glm/slides/logistic_model.html#evaluation-of-classification-quality",
     "title": "The Logistic Model",
     "section": "Evaluation of Classification Quality",
-    "text": "Evaluation of Classification Quality\n. . .\nWe proceed by cross-validation:\n. . .\nUsing a train sample, predict \\(Y\\) on a test sample and form the confusion matrix.\n. . .\n\n\n\n\n\\(Y = 0\\)\n\\(Y = 1\\)\n\n\n\n\n\\(\\hat{Y} = 0\\)\nTN\nFN\n\n\n\\(\\hat{Y} = 1\\)\nFP\nTP\n\n\n\nReading: T: true, F:False, N: Negative, P: Positive.\n. . .\nFP: false positives: number of individuals who were classified positive who were actually negative"
+    "text": "Evaluation of Classification Quality\n\nWe proceed by cross-validation:\n\n\nUsing a train sample, predict \\(Y\\) on a test sample and form the confusion matrix.\n\n\n\n\n\n\n\\(Y = 0\\)\n\\(Y = 1\\)\n\n\n\n\n\\(\\hat{Y} = 0\\)\nTN\nFN\n\n\n\\(\\hat{Y} = 1\\)\nFP\nTP\n\n\n\nReading: T: true, F:False, N: Negative, P: Positive.\n\n\nFP: false positives: number of individuals who were classified positive who were actually negative"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#evaluation-of-classification-quality-1",
     "href": "teaching/glm/slides/logistic_model.html#evaluation-of-classification-quality-1",
     "title": "The Logistic Model",
     "section": "Evaluation of Classification Quality",
-    "text": "Evaluation of Classification Quality\n. . .\nThe ideal is to have a confusion matrix that is as diagonal as possible.\n. . .\nWe generally seek to maximize the following indicators:\n. . .\n\n\nThe sensitivity (or recall, or true positive rate) estimates \\(\\P(\\hat{Y} = 1|Y = 1)\\) by\n\n\\[\\frac{\\text{TP}}{\\text{TP} + \\text{FN}}\\]\n\n\nThe specificity (or selectivity, or true negative rate) estimates \\(\\P(\\hat{Y} = 0|Y = 0)\\)\n\n\\[\\frac{\\text{TN}}{\\text{TN} + \\text{FP}}\\]\n\n\n\n. . ."
+    "text": "Evaluation of Classification Quality\n\nThe ideal is to have a confusion matrix that is as diagonal as possible.\n\n\nWe generally seek to maximize the following indicators:\n\n\n\n\nThe sensitivity (or recall, or true positive rate) estimates \\(\\P(\\hat{Y} = 1|Y = 1)\\) by\n\n\\[\\frac{\\text{TP}}{\\text{TP} + \\text{FN}}\\]\n\n\nThe specificity (or selectivity, or true negative rate) estimates \\(\\P(\\hat{Y} = 0|Y = 0)\\)\n\n\\[\\frac{\\text{TN}}{\\text{TN} + \\text{FP}}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#other-indicators",
     "href": "teaching/glm/slides/logistic_model.html#other-indicators",
     "title": "The Logistic Model",
     "section": "Other Indicators",
-    "text": "Other Indicators\n. . .\nThe precision (or positive predictive value) estimates \\(\\P(Y = 1|\\hat{Y} = 1)\\) by\n\n\\(\\frac{\\text{TP}}{\\text{TP} + \\text{FP}}\\)\n\n. . .\nThe \\(F\\)-score is the harmonic mean between sensitivity and precision:\n\n\\[F_1 = 2 \\frac{\\text{precision} \\times \\text{sensitivity}}{\\text{precision} + \\text{sensitivity}}\\]"
+    "text": "Other Indicators\n\nThe precision (or positive predictive value) estimates \\(\\P(Y = 1|\\hat{Y} = 1)\\) by\n\n\\(\\frac{\\text{TP}}{\\text{TP} + \\text{FP}}\\)\n\n\n\nThe \\(F\\)-score is the harmonic mean between sensitivity and precision:\n\n\\[F_1 = 2 \\frac{\\text{precision} \\times \\text{sensitivity}}{\\text{precision} + \\text{sensitivity}}\\]"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#choice-of-threshold-s",
     "href": "teaching/glm/slides/logistic_model.html#choice-of-threshold-s",
     "title": "The Logistic Model",
     "section": "Choice of Threshold \\(s\\)",
-    "text": "Choice of Threshold \\(s\\)\n. . .\nFor each threshold \\(s\\), from a test sample:\n\nwe can form the confusion matrix\ncalculate scores (sensitivity, \\(F\\)-score, etc.)\n\n. . .\nWe finally choose the optimal threshold \\(s\\), according to the chosen score."
+    "text": "Choice of Threshold \\(s\\)\n\nFor each threshold \\(s\\), from a test sample:\n\nwe can form the confusion matrix\ncalculate scores (sensitivity, \\(F\\)-score, etc.)\n\n\n\nWe finally choose the optimal threshold \\(s\\), according to the chosen score."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#choosing-the-score",
     "href": "teaching/glm/slides/logistic_model.html#choosing-the-score",
     "title": "The Logistic Model",
     "section": "Choosing the score",
-    "text": "Choosing the score\n\nIt depends on the context of the study\nIt can be much more serious to wrongly predict \\(\\hat{Y} = 0\\) than \\(\\hat{Y} = 1\\)\n\n. . .\n\\(\\hat Y=1\\) (treatment) while the patient is not ill (\\(Y = 0\\))\n. . .\n\\(\\hat Y=0\\) (no treatment) while the patient has a serious illness (\\(Y=1\\))"
+    "text": "Choosing the score\n\nIt depends on the context of the study\nIt can be much more serious to wrongly predict \\(\\hat{Y} = 0\\) than \\(\\hat{Y} = 1\\)\n\n\n\\(\\hat Y=1\\) (treatment) while the patient is not ill (\\(Y = 0\\))\n\n\n\\(\\hat Y=0\\) (no treatment) while the patient has a serious illness (\\(Y=1\\))"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#roc-curve",
     "href": "teaching/glm/slides/logistic_model.html#roc-curve",
     "title": "The Logistic Model",
     "section": "ROC Curve",
-    "text": "ROC Curve\n. . .\nWe can also plot the ROC curve (TP rate as a function of FP rate for \\(s \\in [0, 1]\\)):\n\n\n\\(ROC:~~\\mathrm{sensitiv.} = \\frac{TP}{TP+FN} = F\\left(\\frac{FP}{FP+TN}\\right) = F(1-\\mathrm{specific.})\\)\n\n\n. . .\nThe AUC (area under the curve) is a quality indicator of the model (\\(0 \\leq \\text{AUC} \\leq 1\\)).\n. . .\nOr equivalently, the Gini index: \\(2 \\times \\text{AUC} - 1\\).\n. . .\nUse: compare \\(2\\) models by plotting the 2 ROC curves."
+    "text": "ROC Curve\n\nWe can also plot the ROC curve (TP rate as a function of FP rate for \\(s \\in [0, 1]\\)):\n\n\n\\(ROC:~~\\mathrm{sensitiv.} = \\frac{TP}{TP+FN} = F\\left(\\frac{FP}{FP+TN}\\right) = F(1-\\mathrm{specific.})\\)\n\n\n\n\nThe AUC (area under the curve) is a quality indicator of the model (\\(0 \\leq \\text{AUC} \\leq 1\\)).\n\n\nOr equivalently, the Gini index: \\(2 \\times \\text{AUC} - 1\\).\n\n\nUse: compare \\(2\\) models by plotting the 2 ROC curves."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#roc-curve-illustration",
     "href": "teaching/glm/slides/logistic_model.html#roc-curve-illustration",
     "title": "The Logistic Model",
     "section": "ROC Curve Illustration",
-    "text": "ROC Curve Illustration\n. . ."
+    "text": "ROC Curve Illustration"
   },
   {
     "objectID": "teaching/glm/slides/categorical_data.html#this-class",
@@ -2982,7 +2982,7 @@
     "href": "teaching/glm/slides/categorical_data.html#recalling-nominal-model",
     "title": "Models for Categorical Data",
     "section": "Recalling Nominal Model",
-    "text": "Recalling Nominal Model\n\nIn consistency with the logistic model, we have focused on the “odds”\n\n\\[\\frac{P(Y = k|X = x)}{P(Y = 0|X = x)} = \\frac{p^{(k)}(x)}{p^{(0)}(x)}\\]\n\n\n\nThis OR quantifies how much the “odds” of \\(P(Y = k)\\) is modified between \\(x_1\\) and \\(x_2\\), relative to the reference category \\(Y = 0\\).\n\n\nIn the ordinal case, we will model “odds” that are easier to interpret."
+    "text": "Recalling Nominal Model\n\nIn consistency with the logistic model, we have focused on the “odds”\n\n\\[\\frac{P(Y = k|X = x)}{P(Y = 0|X = x)} = \\frac{p^{(k)}(x)}{p^{(0)}(x)}\\]\n\n\n\nThe OR quantifies how much the “odds” of \\(P(Y = k)\\) is modified between \\(x_1\\) and \\(x_2\\), relative to the reference category \\(Y = 0\\).\n\n\nIn the ordinal case, we will model “odds” that are easier to interpret."
   },
   {
     "objectID": "teaching/glm/slides/categorical_data.html#section",
@@ -3094,7 +3094,7 @@
     "href": "teaching/glm/slides/categorical_data.html#inference",
     "title": "Models for Categorical Data",
     "section": "Inference",
-    "text": "Inference\n\nRecall: the \\((Y_i|X_i = x_i)\\) being independent and multinomially distributed, the log-likelihood is\n\n\\[L = \\sum_{i=1}^n \\sum_{k=0}^{K-1} \\mathbf{1}\\{Y_i = k\\} \\ln(p_\\beta^{(k)}(x_i))\\]\n\n\n\nFor the cumulative model and the proportional odds model:\n\nwe can deduce the form of \\(p_\\beta^{(k)}\\)\nwe then maximize \\(L\\) in \\(\\beta\\) to obtain \\(\\hat{\\beta}\\) (by numerical methods)"
+    "text": "Inference\n\nRecall: the \\((Y_i|X_i = x_i)\\) being independent and multinomially distributed, the log-likelihood is\n\n\\(L = \\sum_{i=1}^n \\sum_{k=0}^{K-1} \\mathbf{1}\\{Y_i = k\\} \\ln(p_\\beta^{(k)}(x_i))\\)\n\n\n\nFor the cumulative model and the proportional odds model:\n\nwe can deduce the form of \\(p_\\beta^{(k)}\\)\nwe then maximize \\(L\\) in \\(\\beta\\) to obtain \\(\\hat{\\beta}\\) (by numerical methods)"
   },
   {
     "objectID": "teaching/glm/slides/categorical_data.html#tests",
@@ -6522,21 +6522,21 @@
     "href": "teaching/glm/slides/logistic_model.html#deviance-1",
     "title": "The Logistic Model",
     "section": "Deviance",
-    "text": "Deviance\n. . .\nThe deviance of a model measures how much this model deviates from the saturated model (the ideal model in terms of likelihood).\n. . .\n\n\\[D = 2(L_{\\text{sat}} - L_{\\text{mod}})\\]\n\nwhere \\(L_{\\text{mod}}\\) denotes the log-likelihood for the model parameters.\n. . .\nWe always have \\(D \\geq 0\\).\n. . .\nIf all observations are distinct, \\(L_{\\text{sat}} = 0\\) therefore \\(D = -2L_{\\text{mod}}\\)"
+    "text": "Deviance\n\nThe deviance of a model measures how much this model deviates from the saturated model (the ideal model in terms of likelihood).\n\n\n\n\\[D = 2(L_{\\text{sat}} - L_{\\text{mod}})\\]\n\nwhere \\(L_{\\text{mod}}\\) denotes the log-likelihood for the model parameters.\n\n\nWe always have \\(D \\geq 0\\).\n\n\nIf all observations are distinct, \\(L_{\\text{sat}} = 0\\) therefore \\(D = -2L_{\\text{mod}}\\)"
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#example-obesity-study",
     "href": "teaching/glm/slides/logistic_model.html#example-obesity-study",
     "title": "The Logistic Model",
     "section": "Example: Obesity Study",
-    "text": "Example: Obesity Study\n. . .\nmodel=glm(Y~AGE+DBP+SEXE+ACTIV+WALK+MARITAL, family=binomial)\nsummary(model)\n. . .\n\n\n\n\nStatistic\nValue\nDegrees of Freedom\n\n\n\n\nNull deviance\n\\(4610.8\\)\non \\(5300\\)\n\n\nResidual deviance\n\\(4459.5\\)\non \\(5290\\)\n\n\nAIC\n\\(4481.5\\)\n\n\n\n\n\n. . .\nThe model deviance is therefore \\(D = 4459.5\\).\nSignificance Test: We compare \\(D\\) to the null deviance \\(D_0 = 4610.8\\): \\(D_0 - D = 151.3\\). The p-value of the test equals \\(1 - \\chi^2_{10}(151.3) \\approx 0\\) where \\(\\chi^2_{10}\\) is the cdf of a \\(\\chi^2_{10}\\).\n. . .\nThe model is significant."
+    "text": "Example: Obesity Study\n\nmodel=glm(Y~AGE+DBP+SEXE+ACTIV+WALK+MARITAL, family=binomial)\nsummary(model)\n\n\n\n\n\n\nStatistic\nValue\nDegrees of Freedom\n\n\n\n\nNull deviance\n\\(4610.8\\)\non \\(5300\\)\n\n\nResidual deviance\n\\(4459.5\\)\non \\(5290\\)\n\n\nAIC\n\\(4481.5\\)\n\n\n\n\n\n\n\nThe model deviance is therefore \\(D = 4459.5\\).\nSignificance Test: We compare \\(D\\) to the null deviance \\(D_0 = 4610.8\\): \\(D_0 - D = 151.3\\). The p-value of the test equals \\(1 - \\chi^2_{10}(151.3) \\approx 0\\) where \\(\\chi^2_{10}\\) is the cdf of a \\(\\chi^2_{10}\\).\n\n\nThe model is significant."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#classification",
     "href": "teaching/glm/slides/logistic_model.html#classification",
     "title": "The Logistic Model",
     "section": "Classification",
-    "text": "Classification\n. . .\nWe have estimated \\(p_\\beta(x) = P(Y = 1|X = x)\\) by \\(p_{\\hat{\\beta}}(x)\\).\n. . .\nFor a threshold to choose \\(s \\in [0, 1]\\), we use the rule:\n\n\\[\\begin{cases}\n\\text{if } p_{\\hat{\\beta}}(x) &gt; s, & \\hat{Y} = 1 \\\\\n\\text{if } p_{\\hat{\\beta}}(x) &lt; s, & \\hat{Y} = 0\n\\end{cases}\\]\n\n. . .\nThe “natural” choice of threshold is \\(s = 0.5\\) but this choice can be optimized."
+    "text": "Classification\n\nWe have estimated \\(p_\\beta(x) = P(Y = 1|X = x)\\) by \\(p_{\\hat{\\beta}}(x)\\).\n\n\nFor a threshold to choose \\(s \\in [0, 1]\\), we use the rule:\n\n\\[\\begin{cases}\n\\text{if } p_{\\hat{\\beta}}(x) &gt; s, & \\hat{Y} = 1 \\\\\n\\text{if } p_{\\hat{\\beta}}(x) &lt; s, & \\hat{Y} = 0\n\\end{cases}\\]\n\n\n\nThe “natural” choice of threshold is \\(s = 0.5\\) but this choice can be optimized."
   },
   {
     "objectID": "teaching/glm/slides/Introduction_glm.html",
@@ -6551,5 +6551,313 @@
     "title": "The Logistic Model",
     "section": "",
     "text": "\\(\\newcommand{\\VS}{\\quad \\mathrm{VS} \\quad}\\) \\(\\newcommand{\\and}{\\quad \\mathrm{and} \\quad}\\) \\(\\newcommand{\\E}{\\mathbb E}\\) \\(\\newcommand{\\P}{\\mathbb P}\\) \\(\\newcommand{\\Var}{\\mathbb V}\\) \\(\\newcommand{\\Cov}{\\mathrm{Cov}}\\) \\(\\newcommand{\\1}{\\mathbf 1}\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#introduction",
+    "href": "research/presentations/bandits_many_arms/presentation.html#introduction",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Introduction",
+    "text": "Introduction\n\n\\[x=2\\]"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#this-talk",
+    "href": "research/presentations/bandits_many_arms/presentation.html#this-talk",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "",
+    "text": "Sequential decision problems\nUnbounded set of options\nLimited sampling budget"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#classical-bandit-problems",
+    "href": "research/presentations/bandits_many_arms/presentation.html#classical-bandit-problems",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "",
+    "text": ". . .\nConsider a two-armed bandit problem, \\(\\mathcal A=\\{1, 2\\}\\)\nwe observe:\n\\(\\newcommand{\\and}{\\quad \\mathrm{and} \\quad}\\)\n\n\\(X_{1,s} = \\mu_{1} + \\varepsilon_{1,s} \\quad \\and \\quad X_{2,s} = \\mu_{2} + \\varepsilon_{2,s}\\)\n\n\n\\(\\mu_1\\), \\(\\mu_2\\) belong to \\(\\mathbb R\\)\n\\(\\varepsilon_{i,s} \\sim \\mathcal N(0,1)\\) (or 1-subgaussian)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#illustration-of-ucb",
+    "href": "research/presentations/bandits_many_arms/presentation.html#illustration-of-ucb",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Illustration of UCB",
+    "text": "Illustration of UCB"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#cumulative-regret",
+    "href": "research/presentations/bandits_many_arms/presentation.html#cumulative-regret",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "",
+    "text": ". . .\nMotivation:\n\nOverall cost of learning\nEvery suboptimal pull incurs a loss\n\n. . .\nDefined as\n\n\\(R = \\sum_{t=1}^n (\\mu_1 - \\mu_{j_t})\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#ucb-algo",
+    "href": "research/presentations/bandits_many_arms/presentation.html#ucb-algo",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "",
+    "text": ". . .\nOptimism in face of uncertainty:\nChoose arms that maximizes upper-confidence bound\n\n\\(UCB_{a,t} \\asymp \\hat \\mu_a + \\frac{c}{\\sqrt{N_{a,t}}}\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#upper-bound-on-cumulative-regret",
+    "href": "research/presentations/bandits_many_arms/presentation.html#upper-bound-on-cumulative-regret",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "",
+    "text": ". . .\nAssume \\(\\mu_1 &gt; \\mu_2\\), let \\(\\Delta = \\mu_1 - \\mu_2\\) be the gap\n. . .\nMain idea. If the confidence interval are disjoint, we detect best arm:\n. . .\nSimplified condition.\n\n\\(\\frac{1}{\\sqrt{t}} \\lesssim \\Delta\\)\n\n. . .\nWe detect best arm after time \\(t \\gtrsim 1/\\Delta^2\\)\n\n\\(R \\lesssim \\max(\\frac{\\Delta}{\\Delta^2}, \\Delta t) \\lesssim \\sqrt{t}\\)\n\n. . .\n(worst case when \\(\\Delta \\asymp 1/\\sqrt{t}\\))"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#active-learning-setting",
+    "href": "research/presentations/bandits_many_arms/presentation.html#active-learning-setting",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "",
+    "text": "At each timestep \\(t\\)\n\nBased on past obsevation\nThe learner pulls arm \\(\\hat a_t \\in \\{1, 2\\}\\) and get reward \\(X_{\\hat a_t, s}\\)\n\\(s = N_{\\hat a_t,t}\\) is the number of times arm \\(\\hat a_t\\) has been pulled"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#setting",
+    "href": "research/presentations/bandits_many_arms/presentation.html#setting",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Setting",
+    "text": "Setting\n. . .\nLet \\(\\mathcal A = \\{1, 2, \\dots, \\}\\).\n. . .\nObservations for arm \\(a\\) (if ever observed):\n\n\\(X_{a,s} = \\mu_a + \\varepsilon_{a,s}\\)\n\n\n\\(\\mu_a\\) are drown independently from some distribution \\(\\mathcal D\\)\n\\(\\varepsilon_{a,s}\\) are independent \\(\\mathcal N(0,1)\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#alternative-formulation",
+    "href": "research/presentations/bandits_many_arms/presentation.html#alternative-formulation",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Alternative formulation",
+    "text": "Alternative formulation\n. . .\n\n\\(X_{a,s} = \\lambda_{\\gamma(a)} + \\varepsilon_{a,s}\\)\n\n\n\\(\\eta \\mapsto \\lambda_{\\eta}\\) is a decreasing function\n\\(\\gamma(a)\\) are iid \\(\\mathcal U(0,1)\\)\n\n. . .\n\\(\\rightarrow\\) \\(\\gamma(a)\\) represents a continuous rank of arm \\(a\\)\n. . .\n\\(\\rightarrow\\) “best arm” corresponds to \\(\\gamma(a)=0\\)\n. . .\n\\(\\rightarrow\\) Unbounded distribution of arm means iff \\(\\lambda_0 = +\\infty\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#when-cumulative-regret-fails",
+    "href": "research/presentations/bandits_many_arms/presentation.html#when-cumulative-regret-fails",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "When Cumulative Regret Fails",
+    "text": "When Cumulative Regret Fails\n. . .\nConsider the case where \\(\\lambda_{\\gamma(a)} \\in \\{0, \\epsilon\\}\\) and\n\\(\\mathbb P(\\lambda_{\\gamma(a)} = \\epsilon) = \\eta_0\\):\n. . .\n\n\\(\\lambda_{\\eta}= \\begin{cases}\n\\epsilon &\\text{if } \\eta \\leq \\eta_0\\\\\n0 &\\text{otherwise } \\\\\n\\end{cases}\\)\n\n. . .\nDe Heide et al. (2021) established that it is impossible to adapt to \\(\\eta_0\\) to get a “good” cumulative regret\n. . .\nIt is possible to adapt to \\(\\eta_0\\) if we consider simple regret"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#biblio",
+    "href": "research/presentations/bandits_many_arms/presentation.html#biblio",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Biblio",
+    "text": "Biblio"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#epsilon-good-arms-and-simple-regrets",
+    "href": "research/presentations/bandits_many_arms/presentation.html#epsilon-good-arms-and-simple-regrets",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "\\(\\epsilon\\)-Good Arms and Simple Regrets",
+    "text": "\\(\\epsilon\\)-Good Arms and Simple Regrets\n. . .\nTwo main criteria in the litterature:\n\n\\(\\epsilon\\)-good arm: \\(\\mathbb P(\\lambda_{\\gamma(\\hat r_t)} \\geq \\lambda_0 - \\epsilon) \\geq 1-\\delta\\)\nSimple regret: \\(\\lambda_0 - \\lambda_{\\hat r_t}\\)\n\n. . .\n\\(\\to\\) These are anytime criteria.\n. . .\n\\(\\to\\) In fixed budget settings \\(t \\in \\{1, \\dots, T\\}\\), simple regret can be defined as \\(\\lambda_0 - \\lambda_{\\hat a_t}\\)\n. . .\n\\(\\to\\) we need boundedness (\\(\\lambda_0 &lt; +\\infty\\))to define them!"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#recommendations-and-simple-regret",
+    "href": "research/presentations/bandits_many_arms/presentation.html#recommendations-and-simple-regret",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Recommendations and Simple Regret",
+    "text": "Recommendations and Simple Regret\n\nAt each timestep \\(t\\)\n\nThe learner pulls an arm \\(\\hat a_t \\in \\mathcal A\\)\nThe learner recommends an arm \\(\\hat r_t\\)\n\n\n\nThe simple expected reward is \\(\\lambda_{\\gamma(\\hat r_t)}\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#recommendations-and-simple-expected-reward",
+    "href": "research/presentations/bandits_many_arms/presentation.html#recommendations-and-simple-expected-reward",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Recommendations and Simple Expected Reward",
+    "text": "Recommendations and Simple Expected Reward\n\nAt each timestep \\(t\\)\n\nThe learner pulls an arm \\(\\hat a_t \\in \\mathcal A\\)\nThe learner recommends an arm \\(\\hat r_t\\)\n\n\n\nThe simple expected reward is \\(\\lambda_{\\gamma(\\hat r_t)}\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#recommendations-and-simple-recommendation-reward",
+    "href": "research/presentations/bandits_many_arms/presentation.html#recommendations-and-simple-recommendation-reward",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Recommendations and Simple Recommendation Reward",
+    "text": "Recommendations and Simple Recommendation Reward\n\nAt each timestep \\(t\\)\n\nThe learner pulls an arm \\(\\hat a_t \\in \\mathcal A\\)\nThe learner recommends an arm \\(\\hat r_t\\)\n\n\n\nThe simple expected reward is \\(\\lambda_{\\gamma(\\hat r_t)}\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#simple-recommendation-reward",
+    "href": "research/presentations/bandits_many_arms/presentation.html#simple-recommendation-reward",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Simple Recommendation Reward",
+    "text": "Simple Recommendation Reward\n. . .\nAt each timestep \\(t\\), the learner:\n\nPulls an arm \\(\\hat a_t \\in \\mathcal A\\)\nRecommends an arm \\(\\hat r_t\\)\n\n. . .\nThe simple expected reward is \\(\\lambda_{\\gamma(\\hat r_t)}\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#main-question",
+    "href": "research/presentations/bandits_many_arms/presentation.html#main-question",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Main Question",
+    "text": "Main Question\n. . .\nGiven quantile function \\(\\lambda\\),\nWhat simple reward can we achieve?"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#related-results",
+    "href": "research/presentations/bandits_many_arms/presentation.html#related-results",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Related Results",
+    "text": "Related Results\n. . .\nCarpentier & Valko (2015) established the minimax rate (up to polylogs) when \\(\\lambda_{\\eta} \\asymp 1-\\eta^\\alpha\\)\n. . .\nZhao et al. (2023) proposed a parameter free algorithm and general bounds on simple regrets\n. . .\nThey recover in particular the results of Carpentier & Valko (2015) in their specific class of distributions"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#main-result",
+    "href": "research/presentations/bandits_many_arms/presentation.html#main-result",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Main Result",
+    "text": "Main Result\n. . .\nLet \\(\\mathcal D\\) be any distribution (potentially unbounded).\n. . .\nDefine for \\(0&lt; \\rho &lt; \\nu &lt; 1\\):\n\n\\(G(\\rho, \\nu) = \\frac{\\nu}{\\rho} \\frac{1}{(\\lambda_{\\rho}- \\lambda_{\\nu})^2} \\lor \\frac{1}{\\rho}\\)\n\n\n\\(\\frac{1}{(\\lambda_{\\rho}- \\lambda_{\\nu})^2}\\) correspond to the inverse squared gap between ranks \\(\\nu\\) and \\(\\rho\\)\nIt would correspond to the sample complexity if we had only two arms with mean \\(\\lambda_\\nu\\) and \\(\\lambda_{\\rho}\\)\nFor one arm s.t. \\(\\gamma(a) \\leq \\rho\\), there are \\(\\nu/\\rho\\) arms s.t. \\(\\gamma(a) \\leq \\nu\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#main-result-1",
+    "href": "research/presentations/bandits_many_arms/presentation.html#main-result-1",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Main Result",
+    "text": "Main Result\n. . .\n\n\\(G(\\rho, \\nu) = \\frac{\\nu}{\\rho} \\frac{1}{(\\lambda_{\\rho}- \\lambda_{\\nu})^2} \\lor \\frac{1}{\\rho}\\)\n\nWe are able to detect quantile \\(\\eta\\) at time \\(t\\)\n. . .\n\\(\\exists \\rho &lt; \\eta\\) s.t. \\(\\forall \\nu \\geq \\eta\\),\n. . .\n\n\\(G(\\rho, \\nu) \\ll t\\)\n\n. . .\n(\\(\\ll\\) hides a polylog factor in \\(t\\) and error probability \\(\\delta\\))\n. . .\nThis results is also valid for unbounded distributions !"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#litterature",
+    "href": "research/presentations/bandits_many_arms/presentation.html#litterature",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Litterature",
+    "text": "Litterature\n\nCarpentier & Valko (2015): Assumes that \\(\\lambda_{\\eta} = 1- \\eta^{\\alpha}\\) and estimate \\(\\alpha\\) to adapt\nJamieson et al. (2013): Bracketing trick consisting in increasing disjoint sets of explored arms\nZhao et al. (2023): Sequential halving, doubling trick and bracketing trick"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#ose-and-prose",
+    "href": "research/presentations/bandits_many_arms/presentation.html#ose-and-prose",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "OSE and PROSE",
+    "text": "OSE and PROSE\n\nOSE (Optimistic Scope Exploration)\nPROSE (Progressive Ranking for Optimistic Scope Exploration)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#ose",
+    "href": "research/presentations/bandits_many_arms/presentation.html#ose",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "OSE",
+    "text": "OSE\n. . .\n\n\n\\(LCB_{a,t} = \\hat \\lambda_{\\gamma(a)} - \\frac{C}{\\sqrt{N_{a,t}}} \\quad \\text{and} \\quad UCB_{a,t} \\asymp \\hat \\lambda_{\\gamma(a)} + \\frac{C}{\\sqrt{N_{a,t}}}\\)\n\n\nAt each time \\(t\\):\n\nDraw an exploration scope \\(Z \\sim t^U\\), where \\(U \\sim \\mathcal U(0,1)\\)\nPull UCB over \\(\\{1, \\dots, Z\\}\\), \\(\\hat a_t = \\mathrm{argmax}_{a \\leq Z} UCB_{a,t}\\)\nRecommend LCB over all arms, \\(\\hat r_t = \\mathrm{argmax}_{a \\in \\mathcal A} LCB_{a,t}\\)\n\n. . .\nThere is also a deterministic version (better in practice and computationally more efficient)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#prose",
+    "href": "research/presentations/bandits_many_arms/presentation.html#prose",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "PROSE",
+    "text": "PROSE\n. . .\nStart from some arbitrary ranking \\(\\pi\\). For each \\(t\\):\n\nDraw an exploration scope \\(Z \\sim t^U\\), where \\(U \\sim \\mathcal U(0,1)\\)\nPull UCB over \\(\\{1, \\dots, Z\\}\\), \\(\\hat a_t = \\mathrm{argmax}_{\\pi(a) \\leq Z} UCB_{a,t}\\)\nSort the arms by LCB: \\(LCB_{\\pi^{-1}(1),t} \\geq LCB_{\\pi^{-1}(2),t}\\dots\\)\nRecommend LCB over all arms, \\(\\hat r_t = LCB_{\\pi^{-1}(1),t}\\)\n\n. . .\nNaive implementation: time complexity \\(\\asymp \\tilde O(t^2)\\)\nDeterministic version + cascading trick for max: time complexity \\(\\asymp \\tilde O(t)\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#consequences",
+    "href": "research/presentations/bandits_many_arms/presentation.html#consequences",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Consequences",
+    "text": "Consequences\n\n\\(\\zeta\\): noise level\n\\(\\mathbf{t}=t \\cdot (polylog)\\)\n\n\n\n\n\n\n\n\n\n\n\nType of the distribution \\(\\mathcal{D}\\)\nQuantile Function \\(\\lambda_{\\eta}\\)\nUpper Bound on \\(\\gamma(\\hat r_t)\\)\nLower Bound on \\(\\lambda_{\\gamma(\\hat r_t)}\\)\n\n\n\n\nBernoulli\n\\(u\\mathbf{1}\\{\\eta \\leq \\eta_0\\}\\)\n\\(\\eta_0 \\mathbf{1}\\{\\mathbf{t} \\geq \\frac{\\zeta^2}{\\eta_0 u^2}\\}\\)\n\\(u \\mathbf{1}\\{\\mathbf{t} \\geq \\frac{\\zeta^2}{\\eta_0 u^2}\\}\\)\n\n\nBeta (\\(\\alpha &lt; 1/2\\))\n\\(1-\\eta^{\\alpha}\\)\n\\(\\frac{1 \\lor \\frac{\\zeta^2}{\\alpha^2}}{\\mathbf{t}}\\)\n\\(1-\\left(\\frac{1 \\lor \\frac{\\zeta^2}{\\alpha^2}}{\\mathbf{t}}\\right)^\\alpha\\)\n\n\nBeta (\\(\\alpha \\geq 1/2\\))\n\\(1-\\eta^{\\alpha}\\)\n\\(\\frac{1}{\\mathbf{t}} \\lor \\left(\\frac{\\zeta^2}{\\mathbf{t}}\\right)^{\\frac{1}{2\\alpha}}\\)\n\\(1-\\frac{1}{\\mathbf{t}^\\alpha} \\lor \\sqrt{\\frac{\\zeta^2}{\\mathbf{t}}}\\)\n\n\nPareto (\\(\\alpha &lt; 1/2\\))\n\\(\\eta^{-\\alpha}\\)\n\\(\\frac{1}{\\mathbf{t}} \\lor \\left( \\frac{\\zeta^2}{\\alpha^2\\mathbf{t}}\\right)^{\\frac{1}{1-2\\alpha}}\\)\n\\(\\mathbf{t}^\\alpha \\land \\left(\\frac{\\alpha^2\\mathbf{t}}{\\zeta^2}\\right)^{\\frac{\\alpha}{1-2\\alpha}}\\)\n\n\nPareto (\\(\\alpha \\geq 1/2\\))\n\\(\\eta^{-\\alpha}\\)\n\\(\\frac{1}{\\mathbf{t}}\\lor \\mathbf{1}\\{\\mathbf{t} \\geq \\zeta^{1/\\alpha}\\}\\)\n\\(\\mathbf{t}^\\alpha \\mathbf{1}\\{\\mathbf{t} \\geq \\zeta^{1/\\alpha}\\}\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#result-on-ose",
+    "href": "research/presentations/bandits_many_arms/presentation.html#result-on-ose",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Result on OSE",
+    "text": "Result on OSE\n. . .\nRecall that for \\(\\rho &lt; \\nu\\), we define\n\n\\(G(\\rho, \\nu) = \\frac{\\nu}{\\rho} \\frac{1}{(\\lambda_{\\rho}- \\lambda_{\\nu})^2} \\lor \\frac{1}{\\rho}\\)\n\n. . .\n\n\n\n\n\n\nTheorem\n\n\n\nLet \\(\\eta \\in (0,1)\\) and assume that \\(G(\\rho, \\nu) \\leq \\tfrac{t}{C\\log^C(t/\\delta)}\\).\nThen, with probability at least \\(1-\\delta\\), OSE recommends arms \\((\\hat r_t)_{t \\geq 1}\\) that satisfy \\(\\gamma(\\hat r_t) \\leq \\eta\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#theorem",
+    "href": "research/presentations/bandits_many_arms/presentation.html#theorem",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Theorem",
+    "text": "Theorem\nIf,\nthen OSE recommends an"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#why-tu",
+    "href": "research/presentations/bandits_many_arms/presentation.html#why-tu",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Why t^U ?",
+    "text": "Why t^U ?\n\nAssume that for any \\(q \\in (0,1), \\lambda_{q} \\asymp \\lambda_{q/2}\\)\n\\(\\mathbb P(Z \\leq t^{k/\\log_2(t)}) = k/\\log_2(t)\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#practical-limitations",
+    "href": "research/presentations/bandits_many_arms/presentation.html#practical-limitations",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Practical Limitations",
+    "text": "Practical Limitations\n\n\\(\\mathbb P(Z=1) = 1/\\log_2(t)\\)\nEven if we know first arms are bad, we keep pulling them a lot (\\(t/\\log_2(t)\\))\nIdea: rank the arms iteratively with a pessimistic metric"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#why-z-sim-tu",
+    "href": "research/presentations/bandits_many_arms/presentation.html#why-z-sim-tu",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Why \\(Z \\sim t^U\\) ?",
+    "text": "Why \\(Z \\sim t^U\\) ?\n\nAssume that for any \\(q \\in (0,1), \\lambda_{q} \\asymp \\lambda_{q/2}\\)\nIf \\(Z \\asymp t^{k/\\log_2(t)}=2^k\\),\n\n\n\n\\(\\exists a \\leq Z\\) s.t. \\(\\gamma(a) \\lesssim 2^{-k}\\)\n\n\nThis happens with non-negligible probability:\n\n\n\n\n\\(\\mathbb P(t^{k/\\log_2(t)} \\leq Z \\leq t^{k/\\log_2(t)}) = 1/\\log_2(t)\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#why-do-we-take-z-sim-tu",
+    "href": "research/presentations/bandits_many_arms/presentation.html#why-do-we-take-z-sim-tu",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Why do we take \\(Z \\sim t^U\\) ?",
+    "text": "Why do we take \\(Z \\sim t^U\\) ?\n\nAssume that for any \\(q \\in (0,1), \\lambda_{q} \\asymp \\lambda_{q/2}\\)\nIf \\(Z \\asymp t^{k/\\log_2(t)}=2^k\\),\n\n. . .\n\n\\(\\exists a \\leq Z\\) s.t. \\(\\gamma(a) \\lesssim 2^{-k}\\)\n\n\nThis happens with non-negligible probability:\n\n. . .\n\n\\(\\mathbb P(t^{k/\\log_2(t)} \\leq Z \\leq t^{k/\\log_2(t)}) = 1/\\log_2(t)\\)"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#comparison-to-bsh-from-zhao2023revisiting",
+    "href": "research/presentations/bandits_many_arms/presentation.html#comparison-to-bsh-from-zhao2023revisiting",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Comparison to BSH from Zhao et al. (2023)",
+    "text": "Comparison to BSH from Zhao et al. (2023)\nExpected simple regrets for the four algorithms as a function of \\(t\\) on a log scale. Each plot shows results for quantile function \\(\\lambda_{\\eta} = 1-\\eta^{\\alpha}\\) with \\(\\alpha \\in \\{0.25, 0.5, 1, 2\\}\\), using \\(K = 5000\\) arms and time horizon \\(T_{\\mathrm{max}}=50000\\). Trajectories display median simple regret over \\(N=2000\\) trials. Shaded regions (blue for \\(\\PROSE\\), orange for \\(\\BSH\\)) show the interquartile range."
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#experimental-setting",
+    "href": "research/presentations/bandits_many_arms/presentation.html#experimental-setting",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Experimental Setting",
+    "text": "Experimental Setting\n\n\\(\\lambda_{\\eta} = 1-\\eta^{\\alpha}\\) with \\(\\alpha \\in \\{0.25, 0.5, 1, 2\\}\\)\n\\(K = 5000\\) arms\n\\(T_{\\mathrm{max}}=50000\\)\nMean of simple regret trajectories over \\(N=2000\\) trials"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#main-result-2",
+    "href": "research/presentations/bandits_many_arms/presentation.html#main-result-2",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Main Result",
+    "text": "Main Result\n. . ."
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#influence-of-tuning-parameter",
+    "href": "research/presentations/bandits_many_arms/presentation.html#influence-of-tuning-parameter",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Influence of Tuning Parameter",
+    "text": "Influence of Tuning Parameter\n. . ."
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#cumulative-regret-1",
+    "href": "research/presentations/bandits_many_arms/presentation.html#cumulative-regret-1",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Cumulative Regret",
+    "text": "Cumulative Regret\n. . ."
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#implementation-details",
+    "href": "research/presentations/bandits_many_arms/presentation.html#implementation-details",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Implementation Details",
+    "text": "Implementation Details\n\nPROSE (optimized deterministic version): \\(\\sim\\) 76 ms/trial \nBSH (home made implementation): \\(\\sim\\) 89 ms/trial \nBSH (original version from ):\n\n\\(\\sim  14s\\)/trial (slow pace language Python or R).\nignores the authors’ recommendation to carry over confidence bounds across doubling trick restarts"
+  },
+  {
+    "objectID": "teaching/teaching.html",
+    "href": "teaching/teaching.html",
+    "title": "Teaching",
+    "section": "",
+    "text": "I currently am a teaching three topics in statistics at ENSAI Rennes: Hypothesis Testing, Linear and Generalized Linear Model and Times Series (TD 2024).\n\nIntroduction to Hypothesis Testing\nSee the Glossary for English/French translations. See also the note recalling some notion on Density and Likelihood.\n\nSlidesLecturesExercisesAnnalsPluto Notebooks\n\n\n\nTesting Models\nClassical Tests on Gaussian Populations\nGoodness of Fit and Homogeneity Tests\nTests for Dependency\n\n\n\n\nTesting Models\n\nClassical Tests on Gaussian Populations\nGoodness of Fit and Homogeneity Tests\nTests for Dependency\n\n\n\n\nTD1\nTD2\nTD3\nTD4\nTP\n\n\n\n\nExam 2025\nCorrection 2025\n\n\n\n\nProba Basics\nApproximation of Distributions\nIllustration of pvalue\n\n\n\n\n\n\nLinear and Generalized Linear Model\nThis course is offered to second-year ENSAI students in collaboration with Frédéric Lavancier. Most resources below are adapted from Frédéric Lavancier’s teaching materials\n\nSlidesExercises\n\n\n\nLinear Model\n\nIntroduction\nDefinition of the Linear Model\nInference\nValidation\nModel Selection\nANOVA/ANCOVA\n\n\n\nGeneralized Linear Model\n\nIntroduction to GLM\nLogistic Model\nModels for Categorical Data\nCounting Models\n\n\n\n\n\nTD1\nTD2-5\nTD6-8"
+  },
+  {
+    "objectID": "teaching/glm/speaker_notes/glm_intro.html",
+    "href": "teaching/glm/speaker_notes/glm_intro.html",
+    "title": "When Linearity is Reasonable",
+    "section": "",
+    "text": "When Linearity is Reasonable\nLet’s discuss when the linearity assumption makes sense.\nIn linear regression, we assume E(Y|X) equals X-transpose-beta—a linear function of our regressors.\nThis means the conditional expectation of Y can be ANY real number—negative, positive, whatever. No restrictions.\nWhen is this okay?\nWhen Y given X is Gaussian. Normal distributions span the entire real line, so any value for E(Y|X) makes sense.\nOr when Y given X follows any other “nice” continuous distribution on the real line. That is Y does not look like to a discrete distrib too much.\n\n\n\nWhen it is Not\nBut this assumption fails for certain types of response variables.\nEspecially when Y is qualitative or discrete.\nExamples: Binary responses: If Y represents disease presence (0 or 1), can E(Y|X) equal 1.5? Or -0.3? No—we need values between 0 and 1.\nCount data: If Y is hospital visits, it can’t be negative or fractional. Linear regression might give E(Y|X) = -2 or 3.7—both impossible values.\nCategorical responses: If Y is transportation choice (car, bus, or bike), it’s not a numeric scale that can take any real value.\nBottom line: If Y can’t reasonably take any real number, linear regression isn’t appropriate. We’ll see alternative approaches like logistic regression later in the course.\n\n\nKey Differences by Response Type\nNow let’s be more precise about what changes depending on the type of response variable.\nIn all situations—whether Y is continuous, binary, categorical, or count data—our objective is the same: link Y to our regressors X through modeling E(Y|X).\nHowever, E(Y|X) has different interpretations depending on what Y represents.\nWhen Y equals 0 or 1, E(Y|X) represents a probability—the probability that Y equals 1 given X.\nWhen Y can be one of k categories—A1 through Ak—E(Y|X) involves multiple probabilities for each category.\nWhen Y is in the natural numbers—0, 1, 2, and so on—E(Y|X) represents an expected count, which must be non-negative.\nAnd here’s the key: in all these cases, the linear model E(Y|X) equals X-transpose-beta is inappropriate. We need something different.\n\n\n\nObjectives of the GLM\nSo what do we do instead?\nWe model E(Y|X) differently using generalized linear models—or GLMs.\nThe good news is that our objectives remain the same as in linear regression.\nWe still want to understand the individual effect of a given regressor, holding all other variables constant.\nWe want to understand relationships between our regressors and the response.\nAnd we want to forecast outcomes for new observations.\nGLMs give us a flexible framework to achieve these goals when linear regression isn’t appropriate.\n\n\n\nThree Fundamental Cases\nLet’s outline the three fundamental cases we’ll study in detail.\nBinary responses—when Y takes only values 0 or 1. Think disease presence/absence, success/failure, yes/no outcomes.\nCategorical responses—when Y can be one of several categories: A1 through Ak. Think transportation choice, treatment selection, or any general qualitative variable.\nCount data—when Y is in the natural numbers. Think number of events, hospital visits, or any situation where you’re counting occurrences.\nFor each case, we’ll see how to properly model E(Y|X) and interpret the results. These will form the building blocks of generalized linear models.\n\n\nCase 1 - Binary Case\nLet’s dive into the first fundamental case: binary responses.\nWithout loss of generality, we’ll work with Y taking values 0 or 1.\nIf Y models membership in some category A—for example, whether someone has a disease—this is equivalent to studying the indicator variable Y equals 1 if in category A, 0 otherwise.\nThe key insight is that the distribution of Y given X equals x is entirely determined by p(x), which equals the probability that Y equals 1 given X equals x.\nOnce we know p(x), we automatically know the probability that Y equals 0 given X equals x—it’s just 1 minus p(x).\nSo Y given X equals x follows a Bernoulli distribution with parameter p(x).\nThis means the conditional expectation E(Y|X = x) equals p(x). So modeling the conditional expectation is the same as modeling the probability.\nHere’s the crucial constraint: p(x) must be between 0 and 1: it’s a probability.\n\n\n\nModelling p(x)\nSo how do we model p(x)?\nRemember, E(Y|X = x) equals P(Y = 1|X = x) equals p(x), and this must lie in the interval 0 to 1.\nThe naive approach would be to set p(x) equals x-transpose-beta, just like in linear regression. But this doesn’t work! Nothing guarantees that x-transpose-beta stays between 0 and 1.\nInstead, we propose a model of the form: p(x) equals f of x-transpose-beta.\nHere, f is a function that maps from the real line to the interval 0 to 1. Think of it as a transformation that takes any real number—which could be x-transpose-beta—and squashes it into a probability.\nThis gives us a coherent model. The linear combination x-transpose-beta can be any real number, but f transforms it to stay between 0 and 1. And we still only need to estimate beta—the same number of parameters as linear regression.\nThe question is: what function f should we use? We’ll explore specific choices like the logistic function next.\n\n\n1: Case 2 - Categorical Y (Part 1)\nNow let’s move to the second case: categorical responses with more than two categories.\nIf Y represents membership in k different classes—A1 through Ak—its distribution is determined by k probabilities: p_j(x) equals the probability that Y is in class Aj given X equals x, for j equals 1 through k.\nFor instance, if Y is transportation choice—car, bus, or bike—we have three probabilities that sum to one.\nThe key constraint is that these probabilities must sum to 1. And notice: if k equals 2, we have only two categories, which reduces to the binary case.\n\n\n\nSlide 2: Case 2 - Categorical Y (Part 2)\nLet’s write this more formally using indicator variables.\nWe can represent Y as a vector of indicators: Y equals (indicator of A1, through indicator of Ak). This follows a multinomial distribution.\nThe conditional expectation E(Y|X = x) is then a vector with components p_1(x) through p_k(x)—each representing the probability of being in that category.\n\n\n\n3: Case 2 - Model for Categorical Y\nHow do we model this?\nHere’s a key simplification: to model E(Y|X = x), we only need to model k minus 1 probabilities—p_1(x) through p_(k-1)(x)—because the last probability p_k(x) is determined by the constraint. It equals 1 minus the sum of all the others.\nJust like in the binary case, we can propose: p_j(x) equals f of x-transpose-beta_j, for j equals 1 through k minus 1.\nAgain, f is a function from the real line to the interval 0 to 1, ensuring each probability is valid. How many parameters ?\nWe now have k minus 1 unknown parameter vectors to estimate—beta_1 through beta_(k-1)—each in R^p. So if you have p regressors and k categories, you’re estimating (k-1) times p parameters total.\nThis is more complex than the binary case, but the principle is the same: use a transformation function to keep probabilities between 0 and 1."
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html",
+    "href": "research/presentations/bandits_many_arms/presentation.html",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "",
+    "text": "Sequential decision problems\nUnbounded set of options\nLimited sampling budget\n\n\n\n\n. . .\nConsider a two-armed bandit problem, \\(\\mathcal A=\\{1, 2\\}\\)\nwe observe:\n\\(\\newcommand{\\and}{\\quad \\mathrm{and} \\quad}\\)\n\n\\(X_{1,s} = \\mu_{1} + \\varepsilon_{1,s} \\quad \\and \\quad X_{2,s} = \\mu_{2} + \\varepsilon_{2,s}\\)\n\n\n\\(\\mu_1\\), \\(\\mu_2\\) belong to \\(\\mathbb R\\)\n\\(\\varepsilon_{i,s} \\sim \\mathcal N(0,1)\\) (or 1-subgaussian)\n\n\n\n\nAt each timestep \\(t\\)\n\nBased on past obsevation\nThe learner pulls arm \\(\\hat a_t \\in \\{1, 2\\}\\) and get reward \\(X_{\\hat a_t, s}\\)\n\\(s = N_{\\hat a_t,t}\\) is the number of times arm \\(\\hat a_t\\) has been pulled\n\n\n\n\n. . .\nMotivation:\n\nOverall cost of learning\nEvery suboptimal pull incurs a loss\n\n. . .\nDefined as\n\n\\(R = \\sum_{t=1}^n (\\mu_1 - \\mu_{j_t})\\)\n\n\n\n\n. . .\nOptimism in face of uncertainty:\nChoose arms that maximizes upper-confidence bound\n\n\\(UCB_{a,t} \\asymp \\hat \\mu_a + \\frac{c}{\\sqrt{N_{a,t}}}\\)\n\n\n\n\n\n\n\n\n. . .\nAssume \\(\\mu_1 &gt; \\mu_2\\), let \\(\\Delta = \\mu_1 - \\mu_2\\) be the gap\n. . .\nMain idea. If the confidence interval are disjoint, we detect best arm:\n. . .\nSimplified condition.\n\n\\(\\frac{1}{\\sqrt{t}} \\lesssim \\Delta\\)\n\n. . .\nWe detect best arm after time \\(t \\gtrsim 1/\\Delta^2\\)\n\n\\(R \\lesssim \\max(\\frac{\\Delta}{\\Delta^2}, \\Delta t) \\lesssim \\sqrt{t}\\)\n\n. . .\n(worst case when \\(\\Delta \\asymp 1/\\sqrt{t}\\))"
+  },
+  {
+    "objectID": "coding/coding.html",
+    "href": "coding/coding.html",
+    "title": "Coding",
+    "section": "",
+    "text": "While my primary research focuses on statistics, I have a strong interest in high-performance computing with Julia across both GPU and CPU architectures. I’ve bee first considering reduction operations, which generalize fundamental computations such as scalar products for vectors and matrix-vector multiplications for higher-dimensional arrays."
+  },
+  {
+    "objectID": "coding/coding.html#luma",
+    "href": "coding/coding.html#luma",
+    "title": "Coding",
+    "section": "Luma",
+    "text": "Luma\nI’m developing Luma.jl, a Julia package for high-performance GPU algorithms. This work aims to provide efficient, portable implementations of parallel primitives that match the performance of vendor-optimized libraries while maintaining cross-platform compatibility.\nLuma.jl on GitHub, with benchmarks in the Readme file"
+  },
+  {
+    "objectID": "coding/coding.html#cpus",
+    "href": "coding/coding.html#cpus",
+    "title": "Coding",
+    "section": "CPUs",
+    "text": "CPUs\nI’ve also worked on optimizing Julia’s mapreduce function for CPU execution. This implementation achieves:\n\n20% performance improvement over Julia Base\nConsistent speedups across most array sizes\nSupport for multiple numeric types, including Float32\nMaintained numerical precision for floating-point operations\n\nView the CPU mapreduce performance notebook"
   }
 ]

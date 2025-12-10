@@ -136,23 +136,6 @@
 </section>
 <section id="introduction" class="slide level2">
 <h2>Introduction</h2>
-<aside class="notes">
-<p>Thank you for having me here today.</p>
-<p>For context, much of this work was conducted during my postdoctoral position at ENS Lyon, where was able to build upon my earlier PhD research in crowdsourcing.</p>
-<p>So, let’s start with a scenario. Picture a group of workers, and each one is given binary classification tasks.</p>
-<p>For each task, they need to make yes-or-no decisions.</p>
-<p>There are many situations where this happens. Think of image classification, text moderation, or sentiment analysis</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment">
 <p><span style="background-color: yellow;">Workers</span> are given <span style="background-color: yellow;">binary tasks</span> to which they have to give a response: YES or NO</p>
 <p>Examples</p>
@@ -165,25 +148,6 @@
 </section>
 <section id="questions" class="slide level2">
 <h2>Questions</h2>
-<aside class="notes">
-<p>Three natural questions emerge</p>
-<ul>
-<li>what are the actual true labels?</li>
-<li>Can we compare workers and identify who performs better or worse?</li>
-<li>How well do workers perform on a given task?</li>
-</ul>
-<p>I will touch on all these issues during my talk, but my primary focus will be on the central question of recovering the true labels.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment">
 <p><span style="background-color: yellow;">3 questions</span></p>
 <ul>
@@ -198,22 +162,6 @@
 </section>
 <section id="this-talk" class="slide level2">
 <h2>This Talk</h2>
-<aside class="notes">
-<p>I will break down my presentation in 3 parts.</p>
-<p>I’ll start by introducing isotonic model.</p>
-<p>Next, I’ll review two existing methods.</p>
-<p>In the final part, I’ll go over an optimal and computationnally feasible method for this problem.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <ol type="1">
 <li class="fragment">Introducing the non-parametric <span style="background-color: yellow;">isotonic model</span> and main result</li>
 <li class="fragment">Presenting two already <span style="background-color: yellow;">existing algorithms</span></li>
@@ -277,63 +225,9 @@ Y=\left(\begin{array}{ccccccccc}
 <ul>
 <li class="fragment">Rate of observations: <span class="math inline">\(\color{red}{\lambda= 0.72}\)</span></li>
 </ul>
-<!--
-## Observation Model
-
-
-::: {.notes}
-
-Given a worker $i$ and a task $k$, we observe the response $Y_{ik}$, and we assume this observation model:
-
-- $x^*_k$ is the unknown label of task $k$
-- $M_{ik} \in [0,1]$ represents the unknown ability of worker $i$ on task $k$. If $M_{ik}=1$, it means that worker $i$ is very good at task $k$.
-- $E_{ik}$ are independent subgaussian noise
-- $B_{ik}$ is a $0$-$1$ coefficient that indicates whether worker $i$ considers task $k$ or not
-
-:::
-
-. . .
-
-Given workers $i\in\{1, \dots, n\}$ and tasks $k\in\{1, \dots, d\}$
-
-. . .
-
-We observe $Y_{ik} \in \{-1,0,1\}$
-  
-::: {.square-def}
-$$
-Y_{ik} = B_{ik}(M_{ik}x_k^* + E_{ik}) \enspace 
-$$
-:::
-
-1. $x_k^*\in \{-1,1\}$ [true response]{style="background-color: yellow;"} of task $k$ 
-2. $M_{ik} \in [0,1]$ represents the **unknown** [ability of worker $i$ to task $k$]{style="background-color: yellow;"}
-3. $E_{ik}$ are independent and [$1$-subGaussian noise]{style="background-color: yellow;"}
-4. $B_{ik}$ are iid Bernoulli $\lambda \in [0,1]$. [$=1$ if $(i,k)$ is observed]{style="background-color: yellow;"}
-
--->
 </section>
 <section id="observation-model" class="slide level2">
 <h2>Observation Model</h2>
-<aside class="notes">
-<p>We assume that the matrix of responses follows this model.</p>
-<ul>
-<li><span class="math inline">\(x^*\)</span> is the vector of <strong>unknown</strong> labels</li>
-<li><span class="math inline">\(E\)</span> is a matrix of independent sub-gaussian <strong>noise</strong></li>
-<li><span class="math inline">\(M \in [0,1]^{n \times d}\)</span> is the <strong>unknown ability</strong> matrix. If <span class="math inline">\(M_{ik}=1\)</span>, it means that worker <span class="math inline">\(i\)</span> is very good at question <span class="math inline">\(k\)</span>, and <span class="math inline">\(M_{ik}=0\)</span> means that they answer randomly.</li>
-<li>This odot is a Hadamard Product so you can think of <span class="math inline">\(B\)</span> as a Bernoulli mask matrix.</li>
-</ul>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment">
 <p>We observe</p>
 <div class="square-def">
@@ -381,22 +275,6 @@ $$
 </section>
 <section id="shape-constraints" class="slide level2">
 <h2>Shape Constraints</h2>
-<aside class="notes">
-<p>Until now, I have’nt assumed anything on the ability matrix <span class="math inline">\(M\)</span> except that it has coef. in <span class="math inline">\([0,1]\)</span>.</p>
-<p>From now on, we also assume that <span class="math inline">\(M\)</span> is isotonic up to a permutation <span class="math inline">\(\pi^*\)</span> of its rows, that is,</p>
-<p>it has increasing columns, up to an unknown permutation <span class="math inline">\(\pi^*\)</span></p>
-<p>It means that, on average, a worker <span class="math inline">\(i\)</span> is either uniformly better or uniformly worse than another worker <span class="math inline">\(j\)</span></p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <ul>
 <li class="fragment"><span class="math inline">\(M \in [0,1]^{n \times d}\)</span> represents the <strong>ability</strong> matrix of worker/task pairs</li>
 <li class="fragment">We assume that <span style="background-color: yellow;"><span class="math inline">\(M\)</span> is isotonic up to a permutation <span class="math inline">\(\pi^*\)</span></span> , that is</li>
@@ -722,21 +600,6 @@ In this work, we address the problem of recovering the labels in polynomial time
 </section>
 <section id="main-results" class="slide level2">
 <h2>Main Results</h2>
-<aside class="notes">
-<p>The main result I want to present, is that there is no computational-statistical gap here.</p>
-<p>There is a polynomial-time methods which nearly achieves the minimax risk for recovering the labels.</p>
-<p>Moreover, the minimax risk is of order <span class="math inline">\(d/\lambda\)</span></p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment" style="font-size=120%">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
@@ -763,19 +626,7 @@ In this work, we address the problem of recovering the labels in polynomial time
 <section>
 <section id="already-existing-methods" class="title-slide slide level1 center">
 <h1>Already Existing Methods</h1>
-<aside class="notes">
-<p>Let me now shortly present two existing methods</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
+
 </section>
 <section id="majority-voting" class="slide level2">
 <h2>Majority Voting</h2>
@@ -913,20 +764,6 @@ It is minimax optimal [@shah2020permutation]
 <section>
 <section id="iterative-spectral-voting" class="title-slide slide level1 center">
 <h1>Iterative Spectral Voting</h1>
-<aside class="notes">
-<p>To achieve the <span class="math inline">\(d/\lambda\)</span> rate in the isotonic model, let me now introduce iterative spectral voting</p>
-<p>The core of the approach consists in iterating two steps: PCA and weighted voting.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <!-- 
 ## Subsampling
 
@@ -974,19 +811,6 @@ Let $T \geq 1$. We generate $T$ samples $(Y^{(1)}, \dots, Y^{(T)})$ from $Y$.
 </section>
 <section id="voting-step" class="slide level2">
 <h2>Voting Step</h2>
-<aside class="notes">
-<p>Without going into too much details, the idea is then to do define weights and perform weighted votes.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment">
 <p>Define the <span style="background-color: yellow;">weighted vote</span> vector (on second sample)</p>
 <div class="square-def">
@@ -1002,20 +826,6 @@ Let $T \geq 1$. We generate $T$ samples $(Y^{(1)}, \dots, Y^{(T)})$ from $Y$.
 </section>
 <section id="iterate-these-two-steps" class="slide level2">
 <h2>Iterate these two Steps</h2>
-<aside class="notes">
-<p>We then iterate these PCA and voting steps on labels that are left uncertain,</p>
-<p>until we get a final estimator.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <div class="fragment">
 <p><span style="background-color: yellow;">Keep certain labels</span>: if <span class="math inline">\(\hat x^{(t)}_k\neq 0\)</span>, set <span class="math inline">\(\hat x^{(t+1)}_k= \hat x^{(t)}_k\)</span>.</p>
 </div>
@@ -1101,22 +911,6 @@ This leads to [exponential decay of $\|M(t)\|_F^2$]{style="background-color: yel
 </section>
 <section id="ranking-and-estimating-abilities" class="slide level2">
 <h2>Ranking and Estimating Abilities</h2>
-<aside class="notes">
-<p>This approach allows us to recover some of the true labels.</p>
-<p>Then, we can do ranking and ability estimation!</p>
-<p>To do that, we first restrict matrix of responses <span class="math inline">\(Y\)</span> to the labels for which we have a good guess</p>
-<p>Then, we use previous work in the litterature to estimate <span class="math inline">\(\pi^*\)</span> and <span class="math inline">\(M\)</span></p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <ol type="1">
 <li class="fragment">Use ISV to <span style="background-color: yellow;">recover some labels <span class="math inline">\(\hat x\)</span></span></li>
 <li class="fragment"><span style="background-color: yellow;">Restrict</span> to columns <span class="math inline">\(k\)</span> such that <span class="math inline">\(\hat x_k \in \{-1, 1\}\)</span></li>
@@ -1125,24 +919,6 @@ This leads to [exponential decay of $\|M(t)\|_F^2$]{style="background-color: yel
 </section>
 <section id="conclusion" class="slide level2">
 <h2>Conclusion</h2>
-<aside class="notes">
-<p>Let me wrap up my talk in three key points.</p>
-<ul>
-<li>First, there are three interconnected problems in crowdsourcing: recovering labels, ranking workers and estimating their abilities.</li>
-<li>Second, we use the isotonic model because it’s very flexible for tackling these problems.</li>
-<li>Most importantly, there is no computational statistical gap.</li>
-</ul>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
 <ol type="1">
 <li class="fragment"><span style="background-color: yellow;">Three connected problems</span>: recovering labels, ranking workers and estimating their abilities</li>
 <li class="fragment"><span style="background-color: yellow;">Non parametric isotonic model</span> very flexible in crowdsourcing problems</li>

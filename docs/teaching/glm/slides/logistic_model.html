@@ -1,606 +1,504 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
-
-<meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.22">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
-<title>The Logistic Model – Emmanuel Pilliat</title>
-<style>
-code{white-space: pre-wrap;}
-span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-ul.task-list li input[type="checkbox"] {
-  width: 0.8em;
-  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
-  vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-</style>
-
-
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<html lang="en"><head>
 <script src="../../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../../">
-<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabby.min.js"></script>
 <script src="../../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap-338eaa8bf8d7f1eb506da55f2b711d05.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script id="quarto-search-options" type="application/json">{
-  "location": "navbar",
-  "copy-button": false,
-  "collapse-after": 3,
-  "panel-placement": "end",
-  "type": "overlay",
-  "limit": 50,
-  "keyboard-shortcut": [
-    "f",
-    "/",
-    "s"
-  ],
-  "show-item-context": false,
-  "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
-    "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit",
-    "search-label": "Search"
-  }
-}</script>
+<link href="../../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.22">
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
+  <title>Emmanuel Pilliat – The Logistic Model</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
     }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<link rel="stylesheet" href="../../../styles.css">
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/theme/quarto-a9356234971a534880724c4687078043.css">
+  <link rel="stylesheet" href="../../../styles.css">
+  <link href="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
 </head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
 
-<body class="nav-fixed quarto-light">
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">The Logistic Model</h1>
 
-<div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../../../index.html">
-    <span class="navbar-title">Emmanuel Pilliat</span>
-    </a>
-  </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-  <span class="navbar-toggler-icon"></span>
-</button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../../../index.html"> 
-<span class="menu-text">Presentation</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../../teaching.html"> 
-<span class="menu-text">Teaching</span></a>
-  </li>  
-</ul>
-            <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/epilliat"> <i class="bi bi-github" role="img">
-</i> 
-<span class="menu-text"></span></a>
-  </li>  
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://fr.linkedin.com/in/emmanuel-pilliat-18ab2b180"> <i class="bi bi-linkedin" role="img">
-</i> 
-<span class="menu-text"></span></a>
-  </li>  
-</ul>
-          </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools">
-</div>
-      </div> <!-- /container-fluid -->
-    </nav>
-</header>
-<!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
-<!-- sidebar -->
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#glm-models-for-binary-variables" id="toc-glm-models-for-binary-variables" class="nav-link active" data-scroll-target="#glm-models-for-binary-variables">GLM Models for Binary Variables</a>
-  <ul class="collapse">
-  <li><a href="#context" id="toc-context" class="nav-link" data-scroll-target="#context">Context</a></li>
-  <li><a href="#example-coronary-heart-disease" id="toc-example-coronary-heart-disease" class="nav-link" data-scroll-target="#example-coronary-heart-disease">Example: Coronary Heart Disease</a></li>
-  <li><a href="#example-simple-idea" id="toc-example-simple-idea" class="nav-link" data-scroll-target="#example-simple-idea">Example: Simple Idea</a></li>
-  <li><a href="#example-glm-approach" id="toc-example-glm-approach" class="nav-link" data-scroll-target="#example-glm-approach">Example: GLM Approach</a></li>
-  <li><a href="#example-the-logit-model" id="toc-example-the-logit-model" class="nav-link" data-scroll-target="#example-the-logit-model">Example: The Logit Model</a></li>
-  <li><a href="#example-the-probit-model" id="toc-example-the-probit-model" class="nav-link" data-scroll-target="#example-the-probit-model">Example: The Probit Model</a></li>
-  <li><a href="#example-model-cloglog" id="toc-example-model-cloglog" class="nav-link" data-scroll-target="#example-model-cloglog">Example: Model cloglog</a></li>
-  <li><a href="#example-comparison-of-the-three-models" id="toc-example-comparison-of-the-three-models" class="nav-link" data-scroll-target="#example-comparison-of-the-three-models">Example: Comparison of the Three Models</a></li>
-  <li><a href="#which-link-function-to-choose-for-binary-case" id="toc-which-link-function-to-choose-for-binary-case" class="nav-link" data-scroll-target="#which-link-function-to-choose-for-binary-case">Which Link Function to Choose for Binary Case?</a></li>
-  <li><a href="#details-on-the-probit-model" id="toc-details-on-the-probit-model" class="nav-link" data-scroll-target="#details-on-the-probit-model">Details on the Probit Model</a></li>
-  <li><a href="#examples-in-probit-model" id="toc-examples-in-probit-model" class="nav-link" data-scroll-target="#examples-in-probit-model">Examples in Probit Model</a></li>
-  <li><a href="#probit-vs-logit-current-trends" id="toc-probit-vs-logit-current-trends" class="nav-link" data-scroll-target="#probit-vs-logit-current-trends">Probit vs Logit: Current Trends</a></li>
-  <li><a href="#remarks-on-cloglog-model" id="toc-remarks-on-cloglog-model" class="nav-link" data-scroll-target="#remarks-on-cloglog-model">Remarks on cloglog Model</a></li>
-  <li><a href="#details-on-the-logit-model" id="toc-details-on-the-logit-model" class="nav-link" data-scroll-target="#details-on-the-logit-model">Details on the Logit Model</a></li>
-  <li><a href="#theoretical-motivation-of-logit" id="toc-theoretical-motivation-of-logit" class="nav-link" data-scroll-target="#theoretical-motivation-of-logit">Theoretical Motivation of Logit</a></li>
-  <li><a href="#summary-for-binary-variables" id="toc-summary-for-binary-variables" class="nav-link" data-scroll-target="#summary-for-binary-variables">Summary for Binary Variables:</a></li>
-  <li><a href="#outline" id="toc-outline" class="nav-link" data-scroll-target="#outline">Outline</a></li>
-  </ul></li>
-  <li><a href="#model-interpretation" id="toc-model-interpretation" class="nav-link" data-scroll-target="#model-interpretation">Model Interpretation</a>
-  <ul class="collapse">
-  <li><a href="#interpretation-of-the-logistic-model" id="toc-interpretation-of-the-logistic-model" class="nav-link" data-scroll-target="#interpretation-of-the-logistic-model">Interpretation of the Logistic Model</a></li>
-  <li><a href="#shape-of-logit-function" id="toc-shape-of-logit-function" class="nav-link" data-scroll-target="#shape-of-logit-function">Shape of logit function</a></li>
-  <li><a href="#example-bmi-study-french-imc" id="toc-example-bmi-study-french-imc" class="nav-link" data-scroll-target="#example-bmi-study-french-imc">Example: BMI Study (French: IMC)</a></li>
-  <li><a href="#model-definition" id="toc-model-definition" class="nav-link" data-scroll-target="#model-definition">Model Definition</a></li>
-  <li><a href="#model-results" id="toc-model-results" class="nav-link" data-scroll-target="#model-results">Model Results</a></li>
-  <li><a href="#model-results-with-age2" id="toc-model-results-with-age2" class="nav-link" data-scroll-target="#model-results-with-age2">Model Results with <span class="math inline">\(AGE^2\)</span></a></li>
-  <li><a href="#odds" id="toc-odds" class="nav-link" data-scroll-target="#odds">Odds</a></li>
-  <li><a href="#odds-given-xx" id="toc-odds-given-xx" class="nav-link" data-scroll-target="#odds-given-xx">Odds given <span class="math inline">\(X=x\)</span></a></li>
-  <li><a href="#odds-ratio" id="toc-odds-ratio" class="nav-link" data-scroll-target="#odds-ratio">Odds Ratio</a></li>
-  <li><a href="#link-with-proba.-ratio" id="toc-link-with-proba.-ratio" class="nav-link" data-scroll-target="#link-with-proba.-ratio">Link with Proba. Ratio</a></li>
-  <li><a href="#other-property-of-odds-ratio" id="toc-other-property-of-odds-ratio" class="nav-link" data-scroll-target="#other-property-of-odds-ratio">Other Property of Odds Ratio</a></li>
-  <li><a href="#examples-using-odds-ratios" id="toc-examples-using-odds-ratios" class="nav-link" data-scroll-target="#examples-using-odds-ratios">Examples Using Odds Ratios</a></li>
-  <li><a href="#odds-ratio-in-logistic-regression" id="toc-odds-ratio-in-logistic-regression" class="nav-link" data-scroll-target="#odds-ratio-in-logistic-regression">Odds Ratio in Logistic Regression</a></li>
-  <li><a href="#key-summary-statement" id="toc-key-summary-statement" class="nav-link" data-scroll-target="#key-summary-statement">Key Summary Statement</a></li>
-  <li><a href="#example-1-intense-sports-activity" id="toc-example-1-intense-sports-activity" class="nav-link" data-scroll-target="#example-1-intense-sports-activity">Example 1: Intense Sports Activity</a></li>
-  <li><a href="#example-2-diastolic-pressure" id="toc-example-2-diastolic-pressure" class="nav-link" data-scroll-target="#example-2-diastolic-pressure">Example 2: Diastolic Pressure</a></li>
-  </ul></li>
-  <li><a href="#estimation-of-the-parameters" id="toc-estimation-of-the-parameters" class="nav-link" data-scroll-target="#estimation-of-the-parameters">EStimation of the Parameters</a>
-  <ul class="collapse">
-  <li><a href="#the-framework" id="toc-the-framework" class="nav-link" data-scroll-target="#the-framework">The Framework</a></li>
-  <li><a href="#the-logistic-model" id="toc-the-logistic-model" class="nav-link" data-scroll-target="#the-logistic-model">The Logistic Model</a></li>
-  <li><a href="#parameter-estimation" id="toc-parameter-estimation" class="nav-link" data-scroll-target="#parameter-estimation">Parameter Estimation</a></li>
-  <li><a href="#likelihood-calculation" id="toc-likelihood-calculation" class="nav-link" data-scroll-target="#likelihood-calculation">Likelihood Calculation</a></li>
-  <li><a href="#likelihood" id="toc-likelihood" class="nav-link" data-scroll-target="#likelihood">Likelihood</a></li>
-  <li><a href="#log-likelihood" id="toc-log-likelihood" class="nav-link" data-scroll-target="#log-likelihood">Log-Likelihood</a></li>
-  <li><a href="#mle-calculation" id="toc-mle-calculation" class="nav-link" data-scroll-target="#mle-calculation">MLE Calculation</a></li>
-  <li><a href="#remarks" id="toc-remarks" class="nav-link" data-scroll-target="#remarks">Remarks</a></li>
-  <li><a href="#mle-uniqueness" id="toc-mle-uniqueness" class="nav-link" data-scroll-target="#mle-uniqueness">MLE Uniqueness</a></li>
-  <li><a href="#proof-of-mle-uniqueness" id="toc-proof-of-mle-uniqueness" class="nav-link" data-scroll-target="#proof-of-mle-uniqueness">Proof of MLE Uniqueness</a></li>
-  <li><a href="#hessian-properties" id="toc-hessian-properties" class="nav-link" data-scroll-target="#hessian-properties">Hessian Properties</a></li>
-  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
-  <li><a href="#about-mle-existence" id="toc-about-mle-existence" class="nav-link" data-scroll-target="#about-mle-existence">About MLE Existence</a></li>
-  <li><a href="#non-overlap-situation" id="toc-non-overlap-situation" class="nav-link" data-scroll-target="#non-overlap-situation">Non-Overlap Situation</a></li>
-  <li><a href="#illustration-of-non-overlap-situation" id="toc-illustration-of-non-overlap-situation" class="nav-link" data-scroll-target="#illustration-of-non-overlap-situation">Illustration of Non-Overlap Situation</a></li>
-  <li><a href="#non-overlap-and-existence" id="toc-non-overlap-and-existence" class="nav-link" data-scroll-target="#non-overlap-and-existence">Non-Overlap and Existence</a></li>
-  <li><a href="#beyond-the-dead-zone" id="toc-beyond-the-dead-zone" class="nav-link" data-scroll-target="#beyond-the-dead-zone">Beyond the Dead Zone</a></li>
-  <li><a href="#existence-and-uniqueness-of-mle" id="toc-existence-and-uniqueness-of-mle" class="nav-link" data-scroll-target="#existence-and-uniqueness-of-mle">Existence and Uniqueness of MLE</a></li>
-  <li><a href="#fisher-information-recall" id="toc-fisher-information-recall" class="nav-link" data-scroll-target="#fisher-information-recall">Fisher Information (Recall)</a></li>
-  <li><a href="#asymptotic-efficiency" id="toc-asymptotic-efficiency" class="nav-link" data-scroll-target="#asymptotic-efficiency">Asymptotic Efficiency</a></li>
-  <li><a href="#comments" id="toc-comments" class="nav-link" data-scroll-target="#comments">Comments</a></li>
-  <li><a href="#comparison-with-linear-regression" id="toc-comparison-with-linear-regression" class="nav-link" data-scroll-target="#comparison-with-linear-regression">Comparison with Linear Regression</a></li>
-  <li><a href="#comparison-with-linear-regression-1" id="toc-comparison-with-linear-regression-1" class="nav-link" data-scroll-target="#comparison-with-linear-regression-1">Comparison with Linear Regression</a></li>
-  </ul></li>
-  <li><a href="#tests-and-confidence-intervals" id="toc-tests-and-confidence-intervals" class="nav-link" data-scroll-target="#tests-and-confidence-intervals">Tests and Confidence Intervals</a>
-  <ul class="collapse">
-  <li><a href="#asymptotic-framework" id="toc-asymptotic-framework" class="nav-link" data-scroll-target="#asymptotic-framework">Asymptotic Framework</a></li>
-  <li><a href="#computation-of-j_nbeta" id="toc-computation-of-j_nbeta" class="nav-link" data-scroll-target="#computation-of-j_nbeta">Computation of <span class="math inline">\(J_n(\beta)\)</span></a></li>
-  <li><a href="#equivalent-form" id="toc-equivalent-form" class="nav-link" data-scroll-target="#equivalent-form">Equivalent Form</a></li>
-  <li><a href="#estimation" id="toc-estimation" class="nav-link" data-scroll-target="#estimation">Estimation</a></li>
-  <li><a href="#estimated-variance-of-hat-beta_j" id="toc-estimated-variance-of-hat-beta_j" class="nav-link" data-scroll-target="#estimated-variance-of-hat-beta_j">Estimated Variance of <span class="math inline">\(\hat \beta_j\)</span></a></li>
-  <li><a href="#confidence-interval" id="toc-confidence-interval" class="nav-link" data-scroll-target="#confidence-interval">Confidence Interval</a></li>
-  <li><a href="#significance-test-for-one-coefficient" id="toc-significance-test-for-one-coefficient" class="nav-link" data-scroll-target="#significance-test-for-one-coefficient">Significance Test for One Coefficient</a></li>
-  <li><a href="#p-value" id="toc-p-value" class="nav-link" data-scroll-target="#p-value">P-value</a></li>
-  <li><a href="#example-in-r" id="toc-example-in-r" class="nav-link" data-scroll-target="#example-in-r">Example in R</a></li>
-  <li><a href="#estimation-of-an-odds-ratio" id="toc-estimation-of-an-odds-ratio" class="nav-link" data-scroll-target="#estimation-of-an-odds-ratio">Estimation of an Odds-Ratio</a></li>
-  <li><a href="#important-example" id="toc-important-example" class="nav-link" data-scroll-target="#important-example">Important Example</a></li>
-  <li><a href="#asymptotic-ci-for-an-odds-ratio" id="toc-asymptotic-ci-for-an-odds-ratio" class="nav-link" data-scroll-target="#asymptotic-ci-for-an-odds-ratio">Asymptotic CI for an Odds-Ratio</a></li>
-  <li><a href="#significance-test-for-an-odds-ratio" id="toc-significance-test-for-an-odds-ratio" class="nav-link" data-scroll-target="#significance-test-for-an-odds-ratio">Significance Test for an Odds-Ratio</a></li>
-  <li><a href="#two-sided-test" id="toc-two-sided-test" class="nav-link" data-scroll-target="#two-sided-test">Two-Sided Test</a></li>
-  <li><a href="#one-sided-tests" id="toc-one-sided-tests" class="nav-link" data-scroll-target="#one-sided-tests">One-Sided Tests</a></li>
-  </ul></li>
-  <li><a href="#deviance" id="toc-deviance" class="nav-link" data-scroll-target="#deviance">Deviance</a>
-  <ul class="collapse">
-  <li><a href="#saturated-model" id="toc-saturated-model" class="nav-link" data-scroll-target="#saturated-model">Saturated Model</a></li>
-  <li><a href="#saturated-estimator" id="toc-saturated-estimator" class="nav-link" data-scroll-target="#saturated-estimator">Saturated Estimator</a></li>
-  <li><a href="#remark" id="toc-remark" class="nav-link" data-scroll-target="#remark">Remark</a></li>
-  <li><a href="#remarks-1" id="toc-remarks-1" class="nav-link" data-scroll-target="#remarks-1">Remarks</a></li>
-  <li><a href="#likelihood-of-saturated-estimator" id="toc-likelihood-of-saturated-estimator" class="nav-link" data-scroll-target="#likelihood-of-saturated-estimator">Likelihood of Saturated Estimator</a></li>
-  <li><a href="#case-1-distinct-observations" id="toc-case-1-distinct-observations" class="nav-link" data-scroll-target="#case-1-distinct-observations">Case 1: Distinct Observations</a></li>
-  <li><a href="#case-2-non-distinct-observations" id="toc-case-2-non-distinct-observations" class="nav-link" data-scroll-target="#case-2-non-distinct-observations">Case 2: Non-Distinct Observations</a></li>
-  <li><a href="#deviance-1" id="toc-deviance-1" class="nav-link" data-scroll-target="#deviance-1">Deviance</a></li>
-  <li><a href="#role-of-deviance-and-computation-in-r" id="toc-role-of-deviance-and-computation-in-r" class="nav-link" data-scroll-target="#role-of-deviance-and-computation-in-r">Role of Deviance and Computation in R</a></li>
-  </ul></li>
-  <li><a href="#testing" id="toc-testing" class="nav-link" data-scroll-target="#testing">Testing</a>
-  <ul class="collapse">
-  <li><a href="#linear-constraint-test" id="toc-linear-constraint-test" class="nav-link" data-scroll-target="#linear-constraint-test">Linear Constraint Test</a></li>
-  <li><a href="#available-procedures" id="toc-available-procedures" class="nav-link" data-scroll-target="#available-procedures">Available Procedures</a></li>
-  <li><a href="#the-deviance-test-or-likelihood-ratio-test" id="toc-the-deviance-test-or-likelihood-ratio-test" class="nav-link" data-scroll-target="#the-deviance-test-or-likelihood-ratio-test">The Deviance Test (or Likelihood Ratio Test)</a></li>
-  <li><a href="#deviance-test-statistic" id="toc-deviance-test-statistic" class="nav-link" data-scroll-target="#deviance-test-statistic">Deviance Test Statistic</a></li>
-  <li><a href="#rejection-region-and-p-value" id="toc-rejection-region-and-p-value" class="nav-link" data-scroll-target="#rejection-region-and-p-value">Rejection Region and P-value</a></li>
-  <li><a href="#special-case-1-significance-test" id="toc-special-case-1-significance-test" class="nav-link" data-scroll-target="#special-case-1-significance-test">Special Case 1: Significance Test</a></li>
-  <li><a href="#test-statistic" id="toc-test-statistic" class="nav-link" data-scroll-target="#test-statistic">Test Statistic</a></li>
-  <li><a href="#special-case-2-nested-models" id="toc-special-case-2-nested-models" class="nav-link" data-scroll-target="#special-case-2-nested-models">Special Case 2: Nested Models</a></li>
-  <li><a href="#aic-and-bic-criteria" id="toc-aic-and-bic-criteria" class="nav-link" data-scroll-target="#aic-and-bic-criteria">AIC and BIC Criteria</a></li>
-  <li><a href="#aic-and-bic-criteria-1" id="toc-aic-and-bic-criteria-1" class="nav-link" data-scroll-target="#aic-and-bic-criteria-1">AIC and BIC Criteria</a></li>
-  <li><a href="#example-obesity-study" id="toc-example-obesity-study" class="nav-link" data-scroll-target="#example-obesity-study">Example: Obesity Study</a></li>
-  <li><a href="#example-significance-test-of-marital" id="toc-example-significance-test-of-marital" class="nav-link" data-scroll-target="#example-significance-test-of-marital">Example: Significance Test of MARITAL</a></li>
-  <li><a href="#example-significance-test-of-age2" id="toc-example-significance-test-of-age2" class="nav-link" data-scroll-target="#example-significance-test-of-age2">Example: Significance Test of AGE<span class="math inline">\(~^2\)</span></a></li>
-  </ul></li>
-  <li><a href="#prediction" id="toc-prediction" class="nav-link" data-scroll-target="#prediction">Prediction</a>
-  <ul class="collapse">
-  <li><a href="#setting-and-objective" id="toc-setting-and-objective" class="nav-link" data-scroll-target="#setting-and-objective">Setting and Objective</a></li>
-  <li><a href="#recall-in-the-logit-model" id="toc-recall-in-the-logit-model" class="nav-link" data-scroll-target="#recall-in-the-logit-model">Recall in the Logit Model</a></li>
-  <li><a href="#outline-for-prediction" id="toc-outline-for-prediction" class="nav-link" data-scroll-target="#outline-for-prediction">Outline for Prediction</a></li>
-  <li><a href="#ci-asymptotic-distribution-of-p_betax" id="toc-ci-asymptotic-distribution-of-p_betax" class="nav-link" data-scroll-target="#ci-asymptotic-distribution-of-p_betax">CI: Asymptotic Distribution of <span class="math inline">\(p_\beta(x)\)</span></a></li>
-  <li><a href="#ci-for-linear-predictor" id="toc-ci-for-linear-predictor" class="nav-link" data-scroll-target="#ci-for-linear-predictor">CI for Linear Predictor</a></li>
-  <li><a href="#ci-for-probability-p_betax" id="toc-ci-for-probability-p_betax" class="nav-link" data-scroll-target="#ci-for-probability-p_betax">CI for Probability <span class="math inline">\(p_{\beta}(x)\)</span></a></li>
-  <li><a href="#classification" id="toc-classification" class="nav-link" data-scroll-target="#classification">Classification</a></li>
-  <li><a href="#evaluation-of-classification-quality" id="toc-evaluation-of-classification-quality" class="nav-link" data-scroll-target="#evaluation-of-classification-quality">Evaluation of Classification Quality</a></li>
-  <li><a href="#evaluation-of-classification-quality-1" id="toc-evaluation-of-classification-quality-1" class="nav-link" data-scroll-target="#evaluation-of-classification-quality-1">Evaluation of Classification Quality</a></li>
-  <li><a href="#other-indicators" id="toc-other-indicators" class="nav-link" data-scroll-target="#other-indicators">Other Indicators</a></li>
-  <li><a href="#choice-of-threshold-s" id="toc-choice-of-threshold-s" class="nav-link" data-scroll-target="#choice-of-threshold-s">Choice of Threshold <span class="math inline">\(s\)</span></a></li>
-  <li><a href="#choosing-the-score" id="toc-choosing-the-score" class="nav-link" data-scroll-target="#choosing-the-score">Choosing the score</a></li>
-  <li><a href="#roc-curve" id="toc-roc-curve" class="nav-link" data-scroll-target="#roc-curve">ROC Curve</a></li>
-  <li><a href="#roc-curve-illustration" id="toc-roc-curve-illustration" class="nav-link" data-scroll-target="#roc-curve-illustration">ROC Curve Illustration</a></li>
-  </ul></li>
-  </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="logistic_model.html"><i class="bi bi-file-slides"></i>RevealJS</a></li></ul></div></nav>
-    </div>
-<!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">The Logistic Model</h1>
+<div class="quarto-title-authors">
 </div>
 
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
+</section>
+<section class="slide level2">
 
 <p><span class="math inline">\(\newcommand{\VS}{\quad \mathrm{VS} \quad}\)</span> <span class="math inline">\(\newcommand{\and}{\quad \mathrm{and} \quad}\)</span> <span class="math inline">\(\newcommand{\E}{\mathbb E}\)</span> <span class="math inline">\(\newcommand{\P}{\mathbb P}\)</span> <span class="math inline">\(\newcommand{\Var}{\mathbb V}\)</span> <span class="math inline">\(\newcommand{\Cov}{\mathrm{Cov}}\)</span> <span class="math inline">\(\newcommand{\1}{\mathbf 1}\)</span></p>
-<section id="glm-models-for-binary-variables" class="level1">
+</section>
+<section>
+<section id="glm-models-for-binary-variables" class="title-slide slide level1 center">
 <h1>GLM Models for Binary Variables</h1>
-<section id="context" class="level2">
-<h2 class="anchored" data-anchor-id="context">Context</h2>
+
+</section>
+<section id="context" class="slide level2">
+<h2>Context</h2>
 <p><span class="math inline">\(Y\)</span> is a binary variable <span style="background-color: lightblue;"><span class="math inline">\(Y_k \in \{0,1\}\)</span></span></p>
-<p>. . .</p>
+<div class="fragment">
 <p><span class="math inline">\(X = (X^{(1)}, \ldots, X^{(p)})\)</span> are <span class="math inline">\(p\)</span> regressors</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\(Y|X = x\)</span> follows a <span style="background-color: yellow;">Bernoulli distribution</span> with parameter <span style="background-color: lightblue;"><span class="math inline">\(p(x) = P(Y = 1|X = x)\)</span></span>. Model:</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[p(x) = g^{-1}(x^T\beta)\]</span></p>
 </div>
 <p>where <span class="math inline">\(g^{-1}\)</span> is a <span style="background-color: yellow;">strictly increasing function</span> with values in <span class="math inline">\([0, 1]\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>Approach</strong>: We begin by discussing the choice of <span class="math inline">\(g^{-1}\)</span> (or <span class="math inline">\(g\)</span>)</p>
+</div>
 </section>
-<section id="example-coronary-heart-disease" class="level2">
-<h2 class="anchored" data-anchor-id="example-coronary-heart-disease">Example: Coronary Heart Disease</h2>
-<p>. . .</p>
+<section id="example-coronary-heart-disease" class="slide level2">
+<h2>Example: Coronary Heart Disease</h2>
+<div class="fragment">
 <p><strong>Data Description</strong>: Presence of chd as a function of age <span class="math inline">\(Y = \text{chd} \in \{0,1\}\)</span>, <span class="math inline">\(X = \text{age}\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We want to estimate <span class="math inline">\(p(x) = \E(Y|X = x) = \P(\text{chd} = 1|X = x)\)</span> for all <span class="math inline">\(x\)</span></p>
 <div style="text-align: center;">
-<p><img src="../images/logit1.png" class="img-fluid" style="width:50.0%"></p>
+<p><img data-src="../images/logit1.png" style="width:50.0%"></p>
+</div>
 </div>
 </section>
-<section id="example-simple-idea" class="level2">
-<h2 class="anchored" data-anchor-id="example-simple-idea">Example: Simple Idea</h2>
+<section id="example-simple-idea" class="slide level2">
+<h2>Example: Simple Idea</h2>
 <ul>
-<li>Group the <span class="math inline">\(x\)</span> values by age class</li>
-<li>Calculate the proportion of <span class="math inline">\(chd = 1\)</span> in the class containing <span class="math inline">\(x\)</span></li>
+<li class="fragment">Group the <span class="math inline">\(x\)</span> values by age class</li>
+<li class="fragment">Calculate the proportion of <span class="math inline">\(chd = 1\)</span> in the class containing <span class="math inline">\(x\)</span></li>
 </ul>
-<p>. . .</p>
+<div class="fragment">
 <div style="text-align: center;">
-<p><img src="../images/logit2.png" class="img-fluid" style="width:50.0%"></p>
+<p><img data-src="../images/logit2.png" style="width:50.0%"></p>
+</div>
 </div>
 </section>
-<section id="example-glm-approach" class="level2">
-<h2 class="anchored" data-anchor-id="example-glm-approach">Example: GLM Approach</h2>
-<p>. . .</p>
+<section id="example-glm-approach" class="slide level2">
+<h2>Example: GLM Approach</h2>
+<div class="fragment">
 <p><strong>Objective</strong>: We want to model <span class="math inline">\(p(x) = P(\text{chd} = 1|X = x)\)</span> by: <span class="math display">\[p(x) = g^{-1}(\beta_0 + \beta_1 x)\]</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>Constraint</strong>: We need <span class="math inline">\(g^{-1}\)</span> to have values in <span class="math inline">\([0, 1]\)</span></p>
+</div>
 </section>
-<section id="example-the-logit-model" class="level2">
-<h2 class="anchored" data-anchor-id="example-the-logit-model">Example: The Logit Model</h2>
-<p>. . .</p>
+<section id="example-the-logit-model" class="slide level2">
+<h2>Example: The Logit Model</h2>
+<div class="fragment">
 <div style="font-size: 60%;">
 <div class="square-def">
 <p><span class="math display">\[g^{-1}(t) = \frac{e^t}{1 + e^t} \quad \text{i.e.} \quad g(t) = \ln\left(\frac{t}{1-t}\right) = \text{logit}(t)\]</span></p>
 </div>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div class="columns">
 <div class="column">
 <div style="text-align: center;">
-<p><img src="../images/logit3.png" class="img-fluid" style="width:100.0%"></p>
+<p><img data-src="../images/logit3.png" style="width:100.0%"></p>
 </div>
 </div><div class="column">
 <p><br>
 <br>
 Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</span> obtained by MLE</p>
-</div>
+</div></div>
 </div>
 </section>
-<section id="example-the-probit-model" class="level2">
-<h2 class="anchored" data-anchor-id="example-the-probit-model">Example: The Probit Model</h2>
-<p>. . .</p>
+<section id="example-the-probit-model" class="slide level2">
+<h2>Example: The Probit Model</h2>
+<div class="fragment">
 <p>If <span class="math inline">\(\Phi\)</span> is the CDF of a <span class="math inline">\(\mathcal{N}(0, 1)\)</span> distribution, we take <span style="background-color: lightblue;"><span class="math inline">\(g^{-1}(t) = \Phi(t)\)</span></span></p>
 <div class="columns">
 <div class="column">
 <div style="text-align: center;">
-<p><img src="../images/probit.png" class="img-fluid" style="width:100.0%"></p>
+<p><img data-src="../images/probit.png" style="width:100.0%"></p>
 </div>
 </div><div class="column">
 <p><br>
 <br>
 Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</span> obtained by MLE</p>
-</div>
+</div></div>
 </div>
 </section>
-<section id="example-model-cloglog" class="level2">
-<h2 class="anchored" data-anchor-id="example-model-cloglog">Example: Model cloglog</h2>
-<p>. . .</p>
+<section id="example-model-cloglog" class="slide level2">
+<h2>Example: Model cloglog</h2>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[g^{-1}(t) = 1 - e^{-e^t}\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div class="columns">
 <div class="column">
 <div style="text-align: center;">
-<p><img src="../images/cloglog.png" class="img-fluid" style="width:100.0%"></p>
+<p><img data-src="../images/cloglog.png" style="width:100.0%"></p>
 </div>
 </div><div class="column">
 <p><br>
 <br>
 Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</span> obtained by MLE</p>
-</div>
+</div></div>
 </div>
 </section>
-<section id="example-comparison-of-the-three-models" class="level2">
-<h2 class="anchored" data-anchor-id="example-comparison-of-the-three-models">Example: Comparison of the Three Models</h2>
-<p>. . .</p>
+<section id="example-comparison-of-the-three-models" class="slide level2">
+<h2>Example: Comparison of the Three Models</h2>
+<div class="fragment">
 <p>logit and probit give <span style="background-color: yellow;">approximately the same result</span> cloglog differs slightly and is not “symmetric”</p>
 <div style="text-align: center;">
-<p><img src="../images/logitprobitloglog.png" class="img-fluid" style="width:50.0%"></p>
+<p><img data-src="../images/logitprobitloglog.png" style="width:50.0%"></p>
+</div>
 </div>
 </section>
-<section id="which-link-function-to-choose-for-binary-case" class="level2">
-<h2 class="anchored" data-anchor-id="which-link-function-to-choose-for-binary-case">Which Link Function to Choose for Binary Case?</h2>
-<p>. . .</p>
+<section id="which-link-function-to-choose-for-binary-case" class="slide level2">
+<h2>Which Link Function to Choose for Binary Case?</h2>
+<div class="fragment">
 <p><strong>Question</strong>: Which link function to choose in practice when <span class="math inline">\(Y\)</span> is binary?</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>Default choice</strong>: By default, we favor the <strong>logit model</strong></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>Exceptions</strong>: Unless there is a good reason to choose something else (probit model, complementary log-log, or log-log)</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>Next steps</strong>: We return to the 3 usual choices to justify this preference</p>
+</div>
 </section>
-<section id="details-on-the-probit-model" class="level2">
-<h2 class="anchored" data-anchor-id="details-on-the-probit-model">Details on the Probit Model</h2>
-<p>. . .</p>
+<section id="details-on-the-probit-model" class="slide level2">
+<h2>Details on the Probit Model</h2>
+<div class="fragment">
 <p>The probit model is justified when the binary variable <span class="math inline">\(Y|X = x\)</span> comes from thresholding a Gaussian latent variable <span class="math inline">\(Z(x)\)</span>:</p>
 <div class="square-def">
 <p><span class="math display">\[(Y|X = x) = \mathbf{1}_{Z(x) \geq \tau}\]</span></p>
 </div>
 <p>where <span style="background-color: lightblue;"><span class="math inline">\(Z(x) \sim \mathcal{N}(x^T\beta, \sigma^2)\)</span></span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>If <span class="math inline">\(\Phi\)</span> is the CDF of a <span class="math inline">\(\mathcal N(0,1)\)</span> <span class="math display">\[P(Y = 1|X = x) = P(Z(x) \geq \tau) = \Phi\left(\frac{x^T\beta - \tau}{\sigma}\right)\]</span></p>
+</div>
 </section>
-<section id="examples-in-probit-model" class="level2">
-<h2 class="anchored" data-anchor-id="examples-in-probit-model">Examples in Probit Model</h2>
+<section id="examples-in-probit-model" class="slide level2">
+<h2>Examples in Probit Model</h2>
 <ul>
-<li><span class="math inline">\(Y\)</span> represents a purchase decision, and <span class="math inline">\(Z(x)\)</span> quantifies the utility of the good</li>
-<li><span class="math inline">\(Y\)</span> is a declared psychological state (happiness, depression) and <span class="math inline">\(Z(x)\)</span> is a latent, unobserved measure of personal satisfaction</li>
+<li class="fragment"><span class="math inline">\(Y\)</span> represents a purchase decision, and <span class="math inline">\(Z(x)\)</span> quantifies the utility of the good</li>
+<li class="fragment"><span class="math inline">\(Y\)</span> is a declared psychological state (happiness, depression) and <span class="math inline">\(Z(x)\)</span> is a latent, unobserved measure of personal satisfaction</li>
 </ul>
 </section>
-<section id="probit-vs-logit-current-trends" class="level2">
-<h2 class="anchored" data-anchor-id="probit-vs-logit-current-trends">Probit vs Logit: Current Trends</h2>
-<p>. . .</p>
+<section id="probit-vs-logit-current-trends" class="slide level2">
+<h2>Probit vs Logit: Current Trends</h2>
+<div class="fragment">
 <p><strong>Econometricians</strong>: The <span style="background-color: yellow;">probit model</span> remains relatively popular among <span style="background-color: yellow;">econometricians</span>…</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>General trend</strong>: but it tends to be <span style="background-color: yellow;">replaced by the logistic model</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>Advantages of logit</strong>: The <span style="background-color: yellow;">logit model has many advantages</span> that probit does not have:</p>
 <ul>
-<li>Interpretation of results</li>
-<li>Explicit formulas</li>
+<li class="fragment">Interpretation of results</li>
+<li class="fragment">Explicit formulas</li>
 </ul>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>Theoretical justification</strong>: CDF of probit close to CDF of logit</p>
+</div>
 </section>
-<section id="remarks-on-cloglog-model" class="level2">
-<h2 class="anchored" data-anchor-id="remarks-on-cloglog-model">Remarks on cloglog Model</h2>
-<p>. . .</p>
+<section id="remarks-on-cloglog-model" class="slide level2">
+<h2>Remarks on cloglog Model</h2>
+<div class="fragment">
 <p>The modeling approach is <span class="math inline">\(p(x) = g^{-1}(x^T\beta)\)</span> with</p>
 <div class="square-def">
 <p><span class="math display">\[g(t) = \ln(-\ln(1-t)) \quad \text{i.e.} \quad g^{-1}(t) = 1 - e^{-e^t}\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Not symmetric in the sense that <span style="background-color: lightblue;"><span class="math inline">\(g(t) \neq -g(1-t)\)</span></span>.</p>
 <p><span class="math inline">\(p(x)\)</span> approaches <span class="math inline">\(0\)</span> slowly but <span class="math inline">\(1\)</span> very rapidly</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>If the opposite is true: take <span class="math inline">\(g(t) = -\ln(-\ln(t))\)</span> (loglog model)</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Useful in <span style="background-color: yellow;">survival models</span> (e.g.&nbsp;Cox)</p>
+</div>
 </section>
-<section id="details-on-the-logit-model" class="level2">
-<h2 class="anchored" data-anchor-id="details-on-the-logit-model">Details on the Logit Model</h2>
+<section id="details-on-the-logit-model" class="slide level2">
+<h2>Details on the Logit Model</h2>
 <ol type="1">
-<li><p>Highly valued interpretation tool: odds-ratios.</p></li>
-<li><p>More “practical” from a theoretical point of view.</p></li>
-<li><p>Natural model in many situations.</p></li>
+<li class="fragment"><p>Highly valued interpretation tool: odds-ratios.</p></li>
+<li class="fragment"><p>More “practical” from a theoretical point of view.</p></li>
+<li class="fragment"><p>Natural model in many situations.</p></li>
 </ol>
 </section>
-<section id="theoretical-motivation-of-logit" class="level2">
-<h2 class="anchored" data-anchor-id="theoretical-motivation-of-logit">Theoretical Motivation of Logit</h2>
-<p>. . .</p>
+<section id="theoretical-motivation-of-logit" class="slide level2">
+<h2>Theoretical Motivation of Logit</h2>
+<div class="fragment">
 <p>We will show in exercises that:</p>
 <p><span style="background-color: orange;">If</span> the two groups of individuals associated with <span class="math inline">\(Y = 0\)</span> and <span class="math inline">\(Y = 1\)</span> have a Gaussian distribution of <span class="math inline">\(X\)</span> with different means, i.e.&nbsp;for <span class="math inline">\(m_0 \neq m_1\)</span>,</p>
 <div class="square-def">
 <p><span class="math inline">\(X|(Y = 0) \sim \mathcal N(m_0, \Sigma) \and X|(Y = 1) \sim \mathcal N(m_1, \Sigma)\)</span></p>
 </div>
 <p><span style="background-color: orange;">then</span> <span class="math inline">\(\mathbb P(Y = 1|X = x)\)</span> follows a logistic model.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The previous result remains true for any distribution from the exponential family instead of <span class="math inline">\(\mathcal N\)</span>.</p>
+</div>
 </section>
-<section id="summary-for-binary-variables" class="level2">
-<h2 class="anchored" data-anchor-id="summary-for-binary-variables">Summary for Binary Variables:</h2>
-<p>. . .</p>
+<section id="summary-for-binary-variables" class="slide level2">
+<h2>Summary for Binary Variables:</h2>
+<div class="fragment">
 <p>If <span class="math inline">\(Y\)</span> is a binary variable, <span style="background-color: lightblue;"><span class="math inline">\((Y|X = x) \sim \mathcal B(p(x))\)</span></span>.</p>
 <p>In a GLM model for <span class="math inline">\(Y\)</span>, we set <span class="math inline">\(p(x) = g^{-1}(x^T\beta)\)</span> where <span class="math inline">\(g\)</span> is:</p>
 <ul>
-<li><p><span style="background-color: yellow;">by default the logit</span> function, which is the most natural;</p></li>
-<li><p><span style="background-color: yellow;">possibly probit</span> if we have good reasons to justify it (but the results will be similar to logit);</p></li>
-<li><p><span style="background-color: yellow;">cloglog (or loglog)</span> if we have good reasons to justify it (<span style="background-color: yellow;">strong asymmetry of <span class="math inline">\(p(x)\)</span></span>, connection with a Cox model).</p></li>
+<li class="fragment"><p><span style="background-color: yellow;">by default the logit</span> function, which is the most natural;</p></li>
+<li class="fragment"><p><span style="background-color: yellow;">possibly probit</span> if we have good reasons to justify it (but the results will be similar to logit);</p></li>
+<li class="fragment"><p><span style="background-color: yellow;">cloglog (or loglog)</span> if we have good reasons to justify it (<span style="background-color: yellow;">strong asymmetry of <span class="math inline">\(p(x)\)</span></span>, connection with a Cox model).</p></li>
 </ul>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>In the following, we will <span style="background-color: yellow;">focus on the logit model</span>.</p>
+</div>
 </section>
-<section id="outline" class="level2">
-<h2 class="anchored" data-anchor-id="outline">Outline</h2>
+<section id="outline" class="slide level2">
+<h2>Outline</h2>
 <ul>
-<li>interpret the model,</li>
-<li>estimate <span class="math inline">\(\beta\)</span> from a dataset,</li>
-<li>evaluate the quality of estimation,</li>
-<li>exploit it to make predictions/classification.</li>
+<li class="fragment">interpret the model,</li>
+<li class="fragment">estimate <span class="math inline">\(\beta\)</span> from a dataset,</li>
+<li class="fragment">evaluate the quality of estimation,</li>
+<li class="fragment">exploit it to make predictions/classification.</li>
 </ul>
-</section>
-</section>
-<section id="model-interpretation" class="level1">
+</section></section>
+<section>
+<section id="model-interpretation" class="title-slide slide level1 center">
 <h1>Model Interpretation</h1>
-<section id="interpretation-of-the-logistic-model" class="level2">
-<h2 class="anchored" data-anchor-id="interpretation-of-the-logistic-model">Interpretation of the Logistic Model</h2>
+
+</section>
+<section id="interpretation-of-the-logistic-model" class="slide level2">
+<h2>Interpretation of the Logistic Model</h2>
 <p>If <span class="math inline">\(x=(x^{(1)}, \dots, x^{(p)}) \in \mathbb R^{p \times 1}\)</span></p>
 <div class="square-def">
 <p><span class="math display">\[p(x) = \text{logit}^{-1}(x^T\beta) = \frac{e^{x^T\beta}}{1 + e^{x^T\beta}}\]</span></p>
 </div>
 <ul>
-<li><p><span class="math inline">\(x^{(j)} \to p(x)\)</span> is increasing if <span class="math inline">\(\beta_j &gt; 0\)</span>, decreasing otherwise.</p></li>
-<li><p>The larger <span class="math inline">\(|\beta_j|\)</span> is, the stronger the discriminatory power of regressor <span class="math inline">\(X^{(j)}\)</span> (a small variation in <span class="math inline">\(x^{(j)}\)</span> can cause a large variation in <span class="math inline">\(p(x)\)</span>).</p></li>
+<li class="fragment"><p><span class="math inline">\(x^{(j)} \to p(x)\)</span> is increasing if <span class="math inline">\(\beta_j &gt; 0\)</span>, decreasing otherwise.</p></li>
+<li class="fragment"><p>The larger <span class="math inline">\(|\beta_j|\)</span> is, the stronger the discriminatory power of regressor <span class="math inline">\(X^{(j)}\)</span> (a small variation in <span class="math inline">\(x^{(j)}\)</span> can cause a large variation in <span class="math inline">\(p(x)\)</span>).</p></li>
 </ul>
 </section>
-<section id="shape-of-logit-function" class="level2">
-<h2 class="anchored" data-anchor-id="shape-of-logit-function">Shape of logit function</h2>
-<p>. . .</p>
+<section id="shape-of-logit-function" class="slide level2">
+<h2>Shape of logit function</h2>
+<div class="fragment">
 <div style="text-align: center;">
-<p><img src="../images/shape_logit.png" class="img-fluid" style="width:40.0%"></p>
+<p><img data-src="../images/shape_logit.png" style="width:40.0%"></p>
 </div>
 <p>shape of <span class="math inline">\(x^{(j)} \to p(x)\)</span></p>
+</div>
 </section>
-<section id="example-bmi-study-french-imc" class="level2">
-<h2 class="anchored" data-anchor-id="example-bmi-study-french-imc">Example: BMI Study (French: IMC)</h2>
+<section id="example-bmi-study-french-imc" class="slide level2">
+<h2>Example: BMI Study (French: IMC)</h2>
 <p>For each of the 5300 patients, we observe:</p>
 <ul>
-<li><span style="background-color: yellow;"><span class="math inline">\(Y\)</span>: 1 if BMI &gt; 35</span>, 0 otherwise</li>
-<li>AGE</li>
-<li>DBP: low pressure (diastolic)</li>
-<li>SEXE: male or female</li>
-<li>ACTIV: 1 if intense sports activity, 0 otherwise</li>
-<li>WALK: 1 if walking or cycling to work, 0 otherwise</li>
-<li>MARITAL: marital status (6 categories: married, widowed, divorced, separated, single or cohabiting)</li>
+<li class="fragment"><span style="background-color: yellow;"><span class="math inline">\(Y\)</span>: 1 if BMI &gt; 35</span>, 0 otherwise</li>
+<li class="fragment">AGE</li>
+<li class="fragment">DBP: low pressure (diastolic)</li>
+<li class="fragment">SEXE: male or female</li>
+<li class="fragment">ACTIV: 1 if intense sports activity, 0 otherwise</li>
+<li class="fragment">WALK: 1 if walking or cycling to work, 0 otherwise</li>
+<li class="fragment">MARITAL: marital status (6 categories: married, widowed, divorced, separated, single or cohabiting)</li>
 </ul>
 </section>
-<section id="model-definition" class="level2">
-<h2 class="anchored" data-anchor-id="model-definition">Model Definition</h2>
-<p>. . .</p>
+<section id="model-definition" class="slide level2">
+<h2>Model Definition</h2>
+<div class="fragment">
 <p>We seek to model <span class="math inline">\(P(Y = 1|X)\)</span> where <span class="math inline">\(X\)</span> groups the previous variables (excluding <span class="math inline">\(Y\)</span>).</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>In R, we use the <code>glm</code> function with the <code>family=binomial</code> option.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glm</span>(Y <span class="sc">~</span> AGE <span class="sc">+</span> DBP <span class="sc">+</span> SEXE <span class="sc">+</span> ACTIV <span class="sc">+</span> WALK <span class="sc">+</span> MARITAL, <span class="at">family=</span>binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">glm</span>(Y <span class="sc">~</span> AGE <span class="sc">+</span> DBP <span class="sc">+</span> SEXE <span class="sc">+</span> ACTIV <span class="sc">+</span> WALK <span class="sc">+</span> MARITAL, <span class="at">family=</span>binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
-<section id="model-results" class="level2">
-<h2 class="anchored" data-anchor-id="model-results">Model Results</h2>
-<p>. . .</p>
+<section id="model-results" class="slide level2">
+<h2>Model Results</h2>
+<div class="fragment">
 <div style="font-size: 50%;">
-<table class="caption-top table">
+<table class="caption-top">
 <colgroup>
 <col style="width: 18%">
 <col style="width: 15%">
@@ -711,19 +609,23 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 </tbody>
 </table>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The interpretation is similar to that of a linear regression model.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We want to remove the MARITAL variable from the model.</p>
+</div>
 </section>
-<section id="model-results-with-age2" class="level2">
-<h2 class="anchored" data-anchor-id="model-results-with-age2">Model Results with <span class="math inline">\(AGE^2\)</span></h2>
-<p>. . .</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">glm</span>(Y <span class="sc">~</span> AGE <span class="sc">+</span> <span class="fu">I</span>(AGE<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> DBP <span class="sc">+</span> SEXE <span class="sc">+</span> WALK <span class="sc">+</span> ACTIV, <span class="at">family=</span>binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="model-results-with-age2" class="slide level2">
+<h2>Model Results with <span class="math inline">\(AGE^2\)</span></h2>
+<div class="fragment">
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">glm</span>(Y <span class="sc">~</span> AGE <span class="sc">+</span> <span class="fu">I</span>(AGE<span class="sc">^</span><span class="dv">2</span>) <span class="sc">+</span> DBP <span class="sc">+</span> SEXE <span class="sc">+</span> WALK <span class="sc">+</span> ACTIV, <span class="at">family=</span>binomial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Gives</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div style="font-size: 50%;">
-<table class="caption-top table">
+<table class="caption-top">
 <colgroup>
 <col style="width: 17%">
 <col style="width: 16%">
@@ -806,114 +708,129 @@ Results of <span class="math inline">\(g^{-1}(\hat \beta_0 + \hat \beta_1 x)\)</
 <div style="font-size: 50%;">
 <p><span class="math inline">\(P(Y = 1|\text{AGE}, \text{DBP}) = \text{logit}^{-1}(-3.95 + 0.064 \times \text{AGE} - 0.00068 \times \text{AGE}^2 + 0.0122 \times \text{DBP})\)</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>For someone for which WALK1=0 and <span style="background-color: yellow;">ACTIV1=1</span>:</p>
 <div style="font-size: 50%;">
 <p><span class="math inline">\(P(Y = 1|\text{AGE}, \text{DBP}) = \text{logit}^{-1}(-3.95 + 0.064 \times \text{AGE} - 0.00068 \times \text{AGE}^2 + 0.0122 \times \text{DBP} \color{red}{ - 0.657})\)</span></p>
 </div>
+</div>
 </section>
-<section id="odds" class="level2">
-<h2 class="anchored" data-anchor-id="odds">Odds</h2>
+<section id="odds" class="slide level2">
+<h2>Odds</h2>
 <div class="square-def">
 <p><span class="math display">\[\text{odds} = \frac{p}{1-p}\]</span></p>
 </div>
-<p>. . .</p>
+<div class="fragment">
 <p><strong>Betting interpretation</strong> for example, <span class="math inline">\(3\)</span> to <span class="math inline">\(1\)</span> means that for <span class="math inline">\(3\)</span> people betting on <span class="math inline">\(A\)</span>, <span class="math inline">\(1\)</span> person bets on <span class="math inline">\(B\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>So a randomly chosen bettor has a probability of <span class="math inline">\(p=3/4\)</span> of betting on <span class="math inline">\(A\)</span> and <span class="math inline">\(1-p=1/4\)</span> on betting on <span class="math inline">\(B\)</span></p>
+</div>
 </section>
-<section id="odds-given-xx" class="level2">
-<h2 class="anchored" data-anchor-id="odds-given-xx">Odds given <span class="math inline">\(X=x\)</span></h2>
-<p>. . .</p>
+<section id="odds-given-xx" class="slide level2">
+<h2>Odds given <span class="math inline">\(X=x\)</span></h2>
+<div class="fragment">
 <p>Similarly, the odds of obtaining <span class="math inline">\(Y = 1\)</span> given <span class="math inline">\(X = x\)</span> is:</p>
 <div class="square-def">
 <p><span class="math display">\[\text{odds}(x) = \frac{p(x)}{1 - p(x)}\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>where <span class="math inline">\(p(x) = P(Y = 1|X = x)\)</span>.</p>
+</div>
 </section>
-<section id="odds-ratio" class="level2">
-<h2 class="anchored" data-anchor-id="odds-ratio">Odds Ratio</h2>
-<p>. . .</p>
+<section id="odds-ratio" class="slide level2">
+<h2>Odds Ratio</h2>
+<div class="fragment">
 <p>If two individuals have characteristics <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span> respectively, we call the odds ratio between <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>:</p>
 <p><span class="math display">\[OR(x_1, x_2) = \frac{\text{odds}(x_1)}{\text{odds}(x_2)} = \frac{\frac{p(x_1)}{1-p(x_1)}}{\frac{p(x_2)}{1-p(x_2)}}\]</span></p>
-<p>. . .</p>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
 </div>
-<div class="callout-title-container flex-fill">
-Warning
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
 </div>
-</div>
-<div class="callout-body-container callout-body">
+<div class="callout-content">
 <p><span style="background-color: orange;"><strong>DO NOT CONFUSE ODDS RATIO WITH PROBABILITY RATIO</strong></span></p>
 <p>Only possible exception: if <span class="math inline">\(p(x_1)\)</span> and <span class="math inline">\(p(x_2)\)</span> are very small because then <span class="math inline">\(1 - p(x_1) \approx 1\)</span> and <span class="math inline">\(1 - p(x_2) \approx 1\)</span>, so that <span class="math inline">\(OR(x_1, x_2) \approx p(x_1)/p(x_2)\)</span></p>
 </div>
 </div>
+</div>
+</div>
 </section>
-<section id="link-with-proba.-ratio" class="level2">
-<h2 class="anchored" data-anchor-id="link-with-proba.-ratio">Link with Proba. Ratio</h2>
-<p>. . .</p>
+<section id="link-with-proba.-ratio" class="slide level2">
+<h2>Link with Proba. Ratio</h2>
+<div class="fragment">
 <p>However, it remains that:</p>
 <p><span class="math display">\[\begin{aligned}
 OR(x_1, x_2) &gt; 1 &amp;\Leftrightarrow \frac{p(x_1)}{p(x_2)} &gt; 1\\
 OR(x_1, x_2) &lt; 1 &amp;\Leftrightarrow \frac{p(x_1)}{p(x_2)} &lt; 1\\
 OR(x_1, x_2) = 1 &amp;\Leftrightarrow \frac{p(x_1)}{p(x_2)} = 1
 \end{aligned}\]</span></p>
+</div>
 </section>
-<section id="other-property-of-odds-ratio" class="level2">
-<h2 class="anchored" data-anchor-id="other-property-of-odds-ratio">Other Property of Odds Ratio</h2>
-<p>. . .</p>
+<section id="other-property-of-odds-ratio" class="slide level2">
+<h2>Other Property of Odds Ratio</h2>
+<div class="fragment">
 <p><span class="math inline">\(OR(x_1, x_2)\)</span> accentuates the differences compared to <span class="math inline">\(p(x_1)/p(x_2)\)</span>:</p>
 <p><span class="math display">\[\begin{aligned}
 OR(x_1, x_2) &gt; \frac{p(x_1)}{p(x_2)} &amp;\text{ when } OR(x_1, x_2) &gt; 1\\
 OR(x_1, x_2) &lt; \frac{p(x_1)}{p(x_2)} &amp;\text{ when } OR(x_1, x_2) &lt; 1
 \end{aligned}\]</span></p>
+</div>
 </section>
-<section id="examples-using-odds-ratios" class="level2">
-<h2 class="anchored" data-anchor-id="examples-using-odds-ratios">Examples Using Odds Ratios</h2>
-<p>. . .</p>
+<section id="examples-using-odds-ratios" class="slide level2">
+<h2>Examples Using Odds Ratios</h2>
+<div class="fragment">
 <p>A logistic regression is most often used to compare the <span style="background-color: lightgreen;">behavior of two individuals</span> with respect to <span style="background-color: lightblue;">the variable of interest</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Examples:</p>
 <ul>
-<li><span style="background-color: lightgreen;">probability of purchase</span> depending on whether or not one has been the <span style="background-color: lightblue;">subject of a personalized promotion</span>;</li>
-<li>for a given vehicle, <span style="background-color: lightgreen;">probability of experiencing a breakdown</span> <span style="background-color: lightblue;">according to age</span>;</li>
-<li><span style="background-color: lightgreen;">probability of recovery</span> according to the <span style="background-color: lightblue;">treatment used</span>;</li>
+<li class="fragment"><span style="background-color: lightgreen;">probability of purchase</span> depending on whether or not one has been the <span style="background-color: lightblue;">subject of a personalized promotion</span>;</li>
+<li class="fragment">for a given vehicle, <span style="background-color: lightgreen;">probability of experiencing a breakdown</span> <span style="background-color: lightblue;">according to age</span>;</li>
+<li class="fragment"><span style="background-color: lightgreen;">probability of recovery</span> according to the <span style="background-color: lightblue;">treatment used</span>;</li>
 </ul>
+</div>
 </section>
-<section id="odds-ratio-in-logistic-regression" class="level2">
-<h2 class="anchored" data-anchor-id="odds-ratio-in-logistic-regression">Odds Ratio in Logistic Regression</h2>
-<p>. . .</p>
+<section id="odds-ratio-in-logistic-regression" class="slide level2">
+<h2>Odds Ratio in Logistic Regression</h2>
+<div class="fragment">
 <p>It holds that <span style="background-color: lightblue;"><span class="math inline">\(\text{odds}(x) = \frac{p(x)}{1 - p(x)} = \exp(x^T \beta)\)</span></span></p>
 <p>Hence,</p>
 <div class="square-def">
 <p><span class="math inline">\(OR(x_1, x_2) = \frac{\text{odds}(x_1)}{\text{odds}(x_2)} = \exp((x_1 - x_2)^T \beta)\)</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>If the two individuals differ only by regressor <span class="math inline">\(j\)</span>, then</p>
 <p><span class="math inline">\(OR(x_1, x_2) = \exp(\beta_j (x_1^{(j)} - x_2^{(j)}))\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>If regressor <span class="math inline">\(j\)</span> is binary (<span class="math inline">\(x_1^{(j)} = 1\)</span> while <span class="math inline">\(x_2^{(j)} = 0\)</span>):</p>
 <p><span class="math inline">\(OR(x_1, x_2) = \exp(\beta_j)\)</span></p>
+</div>
 </section>
-<section id="key-summary-statement" class="level2">
-<h2 class="anchored" data-anchor-id="key-summary-statement">Key Summary Statement</h2>
-<p>. . .</p>
+<section id="key-summary-statement" class="slide level2">
+<h2>Key Summary Statement</h2>
+<div class="fragment">
 <p>In a logistic regression model, <span class="math inline">\(\beta_j\)</span> is interpreted as the logarithm of the odds-ratio between two individuals differing by a quantity of <span class="math inline">\(1\)</span> on regressor <span class="math inline">\(j\)</span>, all else being equal.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>In brief:</strong> <span style="background-color: yellow;"><span class="math inline">\(\exp(\beta_j) = OR(x^{(j)} + 1, x^{(j)})\)</span></span></p>
 <p>If regressor <span class="math inline">\(j\)</span> is binary (absence or presence of a certain characteristic):</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\(\exp(\beta_j)\)</span> is simply the OR between the <span style="background-color: yellow;">presence or absence</span> of this characteristic, all else being equal.</p>
+</div>
 </section>
-<section id="example-1-intense-sports-activity" class="level2">
-<h2 class="anchored" data-anchor-id="example-1-intense-sports-activity">Example 1: Intense Sports Activity</h2>
-<p>. . .</p>
+<section id="example-1-intense-sports-activity" class="slide level2">
+<h2>Example 1: Intense Sports Activity</h2>
+<div class="fragment">
 <div style="font-size: 50%;">
-<table class="caption-top table">
+<table class="caption-top">
 <colgroup>
 <col style="width: 17%">
 <col style="width: 16%">
@@ -992,18 +909,22 @@ OR(x_1, x_2) &lt; \frac{p(x_1)}{p(x_2)} &amp;\text{ when } OR(x_1, x_2) &lt; 1
 </tbody>
 </table>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The Odds Ratio corresponding to practicing or not practicing intense sports activity is, all else being equal:</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\(\exp(-0.657) \approx 0.52\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The odds of obesity occurrence therefore decrease by half for individuals practicing intense sports activity.</p>
 <p><strong>(The odds, not the probability!)</strong></p>
+</div>
 </section>
-<section id="example-2-diastolic-pressure" class="level2">
-<h2 class="anchored" data-anchor-id="example-2-diastolic-pressure">Example 2: Diastolic Pressure</h2>
+<section id="example-2-diastolic-pressure" class="slide level2">
+<h2>Example 2: Diastolic Pressure</h2>
 <div style="font-size: 50%;">
-<table class="caption-top table">
+<table class="caption-top">
 <colgroup>
 <col style="width: 17%">
 <col style="width: 16%">
@@ -1083,64 +1004,77 @@ OR(x_1, x_2) &lt; \frac{p(x_1)}{p(x_2)} &amp;\text{ when } OR(x_1, x_2) &lt; 1
 </table>
 </div>
 <p>The OR for a diastolic pressure difference of <span class="math inline">\(+20\)</span> is:</p>
-<p>. . .</p>
+<div class="fragment">
 <p><span class="math inline">\(\exp(0.0121546 \times 20) \approx 1.28\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The odds of obesity occurrence therefore increase by <span class="math inline">\(28\%\)</span>.</p>
-</section>
-</section>
-<section id="estimation-of-the-parameters" class="level1">
+</div>
+</section></section>
+<section>
+<section id="estimation-of-the-parameters" class="title-slide slide level1 center">
 <h1>EStimation of the Parameters</h1>
-<section id="the-framework" class="level2">
-<h2 class="anchored" data-anchor-id="the-framework">The Framework</h2>
-<p>. . .</p>
-<p>We observe <span class="math inline">\(n\)</span> i.i.d. realizations <span class="math inline">\((Y_i, X_i)\)</span> where <span class="math inline">\(Y_i \in \{0, 1\}\)</span> and <span class="math inline">\(X_i \in \mathbb{R}^p\)</span>.</p>
-<p>. . .</p>
-<p>We denote <span class="math inline">\(p(x_i) = P(Y_i = 1|X_i = x_i)\)</span>.</p>
+
 </section>
-<section id="the-logistic-model" class="level2">
-<h2 class="anchored" data-anchor-id="the-logistic-model">The Logistic Model</h2>
-<p>. . .</p>
+<section id="the-framework" class="slide level2">
+<h2>The Framework</h2>
+<div class="fragment">
+<p>We observe <span class="math inline">\(n\)</span> i.i.d. realizations <span class="math inline">\((Y_i, X_i)\)</span> where <span class="math inline">\(Y_i \in \{0, 1\}\)</span> and <span class="math inline">\(X_i \in \mathbb{R}^p\)</span>.</p>
+</div>
+<div class="fragment">
+<p>We denote <span class="math inline">\(p(x_i) = P(Y_i = 1|X_i = x_i)\)</span>.</p>
+</div>
+</section>
+<section id="the-logistic-model" class="slide level2">
+<h2>The Logistic Model</h2>
+<div class="fragment">
 <p>We assume the logistic model: for all <span class="math inline">\(i\)</span>,</p>
 <div class="square-def">
 <p><span class="math display">\[p(x_i) = \text{logit}^{-1}(x_i^T \beta) = \frac{e^{x_i^T \beta}}{1 + e^{x_i^T \beta}}\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>where <span class="math inline">\(\beta = (\beta_1, \ldots, \beta_p)^T\)</span> and <span class="math inline">\(x_i^T \beta = \beta_1 x_i^{(1)} + \cdots + \beta_p x_i^{(p)}\)</span>.</p>
+</div>
 </section>
-<section id="parameter-estimation" class="level2">
-<h2 class="anchored" data-anchor-id="parameter-estimation">Parameter Estimation</h2>
-<p>. . .</p>
+<section id="parameter-estimation" class="slide level2">
+<h2>Parameter Estimation</h2>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[p(x_i) = \text{logit}^{-1}(x_i^T \beta) = \frac{e^{x_i^T \beta}}{1 + e^{x_i^T \beta}}\]</span></p>
 </div>
 <p>We will estimate <span class="math inline">\(\beta\)</span> by <span style="background-color: yellow;">maximizing the likelihood</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We will denote <span style="background-color: lightblue;"><span class="math inline">\(p_\beta(x_i)\)</span></span> to emphasize the dependence of <span style="background-color: lightblue;"><span class="math inline">\(p(x_i)\)</span></span> on <span class="math inline">\(\beta\)</span>.</p>
+</div>
 </section>
-<section id="likelihood-calculation" class="level2">
-<h2 class="anchored" data-anchor-id="likelihood-calculation">Likelihood Calculation</h2>
-<p>. . .</p>
+<section id="likelihood-calculation" class="slide level2">
+<h2>Likelihood Calculation</h2>
+<div class="fragment">
 <p>For all <span class="math inline">\(i\)</span>, <span class="math inline">\(Y_i|(X_i = x_i)\)</span> follows the distribution <span class="math inline">\(B(p_\beta(x_i))\)</span>. Therefore</p>
 <div style="font-size: 80%;">
 <div class="square-def">
 <p><span class="math display">\[P(Y_i = y_i|X_i = x_i) = p_\beta(x_i)^{y_i}(1 - p_\beta(x_i))^{1-y_i}\]</span></p>
 </div>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>for all <span class="math inline">\(y_i \in \{0, 1\}\)</span>.</p>
+</div>
 </section>
-<section id="likelihood" class="level2">
-<h2 class="anchored" data-anchor-id="likelihood">Likelihood</h2>
-<p>. . .</p>
+<section id="likelihood" class="slide level2">
+<h2>Likelihood</h2>
+<div class="fragment">
 <p>By independence, we obtain the likelihood</p>
 <div class="square-def">
 <p><span class="math display">\[\ell(\beta, y_1, \ldots, y_n, x_1, \ldots, x_n) = \prod_{i=1}^n p_\beta(x_i)^{y_i}(1 - p_\beta(x_i))^{1-y_i}\]</span></p>
 </div>
+</div>
 </section>
-<section id="log-likelihood" class="level2">
-<h2 class="anchored" data-anchor-id="log-likelihood">Log-Likelihood</h2>
-<p>. . .</p>
+<section id="log-likelihood" class="slide level2">
+<h2>Log-Likelihood</h2>
+<div class="fragment">
 <p>Taking the log and replacing <span class="math inline">\(p(x_i)\)</span> by its expression, we obtain the log-likelihood:</p>
 <div style="font-size: 80%;">
 <div class="square-def">
@@ -1150,55 +1084,61 @@ L(\beta, y_1, \ldots, y_n, x_1, \ldots, x_n) &amp;= \ln(\ell) \\
 \end{aligned}\]</span></p>
 </div>
 </div>
+</div>
 </section>
-<section id="mle-calculation" class="level2">
-<h2 class="anchored" data-anchor-id="mle-calculation">MLE Calculation</h2>
-<p>. . .</p>
+<section id="mle-calculation" class="slide level2">
+<h2>MLE Calculation</h2>
+<div class="fragment">
 <p>The MLE <span class="math inline">\(\hat{\beta}\)</span>, if it exists, cancels the gradient of <span class="math inline">\(L\)</span> with respect to <span class="math inline">\(\beta\)</span>. This gradient equals</p>
 <div class="square-def">
 <p><span class="math display">\[\frac{\partial L}{\partial \beta} = \sum_{i=1}^n x_i \left(y_i - \frac{e^{x_i^T \beta}}{1 + e^{x_i^T \beta}}\right)\]</span></p>
 </div>
 <p>We therefore need to solve a system of <span class="math inline">\(p\)</span> equations with <span class="math inline">\(p\)</span> unknowns.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>But the solution is not explicit: we resort to <span style="background-color: yellow;">numerical methods</span> (Newto-Raphso algo)</p>
+</div>
 </section>
-<section id="remarks" class="level2">
-<h2 class="anchored" data-anchor-id="remarks">Remarks</h2>
-<p>. . .</p>
+<section id="remarks" class="slide level2">
+<h2>Remarks</h2>
+<div class="fragment">
 <p>This is a classic situation when using advanced statistical models: we often <span style="background-color: yellow;">resort to optimization algorithms</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Does the solution exist? Is it unique?</p>
+</div>
 </section>
-<section id="mle-uniqueness" class="level2">
-<h2 class="anchored" data-anchor-id="mle-uniqueness">MLE Uniqueness</h2>
-<p>. . .</p>
+<section id="mle-uniqueness" class="slide level2">
+<h2>MLE Uniqueness</h2>
+<div class="fragment">
 <p>Let <span class="math inline">\(X\)</span> be the design matrix <span class="math inline">\((X^{(1)}, \dots, X^{(p)}) \in \mathbb R^{n \times p}\)</span></p>
-<p>. . .</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
 </div>
-<div class="callout-title-container flex-fill">
-Proposition
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Proposition</strong></p>
 </div>
-</div>
-<div class="callout-body-container callout-body">
+<div class="callout-content">
 <p>If <span class="math inline">\(\text{rank}(X) = p\)</span>, then the MLE, if it exists, is unique.</p>
 </div>
 </div>
+</div>
+</div>
 </section>
-<section id="proof-of-mle-uniqueness" class="level2">
-<h2 class="anchored" data-anchor-id="proof-of-mle-uniqueness">Proof of MLE Uniqueness</h2>
-<p>. . .</p>
+<section id="proof-of-mle-uniqueness" class="slide level2">
+<h2>Proof of MLE Uniqueness</h2>
+<div class="fragment">
 <p>It suffices to show that <span class="math inline">\(L\)</span> is strictly concave in <span class="math inline">\(\beta\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Hessian Matrix of <span class="math inline">\(L\)</span>:</p>
 <p><span class="math display">\[\frac{\partial^2 L}{\partial \beta^2} = -\sum_{i=1}^n p_\beta(x_i)(1 - p_\beta(x_i)) x_i x_i^T\]</span></p>
+</div>
 </section>
-<section id="hessian-properties" class="level2">
-<h2 class="anchored" data-anchor-id="hessian-properties">Hessian Properties</h2>
-<p>. . .</p>
+<section id="hessian-properties" class="slide level2">
+<h2>Hessian Properties</h2>
+<div class="fragment">
 <p>It is negative semi-definite. Moreover, for all <span class="math inline">\(u \in \mathbb{R}^p\)</span>,</p>
 <p><span class="math display">\[\begin{aligned}
 u^T \frac{\partial^2 L}{\partial \beta^2} u = 0 &amp;\Leftrightarrow u^T x_i x_i^T u = 0 \text{ for all } i\\
@@ -1207,197 +1147,222 @@ u^T \frac{\partial^2 L}{\partial \beta^2} u = 0 &amp;\Leftrightarrow u^T x_i x_i
 &amp;\Leftrightarrow u = 0
 \end{aligned}\]</span></p>
 <p>since <span class="math inline">\(\text{rank}(X) = p\)</span>.</p>
+</div>
 </section>
-<section id="conclusion" class="level2">
-<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
-<p>. . .</p>
+<section id="conclusion" class="slide level2">
+<h2>Conclusion</h2>
+<div class="fragment">
 <p>Thus, for all <span class="math inline">\(u \neq 0\)</span>,</p>
 <div class="square-def">
 <p><span class="math display">\[u^T \frac{\partial^2 L}{\partial \beta^2} u &lt; 0\]</span></p>
 </div>
 <p>The Hessian matrix is negative definite and therefore <span class="math inline">\(L\)</span> is strictly concave,</p>
 <p>The MLE is unique</p>
+</div>
 </section>
-<section id="about-mle-existence" class="level2">
-<h2 class="anchored" data-anchor-id="about-mle-existence">About MLE Existence</h2>
-<p>. . .</p>
+<section id="about-mle-existence" class="slide level2">
+<h2>About MLE Existence</h2>
+<div class="fragment">
 <p>Although <span class="math inline">\(L\)</span> is strictly concave, its <span style="background-color: orange;">maximum can occur at infinity</span> (think of the <span class="math inline">\(\ln\)</span> function), in which case <span class="math inline">\(\hat{\beta}\)</span> does not exist.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>This occurs if there is <span style="background-color: yellow;">non-overlap</span>, i.e., separation by a hyperplane of the <span class="math inline">\(x_i\)</span> for which <span class="math inline">\(y_i = 0\)</span> and those for which <span class="math inline">\(y_i = 1\)</span>.</p>
+</div>
 </section>
-<section id="non-overlap-situation" class="level2">
-<h2 class="anchored" data-anchor-id="non-overlap-situation">Non-Overlap Situation</h2>
-<p>. . .</p>
+<section id="non-overlap-situation" class="slide level2">
+<h2>Non-Overlap Situation</h2>
+<div class="fragment">
 <p>Mathematically, there is non-overlap if there exists <span class="math inline">\(\alpha \in \mathbb{R}^p\)</span> such that</p>
 <p><span class="math display">\[\begin{cases}
 \text{for all } i \text{ such that } y_i = 0, &amp; \alpha^T x_i \geq 0 \\
 \text{for all } i \text{ such that } y_i = 1, &amp; \alpha^T x_i \leq 0
 \end{cases}\]</span></p>
+</div>
 </section>
-<section id="illustration-of-non-overlap-situation" class="level2">
-<h2 class="anchored" data-anchor-id="illustration-of-non-overlap-situation">Illustration of Non-Overlap Situation</h2>
-<p><img src="../images/non_recouvrement.png" class="img-fluid"></p>
-</section>
-<section id="non-overlap-and-existence" class="level2">
-<h2 class="anchored" data-anchor-id="non-overlap-and-existence">Non-Overlap and Existence</h2>
-<p>. . .</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<section id="illustration-of-non-overlap-situation" class="slide level2">
+<h2>Illustration of Non-Overlap Situation</h2>
+
+<img data-src="../images/non_recouvrement.png" class="r-stretch"></section>
+<section id="non-overlap-and-existence" class="slide level2">
+<h2>Non-Overlap and Existence</h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Proposition (admitted)</strong></p>
 </div>
-<div class="callout-title-container flex-fill">
-Proposition (admitted)
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<div class="callout-content">
 <p>In case of non-overlap, the estimator <span style="background-color: orange;"><span class="math inline">\(\hat{\beta}\)</span> does not exist</span>, in the sense that <span class="math inline">\(L(\beta)\)</span> is maximal when <span class="math inline">\(\|\beta\| \to \infty\)</span> (in one or several directions).</p>
 </div>
 </div>
-<p>. . .</p>
+</div>
+</div>
+<div class="fragment">
 <p>For all <span class="math inline">\(x\)</span>, <span style="background-color: lightblue;"><span class="math inline">\(\hat{p}(x) = \in \{0,1\}\)</span></span>, depending on the position of <span class="math inline">\(x\)</span> relative to the separating hyperplane.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Nevertheless, there is a “dead zone” in the middle of the <span class="math inline">\(2\)</span> point clouds, because the <span style="background-color: orange;">separating hyperplane is not necessarily unique</span>.</p>
+</div>
 </section>
-<section id="beyond-the-dead-zone" class="level2">
-<h2 class="anchored" data-anchor-id="beyond-the-dead-zone">Beyond the Dead Zone</h2>
-<p>. . .</p>
+<section id="beyond-the-dead-zone" class="slide level2">
+<h2>Beyond the Dead Zone</h2>
+<div class="fragment">
 <p>Beyond this dead zone, classification is very simple (<span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span>).</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>But no interpretation of the model is possible (the OR are worth <span class="math inline">\(0\)</span> or <span class="math inline">\(+\infty\)</span>).</p>
+</div>
 </section>
-<section id="existence-and-uniqueness-of-mle" class="level2">
-<h2 class="anchored" data-anchor-id="existence-and-uniqueness-of-mle">Existence and Uniqueness of MLE</h2>
-<p>. . .</p>
+<section id="existence-and-uniqueness-of-mle" class="slide level2">
+<h2>Existence and Uniqueness of MLE</h2>
+<div class="fragment">
 <p>We say <span style="background-color: yellow;">there is overlap</span> when no hyperplane can separate the red points from the blue points.</p>
-<p>. . .</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
 </div>
-<div class="callout-title-container flex-fill">
-Proposition (admitted)
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Proposition (admitted)</strong></p>
 </div>
-</div>
-<div class="callout-body-container callout-body">
+<div class="callout-content">
 <p>If <span class="math inline">\(\text{rank}(X) = p\)</span> and <span style="background-color: yellow;">there is overlap</span>, then the MLE exists and is unique.</p>
+</div>
 </div>
 </div>
 <p>Under these conditions, we <span style="background-color: yellow;">can therefore search for the MLE</span> using the Newton-Raphson algorithm.</p>
 <ol type="1">
-<li><p>the maximum exists,</p></li>
-<li><p>the function to optimize is strictly concave and there is therefore no local maximum, only a global maximum.</p></li>
+<li class="fragment"><p>the maximum exists,</p></li>
+<li class="fragment"><p>the function to optimize is strictly concave and there is therefore no local maximum, only a global maximum.</p></li>
 </ol>
+</div>
 </section>
-<section id="fisher-information-recall" class="level2">
-<h2 class="anchored" data-anchor-id="fisher-information-recall">Fisher Information (Recall)</h2>
-<p>. . .</p>
+<section id="fisher-information-recall" class="slide level2">
+<h2>Fisher Information (Recall)</h2>
+<div class="fragment">
 <p>Let <span class="math inline">\(X\)</span> be the design matrix (whose rows are the vectors <span class="math inline">\(x_i\)</span>).</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Let <span class="math inline">\(J_n(\beta)\)</span> be the Fisher information matrix:</p>
 <div class="square-def">
 <p><span class="math display">\[J_n(\beta) = -E\left[\frac{\partial^2 L}{\partial \beta^2}(\beta) \right]\]</span></p>
 </div>
+</div>
 </section>
-<section id="asymptotic-efficiency" class="level2">
-<h2 class="anchored" data-anchor-id="asymptotic-efficiency">Asymptotic Efficiency</h2>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<section id="asymptotic-efficiency" class="slide level2">
+<h2>Asymptotic Efficiency</h2>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Proposition (admitted)</strong></p>
 </div>
-<div class="callout-title-container flex-fill">
-Proposition (admitted)
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<div class="callout-content">
 <p>In the logistic regression model, <span style="background-color: yellow;">if</span></p>
 <ol type="1">
-<li>the distribution of the regressors <span class="math inline">\((X_1, \ldots, X_p)\)</span> has compact support,</li>
-<li><span class="math inline">\(\text{rank}(X) = p\)</span>,</li>
-<li>the smallest eigenvalue of <span class="math inline">\(X^T X\)</span> tends to infinity with <span class="math inline">\(n\)</span>,</li>
+<li class="fragment">the distribution of the regressors <span class="math inline">\((X_1, \ldots, X_p)\)</span> has compact support,</li>
+<li class="fragment"><span class="math inline">\(\text{rank}(X) = p\)</span>,</li>
+<li class="fragment">the smallest eigenvalue of <span class="math inline">\(X^T X\)</span> tends to infinity with <span class="math inline">\(n\)</span>,</li>
 </ol>
 <p><span style="background-color: yellow;">then</span></p>
 <ol type="1">
-<li><p>the maximum likelihood estimator <span class="math inline">\(\hat{\beta}\)</span> is consistent;</p></li>
-<li><p><span class="math inline">\(J_n(\beta)^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)\)</span></p></li>
+<li class="fragment"><p>the maximum likelihood estimator <span class="math inline">\(\hat{\beta}\)</span> is consistent;</p></li>
+<li class="fragment"><p><span class="math inline">\(J_n(\beta)^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)\)</span></p></li>
 </ol>
 <p>where <span class="math inline">\(I_p\)</span> is the identity matrix of size <span class="math inline">\(p\)</span>.</p>
 </div>
 </div>
+</div>
 </section>
-<section id="comments" class="level2">
-<h2 class="anchored" data-anchor-id="comments">Comments</h2>
-<p>. . .</p>
+<section id="comments" class="slide level2">
+<h2>Comments</h2>
+<div class="fragment">
 <p>Under these conditions, the MLE therefore exists for sufficiently large <span class="math inline">\(n\)</span>. In fact, there is necessarily overlap when <span class="math inline">\(n\)</span> is large.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>It is asymptotically efficient (= minimal asymptotic variance)</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The Fisher information matrix <span class="math inline">\(J_n(\beta)\)</span> can be calculated</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We will be able to rely on asymptotic normality to perform tests and construct confidence intervals</p>
+</div>
 </section>
-<section id="comparison-with-linear-regression" class="level2">
-<h2 class="anchored" data-anchor-id="comparison-with-linear-regression">Comparison with Linear Regression</h2>
-<p>. . .</p>
+<section id="comparison-with-linear-regression" class="slide level2">
+<h2>Comparison with Linear Regression</h2>
+<div class="fragment">
 <p>The formula for <span class="math inline">\(\hat{\beta}\)</span> is <span style="background-color: lightgreen;">explicit</span>: <span class="math inline">\(\hat{\beta} = (X^T X)^{-1} X^T Y\)</span>;</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Its expectation and variance are <span style="background-color: lightgreen;">explicit</span>;</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>In the Gaussian model (<span class="math inline">\(Y|X\)</span> Gaussian), the distribution of <span class="math inline">\(\hat{\beta}\)</span> is <span style="background-color: lightgreen;">explicit</span>, which allows constructing exact tests (Student, Fisher).</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>If the model is not Gaussian, these tests are valid asymptotically.</p>
+</div>
 </section>
-<section id="comparison-with-linear-regression-1" class="level2">
-<h2 class="anchored" data-anchor-id="comparison-with-linear-regression-1">Comparison with Linear Regression</h2>
-<p>. . .</p>
+<section id="comparison-with-linear-regression-1" class="slide level2">
+<h2>Comparison with Linear Regression</h2>
+<div class="fragment">
 <p><span style="background-color: orange;">No explicit</span> formula for <span class="math inline">\(\hat{\beta}\)</span>, the solution is obtained numerically;</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We know neither the bias nor the variance of <span class="math inline">\(\hat{\beta}\)</span>;</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The distribution of <span class="math inline">\(Y|X\)</span> is simple (a Bernoulli), but we don’t know the distribution of <span class="math inline">\(\hat{\beta}\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We only know its asymptotic distribution.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We’ll do <span style="background-color: orange;">asymptotic tests</span>!</p>
-</section>
-</section>
-<section id="tests-and-confidence-intervals" class="level1">
+</div>
+</section></section>
+<section>
+<section id="tests-and-confidence-intervals" class="title-slide slide level1 center">
 <h1>Tests and Confidence Intervals</h1>
-<section id="asymptotic-framework" class="level2">
-<h2 class="anchored" data-anchor-id="asymptotic-framework">Asymptotic Framework</h2>
-<p>. . .</p>
+
+</section>
+<section id="asymptotic-framework" class="slide level2">
+<h2>Asymptotic Framework</h2>
+<div class="fragment">
 <p>Under “good conditions”,</p>
 <div class="square-def">
 <p><span class="math display">\[J_n(\beta)^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)\]</span></p>
 </div>
 <p>where <span class="math inline">\(J_n(\beta)\)</span> is the Fisher information matrix.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>To build asymptotic tests, we need to understand <span class="math inline">\(J_n(\beta)\)</span> and be able to estimate it.</p>
+</div>
 </section>
-<section id="computation-of-j_nbeta" class="level2">
-<h2 class="anchored" data-anchor-id="computation-of-j_nbeta">Computation of <span class="math inline">\(J_n(\beta)\)</span></h2>
-<p>. . .</p>
+<section id="computation-of-j_nbeta" class="slide level2">
+<h2>Computation of <span class="math inline">\(J_n(\beta)\)</span></h2>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[J_n(\beta) = -E\left[\frac{\partial^2 L}{\partial \beta^2}(\beta) \bigg| X\right]\]</span></p>
 </div>
 <p>where <span class="math inline">\(L\)</span> is the log-likelihood of the model.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>From the proof of existence of MLE,</p>
 <div class="square-def">
 <p><span class="math display">\[J_n(\beta) = \sum_{i=1}^n p_\beta(x_i)(1 - p_\beta(x_i)) x_i x_i^T\]</span></p>
 </div>
+</div>
 </section>
-<section id="equivalent-form" class="level2">
-<h2 class="anchored" data-anchor-id="equivalent-form">Equivalent Form</h2>
-<p>. . .</p>
+<section id="equivalent-form" class="slide level2">
+<h2>Equivalent Form</h2>
+<div class="fragment">
 <p>We can write equivalently</p>
 <div class="square-def">
 <p><span class="math display">\[J_n(\beta) = X^T W_\beta X\]</span></p>
 </div>
 <p>where <span class="math inline">\(X\)</span> is the design matrix and <span class="math inline">\(W_\beta\)</span> is the diagonal matrix</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div style="font-size: 60%;">
 <div class="square-def">
 <p><span class="math display">\[W_\beta = \begin{pmatrix}
@@ -1408,66 +1373,76 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 \end{pmatrix}\]</span></p>
 </div>
 </div>
+</div>
 </section>
-<section id="estimation" class="level2">
-<h2 class="anchored" data-anchor-id="estimation">Estimation</h2>
-<p>. . .</p>
+<section id="estimation" class="slide level2">
+<h2>Estimation</h2>
+<div class="fragment">
 <p>To estimate <span class="math inline">\(J_n(\beta)\)</span>, we simply replace <span class="math inline">\(\beta\)</span> by the MLE <span class="math inline">\(\hat{\beta}\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Under the same regularity assumptions, we can show that</p>
 <div class="square-def">
 <p><span class="math display">\[J_n(\hat{\beta})^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)\]</span></p>
 </div>
+</div>
 </section>
-<section id="estimated-variance-of-hat-beta_j" class="level2">
-<h2 class="anchored" data-anchor-id="estimated-variance-of-hat-beta_j">Estimated Variance of <span class="math inline">\(\hat \beta_j\)</span></h2>
-<p>. . .</p>
+<section id="estimated-variance-of-hat-beta_j" class="slide level2">
+<h2>Estimated Variance of <span class="math inline">\(\hat \beta_j\)</span></h2>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[J_n(\hat{\beta})^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Denoting <span style="background-color: lightblue;"><span class="math inline">\(\hat{\sigma}_j^2\)</span></span> the <span class="math inline">\(j\)</span>-th diagonal element of <span style="background-color: lightblue;"><span class="math inline">\(J_n(\hat{\beta})^{-1}\)</span></span>, we obtain (admitted):</p>
 <div class="square-def">
 <p><span class="math display">\[\frac{\hat{\beta}_j - \beta_j}{\hat{\sigma}_j} \xrightarrow{L} N(0, 1)\]</span></p>
 </div>
+</div>
 </section>
-<section id="confidence-interval" class="level2">
-<h2 class="anchored" data-anchor-id="confidence-interval">Confidence Interval</h2>
-<p>. . .</p>
+<section id="confidence-interval" class="slide level2">
+<h2>Confidence Interval</h2>
+<div class="fragment">
 <p>We deduce a confidence interval for <span class="math inline">\(\beta_j\)</span>, at asymptotic confidence level <span class="math inline">\(1 - \alpha\)</span>:</p>
 <div class="square-def">
 <p><span class="math display">\[\text{CI}_{1-\alpha}(\beta_j) = \left[\hat{\beta}_j - q_{1-\alpha/2}\hat{\sigma}_j \,;\, \hat{\beta}_j + q_{1-\alpha/2}\hat{\sigma}_j\right]\]</span></p>
 </div>
 <p>where <span class="math inline">\(q(1 - \alpha/2)\)</span> is the quantile of order <span class="math inline">\(1 - \alpha/2\)</span> of the <span class="math inline">\(N(0, 1)\)</span> distribution.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We verify that we have <span style="background-color: lightblue;"><span class="math inline">\(\P(\beta_j \in \text{CI}_{1-\alpha}(\beta_j)) \to 1 - \alpha\)</span></span>.</p>
+</div>
 </section>
-<section id="significance-test-for-one-coefficient" class="level2">
-<h2 class="anchored" data-anchor-id="significance-test-for-one-coefficient">Significance Test for One Coefficient</h2>
-<p>. . .</p>
+<section id="significance-test-for-one-coefficient" class="slide level2">
+<h2>Significance Test for One Coefficient</h2>
+<div class="fragment">
 <p>We want to test <span style="background-color: yellow;"><span class="math inline">\(H_0: \beta_j = 0\)</span> against <span class="math inline">\(H_1: \beta_j \neq 0\)</span></span>.</p>
 <p>Under <span class="math inline">\(H_0\)</span> we know that <span style="background-color: lightblue;"><span class="math inline">\(\frac{\hat{\beta}_j}{\hat{\sigma}_j} \xrightarrow{L} N(0, 1)\)</span></span></p>
 <p>We deduce a critical region at asymptotic level <span class="math inline">\(\alpha\)</span>:</p>
 <div class="square-def">
 <p><span class="math display">\[\mathcal R_\alpha = \left\{\frac{|\hat{\beta}_j|}{\hat{\sigma}_j} &gt; q_{1-\alpha/2}\right\}\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Indeed <span class="math inline">\(P_{H_0}(\mathcal R_\alpha) \to \alpha\)</span>.</p>
 <p>This test is called the Wald test. (As any other test that relies on asymptotic normality)</p>
+</div>
 </section>
-<section id="p-value" class="level2">
-<h2 class="anchored" data-anchor-id="p-value">P-value</h2>
-<p>. . .</p>
+<section id="p-value" class="slide level2">
+<h2>P-value</h2>
+<div class="fragment">
 <p>Denoting <span class="math inline">\(\Phi\)</span> the cdf of the <span class="math inline">\(\mathcal N(0, 1)\)</span> distribution, the p-value of the test equals</p>
 <div class="square-def">
 <p><span class="math display">\[p\text{-value} = 2\left(1 - \Phi\left(\frac{|\hat{\beta}_j|}{\hat{\sigma}_j}\right)\right)\]</span></p>
 </div>
+</div>
 </section>
-<section id="example-in-r" class="level2">
-<h2 class="anchored" data-anchor-id="example-in-r">Example in R</h2>
-<p>. . .</p>
+<section id="example-in-r" class="slide level2">
+<h2>Example in R</h2>
+<div class="fragment">
 <div style="font-size: 50%;">
-<table class="caption-top table">
+<table class="caption-top">
 <colgroup>
 <col style="width: 17%">
 <col style="width: 16%">
@@ -1546,9 +1521,9 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 </tbody>
 </table>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Each columns corresponds resp. to</p>
-<div class="nonincremental">
 <ul>
 <li><span class="math inline">\(\hat \beta_j\)</span></li>
 <li><span class="math inline">\(\hat \sigma_j\)</span></li>
@@ -1556,158 +1531,192 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 </ul>
 </div>
 </section>
-<section id="estimation-of-an-odds-ratio" class="level2">
-<h2 class="anchored" data-anchor-id="estimation-of-an-odds-ratio">Estimation of an Odds-Ratio</h2>
-<p>. . .</p>
+<section id="estimation-of-an-odds-ratio" class="slide level2">
+<h2>Estimation of an Odds-Ratio</h2>
+<div class="fragment">
 <p>We consider two individuals <span class="math inline">\(1\)</span> and <span class="math inline">\(2\)</span> who differ only by their regressor <span class="math inline">\(j\)</span>. Then,</p>
 <div class="square-def">
 <p><span class="math display">\[OR(x_1^{(j)}, x_2^{(j)}) = e^{\beta_j(x_1^{(j)} - x_2^{(j)})}\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Do we have <span class="math inline">\(OR(x_1^{(j)}, x_2^{(j)})\approx 1\)</span>?</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The estimation of <span class="math inline">\(OR(x_1^{(j)}, x_2^{(j)})\)</span> is simply</p>
 <div class="square-def">
 <p><span class="math display">\[\widehat{OR}(x_1^{(j)}, x_2^{(j)}) = e^{\hat{\beta}_j(x_1^{(j)} - x_2^{(j)})}\]</span></p>
 </div>
+</div>
 </section>
-<section id="important-example" class="level2">
-<h2 class="anchored" data-anchor-id="important-example">Important Example</h2>
-<p>. . .</p>
+<section id="important-example" class="slide level2">
+<h2>Important Example</h2>
+<div class="fragment">
 <p>If regressor <span class="math inline">\(j\)</span> is binary with <span class="math inline">\(x_1^{(j)} = 1\)</span> and <span class="math inline">\(x_2^{(j)} = 0\)</span>, then</p>
 <div class="square-def">
 <p><span class="math display">\[\widehat{OR}(x_1^{(j)}, x_2^{(j)}) = e^{\hat{\beta}_j}\]</span></p>
 </div>
+</div>
 </section>
-<section id="asymptotic-ci-for-an-odds-ratio" class="level2">
-<h2 class="anchored" data-anchor-id="asymptotic-ci-for-an-odds-ratio">Asymptotic CI for an Odds-Ratio</h2>
-<p>. . .</p>
+<section id="asymptotic-ci-for-an-odds-ratio" class="slide level2">
+<h2>Asymptotic CI for an Odds-Ratio</h2>
+<div class="fragment">
 <p>We have seen that an asymptotic CI at confidence level <span class="math inline">\(1 - \alpha\)</span> for <span class="math inline">\({\beta}_j\)</span> is</p>
 <div class="square-def">
 <p><span class="math display">\[\text{CI}_{1-\alpha}(\beta_j) = \left[\hat{\beta}_j - q_{1-\alpha/2}\hat{\sigma}_j \,;\, \hat{\beta}_j + q_{1-\alpha/2}\hat{\sigma}_j\right]= [l,r]\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>If <span class="math inline">\(x_1^{(j)} &gt; x_2^{(j)}\)</span>, an asymptotic CI for <span class="math inline">\(OR(x_1^{(j)}, x_2^{(j)})= e^{\beta_j(x^{(j)}_1 - x^{(j)}_2)}\)</span> at level <span class="math inline">\(1 - \alpha\)</span> is</p>
 <div class="square-def">
 <p><span class="math display">\[\text{CI}_{1-\alpha}(OR(x_1^{(j)}, x_2^{(j)})) = \left[e^{l(x_1^{(j)} - x_2^{(j)})}, e^{r(x_1^{(j)} - x_2^{(j)})}\right]\]</span></p>
 </div>
+</div>
 </section>
-<section id="significance-test-for-an-odds-ratio" class="level2">
-<h2 class="anchored" data-anchor-id="significance-test-for-an-odds-ratio">Significance Test for an Odds-Ratio</h2>
-<p>. . .</p>
+<section id="significance-test-for-an-odds-ratio" class="slide level2">
+<h2>Significance Test for an Odds-Ratio</h2>
+<div class="fragment">
 <p>We generally want to compare <span class="math inline">\(OR(x_1^{(j)}, x_2^{(j)})\)</span> to <span class="math inline">\(1\)</span>.</p>
 <div class="square-def">
 <p><span class="math display">\[OR(x_1^{(j)}, x_2^{(j)}) = 1 \Leftrightarrow e^{\beta_j(x_1^{(j)} - x_2^{(j)})} = 1 \Leftrightarrow \beta_j = 0\]</span></p>
 </div>
+</div>
 </section>
-<section id="two-sided-test" class="level2">
-<h2 class="anchored" data-anchor-id="two-sided-test">Two-Sided Test</h2>
-<p>. . .</p>
+<section id="two-sided-test" class="slide level2">
+<h2>Two-Sided Test</h2>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math inline">\(H_0: OR(x_1^{(j)}, x_2^{(j)}) = 1\)</span> VS <span class="math inline">\(H_1: OR(x_1^{(j)}, x_2^{(j)}) \neq 1\)</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>amounts to testing <span style="background-color: lightblue;"><span class="math inline">\(H_0: \beta_j = 0\)</span> against <span class="math inline">\(H_1: \beta_j \neq 0\)</span></span>. The Rejection region at level <span class="math inline">\(\alpha\)</span> is</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[\mathcal R_\alpha = \left\{\frac{|\hat{\beta}_j|}{\hat{\sigma}_j} &gt; q_{1-\alpha/2}\right\}\]</span></p>
 </div>
+</div>
 </section>
-<section id="one-sided-tests" class="level2">
-<h2 class="anchored" data-anchor-id="one-sided-tests">One-Sided Tests</h2>
-<p>. . .</p>
+<section id="one-sided-tests" class="slide level2">
+<h2>One-Sided Tests</h2>
+<div class="fragment">
 <p>Nevertheless, for ORs, we <span style="background-color: yellow;">often prefer one-sided tests</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math inline">\(H_0: OR(x_1^{(j)}, x_2^{(j)}) = 1\)</span> VS <span class="math inline">\(H_1: OR(x_1^{(j)}, x_2^{(j)}) &gt; 1\)</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>If <span class="math inline">\(x_1^{(j)} &gt; x_2^{(j)}\)</span>. Since <span style="background-color: lightblue;"><span class="math inline">\(OR(x_1^{(j)}, x_2^{(j)}) \geq 1 \Leftrightarrow \beta_j \geq 0\)</span></span> rejection region at level <span class="math inline">\(\alpha\)</span> is</p>
 <div class="square-def">
 <p><span class="math display">\[\mathcal R_{\alpha}=\left\{\frac{\hat{\beta}_j}{\hat{\sigma}_j} &gt; q_{1-\alpha}\right\}\]</span></p>
 </div>
-</section>
-</section>
-<section id="deviance" class="level1">
+</div>
+</section></section>
+<section>
+<section id="deviance" class="title-slide slide level1 center">
 <h1>Deviance</h1>
-<section id="saturated-model" class="level2">
-<h2 class="anchored" data-anchor-id="saturated-model">Saturated Model</h2>
-<p>. . .</p>
-<p>Suppose we have <span class="math inline">\(n\)</span> observations <span class="math inline">\((Y_1, \dots, Y_n)\)</span> and <span class="math inline">\((X_1, \dots, X_n)\)</span> (categorical)</p>
-<p>. . .</p>
-<p>Here <span class="math inline">\(X_k\)</span> can represent the vector <span class="math inline">\(X_k = (X^{(1)}_k, \dots, X^{(p)}_k)^T\)</span>.</p>
-<p>. . .</p>
-<p>Assume that indivudal are iid, with <span style="background-color: lightblue;"><span class="math inline">\(\mathbb P(Y=1|X_k=x) = p(x)\)</span></span>.</p>
-<p>. . .</p>
-<p>How do we estimate <span class="math inline">\(p(x)\)</span>?</p>
+
 </section>
-<section id="saturated-estimator" class="level2">
-<h2 class="anchored" data-anchor-id="saturated-estimator">Saturated Estimator</h2>
-<p>. . .</p>
+<section id="saturated-model" class="slide level2">
+<h2>Saturated Model</h2>
+<div class="fragment">
+<p>Suppose we have <span class="math inline">\(n\)</span> observations <span class="math inline">\((Y_1, \dots, Y_n)\)</span> and <span class="math inline">\((X_1, \dots, X_n)\)</span> (categorical)</p>
+</div>
+<div class="fragment">
+<p>Here <span class="math inline">\(X_k\)</span> can represent the vector <span class="math inline">\(X_k = (X^{(1)}_k, \dots, X^{(p)}_k)^T\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Assume that indivudal are iid, with <span style="background-color: lightblue;"><span class="math inline">\(\mathbb P(Y=1|X_k=x) = p(x)\)</span></span>.</p>
+</div>
+<div class="fragment">
+<p>How do we estimate <span class="math inline">\(p(x)\)</span>?</p>
+</div>
+</section>
+<section id="saturated-estimator" class="slide level2">
+<h2>Saturated Estimator</h2>
+<div class="fragment">
 <p>Suppose we have <span class="math inline">\(n\)</span> observations <span class="math inline">\((Y_1, \dots, Y_n)\)</span> and <span class="math inline">\((X_1, \dots, X_n)\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span style="background-color: lightblue;"><span class="math inline">\(n(x) = |\{k:~ X_k = x\}|\)</span></span> (number of indiv. <span class="math inline">\(k\)</span> s.t. <span class="math inline">\(X_k=x\)</span>)</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span style="background-color: lightblue;"><span class="math inline">\(n_1(x) = |\{k:~ X_k = x ~~\text{and}~~Y_k=1\}|\)</span></span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The saturated model is one that estimates <span class="math inline">\(p(x)\)</span>, for an observed <span class="math inline">\(x\)</span>, by</p>
 <div class="square-def">
 <p><span class="math display">\[\hat{p}_{\text{sat}}(x) = \frac{n_1(x)}{n(x)}\]</span></p>
 </div>
+</div>
 </section>
-<section id="remark" class="level2">
-<h2 class="anchored" data-anchor-id="remark">Remark</h2>
-<p>. . .</p>
+<section id="remark" class="slide level2">
+<h2>Remark</h2>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[\hat{p}_{\text{sat}}(x) = \frac{n_1(x)}{n(x)}\]</span></p>
 </div>
 <p><span style="background-color: yellow;">If all observations are distinct</span>, i.e., each observed <span class="math inline">\(x\)</span> is only for a single individual, then for an observed <span class="math inline">\(x\)</span>:</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\(n(x) = 1\)</span>, <span class="math inline">\(n_1(x) \in \{0,1\}\)</span>, and <span class="math inline">\(\hat{p}_{\text{sat}}(x) = 0\)</span> or <span class="math inline">\(1\)</span>.</p>
+</div>
 </section>
-<section id="remarks-1" class="level2">
-<h2 class="anchored" data-anchor-id="remarks-1">Remarks</h2>
-<p>. . .</p>
+<section id="remarks-1" class="slide level2">
+<h2>Remarks</h2>
+<div class="fragment">
 <p>The saturated model is the <span style="background-color: yellow;">simplest model</span> to imagine.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>It fits the data perfectly.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>However, it has <span style="background-color: orange;">no explanatory power</span> (effect of regressors on <span class="math inline">\(Y\)</span>?).</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>And it says nothing about <span class="math inline">\(p(x)\)</span> if <span class="math inline">\(x\)</span> is not observed.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>It will serves as a <span style="background-color: yellow;">reference</span> for fit</p>
+</div>
 </section>
-<section id="likelihood-of-saturated-estimator" class="level2">
-<h2 class="anchored" data-anchor-id="likelihood-of-saturated-estimator">Likelihood of Saturated Estimator</h2>
-<p>. . .</p>
+<section id="likelihood-of-saturated-estimator" class="slide level2">
+<h2>Likelihood of Saturated Estimator</h2>
+<div class="fragment">
 <p>For the saturated model with probabilities <span class="math inline">\(p(x)\)</span>, the Log-likelihood is:</p>
 <div style="font-size: 80%;">
 <div class="square-def">
 <p><span class="math display">\[L(y_1, \ldots, y_n|x_1, \ldots, x_n) = \sum_{i=1}^n y_i \ln(p(x_i)) + (1 - y_i) \ln(1 - p(x_i))\]</span></p>
 </div>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The saturated model minimizes this likelihood, and we denote</p>
 <div style="font-size: 80%;">
 <div class="square-def">
 <p><span class="math display">\[L_{\text{sat}} = \sum_{i=1}^n y_i \ln(\hat p_{\text{sat}}(x_i)) + (1 - y_i) \ln(1 - \hat p_{\text{sat}}(x_i))\]</span></p>
 </div>
 </div>
+</div>
 </section>
-<section id="case-1-distinct-observations" class="level2">
-<h2 class="anchored" data-anchor-id="case-1-distinct-observations">Case 1: Distinct Observations</h2>
-<p>. . .</p>
+<section id="case-1-distinct-observations" class="slide level2">
+<h2>Case 1: Distinct Observations</h2>
+<div class="fragment">
 <p>If all observations <span class="math inline">\(x_i\)</span> are distinct, we have <span class="math inline">\(\hat{p}_{\text{sat}}(x_i) = y_i\)</span> with <span class="math inline">\(y_i \in \{0, 1\}\)</span>. We thus have</p>
 <div class="square-def">
 <p><span class="math display">\[L_{\text{sat}} = 0\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The saturated estimator has highest possible log-likelihood: it <span style="background-color: orange;">fits the data perfectly</span> (too well).</p>
+</div>
 </section>
-<section id="case-2-non-distinct-observations" class="level2">
-<h2 class="anchored" data-anchor-id="case-2-non-distinct-observations">Case 2: Non-Distinct Observations</h2>
-<p>. . .</p>
+<section id="case-2-non-distinct-observations" class="slide level2">
+<h2>Case 2: Non-Distinct Observations</h2>
+<div class="fragment">
 <p>If the observations <span style="background-color: yellow;"><span class="math inline">\(x_i\)</span> are not distinct</span>, we obtain</p>
 <div style="font-size: 80%;">
 <div class="square-def">
@@ -1715,139 +1724,171 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 </div>
 </div>
 <p>where the sum runs over the set of values <span class="math inline">\(x\)</span> taken by the <span class="math inline">\(x_i\)</span>.</p>
+</div>
 </section>
-<section id="deviance-1" class="level2">
-<h2 class="anchored" data-anchor-id="deviance-1">Deviance</h2>
-<p>. . .</p>
+<section id="deviance-1" class="slide level2">
+<h2>Deviance</h2>
+<div class="fragment">
 <p>The deviance of a model measures how much this model <span style="background-color: yellow;">deviates from the saturated model</span> (the ideal model in terms of likelihood).</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[D = 2(L_{\text{sat}} - L_{\text{mod}})\]</span></p>
 </div>
 <p>where <span class="math inline">\(L_{\text{mod}}\)</span> denotes the log-likelihood for the model parameters.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We always have <span style="background-color: lightblue;"><span class="math inline">\(D \geq 0\)</span></span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>If all observations are distinct, <span class="math inline">\(L_{\text{sat}} = 0\)</span> therefore <span style="background-color: lightblue;"><span class="math inline">\(D = -2L_{\text{mod}}\)</span></span></p>
+</div>
 </section>
-<section id="role-of-deviance-and-computation-in-r" class="level2">
-<h2 class="anchored" data-anchor-id="role-of-deviance-and-computation-in-r">Role of Deviance and Computation in R</h2>
-<p>. . .</p>
+<section id="role-of-deviance-and-computation-in-r" class="slide level2">
+<h2>Role of Deviance and Computation in R</h2>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[D = 2(L_{\text{sat}} - L_{\text{mod}})\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Deviance plays the role of the SSR of a linear model: <span style="background-color: yellow;">the higher the deviance, the less well the model is fitted</span> to the data.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span style="background-color: yellow;">In R</span>, The returned deviance is <span style="background-color: yellow;"><span class="math inline">\(-2L_{\text{mod}}\)</span></span>: the term <span class="math inline">\(L_{\text{sat}}\)</span> is therefore omitted.</p>
-</section>
-</section>
-<section id="testing" class="level1">
+</div>
+</section></section>
+<section>
+<section id="testing" class="title-slide slide level1 center">
 <h1>Testing</h1>
-<section id="linear-constraint-test" class="level2">
-<h2 class="anchored" data-anchor-id="linear-constraint-test">Linear Constraint Test</h2>
-<p>. . .</p>
+
+</section>
+<section id="linear-constraint-test" class="slide level2">
+<h2>Linear Constraint Test</h2>
+<div class="fragment">
 <p>As in linear regression, we would like to test <span style="background-color: lightblue;"><span class="math inline">\(H_0: R\beta = 0\)</span> VS <span class="math inline">\(H_1: R\beta \neq 0\)</span></span></p>
 <p>where <span class="math inline">\(R\)</span> is a constraint matrix of size <span style="background-color: lightblue;"><span class="math inline">\((q, p)\)</span></span> of full rank.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>For recall, depending on the choice of <span class="math inline">\(R\)</span> this allows:</p>
 <ul>
-<li><p>testing the minimum: is there at least one relevant regressor?</p></li>
-<li><p>comparing nested models</p></li>
-<li><p>examining the collective significance of a family of regressors</p></li>
+<li class="fragment"><p>testing the minimum: is there at least one relevant regressor?</p></li>
+<li class="fragment"><p>comparing nested models</p></li>
+<li class="fragment"><p>examining the collective significance of a family of regressors</p></li>
 </ul>
+</div>
 </section>
-<section id="available-procedures" class="level2">
-<h2 class="anchored" data-anchor-id="available-procedures">Available Procedures</h2>
-<p>. . .</p>
+<section id="available-procedures" class="slide level2">
+<h2>Available Procedures</h2>
+<div class="fragment">
 <p>In GLM, several test procedures address the problem.</p>
 <p><strong>The Wald test</strong>, based on the asymptotic normality of <span class="math inline">\(\hat{\beta}\)</span>, which generalizes the one seen for testing <span class="math inline">\(\beta_j = 0\)</span> against <span class="math inline">\(\beta_j \neq 0\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span style="background-color: yellow;"><strong>The likelihood ratio test</strong></span>, called in this context the <span style="background-color: yellow;">deviance test</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>The score test</strong>, based on the behavior of the gradient of the log-likelihood at the critical point.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>The most used</strong> is the <span style="background-color: yellow;">deviance test</span>.</p>
+</div>
 </section>
-<section id="the-deviance-test-or-likelihood-ratio-test" class="level2">
-<h2 class="anchored" data-anchor-id="the-deviance-test-or-likelihood-ratio-test">The Deviance Test (or Likelihood Ratio Test)</h2>
-<p>. . .</p>
+<section id="the-deviance-test-or-likelihood-ratio-test" class="slide level2">
+<h2>The Deviance Test (or Likelihood Ratio Test)</h2>
+<div class="fragment">
 <p>To test <span style="background-color: lightblue;"><span class="math inline">\(H_0: R\beta = 0\)</span> against <span class="math inline">\(H_1: R\beta \neq 0\)</span></span>, the principle of the test is as follows:</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We calculate the MLE in each model to obtain <span class="math inline">\(\hat{\beta}\)</span> in the complete model and <span style="background-color: yellow;"><span class="math inline">\(\hat{\beta}_{H_0}\)</span> in the constrained model</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>Logic</strong>: If <span class="math inline">\(H_0\)</span> is true, the constrained model should be as “likely” as the complete model, so <span style="background-color: yellow;"><span class="math inline">\(L(\hat{\beta})\)</span> and <span class="math inline">\(L(\hat{\beta}_{H_0})\)</span> should be similar</span>.</p>
+</div>
 </section>
-<section id="deviance-test-statistic" class="level2">
-<h2 class="anchored" data-anchor-id="deviance-test-statistic">Deviance Test Statistic</h2>
-<p>. . .</p>
+<section id="deviance-test-statistic" class="slide level2">
+<h2>Deviance Test Statistic</h2>
+<div class="fragment">
 <p>The test statistic is the <span style="background-color: yellow;">difference of deviances</span>:</p>
 <div class="square-def">
 <p><span class="math display">\[D_{H_0} - D_{H_1} = 2\left(L(\hat{\beta}) - L(\hat{\beta}_{H_0})\right)\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Under <span class="math inline">\(H_0\)</span>, denoting <span class="math inline">\(q\)</span> the number of constraints, we have the convergence (admitted):</p>
 <div class="square-def">
 <p><span class="math display">\[D_{H_0} - D_{H_1} = 2\left(L(\hat{\beta}) - L(\hat{\beta}_{H_0})\right) \xrightarrow{L} \chi^2_q\]</span></p>
 </div>
+</div>
 </section>
-<section id="rejection-region-and-p-value" class="level2">
-<h2 class="anchored" data-anchor-id="rejection-region-and-p-value">Rejection Region and P-value</h2>
-<p>. . .</p>
+<section id="rejection-region-and-p-value" class="slide level2">
+<h2>Rejection Region and P-value</h2>
+<div class="fragment">
 <p>The asymp. rejection region at asymptotic level <span class="math inline">\(\alpha\)</span> is therefore</p>
 <div class="square-def">
 <p><span class="math display">\[\mathcal R_\alpha = \{D_{H_0} - D_{H_1} &gt; \chi^2_{q,1-\alpha}\}\]</span></p>
 </div>
 <p>where <span class="math inline">\(\chi^2_{q,1-\alpha}\)</span>: quantile <span class="math inline">\(1 - \alpha\)</span> of a <span class="math inline">\(\chi^2_q\)</span> distribution.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The p-value equals</p>
 <div class="square-def">
 <p><span class="math display">\[p\text{-value} = 1 - F(D_{H_0} - D_{H_1})\]</span></p>
 </div>
 <p>where <span class="math inline">\(F\)</span> is the cdf of a <span class="math inline">\(\chi^2_q\)</span> distribution.</p>
+</div>
 </section>
-<section id="special-case-1-significance-test" class="level2">
-<h2 class="anchored" data-anchor-id="special-case-1-significance-test">Special Case 1: Significance Test</h2>
-<p>. . .</p>
+<section id="special-case-1-significance-test" class="slide level2">
+<h2>Special Case 1: Significance Test</h2>
+<div class="fragment">
 <p>We want to test if a model (having a constant) is significant</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We therefore test <span class="math inline">\(H_0\)</span>: all its <span style="background-color: yellow;">coefficients are zero except the constant</span>. This corresponds to the special case</p>
 <div class="square-def">
 <p><span class="math inline">\(R = [0 | I_{p-1}]\)</span>.</p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We <span style="background-color: yellow;">compare the deviance of the model to the null deviance <span class="math inline">\(D_0\)</span></span>, corresponding to a model that contains only the constant.</p>
+</div>
 </section>
-<section id="test-statistic" class="level2">
-<h2 class="anchored" data-anchor-id="test-statistic">Test Statistic</h2>
-<p>. . .</p>
+<section id="test-statistic" class="slide level2">
+<h2>Test Statistic</h2>
+<div class="fragment">
 <p>The test statistic is <span class="math inline">\(D_0 - D\)</span>. Under <span class="math inline">\(H_0\)</span>, when <span class="math inline">\(n \to \infty\)</span>:</p>
 <div class="square-def">
 <p><span class="math display">\[D_0 - D \sim \chi^2_{p-1}\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The model is therefore significant (relative to the null model) if the sample is in the critical region of asymptotic level <span class="math inline">\(\alpha\)</span>:</p>
 <div class="square-def">
 <p><span class="math display">\[\mathcal R_\alpha = \{D_0 - D &gt; \chi^2_{p-1,1-\alpha/2}\}\]</span></p>
 </div>
+</div>
 </section>
-<section id="special-case-2-nested-models" class="level2">
-<h2 class="anchored" data-anchor-id="special-case-2-nested-models">Special Case 2: Nested Models</h2>
-<p>. . .</p>
+<section id="special-case-2-nested-models" class="slide level2">
+<h2>Special Case 2: Nested Models</h2>
+<div class="fragment">
 <p>Suppose that model <span style="background-color: yellow;"><span class="math inline">\(1\)</span> (with deviance <span class="math inline">\(D_1\)</span>) is a sub-model of model <span class="math inline">\(2\)</span></span> (with deviance <span class="math inline">\(D_2\)</span>)</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Model <span class="math inline">\(1\)</span> is therefore obtained from model <span class="math inline">\(2\)</span>, with parameter <span class="math inline">\(\beta\)</span>, via a constraint of the type <span class="math inline">\(R\beta = 0\)</span> where <span style="background-color: lightblue;"><span class="math inline">\(R\)</span> is a <span class="math inline">\((q, p)\)</span> matrix</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Under <span class="math inline">\(H_0: R\beta = 0\)</span>, we have asymptotically <span style="background-color: lightblue;"><span class="math inline">\(D_1 - D_2 \sim \chi^2_q\)</span></span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Hence the asymptotic test: <span style="background-color: lightblue;"></span>.</p>
 <div class="square-def">
 <p><span class="math inline">\(\mathcal R_\alpha = \{D_1 - D_2 &gt; \chi^2_{q,1 - \alpha}\}\)</span></p>
 </div>
+</div>
 </section>
-<section id="aic-and-bic-criteria" class="level2">
-<h2 class="anchored" data-anchor-id="aic-and-bic-criteria">AIC and BIC Criteria</h2>
-<p>. . .</p>
+<section id="aic-and-bic-criteria" class="slide level2">
+<h2>AIC and BIC Criteria</h2>
+<div class="fragment">
 <p>The AIC and BIC criteria are defined similarly to linear regression, i.e.</p>
 <div class="square-def">
 <p><span class="math inline">\(\text{AIC} = -2L_{\text{mod}} + 2p\)</span></p>
@@ -1856,10 +1897,11 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 <p><span class="math inline">\(\text{BIC} = -2L_{\text{mod}} + \ln(n)p\)</span></p>
 </div>
 <p>where <span class="math inline">\(L_{\text{mod}}\)</span> is the log-likelihood of the estimated model.</p>
+</div>
 </section>
-<section id="aic-and-bic-criteria-1" class="level2">
-<h2 class="anchored" data-anchor-id="aic-and-bic-criteria-1">AIC and BIC Criteria</h2>
-<p>. . .</p>
+<section id="aic-and-bic-criteria-1" class="slide level2">
+<h2>AIC and BIC Criteria</h2>
+<div class="fragment">
 <p>If we ignore saturated likelihood and set <span class="math inline">\(L_{\text{sat}}=0\)</span>,</p>
 <div class="square-def">
 <p><span class="math inline">\(\text{AIC} = D + 2p\)</span></p>
@@ -1868,17 +1910,20 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 <p><span class="math inline">\(\text{BIC} = D + \ln(n)p\)</span></p>
 </div>
 <p><strong>In practice</strong>, we choose the model having the minimal AIC or BIC</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>As in linear regression, we can use automatic selection procedures (backward, forward, etc).</p>
+</div>
 </section>
-<section id="example-obesity-study" class="level2">
-<h2 class="anchored" data-anchor-id="example-obesity-study">Example: Obesity Study</h2>
-<p>. . .</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>model<span class="ot">=</span><span class="fu">glm</span>(Y<span class="sc">~</span>AGE<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>ACTIV<span class="sc">+</span>WALK<span class="sc">+</span>MARITAL, <span class="at">family=</span>binomial)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>. . .</p>
+<section id="example-obesity-study" class="slide level2">
+<h2>Example: Obesity Study</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>model<span class="ot">=</span><span class="fu">glm</span>(Y<span class="sc">~</span>AGE<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>ACTIV<span class="sc">+</span>WALK<span class="sc">+</span>MARITAL, <span class="at">family=</span>binomial)</span>
+<span id="cb3-2"><a></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
 <div style="font-size: 60%;">
-<table class="caption-top table">
+<table class="caption-top">
 <thead>
 <tr class="header">
 <th>Statistic</th>
@@ -1905,20 +1950,24 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 </tbody>
 </table>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The model deviance is therefore <span class="math inline">\(D = 4459.5\)</span>.</p>
 <p><strong>Significance Test</strong>: We compare <span class="math inline">\(D\)</span> to the null deviance <span class="math inline">\(D_0 = 4610.8\)</span>: <span style="background-color: lightblue;"><span class="math inline">\(D_0 - D = 151.3\)</span></span>. The p-value of the test equals <span style="background-color: lightblue;"><span class="math inline">\(1 - \chi^2_{10}(151.3) \approx 0\)</span></span> where <span class="math inline">\(\chi^2_{10}\)</span> is the cdf of a <span class="math inline">\(\chi^2_{10}\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The model is significant.</p>
+</div>
 </section>
-<section id="example-significance-test-of-marital" class="level2">
-<h2 class="anchored" data-anchor-id="example-significance-test-of-marital">Example: Significance Test of MARITAL</h2>
-<p>. . .</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>model<span class="ot">=</span><span class="fu">glm</span>(Y<span class="sc">~</span>AGE<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>ACTIV<span class="sc">+</span>WALK, <span class="at">family=</span>binomial) <span class="co"># We want to test if `MARITAL` is significant</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>. . .</p>
+<section id="example-significance-test-of-marital" class="slide level2">
+<h2>Example: Significance Test of MARITAL</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>model<span class="ot">=</span><span class="fu">glm</span>(Y<span class="sc">~</span>AGE<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>ACTIV<span class="sc">+</span>WALK, <span class="at">family=</span>binomial) <span class="co"># We want to test if `MARITAL` is significant</span></span>
+<span id="cb4-2"><a></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
 <div style="font-size: 60%;">
-<table class="caption-top table">
+<table class="caption-top">
 <thead>
 <tr class="header">
 <th>Statistic</th>
@@ -1945,19 +1994,22 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 </tbody>
 </table>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The deviance is now <span class="math inline">\(D_2 = 4462.7\)</span>. To compare with the previous model, we calculate: <span style="background-color: lightblue;"><span class="math inline">\(D_2 - D = 3.2\)</span></span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The p-value of the test equals <span style="background-color: lightblue;"><span class="math inline">\(1 - F_5(3.2) \approx 0.67\)</span></span>, where <span class="math inline">\(F_5\)</span>: cdf of a <span class="math inline">\(\chi^2_5\)</span>.</p>
 <p>We therefore <span style="background-color: yellow;">accept <span class="math inline">\(H_0\)</span></span>: the coefficients related to <span style="background-color: yellow;">MARITAL are zero</span>. (Also confirmed with AIC)</p>
+</div>
 </section>
-<section id="example-significance-test-of-age2" class="level2">
-<h2 class="anchored" data-anchor-id="example-significance-test-of-age2">Example: Significance Test of AGE<span class="math inline">\(~^2\)</span></h2>
-<p>. . .</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>model<span class="ot">=</span><span class="fu">glm</span>(Y∼AGE<span class="sc">+</span><span class="fu">I</span>(AGE2 )<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>WALK<span class="sc">+</span>ACTIV, <span class="at">family=</span>binomial) <span class="co"># We add AGE^2</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="example-significance-test-of-age2" class="slide level2">
+<h2>Example: Significance Test of AGE<span class="math inline">\(~^2\)</span></h2>
+<div class="fragment">
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>model<span class="ot">=</span><span class="fu">glm</span>(Y∼AGE<span class="sc">+</span><span class="fu">I</span>(AGE2 )<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>WALK<span class="sc">+</span>ACTIV, <span class="at">family=</span>binomial) <span class="co"># We add AGE^2</span></span>
+<span id="cb5-2"><a></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div style="font-size: 60%;">
-<table class="caption-top table">
+<table class="caption-top">
 <thead>
 <tr class="header">
 <th>Statistic</th>
@@ -1984,91 +2036,109 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 </tbody>
 </table>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The deviance test with the previous model has p-value <span style="background-color: lightblue;"><span class="math inline">\(1 - F_1(4462.7 - 4439.5) = 1 - F_1(23.2) \approx 10^{-6}\)</span></span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>This model is <span style="background-color: yellow;">therefore preferable</span>, (confirmed with AIC).</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>However, we <span style="background-color: orange;">cannot compare this model with the first</span> one by deviance test because they are <span style="background-color: orange;">not nested</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We <span style="background-color: lightgreen;">can however compare their AIC</span>: this model is preferable.</p>
-</section>
-</section>
-<section id="prediction" class="level1">
+</div>
+</section></section>
+<section>
+<section id="prediction" class="title-slide slide level1 center">
 <h1>Prediction</h1>
-<section id="setting-and-objective" class="level2">
-<h2 class="anchored" data-anchor-id="setting-and-objective">Setting and Objective</h2>
-<p>. . .</p>
+
+</section>
+<section id="setting-and-objective" class="slide level2">
+<h2>Setting and Objective</h2>
+<div class="fragment">
 <p>Suppose we are interested in a <span style="background-color: yellow;">new individual</span> for whom</p>
 <ul>
-<li>we know their characteristics <span class="math inline">\(x \in \mathbb{R}^p\)</span>,</li>
-<li>we do not know their <span class="math inline">\(Y\)</span>.</li>
+<li class="fragment">we know their characteristics <span class="math inline">\(x \in \mathbb{R}^p\)</span>,</li>
+<li class="fragment">we do not know their <span class="math inline">\(Y\)</span>.</li>
 </ul>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We want to <span style="background-color: yellow;">predict <span class="math inline">\(Y\)</span></span> for this <span style="background-color: yellow;">new individual</span>.</p>
+</div>
 </section>
-<section id="recall-in-the-logit-model" class="level2">
-<h2 class="anchored" data-anchor-id="recall-in-the-logit-model">Recall in the Logit Model</h2>
-<p>. . .</p>
+<section id="recall-in-the-logit-model" class="slide level2">
+<h2>Recall in the Logit Model</h2>
+<div class="fragment">
 <p>If we have <span style="background-color: yellow;">fitted a logistic regression</span> model, we can estimate</p>
 <div class="square-def">
 <p><span class="math display">\[p_\beta(x) = P(Y = 1|X = x)\]</span></p>
 </div>
 <p>by</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[p_{\hat{\beta}}(x) = \text{logit}^{-1}(x^T \hat{\beta}) = \frac{e^{x^T \hat{\beta}}}{1 + e^{x^T \hat{\beta}}}\]</span></p>
 </div>
+</div>
 </section>
-<section id="outline-for-prediction" class="level2">
-<h2 class="anchored" data-anchor-id="outline-for-prediction">Outline for Prediction</h2>
-<p>. . .</p>
+<section id="outline-for-prediction" class="slide level2">
+<h2>Outline for Prediction</h2>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[p_\beta(x) = P(Y = 1|X = x)\]</span></p>
 </div>
 <p>We will see:</p>
 <ol type="1">
-<li><p>how to construct a <span style="background-color: yellow;">confidence interval around the estimation <span class="math inline">\(p_{\hat{\beta}}(x)\)</span></span>;</p></li>
-<li><p>how to exploit this estimation to <span style="background-color: yellow;">classify the new individual</span> in category <span class="math inline">\(Y = 0\)</span> or <span class="math inline">\(Y = 1\)</span>.</p></li>
+<li class="fragment"><p>how to construct a <span style="background-color: yellow;">confidence interval around the estimation <span class="math inline">\(p_{\hat{\beta}}(x)\)</span></span>;</p></li>
+<li class="fragment"><p>how to exploit this estimation to <span style="background-color: yellow;">classify the new individual</span> in category <span class="math inline">\(Y = 0\)</span> or <span class="math inline">\(Y = 1\)</span>.</p></li>
 </ol>
+</div>
 </section>
-<section id="ci-asymptotic-distribution-of-p_betax" class="level2">
-<h2 class="anchored" data-anchor-id="ci-asymptotic-distribution-of-p_betax">CI: Asymptotic Distribution of <span class="math inline">\(p_\beta(x)\)</span></h2>
-<p>. . .</p>
+<section id="ci-asymptotic-distribution-of-p_betax" class="slide level2">
+<h2>CI: Asymptotic Distribution of <span class="math inline">\(p_\beta(x)\)</span></h2>
+<div class="fragment">
 <p>We know that when <span class="math inline">\(n \to \infty\)</span>:</p>
 <div class="square-def">
 <p><span class="math display">\[\hat{\beta} \sim N(\beta, (X^T W_{\hat{\beta}} X)^{-1})\]</span></p>
 </div>
 <ul>
-<li><span class="math inline">\(X=(X^{(1)}, \dots, X^{(p)})\)</span> is the <span class="math inline">\(n \times p\)</span> <span style="background-color: yellow;">design matrix</span></li>
-<li><span class="math inline">\(W_{\hat{\beta}}\)</span> is the <span class="math inline">\(n \times n\)</span> <span style="background-color: yellow;">diagonal matrix</span> with coefs <span style="background-color: lightblue;"><span class="math inline">\(p_{\hat \beta}(x_i)(1-p_{\hat \beta}(x_i))\)</span></span></li>
+<li class="fragment"><span class="math inline">\(X=(X^{(1)}, \dots, X^{(p)})\)</span> is the <span class="math inline">\(n \times p\)</span> <span style="background-color: yellow;">design matrix</span></li>
+<li class="fragment"><span class="math inline">\(W_{\hat{\beta}}\)</span> is the <span class="math inline">\(n \times n\)</span> <span style="background-color: yellow;">diagonal matrix</span> with coefs <span style="background-color: lightblue;"><span class="math inline">\(p_{\hat \beta}(x_i)(1-p_{\hat \beta}(x_i))\)</span></span></li>
 </ul>
+</div>
 </section>
-<section id="ci-for-linear-predictor" class="level2">
-<h2 class="anchored" data-anchor-id="ci-for-linear-predictor">CI for Linear Predictor</h2>
-<p>. . .</p>
+<section id="ci-for-linear-predictor" class="slide level2">
+<h2>CI for Linear Predictor</h2>
+<div class="fragment">
 <p>We deduce that when <span class="math inline">\(n \to +\infty\)</span>, <span style="background-color: lightblue;"><span class="math inline">\(x^T \hat{\beta} \sim N(x^T \beta, x^T (X^T W_{\hat{\beta}} X)^{-1} x)\)</span></span>, and the asymptotic CI of <span class="math inline">\(x^T\beta\)</span>:</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[\text{CI}_{1-\alpha}(x^T \beta) = \left[x^T \hat{\beta} \pm q_{1-\alpha/2} \sqrt{x^T (X^T W_{\hat{\beta}} X)^{-1} x}\right]\]</span></p>
 </div>
+</div>
 </section>
-<section id="ci-for-probability-p_betax" class="level2">
-<h2 class="anchored" data-anchor-id="ci-for-probability-p_betax">CI for Probability <span class="math inline">\(p_{\beta}(x)\)</span></h2>
-<p>. . .</p>
+<section id="ci-for-probability-p_betax" class="slide level2">
+<h2>CI for Probability <span class="math inline">\(p_{\beta}(x)\)</span></h2>
+<div class="fragment">
 <p>Since <span style="background-color: lightblue;"><span class="math inline">\(p_{\hat{\beta}}(x) = \text{logit}^{-1}(x^T \hat{\beta})\)</span></span>, we have therefore by application of the increasing function <span class="math inline">\(\text{logit}^{-1}\)</span>, the CI at asymptotic level <span class="math inline">\(1 - \alpha\)</span>:</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div style="font-size: 80%;">
 <div class="square-def">
 <p><span class="math display">\[\text{CI}_{1-\alpha}(p_\beta(x)) = \left[\text{logit}^{-1}\left(x^T \hat{\beta} \pm q_{1-\alpha/2} \sqrt{x^T (X^T W_{\hat{\beta}} X)^{-1} x}\right)\right]\]</span></p>
 </div>
 </div>
+</div>
 </section>
-<section id="classification" class="level2">
-<h2 class="anchored" data-anchor-id="classification">Classification</h2>
-<p>. . .</p>
+<section id="classification" class="slide level2">
+<h2>Classification</h2>
+<div class="fragment">
 <p>We have estimated <span class="math inline">\(p_\beta(x) = P(Y = 1|X = x)\)</span> by <span class="math inline">\(p_{\hat{\beta}}(x)\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>For a <span style="background-color: yellow;">threshold to choose <span class="math inline">\(s \in [0, 1]\)</span></span>, we use the rule:</p>
 <div class="square-def">
 <p><span class="math display">\[\begin{cases}
@@ -2076,17 +2146,21 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 \text{if } p_{\hat{\beta}}(x) &lt; s, &amp; \hat{Y} = 0
 \end{cases}\]</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The “natural” choice of threshold is <span class="math inline">\(s = 0.5\)</span> but <span style="background-color: yellow;">this choice can be optimized</span>.</p>
+</div>
 </section>
-<section id="evaluation-of-classification-quality" class="level2">
-<h2 class="anchored" data-anchor-id="evaluation-of-classification-quality">Evaluation of Classification Quality</h2>
-<p>. . .</p>
+<section id="evaluation-of-classification-quality" class="slide level2">
+<h2>Evaluation of Classification Quality</h2>
+<div class="fragment">
 <p>We proceed by <span style="background-color: yellow;">cross-validation</span>:</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Using a <span style="background-color: yellow;">train sample</span>, predict <span class="math inline">\(Y\)</span> on a <span style="background-color: yellow;">test sample</span> and form the <span style="background-color: yellow;">confusion matrix</span>.</p>
-<p>. . .</p>
-<table class="caption-top table">
+</div>
+<div class="fragment">
+<table class="caption-top">
 <thead>
 <tr class="header">
 <th></th>
@@ -2108,16 +2182,20 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 </tbody>
 </table>
 <p><strong>Reading</strong>: T: true, F:False, N: Negative, P: Positive.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>FP</strong>: false positives: number of individuals who were classified <span style="background-color: yellow;">positive</span> who were actually <span style="background-color: orange;">negative</span></p>
+</div>
 </section>
-<section id="evaluation-of-classification-quality-1" class="level2">
-<h2 class="anchored" data-anchor-id="evaluation-of-classification-quality-1">Evaluation of Classification Quality</h2>
-<p>. . .</p>
+<section id="evaluation-of-classification-quality-1" class="slide level2">
+<h2>Evaluation of Classification Quality</h2>
+<div class="fragment">
 <p>The ideal is to have a confusion matrix that is <span style="background-color: yellow;">as diagonal as possible</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We generally seek to maximize the <span style="background-color: yellow;">following indicators</span>:</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div class="columns">
 <div class="column">
 <p>The <strong>sensitivity</strong> (or recall, or true positive rate) estimates <span style="background-color: lightblue;"><span class="math inline">\(\P(\hat{Y} = 1|Y = 1)\)</span></span> by</p>
@@ -2129,475 +2207,462 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 <div class="square-def">
 <p><span class="math display">\[\frac{\text{TN}}{\text{TN} + \text{FP}}\]</span></p>
 </div>
+</div></div>
 </div>
-</div>
-<p>. . .</p>
 </section>
-<section id="other-indicators" class="level2">
-<h2 class="anchored" data-anchor-id="other-indicators">Other Indicators</h2>
-<p>. . .</p>
+<section id="other-indicators" class="slide level2">
+<h2>Other Indicators</h2>
+<div class="fragment">
 <p>The <strong>precision</strong> (or positive predictive value) estimates <span class="math inline">\(\P(Y = 1|\hat{Y} = 1)\)</span> by</p>
 <div class="square-def">
 <p><span class="math inline">\(\frac{\text{TP}}{\text{TP} + \text{FP}}\)</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The <strong><span class="math inline">\(F\)</span>-score</strong> is the harmonic mean between sensitivity and precision:</p>
 <div class="square-def">
 <p><span class="math display">\[F_1 = 2 \frac{\text{precision} \times \text{sensitivity}}{\text{precision} + \text{sensitivity}}\]</span></p>
 </div>
+</div>
 </section>
-<section id="choice-of-threshold-s" class="level2">
-<h2 class="anchored" data-anchor-id="choice-of-threshold-s">Choice of Threshold <span class="math inline">\(s\)</span></h2>
-<p>. . .</p>
+<section id="choice-of-threshold-s" class="slide level2">
+<h2>Choice of Threshold <span class="math inline">\(s\)</span></h2>
+<div class="fragment">
 <p>For each threshold <span class="math inline">\(s\)</span>, from a test sample:</p>
 <ul>
-<li>we can form the confusion matrix</li>
-<li>calculate scores (sensitivity, <span class="math inline">\(F\)</span>-score, etc.)</li>
+<li class="fragment">we can form the confusion matrix</li>
+<li class="fragment">calculate scores (sensitivity, <span class="math inline">\(F\)</span>-score, etc.)</li>
 </ul>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We finally choose the <span style="background-color: yellow;">optimal threshold <span class="math inline">\(s\)</span></span>, according to the <span style="background-color: yellow;">chosen score</span>.</p>
+</div>
 </section>
-<section id="choosing-the-score" class="level2">
-<h2 class="anchored" data-anchor-id="choosing-the-score">Choosing the score</h2>
+<section id="choosing-the-score" class="slide level2">
+<h2>Choosing the score</h2>
 <ul>
-<li>It depends on the context of the study</li>
-<li>It can be much more serious to wrongly predict <span class="math inline">\(\hat{Y} = 0\)</span> than <span class="math inline">\(\hat{Y} = 1\)</span></li>
+<li class="fragment">It depends on the context of the study</li>
+<li class="fragment">It can be much more serious to wrongly predict <span class="math inline">\(\hat{Y} = 0\)</span> than <span class="math inline">\(\hat{Y} = 1\)</span></li>
 </ul>
-<p>. . .</p>
+<div class="fragment">
 <p><span class="math inline">\(\hat Y=1\)</span> (treatment) while the patient is <span style="background-color: yellow;">not ill</span> (<span class="math inline">\(Y = 0\)</span>)</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\(\hat Y=0\)</span> (no treatment) while the patient <span style="background-color: yellow;">has a serious illness</span> (<span class="math inline">\(Y=1\)</span>)</p>
+</div>
 </section>
-<section id="roc-curve" class="level2">
-<h2 class="anchored" data-anchor-id="roc-curve">ROC Curve</h2>
-<p>. . .</p>
+<section id="roc-curve" class="slide level2">
+<h2>ROC Curve</h2>
+<div class="fragment">
 <p>We can also plot the ROC curve (TP rate as a function of FP rate for <span class="math inline">\(s \in [0, 1]\)</span>):</p>
 <div style="font-size: 80%;">
 <div class="square-def">
 <p><span class="math inline">\(ROC:~~\mathrm{sensitiv.} = \frac{TP}{TP+FN} = F\left(\frac{FP}{FP+TN}\right) = F(1-\mathrm{specific.})\)</span></p>
 </div>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The <span style="background-color: yellow;">AUC (area under the curve)</span> is a quality indicator of the model (<span class="math inline">\(0 \leq \text{AUC} \leq 1\)</span>).</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Or equivalently, the <span style="background-color: yellow;">Gini index: <span class="math inline">\(2 \times \text{AUC} - 1\)</span></span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>Use</strong>: compare <span class="math inline">\(2\)</span> models by <span style="background-color: yellow;">plotting the 2 ROC curves</span>.</p>
+</div>
 </section>
-<section id="roc-curve-illustration" class="level2">
-<h2 class="anchored" data-anchor-id="roc-curve-illustration">ROC Curve Illustration</h2>
-<p>. . .</p>
+<section id="roc-curve-illustration" class="slide level2">
+<h2>ROC Curve Illustration</h2>
+<div class="fragment">
 <div style="text-align: center;">
-<p><img src="../images/roc.png" class="img-fluid"></p>
+<p><img data-src="../images/roc.png"></p>
 </div>
 
 
-</section>
-</section>
+</div>
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
 
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
-        }
-      }
-      return false;
-    }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
-      }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
-    }
-    const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
-        }
-        return codeEl.innerText;
-    }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
-    });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
-    }
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
-        }
-      }
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
         },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'quarto',
-        placement: 'bottom-start',
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config); 
-    }
-    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-    for (var i=0; i<noterefs.length; i++) {
-      const ref = noterefs[i];
-      tippyHover(ref, function() {
-        // use id or data attribute instead here
-        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-        try { href = new URL(href).hash; } catch {}
-        const id = href.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note) {
-          return note.innerHTML;
-        } else {
-          return "";
-        }
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
       });
-    }
-    const xrefs = window.document.querySelectorAll('a.quarto-xref');
-    const processXRef = (id, note) => {
-      // Strip column container classes
-      const stripColumnClz = (el) => {
-        el.classList.remove("page-full", "page-columns");
-        if (el.children) {
-          for (const child of el.children) {
-            stripColumnClz(child);
-          }
-        }
-      }
-      stripColumnClz(note)
-      if (id === null || id.startsWith('sec-')) {
-        // Special case sections, only their first couple elements
-        const container = document.createElement("div");
-        if (note.children && note.children.length > 2) {
-          container.appendChild(note.children[0].cloneNode(true));
-          for (let i = 1; i < note.children.length; i++) {
-            const child = note.children[i];
-            if (child.tagName === "P" && child.innerText === "") {
-              continue;
-            } else {
-              container.appendChild(child.cloneNode(true));
-              break;
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
             }
           }
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(container);
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
           }
-          return container.innerHTML
-        } else {
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(note);
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
           }
-          return note.innerHTML;
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
         }
-      } else {
-        // Remove any anchor links if they are present
-        const anchorLink = note.querySelector('a.anchorjs-link');
-        if (anchorLink) {
-          anchorLink.remove();
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(note);
-        }
-        if (note.classList.contains("callout")) {
-          return note.outerHTML;
-        } else {
-          return note.innerHTML;
-        }
-      }
-    }
-    for (var i=0; i<xrefs.length; i++) {
-      const xref = xrefs[i];
-      tippyHover(xref, undefined, function(instance) {
-        instance.disable();
-        let url = xref.getAttribute('href');
-        let hash = undefined; 
-        if (url.startsWith('#')) {
-          hash = url;
-        } else {
-          try { hash = new URL(url).hash; } catch {}
-        }
-        if (hash) {
-          const id = hash.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note !== null) {
-            try {
-              const html = processXRef(id, note.cloneNode(true));
-              instance.setContent(html);
-            } finally {
-              instance.enable();
-              instance.show();
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
             }
           } else {
-            // See if we can fetch this
-            fetch(url.split('#')[0])
-            .then(res => res.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const htmlDoc = parser.parseFromString(html, "text/html");
-              const note = htmlDoc.getElementById(id);
-              if (note !== null) {
-                const html = processXRef(id, note);
-                instance.setContent(html);
-              } 
-            }).finally(() => {
-              instance.enable();
-              instance.show();
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
             });
           }
-        } else {
-          // See if we can fetch a full url (with no hash to target)
-          // This is a special case and we should probably do some content thinning / targeting
-          fetch(url)
-          .then(res => res.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.querySelector('main.content');
-            if (note !== null) {
-              // This should only happen for chapter cross references
-              // (since there is no id in the URL)
-              // remove the first header
-              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-                note.children[0].remove();
-              }
-              const html = processXRef(null, note);
-              instance.setContent(html);
-            } 
-          }).finally(() => {
-            instance.enable();
-            instance.show();
-          });
         }
-      }, function(instance) {
       });
-    }
-        let selectedAnnoteEl;
-        const selectorForAnnotation = ( cell, annotation) => {
-          let cellAttr = 'data-code-cell="' + cell + '"';
-          let lineAttr = 'data-code-annotation="' +  annotation + '"';
-          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-          return selector;
-        }
-        const selectCodeLines = (annoteEl) => {
-          const doc = window.document;
-          const targetCell = annoteEl.getAttribute("data-target-cell");
-          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-          const lineIds = lines.map((line) => {
-            return targetCell + "-" + line;
-          })
-          let top = null;
-          let height = null;
-          let parent = null;
-          if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
-            }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
-            }
-            selectedAnnoteEl = annoteEl;
-          }
-        };
-        const unselectCodeLines = () => {
-          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-          elementsIds.forEach((elId) => {
-            const div = window.document.getElementById(elId);
-            if (div) {
-              div.remove();
-            }
-          });
-          selectedAnnoteEl = undefined;
-        };
-          // Handle positioning of the toggle
-      window.addEventListener(
-        "resize",
-        throttle(() => {
-          elRect = undefined;
-          if (selectedAnnoteEl) {
-            selectCodeLines(selectedAnnoteEl);
-          }
-        }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-        // Attach click handler to the DT
-        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-        for (const annoteDlNode of annoteDls) {
-          annoteDlNode.addEventListener('click', (event) => {
-            const clickedEl = event.target;
-            if (clickedEl !== selectedAnnoteEl) {
-              unselectCodeLines();
-              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-              if (activeEl) {
-                activeEl.classList.remove('code-annotation-active');
-              }
-              selectCodeLines(clickedEl);
-              clickedEl.classList.add('code-annotation-active');
-            } else {
-              // Unselect the line
-              unselectCodeLines();
-              clickedEl.classList.remove('code-annotation-active');
-            }
-          });
-        }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
-        }
-      } else {
-        return undefined;
-      }
-    };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
-            }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
-        });
-      }
-    }
-  });
-  </script>
-</div> <!-- /content -->
-
-
-
+      </script>
+    
 
 </body></html>

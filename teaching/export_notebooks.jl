@@ -12,3 +12,9 @@ PlutoSliderServer.export_notebook("hypothesis_testing/pluto/TP_chi-squared-tests
 ## Linear Regression
 
 PlutoSliderServer.export_notebook("linear_model/pluto/introduction.jl"; Export_create_index=false)
+
+
+## CPU Performance
+
+cd("/home/emmanuel/epilliat.github.io/code/notebooks/")
+PlutoSliderServer.export_notebook("mapreduce_cpu_perf.jl"; Export_create_index=false)
