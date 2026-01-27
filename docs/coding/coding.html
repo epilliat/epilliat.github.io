@@ -36,10 +36,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark-a5cd134f9b40a21b85be3e62cd27a8fe.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-338eaa8bf8d7f1eb506da55f2b711d05.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dddcb7532279923a32859742a62de4bf.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -72,7 +72,7 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="../styles.css">
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-sidebar floating nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -119,10 +119,44 @@ ul.task-list li input[type="checkbox"] {
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Coding</li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false">
+ <span class="menu-text">Parallel Computing</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../coding/parallel_computing_lectures/gpu_lecture.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction to GPU Architecture</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -130,6 +164,7 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#luma" id="toc-luma" class="nav-link active" data-scroll-target="#luma">Luma</a></li>
+  <li><a href="#kernel-intrinsics" id="toc-kernel-intrinsics" class="nav-link" data-scroll-target="#kernel-intrinsics">Kernel Intrinsics</a></li>
   <li><a href="#cpus" id="toc-cpus" class="nav-link" data-scroll-target="#cpus">CPUs</a></li>
   </ul>
 </nav>
@@ -156,11 +191,21 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>While my primary research focuses on statistics, I have a strong interest in high-performance computing with Julia across both GPU and CPU architectures. I’ve bee first considering reduction operations, which generalize fundamental computations such as scalar products for vectors and matrix-vector multiplications for higher-dimensional arrays.</p>
+<p>While my primary research focuses on statistics, I have a strong interest in high-performance computing with Julia across both GPU and CPU architectures. My work in this area began with reduction operations—fundamental parallel primitives that underpin computations ranging from vector dot products to matrix-vector multiplications in higher-dimensional settings.</p>
+<p>Julia’s design is particularly well-suited to this domain: users can define custom operators such as <code>+</code> and <code>*</code>, enabling matrix-vector multiplication over arbitrary vector spaces with concrete element types (types with fixed size like <code>QuaternionsF32</code> or <code>NTuple{2, Float64}</code>). Moreover, the <a href="https://juliagpu.github.io/KernelAbstractions.jl/stable/">KernelAbstractions.jl</a> package enables straightforward development of cross-architecture GPU kernels. A single <code>@kernel</code> function can be compiled to different low-level representations—PTX for NVIDIA, SPIR-V for Intel, or GCN for AMD—with minimal developing cost.</p>
 <section id="luma" class="level2">
 <h2 class="anchored" data-anchor-id="luma">Luma</h2>
-<p>I’m developing <strong>Luma.jl</strong>, a Julia package for high-performance GPU algorithms. This work aims to provide efficient, portable implementations of parallel primitives that match the performance of vendor-optimized libraries while maintaining cross-platform compatibility.</p>
-<p><a href="https://github.com/epilliat/Luma.jl"><strong>Luma.jl on GitHub, with benchmarks in the Readme file</strong></a></p>
+<p>I’m developing <a href="https://github.com/epilliat/Luma.jl"><strong>Luma.jl</strong></a>, a Julia package for high-performance GPU algorithms. The goal is to provide efficient, portable implementations of parallel primitives that match the performance of vendor-optimized libraries like NVIDIA’s CUB or CUBLAS, while maintaining cross-platform compatibility.</p>
+</section>
+<section id="kernel-intrinsics" class="level2">
+<h2 class="anchored" data-anchor-id="kernel-intrinsics">Kernel Intrinsics</h2>
+<p><strong>Luma.jl</strong> strongly relies on <a href="https://epilliat.github.io/KernelIntrinsics.jl"><strong>KernelIntrinsics.jl</strong></a>, a lower level package I’m developping providing fundamental functions for julia kernels. KernelIntrinsics.jl provides low-level GPU programming primitives for use with KernelAbstractions.jl, enabling fine-grained control over memory ordering, synchronization, and vectorized operations. The package offers:</p>
+<ul>
+<li><strong>Memory fences and ordered access</strong>: Explicit acquire/release semantics via <code>@fence</code> and <code>@access</code> macros for correct multi-threaded synchronization</li>
+<li><strong>Warp-level operations</strong>: Shuffle primitives (<code>@shfl</code>), inclusive scans (<code>@warpreduce</code>), and reductions (<code>@warpfold</code>) for efficient intra-warp communication</li>
+<li><strong>Vectorized memory transactions</strong>: Hardware-accelerated vector loads and stores (<code>vload</code>, <code>vstore!</code>) for improved memory bandwidth</li>
+</ul>
+<p>The current implementation targets CUDA GPUs, leveraging PTX instructions for optimal performance, but the macro-based API is designed with cross-platform portability in mind for future extension to other backends.</p>
 </section>
 <section id="cpus" class="level2">
 <h2 class="anchored" data-anchor-id="cpus">CPUs</h2>

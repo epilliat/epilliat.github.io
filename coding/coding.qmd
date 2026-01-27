@@ -1,15 +1,33 @@
 ---
 title: "Coding"
-sidebar: "code"
+sidebar: "coding"
+format:
+  html:
+    theme: 
+      - darkly
+      - custom.scss
+    
 ---
 
-While my primary research focuses on statistics, I have a strong interest in high-performance computing with Julia across both GPU and CPU architectures. I've bee first considering reduction operations, which generalize fundamental computations such as scalar products for vectors and matrix-vector multiplications for higher-dimensional arrays.
+While my primary research focuses on statistics, I have a strong interest in high-performance computing with Julia across both GPU and CPU architectures. My work in this area began with reduction operations—fundamental parallel primitives that underpin computations ranging from vector dot products to matrix-vector multiplications in higher-dimensional settings.
+
+Julia's design is particularly well-suited to this domain: users can define custom operators such as `+` and `*`, enabling matrix-vector multiplication over arbitrary vector spaces with concrete element types (types with fixed size like `QuaternionsF32` or `NTuple{2, Float64}`).
+Moreover, the [KernelAbstractions.jl](https://juliagpu.github.io/KernelAbstractions.jl/stable/) package enables straightforward development of cross-architecture GPU kernels. A single `@kernel` function can be compiled to different low-level representations—PTX for NVIDIA, SPIR-V for Intel, or GCN for AMD—with minimal developing cost.
 
 ## Luma
 
-I'm developing **Luma.jl**, a Julia package for high-performance GPU algorithms. This work aims to provide efficient, portable implementations of parallel primitives that match the performance of vendor-optimized libraries while maintaining cross-platform compatibility.
+I'm developing [**Luma.jl**](https://github.com/epilliat/Luma.jl), a Julia package for high-performance GPU algorithms. The goal is to provide efficient, portable implementations of parallel primitives that match the performance of vendor-optimized libraries like NVIDIA's CUB or CUBLAS, while maintaining cross-platform compatibility.
 
-[**Luma.jl on GitHub, with benchmarks in the Readme file**](https://github.com/epilliat/Luma.jl)
+## Kernel Intrinsics
+
+**Luma.jl** strongly relies on [**KernelIntrinsics.jl**](https://epilliat.github.io/KernelIntrinsics.jl), a lower level package I'm developping providing fundamental functions for julia kernels. KernelIntrinsics.jl provides low-level GPU programming primitives for use with KernelAbstractions.jl, enabling fine-grained control over memory ordering, synchronization, and vectorized operations. The package offers:
+
+- **Memory fences and ordered access**: Explicit acquire/release semantics via `@fence` and `@access` macros for correct multi-threaded synchronization
+- **Warp-level operations**: Shuffle primitives (`@shfl`), inclusive scans (`@warpreduce`), and reductions (`@warpfold`) for efficient intra-warp communication
+- **Vectorized memory transactions**: Hardware-accelerated vector loads and stores (`vload`, `vstore!`) for improved memory bandwidth
+
+The current implementation targets CUDA GPUs, leveraging PTX instructions for optimal performance, but the macro-based API is designed with cross-platform portability in mind for future extension to other backends.
+
 
 ## CPUs
 
