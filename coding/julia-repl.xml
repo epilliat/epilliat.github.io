@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language
+[
+  <!ENTITY IDENT "[a-zA-Z_\x{00A0}-\x{FFFF}][a-zA-Z_0-9!\x{00A0}-\x{FFFF}]*">
+]>
+<language name="Julia REPL" version="2" kateversion="5.79" section="Sources"
+          extensions="*.jl-repl;*.julia-repl" mimetype="text/x-julia-repl"
+          author="Emmanuel" license="MIT" indenter="julia">
+
+  <highlighting>
+    <contexts>
+      <!-- Main context: dispatch based on line prefix -->
+      <context name="Normal" attribute="Normal Text" lineEndContext="#stay">
+        <!-- Primary Julia prompt -->
+        <RegExpr attribute="Prompt" context="JuliaCode" String="^julia&gt; " column="0"/>
+        
+        <!-- Continuation prompt (for multi-line expressions) -->
+        <RegExpr attribute="Prompt Continuation" context="JuliaCode" String="^       " column="0"/>
+        
+        <!-- Package mode prompt -->
+        <RegExpr attribute="Prompt Pkg" context="PkgCode" String="^\([^)]+\) pkg&gt; " column="0"/>
+        
+        <!-- Help mode prompt -->
+        <RegExpr attribute="Prompt Help" context="HelpCode" String="^help\?&gt; " column="0"/>
+        
+        <!-- Shell mode prompt -->
+        <RegExpr attribute="Prompt Shell" context="ShellCode" String="^shell&gt; " column="0"/>
+        
+        <!-- Error output -->
+        <RegExpr attribute="Error" context="ErrorBlock" String="^ERROR: " column="0"/>
+        
+        <!-- Warning output -->
+        <RegExpr attribute="Warning" context="WarningLine" String="^┌ Warning: " column="0"/>
+        <RegExpr attribute="Warning" context="#stay" String="^│ .*$" column="0"/>
+        <RegExpr attribute="Warning" context="#stay" String="^└ @ .*$" column="0"/>
+        
+        <!-- Info output -->
+        <RegExpr attribute="Info" context="#stay" String="^┌ Info: .*$" column="0"/>
+        <RegExpr attribute="Info" context="#stay" String="^│ .*$" column="0"/>
+        
+        <!-- Stacktrace lines -->
+        <RegExpr attribute="Stacktrace" context="#stay" String="^\s+\[\d+\] .*$" column="0"/>
+        <RegExpr attribute="Stacktrace" context="#stay" String="^Stacktrace:$" column="0"/>
+        
+        <!-- Type display (from typeof, etc.) -->
+        <RegExpr attribute="Type Output" context="#stay" String="^[A-Z][a-zA-Z0-9_]*(\{.*\})?$" column="0"/>
+        
+        <!-- Numeric output -->
+        <RegExpr attribute="Numeric Output" context="#stay" String="^-?(\d+\.?\d*([eE][+-]?\d+)?|Inf|-Inf|NaN)$" column="0"/>
+        
+        <!-- Boolean output -->
+        <RegExpr attribute="Boolean Output" context="#stay" String="^(true|false)$" column="0"/>
+        
+        <!-- Nothing output -->
+        <RegExpr attribute="Nothing Output" context="#stay" String="^nothing$" column="0"/>
+        
+        <!-- Symbol output -->
+        <RegExpr attribute="Symbol Output" context="#stay" String="^:\S+$" column="0"/>
+        
+        <!-- String output (with quotes) -->
+        <RegExpr attribute="String Output" context="#stay" String="^&quot;.*&quot;$" column="0"/>
+        
+        <!-- Array/Matrix display -->
+        <RegExpr attribute="Array Output" context="#stay" String="^\d+-element (Vector|Array).*:$" column="0"/>
+        <RegExpr attribute="Array Output" context="#stay" String="^\d+×\d+(-element)? (Matrix|Array).*:$" column="0"/>
+        
+        <!-- Dict display -->
+        <RegExpr attribute="Dict Output" context="#stay" String="^Dict\{.*\} with \d+ entr(y|ies):$" column="0"/>
+        
+        <!-- Tuple display -->
+        <RegExpr attribute="Output" context="#stay" String="^\(.*\)$" column="0"/>
+        
+        <!-- Method list output -->
+        <RegExpr attribute="Methods Output" context="#stay" String="^# \d+ methods? for .*:$" column="0"/>
+        <RegExpr attribute="Methods Output" context="#stay" String="^\s*\[\d+\] .*$" column="0"/>
+        
+        <!-- Generic output (fallback) -->
+        <RegExpr attribute="Output" context="#stay" String="^.*$" column="0"/>
+      </context>
+
+      <!-- Julia code context: include full Julia syntax -->
+      <context name="JuliaCode" attribute="Code" lineEndContext="#pop">
+        <IncludeRules context="##Julia"/>
+      </context>
+
+      <!-- Pkg mode: simplified highlighting -->
+      <context name="PkgCode" attribute="Pkg Command" lineEndContext="#pop">
+        <keyword attribute="Pkg Keyword" context="#stay" String="pkgcommands"/>
+        <DetectSpaces/>
+        <RegExpr attribute="Package Name" context="#stay" String="&IDENT;"/>
+        <RegExpr attribute="Version Spec" context="#stay" String="@v?[\d.]+"/>
+        <DetectChar attribute="String" context="PkgString" char="&quot;"/>
+      </context>
+      
+      <context name="PkgString" attribute="String" lineEndContext="#pop">
+        <DetectChar attribute="String" context="#pop" char="&quot;"/>
+      </context>
+
+      <!-- Help mode -->
+      <context name="HelpCode" attribute="Help Query" lineEndContext="#pop">
+        <IncludeRules context="##Julia"/>
+      </context>
+
+      <!-- Shell mode -->
+      <context name="ShellCode" attribute="Shell Command" lineEndContext="#pop">
+        <IncludeRules context="##Bash"/>
+      </context>
+
+      <!-- Error block (can span multiple lines) -->
+      <context name="ErrorBlock" attribute="Error" lineEndContext="#pop">
+        <RegExpr attribute="Error Type" context="#stay" String="^[A-Z][a-zA-Z]*Error"/>
+        <RegExpr attribute="Error" context="#stay" String=".*"/>
+      </context>
+
+      <!-- Warning line -->
+      <context name="WarningLine" attribute="Warning" lineEndContext="#pop">
+        <RegExpr attribute="Warning" context="#stay" String=".*"/>
+      </context>
+    </contexts>
+
+    <itemDatas>
+      <!-- Prompts -->
+      <itemData name="Prompt" defStyleNum="dsKeyword" bold="true" color="#389826"/>
+      <itemData name="Prompt Continuation" defStyleNum="dsKeyword" color="#389826"/>
+      <itemData name="Prompt Pkg" defStyleNum="dsKeyword" bold="true" color="#4063d8"/>
+      <itemData name="Prompt Help" defStyleNum="dsKeyword" bold="true" color="#e6db74"/>
+      <itemData name="Prompt Shell" defStyleNum="dsKeyword" bold="true" color="#cb3c33"/>
+      
+      <!-- Code -->
+      <itemData name="Code" defStyleNum="dsNormal"/>
+      <itemData name="Normal Text" defStyleNum="dsNormal"/>
+      
+      <!-- Pkg mode -->
+      <itemData name="Pkg Command" defStyleNum="dsNormal"/>
+      <itemData name="Pkg Keyword" defStyleNum="dsKeyword" color="#4063d8"/>
+      <itemData name="Package Name" defStyleNum="dsVariable"/>
+      <itemData name="Version Spec" defStyleNum="dsDecVal"/>
+      
+      <!-- Help mode -->
+      <itemData name="Help Query" defStyleNum="dsNormal"/>
+      
+      <!-- Shell mode -->
+      <itemData name="Shell Command" defStyleNum="dsNormal"/>
+      
+      <!-- Output types -->
+      <itemData name="Output" defStyleNum="dsComment" italic="true"/>
+      <itemData name="Type Output" defStyleNum="dsDataType" italic="true"/>
+      <itemData name="Numeric Output" defStyleNum="dsDecVal" italic="true"/>
+      <itemData name="Boolean Output" defStyleNum="dsConstant" italic="true"/>
+      <itemData name="Nothing Output" defStyleNum="dsConstant" italic="true" color="#75715e"/>
+      <itemData name="Symbol Output" defStyleNum="dsConstant" italic="true" color="#9558b2"/>
+      <itemData name="String Output" defStyleNum="dsString" italic="true"/>
+      <itemData name="Array Output" defStyleNum="dsDataType" italic="true"/>
+      <itemData name="Dict Output" defStyleNum="dsDataType" italic="true"/>
+      <itemData name="Methods Output" defStyleNum="dsComment" italic="true"/>
+      
+      <!-- Errors and warnings -->
+      <itemData name="Error" defStyleNum="dsError" bold="true" color="#cb3c33"/>
+      <itemData name="Error Type" defStyleNum="dsError" bold="true" color="#cb3c33"/>
+      <itemData name="Warning" defStyleNum="dsWarning" color="#e6a000"/>
+      <itemData name="Info" defStyleNum="dsInformation" color="#4063d8"/>
+      <itemData name="Stacktrace" defStyleNum="dsComment" color="#75715e"/>
+      
+      <!-- String in various contexts -->
+      <itemData name="String" defStyleNum="dsString"/>
+    </itemDatas>
+
+    <keywords>
+      <list name="pkgcommands">
+        <item>add</item>
+        <item>build</item>
+        <item>develop</item>
+        <item>dev</item>
+        <item>free</item>
+        <item>gc</item>
+        <item>generate</item>
+        <item>help</item>
+        <item>instantiate</item>
+        <item>pin</item>
+        <item>precompile</item>
+        <item>preview</item>
+        <item>redo</item>
+        <item>remove</item>
+        <item>rm</item>
+        <item>resolve</item>
+        <item>status</item>
+        <item>st</item>
+        <item>test</item>
+        <item>undo</item>
+        <item>update</item>
+        <item>up</item>
+        <item>activate</item>
+        <item>registry</item>
+      </list>
+    </keywords>
+  </highlighting>
+
+  <general>
+    <comments>
+      <comment name="singleLine" start="#"/>
+    </comments>
+    <keywords casesensitive="1"/>
+  </general>
+</language>

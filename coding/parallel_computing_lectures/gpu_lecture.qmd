@@ -2,10 +2,14 @@
 title: "Introduction to GPU Architecture"
 format:
   html:
-    theme: darkly
+    theme: 
+      - darkly
+      - ../custom.scss
     toc: true
     toc-depth: 2
-    code-fold: false
+    code-fold: true
+    syntax-definitions:
+      - ../julia-repl.xml
 ---
 
 ## The Mental Model
@@ -28,19 +32,19 @@ The GPU is organized in three levels:
 - **Block**: Multiple warps that can share memory and synchronize
 - **SM (Streaming Multiprocessor)**: Physical hardware running blocks
 
-The number of blocks you launch is an **abstraction** — the GPU scheduler assigns them to SMs.
+The number of blocks we launch is an **abstraction** — the GPU scheduler assigns them to SMs.
 
 
 
 ## Synchronization Within a Warp
 
-Threads in a warp execute the same instruction simultaneously — they are **implicitly synchronized**. No barriers needed.
+Threads within a warp execute instructions in lockstep — they are **implicitly synchronized**. No explicit barriers are needed. When thread 0 performs `x += 1`, all other threads in the same warp observe the updated value of `x` immediately after the operation completes. Threads can read each other's registers through **shuffle** operations.
 
 **Example**: Summing 32 elements using only registers.
 
 ![](images/warp_reduction.svg){width="100%"}
 
-Each thread holds one value. Shuffle instructions let threads read directly from each other's registers — no memory access required. Five steps yield the sum: O(log₂ n) complexity.
+Each thread holds one value. Shuffle instructions allow threads to read directly from one another's registers — no memory access required. The sum is computed in five steps, achieving $O(\log_2 n)$ complexity.
 
 
 
@@ -74,8 +78,6 @@ To communicate between blocks:
 
 
 ## The Memory Hierarchy
-
-![](images/memory_hierarchy.svg){width="100%"}
 
 | Memory    | Scope      | Latency     | Size    | Bandwidth |
 |-----------|------------|-------------|---------|-----------|
@@ -120,7 +122,7 @@ If threads just waited, the GPU would be 99% idle.
 
 **The solution**: Keep many warps ready to run.
 
-While Warp 0 waits for data, Warps 1–7 compute. The scheduler switches between them instantly — zero-cost context switching because each warp maintains its own registers.
+While Warp 1 waits for data, Warps 2–7 compute. The scheduler switches between them instantly — zero-cost context switching because each warp maintains its own registers.
 
 More warps in flight = more latency hiding = higher throughput.
 
@@ -147,9 +149,35 @@ When threads access consecutive addresses, hardware coalesces them into fewer tr
 
 Adjacent threads should access adjacent memory.
 
+## In Practice: How to get GPU Infos
 
+```julia-repl
+julia> dev = CUDA.device()
+julia> CUDA.name(dev)
+Device: NVIDIA RTX 1000 Ada Generation Laptop GPU
 
-## Key Takeaways
+# Global Memory:
+julia> round(Int(CUDA.totalmem(dev)) / 1024^3, digits=3)
+5.763 # GB
+
+# Shared Memory:
+julia> CUDA.attribute(dev, CUDA.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK)÷1024
+48 # KB
+
+julia> clock_rate = CUDA.attribute(dev, CUDA.CU_DEVICE_ATTRIBUTE_CLOCK_RATE)
+1740000 # kHz
+
+julia> mem_clock_rate = CUDA.attribute(dev, CUDA.CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE)
+8001000 # kHz
+
+julia> mem_bus_width = CUDA.attribute(dev, CUDA.CU_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH) # bits
+96 # bits
+
+julia> bandwidth = 2 * mem_clock_rate * 1e3 * mem_bus_width / 8 / 1024^3
+178.83628606796265 # GiB/s
+```
+
+## Summary
 
 1. **GPUs trade single-thread speed for parallelism** — one thread is slow, millions are fast
 2. **Warp (32 threads)**: implicitly synchronized, communicate via registers

@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -39,7 +74,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-a5cd134f9b40a21b85be3e62cd27a8fe.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-cf630c71c515244888ec17ac37bef6c3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-3c1b8843092bf38f1165388b65305013.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -68,6 +103,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -174,7 +238,8 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#memory-the-producer-consumer-view" id="toc-memory-the-producer-consumer-view" class="nav-link" data-scroll-target="#memory-the-producer-consumer-view">Memory: The Producer-Consumer View</a></li>
   <li><a href="#latency-hiding" id="toc-latency-hiding" class="nav-link" data-scroll-target="#latency-hiding">Latency Hiding</a></li>
   <li><a href="#coalesced-memory-access" id="toc-coalesced-memory-access" class="nav-link" data-scroll-target="#coalesced-memory-access">Coalesced Memory Access</a></li>
-  <li><a href="#key-takeaways" id="toc-key-takeaways" class="nav-link" data-scroll-target="#key-takeaways">Key Takeaways</a></li>
+  <li><a href="#in-practice-how-to-get-gpu-infos" id="toc-in-practice-how-to-get-gpu-infos" class="nav-link" data-scroll-target="#in-practice-how-to-get-gpu-infos">In Practice: How to get GPU Infos</a></li>
+  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">Summary</a></li>
   </ul>
 </nav>
     </div>
@@ -215,14 +280,14 @@ ul.task-list li input[type="checkbox"] {
 <li><strong>Block</strong>: Multiple warps that can share memory and synchronize</li>
 <li><strong>SM (Streaming Multiprocessor)</strong>: Physical hardware running blocks</li>
 </ul>
-<p>The number of blocks you launch is an <strong>abstraction</strong> — the GPU scheduler assigns them to SMs.</p>
+<p>The number of blocks we launch is an <strong>abstraction</strong> — the GPU scheduler assigns them to SMs.</p>
 </section>
 <section id="synchronization-within-a-warp" class="level2">
 <h2 class="anchored" data-anchor-id="synchronization-within-a-warp">Synchronization Within a Warp</h2>
-<p>Threads in a warp execute the same instruction simultaneously — they are <strong>implicitly synchronized</strong>. No barriers needed.</p>
+<p>Threads within a warp execute instructions in lockstep — they are <strong>implicitly synchronized</strong>. No explicit barriers are needed. When thread 0 performs <code>x += 1</code>, all other threads in the same warp observe the updated value of <code>x</code> immediately after the operation completes. Threads can read each other’s registers through <strong>shuffle</strong> operations.</p>
 <p><strong>Example</strong>: Summing 32 elements using only registers.</p>
 <p><img src="images/warp_reduction.svg" class="img-fluid" style="width:100.0%"></p>
-<p>Each thread holds one value. Shuffle instructions let threads read directly from each other’s registers — no memory access required. Five steps yield the sum: O(log₂ n) complexity.</p>
+<p>Each thread holds one value. Shuffle instructions allow threads to read directly from one another’s registers — no memory access required. The sum is computed in five steps, achieving <span class="math inline">\(O(\log_2 n)\)</span> complexity.</p>
 </section>
 <section id="synchronization-between-warps-within-a-block" class="level2">
 <h2 class="anchored" data-anchor-id="synchronization-between-warps-within-a-block">Synchronization Between Warps (Within a Block)</h2>
@@ -247,7 +312,6 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="the-memory-hierarchy" class="level2">
 <h2 class="anchored" data-anchor-id="the-memory-hierarchy">The Memory Hierarchy</h2>
-<p><img src="images/memory_hierarchy.svg" class="img-fluid" style="width:100.0%"></p>
 <table class="caption-top table">
 <thead>
 <tr class="header">
@@ -338,7 +402,7 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="latency-hiding">Latency Hiding</h2>
 <p><strong>The problem</strong>: Memory requests take ~500 cycles. If threads waited idly, the GPU would be stalled.</p>
 <p><strong>The solution</strong>: Keep many warps ready to run.</p>
-<p>While Warp 0 waits for data, Warps 1–7 compute. The scheduler switches between them instantly — zero-cost context switching because each warp maintains its own registers.</p>
+<p>While Warp 1 waits for data, Warps 2–7 compute. The scheduler switches between them instantly — zero-cost context switching because each warp maintains its own registers.</p>
 <p>More warps in flight = more latency hiding = higher throughput.</p>
 <p>This is why we launch far more threads than can physically execute at once.</p>
 </section>
@@ -356,8 +420,34 @@ Matrix M[2,4]: M[1,1], M[2,1], M[1,2], M[2,2], M[1,3], M[2,3], M[1,4], M[2,4]</c
 </ul>
 <p>Adjacent threads should access adjacent memory.</p>
 </section>
-<section id="key-takeaways" class="level2">
-<h2 class="anchored" data-anchor-id="key-takeaways">Key Takeaways</h2>
+<section id="in-practice-how-to-get-gpu-infos" class="level2">
+<h2 class="anchored" data-anchor-id="in-practice-how-to-get-gpu-infos">In Practice: How to get GPU Infos</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode julia-repl code-with-copy"><code class="sourceCode juliarepl"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">julia&gt; </span>dev <span class="op">=</span> CUDA.<span class="fu">device</span>()</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">julia&gt; </span>CUDA.<span class="fu">name</span>(dev)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">Device: NVIDIA RTX 1000 Ada Generation Laptop GPU</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Global Memory:</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">julia&gt; </span><span class="fu">round</span>(<span class="fu">Int</span>(CUDA.<span class="fu">totalmem</span>(dev)) <span class="op">/</span> <span class="fl">1024</span><span class="op">^</span><span class="fl">3</span>, digits<span class="op">=</span><span class="fl">3</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">5.763 # GB</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Shared Memory:</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">julia&gt; </span>CUDA.<span class="fu">attribute</span>(dev, CUDA.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK)<span class="op">÷</span><span class="fl">1024</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co">48 # KB</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">julia&gt; </span>clock_rate <span class="op">=</span> CUDA.<span class="fu">attribute</span>(dev, CUDA.CU_DEVICE_ATTRIBUTE_CLOCK_RATE)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co">1740000 # kHz</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="kw">julia&gt; </span>mem_clock_rate <span class="op">=</span> CUDA.<span class="fu">attribute</span>(dev, CUDA.CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co">8001000 # kHz</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="kw">julia&gt; </span>mem_bus_width <span class="op">=</span> CUDA.<span class="fu">attribute</span>(dev, CUDA.CU_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH) <span class="co"># bits</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="co">96 # bits</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="kw">julia&gt; </span>bandwidth <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> mem_clock_rate <span class="op">*</span> <span class="fl">1e3</span> <span class="op">*</span> mem_bus_width <span class="op">/</span> <span class="fl">8</span> <span class="op">/</span> <span class="fl">1024</span><span class="op">^</span><span class="fl">3</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="co">178.83628606796265 # GiB/s</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
 <ol type="1">
 <li><strong>GPUs trade single-thread speed for parallelism</strong> — one thread is slow, millions are fast</li>
 <li><strong>Warp (32 threads)</strong>: implicitly synchronized, communicate via registers</li>
