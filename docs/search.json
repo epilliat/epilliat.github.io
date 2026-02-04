@@ -420,11 +420,18 @@
     "text": "While my primary research focuses on statistics, I have a strong interest in high-performance computing with Julia across both GPU and CPU architectures. My work in this area began with reduction operations—fundamental parallel primitives that underpin computations ranging from vector dot products to matrix-vector multiplications in higher-dimensional settings.\nJulia’s design is particularly well-suited to this domain: users can define custom operators such as + and *, enabling matrix-vector multiplication over arbitrary vector spaces with concrete element types (types with fixed size like QuaternionsF32 or NTuple{2, Float64}). Moreover, the KernelAbstractions.jl package enables straightforward development of cross-architecture GPU kernels. A single @kernel function can be compiled to different low-level representations—PTX for NVIDIA, SPIR-V for Intel, or GCN for AMD—with minimal developing cost."
   },
   {
-    "objectID": "coding/coding.html#KernelForge",
-    "href": "coding/coding.html#KernelForge",
+    "objectID": "coding/coding.html#kernelforge",
+    "href": "coding/coding.html#kernelforge",
     "title": "Coding",
     "section": "KernelForge",
     "text": "KernelForge\nI’m developing KernelForge.jl, a Julia package for high-performance GPU algorithms. The goal is to provide efficient, portable implementations of parallel primitives that match the performance of vendor-optimized libraries like NVIDIA’s CUB or CUBLAS, while maintaining cross-platform compatibility."
+  },
+  {
+    "objectID": "coding/coding.html#kernel-intrinsics",
+    "href": "coding/coding.html#kernel-intrinsics",
+    "title": "Coding",
+    "section": "Kernel Intrinsics",
+    "text": "Kernel Intrinsics\nKernelForge.jl strongly relies on KernelIntrinsics.jl, a lower level package I’m developping providing fundamental functions for julia kernels. KernelIntrinsics.jl provides low-level GPU programming primitives for use with KernelAbstractions.jl, enabling fine-grained control over memory ordering, synchronization, and vectorized operations. The package offers:\n\nMemory fences and ordered access: Explicit acquire/release semantics via @fence and @access macros for correct multi-threaded synchronization\nWarp-level operations: Shuffle primitives (@shfl), inclusive scans (@warpreduce), and reductions (@warpfold) for efficient intra-warp communication\nVectorized memory transactions: Hardware-accelerated vector loads and stores (vload, vstore!) for improved memory bandwidth\n\nThe current implementation targets CUDA GPUs, leveraging PTX instructions for optimal performance, but the macro-based API is designed with cross-platform portability in mind for future extension to other backends."
   },
   {
     "objectID": "coding/coding.html#cpus",
@@ -6345,22 +6352,33 @@
     ]
   },
   {
-    "objectID": "coding/parallel_computing_lectures/gpu_lecture.html#contiguous-memory-access",
-    "href": "coding/parallel_computing_lectures/gpu_lecture.html#contiguous-memory-access",
+    "objectID": "coding/parallel_computing_lectures/gpu_lecture.html#coalesced-memory-access",
+    "href": "coding/parallel_computing_lectures/gpu_lecture.html#coalesced-memory-access",
     "title": "Introduction to GPU Architecture",
-    "section": "Contiguous Memory Access",
-    "text": "Contiguous Memory Access\nData is stored linearly. In Julia (column-major):\nVector v[8]:   v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]\n\nMatrix M[2,4]: M[1,1], M[2,1], M[1,2], M[2,2], M[1,3], M[2,3], M[1,4], M[2,4]\nWhen threads access consecutive addresses, hardware coalesces them into fewer transactions.\n\nGood: Thread i accesses index i → 1 transaction\nBad: Thread i accesses index i×1000 → 32 transactions",
+    "section": "Coalesced Memory Access",
+    "text": "Coalesced Memory Access\nMemory is transferred in chunks (typically 32 or 128 bytes). When threads in a warp access consecutive addresses, the hardware coalesces these into a single transaction.\nIn Julia (column-major order):\nVector v[8]:   v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]\n\nMatrix M[2,4]: M[1,1], M[2,1], M[1,2], M[2,2], M[1,3], M[2,3], M[1,4], M[2,4]\nWhen threads access consecutive addresses, hardware coalesces them into fewer transactions:\n\nGood: Thread i accesses index i → 1 transaction\nBad: Thread i accesses index i×1000 → 32 transactions\n\nAdjacent threads should access adjacent memory.",
     "crumbs": [
       "Parallel Computing",
       "Introduction to GPU Architecture"
     ]
   },
   {
-    "objectID": "coding/parallel_computing_lectures/gpu_lecture.html#key-takeaways",
-    "href": "coding/parallel_computing_lectures/gpu_lecture.html#key-takeaways",
+    "objectID": "coding/parallel_computing_lectures/gpu_lecture.html#in-practice-how-to-get-gpu-infos",
+    "href": "coding/parallel_computing_lectures/gpu_lecture.html#in-practice-how-to-get-gpu-infos",
     "title": "Introduction to GPU Architecture",
-    "section": "Key Takeaways",
-    "text": "Key Takeaways\n\nGPUs trade single-thread speed for parallelism — one thread is slow, millions are fast\nWarp (32 threads): implicitly synchronized, communicate via registers\nBlock (multiple warps): explicit synchronization with @synchronize, communicate via shared memory\nGrid (all blocks): no synchronization guarantees, communicate via global memory (expensive)\nThreads are an abstraction — launch many more than physically execute\nLatency hiding is why: keep warps waiting on memory while others compute\nCoalesced access is critical: adjacent threads must access adjacent memory",
+    "section": "In Practice: How to get GPU Infos",
+    "text": "In Practice: How to get GPU Infos\njulia&gt; dev = CUDA.device()\njulia&gt; CUDA.name(dev)\nDevice: NVIDIA RTX 1000 Ada Generation Laptop GPU\n\n# Global Memory:\njulia&gt; round(Int(CUDA.totalmem(dev)) / 1024^3, digits=3)\n5.763 # GB\n\n# Shared Memory:\njulia&gt; CUDA.attribute(dev, CUDA.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK)÷1024\n48 # KB\n\njulia&gt; clock_rate = CUDA.attribute(dev, CUDA.CU_DEVICE_ATTRIBUTE_CLOCK_RATE)\n1740000 # kHz\n\njulia&gt; mem_clock_rate = CUDA.attribute(dev, CUDA.CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE)\n8001000 # kHz\n\njulia&gt; mem_bus_width = CUDA.attribute(dev, CUDA.CU_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH) # bits\n96 # bits\n\njulia&gt; bandwidth = 2 * mem_clock_rate * 1e3 * mem_bus_width / 8 / 1024^3\n178.83628606796265 # GiB/s",
+    "crumbs": [
+      "Parallel Computing",
+      "Introduction to GPU Architecture"
+    ]
+  },
+  {
+    "objectID": "coding/parallel_computing_lectures/gpu_lecture.html#summary",
+    "href": "coding/parallel_computing_lectures/gpu_lecture.html#summary",
+    "title": "Introduction to GPU Architecture",
+    "section": "Summary",
+    "text": "Summary\n\nGPUs trade single-thread speed for parallelism — one thread is slow, millions are fast\nWarp (32 threads): implicitly synchronized, communicate via registers\nBlock (multiple warps): explicit synchronization with @synchronize, communicate via shared memory\nGrid (all blocks): no synchronization guarantees, communicate via global memory (expensive)\nThreads are an abstraction — launch many more than physically execute\nLatency hiding is why: keep warps waiting on memory while others compute\nCoalesced access is critical: adjacent threads must access adjacent memory",
     "crumbs": [
       "Parallel Computing",
       "Introduction to GPU Architecture"
@@ -6701,52 +6719,5 @@
     "title": "Recovering Labels from Crowdsourced Data",
     "section": "Synthetic Data",
     "text": "Synthetic Data\n\n\n\n\n\n\n\n\n\n \n\nBlack: \\(M_{ik}=0\\)\nBlue: \\(M_{ik} = h\\)"
-  },
-  {
-    "objectID": "coding/parallel_computing_lectures/gpu_lecture.html#coalesced-memory-access",
-    "href": "coding/parallel_computing_lectures/gpu_lecture.html#coalesced-memory-access",
-    "title": "Introduction to GPU Architecture",
-    "section": "Coalesced Memory Access",
-    "text": "Coalesced Memory Access\nMemory is transferred in chunks (typically 32 or 128 bytes). When threads in a warp access consecutive addresses, the hardware coalesces these into a single transaction.\nIn Julia (column-major order):\nVector v[8]:   v[1], v[2], v[3], v[4], v[5], v[6], v[7], v[8]\n\nMatrix M[2,4]: M[1,1], M[2,1], M[1,2], M[2,2], M[1,3], M[2,3], M[1,4], M[2,4]\nWhen threads access consecutive addresses, hardware coalesces them into fewer transactions:\n\nGood: Thread i accesses index i → 1 transaction\nBad: Thread i accesses index i×1000 → 32 transactions\n\nAdjacent threads should access adjacent memory.",
-    "crumbs": [
-      "Parallel Computing",
-      "Introduction to GPU Architecture"
-    ]
-  },
-  {
-    "objectID": "coding/coding.html#kernelintrinsics",
-    "href": "coding/coding.html#kernelintrinsics",
-    "title": "Coding",
-    "section": "KernelIntrinsics",
-    "text": "KernelIntrinsics\nKernelForge.jl strongly relies on another KernelIntrinsics.jl, that I’m also developping"
-  },
-  {
-    "objectID": "coding/coding.html#kernel-intrinsics",
-    "href": "coding/coding.html#kernel-intrinsics",
-    "title": "Coding",
-    "section": "Kernel Intrinsics",
-    "text": "Kernel Intrinsics\nKernelForge.jl strongly relies on KernelIntrinsics.jl, a lower level package I’m developping providing fundamental functions for julia kernels. KernelIntrinsics.jl provides low-level GPU programming primitives for use with KernelAbstractions.jl, enabling fine-grained control over memory ordering, synchronization, and vectorized operations. The package offers:\n\nMemory fences and ordered access: Explicit acquire/release semantics via @fence and @access macros for correct multi-threaded synchronization\nWarp-level operations: Shuffle primitives (@shfl), inclusive scans (@warpreduce), and reductions (@warpfold) for efficient intra-warp communication\nVectorized memory transactions: Hardware-accelerated vector loads and stores (vload, vstore!) for improved memory bandwidth\n\nThe current implementation targets CUDA GPUs, leveraging PTX instructions for optimal performance, but the macro-based API is designed with cross-platform portability in mind for future extension to other backends."
-  },
-  {
-    "objectID": "coding/parallel_computing_lectures/gpu_lecture.html#in-practice-how-to-get-gpu-infos",
-    "href": "coding/parallel_computing_lectures/gpu_lecture.html#in-practice-how-to-get-gpu-infos",
-    "title": "Introduction to GPU Architecture",
-    "section": "In Practice: How to get GPU Infos",
-    "text": "In Practice: How to get GPU Infos\njulia&gt; dev = CUDA.device()\njulia&gt; CUDA.name(dev)\nDevice: NVIDIA RTX 1000 Ada Generation Laptop GPU\n\n# Global Memory:\njulia&gt; round(Int(CUDA.totalmem(dev)) / 1024^3, digits=3)\n5.763 # GB\n\n# Shared Memory:\njulia&gt; CUDA.attribute(dev, CUDA.CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK)÷1024\n48 # KB\n\njulia&gt; clock_rate = CUDA.attribute(dev, CUDA.CU_DEVICE_ATTRIBUTE_CLOCK_RATE)\n1740000 # kHz\n\njulia&gt; mem_clock_rate = CUDA.attribute(dev, CUDA.CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE)\n8001000 # kHz\n\njulia&gt; mem_bus_width = CUDA.attribute(dev, CUDA.CU_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH) # bits\n96 # bits\n\njulia&gt; bandwidth = 2 * mem_clock_rate * 1e3 * mem_bus_width / 8 / 1024^3\n178.83628606796265 # GiB/s",
-    "crumbs": [
-      "Parallel Computing",
-      "Introduction to GPU Architecture"
-    ]
-  },
-  {
-    "objectID": "coding/parallel_computing_lectures/gpu_lecture.html#summary",
-    "href": "coding/parallel_computing_lectures/gpu_lecture.html#summary",
-    "title": "Introduction to GPU Architecture",
-    "section": "Summary",
-    "text": "Summary\n\nGPUs trade single-thread speed for parallelism — one thread is slow, millions are fast\nWarp (32 threads): implicitly synchronized, communicate via registers\nBlock (multiple warps): explicit synchronization with @synchronize, communicate via shared memory\nGrid (all blocks): no synchronization guarantees, communicate via global memory (expensive)\nThreads are an abstraction — launch many more than physically execute\nLatency hiding is why: keep warps waiting on memory while others compute\nCoalesced access is critical: adjacent threads must access adjacent memory",
-    "crumbs": [
-      "Parallel Computing",
-      "Introduction to GPU Architecture"
-    ]
   }
 ]
