@@ -29,7 +29,7 @@
     }
   </style>
   <link rel="stylesheet" href="../../../site_libs/revealjs/dist/theme/quarto-00ac2f6af1389919a18f42df5b7c0002.css">
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../../../styles.css">
   <link href="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -144,8 +144,13 @@
 <li class="fragment">15h of lectures, 18h of TD</li>
 <li class="fragment"><span class="math inline">\(12^{th}\)</span> may: Exam (2h)</li>
 <li class="fragment">Lecture notes and slides on the website</li>
-<li class="fragment">About english and programming languages</li>
 <li class="fragment">Wooclap sessions [<a href="https://app.wooclap.com/events/RQSUIA/questions/67d994736e237838c3125d66">Test</a>]</li>
+</ul>
+</section>
+<section id="evaluation" class="slide level2">
+<h2>Evaluation</h2>
+<ul>
+<li class="fragment">One final exam of 2h (QCM and paper exercise)</li>
 </ul>
 </section>
 <section id="objective" class="slide level2">
@@ -163,19 +168,52 @@
 </section>
 <section id="general-principles" class="slide level2">
 <h2>General Principles</h2>
+<div class="small-text">
 <ol type="1">
-<li class="fragment"><strong>Fix an objective:</strong> test whether Bob has diabetes</li>
-<li class="fragment"><strong>Design an experiment:</strong> measure of glucose level</li>
+<li class="fragment"><strong>Fix an objective:</strong> test whether the drug lowers blood pressure</li>
+<li class="fragment"><strong>Design an experiment:</strong> clinical trial comparing drug vs placebo</li>
 <li class="fragment"><strong>Define hypotheses</strong>
 <ul>
-<li class="fragment"><strong>Null hypothesis:</strong> <span class="math inline">\(H_0\)</span>: a priori, Bob has no diabetes</li>
-<li class="fragment"><strong>Alternative hypothesis:</strong> <span class="math inline">\(H_1\)</span>: Bob has diabete</li>
+<li class="fragment"><strong>Null hypothesis</strong> <span class="math inline">\(H_0\)</span>: drug has no effect</li>
+<li class="fragment"><strong>Alternative hypothesis</strong> <span class="math inline">\(H_1\)</span>: drug lowers blood pressure</li>
 </ul></li>
-<li class="fragment"><strong>Define a decision dule:</strong> function of the glucose level</li>
-<li class="fragment"><strong>Collect Data:</strong> do the measure of glucose level</li>
+<li class="fragment"><strong>Define a decision rule:</strong> reject <span class="math inline">\(H_0\)</span> if p-value &lt; α (e.g., 5%)</li>
+<li class="fragment"><strong>Collect Data:</strong> measure blood pressure change in both groups</li>
 <li class="fragment"><strong>Apply the decision rule:</strong> reject <span class="math inline">\(H_0\)</span> or not</li>
-<li class="fragment"><strong>Draw a conclusion:</strong> should Bob follow a treatment or make other tests ?</li>
+<li class="fragment"><strong>Draw a conclusion:</strong> should the drug be approved or run more trials?</li>
 </ol>
+</div>
+</section>
+<section id="what-is-a-p-value" class="slide level2">
+<h2>What is a p-value?</h2>
+<p><strong>p-value</strong> = probability of observing a result as extreme (or more) assuming <span class="math inline">\(H_0\)</span> is true</p>
+<p><strong>Example:</strong> drug trial shows 8 mmHg blood pressure drop</p>
+<ul>
+<li class="fragment">p-value = 0.03 means:</li>
+<li class="fragment">→ “If the drug had <strong>no effect</strong>, there’s only a <strong>3% chance</strong> of seeing such a large drop by random chance alone”</li>
+</ul>
+</section>
+<section id="decision-rule" class="slide level2">
+<h2>Decision Rule</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>p-value</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>p &lt; 0.05</td>
+<td>Reject <span class="math inline">\(H_0\)</span> → drug likely works</td>
+</tr>
+<tr class="even">
+<td>p ≥ 0.05</td>
+<td>Do not reject <span class="math inline">\(H_0\)</span> → not enough evidence</td>
+</tr>
+</tbody>
+</table>
+<p>⚠️ A small p-value does <strong>not</strong> prove <span class="math inline">\(H_1\)</span> is true — it only says <span class="math inline">\(H_0\)</span> is unlikely given the data.</p>
 </section>
 <section id="good-and-bad-decisions" class="slide level2">
 <h2>Good and Bad Decisions</h2>
@@ -238,72 +276,68 @@ True Positive (<strong>TP</strong>)
 <section id="dice-biased-toward-6" class="slide level2">
 <h2>Dice Biased Toward <span class="math inline">\(6\)</span></h2>
 <ol type="1">
-<li class="fragment"><strong>Objective</strong>: test if Bob is cheating with a dice.<br>
-</li>
-<li class="fragment"><strong>Experiment</strong>: Bob rolls the dice <span class="math inline">\(10\)</span> times.</li>
+<li class="fragment"><strong>Objective</strong>: test if Bob is cheating with a biased dice</li>
+<li class="fragment"><strong>Experiment</strong>: Bob rolls the dice <span class="math inline">\(10\)</span> times</li>
 <li class="fragment"><strong>Hypotheses</strong>:
 <ul>
 <li class="fragment"><span class="math inline">\(H_0\)</span>: the probability of getting <span class="math inline">\(6\)</span> is <span class="math inline">\(1/6\)</span></li>
 <li class="fragment"><span class="math inline">\(H_1\)</span>: the probability of getting <span class="math inline">\(6\)</span> is larger than <span class="math inline">\(1/6\)</span></li>
 </ul></li>
-<li class="fragment"><strong>Decision rule</strong>: the probability of getting a number of <span class="math inline">\(6\)</span> at least equal to the number of observed <span class="math inline">\(6\)</span> is <span class="math inline">\(&lt; 0.05\)</span></li>
+<li class="fragment"><strong>Decision rule</strong>: reject <span class="math inline">\(H_0\)</span> if p-value <span class="math inline">\(&lt; 0.05\)</span></li>
 <li class="fragment"><strong>Data</strong>: the dice falls <span class="math inline">\(10\)</span> times on <span class="math inline">\(6\)</span></li>
-<li class="fragment"><strong>Decision</strong>: the probability is <span class="math inline">\(1/6^{10} &lt; 0.05\)</span></li>
-<li class="fragment"><strong>Conclusion?</strong></li>
+<li class="fragment"><strong>Decision</strong>: p-value <span class="math inline">\(= (1/6)^{10} \approx 10^{-8} &lt; 0.05\)</span> → reject <span class="math inline">\(H_0\)</span></li>
+<li class="fragment"><strong>Conclusion</strong>: strong evidence Bob is cheating!</li>
 </ol>
 </section>
 <section id="fairness-of-dice" class="slide level2">
 <h2>Fairness of Dice</h2>
 <ul>
-<li class="fragment">We observe <span class="math inline">\((X_1, \dots, X_n)\)</span> iid where <span class="math inline">\(X_i \in \{1, \dots, 6\}\)</span> where each <span class="math inline">\(\mathbb P(X_i = k) = p_k\)</span></li>
+<li class="fragment">We observe <span class="math inline">\((X_1, \dots, X_n)\)</span> iid where <span class="math inline">\(X_i \in \{1, \dots, 6\}\)</span> with <span class="math inline">\(\mathbb{P}(X_i = k) = p_k\)</span></li>
 </ul>
 <div class="fragment">
 <p><img data-src="../images/biased_dice.svg" style="width:50.0%"></p>
 </div>
+</section>
+<section id="fairness-of-dice-1" class="slide level2">
+<h2>Fairness of Dice</h2>
+<p><strong>⚠️ Same data, two conclusions</strong></p>
 <div class="fragment">
-<div class="callout callout-warning callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Same data, two conclusions</strong></p>
-</div>
-<div class="callout-content">
-<div class="columns">
-<div class="column">
-<ul>
-<li class="fragment"><span class="math inline">\(H_0: p_6 = 1/6\)</span> VS <span class="math inline">\(H_1: p_6 &gt; 1/6\)</span></li>
-<li class="fragment">Do not reject <span class="math inline">\(H_0\)</span> (<span class="math inline">\(H_0\)</span> is “likely”)</li>
-</ul>
-</div><div class="column">
-<ul>
-<li class="fragment"><span class="math inline">\(H_0: (p_1=\dots=p_6 = 1/6)\)</span> (dice is fair) VS <span class="math inline">\(H_1: \exists k: p_k &gt; 1/6\)</span></li>
-<li class="fragment">Reject <span class="math inline">\(H_1\)</span> (<span class="math inline">\(H_1\)</span> is “unlikely”)</li>
-</ul>
-</div></div>
+<div class="square-def">
+<p><span class="math inline">\(H_0: p_6 = 1/6\)</span> vs <span class="math inline">\(H_1: p_6 &gt; 1/6\)</span></p>
 </div>
 </div>
+<div class="fragment">
+<p>Here: do not reject <span class="math inline">\(H_0\)</span> (<span class="math inline">\(H_0\)</span> is “likely”)</p>
 </div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(H_0:\)</span> dice is fair vs <span class="math inline">\(H_1: \exists k: p_k &gt; 1/6\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Here: reject <span class="math inline">\(H_0\)</span> (<span class="math inline">\(H_0\)</span> is “unlikely”)</p>
 </div>
 </section>
 <section id="medical-test" class="slide level2">
 <h2>Medical Test</h2>
 <ol type="1">
-<li class="fragment"><strong>Objective:</strong> test if a fetus has Down syndrome</li>
-<li class="fragment"><strong>Experiment:</strong> measure the Nucal translucency</li>
+<li class="fragment"><strong>Objective:</strong> test if a patient has high cholesterol</li>
+<li class="fragment"><strong>Experiment:</strong> measure LDL cholesterol level (mg/dL)</li>
 <li class="fragment"><strong>Hypotheses:</strong>
 <ul>
-<li class="fragment"><span class="math inline">\(H_0\)</span>: nucal translucency is normal <span class="math inline">\(\sim \mathcal N(1.5,0.8)\)</span></li>
-<li class="fragment"><span class="math inline">\(H_1\)</span>: nucal translucency is large</li>
+<li class="fragment"><span class="math inline">\(H_0\)</span>: LDL cholesterol is normal <span class="math inline">\(\sim \mathcal{N}(100, 25)\)</span></li>
+<li class="fragment"><span class="math inline">\(H_1\)</span>: LDL cholesterol is high</li>
 </ul></li>
 </ol>
+</section>
+<section id="medical-test-1" class="slide level2">
+<h2>Medical Test</h2>
 <div class="columns">
 <div class="column" style="width:40%;">
-<ol type="1">
+<ol start="4" type="1">
 <li class="fragment"><strong>Decision rule</strong>: reject if <span class="math inline">\(P_0(X \geq x_{obs}) \leq 0.05\)</span></li>
-<li class="fragment"><strong>Collect data</strong>: <span class="math inline">\(x_{obs}=3.02\)</span></li>
-<li class="fragment"><strong>Make a decision</strong>: calculate the value of <span class="math inline">\(P_0(X \geq 3.02)=0.029\)</span></li>
+<li class="fragment"><strong>Collect data</strong>: <span class="math inline">\(x_{obs}=152\)</span></li>
+<li class="fragment"><strong>Make a decision</strong>: calculate <span class="math inline">\(P_0(X \geq 152)=0.019\)</span></li>
 <li class="fragment"><strong>Conclusion ?</strong></li>
 </ol>
 </div><div class="column" style="width:60%;">
@@ -319,107 +353,103 @@ True Positive (<strong>TP</strong>)
 <h1>Probability Basics</h1>
 
 </section>
-<section id="recall-of-proba" class="slide level2">
-<h2>Recall of Proba</h2>
-<p>Consider a probability measure <span class="math inline">\(P\)</span> on <span class="math inline">\(\mathbb R\)</span>.</p>
+<section id="recall-of-proba-continuous-measures" class="slide level2">
+<h2>Recall of Proba: Continuous Measures</h2>
 <ul>
-<li class="fragment"><strong>CDF</strong> (Cumulative Distribution Function): <span class="math display">\[x \to P(~(-\infty,x]~) = \mathbb P(X \leq x) ~~~~\text{(if $X \sim P$ under $\mathbb P$)}\]</span></li>
+<li class="fragment"><strong>PDF</strong> (Density): <span class="math inline">\(x \mapsto p(x)\)</span> where <span class="math inline">\(\mathbb P(X\in[x,x+dx]) = p(x)dx\)</span></li>
+<li class="fragment"><strong>CDF</strong>: <span class="math inline">\(x \mapsto \int_{-\infty}^x p(x')dx'\)</span></li>
 </ul>
-<div class="columns">
-<div class="column" style="width:50%;">
-<h3 id="continous-measures">Continous Measures</h3>
-<ul>
-<li class="fragment"><p>density wrp to Lebesgue: <span class="math inline">\(\mathbb P(X\in[x,x+dx])=dP(x) = p(x)dx\)</span></p></li>
-<li class="fragment"><p><strong>PDF</strong> (Proba Density Function): <span class="math inline">\(x \to p(x)\)</span></p></li>
-<li class="fragment"><p><strong>CDF</strong>: <span class="math inline">\(x \to \int_{\infty}^x p(x')dx'\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(\alpha\)</span>-quantile <span class="math inline">\(q_{\alpha}\)</span>: <span class="math inline">\(\int_{\infty}^{q_{\alpha}} p(x)dx = \alpha\)</span></p></li>
-<li class="fragment"><p>or <span class="math inline">\(\mathbb P(X \leq q_{\alpha}) = \alpha\)</span></p></li>
-</ul>
-</div><div class="column" style="width:50%;">
 <div class="fragment">
-<h3 id="discrete-measures">Discrete Measures</h3>
-<ul>
-<li class="fragment">density wrp to counting measure: <span class="math inline">\(\mathbb P(X=x) = P(\{x\})=p(x)\)</span></li>
-<li class="fragment"><strong>CDF</strong>: <span class="math inline">\(x \to \sum_{x' \leq x} p(x')dx'\)</span></li>
-<li class="fragment"><span class="math inline">\(\alpha\)</span>-quantile <span class="math inline">\(q_{\alpha}\)</span>: <span class="math display">\[\inf_{q \in \mathbb R}\{q:~\sum_{x_i \leq q}p(x_i) &gt; \alpha\}\]</span></li>
-</ul>
+<div class="square-def">
+<p><strong><span class="math inline">\(\alpha\)</span>-quantile</strong> <span class="math inline">\(q_{\alpha}\)</span>: <span class="math inline">\(\int_{-\infty}^{q_{\alpha}} p(x)dx = \alpha\)</span></p>
 </div>
-</div></div>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\Leftrightarrow \mathbb P(X \leq q_{\alpha}) = \alpha\)</span></p>
+</div>
 </section>
-<section id="examples" class="slide level2">
-<h2>Examples</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
+<section id="recall-of-proba-discrete-measures" class="slide level2">
+<h2>Recall of Proba: Discrete Measures</h2>
+<p>Consider a probability measure <span class="math inline">\(P\)</span> on <span class="math inline">\(\mathbb R\)</span> with <span class="math inline">\(X \sim P\)</span>.</p>
 <ul>
-<li class="fragment"><strong>Gaussian</strong> <span class="math inline">\(\mathcal N(\mu,\sigma)\)</span>: <span class="math display">\[p(x) = \frac{1}{\sqrt{2\pi \sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}\]</span></li>
+<li class="fragment"><strong>PMF</strong> (Density): <span class="math inline">\(\mathbb P(X=x) = P(\{x\})=p(x)\)</span></li>
+<li class="fragment"><strong>CDF</strong>: <span class="math inline">\(x \mapsto \sum_{x' \leq x} p(x')\)</span></li>
 </ul>
 <div class="fragment">
-<p><img data-src="../images/basics/pdfgauss.svg"></p>
+<div class="square-def">
+<p><strong><span class="math inline">\(\alpha\)</span>-quantile</strong> <span class="math inline">\(q_{\alpha}\)</span>: <span class="math inline">\(\inf\{q \in \mathbb R:~\sum_{x_i \leq q}p(x_i) \geq \alpha\}\)</span></p>
 </div>
-<ul>
-<li class="fragment">Approximation of sum of iid RV (TCL)</li>
-</ul>
-</div><div class="column" style="width:50%;">
-<ul>
-<li class="fragment"><strong>Binomial</strong> <span class="math inline">\(\mathrm{Bin}(n,q)\)</span>: <span class="math display">\[p(x)= \binom{n}{x}q^x (1-q)^{n-x}\]</span></li>
-</ul>
-<div class="fragment">
-<p><img data-src="../images/basics/pdf_binom.svg"></p>
 </div>
-<ul>
-<li class="fragment">Number of success among <span class="math inline">\(n\)</span> Bernoulli <span class="math inline">\(q\)</span></li>
-</ul>
-</div></div>
 </section>
-<section id="examples-1" class="slide level2">
-<h2>Examples</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<ul>
-<li class="fragment"><strong>Exponential</strong> <span class="math inline">\(\mathcal E(\lambda)\)</span>: <span class="math display">\[p(x) = \lambda e^{-\lambda x}\]</span></li>
-</ul>
+<section id="example-gaussian-distribution" class="slide level2">
+<h2>Example: Gaussian Distribution</h2>
+<p><strong>Gaussian</strong> <span class="math inline">\(\mathcal N(\mu,\sigma)\)</span>: <span class="math display">\[p(x) = \frac{1}{\sqrt{2\pi \sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}\]</span></p>
 <div class="fragment">
-<p><img data-src="../images/basics/pdf_exp.svg"></p>
+<p><img data-src="../images/basics/pdfgauss.svg" style="width:60.0%"></p>
 </div>
-<ul>
-<li class="fragment">Waiting time for an atomic clock of rate <span class="math inline">\(\lambda\)</span></li>
-</ul>
-</div><div class="column" style="width:50%;">
-<ul>
-<li class="fragment"><strong>Geometric</strong> <span class="math inline">\(\mathcal{G}(q)\)</span>: <span class="math display">\[p(x)= q(1-q)^{x-1}\]</span></li>
-</ul>
 <div class="fragment">
-<p><img data-src="../images/basics/pdf_geom.svg"></p>
+<p>Approximation of sum of iid RV (Central Limit Theorem)</p>
 </div>
-<ul>
-<li class="fragment">Index of first success for iid Bernoulli <span class="math inline">\(q\)</span></li>
-</ul>
-</div></div>
 </section>
-<section id="examples-gammapoisson" class="slide level2">
-<h2>Examples Gamma/Poisson</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<ul>
-<li class="fragment"><strong>Gamma</strong> <span class="math inline">\(\Gamma(k, \lambda)\)</span>: <span class="math display">\[p(x) = \frac{\lambda^k x^{k-1}e^{-\lambda x}}{(k-1)!}\]</span></li>
-</ul>
+<section id="example-gaussian-distribution-1" class="slide level2">
+<h2>Example: Gaussian Distribution</h2>
+<p><strong>Gaussian</strong> <span class="math inline">\(\mathcal N(\mu,\sigma)\)</span>: <span class="math inline">\(p(x) = \frac{1}{\sqrt{2\pi \sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}\)</span></p>
 <div class="fragment">
-<p><img data-src="../images/basics/pdf_gamma.svg"></p>
+<p><img data-src="../images/basics/pdfgauss.svg" style="width:50.0%"></p>
 </div>
-<ul>
-<li class="fragment">Waiting time for <span class="math inline">\(k\)</span> atomic clocks of rate <span class="math inline">\(\lambda\)</span></li>
-</ul>
-</div><div class="column" style="width:50%;">
-<ul>
-<li class="fragment"><strong>Poisson</strong> <span class="math inline">\(\mathcal{P}(\lambda)\)</span>: <span class="math display">\[p(x)=\frac{\lambda^x}{x!}e^{-\lambda}\]</span></li>
-</ul>
 <div class="fragment">
-<p><img data-src="../images/basics/pdf_poisson.svg"></p>
+<p>Approximation of sum of iid RV (CLT)</p>
 </div>
-<ul>
-<li class="fragment">Numb. of tics before time <span class="math inline">\(1\)</span> of clock <span class="math inline">\(\lambda\)</span></li>
-</ul>
-</div></div>
+</section>
+<section id="example-binomial-distribution" class="slide level2">
+<h2>Example: Binomial Distribution</h2>
+<p><strong>Binomial</strong> <span class="math inline">\(\mathrm{Bin}(n,q)\)</span>: <span class="math inline">\(p(x)= \binom{n}{x}q^x (1-q)^{n-x}\)</span></p>
+<div class="fragment">
+<p><img data-src="../images/basics/pdf_binom.svg" style="width:50.0%"></p>
+</div>
+<div class="fragment">
+<p>Number of successes among <span class="math inline">\(n\)</span> Bernoulli <span class="math inline">\(q\)</span></p>
+</div>
+</section>
+<section id="example-exponential-distribution" class="slide level2">
+<h2>Example: Exponential Distribution</h2>
+<p><strong>Exponential</strong> <span class="math inline">\(\mathcal E(\lambda)\)</span>: <span class="math inline">\(p(x) = \lambda e^{-\lambda x}\)</span></p>
+<div class="fragment">
+<p><img data-src="../images/basics/pdf_exp.svg" style="width:50.0%"></p>
+</div>
+<div class="fragment">
+<p>Waiting time for an atomic clock of rate <span class="math inline">\(\lambda\)</span></p>
+</div>
+</section>
+<section id="example-geometric-distribution" class="slide level2">
+<h2>Example: Geometric Distribution</h2>
+<p><strong>Geometric</strong> <span class="math inline">\(\mathcal{G}(q)\)</span>: <span class="math inline">\(p(x)= q(1-q)^{x-1}\)</span></p>
+<div class="fragment">
+<p><img data-src="../images/basics/pdf_geom.svg" style="width:50.0%"></p>
+</div>
+<div class="fragment">
+<p>Index of first success for iid Bernoulli <span class="math inline">\(q\)</span></p>
+</div>
+</section>
+<section id="example-gamma-distribution" class="slide level2">
+<h2>Example: Gamma Distribution</h2>
+<p><strong>Gamma</strong> <span class="math inline">\(\Gamma(k, \lambda)\)</span>: <span class="math inline">\(p(x) = \frac{\lambda^k x^{k-1}e^{-\lambda x}}{(k-1)!}\)</span></p>
+<div class="fragment">
+<p><img data-src="../images/basics/pdf_gamma.svg" style="width:50.0%"></p>
+</div>
+<div class="fragment">
+<p>Waiting time for <span class="math inline">\(k\)</span> atomic clocks of rate <span class="math inline">\(\lambda\)</span></p>
+</div>
+</section>
+<section id="example-poisson-distribution" class="slide level2">
+<h2>Example: Poisson Distribution</h2>
+<p><strong>Poisson</strong> <span class="math inline">\(\mathcal{P}(\lambda)\)</span>: <span class="math inline">\(p(x)=\frac{\lambda^x}{x!}e^{-\lambda}\)</span></p>
+<div class="fragment">
+<p><img data-src="../images/basics/pdf_poisson.svg" style="width:50.0%"></p>
+</div>
+<div class="fragment">
+<p>Number of ticks before time <span class="math inline">\(1\)</span> of clock <span class="math inline">\(\lambda\)</span></p>
+</div>
 </section></section>
 <section>
 <section id="basics-of-hypothesis-testing" class="title-slide slide level1 center">
@@ -428,170 +458,149 @@ True Positive (<strong>TP</strong>)
 </section>
 <section id="estimation-vs-test" class="slide level2">
 <h2>Estimation VS Test</h2>
+<p>We observe some data <span class="math inline">\(X\)</span> in a measurable space <span class="math inline">\((\mathcal X, \mathcal A)\)</span>.</p>
+<p>Example: <span class="math inline">\(\mathcal X = \mathbb R^n\)</span>, <span class="math inline">\(X= (X_1, \dots, X_n)\)</span>.</p>
+</section>
+<section id="estimation" class="slide level2">
+<h2>Estimation</h2>
 <ul>
-<li class="fragment">We observe some data <span class="math inline">\(X\)</span> in a measurable space <span class="math inline">\((\mathcal X, \mathcal A)\)</span>.</li>
-<li class="fragment">Example <span class="math inline">\(\mathcal X = \mathbb R^n\)</span>: <span class="math inline">\(X= (X_1, \dots, X_n)\)</span>.</li>
-</ul>
-<div class="columns">
-<div class="column" style="width:50%;">
-<h3 id="estimation">Estimation</h3>
-<ul>
-<li class="fragment">One set of distributions <span class="math inline">\(\mathcal P\)</span></li>
-<li class="fragment">Parameterized by <span class="math inline">\(\Theta\)</span> <span class="math display">\[
-\mathcal P = \{P_{\theta},~ \theta \in \Theta\} \; .
-\]</span></li>
+<li class="fragment">One set of distributions <span class="math inline">\(\mathcal P\)</span> parameterized by <span class="math inline">\(\Theta\)</span> <span class="math display">\[\mathcal P = \{P_{\theta},~ \theta \in \Theta\}\]</span></li>
 <li class="fragment"><span class="math inline">\(\exists \theta \in \Theta\)</span> such that <span class="math inline">\(X \sim P_{\theta}\)</span></li>
 </ul>
 <div class="fragment">
-<p><strong>Goal:</strong> estimate a given function of <span class="math inline">\(P_{\theta}\)</span>, e.g.:</p>
-<ul>
-<li class="fragment"><span class="math inline">\(F(P_{\theta}) = \int x dP_{\theta}\)</span></li>
-<li class="fragment"><span class="math inline">\(F(P_{\theta}) = \int x^2 dP_{\theta}\)</span></li>
-</ul>
+<div class="square-objective">
+<p><strong>Goal:</strong> estimate a function of <span class="math inline">\(P_{\theta}\)</span>, e.g.&nbsp;<span class="math inline">\(\int x \, dP_{\theta}\)</span> or <span class="math inline">\(\int x^2 \, dP_{\theta}\)</span></p>
 </div>
-</div><div class="column" style="width:50%;">
-<h3 id="test">Test</h3>
+</div>
+</section>
+<section class="slide level2">
+
+
+<img data-src="../images/estim.png" style="width:70.0%" class="r-stretch"></section>
+<section id="test" class="slide level2">
+<h2>Test</h2>
 <ul>
-<li class="fragment"><p>Two sets of distributions <span class="math inline">\(\mathcal P_0\)</span>, <span class="math inline">\(\mathcal P_1\)</span></p></li>
-<li class="fragment"><p>Parameterized by disjoints <span class="math inline">\(\Theta_0\)</span>, <span class="math inline">\(\Theta_1\)</span> <span class="math display">\[
-\begin{aligned}
-\mathcal P_0 = \{P_{\theta} : \theta \in \Theta_0\}, ~~~~  \mathcal P_1 = \{P_{\theta} : \theta \in \Theta_1\}\; .
-\end{aligned}
-\]</span></p></li>
-<li class="fragment"><p><span class="math inline">\(\exists \theta \in \Theta_0 \cup \Theta_1\)</span> such that <span class="math inline">\(X \sim P_{\theta}\)</span></p></li>
+<li class="fragment">Two sets of distributions <span class="math inline">\(\mathcal P_0\)</span>, <span class="math inline">\(\mathcal P_1\)</span> with disjoint <span class="math inline">\(\Theta_0\)</span>, <span class="math inline">\(\Theta_1\)</span> <span class="math display">\[\mathcal P_0 = \{P_{\theta} : \theta \in \Theta_0\}, ~~~~ \mathcal P_1 = \{P_{\theta} : \theta \in \Theta_1\}\]</span></li>
+<li class="fragment"><span class="math inline">\(\exists \theta \in \Theta_0 \cup \Theta_1\)</span> such that <span class="math inline">\(X \sim P_{\theta}\)</span></li>
 </ul>
 <div class="fragment">
-<p><strong>Goal:</strong> decide between <span class="math display">\[H_0: \theta \in \Theta_0 \text{ or } H_1: \theta \in \Theta_1\]</span></p>
+<div class="square-objective">
+<p><strong>Goal:</strong> decide between <span class="math inline">\(H_0: \theta \in \Theta_0\)</span> or <span class="math inline">\(H_1: \theta \in \Theta_1\)</span></p>
+</div>
+</div>
+</section>
+<section class="slide level2">
+
+
+<img data-src="../images/test_intro.png" style="width:70.0%" class="r-stretch"><div class="fragment">
 <p><a href="https://app.wooclap.com/events/RQSUIA/questions/6737a984033a3cdd266d88f5">Question Tests</a></p>
 </div>
-</div></div>
 </section>
-<section id="section" class="slide level2">
-<h2></h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<h3 id="estimation-1">Estimation</h3>
-<div class="fragment">
-<p><img data-src="../images/estim.png" style="width:120.0%"></p>
-</div>
-</div><div class="column" style="width:50%;">
-<h3 id="test-1">Test</h3>
-<div class="fragment">
-<p><img data-src="../images/test_intro.png"></p>
-</div>
-</div></div>
-</section>
-<section id="section-1" class="slide level2">
-<h2></h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<h3 id="problems">Problems</h3>
+<section id="test-model" class="slide level2">
+<h2>Test Model</h2>
 <ul>
-<li class="fragment"><strong>Simple VS Simple</strong>:<span class="math display">\[\Theta_0 = \{\theta_0\} \text{ and } \Theta_1 = \{\theta_1\}\]</span></li>
-<li class="fragment"><strong>Simple VS Multiple</strong>:<span class="math display">\[\Theta_0 = \{\theta_0\}\]</span></li>
-<li class="fragment">Else: <strong>Multiple VS Multiple</strong></li>
+<li class="fragment">Two sets of distributions <span class="math inline">\(\mathcal P_0\)</span>, <span class="math inline">\(\mathcal P_1\)</span> with disjoint <span class="math inline">\(\Theta_0\)</span>, <span class="math inline">\(\Theta_1\)</span> <span class="math display">\[\mathcal P_0 = \{P_{\theta} : \theta \in \Theta_0\}, ~~~~ \mathcal P_1 = \{P_{\theta} : \theta \in \Theta_1\}\]</span></li>
+<li class="fragment"><span class="math inline">\(\exists \theta \in \Theta_0 \cup \Theta_1\)</span> such that <span class="math inline">\(X \sim P_{\theta}\)</span></li>
 </ul>
-</div><div class="column" style="width:50%;">
-<h3 id="test-model">Test Model</h3>
+<div class="square-objective">
+<p><strong>Goal:</strong> decide between <span class="math inline">\(H_0: \theta \in \Theta_0\)</span> or <span class="math inline">\(H_1: \theta \in \Theta_1\)</span></p>
+</div>
+</section>
+<section id="types-of-problems" class="slide level2">
+<h2>Types of Problems</h2>
 <ul>
-<li><p>Two sets of distributions <span class="math inline">\(\mathcal P_0\)</span>, <span class="math inline">\(\mathcal P_1\)</span></p></li>
-<li><p>Parameterized by disjoints <span class="math inline">\(\Theta_0\)</span>, <span class="math inline">\(\Theta_1\)</span> <span class="math display">\[
-\begin{aligned}
-\mathcal P_0 = \{P_{\theta} : \theta \in \Theta_0\}, ~~~~  \mathcal P_1 = \{P_{\theta} : \theta \in \Theta_1\}\; .
-\end{aligned}
-\]</span></p></li>
-<li><p><span class="math inline">\(\exists \theta \in \Theta_0 \cup \Theta_1\)</span> such that <span class="math inline">\(X \sim P_{\theta}\)</span></p></li>
+<li class="fragment"><strong>Simple VS Simple</strong>: <span class="math inline">\(\Theta_0 = \{\theta_0\}\)</span> and <span class="math inline">\(\Theta_1 = \{\theta_1\}\)</span></li>
+<li class="fragment"><strong>Simple VS Multiple</strong>: <span class="math inline">\(\Theta_0 = \{\theta_0\}\)</span></li>
+<li class="fragment"><strong>Multiple VS Multiple</strong>: otherwise</li>
 </ul>
-<p><strong>Goal:</strong> decide between <span class="math display">\[H_0: \theta \in \Theta_0 \text{ or } H_1: \theta \in \Theta_1\]</span></p>
-</div></div>
 </section>
-<section id="section-2" class="slide level2">
-<h2></h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<h3 id="simple-vs-simple">Simple VS Simple</h3>
-<div class="fragment">
-<p><img data-src="../images/simple-simple.svg"></p>
-</div>
-</div><div class="column" style="width:50%;">
-<h3 id="multiple-vs-multiple">Multiple VS Multiple</h3>
-<div class="fragment">
-<p><img data-src="../images/test_intro.png"></p>
-</div>
-</div></div>
-</section>
+<section id="simple-vs-simple" class="slide level2">
+<h2>Simple VS Simple</h2>
+
+<img data-src="../images/simple-simple.svg" style="width:60.0%" class="r-stretch"></section>
+<section id="multiple-vs-multiple" class="slide level2">
+<h2>Multiple VS Multiple</h2>
+
+<img data-src="../images/test_intro.png" style="width:60.0%" class="r-stretch"></section>
 <section id="parametric-vs-non-parametric" class="slide level2">
 <h2>Parametric VS Non-Parametric</h2>
 <ul>
-<li class="fragment"><strong>parametric</strong>: <span class="math inline">\(\Theta_0\)</span> and <span class="math inline">\(\Theta_1\)</span> included in subspaces of finite dimension.</li>
-<li class="fragment"><strong>non-parametric</strong>: Otherwise</li>
+<li class="fragment"><strong>Parametric</strong>: <span class="math inline">\(\Theta_0\)</span> and <span class="math inline">\(\Theta_1\)</span> included in subspaces of finite dimension</li>
+<li class="fragment"><strong>Non-parametric</strong>: otherwise</li>
 </ul>
 <div class="fragment">
-<p>Example of Multiple VS Multiple Parametric Problem:</p>
+<div class="square-def">
+<p><strong>Example (Multiple VS Multiple Parametric):</strong></p>
 <ul>
-<li class="fragment"><span class="math inline">\(H_0: X \sim \mathcal N(\theta,\sigma)\)</span>, unknown <span class="math inline">\(\theta &lt; 0\)</span> and unknown <span class="math inline">\(\sigma &gt; 0\)</span>: <span class="math inline">\(\Theta_0 \subset \mathbb R^2\)</span></li>
-<li class="fragment"><span class="math inline">\(H_1: X \sim \mathcal N(\theta,\sigma)\)</span>, unknown <span class="math inline">\(\theta &gt; 0\)</span> and unknown <span class="math inline">\(\sigma &gt; 0\)</span>: <span class="math inline">\(\Theta_1 \subset \mathbb R^2\)</span></li>
+<li class="fragment"><span class="math inline">\(H_0: X \sim \mathcal N(\theta,\sigma)\)</span>, <span class="math inline">\(\theta &lt; 0\)</span>, <span class="math inline">\(\sigma &gt; 0\)</span> → <span class="math inline">\(\Theta_0 \subset \mathbb R^2\)</span></li>
+<li class="fragment"><span class="math inline">\(H_1: X \sim \mathcal N(\theta,\sigma)\)</span>, <span class="math inline">\(\theta &gt; 0\)</span>, <span class="math inline">\(\sigma &gt; 0\)</span> → <span class="math inline">\(\Theta_1 \subset \mathbb R^2\)</span></li>
 </ul>
+</div>
 </div>
 <div class="fragment">
 <p><a href="https://app.wooclap.com/events/RQSUIA/questions/6737a94e942e824ee194f4f9">Simple VS Multiple Non-Parametric Problems</a></p>
 </div>
 </section>
-<section id="decision-rule-and-test-statistic" class="slide level2">
-<h2>Decision Rule and Test Statistic</h2>
-<div title="Decision Rule">
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<section id="decision-rule-1" class="slide level2">
+<h2>Decision Rule</h2>
+<div class="square-def">
+<p>A <strong>Decision Rule</strong> or <strong>Test</strong> <span class="math inline">\(T\)</span> is a measurable function: <span class="math display">\[T : \mathcal X \to \{0,1\}\]</span></p>
 </div>
-<p><strong>Decision Rule</strong></p>
-</div>
-<div class="callout-content">
 <ul>
-<li class="fragment"><p>A <strong>Decision Rule</strong> or <strong>Test</strong> <span class="math inline">\(T\)</span> is a measurable function from <span class="math inline">\(\mathcal X\)</span> to <span class="math inline">\(\{0,1\}\)</span>: <span class="math display">\[ T : \mathcal X \to \{0,1\}\; .\]</span></p></li>
-<li class="fragment"><p>It can depend on the sets <span class="math inline">\(\mathcal P_0\)</span> and <span class="math inline">\(\mathcal P_1\)</span></p></li>
-<li class="fragment"><p>but <strong>not</strong> on any unknown parameter.</p></li>
-<li class="fragment"><p><span class="math inline">\(T(x) = 0\)</span> (or <span class="math inline">\(1\)</span>) for all <span class="math inline">\(x\)</span> is the trivial decision rule. <a href="https://app.wooclap.com/events/RQSUIA/questions/6737b74b942e824ee1a033a6">Question: Decision Rule</a></p></li>
+<li class="fragment">It can depend on <span class="math inline">\(\mathcal P_0\)</span> and <span class="math inline">\(\mathcal P_1\)</span></li>
+<li class="fragment">but <strong>not</strong> on any unknown parameter</li>
+<li class="fragment"><span class="math inline">\(T(x) = 0\)</span> (or <span class="math inline">\(1\)</span>) for all <span class="math inline">\(x\)</span> is the trivial decision rule</li>
 </ul>
+<div class="fragment">
+<p><a href="https://app.wooclap.com/events/RQSUIA/questions/6737b74b942e824ee1a033a6">Question: Decision Rule</a></p>
 </div>
+</section>
+<section id="test-statistic" class="slide level2">
+<h2>Test Statistic</h2>
+<div class="square-def">
+<p>A <strong>Test Statistic</strong> <span class="math inline">\(\psi\)</span> is a measurable function: <span class="math display">\[\psi : \mathcal X \to \mathbb R\]</span></p>
 </div>
-</div>
-</div>
-<div title="Test Statistic">
-<div class="callout callout-note callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Test Statistic</strong></p>
-</div>
-<div class="callout-content">
 <ul>
-<li class="fragment"><p>a <strong>Test Statistic</strong> <span class="math inline">\(\psi\)</span> is a measurable function from <span class="math inline">\(\mathcal X\)</span> to <span class="math inline">\(\mathbb R\)</span>: <span class="math display">\[ \psi : \mathcal X \to \mathbb R\; .\]</span></p></li>
-<li class="fragment"><p>It can depend on the sets <span class="math inline">\(\mathcal P_0\)</span> and <span class="math inline">\(\mathcal P_1\)</span></p></li>
-<li class="fragment"><p>but <strong>not</strong> on any unknown parameter. <a href="https://app.wooclap.com/events/RQSUIA/questions/674734898cc94c63e6c9947e">Question: Test Statistic</a></p></li>
+<li class="fragment">It can depend on <span class="math inline">\(\mathcal P_0\)</span> and <span class="math inline">\(\mathcal P_1\)</span></li>
+<li class="fragment">but <strong>not</strong> on any unknown parameter</li>
 </ul>
-</div>
-</div>
-</div>
+<div class="fragment">
+<p><a href="https://app.wooclap.com/events/RQSUIA/questions/674734898cc94c63e6c9947e">Question: Test Statistic</a></p>
 </div>
 </section>
 <section id="rejection-region" class="slide level2">
 <h2>Rejection Region</h2>
-<ul>
-<li class="fragment">For a given test <span class="math inline">\(T\)</span>, the <strong>rejection region</strong> <span class="math inline">\(\mathcal R \subset \mathbb R\)</span> is the set <span class="math display">\[\{\psi(x) \in \mathbb R:~ T(x)=1\} \; .\]</span></li>
-<li class="fragment">Example of <span class="math inline">\(\mathcal R\)</span>, for a given threshold <span class="math inline">\(t&gt;0\)</span>, <span class="math display">\[
+<div class="square-def">
+<p>For a test <span class="math inline">\(T\)</span> with statistic <span class="math inline">\(\psi\)</span>, the <strong>rejection region</strong> <span class="math inline">\(\mathcal R \subset \mathbb R\)</span> is: <span class="math display">\[\mathcal R = \{\psi(x) \in \mathbb R:~ T(x)=1\}\]</span></p>
+</div>
+<div class="fragment">
+<p>→ Set of values of the <strong>statistic</strong> that lead to rejecting <span class="math inline">\(H_0\)</span></p>
+</div>
+</section>
+<section id="critical-region" class="slide level2">
+<h2>Critical Region</h2>
+<div class="square-def">
+<p>For a test <span class="math inline">\(T\)</span>, the <strong>critical region</strong> <span class="math inline">\(\mathcal C \subset \mathcal X\)</span> is: <span class="math display">\[\mathcal C = \{x \in \mathcal X:~ T(x)=1\}\]</span></p>
+</div>
+<div class="fragment">
+<p>→ Set of <strong>observations</strong> that lead to rejecting <span class="math inline">\(H_0\)</span></p>
+</div>
+<div class="fragment">
+<p>⚠️ These terms are sometimes used interchangeably, but we distinguish them in this course.</p>
+</div>
+</section>
+<section id="example-of-rejection-region" class="slide level2">
+<h2>Example of Rejection Region</h2>
+<div class="{smaller-text}">
+<p><span class="math display">\[
 \begin{aligned}
 T(x) &amp;= \mathbf{1}\{\psi(x) &gt; t\}:~~~~~~\mathcal R = (t,+\infty)\\
 T(x) &amp;= \mathbf{1}\{\psi(x) &lt; t\}:~~~~~~\mathcal R = (-\infty,t)\\
 T(x) &amp;= \mathbf{1}\{|\psi(x)| &gt; t\}:~~~~~~\mathcal R = (-\infty,t)\cup (t, +\infty)\\
 T(x) &amp;= \mathbf{1}\{\psi(x) \not \in [t_1, t_2]\}:~~~~~~\mathcal R = (-\infty,t_1)\cup (t_2, +\infty)\;
 \end{aligned}
-\]</span></li>
-</ul>
+\]</span></p>
+</div>
 </section></section>
 <section>
 <section id="simple-vs-simple-1" class="title-slide slide level1 center">
@@ -600,313 +609,407 @@ T(x) &amp;= \mathbf{1}\{\psi(x) \not \in [t_1, t_2]\}:~~~~~~\mathcal R = (-\inft
 </section>
 <section id="simple-vs-simple-problem" class="slide level2">
 <h2>Simple VS Simple Problem</h2>
-<ul>
-<li class="fragment">We observe <span class="math inline">\(X \in \mathcal X=\mathbb R^n\)</span>.</li>
-<li class="fragment"><span class="math inline">\(H_0: X \sim P\)</span> or <span class="math inline">\(H_1: X \sim Q\)</span>.</li>
-<li class="fragment">We <strong>know</strong> <span class="math inline">\(P\)</span> and <span class="math inline">\(Q\)</span> but we do not know whether <span class="math inline">\(X \sim P\)</span> or <span class="math inline">\(X \sim Q\)</span></li>
-</ul>
 <div class="fragment">
-<p>For a given test <span class="math inline">\(T\)</span> we define:</p>
-<ul>
-<li class="fragment"><strong>level</strong> of <span class="math inline">\(T\)</span>: <span class="math inline">\(\alpha = P(T(X)=1)\)</span> (also: type-1 error)</li>
-<li class="fragment"><strong>power</strong> of <span class="math inline">\(T\)</span>: <span class="math inline">\(\beta = Q(T(X)=1) = 1-Q(T(X)=0)\)</span> (1-<span class="math inline">\(\beta\)</span> is the type-2 error)</li>
-</ul>
+<p>We observe <span class="math inline">\(X \in \mathcal X=\mathbb R^n\)</span>. We fix <span style="background-color: yellow;">two known distributions <span class="math inline">\(P\)</span> and <span class="math inline">\(Q\)</span></span>.</p>
+<p>The problem:</p>
+<div class="square-objective">
+<p><span class="math inline">\(H_0: X \sim P\)</span> or <span class="math inline">\(H_1: X \sim Q\)</span></p>
+</div>
 </div>
 <div class="fragment">
-<table style="border-collapse: collapse; width: 100%; text-align: center; border: 2px solid black;">
-<thead>
-<tr>
-<th style="text-align:center">
-Decision
-</th>
-<th style="text-align:center">
-<span class="math inline">\(H_0: X \sim P\)</span>
-</th>
-<th style="text-align:center">
-<span class="math inline">\(H_1: X \sim Q\)</span>
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">
-<span class="math inline">\(T=0\)</span>
-</td>
-<td class="fragment green-cell" style="text-align: center">
-<span class="math inline">\(1-\alpha\)</span>
-</td>
-<td class="fragment red-cell" style="text-align: center">
-<span class="math inline">\(1-\beta\)</span>
-</td>
-</tr>
-<tr>
-<td style="text-align:center">
-<span class="math inline">\(T=1\)</span>
-</td>
-<td class="fragment red-cell" style="text-align: center">
-<span class="math inline">\(\alpha\)</span>
-</td>
-<td class="fragment green-cell" style="text-align: center">
-<span class="math inline">\(\beta\)</span>
-</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li class="fragment"><strong>unbiased</strong>: <span class="math inline">\(\beta \geq \alpha\)</span></li>
-<li class="fragment"><span class="math inline">\(\alpha = 0\)</span> for trivial test <span class="math inline">\(T(x)=0\)</span> ! But <span class="math inline">\(\beta =0\)</span> too…</li>
-</ul>
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>We <strong>know</strong> <span class="math inline">\(P\)</span> and <span class="math inline">\(Q\)</span> but not whether <span class="math inline">\(X \sim P\)</span> or <span class="math inline">\(X \sim Q\)</span></p>
+</div>
+</div>
+</div>
 </div>
 </section>
-<section id="likelihood-ratio-test" class="slide level2">
-<h2>Likelihood Ratio Test</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<ul>
-<li class="fragment"><p>Test <span class="math inline">\(T\)</span> that maximizes <span class="math inline">\(\beta\)</span> at fixed <span class="math inline">\(\alpha\)</span> ?</p></li>
-<li class="fragment"><p><strong>Idea</strong>: Consider the <strong>likelihood ratio test statistic</strong> <span class="math display">\[\psi(x)=\frac{dQ}{dP}(x) = \frac{q(x)}{p(x)}\]</span></p></li>
-<li class="fragment"><p>We consider the <strong>likelihood ratio test</strong> <span class="math display">\[ T^*(x)=\mathbf 1\left\{\frac{q(x)}{p(x)} &gt; t_{\alpha}\right\} \;\]</span></p></li>
-<li class="fragment"><p><span class="math inline">\(t_{\alpha}\)</span> is the <span class="math inline">\(\alpha\)</span>-quantile of the distrib <span class="math inline">\(\frac{q(X)}{p(X)}\)</span> if <span class="math inline">\(X\sim P\)</span> <span class="math display">\[ \mathbb P_{X \sim P}\left(\frac{q(X)}{p(X)} &gt; t_{\alpha}\right) = \alpha\]</span></p></li>
-</ul>
-</div><div class="column" style="width:50%;">
-<ul>
-<li>We observe <span class="math inline">\(X \in \mathcal X=\mathbb R^n\)</span>.</li>
-<li><span class="math inline">\(H_0: X \sim P\)</span> or <span class="math inline">\(H_1: X \sim Q\)</span>.</li>
-<li>We <strong>know</strong> <span class="math inline">\(P\)</span> and <span class="math inline">\(Q\)</span> but we do not know whether <span class="math inline">\(X \sim P\)</span> or <span class="math inline">\(X \sim Q\)</span></li>
-</ul>
-<table style="border-collapse: collapse; width: 100%; text-align: center; border: 2px solid black;">
-<thead>
-<tr>
-<th>
-Decision
-</th>
-<th>
-<span class="math inline">\(H_0: X \sim P\)</span>
-</th>
-<th>
-<span class="math inline">\(H_1: X \sim Q\)</span>
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-<span class="math inline">\(T=0\)</span>
-</td>
-<td class="green-cell" style="text-align: center">
-<span class="math inline">\(1-\alpha\)</span>
-</td>
-<td class="red-cell" style="text-align: center">
-<span class="math inline">\(1-\beta\)</span>
-</td>
-</tr>
-<tr>
-<td>
-<span class="math inline">\(T=1\)</span>
-</td>
-<td class="red-cell" style="text-align: center">
-<span class="math inline">\(\alpha\)</span>
-</td>
-<td class="green-cell" style="text-align: center">
-<span class="math inline">\(\beta\)</span>
-</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><strong>unbiased</strong>: <span class="math inline">\(\beta &gt; \alpha\)</span></li>
-<li><span class="math inline">\(\alpha = 0\)</span> for trivial test <span class="math inline">\(T(x)=0\)</span> !</li>
-<li>But <span class="math inline">\(\beta =0\)</span> too…</li>
-</ul>
-</div></div>
-</section>
-<section id="neyman-pearsons-theorem" class="slide level2">
-<h2>Neyman Pearson’s Theorem</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
-<div class="fragment">
-<div title="Neyman Pearson's Theorem">
+<section id="level-and-power" class="slide level2">
+<h2>Level and Power</h2>
 <div class="callout callout-note callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
-<p><strong>Neyman Pearson’s Theorem</strong></p>
+<p><strong>Level and Power</strong></p>
 </div>
 <div class="callout-content">
-<p>The likelihood Ratio Test of level <span class="math inline">\(\alpha\)</span> maximizes the power among all tests of level <span class="math inline">\(\alpha\)</span>.</p>
+<p>Consider a simple VS simple problem. The <strong>Level</strong> of a test <span class="math inline">\(T\)</span> is defined as</p>
+<div class="square-def">
+<p><span class="math display">\[\alpha = P(T(X)=1) = P(X \in \mathcal C) \quad \text{(type-1 error)}\]</span></p>
+</div>
+<p>Its <span style="background-color: yellow;">power</span> is defined as</p>
+<div class="square-def">
+<p><span class="math display">\[\beta = Q(T(X)=1) = Q(X \in \mathcal C)\]</span></p>
+</div>
+<p><span class="math inline">\(1 - \beta\)</span> is the type-2 error</p>
 </div>
 </div>
 </div>
-</div>
-<ul>
-<li class="fragment"><strong>Example</strong>: <span class="math inline">\(X \sim \mathcal N(\theta, 1)\)</span>.</li>
-<li class="fragment"><span class="math inline">\(H_0: \theta=\theta_0\)</span>, <span class="math inline">\(H_1: \theta=\theta_1\)</span>.</li>
-<li class="fragment">Check that the log-likelihood ratio is <span class="math display">\[ (\theta_1 - \theta_0)x + \frac{\theta_0^2 -\theta_1^2}{2} \; .\]</span></li>
-</ul>
-</div>
-<ul>
-<li class="fragment">If <span class="math inline">\(\theta_1 &gt; \theta_0\)</span>, an optimal test if of the form <span class="math display">\[ T(x) = \mathbf 1\{ x &gt; t \} \; .\]</span></li>
-</ul>
-</div><div class="column" style="width:50%;">
-<table style="border-collapse: collapse; width: 100%; text-align: center; border: 2px solid black;">
+</section>
+<section id="decision-table" class="slide level2">
+<h2>Decision Table</h2>
+<table class="caption-top">
 <thead>
-<tr>
-<th>
-Decision
-</th>
-<th>
-<span class="math inline">\(H_0: X \sim P\)</span>
-</th>
-<th>
-<span class="math inline">\(H_1: X \sim Q\)</span>
-</th>
+<tr class="header">
+<th style="text-align: center;">Decision</th>
+<th style="text-align: center;"><span class="math inline">\(H_0: X \sim P\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(H_1: X \sim Q\)</span></th>
 </tr>
 </thead>
 <tbody>
-<tr>
-<td>
-<span class="math inline">\(T=0\)</span>
-</td>
-<td class="green-cell" style="text-align: center">
-<span class="math inline">\(1-\alpha\)</span>
-</td>
-<td class="red-cell" style="text-align: center">
-<span class="math inline">\(1-\beta\)</span>
-</td>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(T=0\)</span></td>
+<td style="text-align: center;"><span class="green-cell">✓ <span class="math inline">\(1-\alpha\)</span></span></td>
+<td style="text-align: center;"><span class="red-cell">✗ <span class="math inline">\(1-\beta\)</span></span></td>
 </tr>
-<tr>
-<td>
-<span class="math inline">\(T=1\)</span>
-</td>
-<td class="red-cell" style="text-align: center">
-<span class="math inline">\(\alpha\)</span>
-</td>
-<td class="green-cell" style="text-align: center">
-<span class="math inline">\(\beta\)</span>
-</td>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(T=1\)</span></td>
+<td style="text-align: center;"><span class="red-cell">✗ <span class="math inline">\(\alpha\)</span></span></td>
+<td style="text-align: center;"><span class="green-cell">✓ <span class="math inline">\(\beta\)</span></span></td>
 </tr>
 </tbody>
 </table>
-<p><span class="math display">\[ T^*(x)=\mathbf 1\left\{\frac{q(x)}{p(x)} &gt; t_{\alpha}\right\} \;\]</span></p>
-<p>Where, if <span class="math inline">\(X\sim P\)</span>, <span class="math display">\[ P(T^*(X)=1)=\mathbb P_{X \sim P}\left(\frac{q(X)}{p(X)} &gt; t_{\alpha}\right) = \alpha\]</span></p>
-<div class="fragment" data-fragment-index="2">
-<p>Equivalent to Log-Likelihood Ratio Test: <span class="math display">\[T^*(x)=\mathbf 1\left\{\log\left(\frac{q(x)}{p(x)}\right) &gt; \log(t_{\alpha})\right\}\]</span></p>
-</div>
-</div></div>
-</section>
-<section id="example-with-gaussians" class="slide level2">
-<h2>Example with Gaussians</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
 <ul>
-<li class="fragment"><p>Let <span class="math inline">\(P_{\theta}\)</span> be the distribution <span class="math inline">\(\mathcal N(\theta,1)\)</span>.</p></li>
-<li class="fragment"><p>Observe <span class="math inline">\(n\)</span> iid data <span class="math inline">\(X = (X_1, \dots, X_n)\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(H_0: X \sim P^{\otimes n}_{\theta_0}\)</span> or <span class="math inline">\(H_1: X \sim P^{\otimes n}_{\theta_1}\)</span></p></li>
-<li class="fragment"><p>Remark: <span class="math inline">\(P^{\otimes n}_{\theta}= \mathcal N((\theta,\dots, \theta), I_n)\)</span></p></li>
-<li class="fragment"><p>Density of <span class="math inline">\(P^{\otimes n}_{\theta}\)</span>:</p></li>
+<li class="fragment"><p><strong>Unbiased</strong>: <span class="math inline">\(\beta \geq \alpha\)</span></p></li>
+<li class="fragment"><p><span class="math inline">\(\alpha = 0\)</span> for trivial test <span class="math inline">\(T(x)=0\)</span>… but <span class="math inline">\(\beta = 0\)</span> too!</p></li>
+</ul>
+</section>
+<section id="likelihood-ratio-test" class="slide level2">
+<h2>Likelihood Ratio Test</h2>
+<div class="fragment">
+<p>Consider the simple VS simple problem <span class="math inline">\(H_0\)</span>: <span class="math inline">\(X \sim P\)</span> VS <span class="math inline">\(H_1\)</span>: <span class="math inline">\(X \sim Q\)</span>.</p>
+</div>
+<div class="fragment">
+<p><strong>Question:</strong> which test <span class="math inline">\(T\)</span> maximizes <span class="math inline">\(\beta\)</span> at fixed <span class="math inline">\(\alpha\)</span>?</p>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Likelihood ratio statistic</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[\psi(x)=\frac{dQ}{dP}(x) = \frac{q(x)}{p(x)}\]</span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Likelihood ratio test</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[T^*(x)=\mathbf 1\left\{\frac{q(x)}{p(x)} &gt; t_{\alpha}\right\}\]</span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>where <span class="math inline">\(t_{\alpha}\)</span> is the <span class="math inline">\(\alpha\)</span>-quantile: <span class="math display">\[\mathbb P_{X \sim P}\left(\frac{q(X)}{p(X)} &gt; t_{\alpha}\right) = \alpha\]</span></p>
+</div>
+</section>
+<section id="neyman-pearsons-theorem" class="slide level2">
+<h2>Neyman-Pearson’s Theorem</h2>
+<div title="Neyman-Pearson's Theorem">
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Neyman-Pearson’s Theorem</strong></p>
+</div>
+<div class="callout-content">
+<p>The Likelihood Ratio Test of level <span class="math inline">\(\alpha\)</span> maximizes the power among all tests of level <span class="math inline">\(\alpha\)</span>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>Recall: <span class="math inline">\(T^*(x)=\mathbf 1\left\{\frac{q(x)}{p(x)} &gt; t_{\alpha}\right\}\)</span> where <span class="math inline">\(P(T^*(X)=1) = \alpha\)</span></p>
+</div>
+<div class="fragment">
+<p>Equivalent to Log-Likelihood Ratio Test:</p>
+<div class="square-def">
+<p><span class="math display">\[T^*(x)=\mathbf 1\left\{\log\left(\frac{q(x)}{p(x)}\right) &gt; \log(t_{\alpha})\right\}\]</span></p>
+</div>
+</div>
+</section>
+<section id="neyman-pearson-proof-sketch" class="slide level2">
+<h2>Neyman-Pearson: Proof Sketch</h2>
+<p>Let <span class="math inline">\(T\)</span> be any test with level <span class="math inline">\(\alpha\)</span>. We want to show <span class="math inline">\(\beta^* \geq \beta\)</span>.</p>
+<div class="fragment">
+<p><span class="math display">\[\beta^* - \beta = Q(T^*=1) - Q(T=1) = \int (T^* - T) dQ\]</span></p>
+</div>
+<div class="fragment">
+<p><span class="math display">\[= \int (T^* - T) \frac{q}{p} dP\]</span></p>
+</div>
+</section>
+<section id="proof-sketch-continued" class="slide level2">
+<h2>Proof Sketch continued</h2>
+<p><span class="math display">\[\beta^* - \beta = \int (T^* - T) \frac{q}{p} dP\]</span></p>
+<div class="fragment">
+<p>On <span class="math inline">\(\{T^*=1\}\)</span>: <span class="math inline">\(\frac{q}{p} &gt; t_\alpha\)</span> and <span class="math inline">\((T^* - T) \geq 0\)</span></p>
+<p>On <span class="math inline">\(\{T^*=0\}\)</span>: <span class="math inline">\(\frac{q}{p} \leq t_\alpha\)</span> and <span class="math inline">\((T^* - T) \leq 0\)</span></p>
+</div>
+<div class="fragment">
+<p><span class="math display">\[\Rightarrow \beta^* - \beta \geq t_\alpha \int (T^* - T) dP = t_\alpha (\alpha - \alpha) = 0 ~~~ \square\]</span></p>
+</div>
+</section>
+<section id="neyman-pearson-example" class="slide level2">
+<h2>Neyman-Pearson: Example</h2>
+<p><strong>Example</strong>: <span class="math inline">\(X \sim \mathcal N(\theta, 1)\)</span> with <span class="math inline">\(H_0: \theta=\theta_0\)</span> and <span class="math inline">\(H_1: \theta=\theta_1\)</span></p>
+<div class="fragment">
+<p>Log-likelihood ratio: <span class="math display">\[\log\frac{q(x)}{p(x)} = (\theta_1 - \theta_0)x + \frac{\theta_0^2 -\theta_1^2}{2}\]</span></p>
+</div>
+<div class="fragment">
+<p>If <span class="math inline">\(\theta_1 &gt; \theta_0\)</span>, the optimal test is: <span class="math display">\[T(x) = \mathbf 1\{ x &gt; t \}\]</span></p>
+</div>
+</section>
+<section id="example-gaussians-with-n-observations" class="slide level2">
+<h2>Example: Gaussians with <span class="math inline">\(n\)</span> Observations</h2>
+<p>Let <span class="math inline">\(P_{\theta} = \mathcal N(\theta,1)\)</span>. Observe <span class="math inline">\(n\)</span> iid data <span class="math inline">\(X = (X_1, \dots, X_n)\)</span>.</p>
+<ul>
+<li class="fragment"><span class="math inline">\(H_0: X \sim P^{\otimes n}_{\theta_0}\)</span> or <span class="math inline">\(H_1: X \sim P^{\otimes n}_{\theta_1}\)</span></li>
+<li class="fragment">Note: <span class="math inline">\(P^{\otimes n}_{\theta}= \mathcal N((\theta,\dots, \theta), I_n)\)</span></li>
 </ul>
 <div class="fragment">
-<div class="small-text">
-<p><span class="math display">\[
-\begin{aligned}
-\frac{d P^{\otimes n}_{\theta}}{dx} &amp;= \frac{d P_{\theta}}{dx_1}\dots\frac{d P_{\theta}}{dx_n} \\
-&amp;= \frac{1}{\sqrt{2\pi}^n}\exp\left({-\sum_{i=1}^n\frac{(x_i -&nbsp;\theta)^2}{2}}\right) \\
-&amp;=  \frac{1}{\sqrt{2\pi}^n}\exp\left(-\frac{\|x\|^2}{2} + n\theta \overline x - \frac{\theta^2}{2}\right)\; .
-\end{aligned}
-\]</span></p>
+<div style="font-size: 0.8em;">
+<p>Density of <span class="math inline">\(P^{\otimes n}_{\theta}\)</span>: <span class="math display">\[\frac{d P^{\otimes n}_{\theta}}{dx} = \frac{1}{\sqrt{2\pi}^n}\exp\left(-\frac{\|x\|^2}{2} + n\theta \overline x - \frac{n\theta^2}{2}\right)\]</span></p>
 </div>
 </div>
-</div><div class="column" style="width:50%;">
-<ul>
-<li class="fragment"><p>Log-Likelihood Ratio Test:</p></li>
-<li class="fragment"><p><span class="math inline">\(T(x) = \mathbf 1\{\overline x &gt; t_{\alpha}\}\)</span> if <span class="math inline">\(\theta_1 &gt; \theta_0\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(T(x) = \mathbf 1\{\overline x &lt; t_{\alpha}\}\)</span> otherwise</p></li>
-<li class="fragment"><p><a href="https://app.wooclap.com/events/RQSUIA/questions/674dd6ad6e59c0c457a73b85">Distrib of <span class="math inline">\(\overline X\)</span> ?</a></p></li>
-<li class="fragment"><p><a href="https://app.wooclap.com/events/RQSUIA/questions/674dda3980e3863f9c782fd6"><span class="math inline">\(t_{\alpha}\)</span> ?</a></p></li>
-</ul>
-</div></div>
+</section>
+<section id="example-gaussians-continued" class="slide level2">
+<h2>Example: Gaussians (continued)</h2>
+<p>Log-Likelihood Ratio Test:</p>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(T(x) = \mathbf 1\{\overline x &gt; t_{\alpha}\}\)</span> if <span class="math inline">\(\theta_1 &gt; \theta_0\)</span></p>
+<p><span class="math inline">\(T(x) = \mathbf 1\{\overline x &lt; t_{\alpha}\}\)</span> otherwise</p>
+</div>
+</div>
+<div class="fragment">
+<p><a href="https://app.wooclap.com/events/RQSUIA/questions/674dd6ad6e59c0c457a73b85">Distribution of <span class="math inline">\(\overline X\)</span> ?</a></p>
+</div>
+<div class="fragment">
+<p><a href="https://app.wooclap.com/events/RQSUIA/questions/674dda3980e3863f9c782fd6"><span class="math inline">\(t_{\alpha}\)</span> ?</a></p>
+</div>
 </section>
 <section id="generalization-exponential-families" class="slide level2">
 <h2>Generalization: Exponential Families</h2>
-<ul>
-<li class="fragment"><p>A set of distributions <span class="math inline">\(\{P_{\theta}\}\)</span> is an exponential family if each density <span class="math inline">\(p_{\theta}(x)\)</span> is of the form <span class="math display">\[ p_{\theta}(x) = a(\theta)b(x) \exp(c(\theta)d(x)) \; , \]</span></p></li>
-<li class="fragment"><p>We observe <span class="math inline">\(X = (X_1, \dots, X_n)\)</span>. Consider the following testing problem: <span class="math display">\[H_0: X \sim P_{\theta_0}^{\otimes n}~~~~ \text{or}~~~~ H_1:X \sim P_{\theta_1}^{\otimes n} \; .\]</span></p></li>
-<li class="fragment"><p>Likelihood Ratio: <span class="math display">\[
-\frac{dP^{\otimes n}_{\theta_1}}{dP^{\otimes n}_{\theta_0}} = \left(\frac{a(\theta_1)}{a(\theta_0)}\right)^n\exp\left((c(\theta_1)-c(\theta_0))\sum_{i=1}^n d(x_i)\right) \; .
-\]</span></p></li>
-<li class="fragment"><p>Likelihood Ratio Test: <a href="https://app.wooclap.com/events/RQSUIA/questions/674ecc1b2713644c58eec8bd">(Q: Select Exp. Families)</a> <span class="math display">\[
-T(X) = \mathbf 1\left\{\frac{1}{n}\sum_{i=1}^n d(X_i) &gt; t\right\} \;. ~~~~\text{(calibrate $t$)}\]</span></p></li>
-</ul>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Definition</strong></p>
+</div>
+<div class="callout-content">
+<p>A set of distribution <span class="math inline">\(\{P_{\theta}\}\)</span> is an <strong>exponential family</strong> if there exists real valued functions <span class="math inline">\(a,b,c,d\)</span> such that: <span class="math display">\[p_{\theta}(x) = a(\theta)b(x) \exp(c(\theta)d(x))\]</span></p>
+</div>
+</div>
+</div>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Likelihood Ratio Test for Exponential Families</strong></p>
+</div>
+<div class="callout-content">
+<p>Consider the testing problem <span class="math inline">\(H_0: X \sim P_{\theta_0}^{\otimes n}\)</span> vs <span class="math inline">\(H_1: X \sim P_{\theta_1}^{\otimes n}\)</span></p>
+<p>Then, the likelihood ratio test is</p>
+<p><span class="math display">\[T(X) = \mathbf 1\left\{\frac{1}{n}\sum_{i=1}^n d(X_i) &gt; t\right\}\]</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="proof-of-likelihood-ratio-test" class="slide level2">
+<h2>Proof of Likelihood Ratio Test</h2>
+<p>We observe <span class="math inline">\(X = (X_1, \dots, X_n)\)</span>. Consider the following testing problem:</p>
+<div class="fragment">
+<p><span class="math display">\[H_0: X \sim P_{\theta_0}^{\otimes n} \quad \text{or} \quad H_1: X \sim P_{\theta_1}^{\otimes n}.\]</span></p>
+<p><span class="math display">\[\frac{dP_{\theta_1}^{\otimes n}}{dP_{\theta_0}^{\otimes n}} = \left(\frac{a(\theta_1)}{a(\theta_0)}\right)^n \exp\left((c(\theta_1) - c(\theta_0)) \sum_{i=1}^n d(x_i)\right).\]</span></p>
+</div>
+<div class="fragment">
+<p><span class="math display">\[T(X) = \mathbf{1}\left\{\frac{1}{n}\sum_{i=1}^n d(X_i) &gt; t\right\}. \quad (\text{calibrate } t)\]</span></p>
+</div>
+</section>
+<section id="exponential-families-test" class="slide level2">
+<h2>Exponential Families: Test</h2>
+<div class="square-def">
+<p><strong>Likelihood Ratio Test:</strong> <span class="math display">\[T(X) = \mathbf 1\left\{\frac{1}{n}\sum_{i=1}^n d(X_i) &gt; t\right\}\]</span> (calibrate <span class="math inline">\(t\)</span> to achieve level <span class="math inline">\(\alpha\)</span>)</p>
+</div>
+<div class="fragment">
+<p><a href="https://app.wooclap.com/events/RQSUIA/questions/674ecc1b2713644c58eec8bd">Question: Select Exponential Families</a></p>
+</div>
+</section>
+<section id="example-poisson-is-exponential-family" class="slide level2">
+<h2>Example: Poisson is Exponential Family</h2>
+<p>Poisson distribution: <span class="math inline">\(p_\lambda(x) = \frac{\lambda^x}{x!}e^{-\lambda}\)</span></p>
+<div class="fragment">
+<p>Rewrite:</p>
+<div class="square-def">
+<p><span class="math display">\[p_\lambda(x) = \underbrace{e^{-\lambda}}_{a(\lambda)} \cdot \underbrace{\frac{1}{x!}}_{b(x)} \cdot \exp\left(\underbrace{\log\lambda}_{c(\lambda)} \cdot \underbrace{x}_{d(x)}\right)\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>→ Poisson is an exponential family with <span class="math inline">\(d(x) = x\)</span></p>
+</div>
+</section>
+<section id="example-binomial-is-exponential-family" class="slide level2">
+<h2>Example: Binomial is Exponential Family</h2>
+<p>Binomial distribution: <span class="math inline">\(p_q(x) = \binom{n}{x}q^x(1-q)^{n-x}\)</span></p>
+<div class="fragment">
+<p>Rewrite:</p>
+<div class="square-def">
+<p><span class="math display">\[p_q(x) = \underbrace{(1-q)^n}_{a(q)} \cdot \underbrace{\binom{n}{x}}_{b(x)} \cdot \exp\left(\underbrace{\log\frac{q}{1-q}}_{c(q)} \cdot \underbrace{x}_{d(x)}\right)\]</span></p>
+</div>
+</div>
 </section>
 <section id="example-radioactive-source" class="slide level2">
 <h2>Example: Radioactive Source</h2>
 <ul>
-<li class="fragment"><p>The number of particle emitted in <span class="math inline">\(1\)</span> unit of time is follows distribution <span class="math inline">\(P \sim \mathcal P(\lambda)\)</span>.</p></li>
-<li class="fragment"><p>We observe <strong><span class="math inline">\(20\)</span> time units</strong>, that is <span class="math inline">\(N \sim \mathcal P(20\lambda)\)</span>.</p></li>
-<li class="fragment"><p><strong>Type A</strong> sources emit an average of <span class="math inline">\(\lambda_0 = 0.6\)</span> particles/time unit</p></li>
-<li class="fragment"><p><strong>Type B</strong> sources emit an average of <span class="math inline">\(\lambda_1 = 0.8\)</span> particles/time unit</p></li>
-<li class="fragment"><p><span class="math inline">\(H_0\)</span>: <span class="math inline">\(N \sim \mathcal P(20\lambda_0)\)</span> or <span class="math inline">\(H_1\)</span>: <span class="math inline">\(N\sim \mathcal P(20\lambda_1)\)</span></p></li>
-<li class="fragment"><p>Likelihood Ratio Test: <span class="math display">\[T(X)=\mathbf 1\left\{\sum_{i=1}^{20}X_i &gt; t_{\alpha}\right\} \; .\]</span></p></li>
-<li class="fragment"><p><span class="math inline">\(t_{0.95}\)</span>:&nbsp;&nbsp; <code>quantile(Poisson(20*0.6), 0.95)</code> gives <span class="math inline">\(18\)</span><br>
-</p></li>
-<li class="fragment"><p><span class="math inline">\(\mathbb P(\mathcal P(20*0.6) &gt; 17)\)</span>: <code>1-cdf(Poisson(20*0.6), 17)</code> gives <span class="math inline">\(0.063\)</span><br>
-</p></li>
-<li class="fragment"><p><span class="math inline">\(\mathbb P(\mathcal P(20*0.6) &gt; 18)\)</span>: <code>1-cdf(Poisson(20*0.6), 18)</code> gives <span class="math inline">\(0.038\)</span>: Reject if <span class="math inline">\(N \geq 19\)</span><br>
-</p></li>
+<li class="fragment">Particles emitted in 1 time unit follow <span class="math inline">\(\mathcal P(\lambda)\)</span></li>
+<li class="fragment">We observe <strong>20 time units</strong>: <span class="math inline">\(N \sim \mathcal P(20\lambda)\)</span></li>
+<li class="fragment"><strong>Type A</strong>: <span class="math inline">\(\lambda_0 = 0.6\)</span> particles/time unit</li>
+<li class="fragment"><strong>Type B</strong>: <span class="math inline">\(\lambda_1 = 0.8\)</span> particles/time unit</li>
 </ul>
+<div class="fragment">
+<p><span class="math inline">\(H_0\)</span>: <span class="math inline">\(N \sim \mathcal P(12)\)</span> vs <span class="math inline">\(H_1\)</span>: <span class="math inline">\(N \sim \mathcal P(16)\)</span></p>
+</div>
+</section>
+<section id="radioactive-source-test" class="slide level2">
+<h2>Radioactive Source: Test</h2>
+<div class="square-def">
+<p><span class="math display">\[T(N)=\mathbf 1\left\{N &gt; t_{\alpha}\right\}\]</span></p>
+</div>
+<div class="fragment">
+<p>Computing <span class="math inline">\(t_{0.05}\)</span>:</p>
+<ul>
+<li class="fragment"><code>quantile(Poisson(12), 0.95)</code> → <span class="math inline">\(18\)</span></li>
+<li class="fragment"><code>1-cdf(Poisson(12), 17)</code> → <span class="math inline">\(0.063\)</span></li>
+<li class="fragment"><code>1-cdf(Poisson(12), 18)</code> → <span class="math inline">\(0.038\)</span></li>
+</ul>
+</div>
+<div class="fragment">
+<p>→ Reject <span class="math inline">\(H_0\)</span> if <span class="math inline">\(N \geq 19\)</span></p>
+</div>
 </section></section>
 <section>
 <section id="multiple-multiple-tests" class="title-slide slide level1 center">
 <h1>Multiple-Multiple Tests</h1>
 
 </section>
-<section id="definitions" class="slide level2">
-<h2>Definitions</h2>
-<div class="columns">
-<div class="column" style="width:50%;">
+<section id="warning" class="slide level2">
+<h2>Warning</h2>
+<p><span class="math inline">\(H_0 = \mathcal P_0=\{P_{\theta}, \theta \in \Theta_0 \}\)</span> is <span style="background-color: orange;">not a singleton</span></p>
+<div class="fragment">
+<p><span class="math inline">\(H_1 = \mathcal P_0=\{P_{\theta}, \theta \in \Theta_0 \}\)</span> is <span style="background-color: orange;">not a singleton</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>No meaning of <span class="math inline">\(\mathbb P_{H_0}(X \in A)\)</span> or <span class="math inline">\(\mathbb P_{H_1}(X \in A)\)</span></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="level-and-power-2" class="slide level2">
+<h2>Level and Power</h2>
+<div class="callout callout-note callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>The <strong>Level</strong> of a test <span class="math inline">\(T\)</span> is defined as</p>
+<div class="square-def">
+<p><span class="math display">\[\alpha = \sup_{\theta \in \Theta_0}P_{\theta}(T(X)=1)\]</span></p>
+</div>
+<p>Its <span style="background-color: yellow;">power function</span> is defined as</p>
+<div class="square-def">
+<p><span class="math display">\[\beta: \Theta_1 \to [0,1]:~ \beta(\theta) = P_{\theta}(T(X)=1)\]</span></p>
+</div>
+<p><span class="math inline">\(T\)</span> is <strong>unbiased</strong> if <span class="math inline">\(\beta(\theta) \geq \alpha\)</span> for all <span class="math inline">\(\theta \in \Theta_1\)</span></p>
+</div>
+</div>
+</div>
+</section>
+<section id="uniformly-most-powerful-ump" class="slide level2">
+<h2>Uniformly Most Powerful (UMP)</h2>
+<p>If <span class="math inline">\(T_1\)</span>, <span class="math inline">\(T_2\)</span> are two tests of level <span class="math inline">\(\alpha_1\)</span>, <span class="math inline">\(\alpha_2\)</span>:</p>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(T_2\)</span> is <strong>uniformly more powerful (UMP)</strong> than <span class="math inline">\(T_1\)</span> if:</p>
 <ul>
-<li class="fragment"><span class="math inline">\(H_0 = \mathcal P_0=\{P_{\theta}, \theta \in \Theta_0 \}\)</span> is not a singleton</li>
-<li class="fragment">No meaning of <span class="math inline">\(\mathbb P_{H_0}(X \in A)\)</span></li>
-<li class="fragment"><strong>level</strong> of <span class="math inline">\(T\)</span>: <span class="math display">\[
-\alpha = \sup_{\theta \in \Theta_0}P_{\theta}(T(X)=1) \; .
-\]</span></li>
-<li class="fragment"><strong>power function</strong> <span class="math inline">\(\beta: \Theta_1 \to [0,1]\)</span> <span class="math display">\[
-\beta(\theta) = P_{\theta}(T(X)=1)
-\]</span></li>
-<li class="fragment"><span class="math inline">\(T\)</span> is <strong>unbiased</strong> if <span class="math inline">\(\beta (\theta) \geq \alpha\)</span> for all <span class="math inline">\(\theta \in \Theta_1\)</span>.</li>
-</ul>
-</div><div class="column" style="width:50%;">
-<ul>
-<li class="fragment">If <span class="math inline">\(T_1\)</span>, <span class="math inline">\(T_2\)</span> are two tests of level <span class="math inline">\(\alpha_1\)</span>, <span class="math inline">\(\alpha_2\)</span></li>
-<li class="fragment"><span class="math inline">\(T_2\)</span> is uniformly more powerfull (<span class="math inline">\(UMP\)</span>) than <span class="math inline">\(T_1\)</span> if
-<ol type="1">
 <li class="fragment"><span class="math inline">\(\alpha_2 \leq \alpha_1\)</span></li>
 <li class="fragment"><span class="math inline">\(\beta_2(\theta) \geq \beta_1(\theta)\)</span> for all <span class="math inline">\(\theta \in \Theta_1\)</span></li>
-</ol></li>
-<li class="fragment"><span class="math inline">\(T^*\)</span> is <span class="math inline">\(UMP_{\alpha}\)</span> if it is <span class="math inline">\(UMP\)</span> than any other test <span class="math inline">\(T\)</span> of level <span class="math inline">\(\alpha\)</span>.</li>
 </ul>
-</div></div>
-</section>
-<section id="multiple-multiple-tests-in-mathbb-r" class="slide level2">
-<h2>Multiple-Multiple Tests in <span class="math inline">\(\mathbb R\)</span></h2>
-<p>Assumption: <span class="math inline">\(\Theta_0 \cup \Theta_1 \subset \mathbb R\)</span>.</p>
-<ul>
-<li class="fragment"><p>One-tailed tests: <span class="math display">\[
-\begin{aligned}
-H_0: \theta \leq \theta_0 ~~~~ &amp;\text{ or } ~~~ H_1: \theta &gt; \theta_0 ~~~ \text{(right-tailed: unilatéral droit)}\\
-H_0: \theta \geq \theta_0 ~~~ &amp;\text{ or } ~~~ H_1: \theta &lt; \theta_0 ~~~ \text{(left-tailed: unilatéral gauche)}
-\end{aligned}
-\]</span></p></li>
-<li class="fragment"><p>Two-tailed tests: <span class="math display">\[
-\begin{aligned}
-H_0: \theta = \theta_0 ~~~ &amp;\text{ or } ~~~ H_1: \theta \neq \theta_0 ~~~ \text{(simple/multiple)}\\
-H_0: \theta \in [\theta_1, \theta_2] ~~~ &amp;\text{ or } ~~~ H_1: \theta \not \in [\theta_1, \theta_2] ~~~ \text{( multiple/multiple)}
-\end{aligned}
-\]</span></p></li>
-</ul>
+</div>
+</div>
 <div class="fragment">
+<p><span class="math inline">\(T^*\)</span> is <strong>UMP<span class="math inline">\(_{\alpha}\)</span></strong> if it is UMP over any other test of level <span class="math inline">\(\alpha\)</span></p>
+</div>
+</section>
+<section id="one-tailed-tests" class="slide level2">
+<h2>One-Tailed Tests</h2>
+<p>Assumption: <span class="math inline">\(\Theta_0 \cup \Theta_1 \subset \mathbb R\)</span></p>
+<div class="fragment">
+<div class="square-def">
+<p><strong>Right-tailed</strong> (unilatéral droit): <span class="math inline">\(H_0: \theta \leq \theta_0\)</span> vs <span class="math inline">\(H_1: \theta &gt; \theta_0\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><strong>Left-tailed</strong> (unilatéral gauche): <span class="math inline">\(H_0: \theta \geq \theta_0\)</span> vs <span class="math inline">\(H_1: \theta &lt; \theta_0\)</span></p>
+</div>
+</div>
+</section>
+<section id="two-tailed-tests" class="slide level2">
+<h2>Two-Tailed Tests</h2>
+<div class="square-def">
+<p><strong>Simple/Multiple</strong>: <span class="math inline">\(H_0: \theta = \theta_0\)</span> vs <span class="math inline">\(H_1: \theta \neq \theta_0\)</span></p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><strong>Multiple/Multiple</strong>: <span class="math inline">\(H_0: \theta \in [\theta_1, \theta_2]\)</span> vs <span class="math inline">\(H_1: \theta \not\in [\theta_1, \theta_2]\)</span></p>
+</div>
+</div>
+</section>
+<section id="ump-for-exponential-families" class="slide level2">
+<h2>UMP for Exponential Families</h2>
 <div title="Theorem">
 <div class="callout callout-note callout-titled callout-style-default">
 <div class="callout-body">
@@ -917,11 +1020,11 @@ H_0: \theta \in [\theta_1, \theta_2] ~~~ &amp;\text{ or } ~~~ H_1: \theta \not \
 <p><strong>Theorem</strong></p>
 </div>
 <div class="callout-content">
-<ul>
-<li class="fragment">Assume that <span class="math inline">\(p_{\theta}(x) = a(\theta)b(x)\exp(c(\theta)d(x))\)</span> and that <span class="math inline">\(c\)</span> is a non-decreasing (croissante) function, and consider a one-tailed test problem.</li>
-<li class="fragment">There exists a UMP<span class="math inline">\(\alpha\)</span> test. It is <span class="math inline">\(\mathbf 1\{\sum d(X_i) &gt; t \}\)</span> if <span class="math inline">\(H_1: \theta &gt; \theta_0\)</span> (right-tailed test).</li>
-</ul>
-</div>
+<p>Assume <span class="math inline">\(p_{\theta}(x) = a(\theta)b(x)\exp(c(\theta)d(x))\)</span> with <span class="math inline">\(c\)</span> non-decreasing.</p>
+<p>For a <strong>one-tailed test</strong>, there exists a UMP<span class="math inline">\(_\alpha\)</span> test. It is of the form:</p>
+<p><span class="math display">\[T = \mathbf 1\left\{\sum d(X_i) &gt; t \right\}\]</span></p>
+<p>for right-tailed (<span class="math inline">\(H_1: \theta &gt; \theta_0\)</span>), we just reverse the inequality.</p>
+<p>Same if <span class="math inline">\(c\)</span> is non-increasing instead</p>
 </div>
 </div>
 </div>
@@ -951,9 +1054,16 @@ H_0: \theta \in [\theta_1, \theta_2] ~~~ &amp;\text{ or } ~~~ H_1: \theta \not \
 </div>
 </div>
 </div>
-<ul>
-<li class="fragment">Example: If <span class="math inline">\(X=(X_1, \dots, X_n)\)</span> are iid <span class="math inline">\(\mathcal N(0, \sigma)\)</span>, the distrib of <span class="math display">\[ \psi(X) = \frac{\sum_{i=1}^n \overline X}{\sqrt{\sum_{i=1}^n X_i^2}}\]</span> does not depend on <span class="math inline">\(\sigma\)</span>.</li>
-</ul>
+</section>
+<section id="example" class="slide level2">
+<h2>Example</h2>
+</section>
+<section id="example-1" class="slide level2">
+<h2>Example</h2>
+<p>If <span class="math inline">\(X=(X_1, \dots, X_n)\)</span> are iid <span class="math inline">\(\mathcal N(0, \sigma)\)</span>, the distribution of <span class="math display">\[ \psi(X) = \frac{\sum_{i=1}^n X_i}{\sqrt{\sum_{i=1}^n X_i^2}}\]</span> does not depend on <span class="math inline">\(\sigma\)</span>.</p>
+<div class="fragment">
+<p>Indeed, writing <span class="math inline">\(X_i = \sigma Z_i\)</span> with <span class="math inline">\(Z_i \overset{\text{iid}}{\sim} \mathcal N(0,1)\)</span>, <span class="math display">\[ \psi(X) = \frac{\sum_{i=1}^n \sigma Z_i}{\sqrt{\sum_{i=1}^n \sigma^2 Z_i^2}} = \frac{\sigma \sum_{i=1}^n Z_i}{\sigma\sqrt{\sum_{i=1}^n Z_i^2}} = \frac{\sum_{i=1}^n Z_i}{\sqrt{\sum_{i=1}^n Z_i^2}} \; .\]</span></p>
+</div>
 </section>
 <section id="pivotal-test-statistic-and-p-value-1" class="slide level2">
 <h2>Pivotal Test Statistic and P-value</h2>
@@ -973,6 +1083,44 @@ H_0: \theta \in [\theta_1, \theta_2] ~~~ &amp;\text{ or } ~~~ H_1: \theta \not \
 </div>
 </div>
 </div>
+<ul>
+<li class="fragment">In practice: reject if <span class="math inline">\(p_{value}(x_{\mathrm{obs}}) \leq \alpha = 0.05\)</span></li>
+<li class="fragment"><span class="math inline">\(\alpha\)</span> is the <strong>level</strong> or <strong>type-1-error</strong> of the test</li>
+</ul>
+</section>
+<section id="illustration-if-psix-sim-mathcal-n01" class="slide level2">
+<h2>Illustration if <span class="math inline">\(\psi(X) \sim \mathcal N(0,1)\)</span>:</h2>
+
+<img data-src="../images/basics/pvalue_uniform.svg" class="r-stretch"></section>
+<section id="example-1-one-sample-z-test" class="slide level2">
+<h2>Example 1: One-sample z-test</h2>
+<p><span class="math inline">\(X_1, \dots, X_n \overset{\text{iid}}{\sim} \mathcal N(\mu, \sigma_0)\)</span> with <span class="math inline">\(\sigma_0\)</span> known. Test <span class="math inline">\(H_0: \mu = 0\)</span> vs <span class="math inline">\(H_1: \mu \neq 0\)</span>.</p>
+<div class="fragment">
+<p>The pivotal statistic is <span class="math display">\[ \psi(X) = \frac{\sqrt{n}\,\overline{X}}{\sigma_0} \sim \mathcal N(0,1) \quad \text{under } H_0 \; .\]</span></p>
+</div>
+</section>
+<section id="numerical-example" class="slide level2">
+<h2>Numerical Example</h2>
+<p><span class="math inline">\(n=25\)</span>, <span class="math inline">\(\sigma_0 = 2\)</span>, <span class="math inline">\(\overline{x}_{\mathrm{obs}} = 0.9\)</span>.</p>
+<p><span class="math display">\[\psi(x_{\mathrm{obs}}) = \frac{\sqrt{25} \times 0.9}{2} = 2.25\]</span></p>
+<p>Two-tailed p-value: <span class="math inline">\(p_{value} = 2\,\mathbb P(Z \geq 2.25) = 2 \times 0.0122 = 0.0244\)</span>.</p>
+<p>Since <span class="math inline">\(p_{value} = 0.0244 \leq \alpha = 0.05\)</span>, we <strong>reject</strong> <span class="math inline">\(H_0\)</span>.</p>
+</section>
+<section id="example-2-one-sample-t-test" class="slide level2">
+<h2>Example 2: One-sample t-test</h2>
+<p><span class="math inline">\(X_1, \dots, X_n \overset{\text{iid}}{\sim} \mathcal N(\mu, \sigma)\)</span> with <span class="math inline">\(\sigma\)</span> <strong>unknown</strong>. Test <span class="math inline">\(H_0: \mu = 0\)</span> vs <span class="math inline">\(H_1: \mu &gt; 0\)</span>.</p>
+<div class="fragment">
+<p>we use the following test statistic: <span class="math display">\[ \psi(X) = \frac{\sqrt{n}\,\overline{X}}{S} \sim t_{n-1} \quad \text{under } H_0\]</span> where <span class="math inline">\(S^2 = \frac{1}{n-1}\sum_{i=1}^n (X_i - \overline{X})^2\)</span>. The parameter <span class="math inline">\(\sigma\)</span> cancels out (as in the previous slide), so <span class="math inline">\(\psi\)</span> is pivotal over <span class="math inline">\(\Theta_0 = \{(\mu, \sigma): \mu = 0,\, \sigma &gt; 0\}\)</span>.</p>
+</div>
+<div class="fragment">
+<p><strong>Numerical example:</strong> <span class="math inline">\(n=10\)</span>, <span class="math inline">\(\overline{x}_{\mathrm{obs}} = 1.5\)</span>, <span class="math inline">\(s = 2.1\)</span>.</p>
+<p><span class="math display">\[\psi(x_{\mathrm{obs}}) = \frac{\sqrt{10} \times 1.5}{2.1} = 2.26\]</span></p>
+<p>Right-tailed p-value: <span class="math inline">\(p_{value} = \mathbb P(T_9 \geq 2.26) = 0.025\)</span>.</p>
+<p>Since <span class="math inline">\(p_{value} = 0.025 \leq \alpha = 0.05\)</span>, we <strong>reject</strong> <span class="math inline">\(H_0\)</span>.</p>
+</div>
+</section>
+<section id="property-of-the-p-value" class="slide level2">
+<h2>Property of the p-value</h2>
 <div title="P-value under $H_0$">
 <div class="callout callout-note callout-titled callout-style-default">
 <div class="callout-body">
@@ -983,24 +1131,35 @@ H_0: \theta \in [\theta_1, \theta_2] ~~~ &amp;\text{ or } ~~~ H_1: \theta \not \
 <p><strong>P-value under <span class="math inline">\(H_0\)</span></strong></p>
 </div>
 <div class="callout-content">
-<p>Under <span class="math inline">\(H_0\)</span>, for a pivotal test statistic <span class="math inline">\(\psi\)</span>, <span class="math inline">\(p_{value}(X)\)</span> has a uniform distribution <span class="math inline">\(\mathcal U([0,1])\)</span>.</p>
+<p>Under <span class="math inline">\(H_0\)</span>, for a left or right tailed test, for a pivotal test statistic <span class="math inline">\(\psi\)</span>, <span class="math inline">\(p_{value}(X)\)</span> has a uniform distribution <span class="math inline">\(\mathcal U([0,1])\)</span>.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="columns">
-<div class="column" style="width:50%;">
-<ul>
-<li class="fragment">In practice: reject if <span class="math inline">\(p_{value}(x_{\mathrm{obs}}) \leq \alpha = 0.05\)</span></li>
-<li class="fragment"><span class="math inline">\(\alpha\)</span> is the <strong>level</strong> or <strong>type-1-error</strong> of the test</li>
-</ul>
-</div><div class="column" style="width:50%;">
-<ul>
-<li class="fragment">Illustration if <span class="math inline">\(\psi(X) \sim \mathcal N(0,1)\)</span>: <img data-src="../images/basics/pvalue_uniform.svg"></li>
-</ul>
-</div></div>
+<div class="fragment">
+<p>Hence, if the data really follow the null hypothesis and if we test at level <span class="math inline">\(5\%\)</span>,</p>
+</div>
+<div class="fragment">
+<p>doing <span class="math inline">\(1000\)</span> experiment will lead to reject on average <span class="math inline">\(50\)</span> times</p>
+</div>
+</section>
+<section id="proof-right-tailed-case" class="slide level2">
+<h2>Proof (right-tailed case)</h2>
+<p>Let <span class="math inline">\(F\)</span> denote the cdf of <span class="math inline">\(\psi(X)\)</span> under <span class="math inline">\(H_0\)</span>. Assume for simplicity it is strictly increasing. Then <span class="math display">\[p_{value}(X) = 1 - F(\psi(X)) \; .\]</span></p>
+<div class="fragment">
+<p>For any <span class="math inline">\(t \in [0,1]\)</span>,</p>
+<div style="font-size: 80%;">
+<p><span class="math display">\[\mathbb P_{H_0}(p_{value}(X) \leq t) = \mathbb P_{H_0}(1 - F(\psi(X)) \leq t) = \mathbb P_{H_0}(\psi(X) \geq F^{-1}(1-t)) \; .\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Hence,</p>
+<div class="fragment">
+<p><span class="math display">\[\mathbb P_{H_0}(p_{value}(X) \leq t) = 1- F(F^{-1}(1-t))= t\]</span></p>
+</div>
 
 
+</div>
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
@@ -1038,7 +1197,7 @@ H_0: \theta \in [\theta_1, \theta_2] ~~~ &amp;\text{ or } ~~~ H_1: \theta \not \
 'autoAnimateUnmatched': true,
 'jumpToSlide': true,
 'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
-'smaller': true,
+'smaller': false,
  
         // Display controls in the bottom right corner
         controls: false,
