@@ -5,184 +5,310 @@ format:
     incremental: true
     callout-icon: false
     theme: [default, ../custom.scss]
-smaller: true
+smaller: false
 css: ../../../styles.css
 #filters:
   #- parse-latex
 ---
 
+## Outline
 
+- [One gaussian population]{style="background-color: yellow;"} (one mean, one variance):
+  - [Testing mean]{style="background-color: lightgreen;"} with [known variance]{style="background-color: orange;"}
+  - [Testing mean]{style="background-color: lightgreen;"} with [unknown variance]{style="background-color: orange;"}
+  - [Testing variance]{style="background-color: lightgreen;"} with [unknown mean]{style="background-color: orange;"}
+- [Two gaussian population]{style="background-color: yellow;"} (two means, two variances)
+  - [Testing difference of means]{style="background-color: lightgreen;"} with [known variances]{style="background-color: orange;"}
+  - 
+
+[Previous: usual distributions](usual_distributions.qmd)
+
+[Next: goodness of fit](goodness_of_fit_chi2.qmd)
 
 # One Gaussian Population {style="text-align: center;"}
-
-## Definition and link with CLT
-
-We observe $(X_1, \dots, X_n)$ iid real valued random variables.
-
-:::{.callout-note title="CLT" .fragment} 
-- Let $S_n = \sum_{i=1}^n X_i$ with $(X_1, \dots, X_n)$ iid ($L^2$) then $$ \frac{S_n - \mathbb E[S_n]}{\sqrt{\mathrm{Var}(S_n)}} \approx \mathcal N(0,1) \text{ when } n \to \infty $$
-- Rule of thumb: $n \geq 30$
-:::
-
-- Equality when $X_i$'s are Gaussian $\mathcal N(\mu, \sigma^2)$,
-that is 
-$$
-\mathbb P(X_1 \in [x,x+dx]) = \frac{1}{\sqrt{2\pi \sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}dx
-$$
-
 
 
 ## Testing Mean with Known Variance
 
-- $X = (X_1, \dots, X_n)$, iid with distribution $\mathcal N(\mu, \sigma^2)$.
+. . .
 
-:::: {.columns}
+$X = (X_1, \dots, X_n)$, iid with distribution $\mathcal N(\mu, \sigma^2)$.
 
-::: {.column width="50%"}
 
-::: {.callout-note icon=false .fragment title="Test problems"}
-$$
-\begin{aligned}
-H_0: \mu = \mu_0 ~~~~ &\text{ or } ~~~ H_1: \mu > \mu_0 ~~~ \text{(right-tailed)}\\
-H_0: \mu = \mu_0 ~~~ &\text{ or } ~~~ H_1: \mu < \mu_0 ~~~ \text{(left-tailed)}\\
-H_0: \mu = \mu_0 ~~~ &\text{ or } ~~~ H_1: \mu \neq \mu_0 ~~~ \text{(two-tailed)}\\
-\end{aligned}
-$$
+. . .
+
+::: {.callout-note icon=false}
+## Test Problems
+$H_0: \mu = \mu_0 ~~~~ \text{ or } ~~~ H_1: \mu > \mu_0$  (right-tailed)
+
+$H_0: \mu = \mu_0 ~~~ \text{ or } ~~~ H_1: \mu < \mu_0$  (left-tailed)
+
+$H_0: \mu = \mu_0 ~~~ \text{ or } ~~~ H_1: \mu \neq \mu_0$  (two-tailed)
+
 :::
 
-- Test statistic:
-$$ \psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma} \; .$$
-- $\psi(X) \sim \mathcal N(0,1)$
+- We want to test the mean $\mu = \mu_0$. Natural idea: use $\overline X$
+- But $\overline X \sim \mathcal N(\mu_0, \frac{\sigma^2}{n})$ under $H_0$. So we normalize to get an $\mathcal N(0,1)$
+
+## Test Statistic
+
+. . .
+
+Test statistic: 
+
+::: {.square-def}
+$$\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma}$$
+:::
+
+. . .
+
+[Under $H_0$]{style="background-color: yellow;"}, $\psi(X) \sim \mathcal N(0,1)$
+
+
+::: {.callout-warning}
+This is a test statistic because $\mu_0$ and $\sigma$ are **known** here. It wouldn't be otherwise.
+:::
 
 - [Q1](https://app.wooclap.com/events/RQSUIA/questions/67cac80ddae229478c77ada9), [Q2](https://app.wooclap.com/events/RQSUIA/questions/67cac961ec10853018cfd6bd)
+  
+## Tests
+
+. . .
+
+::: {.callout-note icon=false}
+## Test Critical Regions
+
+$\mathcal R$: $\frac{\sqrt{n}(\overline X-\mu_0)}{\sigma} > t_{1-\alpha}$ (right-tailed)
+
+$\mathcal R$: $\frac{\sqrt{n}(\overline X-\mu_0)}{\sigma} < t_{\alpha}$ (left-tailed)
+
+$\mathcal R$: $\left|\frac{\sqrt{n}(\overline X-\mu_0)}{\sigma}\right| > t_{1-\tfrac{\alpha}{2}}$ (two-tailed)
+
+:::
+
+## Illustration
+
+. . .
+
+![](../images/rejection_region.svg)
+
+## Example
+:::{style="font-size: 80%;"}
+A machine fills bottles with a nominal volume [$\mu_0 = 500$ ml]{style="background-color: yellow;"}. The filling volume is known to follow $\mathcal{N}(\mu, \sigma^2)$ with [$\sigma = 5$ ml]{style="background-color: yellow;"}. On a sample of [$n = 25$]{style="background-color: yellow;"} bottles, we observe $\overline{x} = 498.1$ ml. Is the machine [under-filling]{style="background-color: yellow;"}?
 :::
 
 
-
-::: {.column width="50%"}
-::: {.callout-note icon=false .fragment title="Tests"}
-$$
-\begin{aligned}
-\frac{\sqrt{n}(\overline X-\mu_0)}{\sigma} > t_{1-\alpha} ~~~ \text{(right-tailed)}\\
-\frac{\sqrt{n}(\overline X-\mu_0)}{\sigma} < t_{\alpha} ~~~ \text{(left-tailed)}\\
-\left|\frac{\sqrt{n}(\overline X-\mu_0)}{\sigma}\right| > t_{1-\tfrac{\alpha}{2}}~~~ \text{(two-tailed)}\\
-\end{aligned}
-$$
-:::
-![](../images/rejection_region.svg){.fragment}
-:::
-::::
-
-## Why 0.05 and 1.96 ?
-
-![](../images/rejection_region.svg){width="200%"}
-
-::: {.callout-note icon=false title="Fisher's Quote"}
-The value for which  $p=0.05$, or 1 in 20, is 1.96 or nearly 2 ; it is convenient to take this point as a limit in judging whether a deviation is to be considered significant or not.
-:::
+- $H_0: \mu = 500$ vs $H_1: \mu < 500$ (left-tailed)
+- Test statistic: $\tfrac{\sqrt{n}(\overline X - \mu_0)}{\sigma} = \tfrac{\sqrt{25}(498.1 - 500)}{5} = -1.9$
+- Threshold: $t_{\alpha} =$ `quantile(Normal(0,1), 0.05) = -1.645`
+- $-1.9 < -1.645$: [reject $H_0$ at level $5\%$]{style="background-color: yellow;"}
+- p-value: `cdf(Normal(0,1), -1.9) = 0.029`
 
 ## Testing Mean with Unknown Variance
 
-- Multiple VS multiple test problem:
+. . .
+
+We observe $(X_1, \dots, X_n)$ iid $\mathcal N(\mu, \sigma^2)$ where $\mu$ and $\sigma$ are **unknown**.
+
+. . .
+
+We fix $\mu_0$ as a **known** quantity
+
+. . .
+
+we want to test if $\mu = \mu_0$.
+
+. . .
+
+Multiple VS multiple test problem:
+
+::: {.square-objective}
 $$
 H_0: \{\mu_0,\sigma > 0\} \text{ or } H_1: \{\mu \neq \mu_0,\sigma > 0\} \;.
 $$
-- $\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma}$ **no longer test statistic**.
-- **Idea**: replace $\sigma$ by its estimator 
+
+:::
+
+. . .
+
+::: {.callout-warning}
+$\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma}$ **no longer test statistic**.
+:::
+
+. . .
+
+--- 
+
+**Idea**: replace $\sigma$ by its estimator 
 $$ \hat \sigma(X) = \sqrt{\frac{1}{n-1}\sum_{i=1}^n(X_i - \mu_0)^2} \; .$$
 
-- This gives
-$$
-\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma} \; .
-$$
-
-- Is $\psi(X)$ pivotal under $H_0$ ? What is its distribution ?
-
-## Chi-Square and Student Distributions
 
 
-:::: {.columns}
-
-::: {.column width="50%"}
-:::{.callout-note .fragment icon=false title="Chi-squared distribution $\chi^2(k)$" style="font-size:100%"}
-- Distrib of $\sum_{i=1}^k Z_i^2$ where the $Z_i$'s are iid $\mathcal N(0,1)$.
-- $\mathbb E[Z_i^4] - \mathbb E[Z_i^2]=2$
-- $k$: degree of freedom
-- $\chi^2(k) \sim k + \sqrt{2k}\mathcal N(0,1)$ when $k \to +\infty$
-:::
-:::
-::: {.column width="50%"}
-
-:::{.callout-note .fragment icon=false title="Student distribution $\mathcal T(k)$"}
-- Distrib of $\tfrac{Z}{\sqrt{U/k}}$ where $Z$, $U$ are independent and follow resp. $\mathcal N(0,1)$ and a $\chi^2(k)$
-- $k$: degree of freedom
-- $\mathcal T(k) \sim \mathcal N(0,1)$ when $k \to +\infty$
-:::
-:::
-
-::: {.callout-note .fragment icon=false title="Theorem"}
-Assume $X_i$ are iid $\mathcal N(\mu_0, \sigma^2)$. 
-
-- The test statistic $\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma}$ **pivotal** (indep. of $\sigma$). 
-- It follows a Student Distribution $\mathcal T(n-1)$. 
-:::
-
-- **Proof idea**: $\overline X \cdot (1, \dots, 1)$ and $(X_1 - \overline X, \dots, X_n - \overline X)$ are orthogonal in $\mathbb R^n$.
-::::
 
 ## Student T-Test
 
-- Multiple VS multiple test problem $X=(X_1, \dots, X_n)$:
+. . .
+
+::: {.square-objective}
 $$
 H_0: \{\mu_0,\sigma > 0\} \text{ or } H_1: \{\mu \neq \mu_0,\sigma > 0\} \;.
 $$
+:::
 
-- (Student) T-test statistic:
-$$\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)} \sim \mathcal T(n-1)$$
+. . .
+
+(Student) T-test statistic:
+$$T(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)}$$
+
+. . .
+
+::: {.callout-note}
+## Proposition: distribution of T under $H_0$
+$T(X)$ is a pivotal test statistic. 
+
+Under $H_0$, $\psi(X)\sim \mathcal T(n-1)$
+:::
+
+## Proof
+
+. . .
+
+Take [$E = \operatorname{Span}(\mathbf{1})$]{style="background-color: yellow;"} and $F = E^\perp$. Setting $Y_i = \frac{X_i - \mu}{\sigma}$:
+
+. . .
+
+$$
+\|\Pi_E Y\|^2 = n\overline{Y}^2 = \frac{n(\overline{X}-\mu)^2}{\sigma^2} \sim \chi^2(1)
+$$
+
+$$
+\|\Pi_F Y\|^2 = \sum_{i=1}^n (Y_i - \overline{Y})^2 = \frac{(n-1)\hat{\sigma}^2}{\sigma^2} \sim \chi^2(n-1)
+$$
+
+and the two are **independent**, which is precisely what is needed for the Student $T$-statistic.
+
+## Student Distribution 
 
 :::{.fragment}
 ![](../images/student_k_30.svg)
 :::
 
+
 ## Testing Variance, Unknown Mean
 
-::: {.callout}
-- We observe $X=(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu, \sigma^2)$. $\mu$, $\sigma$ are **unknown**. $\sigma_0$ is fixed and **known**.
+. . .
 
+We observe $X=(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu, \sigma^2)$. $\mu$, $\sigma$ are **unknown**. $\sigma_0$ is fixed and **known**.
+
+We want to test if $\sigma > \sigma_0$, or $\sigma < \sigma_0$
+
+## Right-Tailed Fisher
+
+. . .
+
+::: {.square-objective}
+
+$H_0$: $\sigma \leq \sigma_0$, $H_1$: $\sigma > \sigma_0$
 
 :::
 
-::: {.fragment}
+. . .
+
+[Test statistic:]{style="background-color: yellow;"}
+
+$\psi(X) = \frac{1}{\sigma_0^2}\sum_{i=1}^n (X_i - \overline X)^2$ [Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67cacda8c917f9165d229d9d)
+
+. . .
+
+[Test:]{style="background-color: yellow;"}
+
+$T(X) = \mathbf{1}\{\psi(X) > q_{1-\alpha}\}$ with $q_{1-\alpha}$ $(1-\alpha)$-quantile of $\chi^2(n-1)$
+
+. . .
+
+[Rejection Region:]{style="background-color: yellow;"} $[q_{1-\alpha}, +\infty)$
+
+[Critical Region:]{style="background-color: yellow;"} $\{(x_1, \dots, x_n) \in \mathbb R^n: ~ \psi(x_1, \dots, x_n) > q_{1-\alpha}\}$
+
+## Property of Fisher Test
+
+. . .
 
 ::: {.callout-note}
-::: {.columns}
-::: {.column}
-- $H_0$: $\sigma \leq \sigma_0$, $H_1$: $\sigma > \sigma_0$
-- $\psi(X) = \frac{1}{\sigma_0^2}\sum_{i=1}^n (X_i - \overline X)^2$ [Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67cacda8c917f9165d229d9d)
-- $T(X) = \mathbf{1}\{\psi(X) > q_{1-\alpha}\}$
-- $q_{1-\alpha}$: `quantile(Chisq(n-1), 1-alpha)`
-- pvalue: `1-cdf(Chisq(n-1), xobs)`
+## Proposition
+Fix $t>0$. [Under $H_0$, that is if $\sigma \leq \sigma_0$]{style="background-color: yellow;"}
 
-![](../images/pdf_cdf_chi5_right.svg){width=80% .fragment}
-
+::: {.square-def}
+$$P_{\mu, \sigma}(\psi(X) > t) \leq P_{\mu, \sigma_0}(\psi(X) > t) = P(\chi^2(n-1) > t)$$
 :::
-::: {.column}
 
-- $H_0$: $\sigma \geq \sigma_0$, $H_1$: $\sigma < \sigma_0$
-- $\psi(X) = \frac{1}{\sigma_0^2}\sum_{i=1}^n (X_i - \overline X)^2$ 
-- $T(X) = \mathbf{1}\{\psi(X) < q_{\alpha}\}$
-- $q_{\alpha}$: `quantile(Chisq(n-1), alpha)`
-- pvalue: `cdf(Chisq(n-1), xobs)`
+$~$
+:::
 
-::: {.fragment}
+. . .
+
+In practice:
+
+$q_{1-\alpha}$: `quantile(Chisq(n-1), 1-alpha)`
+
+. . .
+
+pvalue: `1-cdf(Chisq(n-1), xobs)`
+
+---
+
+**Proof.**
+
+. . .
+
+Under $P_{\mu,\sigma}$, the random variable $Z = \frac{1}{\sigma^2}\sum_{i=1}^n (X_i - \bar{X})^2 \sim \chi^2(n-1)$.
+
+. . .
+
+$\psi(X) = \frac{1}{\sigma_0^2}\sum_{i=1}^n (X_i - \bar{X})^2 = \frac{\sigma^2}{\sigma_0^2}\, Z.$
+
+. . .
+
+Hence,
+$P_{\mu,\sigma}(\psi(X) > t) = P\!\left(Z > \frac{\sigma_0^2}{\sigma^2}\, t\right)\\
+ \leq P(Z > t) = P(\chi^2(n-1) > t),$
+
+
+
+## Illustration
+
+. . .
+
+![](../images/pdf_cdf_chi5_right.svg){width=80%}
+
+## Left-tailed Fisher
+
+. . .
+
+::: {.square-objective}
+$H_0$: $\sigma \geq \sigma_0$, $H_1$: $\sigma \leq \sigma_0$
+:::
+
+. . .
+
+$\psi(X) = \frac{1}{\sigma_0^2}\sum_{i=1}^n (X_i - \overline X)^2$ 
+
+. . .
+
+$T(X) = \mathbf{1}\{\psi(X) < q_{\alpha}\}$
+
+. . .
+
+$q_{\alpha}$: `quantile(Chisq(n-1), alpha)`
+
+. . .
+
+pvalue: `cdf(Chisq(n-1), xobs)`
+
+
+--- 
+
 ![](../images/pdf_cdf_chi5_left.svg){width=80%}
-
-:::
-:::
-:::
-
-:::
-:::
 
 
 
@@ -190,34 +316,99 @@ $$\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)} \sim \mathcal T(n
 
 ## Testing Means, Known Variances
 
-- We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2^2)$.
-- $\sigma_1$, $\sigma_2$ are **known**, $\mu_1$, $\mu_2$ are **unknown**
+. . .
 
-- Test problem: $H_0: \mu_1 = \mu_2 ~~~\text{or} ~~~H_1: \mu_1 \neq \mu_2$
+We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2^2)$.
 
-- Idea: normalize $\overline X - \overline Y$:
+. . .
+
+$\sigma_1$, $\sigma_2$ are **known**, $\mu_1$, $\mu_2$ are **unknown**
+
+Test problem: 
+
+::: {.square-def}
+$H_0: \mu_1 = \mu_2 ~~~\text{VS} ~~~H_1: \mu_1 \neq \mu_2$
+:::
+
+. . .
+
+::: {.callout-warning}
+We can't use $\mu_1$ or $\mu_2$ because they are unknown
+:::
+
+Idea: use $\overline X - \overline Y$ since $\mathbb E[\overline X] - \mathbb E[\overline Y] = \mu_1 - \mu_2$. But what is $\mathbb V(\overline X - \overline Y)$ under $H_0$?
+
+## Test Statistic
+
+. . .
+
+Test Statistic:
+
+::: {.square-def}
 $$
 \psi(X,Y)=\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}} 
 $$
-- Two-tailed test for testing means:
-$$
-T(X,Y)=\left|\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}}\right| \geq t_{1-\alpha/2} \;  ,
-$$
-- $t_{1-\alpha/2}$ is the $(1-\alpha/2)$-quantile of a **Gaussian** distribution
+:::
 
+. . .
+
+::: {.callout-note}
+## Property
+Under $H_0$, $\psi(X,Y)$ follows a $\mathcal N(0, 1)$
+:::
+
+. . .
+
+Proof: Under $H_0$, $\psi(X,Y)$ is centered gaussian of variance $\sigma_1^2/n_1 + \sigma_2^2/n_2$.
+
+## Test
+
+. . .
+
+Two-tailed test:
+
+$$
+T(X,Y)=\mathbf 1\left\{|\psi(X, Y)| \geq t_{1-\alpha/2}\right\} \;  ,
+$$
+
+. . .
+
+$t_{1-\alpha/2}$ is the $(1-\alpha/2)$-quantile of a **Gaussian** distribution
+
+. . .
+
+We can also test $\mu_1 < \mu_2$ or $\mu_1 > \mu_2$.
+
+. . .
+
+For that, remove absolute value and take $t_\alpha$ or $t_{1-\alpha}$.
 
 ## Example
 
-- **Objective.** Test if a new medication is efficient to lower cholesterol level
-- **Experiment.** 
-    - Group A: $n_A = 45$ patients receiving the new medication
-    - Group B: $n_B = 50$ patients receiving a placebo
-- **Test Problem.** 
-    - We observe $(X_1, \dots, X_{n_A})$ iid $\mathcal N(\mu_A,\sigma^2)$ and $(Y_1, \dots, Y_{n_B})$ iid $N(\mu_B,\sigma^2)$ the chol levels. $\sigma = 8$ mg/dL is **known** from calibration.
-    - $H_0: \mu_A = \mu_B$ VS $H_1: \mu_A < \mu_B$
+**Objective.** Test if a new medication is efficient to lower cholesterol level
+
+. . .
+
+**Experiment.** 
+
+- Group A: $n_A = 45$ patients receiving the new medication
+- Group B: $n_B = 50$ patients receiving a placebo
+- We observe $(X_1, \dots, X_{n_A})$ iid $\mathcal N(\mu_A,\sigma^2)$ and $(Y_1, \dots, Y_{n_B})$ iid $N(\mu_B,\sigma^2)$ the chol levels. $\sigma = 8$ mg/dL is **known** from calibration.
+
+## Example (Following)
+. . .
+
+**Test Problem.** 
+
+
+
+
+- $H_0: \mu_A = \mu_B$ VS $H_1: \mu_A < \mu_B$
+  
 - **Test Statistic.** $\psi(X,Y)=\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma^2}{n_1} + \frac{\sigma^2}{n_2}}}$
 
-- **Data.** $\overline X = 24.5$ mg/dL and $\overline Y = 21.3$ mg/dL. Hence $\psi(X,Y)= 5.5$. 
+- **Data.** $\overline X = 24.5$ mg/dL and $\overline Y = 21.3$ mg/dL. Hence $\psi(X,Y)= 5.5$.
+- **p-value.** $\mathbb P(\psi(X, Y) \leq 5.5) \approx 1$ 
 - **Conclusion.** Do not reject, and do not use this medication!
 
  
@@ -234,32 +425,6 @@ $$
 \frac{\hat \sigma^2_1}{\hat \sigma_2^2} = \frac{\tfrac{1}{n_1-1}\sum_{i=1}^{n_1}(X_i-\overline X)^2}{\tfrac{1}{n_2-1}\sum_{i=1}^{n_2}(Y_i-\overline Y)^2}\; .
 $$
 
-## Fisher Distribution
-
-::: {.columns}
-:::{.column}
-::: {.callout-note icon=false .fragment title="Fisher distribution $\mathcal F(k_1,k_2)$"}
-- Distribution of $\frac{U_1/k_1}{U_2/k_2}$, where $U_1$, $U_2$ are indep. and follow $\chi^2(k_1)$, $\chi^2(k_2)$. [wiki](https://fr.wikipedia.org/wiki/Loi_de_Fisher) [Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67cad1ff53d2f8a3714dd8aa)
-- $\mathcal F(k_1,k_2) \approx 1 + \sqrt{\frac{2}{k_1} + \frac{2}{k_2}}\mathcal N\left(0, 1\right)$ when $k_1,k_2 \to +\infty$
-- $(k_1, k_2)$: degrees of freedom
-- Example: $\frac{Z_1^2+Z_2^2}{2Z_3^2} \sim \mathcal F(2,1)$ if $Z_i \sim \mathcal N(0,1)$
-:::
-
-
-::: {.callout-note icon=false .fragment title="Proposition"}
-- $\psi(X,Y)=\frac{\hat \sigma^2_1}{\hat \sigma_2^2}$ is independent of $\mu_1$, $\mu_2$, $\sigma_1$, $\sigma_2$. It is **pivotal**
-- It follow distribution $\mathcal F(n_1-1, n_2-1)$
-
-:::
-:::
-:::{.column}
-
-![](../images/Fisher.svg){.fragment}
-
-- Two-tailed test:
-$$ \frac{\hat \sigma^2_1}{\hat \sigma_2^2} \not \in [t_{\alpha/2}, t_{1-\alpha/2}] ~~~\text{(quantile of Fisher)}$$
-:::
-:::
 
 ## Testing Means, Equal Variances
 
@@ -302,50 +467,7 @@ $$
 
 # Asymptotic Approximations
 
-## Central Limit Theorem
 
-::::{.columns}
-:::{.column}
-::: {.callout-note}
-## CLT
-- Let $S_n = \sum_{i=1}^n$ with $(X_1, \dots, X_n)$ iid ($L^2$) then
-$$ \frac{S_n - \mathbb E[S_n]}{\sqrt{\mathrm{Var}(S_n)}} \approx \mathcal N(0,1) \text{ when $n \to \infty$} $$
-- Equality when $X_i$'s are $\mathcal N(\mu, \sigma^2)$
-- Rule of thumb: $n \geq 30$
-:::
-:::
-:::{.column}
-
-:::{.callout-tip .fragment}
-## Example: binomials
-
-- If $p \in (0,1)$
-- $\frac{\mathrm{Bin}(n,p) - np}{\sqrt{np(1-p)}} \approx \mathcal N(0,1)$ when $n \to \infty$
-- $n$ should be $\gg \frac{1}{p}$
-:::
-:::
-
-::::
-
-
-:::: {.columns}
-::: {.column}
-
-:::{.fragment}
-
-Good Approx for ($n=100$, $p=0.2$)
-
-![](../images/clt2.svg){width=70%}
-:::
-:::
-
-::: {.column}
-:::{.fragment}
-Bad Approx for ($n=100$, $p=0.01$)
-![](../images/clt001.svg){width=70%}
-:::
-:::
-::::
 
 ## Proportion Test
 
@@ -382,3 +504,10 @@ $$ \psi(X,Y) = \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}
 - $\hat p_1 = \overline X= \approx 0.58$, $\hat p_2=\overline Y= \approx 0.21$.
 - $\psi(X,Y)= \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \approx 8.99$
 - $\mathbb P(\psi(X,Y) > 8.99)$ = `1-cdf(Normal(0,1), 8.99)`
+
+
+##
+
+[Previous: usual distributions](usual_distributions.qmd)
+
+[Next: goodness of fit](goodness_of_fit_chi2.qmd)

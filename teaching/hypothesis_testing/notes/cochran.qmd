@@ -1,0 +1,106 @@
+---
+title: "Cochran's Theorem"
+subtitle: "General Statement, Proof, and Application to the Student Setting"
+format:
+  html:
+    self-contained: true
+    theme: cosmo
+    html-math-method: mathjax
+---
+
+## Setup
+
+Let $Y \sim \mathcal{N}(0, I_n)$ be a standard Gaussian vector in $\mathbb{R}^n$. Let $E$ and $F$ be two orthogonal subspaces of $\mathbb{R}^n$, i.e., $E \perp F$, with dimensions $\dim(E) = p$ and $\dim(F) = q$. Denote by $\Pi_E$ and $\Pi_F$ the orthogonal projections onto $E$ and $F$ respectively.
+
+## Statement
+
+Under the above assumptions:
+
+1. **Independence:** $\Pi_E Y$ and $\Pi_F Y$ are independent Gaussian vectors.
+
+2. **Chi-squared distributions:** $\|\Pi_E Y\|^2 \sim \chi^2(p)$ and $\|\Pi_F Y\|^2 \sim \chi^2(q)$.
+
+3. **Pythagorean decomposition:** If $\mathbb{R}^n = E \oplus F$ (i.e., $p + q = n$), then
+$$
+\|Y\|^2 = \|\Pi_E Y\|^2 + \|\Pi_F Y\|^2
+$$
+where the two terms on the right-hand side are independent $\chi^2(p)$ and $\chi^2(q)$ random variables.
+
+More generally, if $\mathbb{R}^n = E_1 \oplus E_2 \oplus \cdots \oplus E_k$ is an orthogonal decomposition with $\dim(E_j) = d_j$ and $\sum_{j=1}^k d_j = n$, then:
+$$
+\|Y\|^2 = \sum_{j=1}^k \|\Pi_{E_j} Y\|^2
+$$
+where the $\|\Pi_{E_j} Y\|^2 \sim \chi^2(d_j)$ are mutually independent.
+
+## Proof
+
+### Part 1: Independence of $\Pi_E Y$ and $\Pi_F Y$
+
+The vector $\begin{pmatrix} \Pi_E Y \\ \Pi_F Y \end{pmatrix}$ is a linear transformation of the Gaussian vector $Y$, hence it is jointly Gaussian. It suffices to show that the cross-covariance vanishes:
+$$
+\operatorname{Cov}(\Pi_E Y,\, \Pi_F Y) = \Pi_E \operatorname{Cov}(Y) \Pi_F^\top = \Pi_E \, I_n \, \Pi_F = \Pi_E \Pi_F
+$$
+
+Since $E \perp F$, for any $x \in \mathbb{R}^n$ we have $\Pi_F x \in F$, and then $\Pi_E(\Pi_F x) = 0$ because $F \perp E$. Therefore:
+$$
+\Pi_E \Pi_F = 0
+$$
+
+For jointly Gaussian vectors, zero covariance implies independence, so:
+$$
+\boxed{\Pi_E Y \perp\!\!\!\perp \Pi_F Y}
+$$
+
+### Part 2: Chi-squared distributions
+
+**Projection onto $E$:**
+Let $(e_1, \dots, e_p)$ be an orthonormal basis of $E$. Then:
+$$
+\Pi_E Y = \sum_{i=1}^p \langle Y, e_i \rangle \, e_i
+$$
+and
+$$
+\|\Pi_E Y\|^2 = \sum_{i=1}^p \langle Y, e_i \rangle^2
+$$
+
+Since $Y \sim \mathcal{N}(0, I_n)$ and the $e_i$ are orthonormal, the random variables $Z_i = \langle Y, e_i \rangle = e_i^\top Y$ satisfy:
+
+- $Z_i \sim \mathcal{N}(0, e_i^\top I_n \, e_i) = \mathcal{N}(0, 1)$
+- $\operatorname{Cov}(Z_i, Z_j) = e_i^\top e_j = \delta_{ij}$
+
+So $Z_1, \dots, Z_p$ are i.i.d. $\mathcal{N}(0,1)$, and by definition:
+$$
+\boxed{\|\Pi_E Y\|^2 = \sum_{i=1}^p Z_i^2 \sim \chi^2(p)}
+$$
+
+The same argument applied to an orthonormal basis $(f_1, \dots, f_q)$ of $F$ gives $\|\Pi_F Y\|^2 \sim \chi^2(q)$.
+
+### Part 3: Pythagorean decomposition
+
+If $\mathbb{R}^n = E \oplus F$, then $\Pi_E + \Pi_F = I_n$ and for any $Y$:
+$$
+\|Y\|^2 = \|\Pi_E Y + \Pi_F Y\|^2 = \|\Pi_E Y\|^2 + \|\Pi_F Y\|^2 + 2\langle \Pi_E Y, \Pi_F Y \rangle
+$$
+
+Since $\Pi_E Y \in E$ and $\Pi_F Y \in F$ with $E \perp F$, the cross term vanishes:
+$$
+\|Y\|^2 = \|\Pi_E Y\|^2 + \|\Pi_F Y\|^2
+$$
+
+By Parts 1 and 2, this is a sum of independent $\chi^2(p)$ and $\chi^2(q)$ random variables.
+
+The generalization to $k$ orthogonal subspaces follows by induction. $\blacksquare$
+
+## Application to the Student Setting
+
+Take $E = \operatorname{Span}(\mathbf{1})$ with $\dim(E) = 1$ and $F = E^\perp$ with $\dim(F) = n-1$. Setting $Y_i = \frac{X_i - \mu}{\sigma}$:
+
+$$
+\|\Pi_E Y\|^2 = n\bar{Y}^2 = \frac{n(\bar{X}-\mu)^2}{\sigma^2} \sim \chi^2(1)
+$$
+
+$$
+\|\Pi_F Y\|^2 = \sum_{i=1}^n (Y_i - \bar{Y})^2 = \frac{(n-1)\hat{\sigma}^2}{\sigma^2} \sim \chi^2(n-1)
+$$
+
+and the two are **independent**, which is precisely what is needed for the Student $T$-statistic.

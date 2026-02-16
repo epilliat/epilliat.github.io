@@ -1,698 +1,685 @@
 ---
 title: "Hypothesis Testing"
-format: 
+format:
   html:
-    incremental: true
-smaller: true
-css: ../style.css
-#filters:
-  #- parse-latex
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    css: ../../../styles.css
 ---
 
 # Introduction
 
-Tests provide the theoretical basis for decision-making based on data. For example, doctors diagnose diseases using specific biological markers, industrial quality engineers evaluate the quality of a production batch, and climate scientists determine whether there are significant changes in measurements compared to the pre-industrial era.
+## Organization
+
+- 15h of lectures, 18h of TD
+- $12^{th}$ may: Exam (2h)
+- Lecture notes and slides on the website
+- Wooclap sessions [[Test](https://app.wooclap.com/events/RQSUIA/questions/67d994736e237838c3125d66)]
+
+## Evaluation
+
+- One final exam of 2h (QCM and paper exercise)
+
+## Objective
+
+1. Given a general decision problem
+    - Introduce precise notations to describe the pb
+    - formulate mathematically hypotheses $H_0$ (a priori) and $H_1$ (alternative)
+2. Choose a statistic adapted to the problem
+3. Compute this statistic and its pvalue (or an approx.)
+4. Conclude and make a decision
 
 ## General Principles
 
-**Hypothesis testing** is a key statistical method that enables professionals to make informed decisions. The process involves setting up two competing hypotheses: 
-
-- the **null hypothesis $H_0$**, which assumes no effect or no difference. This is usually an a priori on the data.
-- the **alternative hypothesis $H_1$**, which suggests that there is a significant effect or difference.
-
-Let’s illustrate this with the example of a doctor diagnosing a disease, such as diabetes, using blood glucose levels:
-
-- The doctor begins by assuming the **null hypothesis $H_0$**: the patient’s blood glucose levels are normal, indicating no diabetes.
-- The **alternative hypothesis ($H_1$)** would suggest that the patient’s glucose levels are abnormally high, indicating diabetes.
-
-After collecting the patient’s blood glucose data, the doctor compares it to a standard threshold for diagnosing diabetes. A hypothesis test is then performed to evaluate whether the observed glucose level is significantly higher than the threshold, or whether the difference could simply be due to random variation.
-
-The testing process can be summarized as follows:
-
-1. **Fix an objective:** test whether Bob has diabetes
-2. **Design an experiment:** measure of glucose level
+1. **Fix an objective:** test whether the drug lowers blood pressure
+2. **Design an experiment:** clinical trial comparing drug vs placebo
 3. **Define hypotheses**
-    - **Null hypothesis:** $H_0$: a priori, Bob has no diabetes
-    - **Alternative hypothesis:** $H_1$: Bob has diabete
-4. **Define a decision dule:** function of the glucose level
-5. **Collect data:** do the measure of glucose level
+   - **Null hypothesis** $H_0$: drug has no effect
+   - **Alternative hypothesis** $H_1$: drug lowers blood pressure
+4. **Define a decision rule:** reject $H_0$ if p-value < α (e.g., 5%)
+5. **Collect Data:** measure blood pressure change in both groups
 6. **Apply the decision rule:** reject $H_0$ or not
-7. **Draw a conclusion:** should Bob follow a treatment or make other tests?
+7. **Draw a conclusion:** should the drug be approved or run more trials?
+
+## What is a p-value?
+
+**p-value** = probability of observing a result as extreme (or more)
+assuming $H_0$ is true
+
+**Example:** drug trial shows 8 mmHg blood pressure drop
+
+- p-value = 0.03 means:
+- → "If the drug had **no effect**, there's only a **3% chance**
+     of seeing such a large drop by random chance alone"
+
+## Decision Rule
+
+| p-value | Interpretation |
+|---------|----------------|
+| p < 0.05 | Reject $H_0$ → drug likely works |
+| p ≥ 0.05 | Do not reject $H_0$ → not enough evidence |
+
+⚠️ A small p-value does **not** prove $H_1$ is true —
+it only says $H_0$ is unlikely given the data.
 
 ## Good and Bad Decisions
 
-<table style="border-collapse: collapse; width: 100%; text-align: center; border: 2px solid black;">
-  <thead>
-    <tr>
-      <th>Decision</th>
-      <th>$H_0$ True</th>
-      <th>$H_1$ True</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>$T=0$</td>
-      <td class="fragment green-cell" data-fragment-index="1">
-        True Negative (**TN**)
-      </td>
-      <td class="fragment red-cell">
-        False Negative (**FN**)
-        <ul style="list-style-position: inside; margin: 0; padding: 0;">
-          <li>Second Type Error</li>
-          <li>Missed Detection</li>
-        </ul>
-      </td>
-    </tr>
-    <tr>
-      <td>$T=1$</td>
-      <td class="fragment red-cell">
-        False Positive (**FP**)
-        <ul style="list-style-position: inside; margin: 0; padding: 0;">
-          <li>First Type Error</li>
-          <li>False Alarm</li>
-        </ul>
-      </td>
-      <td class="fragment green-cell">
-        True Positive (**TP**)
-      </td>
-    </tr>
-  </tbody>
-</table>
+| Decision | $H_0$ True | $H_1$ True |
+|:--------:|:----------:|:----------:|
+| $T=0$ | True Negative (**TN**) | False Negative (**FN**): Second Type Error, Missed Detection |
+| $T=1$ | False Positive (**FP**): First Type Error, False Alarm | True Positive (**TP**) |
 
-In general, observing $T=1$ is just *one piece of evidence* supporting $H_1$. It's possible that we were simply unlucky and the data led the test to reject $H_0$. Additionally, the sample used might not be representative, or the elevated glucose level could be caused by another condition, not diabetes. Therefore, we cannot blindly accept $H_1$ based on this result alone. Further investigation is essential when $T=1$ to minimize the risk of making a Type I error. 
+## Dice Biased Toward $6$
 
-The same applies when $T=0$. A result of $T=0$ simply indicates that the test provides no evidence in favor of $H_1$, but it doesn't mean that $H_1$ is false. It is possible that the patient exhibits other symptoms that could still suggest a diagnosis of diabetes, despite the lack of evidence from the test.
-
-## Examples
-### Dice biased toward $6$
-
-1. **Objective**: test if Bob is cheating with a dice.\
-2. **Experiment**: Bob rolls the dice $10$ times.
+1. **Objective**: test if Bob is cheating with a biased dice
+2. **Experiment**: Bob rolls the dice $10$ times
 3. **Hypotheses**:
-    - $H_0$: the probability of getting $6$ is $1/6$
-    - $H_1$: the probability of getting $6$ is larger than $1/6$
-4. **Decision rule**: the probability of getting a number of $6$ at least equal to the number of observed $6$ is $< 0.05$
+   - $H_0$: the probability of getting $6$ is $1/6$
+   - $H_1$: the probability of getting $6$ is larger than $1/6$
+4. **Decision rule**: reject $H_0$ if p-value $< 0.05$
 5. **Data**: the dice falls $10$ times on $6$
-6. **Decision**: the probability is $1/6^{10} < 0.05$
-7. **Conclusion?**
+6. **Decision**: p-value $= (1/6)^{10} \approx 10^{-8} < 0.05$ → reject $H_0$
+7. **Conclusion**: strong evidence Bob is cheating!
 
-In the above example, we formally observe $(X_1, \dots, X_n)$ iid where $X_i \in \{1, \dots, 6\}$ where each $\mathbb P(X_i = k) = p_k$
-Imagine that instead of ten $6$, we observed $600$ tosses leading to the following counts:
+## Fairness of Dice
 
-![](../images/biased_dice.svg){width="80%"}
+We observe $(X_1, \dots, X_n)$ iid where $X_i \in \{1, \dots, 6\}$ with $\mathbb{P}(X_i = k) = p_k$
 
-The number of $6$ is really close to $100 = 600/6$, which implies that we would not reject $H_0$ in the previous example. We would reject however if we wanted to test whether the dice is fair, since it is highly biased toward $2$.
+![](../images/biased_dice.svg){width="50%"}
 
-:::{.callout-warning .fragment}
-## Same data, two conclusions
-::: {.columns}
-::: {.column}
-- $H_0: p_6 = 1/6$ VS $H_1: p_6 > 1/6$
-- Do not reject $H_1$ ($H_0$ is "likely")
+**⚠️ Same data, two conclusions**
+
+::: {.callout-note}
+$H_0: p_6 = 1/6$ vs $H_1: p_6 > 1/6$
 :::
-::: {.column}
-- $H_0: (p_1=\dots=p_6 = 1/6)$ (dice is fair) VS $H_1: \exists k: p_k > 1/6$
-- Reject $H_1$ ($H_0$ is "unlikely")
-:::
-::: 
-:::
-### Medical test
 
-See also the ([Pluto notebook: illustration of pvalue](../pluto/illustration_pvalue.html))
+Here: do not reject $H_0$ ($H_0$ is "likely")
 
-1. **Objective:** test if a fetus has Down syndrome
-2. **Experiment:** measure the Nucal translucency
+::: {.callout-note}
+$H_0:$ dice is fair vs $H_1: \exists k: p_k > 1/6$
+:::
+
+Here: reject $H_0$ ($H_0$ is "unlikely")
+
+## Medical Test
+
+1. **Objective:** test if a patient has high cholesterol
+2. **Experiment:** measure LDL cholesterol level (mg/dL)
 3. **Hypotheses:**
-    - $H_0$: nucal translucency is normal $\sim \mathcal N(1.5,0.8)$
-    - $H_1$: nucal translucency is large
-4. **Decision rule**: reject if $P_0(X \geq x_{obs}) \leq 0.05$ ("$95^{th}$ percentile")
-5. **Collect data**: $x_{obs}=3.02$
-6. **Make a decision**: Calculate the value of $P_0(X \geq 3.02)=0.029$
-7. **Conclusion?**
+   - $H_0$: LDL cholesterol is normal $\sim \mathcal{N}(100, 25)$
+   - $H_1$: LDL cholesterol is high
+4. **Decision rule**: reject if $P_0(X \geq x_{obs}) \leq 0.05$
+5. **Collect data**: $x_{obs}=152$
+6. **Make a decision**: calculate $P_0(X \geq 152)=0.019$
+7. **Conclusion ?**
 
-![](../images/nuque.svg){.fragment width="80%"}
+![](../images/H_0_normal.svg){width="60%"}
 
+![](../images/normal_005.svg){width="60%"}
 
+![](../images/nuque.svg){width="60%"}
 
+# Probability Basics
 
+## Recall of Proba: Continuous Measures
+
+- **PDF** (Density): $x \mapsto p(x)$ where $\mathbb P(X\in[x,x+dx]) = p(x)dx$
+- **CDF**: $x \mapsto \int_{-\infty}^x p(x')dx'$
+
+::: {.callout-note}
+### $\alpha$-quantile
+$q_{\alpha}$: $\int_{-\infty}^{q_{\alpha}} p(x)dx = \alpha$
+:::
+
+$\Leftrightarrow \mathbb P(X \leq q_{\alpha}) = \alpha$
+
+## Recall of Proba: Discrete Measures
+
+Consider a probability measure $P$ on $\mathbb R$ with $X \sim P$.
+
+- **PMF** (Density): $\mathbb P(X=x) = P(\{x\})=p(x)$
+- **CDF**: $x \mapsto \sum_{x' \leq x} p(x')$
+
+::: {.callout-note}
+### $\alpha$-quantile
+$q_{\alpha}$: $\inf\{q \in \mathbb R:~\sum_{x_i \leq q}p(x_i) \geq \alpha\}$
+:::
+
+## Example: Gaussian Distribution
+
+**Gaussian** $\mathcal N(\mu,\sigma)$:
+$$p(x) = \frac{1}{\sqrt{2\pi \sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$
+
+![](../images/basics/pdfgauss.svg){width="60%"}
+
+Approximation of sum of iid RV (Central Limit Theorem)
+
+## Example: Binomial Distribution
+
+**Binomial** $\mathrm{Bin}(n,q)$: $p(x)= \binom{n}{x}q^x (1-q)^{n-x}$
+
+![](../images/basics/pdf_binom.svg){width="50%"}
+
+Number of successes among $n$ Bernoulli $q$
+
+## Example: Exponential Distribution
+
+**Exponential** $\mathcal E(\lambda)$: $p(x) = \lambda e^{-\lambda x}$
+
+![](../images/basics/pdf_exp.svg){width="50%"}
+
+Waiting time for an atomic clock of rate $\lambda$
+
+## Example: Geometric Distribution
+
+**Geometric** $\mathcal{G}(q)$: $p(x)= q(1-q)^{x-1}$
+
+![](../images/basics/pdf_geom.svg){width="50%"}
+
+Index of first success for iid Bernoulli $q$
+
+## Example: Gamma Distribution
+
+**Gamma** $\Gamma(k, \lambda)$: $p(x) = \frac{\lambda^k x^{k-1}e^{-\lambda x}}{(k-1)!}$
+
+![](../images/basics/pdf_gamma.svg){width="50%"}
+
+Waiting time for $k$ atomic clocks of rate $\lambda$
+
+## Example: Poisson Distribution
+
+**Poisson** $\mathcal{P}(\lambda)$: $p(x)=\frac{\lambda^x}{x!}e^{-\lambda}$
+
+![](../images/basics/pdf_poisson.svg){width="50%"}
+
+Number of ticks before time $1$ of clock $\lambda$
 
 # Basics of Hypothesis Testing
 
 ## Estimation VS Test
 
-- We observe some data $X$ in a measurable space $(\mathcal X, \mathcal A)$.
-- Example $\mathcal X = \mathbb R^n$: $X= (X_1, \dots, X_n)$.
+We observe some data $X$ in a measurable space $(\mathcal X, \mathcal A)$.
 
+Example: $\mathcal X = \mathbb R^n$, $X= (X_1, \dots, X_n)$.
 
+## Estimation
 
-### Estimation
+One set of distributions $\mathcal P$ parameterized by $\Theta$:
+$$\mathcal P = \{P_{\theta},~ \theta \in \Theta\}$$
 
-- One set of distributions $\mathcal P$
-- Parameterized by $\Theta$
-$$
-\mathcal P = \{P_{\theta},~ \theta \in \Theta\} \; .
-$$
-- $\exists \theta \in \Theta$ such that $X \sim P_{\theta}$
+$\exists \theta \in \Theta$ such that $X \sim P_{\theta}$
 
-
-**Goal:** estimate a given function of $P_{\theta}$, e.g.:
-
-- $F(P_{\theta}) = \int x dP_{\theta}$
-- $F(P_{\theta}) = \int x^2 dP_{\theta}$
-
-
-
-### Test
-
-- Two sets of distributions $\mathcal P_0$, $\mathcal P_1$
-- Parameterized by disjoints $\Theta_0$, $\Theta_1$
-$$ 
-\begin{aligned}
-\mathcal P_0 = \{P_{\theta} : \theta \in \Theta_1\}, ~~~~  \mathcal P_1 = \{P_{\theta} : \theta \in \Theta_1\}\; .
-\end{aligned}
-$$
-
-- $\exists \theta \in \Theta_0 \cup \Theta_1$ such that $X \sim P_{\theta}$
-
-
-**Goal:** decide between
-$$H_0: \theta \in \Theta_0 \text{ or } H_1: \theta \in \Theta_1$$
-
-
-
-## 
-
-::: {.columns}
-
-::: {.column width="50%"}
-### Estimation
-
-::: {.fragment}
-![](../images/estim.png){width="120%"}
-:::
+::: {.callout-important}
+### Goal
+Estimate a function of $P_{\theta}$, e.g. $\int x \, dP_{\theta}$ or $\int x^2 \, dP_{\theta}$
 :::
 
-::: {.column width="50%"}
-### Test
-::: {.fragment}
-![](../images/test_intro.png)
+![](../images/estim.png){width="70%"}
+
+## Test
+
+Two sets of distributions $\mathcal P_0$, $\mathcal P_1$ with disjoint $\Theta_0$, $\Theta_1$:
+$$\mathcal P_0 = \{P_{\theta} : \theta \in \Theta_0\}, ~~~~ \mathcal P_1 = \{P_{\theta} : \theta \in \Theta_1\}$$
+
+$\exists \theta \in \Theta_0 \cup \Theta_1$ such that $X \sim P_{\theta}$
+
+::: {.callout-important}
+### Goal
+Decide between $H_0: \theta \in \Theta_0$ or $H_1: \theta \in \Theta_1$
 :::
 
+![](../images/test_intro.png){width="70%"}
+
+[Question Tests](https://app.wooclap.com/events/RQSUIA/questions/6737a984033a3cdd266d88f5)
+
+## Test Model
+
+Two sets of distributions $\mathcal P_0$, $\mathcal P_1$ with disjoint $\Theta_0$, $\Theta_1$:
+$$\mathcal P_0 = \{P_{\theta} : \theta \in \Theta_0\}, ~~~~ \mathcal P_1 = \{P_{\theta} : \theta \in \Theta_1\}$$
+
+$\exists \theta \in \Theta_0 \cup \Theta_1$ such that $X \sim P_{\theta}$
+
+::: {.callout-important}
+### Goal
+Decide between $H_0: \theta \in \Theta_0$ or $H_1: \theta \in \Theta_1$
 :::
 
-:::
+## Types of Problems
 
-
-## Type of Problems
-
-
-- **Simple VS Simple**:$$\Theta_0 = \{\theta_0\} \text{ and } \Theta_1 = \{\theta_1\}$$
-- **Simple VS Multiple**:$$\Theta_0 = \{\theta_0\}$$
-- Else: **Multiple VS Multiple**
-
-
-
-##
-
-::: {.columns}
-
-::: {.column width="50%"}
+- **Simple VS Simple**: $\Theta_0 = \{\theta_0\}$ and $\Theta_1 = \{\theta_1\}$
+- **Simple VS Multiple**: $\Theta_0 = \{\theta_0\}$
+- **Multiple VS Multiple**: otherwise
 
 ### Simple VS Simple
 
-::: {.fragment}
-![](../images/simple-simple.svg)
-:::
-:::
-::: {.column width="50%"}
+![](../images/simple-simple.svg){width="60%"}
 
 ### Multiple VS Multiple
 
-::: {.fragment}
-![](../images/test_intro.png)
-:::
-
-:::
-
-:::
-
-
-
-
+![](../images/test_intro.png){width="60%"}
 
 ## Parametric VS Non-Parametric
 
-- **Parametric**: $\Theta_0$ and $\Theta_1$ included in subspaces of finite dimension.
+- **Parametric**: $\Theta_0$ and $\Theta_1$ included in subspaces of finite dimension
 - **Non-parametric**: otherwise
 
+::: {.callout-note}
+### Example (Multiple VS Multiple Parametric)
 
-::: {.fragment}
-Example of multiple VS multiple parametric problem:
-
-- $H_0: X \sim \mathcal N(\theta,\sigma)$, unknown $\theta < 0$ and unknown $\sigma > 0$: $\Theta_0 \subset \mathbb R^2$
-- $H_1: X \sim \mathcal N(\theta,\sigma)$, unknown $\theta > 0$ and unknown $\sigma > 0$: $\Theta_1 \subset \mathbb R^2$
+- $H_0: X \sim \mathcal N(\theta,\sigma)$, $\theta < 0$, $\sigma > 0$ → $\Theta_0 \subset \mathbb R^2$
+- $H_1: X \sim \mathcal N(\theta,\sigma)$, $\theta > 0$, $\sigma > 0$ → $\Theta_1 \subset \mathbb R^2$
 :::
 
+[Simple VS Multiple Non-Parametric Problems](https://app.wooclap.com/events/RQSUIA/questions/6737a94e942e824ee194f4f9)
 
+## Decision Rule
 
-
-
-## Decision Rule and Test Statistic
-
-
-::: {.callout-note title="Decision rule"}
-- A **decision rule** or **test** $T$ is a measurable function from $\mathcal X$ to $\{0,1\}$: $$ T : \mathcal X \to \{0,1\}\; .$$
-
-- It can depend on the sets $\mathcal P_0$ and $\mathcal P_1$
-- but **not** on any unknown parameter.
+::: {.callout-note}
+### Definition
+A **Decision Rule** or **Test** $T$ is a measurable function:
+$$T : \mathcal X \to \{0,1\}$$
 :::
 
-::: {.callout-note title="Test statistic"}
-- a **test statistic** $\psi$ is a measurable function from $\mathcal X$ to $\mathbb R$: $$ \psi : \mathcal X \to \mathbb R\; .$$
+- It can depend on $\mathcal P_0$ and $\mathcal P_1$
+- but **not** on any unknown parameter
+- $T(x) = 0$ (or $1$) for all $x$ is the trivial decision rule
 
-- It can depend on the sets $\mathcal P_0$ and $\mathcal P_1$
+[Question: Decision Rule](https://app.wooclap.com/events/RQSUIA/questions/6737b74b942e824ee1a033a6)
 
+## Test Statistic
+
+::: {.callout-note}
+### Definition
+A **Test Statistic** $\psi$ is a measurable function:
+$$\psi : \mathcal X \to \mathbb R$$
 :::
 
+- It can depend on $\mathcal P_0$ and $\mathcal P_1$
+- but **not** on any unknown parameter
+
+[Question: Test Statistic](https://app.wooclap.com/events/RQSUIA/questions/674734898cc94c63e6c9947e)
 
 ## Rejection Region
 
-- For a given test $T$, the **rejection region** $\mathcal R \subset \mathbb R$ is the set
-$$\{\psi(x) \in \mathbb R:~ T(x)=1\} \; .$$
-- Example of $\mathcal R$, for a given threshold $t>0$,
+::: {.callout-note}
+### Definition
+For a test $T$ with statistic $\psi$, the **rejection region** $\mathcal R \subset \mathbb R$ is:
+$$\mathcal R = \{\psi(x) \in \mathbb R:~ T(x)=1\}$$
+:::
+
+→ Set of values of the **statistic** that lead to rejecting $H_0$
+
+## Critical Region
+
+::: {.callout-note}
+### Definition
+For a test $T$, the **critical region** $\mathcal C \subset \mathcal X$ is:
+$$\mathcal C = \{x \in \mathcal X:~ T(x)=1\}$$
+:::
+
+→ Set of **observations** that lead to rejecting $H_0$
+
+⚠️ These terms are sometimes used interchangeably, but we distinguish them in this course.
+
+## Example of Rejection Region
+
 $$
 \begin{aligned}
-T(x) &= \mathbf{1}\{\psi(x) > t\}:~~~~~~\mathcal R = (t,+\infty)\\ 
+T(x) &= \mathbf{1}\{\psi(x) > t\}:~~~~~~\mathcal R = (t,+\infty)\\
 T(x) &= \mathbf{1}\{\psi(x) < t\}:~~~~~~\mathcal R = (-\infty,t)\\
 T(x) &= \mathbf{1}\{|\psi(x)| > t\}:~~~~~~\mathcal R = (-\infty,t)\cup (t, +\infty)\\
-T(x) &= \mathbf{1}\{\psi(x) \not \in [t_1, t_2]\}:~~~~~~\mathcal R = (-\infty,t_1)\cup (t_2, +\infty)\;
+T(x) &= \mathbf{1}\{\psi(x) \not \in [t_1, t_2]\}:~~~~~~\mathcal R = (-\infty,t_1)\cup (t_2, +\infty)
 \end{aligned}
 $$
-
-
-# Recall of Proba
-
-Consider a probability measure $P$ on $\mathbb R$.
-
-- **CDF** (cumulative distribution function): 
-$$x \to P(~(-\infty,x]~) = \mathbb P(X \leq x) ~~~~\text{(if $X \sim P$ under $\mathbb P$)}$$
-
-
-
-
-::::{.columns}
-:::{.column width="50%"}
-
-## Continous Measures
-- density wrp to Lebesgue: $dP(x) = p(x)dx$
-
-- **PDF** (proba density function): $x \to p(x)$
-- **CDF**: $x \to \int_{\infty}^x p(x')dx'$
-- $\alpha$-quantile $q_{\alpha}$: $\int_{\infty}^{q_{\alpha}} p(x)dx = \alpha$
-- or $\mathbb P(X \leq q_{\alpha} = \alpha)$
-:::
-
-:::{.column width="50%"}
-
-::: {.fragment}
-## Discrete Measures
-- density wrp to counting measure: $P(X=x) = p(x)$
-- **CDF**: $x \to \sum_{x' \leq x} p(x')dx'$
-- $\alpha$-quantile $q_{\alpha}$: 
-$$\inf_{q \in \mathbb R}\{q:~\sum_{x_i \leq q}p(x_i) > \alpha\}$$
-
-:::
-:::
-::::
-
-
-
-
-## Examples 
-
-### Gaussian/Bernoulli
-
-:::: {.columns}
-::: {.column width="50%"}
-- **Gaussian** $\mathcal N(\mu,\sigma)$: 
-$$p(x) = \frac{1}{\sqrt{2\pi \sigma^2}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}$$
-
-::: {.fragment}
-![](../images/basics/pdfgauss.svg)
-:::
-- Approximation of sum of iid RV (TCL)
-:::
-
-::: {.column width="50%"}
-- **Binomial** $\mathrm{Bin}(n,q)$: 
-$$p(x)= \binom{n}{x}q^x (1-q)^{n-x}$$
-
-::: {.fragment}
-![](../images/basics/pdf_binom.svg)
-:::
-
-- Number of success among $n$ Bernoulli $q$
-:::
-
-::::
-
-### Exponential/Geometric
-
-
-:::: {.columns}
-::: {.column width="50%"}
-- **Exponential** $\mathcal E(\lambda)$: 
-$$p(x) = \lambda e^{-\lambda x}$$
-
-::: {.fragment}
-![](../images/basics/pdf_exp.svg)
-:::
-- Waiting time for an atomic clock of rate $\lambda$
-
-:::
-
-::: {.column width="50%"}
-- **Geometric** $\mathcal{G}(q)$: 
-$$p(x)= q(1-q)^{x-1}$$
-
-::: {.fragment}
-![](../images/basics/pdf_geom.svg)
-:::
-- Index of first success for iid Bernoulli $q$
-:::
-
-::::
-
-
-### Gamma/Poisson
-
-:::: {.columns}
-::: {.column width="50%"}
-- **Gamma** $\Gamma(k, \lambda)$: 
-$$p(x) = \frac{\lambda^k x^{k-1}e^{-\lambda x}}{(k-1)!}$$
-
-::: {.fragment}
-![](../images/basics/pdf_gamma.svg)
-:::
-- Waiting time for $k$ atomic clocks of rate $\lambda$
-:::
-
-::: {.column width="50%"}
-- **Poisson** $\mathcal{P}(\lambda)$: 
-$$p(x)=\frac{\lambda^x}{x!}e^{-\lambda}$$
-
-::: {.fragment}
-![](../images/basics/pdf_poisson.svg)
-:::
-- Number of tics before time $1$ of an atomic clock of rate $\lambda$
-
-:::
-
-::::
 
 # Simple VS Simple
 
-- We observe $X \in \mathcal X=\mathbb R^n$.
-- $H_0: X \sim P$ or $H_1: X \sim Q$.
-- We **know** $P$ and $Q$ but we do not know whether $X \sim P$ or $X \sim Q$
+## Simple VS Simple Problem
 
-::: {.fragment}
-For a given test $T$ we define:
+We observe $X \in \mathcal X=\mathbb R^n$. We fix two known distributions $P$ and $Q$.
 
-- **level** of $T$ = (type-1 error): $\alpha = P(T(X)=1)$
-- **power** of $T$ = 1 - (type-2 error): $\beta = Q(T(X)=1) = 1-Q(T(X)=0)$
+The problem:
+
+::: {.callout-important}
+$H_0: X \sim P$ or $H_1: X \sim Q$
 :::
 
-:::{.fragment}
-<table style="border-collapse: collapse; width: 100%; text-align: center; border: 2px solid black;">
-  <thead>
-    <tr>
-      <th style="text-align:center">Decision</th>
-      <th style="text-align:center">$H_0: X \sim P$</th>
-      <th style="text-align:center">$H_1: X \sim Q$</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align:center">$T=0$</td>
-      <td class="fragment green-cell" style="text-align: center">
-        $1-\alpha$
-      </td>
-      <td class="fragment red-cell" style="text-align: center">
-        $1-\beta$
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align:center">$T=1$</td>
-      <td class="fragment red-cell" style="text-align: center">
-        $\alpha$
-      </td>
-      <td class="fragment green-cell" style="text-align: center">
-        $\beta$
-      </td>
-    </tr>
-  </tbody>
-</table>
-- **unbiased**: $\beta \geq \alpha$
-- $\alpha = 0$ for trivial test $T(x)=0$ ! But $\beta =0$ too...
+::: {.callout-warning}
+We **know** $P$ and $Q$ but not whether $X \sim P$ or $X \sim Q$
 :::
 
+## Level and Power
 
+::: {.callout-note}
+### Level and Power
+Consider a simple VS simple problem. The **Level** of a test $T$ is defined as
+
+$$\alpha = P(T(X)=1) = P(X \in \mathcal C) \quad \text{(type-1 error)}$$
+
+Its **power** is defined as
+
+$$\beta = Q(T(X)=1) = Q(X \in \mathcal C)$$
+
+$1 - \beta$ is the type-2 error.
+:::
+
+## Decision Table
+
+| Decision | $H_0: X \sim P$ | $H_1: X \sim Q$ |
+|:--------:|:---------------:|:---------------:|
+| $T=0$ | ✓ $1-\alpha$ | ✗ $1-\beta$ |
+| $T=1$ | ✗ $\alpha$ | ✓ $\beta$ |
+
+- **Unbiased**: $\beta \geq \alpha$
+- $\alpha = 0$ for trivial test $T(x)=0$... but $\beta = 0$ too!
 
 ## Likelihood Ratio Test
 
+Consider the simple VS simple problem $H_0$: $X \sim P$ VS $H_1$: $X \sim Q$.
 
-- Test $T$ that maximizes $\beta$ at fixed $\alpha$?
-- **Idea**: Consider the **likelihood ratio test statistic** 
+**Question:** which test $T$ maximizes $\beta$ at fixed $\alpha$?
+
+::: {.callout-note}
+### Likelihood ratio statistic
 $$\psi(x)=\frac{dQ}{dP}(x) = \frac{q(x)}{p(x)}$$
-- We consider the **likelihood ratio test**
-$$ T^*(x)=\mathbf 1\left\{\frac{q(x)}{p(x)} > t_{\alpha}\right\} \;$$
-- Equivalently, we can consider the **log-likelihood ratio test**:
-$$T^*(x)=\mathbf 1\left\{\log\left(\frac{q(x)}{p(x)}\right) > \log(t_{\alpha})\right\}$$
-- $t_{\alpha}$ is the $\alpha$-quantile of the distrib $\frac{q(X)}{p(X)}$ if $X\sim P$
-$$ \mathbb P_{X \sim P}\left(\frac{q(X)}{p(X)} > t_{\alpha}\right) = \alpha$$
-
-
-
-## Neyman Pearson
-
-::: {.callout-note title="Neyman Pearson's theorem"}
-The likelihood Ratio Test of level $\alpha$ maximizes the power among all tests of level $\alpha$.
 :::
 
-- **Example**: $X \sim \mathcal N(\theta, 1)$.
-- $H_0: \theta=\theta_0$, $H_1: \theta=\theta_1$.
-- Check that the log-likelihood ratio is
-$$ (\theta_1 - \theta_0)x + \frac{\theta_0^2 -\theta_1^2}{2} \; .$$
+::: {.callout-note}
+### Likelihood ratio test
+$$T^*(x)=\mathbf 1\left\{\frac{q(x)}{p(x)} > t_{\alpha}\right\}$$
+:::
 
-- If $\theta_1 > \theta_0$, an optimal test if of the form 
-$$ T(x) = \mathbf 1\{ x > t \} \; .$$
+where $t_{\alpha}$ is the $\alpha$-quantile:
+$$\mathbb P_{X \sim P}\left(\frac{q(X)}{p(X)} > t_{\alpha}\right) = \alpha$$
 
+## Neyman-Pearson's Theorem
 
-### Proof of Neyman Pearson's theorem
-We prove the theorem in the case where $P$ and $Q$ each have a density $p$ and $q$ on $\mathbb R^n$.
-For any $t > 0$, define
-$$I_t(P, Q) = \int_{x \in \mathbb R^n} |q(x) - tp(x)|dx \; .$$
+::: {.callout-note title="Neyman-Pearson's Theorem"}
+The Likelihood Ratio Test of level $\alpha$ maximizes the power among all tests of level $\alpha$.
+:::
 
-When $t=1$, this quantity is equal to the total-variation distance between $P$ and $Q$. For any event A in $\mathbb R^n$ , it holds that
+Recall: $T^*(x)=\mathbf 1\left\{\frac{q(x)}{p(x)} > t_{\alpha}\right\}$ where $P(T^*(X)=1) = \alpha$
 
-$$
-\begin{split}
-  I_t(P, Q) &= \int_{x \in \mathbb R^n} |q(x) - tp(x)|dx \\
-  &= \int_{q(x)> tp(x)} q(x) - tp(x)dx + \int_{q(x)< tp(x)} tp(x) - q(x)dx\\
-  &=  2\int_{x \in \mathbb R^n} \mathbf1_{q(x)> tp(x)}(q(x) - tp(x))dx + t-1 \\
-  &\geq 2\int_{x \in \mathbb R^n} \mathbf 1_A \mathbf1_{q(x)> tp(x)}(q(x) - tp(x))dx + t-1\\
-  &\geq t-1 + 2(Q(A) - tP(A)) \; .
-\end{split}
-$$
+Equivalent to Log-Likelihood Ratio Test:
 
-If $A  = \{x \in \mathbb R^n : q(x) > tp(x)\}$, then the two last inequalities are equalities. In particular,
-$$I_t(P, Q) = t-1 + 2\sup_{A \subset \mathbb R^n}(Q(A) - tP(A))) \; .$$
+$$T^*(x)=\mathbf 1\left\{\log\left(\frac{q(x)}{p(x)}\right) > \log(t_{\alpha})\right\}$$
 
+## Neyman-Pearson: Proof Sketch
 
-Assume that the type-1 error of $T$ is smaller than $\alpha$: $P(T=1) \leq \alpha$.
+Let $T$ be any test with level $\alpha$. We want to show $\beta^* \geq \beta$.
 
- The power of $T$, $Q(T = 1)$, is upper-bounded as follows:
-$$
-\begin{split}
-  Q(T=1) &\leq Q(T=1) + t(\alpha - P(T=1))\\ 
-  &= \alpha t + Q(T=1) - tP(T=1) \\
-  &\leq \alpha t + \frac{t-1}{2} + \frac{1}{2}I_t \; .
-\end{split}
-$$
+$$\beta^* - \beta = Q(T^*=1) - Q(T=1) = \int (T^* - T) dQ$$
 
-- There is equality in the second inequality if $T=1$ is the event $\{ \frac{q(X)}{p(X)} > t \}$. 
-- There is equality in the first inequality if $P(T=1) = \alpha$.
+$$= \int (T^* - T) \frac{q}{p} dP$$
 
-Let $t_{\alpha}$ be such that $P(\frac{q(X)}{p(X)}> t_{\alpha}) = \alpha$. The test $T^*(X) = \mathbf1 \{\frac{q(X)}{p(X)}> t_{\alpha}\}$ satisfies the two above points, since its rejection event is exactly $\{T^*(X) = 1\} = \{\frac{q(X)}{p(X)}> t_{\alpha}\}$ and since $P(T^* = 1) = \alpha.$ Hence, for any test $T$ of type 1 error smaller than $\alpha$, it holds that $Q(T = 1) \leq Q(T^* = 1)$.
+### Proof Sketch continued
 
+$$\beta^* - \beta = \int (T^* - T) \frac{q}{p} dP$$
 
-## Examples
-### Example (Gaussians)
+On $\{T^*=1\}$: $\frac{q}{p} > t_\alpha$ and $(T^* - T) \geq 0$
 
-- Let $P_{\theta}$ be the distribution $\mathcal N(\theta,1)$.
+On $\{T^*=0\}$: $\frac{q}{p} \leq t_\alpha$ and $(T^* - T) \leq 0$
 
-- Observe $n$ iid data $X = (X_1, \dots, X_n)$
+$$\Rightarrow \beta^* - \beta \geq t_\alpha \int (T^* - T) dP = t_\alpha (\alpha - \alpha) = 0 ~~~ \square$$
+
+## Neyman-Pearson: Example
+
+**Example**: $X \sim \mathcal N(\theta, 1)$ with $H_0: \theta=\theta_0$ and $H_1: \theta=\theta_1$
+
+Log-likelihood ratio:
+$$\log\frac{q(x)}{p(x)} = (\theta_1 - \theta_0)x + \frac{\theta_0^2 -\theta_1^2}{2}$$
+
+If $\theta_1 > \theta_0$, the optimal test is:
+$$T(x) = \mathbf 1\{ x > t \}$$
+
+## Example: Gaussians with $n$ Observations
+
+Let $P_{\theta} = \mathcal N(\theta,1)$. Observe $n$ iid data $X = (X_1, \dots, X_n)$.
+
 - $H_0: X \sim P^{\otimes n}_{\theta_0}$ or $H_1: X \sim P^{\otimes n}_{\theta_1}$
-- Remark:  $P^{\otimes n}_{\theta}= \mathcal N((\theta,\dots, \theta), I_n)$
-- Density of $P^{\otimes n}_{\theta}$:
+- Note: $P^{\otimes n}_{\theta}= \mathcal N((\theta,\dots, \theta), I_n)$
 
+Density of $P^{\otimes n}_{\theta}$:
+$$\frac{d P^{\otimes n}_{\theta}}{dx} = \frac{1}{\sqrt{2\pi}^n}\exp\left(-\frac{\|x\|^2}{2} + n\theta \overline x - \frac{n\theta^2}{2}\right)$$
 
+### Gaussians (continued)
 
+Log-Likelihood Ratio Test:
 
-$$
-\begin{aligned}
-\frac{d P^{\otimes n}_{\theta}}{dx} &= \frac{d P_{\theta}}{dx_1}\dots\frac{d P_{\theta}}{dx_n} \\
-&= \frac{1}{\sqrt{2\pi}^n}\exp\left({-\sum_{i=1}^n\frac{(x_i - \theta)^2}{2}}\right) \\
-&=  \frac{1}{\sqrt{2\pi}^n}\exp\left(-\frac{\|x\|^2}{2} + n\theta \overline x - \frac{\theta^2}{2}\right)\; .
-\end{aligned}
-$$
+$T(x) = \mathbf 1\{\overline x > t_{\alpha}\}$ if $\theta_1 > \theta_0$
 
+$T(x) = \mathbf 1\{\overline x < t_{\alpha}\}$ otherwise
 
-- Log-likelihood ratio test:
-- $T(x) = \mathbf 1\{\overline x > t_{\alpha}\}$ if $\theta_1 > \theta_0$
-- $T(x) = \mathbf 1\{\overline x < t_{\alpha}\}$ otherwise
+[Distribution of $\overline X$ ?](https://app.wooclap.com/events/RQSUIA/questions/674dd6ad6e59c0c457a73b85)
 
+[$t_{\alpha}$ ?](https://app.wooclap.com/events/RQSUIA/questions/674dda3980e3863f9c782fd6)
 
-### Example: Exponential Families
+## Generalization: Exponential Families
 
-- A set of distributions $\{P_{\theta}\}$ is an exponential family if each density $p_{\theta}(x)$ is of the form
-$$ p_{\theta}(x) = a(\theta)b(x) \exp(c(\theta)d(x)) \; , $$ 
+::: {.callout-note}
+### Definition
+A set of distribution $\{P_{\theta}\}$ is an **exponential family** if there exists real valued functions $a,b,c,d$ such that:
+$$p_{\theta}(x) = a(\theta)b(x) \exp(c(\theta)d(x))$$
+:::
 
-- We observe $X = (X_1, \dots, X_n)$. Consider the following testing problem: 
-$$H_0: X \sim P_{\theta_0}^{\otimes n}~~~~ \text{or}~~~~ H_1:X \sim P_{\theta_1}^{\otimes n} \; .$$
+::: {.callout-note}
+### Likelihood Ratio Test for Exponential Families
+Consider the testing problem $H_0: X \sim P_{\theta_0}^{\otimes n}$ vs $H_1: X \sim P_{\theta_1}^{\otimes n}$
 
-- Likelihood ratio:
-$$
-\frac{dP^{\otimes n}_{\theta_1}}{dP^{\otimes n}_{\theta_0}} = \left(\frac{a(\theta_1)}{a(\theta_0)}\right)^n\exp\left((c(\theta_1)-c(\theta_0))\sum_{i=1}^n d(x_i)\right) \; .
-$$
+Then, the likelihood ratio test is
 
-$$
-T(X) = \mathbf 1\left\{\frac{1}{n}\sum_{i=1}^n d(X_i) > t\right\} \;. ~~~~\text{(calibrate $t$)}$$
+$$T(X) = \mathbf 1\left\{\frac{1}{n}\sum_{i=1}^n d(X_i) > t\right\}$$
+:::
 
-### Example: Radioactive Source
+## Proof of Likelihood Ratio Test
 
-- The number of particle emitted in $1$ unit of time is follows distribution $P \sim \mathcal P(\lambda)$.
-- We observe **$20$ time units**, that is $N \sim \mathcal P(20\lambda)$.
-- **Type A** sources emit an average of $\lambda_0 = 0.6$ particles/time unit
-- **Type B** sources emit an average of $\lambda_1 = 0.8$ particles/time unit
+We observe $X = (X_1, \dots, X_n)$. Consider the following testing problem:
 
-- $H_0$: $N \sim \mathcal P(20\lambda_0)$ or $H_1$: $N\sim \mathcal P(20\lambda_1)$
+$$H_0: X \sim P_{\theta_0}^{\otimes n} \quad \text{or} \quad H_1: X \sim P_{\theta_1}^{\otimes n}.$$
 
-- Likelihood Ratio Test:
-$$T(X)=\mathbf 1\left\{\sum_{i=1}^{20}X_i > t_{\alpha}\right\} \; .$$
-- $t_{0.95}$:&nbsp;&nbsp; `quantile(Poisson(20*0.6), 0.95)` gives $18$\
-- $\mathbb P(\mathcal P(20*0.6) \leq 17)$: `1-cdf(Poisson(20*0.6), 17)` gives $0.063$\
-- $\mathbb P(\mathcal P(20*0.6) \leq 18)$: `1-cdf(Poisson(20*0.6), 18)` gives $0.038$: reject if $N \geq 19$\
+$$\frac{dP_{\theta_1}^{\otimes n}}{dP_{\theta_0}^{\otimes n}} = \left(\frac{a(\theta_1)}{a(\theta_0)}\right)^n \exp\left((c(\theta_1) - c(\theta_0)) \sum_{i=1}^n d(x_i)\right).$$
+
+$$T(X) = \mathbf{1}\left\{\frac{1}{n}\sum_{i=1}^n d(X_i) > t\right\}. \quad (\text{calibrate } t)$$
+
+## Exponential Families: Test
+
+**Likelihood Ratio Test:**
+$$T(X) = \mathbf 1\left\{\frac{1}{n}\sum_{i=1}^n d(X_i) > t\right\}$$
+(calibrate $t$ to achieve level $\alpha$)
+
+[Question: Select Exponential Families](https://app.wooclap.com/events/RQSUIA/questions/674ecc1b2713644c58eec8bd)
+
+## Example: Poisson is Exponential Family
+
+Poisson distribution: $p_\lambda(x) = \frac{\lambda^x}{x!}e^{-\lambda}$
+
+Rewrite:
+
+$$p_\lambda(x) = \underbrace{e^{-\lambda}}_{a(\lambda)} \cdot \underbrace{\frac{1}{x!}}_{b(x)} \cdot \exp\left(\underbrace{\log\lambda}_{c(\lambda)} \cdot \underbrace{x}_{d(x)}\right)$$
+
+→ Poisson is an exponential family with $d(x) = x$
+
+## Example: Binomial is Exponential Family
+
+Binomial distribution: $p_q(x) = \binom{n}{x}q^x(1-q)^{n-x}$
+
+Rewrite:
+
+$$p_q(x) = \underbrace{(1-q)^n}_{a(q)} \cdot \underbrace{\binom{n}{x}}_{b(x)} \cdot \exp\left(\underbrace{\log\frac{q}{1-q}}_{c(q)} \cdot \underbrace{x}_{d(x)}\right)$$
+
+## Example: Radioactive Source
+
+- Particles emitted in 1 time unit follow $\mathcal P(\lambda)$
+- We observe **20 time units**: $N \sim \mathcal P(20\lambda)$
+- **Type A**: $\lambda_0 = 0.6$ particles/time unit
+- **Type B**: $\lambda_1 = 0.8$ particles/time unit
+
+$H_0$: $N \sim \mathcal P(12)$ vs $H_1$: $N \sim \mathcal P(16)$
+
+### Radioactive Source: Test
+
+$$T(N)=\mathbf 1\left\{N > t_{\alpha}\right\}$$
+
+Computing $t_{0.05}$:
+
+- `quantile(Poisson(12), 0.95)` → $18$
+- `1-cdf(Poisson(12), 17)` → $0.063$
+- `1-cdf(Poisson(12), 18)` → $0.038$
+
+→ Reject $H_0$ if $N \geq 19$
 
 # Multiple-Multiple Tests
 
-## Generalities
-- $H_0 = \{ \mathcal P_{\theta}, \theta \in \Theta_0 \}$ is not a singleton
-- No meaning of $\mathbb P_{H_0}(X \in A)$
-- **level** of $T$:
-$$
-\alpha = \sup_{\theta \in \Theta_0}P_{\theta}(T(X)=1) \; .
-$$
-- **power function** $\beta: \Theta_1 \to [0,1]$
-$$
-\beta(\theta) = P_{\theta}(T(X)=1)
-$$
-- $T$ is **unbiased** if $\beta (\theta) \geq \alpha$ for all $\theta \in \Theta_1$.
+## Warning
 
+$H_0 = \mathcal P_0=\{P_{\theta}, \theta \in \Theta_0 \}$ is not a singleton.
 
-- If $T_1$, $T_2$ are two tests of level $\alpha_1$, $\alpha_2$ 
-- $T_2$ is uniformly more powerfull ($UMP$) than $T_1$ if
-    1. $\alpha_2 \leq \alpha_1$
-    2. $\beta_2(\theta) \geq \beta_1(\theta)$ for all $\theta \in \Theta_1$
-- $T^*$ is $UMP_{\alpha}$ if it is $UMP$ than any other test $T$ of level $\alpha$.
+$H_1 = \mathcal P_1=\{P_{\theta}, \theta \in \Theta_1 \}$ is not a singleton.
 
+::: {.callout-warning}
+No meaning of $\mathbb P_{H_0}(X \in A)$ or $\mathbb P_{H_1}(X \in A)$
+:::
 
-## Multiple-Multiple Tests in $\mathbb R$
+## Level and Power
 
-Assumption: $\Theta_0 \cup \Theta_1 \subset \mathbb R$.
+::: {.callout-note}
+The **Level** of a test $T$ is defined as
 
-- **One-tailed tests**: 
-$$
-\begin{aligned}
-H_0: \theta \leq \theta_0 ~~~~ &\text{ or } ~~~ H_1: \theta > \theta_0 ~~~ \text{(right-tailed: unilatéral droit)}\\
-H_0: \theta \geq \theta_0 ~~~ &\text{ or } ~~~ H_1: \theta < \theta_0 ~~~ \text{(left-tailed: unilatéral gauche)}
-\end{aligned}
-$$
+$$\alpha = \sup_{\theta \in \Theta_0}P_{\theta}(T(X)=1)$$
 
-- **Two-tailed tests**: 
-$$
-\begin{aligned}
-H_0: \theta = \theta_0 ~~~ &\text{ or } ~~~ H_1: \theta \neq \theta_0 ~~~ \text{(simple/multiple)}\\
-H_0: \theta \in [\theta_1, \theta_2] ~~~ &\text{ or } ~~~ H_1: \theta \not \in [\theta_1, \theta_2] ~~~ \text{( multiple/multiple)}
-\end{aligned}
-$$
+Its **power function** is defined as
 
-::: {.fragment}
+$$\beta: \Theta_1 \to [0,1]:~ \beta(\theta) = P_{\theta}(T(X)=1)$$
+
+$T$ is **unbiased** if $\beta(\theta) \geq \alpha$ for all $\theta \in \Theta_1$
+:::
+
+## Uniformly Most Powerful (UMP)
+
+If $T_1$, $T_2$ are two tests of level $\alpha_1$, $\alpha_2$:
+
+$T_2$ is **uniformly more powerful (UMP)** than $T_1$ if:
+
+- $\alpha_2 \leq \alpha_1$
+- $\beta_2(\theta) \geq \beta_1(\theta)$ for all $\theta \in \Theta_1$
+
+$T^*$ is **UMP$_{\alpha}$** if it is UMP over any other test of level $\alpha$
+
+## One-Tailed Tests
+
+Assumption: $\Theta_0 \cup \Theta_1 \subset \mathbb R$
+
+**Right-tailed** (unilatéral droit): $H_0: \theta \leq \theta_0$ vs $H_1: \theta > \theta_0$
+
+**Left-tailed** (unilatéral gauche): $H_0: \theta \geq \theta_0$ vs $H_1: \theta < \theta_0$
+
+## Two-Tailed Tests
+
+**Simple/Multiple**: $H_0: \theta = \theta_0$ vs $H_1: \theta \neq \theta_0$
+
+**Multiple/Multiple**: $H_0: \theta \in [\theta_1, \theta_2]$ vs $H_1: \theta \not\in [\theta_1, \theta_2]$
+
+## UMP for Exponential Families
+
 ::: {.callout-note title="Theorem"}
-  - Assume that $p_{\theta}(x) = a(\theta)b(x)\exp(c(\theta)d(x))$ and that $c$ is a non-decreasing (croissante) function, and consider a one-tailed test problem.
-  - There exists a UMP$\alpha$ test. It is $\mathbf 1\{\sum d(X_i) > t \}$ if $H_1: \theta > \theta_0$ (right-tailed test).
+Assume $p_{\theta}(x) = a(\theta)b(x)\exp(c(\theta)d(x))$ with $c$ non-decreasing.
+
+For a **one-tailed test**, there exists a UMP$_\alpha$ test. It is of the form:
+
+$$T = \mathbf 1\left\{\sum d(X_i) > t \right\}$$
+
+for right-tailed ($H_1: \theta > \theta_0$), we just reverse the inequality.
+
+Same if $c$ is non-increasing instead.
 :::
 
-:::
+## Pivotal Test Statistic and P-value
 
-# Pivotal Test Statistic and P-value
+Here, $\Theta_0$ is not necessarily a singleton. $\mathbb P_{H_0}(X \in A)$ has no meaning.
 
-## Pivotal Test Statistic
-- Consider $\Theta_0$ not singleton. $\mathbb P_{H_0}(X \in A)$ has no meaning.
-
-::: {.fragment}
-::: {.callout-note title="Pivotal test statistic"}
-$\psi: \mathcal X \to \mathbb R$ is **pivotal** if the distribution of $\psi(X)$ under $H_0$ does not depend on $\theta \in \Theta_0$: \
+::: {.callout-note title="Pivotal Test Statistic"}
+$\psi: \mathcal X \to \mathbb R$ is **pivotal** if the distribution of $\psi(X)$ under $H_0$ does not depend on $\theta \in \Theta_0$:
 
 for any $\theta, \theta' \in \Theta_0$, and any event $A$,
 $$ \mathbb P_{\theta}(\psi(X) \in A) = \mathbb P_{\theta'}(\psi(X) \in A) \; .$$
-
-:::
 :::
 
-- Example: If $X=(X_1, \dots, X_n)$ are iid $\mathcal N(0, \sigma)$, the distrib of
-$$ \psi(X) = \frac{\sum_{i=1}^n \overline X}{\sqrt{\sum_{i=1}^n X_i^2}}$$
+## Example
+
+If $X=(X_1, \dots, X_n)$ are iid $\mathcal N(0, \sigma)$, the distribution of
+$$ \psi(X) = \frac{\sum_{i=1}^n X_i}{\sqrt{\sum_{i=1}^n X_i^2}}$$
 does not depend on $\sigma$.
+
+Indeed, writing $X_i = \sigma Z_i$ with $Z_i \overset{\text{iid}}{\sim} \mathcal N(0,1)$,
+$$ \psi(X) = \frac{\sum_{i=1}^n \sigma Z_i}{\sqrt{\sum_{i=1}^n \sigma^2 Z_i^2}} = \frac{\sigma \sum_{i=1}^n Z_i}{\sigma\sqrt{\sum_{i=1}^n Z_i^2}} = \frac{\sum_{i=1}^n Z_i}{\sqrt{\sum_{i=1}^n Z_i^2}} \; .$$
 
 ## P-value
 
-See the ([Pluto notebook: Illustration of pvalue](../pluto/illustration_pvalue.html))
-
 ::: {.callout-note title="P-value: definition"}
-We define $p_{value}(x_{\mathrm{obs}}) =\mathbb P(\psi(X) > x_{\mathrm{obs}})$ for a right-tailed test.
+We define $p_{value}(x_{\mathrm{obs}}) =\mathbb P(\psi(X) \geq x_{\mathrm{obs}})$ for a right-tailed test.
 
-For a two-tailed test, $p_{value}(x_{\mathrm{obs}}) =2\min(\mathbb P(\psi(X) > x_{\mathrm{obs}}),\mathbb P(\psi(X) < x_{\mathrm{obs}}))$
-:::
-::: {.callout-note title="P-value under $H_0$"}
-Under $H_0$, for a pivotal test statistic $\psi$, $p_{value}(X)$ has a uniform distribution $\mathcal U([0,1])$.
+For a two-tailed test, $p_{value}(x_{\mathrm{obs}}) =2\min(\mathbb P(\psi(X) \geq x_{\mathrm{obs}}),\mathbb P(\psi(X) \leq x_{\mathrm{obs}}))$
 :::
 
-**Proof**. 
-
-The p-value is a probability, so it belongs to $[0,1]$. Let $F_{\psi}$ be the cumulative distribution function of a random variable $\psi(X)$ when $X$ follows distribution $P$, that is $G_{\psi}(t) = \mathbb P(\psi(X) > t)$. It holds that 
-$$
-\mathbb P(\psi(X') > \psi(X) ~|~ \psi(X)) = F_{\psi}(\psi(X))
-$$
-If $u \in [0,1]$, then 
-$$
-\begin{aligned}
-\mathbb P(\mathrm{pvalue}(X) > u) &= \mathbb P(F_{\psi}(\psi(X)) > u) \\
-&= \mathbb P(\psi(X) > F_{\psi}^{-1}(u)) \\
-&= 1- F_{\psi}(F_{\psi}^{-1}(u)) = 1-u
-\end{aligned}
-$$
-Hence, $\mathrm{pvalue}(X)$ is uniform when $X$ follows distribution $\mathbb P$.
-$$\tag*{$\blacksquare$}$$
-
-:::: {.columns}
-
-::: {.column width="50%"}
-- In practice: reject if $p_{value}(X) < \alpha = 0.05$
+- In practice: reject if $p_{value}(x_{\mathrm{obs}}) \leq \alpha = 0.05$
 - $\alpha$ is the **level** or **type-1-error** of the test
-:::
-::: {.column width="50%"}
-- Illustration if $\psi(X) \sim \mathcal N(0,1)$ under $H_0$:
+
+### Illustration if $\psi(X) \sim \mathcal N(0,1)$:
+
 ![](../images/basics/pvalue_uniform.svg)
+
+## Example 1: One-sample z-test
+
+$X_1, \dots, X_n \overset{\text{iid}}{\sim} \mathcal N(\mu, \sigma_0)$ with $\sigma_0$ known. Test $H_0: \mu = 0$ vs $H_1: \mu \neq 0$.
+
+The pivotal statistic is
+$$ \psi(X) = \frac{\sqrt{n}\,\overline{X}}{\sigma_0} \sim \mathcal N(0,1) \quad \text{under } H_0 \; .$$
+
+### Numerical Example
+
+$n=25$, $\sigma_0 = 2$, $\overline{x}_{\mathrm{obs}} = 0.9$.
+
+$$\psi(x_{\mathrm{obs}}) = \frac{\sqrt{25} \times 0.9}{2} = 2.25$$
+
+Two-tailed p-value: $p_{value} = 2\,\mathbb P(Z \geq 2.25) = 2 \times 0.0122 = 0.0244$.
+
+Since $p_{value} = 0.0244 \leq \alpha = 0.05$, we **reject** $H_0$.
+
+## Example 2: One-sample t-test
+
+$X_1, \dots, X_n \overset{\text{iid}}{\sim} \mathcal N(\mu, \sigma)$ with $\sigma$ **unknown**. Test $H_0: \mu = 0$ vs $H_1: \mu > 0$.
+
+We use the following test statistic:
+$$ \psi(X) = \frac{\sqrt{n}\,\overline{X}}{S} \sim t_{n-1} \quad \text{under } H_0$$
+where $S^2 = \frac{1}{n-1}\sum_{i=1}^n (X_i - \overline{X})^2$. The parameter $\sigma$ cancels out (as in the previous slide), so $\psi$ is pivotal over $\Theta_0 = \{(\mu, \sigma): \mu = 0,\, \sigma > 0\}$.
+
+**Numerical example:** $n=10$, $\overline{x}_{\mathrm{obs}} = 1.5$, $s = 2.1$.
+
+$$\psi(x_{\mathrm{obs}}) = \frac{\sqrt{10} \times 1.5}{2.1} = 2.26$$
+
+Right-tailed p-value: $p_{value} = \mathbb P(T_9 \geq 2.26) = 0.025$.
+
+Since $p_{value} = 0.025 \leq \alpha = 0.05$, we **reject** $H_0$.
+
+## Property of the p-value
+
+::: {.callout-note title="P-value under $H_0$"}
+Under $H_0$, for a left or right tailed test, for a pivotal test statistic $\psi$, $p_{value}(X)$ has a uniform distribution $\mathcal U([0,1])$.
 :::
-::::
+
+Hence, if the data really follow the null hypothesis and if we test at level $5\%$, doing $1000$ experiments will lead to reject on average $50$ times.
+
+### Proof (right-tailed case)
+
+Let $F$ denote the cdf of $\psi(X)$ under $H_0$. Assume for simplicity it is strictly increasing.
+Then
+$$p_{value}(X) = 1 - F(\psi(X)) \; .$$
+
+For any $t \in [0,1]$,
+
+$$\mathbb P_{H_0}(p_{value}(X) \leq t) = \mathbb P_{H_0}(1 - F(\psi(X)) \leq t) = \mathbb P_{H_0}(\psi(X) \geq F^{-1}(1-t)) \; .$$
+
+Hence,
+
+$$\mathbb P_{H_0}(p_{value}(X) \leq t) = 1- F(F^{-1}(1-t))= t$$

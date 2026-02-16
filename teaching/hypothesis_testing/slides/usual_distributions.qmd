@@ -1,0 +1,381 @@
+
+---
+title: "Usual distributions and properties"
+format: 
+  revealjs:
+    incremental: true
+    callout-icon: false
+    theme: [default, ../custom.scss]
+smaller: false
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+
+## Outline
+
+- Gaussian distributions and CLT
+- Chi-squared, Student and Fisher
+- Cochran's Theorem
+
+[Previous: testing models](testing_models.qmd)
+
+[Next: Gaussian populations](gaussian_populations.qmd)
+
+# Gaussians and CLT
+
+## Gaussian Distribution
+
+. . .
+
+::: {.callout-note}
+## Definition of Gaussian distribution
+A Gaussian (or normal) distribution with [mean $\mu \in \mathbb{R}$]{style="background-color: yellow;"} and [variance $\sigma^2 > 0$]{style="background-color: yellow;"} is the distribution with density
+
+::: {.square-def}
+$$f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)$$
+:::
+We denote $\mathcal{N}(\mu, \sigma^2)$ for this distribution. When $\mu = 0$ and $\sigma^2 = 1$, we call it the **standard normal distribution**.
+:::
+
+. . .
+
+::: {.callout-tip}
+## Properties
+- For iid Gaussians, $\sum_{i=1}^n X_i = n \mu + \sqrt{n} \mathcal N(0,1)$
+:::
+
+## Game
+I generate $X \sim \mathcal{N}(0,1)$.
+
+. . .
+
+We observe [$0.37$]{style="background-color: lightblue;"}. Could this come from a $\mathcal{N}(0,1)$?
+
+. . .
+
+We observe [$3.82$]{style="background-color: lightblue;"}. Could this come from a $\mathcal{N}(0,1)$?
+
+. . .
+
+We observe [$-0.91$]{style="background-color: lightblue;"}. And this??
+
+## Simple Test Problem Formalized:
+
+. . .
+
+
+$H_0$: $X \sim \mathcal N(0,1)$ VS $H_1$: $X \sim \mathcal N(\mu, 1)$, $\mu \neq 0$
+
+- test statistic: $X$ test: $|X| > t$ ([Two tailed]{style="background-color: yellow;"})
+- $t$ = `quantile(Normal(0,1), 0.975) = 1.96`
+- observation: $3.82$
+- conclusion: reject at level $5\%$
+- or with p-value: `2 * (1 - cdf(Normal(0,1), abs(3.82))) ≈ 0.0001`
+
+## Definition and link with CLT
+
+We observe $(X_1, \dots, X_n)$ iid real valued random variables.
+
+. . .
+
+:::{.callout-note title="CLT"} 
+Let $S_n = \sum_{i=1}^n X_i$ with $(X_1, \dots, X_n)$ iid ($L^2$) then $$ \frac{S_n - \mathbb E[S_n]}{\sqrt{\mathrm{Var}(S_n)}} \approx \mathcal N(0,1) \text{ when } n \to \infty $$
+
+Rule of thumb: $n \geq 30$ (!!! be careful about this rule)
+
+This is an equality when $X_i$'s are Gaussian $\mathcal N(\mu, \sigma^2)$
+:::
+
+## Example: binomials
+
+. . .
+
+Fix $p \in (0,1)$. Then, $\frac{\mathrm{Bin}(n,p) - np}{\sqrt{np(1-p)}} \approx \mathcal N(0,1)$ when $n \to \infty$
+
+. . .
+
+$n$ should be $\gg \frac{1}{p}$ (not $30$!!!)
+
+
+
+:::: {.columns}
+::: {.column}
+
+:::{.fragment}
+
+Good Approx for ($n=100$, $p=0.2$)
+
+![](../images/clt2.svg){width=70%}
+:::
+:::
+
+::: {.column}
+:::{.fragment}
+Bad Approx for ($n=100$, $p=0.01$)
+![](../images/clt001.svg){width=70%}
+:::
+:::
+::::
+
+
+# Chi-squared, Student and Fisher
+
+## Chi-Squared Distribution
+
+. . .
+
+::: {.callout-note}
+## Definition of Chi-square distribution
+A chi-squared distribution with [degree of freedom $k$]{style="background-color: yellow;"}, is the distribution of 
+
+::: {.square-def}
+$$X = \sum_{i=1}^k Z_i^2$$
+:::
+
+where the $(Z_1, \dots, Z_k)$ are [iid $\mathcal N(0,1)$]{style="background-color: lightblue;"}. We denote $\chi^2(k)$ for this distribution.
+:::
+
+. . .
+
+::: {.callout-tip}
+## Properties
+- $\mathbb E[X] = k$, $\mathbb V[X] = 2k$
+- $\chi^2(k) \sim k + \sqrt{2k}\mathcal N(0,1)$ when $k \to +\infty$
+:::
+
+
+## Expectation and Variance
+
+$X = \sum_{i=1}^k Z_i^2$
+
+. . .
+
+$$\mathbb{E}[X] = \sum_{i=1}^k \mathbb{E}[Z_i^2] = \sum_{i=1}^k 1 = k$$
+
+. . . 
+
+$$\mathbb{V}[X] = \sum_{i=1}^k \mathbb{V}[Z_i^2] = k* (3-1) = 2k$$
+
+## Convergence in Distribution
+
+The $Z_i^2$ are iid with mean $\mu = 1$ and variance $\sigma^2 = 2$. By the CLT:
+
+$$\frac{X - \mathbb E[X]}{\mathbb V(X)} = \frac{X - k}{\sqrt{2k}} \xrightarrow{\mathcal{L}} \mathcal{N}(0,1) \quad \text{as } k \to +\infty$$
+
+Rearranging:
+
+$$X \approx k + \sqrt{2k}\,\mathcal{N}(0,1) \qquad \blacksquare$$
+
+
+## Game
+
+I generate $X \sim \chi^2(53)$.
+
+. . .
+
+We observe [$112.7$]{style="background-color: lightblue;"}. Could this come from a $\chi^2(53)$?
+
+. . .
+
+We observe [$50.1$]{style="background-color: lightblue;"}. Could this come from a $\chi^2(53)$?
+
+. . .
+
+We observe [$15.4$]{style="background-color: lightblue;"}. And this??
+
+## Simple Test Problem Formalized:
+
+. . .
+
+
+::: {.square-objective}
+$H_0$: $X \sim \chi^2(53)$ VS $H_1$: $X \not\sim \chi^2(53)$
+:::
+
+
+
+- test statistic: $X$ test: $X < t_1$ or $X > t_2$ ([Two tailed here]{style="background-color: yellow;"}. Usually with chisq: right tailed)
+- $t_1$ = `quantile(Chisq(53), 0.025) = 34.78`
+- $t_2$ = `quantile(Chisq(53), 0.975) = 74.47`
+- observation: $112.7$
+- conclusion: reject at level $5\%$
+- or with p-value: `2 * min(cdf(Chisq(53), 112.7), 1 - cdf(Chisq(53), 112.7)) ≈ 0`
+
+## Student Distribution
+
+. . .
+
+::: {.callout-note}
+## Definition of Student distribution
+A Student distribution with [degree of freedom $k$]{style="background-color: yellow;"}, is the distribution of 
+
+::: {.square-def}
+$$T = \frac{Z}{\sqrt{U/k}}$$
+:::
+where $Z$ and $U$ are [independent]{style="background-color: lightblue;"}, with $Z \sim \mathcal N(0,1)$ and $U \sim \chi^2(k)$. We denote $\mathcal T(k)$ for this distribution.
+:::
+
+. . .
+
+::: {.callout-tip}
+## Properties
+- $\mathbb E[T] = 0$ for $k > 1$, $\mathbb V[T] = \frac{k}{k-2}$ for $k > 2$
+- $\mathcal T(k) \sim \mathcal N(0,1)$ when $k \to +\infty$
+:::
+
+
+
+## Proof
+
+. . .
+
+**Mean:** For $k > 1$, since $Z$ and $U$ are independent,
+$$\mathbb{E}[T] = \mathbb{E}[Z] \cdot \mathbb{E}\!\left[\frac{1}{\sqrt{U/k}}\right] = 0$$
+because $\mathbb{E}[Z] = 0$.
+
+. . .
+
+**Asymptotic normality:** Write $T = \frac{Z}{\sqrt{U/k}}$. By the law of large numbers, $U/k = \frac{1}{k}\sum_{i=1}^k Z_i^2 \xrightarrow{\text{a.s.}} \mathbb{E}[Z_1^2] = 1$ as $k \to \infty$. Since $Z$ is independent of $U$, we conclude by Slutsky's theorem.
+
+## Game
+
+I generate $T \sim \mathcal{T}(10)$.
+
+. . .
+
+We observe [$-5.2$]{style="background-color: lightblue;"}. Could this be unusually small for a $\mathcal{T}(10)$?
+
+. . .
+
+We observe [$3.45$]{style="background-color: lightblue;"}. Could this be unusually small for a $\mathcal{T}(10)$?
+
+. . .
+
+We observe [$-0.15$]{style="background-color: lightblue;"}. And this??
+
+## Simple Test Problem Formalized:
+
+. . .
+
+::: {.square-objective}
+$H_0$: $T \sim \mathcal T(10)$ VS $H_1$: $T \sim \mathcal T(10) + \mu$ with $\mu < 0$
+:::
+
+
+
+- test statistic: $T$
+- test: $T < -t$
+- t = `quantile(TDist(10), 0.05) = -1.81`
+- observation: $-3.45$
+- conclusion: reject at level $5\%$
+- or with p-value: `cdf(TDist(10), -3.45) = 0.003`
+
+
+## Fisher Distribution
+
+. . .
+
+::: {.callout-note}
+## Definition of Fisher distribution
+A Fisher distribution with [degrees of freedom $(k_1, k_2)$]{style="background-color: yellow;"}, is the distribution of
+
+::: {.square-def}
+$F = \frac{U_1/k_1}{U_2/k_2}$
+:::
+where $U_1$ and $U_2$ are [independent]{style="background-color: lightblue;"}, with $U_1 \sim \chi^2(k_1)$ and $U_2 \sim \chi^2(k_2)$. We denote $\mathcal F(k_1, k_2)$ for this distribution.
+:::
+
+. . .
+
+::: {.callout-tip}
+## Properties
+- $\mathbb E[F] = \frac{k_2}{k_2 - 2}$ for $k_2 > 2$
+- $\mathcal F(k_1,k_2) \approx 1 + \sqrt{\frac{2}{k_1} + \frac{2}{k_2}}\,\mathcal N(0, 1)$ when $k_1,k_2 \to +\infty$
+:::
+
+## Illustration
+
+. . .
+
+![](../images/Fisher.svg)
+
+## Convergence: Idea of Proof
+
+. . .
+
+Using CLT approximation $U_1 \sim k_1 + \sqrt{2k_1} Z_1$ and $U_2 \sim k_1 + \sqrt{2k_2} Z_2$
+
+. . .
+
+$$F = \frac{U_1/k_1}{U_2/k_2} = \frac{1 + \sqrt{\frac{2}{k_1}}\,Z_1}{1 + \sqrt{\frac{2}{k_2}}\,Z_2} \approx 1 + \sqrt{\frac{2}{k_1}}\,Z_1 - \sqrt{\frac{2}{k_2}}\,Z_2$$
+
+Since $U_1$ and $U_2$ are independent, the variance of the right-hand side is $\frac{2}{k_1} + \frac{2}{k_2}$, so:
+
+$$F \approx 1 + \sqrt{\frac{2}{k_1} + \frac{2}{k_2}}\,\mathcal{N}(0,1)$$
+
+
+## Game
+
+I generate $F \sim \mathcal{F}(5, 20)$.
+
+. . .
+
+We observe [$1.12$]{style="background-color: lightblue;"}. Could this be unusually large for a $\mathcal{F}(5,20)$?
+
+. . .
+
+We observe [$4.87$]{style="background-color: lightblue;"}. Could this be unusually large for a $\mathcal{F}(5,20)$?
+
+. . .
+
+We observe [$0.95$]{style="background-color: lightblue;"}. And this??
+
+## Fisher Simple Test Problem Formalized:
+
+. . .
+
+
+$H_0$: $F \sim \mathcal F(5,20)$ VS $H_1$: $F$ is stochastically larger than $\mathcal F(5,20)$
+
+- test statistic: $F$
+- test: $F > t$
+- t = `quantile(FDist(5,20), 0.95) = 2.71`
+- observation: $4.87$
+- conclusion: reject at level $5\%$
+- or with p-value: `1 - cdf(FDist(5,20), 4.87) = 0.004`
+
+
+## Fisher Test
+
+- $\psi(X,Y)=\frac{\hat \sigma^2_1}{\hat \sigma_2^2}$ is independent of $\mu_1$, $\mu_2$, $\sigma_1$, $\sigma_2$. It is **pivotal**
+- It follow distribution $\mathcal F(n_1-1, n_2-1)$
+
+## Cochran's Theorem
+
+. . .
+
+::: {.callout-note}
+Let $Y \sim \mathcal{N}(0, I_n)$. Let $E$ and $F$ be two orthogonal subspaces of $\mathbb{R}^n$, i.e., $E \perp F$, with dimensions $\dim(E) = p$ and $\dim(F) = q$. Denote by $\Pi_E$ and $\Pi_F$ the orthogonal projections onto $E$ and $F$ respectively. Then:
+
+
+1. **Independence:** $\Pi_E Y$ and $\Pi_F Y$ are independent Gaussian vectors.
+
+2. **Chi-squared distributions:** $\|\Pi_E Y\|^2 \sim \chi^2(p)$ and $\|\Pi_F Y\|^2 \sim \chi^2(q)$.
+
+3. **Pythagorean decomposition:** If $\mathbb{R}^n = E \oplus F$ (i.e., $p + q = n$), then
+$\|Y\|^2 = \|\Pi_E Y\|^2 + \|\Pi_F Y\|^2$
+
+:::
+
+. . .
+
+see also the [proof](../notes/cochran.qmd)
+
+
+##
+
+[Previous: testing models](testing_models.qmd)
+
+[Next: Gaussian populations](gaussian_populations.qmd)
