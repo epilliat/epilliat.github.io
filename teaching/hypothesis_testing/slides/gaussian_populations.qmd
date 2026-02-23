@@ -336,7 +336,26 @@ $H_0: \mu_1 = \mu_2 ~~~\text{VS} ~~~H_1: \mu_1 \neq \mu_2$
 We can't use $\mu_1$ or $\mu_2$ because they are unknown
 :::
 
-Idea: use $\overline X - \overline Y$ since $\mathbb E[\overline X] - \mathbb E[\overline Y] = \mu_1 - \mu_2$. But what is $\mathbb V(\overline X - \overline Y)$ under $H_0$?
+## Idea
+
+. . .
+
+We want to use $\overline X - \overline Y$ since $\mathbb E[\overline X] - \mathbb E[\overline Y] = \mu_1 - \mu_2$. 
+
+. . .
+
+But what is $\mathbb V(\overline X - \overline Y)$ under $H_0$?
+
+. . .
+
+::: {.square-def}
+$\mathbb V(\overline X - \overline Y) = \sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}$
+:::
+
+. . .
+
+We can use $\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}$ because $\sigma_1$, $\sigma_2$ are **known** here.
+
 
 ## Test Statistic
 
@@ -356,10 +375,6 @@ $$
 ## Property
 Under $H_0$, $\psi(X,Y)$ follows a $\mathcal N(0, 1)$
 :::
-
-. . .
-
-Proof: Under $H_0$, $\psi(X,Y)$ is centered gaussian of variance $\sigma_1^2/n_1 + \sigma_2^2/n_2$.
 
 ## Test
 
@@ -385,6 +400,8 @@ For that, remove absolute value and take $t_\alpha$ or $t_{1-\alpha}$.
 
 ## Example
 
+. . .
+
 **Objective.** Test if a new medication is efficient to lower cholesterol level
 
 . . .
@@ -406,36 +423,151 @@ For that, remove absolute value and take $t_\alpha$ or $t_{1-\alpha}$.
 - $H_0: \mu_A = \mu_B$ VS $H_1: \mu_A < \mu_B$
   
 - **Test Statistic.** $\psi(X,Y)=\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma^2}{n_1} + \frac{\sigma^2}{n_2}}}$
-
+- **Distribution under $H_0$:** $\psi(X,Y) \sim \mathcal N(0,1)$
 - **Data.** $\overline X = 24.5$ mg/dL and $\overline Y = 21.3$ mg/dL. Hence $\psi(X,Y)= 5.5$.
-- **p-value.** $\mathbb P(\psi(X, Y) \leq 5.5) \approx 1$ 
+- **p-value.** $\mathbb P(\psi(X, Y) \leq 5.5) \approx 1$  ($P$ well defined under $H_0$!)
 - **Conclusion.** Do not reject, and do not use this medication!
 
  
 ## Testing Variances, Unknown Means
 
-- We observe $(X_1, \dots, X_{n})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2^2)$.
-- $\sigma_1$, $\sigma_2$, $\mu_1$, $\mu_2$ are **unknown**
-- Variance Testing Problem:
-$$
-H_0: \sigma_1 = \sigma_2 ~~~~ \text{ or } ~~~~ H_1: \sigma_1 \neq \sigma_2
-$$
-- F-Test Statistic of the Variances (ANOVA)
-$$
-\frac{\hat \sigma^2_1}{\hat \sigma_2^2} = \frac{\tfrac{1}{n_1-1}\sum_{i=1}^{n_1}(X_i-\overline X)^2}{\tfrac{1}{n_2-1}\sum_{i=1}^{n_2}(Y_i-\overline Y)^2}\; .
-$$
+. . .
 
+We observe $X=(X_1, \dots, X_{n})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $Y=(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2^2)$.
+We also assume that $X$ and $Y$ are independent
+
+. . .
+
+$\sigma_1$, $\sigma_2$, $\mu_1$, $\mu_2$ are **unknown** here
+
+
+Testing Problem:
+
+::: {.square-objective}
+$H_0: \sigma_1 = \sigma_2 ~~~~ \text{ or } ~~~~ H_1: \sigma_1 \neq \sigma_2$
+:::
+
+
+## Idea
+
+. . .
+
+::: {.square-objective}
+$H_0: \sigma_1 = \sigma_2 ~~~~ \text{ or } ~~~~ H_1: \sigma_1 \neq \sigma_2$
+:::
+
+. . .
+
+We can't use $\sigma_1$, $\sigma_2$ directly because they are **unknown**. 
+
+. . .
+
+We estimate them: 
+
+
+::: {.square-def}
+$\hat \sigma^2_1 = \tfrac{1}{n_1-1}\sum_{i=1}^{n_1}(X_i-\overline X)^2$
+$\hat \sigma^2_2 = \tfrac{1}{n_2-1}\sum_{i=1}^{n_2}(Y_i-\overline Y)^2$
+:::
+
+. . .
+
+These are **unbiased** estimators since $\mathbb E[\hat \sigma_1^2]= \sigma_1^2$ and $\mathbb E[\hat \sigma_2^2]= \sigma_2^2$
+
+## F-Test Statistic
+
+. . .
+
+::: {.callout-note}
+## F-Test Statistic
+The F-Test Statistic of the Variances (ANOVA) is
+$$
+\psi(X,Y)=\frac{\hat \sigma^2_1}{\hat \sigma_2^2} = \frac{\tfrac{1}{n_1-1}\sum_{i=1}^{n_1}(X_i-\overline X)^2}{\tfrac{1}{n_2-1}\sum_{i=1}^{n_2}(Y_i-\overline Y)^2}\; .
+$$
+:::
+
+
+## Distribution
+
+. . .
+
+::: {.callout-note}
+## Distribution of F-Test Statistic
+Under the distribution given by parameters $\mu_1, \mu_2, \sigma_1, \sigma_2$,
+$\psi(X,Y)=\frac{\hat \sigma^2_1}{\hat \sigma_2^2}$ has distribution $\frac{\sigma^2_1}{\sigma_2^2} \mathcal F(n_1-1, n_2-1)$
+:::
+
+. . .
+
+This distribution is **unknown** under $H_1$, but under $H_0$, $\sigma_1=\sigma_2$ so it is just $\mathcal F(n_1-1, n_2-1)$
+
+## Proof
+
+. . .
+
+Since $X_1,\dots,X_{n_1}\overset{iid}{\sim}\mathcal{N}(\mu_1,\sigma_1^2)$, we have $(n_1-1)\hat\sigma_1^2/\sigma_1^2\sim\chi^2(n_1-1)$, and similarly $(n_2-1)\hat\sigma_2^2/\sigma_2^2\sim\chi^2(n_2-1)$, independently. Then
+
+$$\psi(X,Y)=\frac{\hat\sigma_1^2}{\hat\sigma_2^2}=\frac{\sigma_1^2}{\sigma_2^2}\cdot\frac{\hat\sigma_1^2/\sigma_1^2}{\hat\sigma_2^2/\sigma_2^2}\\
+=\frac{\sigma_1^2}{\sigma_2^2}\cdot\frac{\chi^2(n_1-1)/(n_1-1)}{\chi^2(n_2-1)/(n_2-1)}\sim\frac{\sigma_1^2}{\sigma_2^2}\,\mathcal{F}(n_1-1,n_2-1),$$
+
+by definition of the F-distribution. $\blacksquare$
 
 ## Testing Means, Equal Variances
 
-- We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2^2)$.
-- $\sigma_1$, $\sigma_2$, $\mu_1$, $\mu_2$ are **unknown**, but we **know** that $\sigma_1=\sigma_2$
-- Equality of mean testing problem:
+. . .
+
+We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2^2)$.
+
+. . .
+
+$\sigma_1$, $\sigma_2$, $\mu_1$, $\mu_2$ are **unknown**, but we **know** that $\sigma_1=\sigma_2$
+
+. . .
+
+Equality of mean testing problem:
+
+::: {.square-objective}
 $$
 H_0: \mu_1 = \mu_2 ~~~~ \text{ or } ~~~~ H_1: \mu_1 \neq \mu_2
 $$
-- Formally, $H_0 = \{(\mu,\sigma, \mu, \sigma), \mu \in \mathbb R, \sigma > 0\}$.
+:::
 
+. . .
+
+
+Formally, $H_0 = \{(\mu,\sigma, \mu, \sigma), \mu \in \mathbb R, \sigma > 0\}$.
+
+---
+
+## Idea for Testing Means
+
+. . .
+
+Use again $\overline X - \overline Y$ (expectation $\mu_1 - \mu_2$)
+
+. . .
+
+What is its (unknown) variance ?
+
+. . .
+
+$\sigma_1 = \sigma_2 = \sigma$ so we have
+
+::: {.square-def}
+$\mathbb V(\overline X - \overline Y) = \sigma^2(\frac{1}{n_1} + \frac{1}{n_2})$
+:::
+
+. . .
+
+::: {.callout-warning}
+We can't use $\sigma$ to normalize because it is unknown !!!
+:::
+
+. . .
+
+We have to **estimate** it: $\hat \sigma = \frac{1}{n_1 + n_2 - 2}\left(\sum_{i=1}^{n_1}(X_i - \overline X)^2 + \sum_{i=1}^{n_2}(Y_i - \overline Y)^2 \right)$
+
+## Test for Equality of Means (Equal Variance)
 ::: {.callout-note .fragment}
 ## Student T-Test for two populations with equal variance
 
@@ -448,13 +580,29 @@ $$\psi(X,Y) = \frac{\overline X - \overline Y}{\sqrt{\hat \sigma^2\left(\frac{1}
 
 ## Equality Means, Unequal Variances
 
-- We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2^2)$.
-- $\sigma_1$, $\sigma_2$, $\mu_1$, $\mu_2$ are **unknown**
-- Equality of Mean Testing Problem:
+We observe $(X_1, \dots, X_{n_1})$ iid  $\mathcal N(\mu_1, \sigma_1^2)$ and $(Y_1, \dots, Y_{n_2})$ iid  $\mathcal N(\mu_2, \sigma_2^2)$
+
+. . .
+
+$\sigma_1$, $\sigma_2$, $\mu_1$, $\mu_2$ are **unknown**
+
+. . .
+
+Equality of Mean Testing Problem:
+
+::: {.square-objective}
 $$
 H_0: \mu_1 = \mu_2 ~~~~ \text{ or } ~~~~ H_1: \mu_1 \neq \mu_2
 $$
-- Formally, $H_0 = \{(\mu,\sigma_1, \mu, \sigma_2), \mu \in \mathbb R, \sigma_1, \sigma_2 > 0\}$.
+:::
+
+
+
+Formally:
+
+$\Theta_0 = \{(\mu,\sigma_1, \mu, \sigma_2), \mu \in \mathbb R, \sigma_1, \sigma_2 > 0\}$.
+
+## Student Welch Test 
 
 ::: {.callout-note .fragment}
 ## Student Welch test statistic
@@ -468,12 +616,59 @@ $$
 # Asymptotic Approximations
 
 
+## General Principle
+
+. . .
+
+We observe $(X_1, \dots, X_{n_1})$ and/or $(Y_1, \dots, Y_{n_2})$ and assume that the observations are independent
+
+. . .
+
+$\mathbb E[X_i] = \mu_1$, $\mathbb E[Y_i] = \mu_2$, variance $\sigma_1^2$ and $\sigma_2^2$.
+
+. . .
+
+Event if the $X_i$ are not standard Gaussian, we can approximate e.g. [$\sqrt{\tfrac{n_1}{\sigma_1^2}}(\overline X - \mu_1)$ by a $\mathcal N(0,1)$]{style="background-color: lightblue;"} using the CLT.
+
+. . .
+
+
+[Insight: centered and normalized]{style="background-color: yellow;"} variables always look like gaussians under independency assumption.
+
+. . .
+
+Hence, we can compute approximate p-value/rejection regions.
+
 
 ## Proportion Test
 
-- We observe $X \sim Bin(n_1, p_1)$ and $Y \sim Bin(n_2, p_2)$.
-- $n_1$, $n_2$ are **known** but $p_1$, $p_2$ are **unknown** in $(0,1)$
-- $H_0$: $p_1 = p_2$ or $H_1$: $p_1 \neq p_2$
+. . .
+
+We observe $X \sim Bin(n_1, p_1)$ and $Y \sim Bin(n_2, p_2)$.
+
+. . .
+
+::: {.callout-warning}
+Here, X is not a vector, but an integer!!
+:::
+
+$n_1$, $n_2$ are **known** but $p_1$, $p_2$ are **unknown** in $(0,1)$
+
+. . .
+
+::: {.square-def}
+$H_0$: $p_1 = p_2$ or $H_1$: $p_1 \neq p_2$
+:::
+
+. . .
+
+Idea: use $X-Y$, because $E[X - Y] = p_1 - p_2$. What is its variance ?
+
+. . .
+
+notation: $X/n_1$ is an estimator of $p_1$ so we write $\hat p_1 = X/n_1$.
+
+## Test Statistic
 
 ::: {.callout-note .fragment}
 ## Test Statistic
@@ -487,11 +682,20 @@ $$ \psi(X,Y) = \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}
 
 
 
-## Example ([reference](https://online.stat.psu.edu/stat415/lesson/9/9.4))
+## Example
 
-- Question: "should we raise taxes on cigarettes to pay for a healthcare reform ?" 
-- $p_1$, $p_2$: proportion of non-smokers or smokers willing to raise taxes
-- $H_0$: $p_1=p_2$ or $H_1$: $p_1 > p_2$
+. . .
+
+Poll: "should we raise taxes on cigarettes to pay for a healthcare reform ?" 
+
+. . .
+
+Question: Are non-smoker on average more in favor of tax raise?
+
+. . .
+
+
+Observations:
 
 :::{.fragment}
 |       | Non-Smokers | Smokers | Total |
@@ -500,6 +704,43 @@ $$ \psi(X,Y) = \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}
 | **NO**   | 254         | 195     | 449   |
 | **Total** | 605         | 154     | 800   |
 :::
+
+## Description
+
+. . .
+
+**Data description**: we observe $X$ and $Y$ the number of non-smokers (resp. smokers) willing to raise tax, among a population of $n_1$ non-smokers (resp. $n_2$ smokers).
+
+. . .
+
+**Alternative description**: we observe $(X_1, \dots, X_{n_1})$ and $(Y_1, \dots, Y_{n_2})$ where $X_i$ (resp. $Y_i$) is equal to $1$ if and only if non-smoker $i$ (resp. smoker $i$) wants a tax raise.
+
+## Formulation of the problem
+
+. . .
+
+**Assumption**: We assume independency and that $X \sim \mathcal B(n_1, p_1)$ and $Y \sim \mathcal B(n_2, p_2)$ for unknown probabilities $p_1$, $p_2$
+
+. . .
+
+**(Or in alternative description)**: $X_i$, $Y_i$ are independent and bernoullis of parameters $p_1$, $p_2$. We denote $X = \sum_{i=1}^n X_i$ and $Y= \sum_{i=1}^n Y_i$.
+
+. . .
+
+**Problem**: We want to test 
+
+::: {.square-objective}
+$H_0: p_1=p_2$ VS $H_1: p_1 > p_2$
+:::
+
+
+
+
+## Resolution
+
+$p_1$, $p_2$: proportion of non-smokers or smokers willing to raise taxes
+
+$H_0$: $p_1=p_2$ or $H_1$: $p_1 > p_2$
 
 - $\hat p_1 = \overline X= \approx 0.58$, $\hat p_2=\overline Y= \approx 0.21$.
 - $\psi(X,Y)= \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \approx 8.99$

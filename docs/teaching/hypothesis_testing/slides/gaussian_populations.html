@@ -449,7 +449,23 @@ H_0: \{\mu_0,\sigma &gt; 0\} \text{ or } H_1: \{\mu \neq \mu_0,\sigma &gt; 0\} \
 </div>
 </div>
 </div>
-<p>Idea: use <span class="math inline">\(\overline X - \overline Y\)</span> since <span class="math inline">\(\mathbb E[\overline X] - \mathbb E[\overline Y] = \mu_1 - \mu_2\)</span>. But what is <span class="math inline">\(\mathbb V(\overline X - \overline Y)\)</span> under <span class="math inline">\(H_0\)</span>?</p>
+</div>
+</section>
+<section id="idea" class="slide level2">
+<h2>Idea</h2>
+<div class="fragment">
+<p>We want to use <span class="math inline">\(\overline X - \overline Y\)</span> since <span class="math inline">\(\mathbb E[\overline X] - \mathbb E[\overline Y] = \mu_1 - \mu_2\)</span>.</p>
+</div>
+<div class="fragment">
+<p>But what is <span class="math inline">\(\mathbb V(\overline X - \overline Y)\)</span> under <span class="math inline">\(H_0\)</span>?</p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(\mathbb V(\overline X - \overline Y) = \sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>We can use <span class="math inline">\(\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}\)</span> because <span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span> are <strong>known</strong> here.</p>
 </div>
 </section>
 <section id="test-statistic-1" class="slide level2">
@@ -474,9 +490,6 @@ H_0: \{\mu_0,\sigma &gt; 0\} \text{ or } H_1: \{\mu \neq \mu_0,\sigma &gt; 0\} \
 </div>
 </div>
 </div>
-<div class="fragment">
-<p>Proof: Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\psi(X,Y)\)</span> is centered gaussian of variance <span class="math inline">\(\sigma_1^2/n_1 + \sigma_2^2/n_2\)</span>.</p>
-</div>
 </section>
 <section id="test" class="slide level2">
 <h2>Test</h2>
@@ -498,7 +511,9 @@ T(X,Y)=\mathbf 1\left\{|\psi(X, Y)| \geq t_{1-\alpha/2}\right\} \;  ,
 </section>
 <section id="example-1" class="slide level2">
 <h2>Example</h2>
+<div class="fragment">
 <p><strong>Objective.</strong> Test if a new medication is efficient to lower cholesterol level</p>
+</div>
 <div class="fragment">
 <p><strong>Experiment.</strong></p>
 <ul>
@@ -515,35 +530,142 @@ T(X,Y)=\mathbf 1\left\{|\psi(X, Y)| \geq t_{1-\alpha/2}\right\} \;  ,
 <ul>
 <li class="fragment"><p><span class="math inline">\(H_0: \mu_A = \mu_B\)</span> VS <span class="math inline">\(H_1: \mu_A &lt; \mu_B\)</span></p></li>
 <li class="fragment"><p><strong>Test Statistic.</strong> <span class="math inline">\(\psi(X,Y)=\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma^2}{n_1} + \frac{\sigma^2}{n_2}}}\)</span></p></li>
+<li class="fragment"><p><strong>Distribution under <span class="math inline">\(H_0\)</span>:</strong> <span class="math inline">\(\psi(X,Y) \sim \mathcal N(0,1)\)</span></p></li>
 <li class="fragment"><p><strong>Data.</strong> <span class="math inline">\(\overline X = 24.5\)</span> mg/dL and <span class="math inline">\(\overline Y = 21.3\)</span> mg/dL. Hence <span class="math inline">\(\psi(X,Y)= 5.5\)</span>.</p></li>
-<li class="fragment"><p><strong>p-value.</strong> <span class="math inline">\(\mathbb P(\psi(X, Y) \leq 5.5) \approx 1\)</span></p></li>
+<li class="fragment"><p><strong>p-value.</strong> <span class="math inline">\(\mathbb P(\psi(X, Y) \leq 5.5) \approx 1\)</span> (<span class="math inline">\(P\)</span> well defined under <span class="math inline">\(H_0\)</span>!)</p></li>
 <li class="fragment"><p><strong>Conclusion.</strong> Do not reject, and do not use this medication!</p></li>
 </ul>
 </div>
 </section>
 <section id="testing-variances-unknown-means" class="slide level2">
 <h2>Testing Variances, Unknown Means</h2>
-<ul>
-<li class="fragment">We observe <span class="math inline">\((X_1, \dots, X_{n})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2^2)\)</span>.</li>
-<li class="fragment"><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> are <strong>unknown</strong></li>
-<li class="fragment">Variance Testing Problem: <span class="math display">\[
-H_0: \sigma_1 = \sigma_2 ~~~~ \text{ or } ~~~~ H_1: \sigma_1 \neq \sigma_2
-\]</span></li>
-<li class="fragment">F-Test Statistic of the Variances (ANOVA) <span class="math display">\[
-\frac{\hat \sigma^2_1}{\hat \sigma_2^2} = \frac{\tfrac{1}{n_1-1}\sum_{i=1}^{n_1}(X_i-\overline X)^2}{\tfrac{1}{n_2-1}\sum_{i=1}^{n_2}(Y_i-\overline Y)^2}\; .
-\]</span></li>
-</ul>
+<div class="fragment">
+<p>We observe <span class="math inline">\(X=(X_1, \dots, X_{n})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> and <span class="math inline">\(Y=(Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2^2)\)</span>. We also assume that <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are independent</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> are <strong>unknown</strong> here</p>
+<p>Testing Problem:</p>
+<div class="square-objective">
+<p><span class="math inline">\(H_0: \sigma_1 = \sigma_2 ~~~~ \text{ or } ~~~~ H_1: \sigma_1 \neq \sigma_2\)</span></p>
+</div>
+</div>
+</section>
+<section id="idea-1" class="slide level2">
+<h2>Idea</h2>
+<div class="fragment">
+<div class="square-objective">
+<p><span class="math inline">\(H_0: \sigma_1 = \sigma_2 ~~~~ \text{ or } ~~~~ H_1: \sigma_1 \neq \sigma_2\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>We can’t use <span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span> directly because they are <strong>unknown</strong>.</p>
+</div>
+<div class="fragment">
+<p>We estimate them:</p>
+<div class="square-def">
+<p><span class="math inline">\(\hat \sigma^2_1 = \tfrac{1}{n_1-1}\sum_{i=1}^{n_1}(X_i-\overline X)^2\)</span> <span class="math inline">\(\hat \sigma^2_2 = \tfrac{1}{n_2-1}\sum_{i=1}^{n_2}(Y_i-\overline Y)^2\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>These are <strong>unbiased</strong> estimators since <span class="math inline">\(\mathbb E[\hat \sigma_1^2]= \sigma_1^2\)</span> and <span class="math inline">\(\mathbb E[\hat \sigma_2^2]= \sigma_2^2\)</span></p>
+</div>
+</section>
+<section id="f-test-statistic" class="slide level2">
+<h2>F-Test Statistic</h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>F-Test Statistic</strong></p>
+</div>
+<div class="callout-content">
+<p>The F-Test Statistic of the Variances (ANOVA) is <span class="math display">\[
+\psi(X,Y)=\frac{\hat \sigma^2_1}{\hat \sigma_2^2} = \frac{\tfrac{1}{n_1-1}\sum_{i=1}^{n_1}(X_i-\overline X)^2}{\tfrac{1}{n_2-1}\sum_{i=1}^{n_2}(Y_i-\overline Y)^2}\; .
+\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="distribution" class="slide level2">
+<h2>Distribution</h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Distribution of F-Test Statistic</strong></p>
+</div>
+<div class="callout-content">
+<p>Under the distribution given by parameters <span class="math inline">\(\mu_1, \mu_2, \sigma_1, \sigma_2\)</span>, <span class="math inline">\(\psi(X,Y)=\frac{\hat \sigma^2_1}{\hat \sigma_2^2}\)</span> has distribution <span class="math inline">\(\frac{\sigma^2_1}{\sigma_2^2} \mathcal F(n_1-1, n_2-1)\)</span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>This distribution is <strong>unknown</strong> under <span class="math inline">\(H_1\)</span>, but under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\sigma_1=\sigma_2\)</span> so it is just <span class="math inline">\(\mathcal F(n_1-1, n_2-1)\)</span></p>
+</div>
+</section>
+<section id="proof-1" class="slide level2">
+<h2>Proof</h2>
+<div class="fragment">
+<p>Since <span class="math inline">\(X_1,\dots,X_{n_1}\overset{iid}{\sim}\mathcal{N}(\mu_1,\sigma_1^2)\)</span>, we have <span class="math inline">\((n_1-1)\hat\sigma_1^2/\sigma_1^2\sim\chi^2(n_1-1)\)</span>, and similarly <span class="math inline">\((n_2-1)\hat\sigma_2^2/\sigma_2^2\sim\chi^2(n_2-1)\)</span>, independently. Then</p>
+<p><span class="math display">\[\psi(X,Y)=\frac{\hat\sigma_1^2}{\hat\sigma_2^2}=\frac{\sigma_1^2}{\sigma_2^2}\cdot\frac{\hat\sigma_1^2/\sigma_1^2}{\hat\sigma_2^2/\sigma_2^2}\\
+=\frac{\sigma_1^2}{\sigma_2^2}\cdot\frac{\chi^2(n_1-1)/(n_1-1)}{\chi^2(n_2-1)/(n_2-1)}\sim\frac{\sigma_1^2}{\sigma_2^2}\,\mathcal{F}(n_1-1,n_2-1),\]</span></p>
+<p>by definition of the F-distribution. <span class="math inline">\(\blacksquare\)</span></p>
+</div>
 </section>
 <section id="testing-means-equal-variances" class="slide level2">
 <h2>Testing Means, Equal Variances</h2>
-<ul>
-<li class="fragment">We observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2^2)\)</span>.</li>
-<li class="fragment"><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> are <strong>unknown</strong>, but we <strong>know</strong> that <span class="math inline">\(\sigma_1=\sigma_2\)</span></li>
-<li class="fragment">Equality of mean testing problem: <span class="math display">\[
+<div class="fragment">
+<p>We observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2^2)\)</span>.</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> are <strong>unknown</strong>, but we <strong>know</strong> that <span class="math inline">\(\sigma_1=\sigma_2\)</span></p>
+</div>
+<div class="fragment">
+<p>Equality of mean testing problem:</p>
+<div class="square-objective">
+<p><span class="math display">\[
 H_0: \mu_1 = \mu_2 ~~~~ \text{ or } ~~~~ H_1: \mu_1 \neq \mu_2
-\]</span></li>
-<li class="fragment">Formally, <span class="math inline">\(H_0 = \{(\mu,\sigma, \mu, \sigma), \mu \in \mathbb R, \sigma &gt; 0\}\)</span>.</li>
-</ul>
+\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Formally, <span class="math inline">\(H_0 = \{(\mu,\sigma, \mu, \sigma), \mu \in \mathbb R, \sigma &gt; 0\}\)</span>.</p>
+</div>
+</section>
+<section id="idea-for-testing-means" class="slide level2">
+<h2>Idea for Testing Means</h2>
+<div class="fragment">
+<p>Use again <span class="math inline">\(\overline X - \overline Y\)</span> (expectation <span class="math inline">\(\mu_1 - \mu_2\)</span>)</p>
+</div>
+<div class="fragment">
+<p>What is its (unknown) variance ?</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\sigma_1 = \sigma_2 = \sigma\)</span> so we have</p>
+<div class="square-def">
+<p><span class="math inline">\(\mathbb V(\overline X - \overline Y) = \sigma^2(\frac{1}{n_1} + \frac{1}{n_2})\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>We can’t use <span class="math inline">\(\sigma\)</span> to normalize because it is unknown !!!</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>We have to <strong>estimate</strong> it: <span class="math inline">\(\hat \sigma = \frac{1}{n_1 + n_2 - 2}\left(\sum_{i=1}^{n_1}(X_i - \overline X)^2 + \sum_{i=1}^{n_2}(Y_i - \overline Y)^2 \right)\)</span></p>
+</div>
+</section>
+<section id="test-for-equality-of-means-equal-variance" class="slide level2">
+<h2>Test for Equality of Means (Equal Variance)</h2>
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
@@ -563,14 +685,23 @@ H_0: \mu_1 = \mu_2 ~~~~ \text{ or } ~~~~ H_1: \mu_1 \neq \mu_2
 </section>
 <section id="equality-means-unequal-variances" class="slide level2">
 <h2>Equality Means, Unequal Variances</h2>
-<ul>
-<li class="fragment">We observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2^2)\)</span>.</li>
-<li class="fragment"><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> are <strong>unknown</strong></li>
-<li class="fragment">Equality of Mean Testing Problem: <span class="math display">\[
+<p>We observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2^2)\)</span></p>
+<div class="fragment">
+<p><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> are <strong>unknown</strong></p>
+</div>
+<div class="fragment">
+<p>Equality of Mean Testing Problem:</p>
+<div class="square-objective">
+<p><span class="math display">\[
 H_0: \mu_1 = \mu_2 ~~~~ \text{ or } ~~~~ H_1: \mu_1 \neq \mu_2
-\]</span></li>
-<li class="fragment">Formally, <span class="math inline">\(H_0 = \{(\mu,\sigma_1, \mu, \sigma_2), \mu \in \mathbb R, \sigma_1, \sigma_2 &gt; 0\}\)</span>.</li>
-</ul>
+\]</span></p>
+</div>
+<p>Formally:</p>
+<p><span class="math inline">\(\Theta_0 = \{(\mu,\sigma_1, \mu, \sigma_2), \mu \in \mathbb R, \sigma_1, \sigma_2 &gt; 0\}\)</span>.</p>
+</div>
+</section>
+<section id="student-welch-test" class="slide level2">
+<h2>Student Welch Test</h2>
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
@@ -594,13 +725,56 @@ H_0: \mu_1 = \mu_2 ~~~~ \text{ or } ~~~~ H_1: \mu_1 \neq \mu_2
 <h1>Asymptotic Approximations</h1>
 
 </section>
+<section id="general-principle" class="slide level2">
+<h2>General Principle</h2>
+<div class="fragment">
+<p>We observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> and/or <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> and assume that the observations are independent</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\mathbb E[X_i] = \mu_1\)</span>, <span class="math inline">\(\mathbb E[Y_i] = \mu_2\)</span>, variance <span class="math inline">\(\sigma_1^2\)</span> and <span class="math inline">\(\sigma_2^2\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Event if the <span class="math inline">\(X_i\)</span> are not standard Gaussian, we can approximate e.g.&nbsp;<span style="background-color: lightblue;"><span class="math inline">\(\sqrt{\tfrac{n_1}{\sigma_1^2}}(\overline X - \mu_1)\)</span> by a <span class="math inline">\(\mathcal N(0,1)\)</span></span> using the CLT.</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: yellow;">Insight: centered and normalized</span> variables always look like gaussians under independency assumption.</p>
+</div>
+<div class="fragment">
+<p>Hence, we can compute approximate p-value/rejection regions.</p>
+</div>
+</section>
 <section id="proportion-test" class="slide level2">
 <h2>Proportion Test</h2>
-<ul>
-<li class="fragment">We observe <span class="math inline">\(X \sim Bin(n_1, p_1)\)</span> and <span class="math inline">\(Y \sim Bin(n_2, p_2)\)</span>.</li>
-<li class="fragment"><span class="math inline">\(n_1\)</span>, <span class="math inline">\(n_2\)</span> are <strong>known</strong> but <span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span> are <strong>unknown</strong> in <span class="math inline">\((0,1)\)</span></li>
-<li class="fragment"><span class="math inline">\(H_0\)</span>: <span class="math inline">\(p_1 = p_2\)</span> or <span class="math inline">\(H_1\)</span>: <span class="math inline">\(p_1 \neq p_2\)</span></li>
-</ul>
+<div class="fragment">
+<p>We observe <span class="math inline">\(X \sim Bin(n_1, p_1)\)</span> and <span class="math inline">\(Y \sim Bin(n_2, p_2)\)</span>.</p>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>Here, X is not a vector, but an integer!!</p>
+</div>
+</div>
+</div>
+<p><span class="math inline">\(n_1\)</span>, <span class="math inline">\(n_2\)</span> are <strong>known</strong> but <span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span> are <strong>unknown</strong> in <span class="math inline">\((0,1)\)</span></p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(H_0\)</span>: <span class="math inline">\(p_1 = p_2\)</span> or <span class="math inline">\(H_1\)</span>: <span class="math inline">\(p_1 \neq p_2\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Idea: use <span class="math inline">\(X-Y\)</span>, because <span class="math inline">\(E[X - Y] = p_1 - p_2\)</span>. What is its variance ?</p>
+</div>
+<div class="fragment">
+<p>notation: <span class="math inline">\(X/n_1\)</span> is an estimator of <span class="math inline">\(p_1\)</span> so we write <span class="math inline">\(\hat p_1 = X/n_1\)</span>.</p>
+</div>
+</section>
+<section id="test-statistic-2" class="slide level2">
+<h2>Test Statistic</h2>
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
@@ -620,13 +794,16 @@ H_0: \mu_1 = \mu_2 ~~~~ \text{ or } ~~~~ H_1: \mu_1 \neq \mu_2
 </div>
 </div>
 </section>
-<section id="example-reference" class="slide level2">
-<h2>Example (<a href="https://online.stat.psu.edu/stat415/lesson/9/9.4">reference</a>)</h2>
-<ul>
-<li class="fragment">Question: “should we raise taxes on cigarettes to pay for a healthcare reform ?”</li>
-<li class="fragment"><span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span>: proportion of non-smokers or smokers willing to raise taxes</li>
-<li class="fragment"><span class="math inline">\(H_0\)</span>: <span class="math inline">\(p_1=p_2\)</span> or <span class="math inline">\(H_1\)</span>: <span class="math inline">\(p_1 &gt; p_2\)</span></li>
-</ul>
+<section id="example-2" class="slide level2">
+<h2>Example</h2>
+<div class="fragment">
+<p>Poll: “should we raise taxes on cigarettes to pay for a healthcare reform ?”</p>
+</div>
+<div class="fragment">
+<p>Question: Are non-smoker on average more in favor of tax raise?</p>
+</div>
+<div class="fragment">
+<p>Observations:</p>
 <div class="fragment">
 <table class="caption-top">
 <thead>
@@ -659,6 +836,36 @@ H_0: \mu_1 = \mu_2 ~~~~ \text{ or } ~~~~ H_1: \mu_1 \neq \mu_2
 </tbody>
 </table>
 </div>
+</div>
+</section>
+<section id="description" class="slide level2">
+<h2>Description</h2>
+<div class="fragment">
+<p><strong>Data description</strong>: we observe <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> the number of non-smokers (resp. smokers) willing to raise tax, among a population of <span class="math inline">\(n_1\)</span> non-smokers (resp. <span class="math inline">\(n_2\)</span> smokers).</p>
+</div>
+<div class="fragment">
+<p><strong>Alternative description</strong>: we observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> where <span class="math inline">\(X_i\)</span> (resp. <span class="math inline">\(Y_i\)</span>) is equal to <span class="math inline">\(1\)</span> if and only if non-smoker <span class="math inline">\(i\)</span> (resp. smoker <span class="math inline">\(i\)</span>) wants a tax raise.</p>
+</div>
+</section>
+<section id="formulation-of-the-problem" class="slide level2">
+<h2>Formulation of the problem</h2>
+<div class="fragment">
+<p><strong>Assumption</strong>: We assume independency and that <span class="math inline">\(X \sim \mathcal B(n_1, p_1)\)</span> and <span class="math inline">\(Y \sim \mathcal B(n_2, p_2)\)</span> for unknown probabilities <span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span></p>
+</div>
+<div class="fragment">
+<p><strong>(Or in alternative description)</strong>: <span class="math inline">\(X_i\)</span>, <span class="math inline">\(Y_i\)</span> are independent and bernoullis of parameters <span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span>. We denote <span class="math inline">\(X = \sum_{i=1}^n X_i\)</span> and <span class="math inline">\(Y= \sum_{i=1}^n Y_i\)</span>.</p>
+</div>
+<div class="fragment">
+<p><strong>Problem</strong>: We want to test</p>
+<div class="square-objective">
+<p><span class="math inline">\(H_0: p_1=p_2\)</span> VS <span class="math inline">\(H_1: p_1 &gt; p_2\)</span></p>
+</div>
+</div>
+</section>
+<section id="resolution" class="slide level2">
+<h2>Resolution</h2>
+<p><span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span>: proportion of non-smokers or smokers willing to raise taxes</p>
+<p><span class="math inline">\(H_0\)</span>: <span class="math inline">\(p_1=p_2\)</span> or <span class="math inline">\(H_1\)</span>: <span class="math inline">\(p_1 &gt; p_2\)</span></p>
 <ul>
 <li class="fragment"><span class="math inline">\(\hat p_1 = \overline X= \approx 0.58\)</span>, <span class="math inline">\(\hat p_2=\overline Y= \approx 0.21\)</span>.</li>
 <li class="fragment"><span class="math inline">\(\psi(X,Y)= \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \approx 8.99\)</span></li>

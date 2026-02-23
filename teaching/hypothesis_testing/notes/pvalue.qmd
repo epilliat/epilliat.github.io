@@ -1,0 +1,80 @@
+---
+title: "The P-value as the Smallest Rejection Level"
+format:
+  html:
+    toc: true
+    html-math-method: mathjax
+    theme: cosmo
+    self-contained: true
+---
+
+## Setting
+
+Consider a parametric model $(P_\theta)_{\theta \in \Theta}$ and a null hypothesis $H_0: \theta \in \Theta_0$, where $\Theta_0 \subseteq \Theta$ is not necessarily a singleton.
+
+::: {.callout-note title="Pivotal Test Statistic"}
+A test statistic $\psi: \mathcal{X} \to \mathbb{R}$ is **pivotal** under $H_0$ if the distribution of $\psi(X)$ does not depend on $\theta \in \Theta_0$: for any $\theta, \theta' \in \Theta_0$ and any measurable set $A \subseteq \mathbb{R}$,
+$$
+\mathbb{P}_{\theta}(\psi(X) \in A) = \mathbb{P}_{\theta'}(\psi(X) \in A).
+$$
+:::
+
+Since $\psi$ is pivotal, we may write $\mathbb{P}_{H_0}(\cdot)$ unambiguously for probabilities involving $\psi(X)$ under $H_0$.
+
+We consider a test that rejects $H_0$ for large values of $\psi$. At level $\alpha \in (0,1)$, the rejection region is
+$$
+\mathcal{R}_\alpha = \bigl\{ x \in \mathcal{X} : \psi(x) > c_\alpha \bigr\},
+$$
+where $c_\alpha$ is the critical value satisfying $\mathbb{P}_{H_0}(\psi(X) > c_\alpha) = \alpha$.
+
+::: {.callout-tip title="Assumption"}
+We assume the distribution of $\psi(X)$ under $H_0$ is **continuous**, so that its cumulative distribution function $F$ is continuous and strictly increasing on the support of $\psi(X)$.
+:::
+
+Given an observation $x \in \mathcal{X}$, the **p-value** is defined as
+$$
+p(x) = \mathbb{P}_{H_0}\bigl(\psi(X) \geq \psi(x)\bigr).
+$$
+
+## Property
+
+::: {.callout-important title="Property"}
+The p-value is the smallest level $\alpha$ at which we reject $H_0$:
+$$
+p(x) = \inf\bigl\{\alpha \in (0,1) : x \in \mathcal{R}_\alpha\bigr\}.
+$$
+:::
+
+### Proof
+
+Let $F$ denote the (continuous, strictly increasing) CDF of $\psi(X)$ under $H_0$, and write $t = \psi(x)$ for the observed value of the test statistic.
+
+By definition, the critical value $c_\alpha$ satisfies
+$$
+\mathbb{P}_{H_0}(\psi(X) > c_\alpha) = 1 - F(c_\alpha) = \alpha,
+$$
+so $c_\alpha = F^{-1}(1 - \alpha)$. Since $F$ is continuous and strictly increasing, the map $\alpha \mapsto c_\alpha$ is continuous and strictly decreasing.
+
+The p-value is
+$$
+p(x) = \mathbb{P}_{H_0}(\psi(X) \geq t) = 1 - F(t),
+$$
+where the equality $\mathbb{P}_{H_0}(\psi(X) \geq t) = \mathbb{P}_{H_0}(\psi(X) > t)$ holds by continuity of the distribution.
+
+**Step 1.** We show that if $\alpha > p(x)$, then $x \in \mathcal{R}_\alpha$, i.e., $t > c_\alpha$.
+
+If $\alpha > p(x) = 1 - F(t)$, then $F(t) > 1 - \alpha = F(c_\alpha)$. Since $F$ is strictly increasing, this gives $t > c_\alpha$, hence $x \in \mathcal{R}_\alpha$.
+
+**Step 2.** We show that if $\alpha \leq p(x)$, then $x \notin \mathcal{R}_\alpha$, i.e., $t \leq c_\alpha$.
+
+If $\alpha \leq p(x) = 1 - F(t)$, then $F(t) \leq 1 - \alpha = F(c_\alpha)$. Since $F$ is strictly increasing, $t \leq c_\alpha$, so $x \notin \mathcal{R}_\alpha$.
+
+**Conclusion.** Combining both steps, $x \in \mathcal{R}_\alpha$ if and only if $\alpha > p(x)$. Therefore,
+$$
+\inf\bigl\{\alpha \in (0,1) : x \in \mathcal{R}_\alpha\bigr\} = p(x).
+$$
+$\blacksquare$
+
+::: {.callout-warning title="Remark"}
+The pivotality of $\psi$ is essential: it guarantees that both the p-value $p(x)$ and the critical values $c_\alpha$ are uniquely determined, independently of the unknown parameter $\theta \in \Theta_0$. Without pivotality, the quantity $\mathbb{P}_{H_0}(\psi(X) \geq \psi(x))$ would depend on $\theta$ and could not serve as a single summary of evidence against $H_0$.
+:::

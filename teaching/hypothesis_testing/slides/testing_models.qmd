@@ -896,6 +896,8 @@ Assumption: $\Theta_0 \cup \Theta_1 \subset \mathbb R$
 
 ## UMP for Exponential Families
 
+. . .
+
 ::: {.callout-note title="Theorem"}
 Assume $p_{\theta}(x) = a(\theta)b(x)\exp(c(\theta)d(x))$ with $c$ non-decreasing.
 
@@ -910,7 +912,9 @@ Same if $c$ is non-increasing instead
 
 ## Pivotal Test Statistic and P-value
 
-- Here, $\Theta_0$ is not necessarily a singleton. $\mathbb P_{H_0}(X \in A)$ has no meaning.
+. . .
+
+Here, $\Theta_0$ is not necessarily a singleton. $\mathbb P_{H_0}(X \in A)$ has no meaning without any further assumption.
 
 ::: {.fragment}
 ::: {.callout-note title="Pivotal Test Statistic"}
@@ -922,9 +926,16 @@ $$ \mathbb P_{\theta}(\psi(X) \in A) = \mathbb P_{\theta'}(\psi(X) \in A) \; .$$
 :::
 :::
 
-## Example 
+. . .
+
+
+Since $\psi$ is pivotal, we may write $\mathbb{P}_{H_0}(\cdot)$ unambiguously for probabilities involving $\psi(X)$ under $H_0$.
+
 
 ## Example 
+
+. . .
+
 If $X=(X_1, \dots, X_n)$ are iid $\mathcal N(0, \sigma)$, the distribution of
 $$ \psi(X) = \frac{\sum_{i=1}^n X_i}{\sqrt{\sum_{i=1}^n X_i^2}}$$
 does not depend on $\sigma$.
@@ -935,6 +946,8 @@ $$ \psi(X) = \frac{\sum_{i=1}^n \sigma Z_i}{\sqrt{\sum_{i=1}^n \sigma^2 Z_i^2}} 
 :::
 
 ## Pivotal Test Statistic and P-value
+
+. . .
 
 ::: {.callout-note title="P-value: definition"}
 We define $p_{value}(x_{\mathrm{obs}}) =\mathbb P(\psi(X) \geq x_{\mathrm{obs}})$ for a right-tailed test.
@@ -952,9 +965,36 @@ For a two-tailed test, $p_{value}(x_{\mathrm{obs}}) =2\min(\mathbb P(\psi(X) \ge
 ![](../images/basics/pvalue_uniform.svg)
 
 
+## Property
+
+. . .
+
+We consider a test that rejects $H_0$ for large values of $\psi$. At level $\alpha \in (0,1)$, the rejection region is
+
+. . .
+
+$$
+\mathcal{R}_\alpha = \bigl\{ x \in \mathcal{X} : \psi(x) > c_\alpha \bigr\},
+$$
+where $c_\alpha$ is the critical value satisfying $\mathbb{P}_{H_0}(\psi(X) > c_\alpha) = \alpha$.
+
+
+. . .
+
+
+::: {.callout-important title="Property"}
+The p-value is the smallest level $\alpha$ at which we reject $H_0$:
+$$
+p(x) = \inf\bigl\{\alpha \in (0,1) : x \in \mathcal{R}_\alpha\bigr\}.
+$$
+
+[proof](../notes/pvalue.qmd)
+:::
 
 
 ## Example 1: One-sample z-test
+
+. . .
 
 $X_1, \dots, X_n \overset{\text{iid}}{\sim} \mathcal N(\mu, \sigma_0)$ with $\sigma_0$ known. Test $H_0: \mu = 0$ vs $H_1: \mu \neq 0$.
 
@@ -964,6 +1004,9 @@ $$ \psi(X) = \frac{\sqrt{n}\,\overline{X}}{\sigma_0} \sim \mathcal N(0,1) \quad 
 :::
 
 ## Numerical Example
+
+. . .
+
 $n=25$, $\sigma_0 = 2$, $\overline{x}_{\mathrm{obs}} = 0.9$.
 
 $$\psi(x_{\mathrm{obs}}) = \frac{\sqrt{25} \times 0.9}{2} = 2.25$$
@@ -974,6 +1017,8 @@ Since $p_{value} = 0.0244 \leq \alpha = 0.05$, we **reject** $H_0$.
 
 
 ## Example 2: One-sample t-test
+
+. . .
 
 $X_1, \dots, X_n \overset{\text{iid}}{\sim} \mathcal N(\mu, \sigma)$ with $\sigma$ **unknown**. Test $H_0: \mu = 0$ vs $H_1: \mu > 0$.
 
@@ -995,6 +1040,8 @@ Since $p_{value} = 0.025 \leq \alpha = 0.05$, we **reject** $H_0$.
 
 
 ## Property of the p-value
+
+. . .
 
 ::: {.callout-note title="P-value under $H_0$"}
 Under $H_0$, for a left or right tailed test, for a pivotal test statistic $\psi$, $p_{value}(X)$ has a uniform distribution $\mathcal U([0,1])$.

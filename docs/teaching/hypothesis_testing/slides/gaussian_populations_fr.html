@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.22">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Populations Gaussiennes – Emmanuel Pilliat</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-338eaa8bf8d7f1eb506da55f2b711d05.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">Emmanuel Pilliat</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../teaching/teaching.html"> 
+<span class="menu-text">Teaching</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../coding/coding.html"> 
+<span class="menu-text">Coding</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/epilliat"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://fr.linkedin.com/in/emmanuel-pilliat-18ab2b180"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#plan" id="toc-plan" class="nav-link active" data-scroll-target="#plan">Plan</a></li>
+  <li><a href="#une-population-gaussienne" id="toc-une-population-gaussienne" class="nav-link" data-scroll-target="#une-population-gaussienne">Une Population Gaussienne</a>
+  <ul class="collapse">
+  <li><a href="#test-sur-la-moyenne-avec-variance-connue" id="toc-test-sur-la-moyenne-avec-variance-connue" class="nav-link" data-scroll-target="#test-sur-la-moyenne-avec-variance-connue">Test sur la Moyenne avec Variance Connue</a></li>
+  <li><a href="#statistique-de-test" id="toc-statistique-de-test" class="nav-link" data-scroll-target="#statistique-de-test">Statistique de Test</a></li>
+  <li><a href="#tests" id="toc-tests" class="nav-link" data-scroll-target="#tests">Tests</a></li>
+  <li><a href="#illustration" id="toc-illustration" class="nav-link" data-scroll-target="#illustration">Illustration</a></li>
+  <li><a href="#exemple" id="toc-exemple" class="nav-link" data-scroll-target="#exemple">Exemple</a></li>
+  <li><a href="#test-sur-la-moyenne-variance-inconnue" id="toc-test-sur-la-moyenne-variance-inconnue" class="nav-link" data-scroll-target="#test-sur-la-moyenne-variance-inconnue">Test sur la Moyenne, Variance Inconnue</a></li>
+  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section"></a></li>
+  <li><a href="#test-t-de-student" id="toc-test-t-de-student" class="nav-link" data-scroll-target="#test-t-de-student">Test T de Student</a></li>
+  <li><a href="#preuve" id="toc-preuve" class="nav-link" data-scroll-target="#preuve">Preuve</a></li>
+  <li><a href="#loi-de-student" id="toc-loi-de-student" class="nav-link" data-scroll-target="#loi-de-student">Loi de Student</a></li>
+  <li><a href="#test-sur-la-variance-moyenne-inconnue" id="toc-test-sur-la-variance-moyenne-inconnue" class="nav-link" data-scroll-target="#test-sur-la-variance-moyenne-inconnue">Test sur la Variance, Moyenne Inconnue</a></li>
+  <li><a href="#test-de-fisher-unilatéral-droit" id="toc-test-de-fisher-unilatéral-droit" class="nav-link" data-scroll-target="#test-de-fisher-unilatéral-droit">Test de Fisher Unilatéral Droit</a></li>
+  <li><a href="#propriété-du-test-de-fisher" id="toc-propriété-du-test-de-fisher" class="nav-link" data-scroll-target="#propriété-du-test-de-fisher">Propriété du Test de Fisher</a></li>
+  <li><a href="#illustration-1" id="toc-illustration-1" class="nav-link" data-scroll-target="#illustration-1">Illustration</a></li>
+  <li><a href="#test-de-fisher-unilatéral-gauche" id="toc-test-de-fisher-unilatéral-gauche" class="nav-link" data-scroll-target="#test-de-fisher-unilatéral-gauche">Test de Fisher Unilatéral Gauche</a></li>
+  </ul></li>
+  <li><a href="#deux-populations-gaussiennes" id="toc-deux-populations-gaussiennes" class="nav-link" data-scroll-target="#deux-populations-gaussiennes">Deux Populations Gaussiennes</a>
+  <ul class="collapse">
+  <li><a href="#test-sur-les-moyennes-variances-connues" id="toc-test-sur-les-moyennes-variances-connues" class="nav-link" data-scroll-target="#test-sur-les-moyennes-variances-connues">Test sur les Moyennes, Variances Connues</a></li>
+  <li><a href="#idée" id="toc-idée" class="nav-link" data-scroll-target="#idée">Idée</a></li>
+  <li><a href="#statistique-de-test-1" id="toc-statistique-de-test-1" class="nav-link" data-scroll-target="#statistique-de-test-1">Statistique de Test</a></li>
+  <li><a href="#test" id="toc-test" class="nav-link" data-scroll-target="#test">Test</a></li>
+  <li><a href="#exemple-1" id="toc-exemple-1" class="nav-link" data-scroll-target="#exemple-1">Exemple</a></li>
+  <li><a href="#exemple-suite" id="toc-exemple-suite" class="nav-link" data-scroll-target="#exemple-suite">Exemple (Suite)</a></li>
+  <li><a href="#test-sur-les-variances-moyennes-inconnues" id="toc-test-sur-les-variances-moyennes-inconnues" class="nav-link" data-scroll-target="#test-sur-les-variances-moyennes-inconnues">Test sur les Variances, Moyennes Inconnues</a></li>
+  <li><a href="#idée-1" id="toc-idée-1" class="nav-link" data-scroll-target="#idée-1">Idée</a></li>
+  <li><a href="#statistique-du-test-f" id="toc-statistique-du-test-f" class="nav-link" data-scroll-target="#statistique-du-test-f">Statistique du Test F</a></li>
+  <li><a href="#loi" id="toc-loi" class="nav-link" data-scroll-target="#loi">Loi</a></li>
+  <li><a href="#preuve-1" id="toc-preuve-1" class="nav-link" data-scroll-target="#preuve-1">Preuve</a></li>
+  <li><a href="#test-sur-les-moyennes-variances-égales" id="toc-test-sur-les-moyennes-variances-égales" class="nav-link" data-scroll-target="#test-sur-les-moyennes-variances-égales">Test sur les Moyennes, Variances Égales</a></li>
+  <li><a href="#idée-pour-le-test-sur-les-moyennes" id="toc-idée-pour-le-test-sur-les-moyennes" class="nav-link" data-scroll-target="#idée-pour-le-test-sur-les-moyennes">Idée pour le Test sur les Moyennes</a></li>
+  <li><a href="#test-dégalité-des-moyennes-variance-égale" id="toc-test-dégalité-des-moyennes-variance-égale" class="nav-link" data-scroll-target="#test-dégalité-des-moyennes-variance-égale">Test d’Égalité des Moyennes (Variance Égale)</a></li>
+  <li><a href="#égalité-des-moyennes-variances-inégales" id="toc-égalité-des-moyennes-variances-inégales" class="nav-link" data-scroll-target="#égalité-des-moyennes-variances-inégales">Égalité des Moyennes, Variances Inégales</a></li>
+  <li><a href="#test-de-welch" id="toc-test-de-welch" class="nav-link" data-scroll-target="#test-de-welch">Test de Welch</a></li>
+  </ul></li>
+  <li><a href="#approximations-asymptotiques" id="toc-approximations-asymptotiques" class="nav-link" data-scroll-target="#approximations-asymptotiques">Approximations Asymptotiques</a>
+  <ul class="collapse">
+  <li><a href="#principe-général" id="toc-principe-général" class="nav-link" data-scroll-target="#principe-général">Principe Général</a></li>
+  <li><a href="#test-de-proportion" id="toc-test-de-proportion" class="nav-link" data-scroll-target="#test-de-proportion">Test de Proportion</a></li>
+  <li><a href="#statistique-de-test-2" id="toc-statistique-de-test-2" class="nav-link" data-scroll-target="#statistique-de-test-2">Statistique de Test</a></li>
+  <li><a href="#exemple-2" id="toc-exemple-2" class="nav-link" data-scroll-target="#exemple-2">Exemple</a></li>
+  <li><a href="#description" id="toc-description" class="nav-link" data-scroll-target="#description">Description</a></li>
+  <li><a href="#formulation-du-problème" id="toc-formulation-du-problème" class="nav-link" data-scroll-target="#formulation-du-problème">Formulation du Problème</a></li>
+  <li><a href="#résolution" id="toc-résolution" class="nav-link" data-scroll-target="#résolution">Résolution</a></li>
+  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1"></a></li>
+  </ul></li>
+  </ul>
+<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="gaussian_populations_fr.html"><i class="bi bi-file-slides"></i>RevealJS</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Populations Gaussiennes</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="plan" class="level2">
+<h2 class="anchored" data-anchor-id="plan">Plan</h2>
+<div style="font-size: 80%;">
+<ul>
+<li><span style="background-color: yellow;">Une population gaussienne</span> (une moyenne, une variance) :
+<ul>
+<li><span style="background-color: lightgreen;">Test sur la moyenne</span> avec <span style="background-color: orange;">variance connue</span></li>
+<li><span style="background-color: lightgreen;">Test sur la moyenne</span> avec <span style="background-color: orange;">variance inconnue</span></li>
+<li><span style="background-color: lightgreen;">Test sur la variance</span> avec <span style="background-color: orange;">moyenne inconnue</span></li>
+</ul></li>
+<li><span style="background-color: yellow;">Deux populations gaussiennes</span> (deux moyennes, deux variances)
+<ul>
+<li><span style="background-color: lightgreen;">Test sur la différence des moyennes</span> avec <span style="background-color: orange;">variances connues</span></li>
+<li><span style="background-color: lightgreen;">Test sur les variances</span> avec <span style="background-color: orange;">moyenne inconnue</span></li>
+<li><span style="background-color: lightgreen;">Test sur la différence des moyennes</span> avec <span style="background-color: orange;">variances inconnues</span></li>
+</ul></li>
+</ul>
+<p><a href="../../../teaching/hypothesis_testing/slides/usual_distributions_fr.html">Précédent : lois usuelles</a></p>
+<p><a href="goodness_of_fit_chi2_fr.qmd">Suivant : adéquation du chi-deux</a></p>
+</div>
+</section>
+<section id="une-population-gaussienne" class="level1" style="text-align: center;">
+<h1 style="text-align: center;">Une Population Gaussienne</h1>
+<section id="test-sur-la-moyenne-avec-variance-connue" class="level2">
+<h2 class="anchored" data-anchor-id="test-sur-la-moyenne-avec-variance-connue">Test sur la Moyenne avec Variance Connue</h2>
+<p>. . .</p>
+<p><span class="math inline">\(X = (X_1, \dots, X_n)\)</span>, iid de loi <span class="math inline">\(\mathcal N(\mu, \sigma^2)\)</span>.</p>
+<p>. . .</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Problèmes de test
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="math inline">\(H_0: \mu = \mu_0 ~~~~ \text{ ou } ~~~ H_1: \mu &gt; \mu_0\)</span> (unilatéral droit)</p>
+<p><span class="math inline">\(H_0: \mu = \mu_0 ~~~ \text{ ou } ~~~ H_1: \mu &lt; \mu_0\)</span> (unilatéral gauche)</p>
+<p><span class="math inline">\(H_0: \mu = \mu_0 ~~~ \text{ ou } ~~~ H_1: \mu \neq \mu_0\)</span> (bilatéral)</p>
+</div>
+</div>
+<p>. . .</p>
+<p>On veut tester la moyenne <span class="math inline">\(\mu = \mu_0\)</span>. Idée naturelle : utiliser <span class="math inline">\(\overline X\)</span></p>
+<p>. . .</p>
+<p>Mais <span class="math inline">\(\overline X \sim \mathcal N(\mu_0, \frac{\sigma^2}{n})\)</span> sous <span class="math inline">\(H_0\)</span>. On normalise donc pour obtenir une <span class="math inline">\(\mathcal N(0,1)\)</span></p>
+</section>
+<section id="statistique-de-test" class="level2">
+<h2 class="anchored" data-anchor-id="statistique-de-test">Statistique de Test</h2>
+<p>. . .</p>
+<p>Statistique de test :</p>
+<div class="square-def">
+<p><span class="math display">\[\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma}\]</span></p>
+</div>
+<p>. . .</p>
+<p><span style="background-color: yellow;">Sous <span class="math inline">\(H_0\)</span></span>, <span class="math inline">\(\psi(X) \sim \mathcal N(0,1)\)</span></p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>C’est une statistique de test car <span class="math inline">\(\mu_0\)</span> et <span class="math inline">\(\sigma\)</span> sont <strong>connus</strong> ici. Ce ne serait pas le cas sinon.</p>
+</div>
+</div>
+<ul>
+<li><a href="https://app.wooclap.com/events/RQSUIA/questions/67cac80ddae229478c77ada9">Q1</a>, <a href="https://app.wooclap.com/events/RQSUIA/questions/67cac961ec10853018cfd6bd">Q2</a></li>
+</ul>
+</section>
+<section id="tests" class="level2">
+<h2 class="anchored" data-anchor-id="tests">Tests</h2>
+<p>. . .</p>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Régions critiques du test
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="math inline">\(\mathcal R\)</span> : <span class="math inline">\(\frac{\sqrt{n}(\overline X-\mu_0)}{\sigma} &gt; t_{1-\alpha}\)</span> (unilatéral droit)</p>
+<p><span class="math inline">\(\mathcal R\)</span> : <span class="math inline">\(\frac{\sqrt{n}(\overline X-\mu_0)}{\sigma} &lt; t_{\alpha}\)</span> (unilatéral gauche)</p>
+<p><span class="math inline">\(\mathcal R\)</span> : <span class="math inline">\(\left|\frac{\sqrt{n}(\overline X-\mu_0)}{\sigma}\right| &gt; t_{1-\tfrac{\alpha}{2}}\)</span> (bilatéral)</p>
+</div>
+</div>
+</section>
+<section id="illustration" class="level2">
+<h2 class="anchored" data-anchor-id="illustration">Illustration</h2>
+<p>. . .</p>
+<p><img src="../images/rejection_region.svg" class="img-fluid"></p>
+</section>
+<section id="exemple" class="level2">
+<h2 class="anchored" data-anchor-id="exemple">Exemple</h2>
+<div style="font-size: 80%;">
+<p>Une machine remplit des bouteilles avec un volume nominal de <span style="background-color: yellow;"><span class="math inline">\(\mu_0 = 500\)</span> ml</span>. Le volume de remplissage suit une loi <span class="math inline">\(\mathcal{N}(\mu, \sigma^2)\)</span> avec <span style="background-color: yellow;"><span class="math inline">\(\sigma = 5\)</span> ml</span>. Sur un échantillon de <span style="background-color: yellow;"><span class="math inline">\(n = 25\)</span></span> bouteilles, on observe <span class="math inline">\(\overline{x} = 498.1\)</span> ml. La machine <span style="background-color: yellow;">sous-remplit</span>-elle ?</p>
+</div>
+<ul>
+<li><span class="math inline">\(H_0: \mu = 500\)</span> vs <span class="math inline">\(H_1: \mu &lt; 500\)</span> (unilatéral gauche)</li>
+<li>Statistique de test : <span class="math inline">\(\tfrac{\sqrt{n}(\overline X - \mu_0)}{\sigma} = \tfrac{\sqrt{25}(498.1 - 500)}{5} = -1.9\)</span></li>
+<li>Seuil : <span class="math inline">\(t_{\alpha} =\)</span> <code>quantile(Normal(0,1), 0.05) = -1.645</code></li>
+<li><span class="math inline">\(-1.9 &lt; -1.645\)</span> : <span style="background-color: yellow;">on rejette <span class="math inline">\(H_0\)</span> au niveau <span class="math inline">\(5\%\)</span></span></li>
+<li>p-valeur : <code>cdf(Normal(0,1), -1.9) = 0.029</code></li>
+</ul>
+</section>
+<section id="test-sur-la-moyenne-variance-inconnue" class="level2">
+<h2 class="anchored" data-anchor-id="test-sur-la-moyenne-variance-inconnue">Test sur la Moyenne, Variance Inconnue</h2>
+<p>. . .</p>
+<p>On observe <span class="math inline">\((X_1, \dots, X_n)\)</span> iid <span class="math inline">\(\mathcal N(\mu, \sigma^2)\)</span> où <span class="math inline">\(\mu\)</span> et <span class="math inline">\(\sigma\)</span> sont <strong>inconnus</strong>.</p>
+<p>. . .</p>
+<p>On fixe <span class="math inline">\(\mu_0\)</span> comme une quantité <strong>connue</strong></p>
+<p>. . .</p>
+<p>on veut tester si <span class="math inline">\(\mu = \mu_0\)</span>.</p>
+<p>. . .</p>
+<p>Problème de test multiple VS multiple :</p>
+<div class="square-objective">
+<p><span class="math display">\[
+H_0: \{\mu_0,\sigma &gt; 0\} \text{ ou } H_1: \{\mu \neq \mu_0,\sigma &gt; 0\} \;.
+\]</span></p>
+</div>
+</section>
+<section id="section" class="level2">
+<h2 class="anchored" data-anchor-id="section"></h2>
+<p>. . .</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="math inline">\(\psi(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\sigma}\)</span> <strong>n’est plus une statistique de test</strong>.</p>
+</div>
+</div>
+<p>. . .</p>
+<p><strong>Idée</strong> : remplacer <span class="math inline">\(\sigma\)</span> par son estimateur <span class="math display">\[ \hat \sigma(X) = \sqrt{\frac{1}{n-1}\sum_{i=1}^n(X_i - \mu_0)^2} \; .\]</span></p>
+</section>
+<section id="test-t-de-student" class="level2">
+<h2 class="anchored" data-anchor-id="test-t-de-student">Test T de Student</h2>
+<p>. . .</p>
+<div class="square-objective">
+<p><span class="math display">\[
+H_0: \{\mu_0,\sigma &gt; 0\} \text{ ou } H_1: \{\mu \neq \mu_0,\sigma &gt; 0\} \;.
+\]</span></p>
+</div>
+<p>. . .</p>
+<p>Statistique du test T (de Student) : <span class="math display">\[T(X) = \frac{\sqrt{n}(\overline X-\mu_0)}{\hat \sigma(X)}\]</span></p>
+<p>. . .</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proposition : loi de T sous <span class="math inline">\(H_0\)</span>
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="math inline">\(T(X)\)</span> est une statistique de test pivotale.</p>
+<p>Sous <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\psi(X)\sim \mathcal T(n-1)\)</span></p>
+</div>
+</div>
+</section>
+<section id="preuve" class="level2">
+<h2 class="anchored" data-anchor-id="preuve">Preuve</h2>
+<p>. . .</p>
+<p>Prenons <span style="background-color: yellow;"><span class="math inline">\(E = \operatorname{Span}(\mathbf{1})\)</span></span> et <span class="math inline">\(F = E^\perp\)</span>. En posant <span class="math inline">\(Y_i = \frac{X_i - \mu}{\sigma}\)</span> :</p>
+<p>. . .</p>
+<p><span class="math display">\[
+\|\Pi_E Y\|^2 = n\overline{Y}^2 = \frac{n(\overline{X}-\mu)^2}{\sigma^2} \sim \chi^2(1)
+\]</span></p>
+<p><span class="math display">\[
+\|\Pi_F Y\|^2 = \sum_{i=1}^n (Y_i - \overline{Y})^2 = \frac{(n-1)\hat{\sigma}^2}{\sigma^2} \sim \chi^2(n-1)
+\]</span></p>
+<p>et les deux sont <strong>indépendants</strong>, ce qui est précisément ce qu’il faut pour la statistique <span class="math inline">\(T\)</span> de Student.</p>
+</section>
+<section id="loi-de-student" class="level2">
+<h2 class="anchored" data-anchor-id="loi-de-student">Loi de Student</h2>
+<div class="fragment">
+<p><img src="../images/student_k_30.svg" class="img-fluid"></p>
+</div>
+</section>
+<section id="test-sur-la-variance-moyenne-inconnue" class="level2">
+<h2 class="anchored" data-anchor-id="test-sur-la-variance-moyenne-inconnue">Test sur la Variance, Moyenne Inconnue</h2>
+<p>. . .</p>
+<p>On observe <span class="math inline">\(X=(X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu, \sigma^2)\)</span>. <span class="math inline">\(\mu\)</span>, <span class="math inline">\(\sigma\)</span> sont <strong>inconnus</strong>. <span class="math inline">\(\sigma_0\)</span> est fixé et <strong>connu</strong>.</p>
+<p>On veut tester si <span class="math inline">\(\sigma &gt; \sigma_0\)</span>, ou <span class="math inline">\(\sigma &lt; \sigma_0\)</span></p>
+</section>
+<section id="test-de-fisher-unilatéral-droit" class="level2">
+<h2 class="anchored" data-anchor-id="test-de-fisher-unilatéral-droit">Test de Fisher Unilatéral Droit</h2>
+<p>. . .</p>
+<div class="square-objective">
+<p><span class="math inline">\(H_0\)</span> : <span class="math inline">\(\sigma \leq \sigma_0\)</span>, <span class="math inline">\(H_1\)</span> : <span class="math inline">\(\sigma &gt; \sigma_0\)</span></p>
+</div>
+<p>. . .</p>
+<p><span style="background-color: yellow;">Statistique de test :</span></p>
+<p><span class="math inline">\(\psi(X) = \frac{1}{\sigma_0^2}\sum_{i=1}^n (X_i - \overline X)^2\)</span> <a href="https://app.wooclap.com/events/RQSUIA/questions/67cacda8c917f9165d229d9d">Wooclap</a></p>
+<p>. . .</p>
+<p><span style="background-color: yellow;">Test :</span></p>
+<p><span class="math inline">\(T(X) = \mathbf{1}\{\psi(X) &gt; q_{1-\alpha}\}\)</span> avec <span class="math inline">\(q_{1-\alpha}\)</span> le quantile d’ordre <span class="math inline">\((1-\alpha)\)</span> de <span class="math inline">\(\chi^2(n-1)\)</span></p>
+<p>. . .</p>
+<p><span style="background-color: yellow;">Région de rejet :</span> <span class="math inline">\([q_{1-\alpha}, +\infty)\)</span></p>
+<p><span style="background-color: yellow;">Région critique :</span> <span class="math inline">\(\{(x_1, \dots, x_n) \in \mathbb R^n: ~ \psi(x_1, \dots, x_n) &gt; q_{1-\alpha}\}\)</span></p>
+</section>
+<section id="propriété-du-test-de-fisher" class="level2">
+<h2 class="anchored" data-anchor-id="propriété-du-test-de-fisher">Propriété du Test de Fisher</h2>
+<p>. . .</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Proposition
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Fixons <span class="math inline">\(t&gt;0\)</span>. <span style="background-color: yellow;">Sous <span class="math inline">\(H_0\)</span>, c’est-à-dire si <span class="math inline">\(\sigma \leq \sigma_0\)</span></span></p>
+<div class="square-def">
+<p><span class="math display">\[P_{\mu, \sigma}(\psi(X) &gt; t) \leq P_{\mu, \sigma_0}(\psi(X) &gt; t) = P(\chi^2(n-1) &gt; t)\]</span></p>
+</div>
+<p><span class="math inline">\(~\)</span></p>
+</div>
+</div>
+<p>. . .</p>
+<p>En pratique :</p>
+<p><span class="math inline">\(q_{1-\alpha}\)</span> : <code>quantile(Chisq(n-1), 1-alpha)</code></p>
+<p>. . .</p>
+<p>p-valeur : <code>1-cdf(Chisq(n-1), xobs)</code></p>
+<hr>
+<p><strong>Preuve.</strong></p>
+<p>. . .</p>
+<p>Sous <span class="math inline">\(P_{\mu,\sigma}\)</span>, la variable aléatoire <span class="math inline">\(Z = \frac{1}{\sigma^2}\sum_{i=1}^n (X_i - \bar{X})^2 \sim \chi^2(n-1)\)</span>.</p>
+<p>. . .</p>
+<p><span class="math inline">\(\psi(X) = \frac{1}{\sigma_0^2}\sum_{i=1}^n (X_i - \bar{X})^2 = \frac{\sigma^2}{\sigma_0^2}\, Z.\)</span></p>
+<p>. . .</p>
+<p>D’où, <span class="math inline">\(P_{\mu,\sigma}(\psi(X) &gt; t) = P\!\left(Z &gt; \frac{\sigma_0^2}{\sigma^2}\, t\right)\\
+\leq P(Z &gt; t) = P(\chi^2(n-1) &gt; t),\)</span></p>
+</section>
+<section id="illustration-1" class="level2">
+<h2 class="anchored" data-anchor-id="illustration-1">Illustration</h2>
+<p>. . .</p>
+<p><img src="../images/pdf_cdf_chi5_right.svg" class="img-fluid" style="width:80.0%"></p>
+</section>
+<section id="test-de-fisher-unilatéral-gauche" class="level2">
+<h2 class="anchored" data-anchor-id="test-de-fisher-unilatéral-gauche">Test de Fisher Unilatéral Gauche</h2>
+<p>. . .</p>
+<div class="square-objective">
+<p><span class="math inline">\(H_0\)</span> : <span class="math inline">\(\sigma \geq \sigma_0\)</span>, <span class="math inline">\(H_1\)</span> : <span class="math inline">\(\sigma \leq \sigma_0\)</span></p>
+</div>
+<p>. . .</p>
+<p><span class="math inline">\(\psi(X) = \frac{1}{\sigma_0^2}\sum_{i=1}^n (X_i - \overline X)^2\)</span></p>
+<p>. . .</p>
+<p><span class="math inline">\(T(X) = \mathbf{1}\{\psi(X) &lt; q_{\alpha}\}\)</span></p>
+<p>. . .</p>
+<p><span class="math inline">\(q_{\alpha}\)</span> : <code>quantile(Chisq(n-1), alpha)</code></p>
+<p>. . .</p>
+<p>p-valeur : <code>cdf(Chisq(n-1), xobs)</code></p>
+<hr>
+<p><img src="../images/pdf_cdf_chi5_left.svg" class="img-fluid" style="width:80.0%"></p>
+</section>
+</section>
+<section id="deux-populations-gaussiennes" class="level1">
+<h1>Deux Populations Gaussiennes</h1>
+<section id="test-sur-les-moyennes-variances-connues" class="level2">
+<h2 class="anchored" data-anchor-id="test-sur-les-moyennes-variances-connues">Test sur les Moyennes, Variances Connues</h2>
+<p>. . .</p>
+<p>On observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> et <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2^2)\)</span>.</p>
+<p>. . .</p>
+<p><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span> sont <strong>connus</strong>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> sont <strong>inconnus</strong></p>
+<p>Problème de test :</p>
+<div class="square-def">
+<p><span class="math inline">\(H_0: \mu_1 = \mu_2 ~~~\text{VS} ~~~H_1: \mu_1 \neq \mu_2\)</span></p>
+</div>
+<p>. . .</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>On ne peut pas utiliser <span class="math inline">\(\mu_1\)</span> ou <span class="math inline">\(\mu_2\)</span> car ils sont inconnus</p>
+</div>
+</div>
+</section>
+<section id="idée" class="level2">
+<h2 class="anchored" data-anchor-id="idée">Idée</h2>
+<p>. . .</p>
+<p>On veut utiliser <span class="math inline">\(\overline X - \overline Y\)</span> puisque <span class="math inline">\(\mathbb E[\overline X] - \mathbb E[\overline Y] = \mu_1 - \mu_2\)</span>.</p>
+<p>. . .</p>
+<p>Mais quelle est <span class="math inline">\(\mathbb V(\overline X - \overline Y)\)</span> sous <span class="math inline">\(H_0\)</span> ?</p>
+<p>. . .</p>
+<div class="square-def">
+<p><span class="math inline">\(\mathbb V(\overline X - \overline Y) = \sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}\)</span></p>
+</div>
+<p>. . .</p>
+<p>On peut utiliser <span class="math inline">\(\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}\)</span> car <span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span> sont <strong>connus</strong> ici.</p>
+</section>
+<section id="statistique-de-test-1" class="level2">
+<h2 class="anchored" data-anchor-id="statistique-de-test-1">Statistique de Test</h2>
+<p>. . .</p>
+<p>Statistique de test :</p>
+<div class="square-def">
+<p><span class="math display">\[
+\psi(X,Y)=\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma_1^2}{n_1} + \frac{\sigma_2^2}{n_2}}}
+\]</span></p>
+</div>
+<p>. . .</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Propriété
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sous <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\psi(X,Y)\)</span> suit une loi <span class="math inline">\(\mathcal N(0, 1)\)</span></p>
+</div>
+</div>
+</section>
+<section id="test" class="level2">
+<h2 class="anchored" data-anchor-id="test">Test</h2>
+<p>. . .</p>
+<p>Test bilatéral :</p>
+<p><span class="math display">\[
+T(X,Y)=\mathbf 1\left\{|\psi(X, Y)| \geq t_{1-\alpha/2}\right\} \;  ,
+\]</span></p>
+<p>. . .</p>
+<p><span class="math inline">\(t_{1-\alpha/2}\)</span> est le quantile d’ordre <span class="math inline">\((1-\alpha/2)\)</span> d’une loi <strong>gaussienne</strong></p>
+<p>. . .</p>
+<p>On peut aussi tester <span class="math inline">\(\mu_1 &lt; \mu_2\)</span> ou <span class="math inline">\(\mu_1 &gt; \mu_2\)</span>.</p>
+<p>. . .</p>
+<p>Pour cela, on retire la valeur absolue et on prend <span class="math inline">\(t_\alpha\)</span> ou <span class="math inline">\(t_{1-\alpha}\)</span>.</p>
+</section>
+<section id="exemple-1" class="level2">
+<h2 class="anchored" data-anchor-id="exemple-1">Exemple</h2>
+<p>. . .</p>
+<p><strong>Objectif.</strong> Tester si un nouveau médicament est efficace pour réduire le taux de cholestérol</p>
+<p>. . .</p>
+<p><strong>Expérience.</strong></p>
+<ul>
+<li>Groupe A : <span class="math inline">\(n_A = 45\)</span> patients recevant le nouveau médicament</li>
+<li>Groupe B : <span class="math inline">\(n_B = 50\)</span> patients recevant un placebo</li>
+<li>On observe <span class="math inline">\((X_1, \dots, X_{n_A})\)</span> iid <span class="math inline">\(\mathcal N(\mu_A,\sigma^2)\)</span> et <span class="math inline">\((Y_1, \dots, Y_{n_B})\)</span> iid <span class="math inline">\(N(\mu_B,\sigma^2)\)</span> les taux de cholestérol. <span class="math inline">\(\sigma = 8\)</span> mg/dL est <strong>connu</strong> par calibration.</li>
+</ul>
+</section>
+<section id="exemple-suite" class="level2">
+<h2 class="anchored" data-anchor-id="exemple-suite">Exemple (Suite)</h2>
+<p>. . .</p>
+<p><strong>Problème de test.</strong></p>
+<ul>
+<li><p><span class="math inline">\(H_0: \mu_A = \mu_B\)</span> VS <span class="math inline">\(H_1: \mu_A &lt; \mu_B\)</span></p></li>
+<li><p><strong>Statistique de test.</strong> <span class="math inline">\(\psi(X,Y)=\frac{\overline X - \overline Y}{\sqrt{\frac{\sigma^2}{n_1} + \frac{\sigma^2}{n_2}}}\)</span></p></li>
+<li><p><strong>Loi sous <span class="math inline">\(H_0\)</span> :</strong> <span class="math inline">\(\psi(X,Y) \sim \mathcal N(0,1)\)</span></p></li>
+<li><p><strong>Données.</strong> <span class="math inline">\(\overline X = 24.5\)</span> mg/dL et <span class="math inline">\(\overline Y = 21.3\)</span> mg/dL. D’où <span class="math inline">\(\psi(X,Y)= 5.5\)</span>.</p></li>
+<li><p><strong>p-valeur.</strong> <span class="math inline">\(\mathbb P(\psi(X, Y) \leq 5.5) \approx 1\)</span> (<span class="math inline">\(P\)</span> bien définie sous <span class="math inline">\(H_0\)</span> !)</p></li>
+<li><p><strong>Conclusion.</strong> On ne rejette pas, et on n’utilise pas ce médicament !</p></li>
+</ul>
+</section>
+<section id="test-sur-les-variances-moyennes-inconnues" class="level2">
+<h2 class="anchored" data-anchor-id="test-sur-les-variances-moyennes-inconnues">Test sur les Variances, Moyennes Inconnues</h2>
+<p>. . .</p>
+<p>On observe <span class="math inline">\(X=(X_1, \dots, X_{n})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> et <span class="math inline">\(Y=(Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2^2)\)</span>. On suppose également que <span class="math inline">\(X\)</span> et <span class="math inline">\(Y\)</span> sont indépendants</p>
+<p>. . .</p>
+<p><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> sont <strong>inconnus</strong> ici</p>
+<p>Problème de test :</p>
+<div class="square-objective">
+<p><span class="math inline">\(H_0: \sigma_1 = \sigma_2 ~~~~ \text{ ou } ~~~~ H_1: \sigma_1 \neq \sigma_2\)</span></p>
+</div>
+</section>
+<section id="idée-1" class="level2">
+<h2 class="anchored" data-anchor-id="idée-1">Idée</h2>
+<p>. . .</p>
+<div class="square-objective">
+<p><span class="math inline">\(H_0: \sigma_1 = \sigma_2 ~~~~ \text{ ou } ~~~~ H_1: \sigma_1 \neq \sigma_2\)</span></p>
+</div>
+<p>. . .</p>
+<p>On ne peut pas utiliser <span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span> directement car ils sont <strong>inconnus</strong>.</p>
+<p>. . .</p>
+<p>On les estime :</p>
+<div class="square-def">
+<p><span class="math inline">\(\hat \sigma^2_1 = \tfrac{1}{n_1-1}\sum_{i=1}^{n_1}(X_i-\overline X)^2\)</span> <span class="math inline">\(\hat \sigma^2_2 = \tfrac{1}{n_2-1}\sum_{i=1}^{n_2}(Y_i-\overline Y)^2\)</span></p>
+</div>
+<p>. . .</p>
+<p>Ce sont des estimateurs <strong>sans biais</strong> puisque <span class="math inline">\(\mathbb E[\hat \sigma_1^2]= \sigma_1^2\)</span> et <span class="math inline">\(\mathbb E[\hat \sigma_2^2]= \sigma_2^2\)</span></p>
+</section>
+<section id="statistique-du-test-f" class="level2">
+<h2 class="anchored" data-anchor-id="statistique-du-test-f">Statistique du Test F</h2>
+<p>. . .</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Statistique du Test F
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>La statistique du test F des variances (ANOVA) est <span class="math display">\[
+\psi(X,Y)=\frac{\hat \sigma^2_1}{\hat \sigma_2^2} = \frac{\tfrac{1}{n_1-1}\sum_{i=1}^{n_1}(X_i-\overline X)^2}{\tfrac{1}{n_2-1}\sum_{i=1}^{n_2}(Y_i-\overline Y)^2}\; .
+\]</span></p>
+</div>
+</div>
+</section>
+<section id="loi" class="level2">
+<h2 class="anchored" data-anchor-id="loi">Loi</h2>
+<p>. . .</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Loi de la statistique du test F
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Sous la loi donnée par les paramètres <span class="math inline">\(\mu_1, \mu_2, \sigma_1, \sigma_2\)</span>, <span class="math inline">\(\psi(X,Y)=\frac{\hat \sigma^2_1}{\hat \sigma_2^2}\)</span> suit la loi <span class="math inline">\(\frac{\sigma^2_1}{\sigma_2^2} \mathcal F(n_1-1, n_2-1)\)</span></p>
+</div>
+</div>
+<p>. . .</p>
+<p>Cette loi est <strong>inconnue</strong> sous <span class="math inline">\(H_1\)</span>, mais sous <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\sigma_1=\sigma_2\)</span> donc c’est simplement <span class="math inline">\(\mathcal F(n_1-1, n_2-1)\)</span></p>
+</section>
+<section id="preuve-1" class="level2">
+<h2 class="anchored" data-anchor-id="preuve-1">Preuve</h2>
+<p>. . .</p>
+<p>Puisque <span class="math inline">\(X_1,\dots,X_{n_1}\overset{iid}{\sim}\mathcal{N}(\mu_1,\sigma_1^2)\)</span>, on a <span class="math inline">\((n_1-1)\hat\sigma_1^2/\sigma_1^2\sim\chi^2(n_1-1)\)</span>, et de même <span class="math inline">\((n_2-1)\hat\sigma_2^2/\sigma_2^2\sim\chi^2(n_2-1)\)</span>, indépendamment. Alors</p>
+<p><span class="math display">\[\psi(X,Y)=\frac{\hat\sigma_1^2}{\hat\sigma_2^2}=\frac{\sigma_1^2}{\sigma_2^2}\cdot\frac{\hat\sigma_1^2/\sigma_1^2}{\hat\sigma_2^2/\sigma_2^2}\\
+=\frac{\sigma_1^2}{\sigma_2^2}\cdot\frac{\chi^2(n_1-1)/(n_1-1)}{\chi^2(n_2-1)/(n_2-1)}\sim\frac{\sigma_1^2}{\sigma_2^2}\,\mathcal{F}(n_1-1,n_2-1),\]</span></p>
+<p>par définition de la loi de Fisher. <span class="math inline">\(\blacksquare\)</span></p>
+</section>
+<section id="test-sur-les-moyennes-variances-égales" class="level2">
+<h2 class="anchored" data-anchor-id="test-sur-les-moyennes-variances-égales">Test sur les Moyennes, Variances Égales</h2>
+<p>. . .</p>
+<p>On observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> et <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2^2)\)</span>.</p>
+<p>. . .</p>
+<p><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> sont <strong>inconnus</strong>, mais on <strong>sait</strong> que <span class="math inline">\(\sigma_1=\sigma_2\)</span></p>
+<p>. . .</p>
+<p>Problème de test d’égalité des moyennes :</p>
+<div class="square-objective">
+<p><span class="math display">\[
+H_0: \mu_1 = \mu_2 ~~~~ \text{ ou } ~~~~ H_1: \mu_1 \neq \mu_2
+\]</span></p>
+</div>
+<p>. . .</p>
+<p>Formellement, <span class="math inline">\(H_0 = \{(\mu,\sigma, \mu, \sigma), \mu \in \mathbb R, \sigma &gt; 0\}\)</span>.</p>
+<hr>
+</section>
+<section id="idée-pour-le-test-sur-les-moyennes" class="level2">
+<h2 class="anchored" data-anchor-id="idée-pour-le-test-sur-les-moyennes">Idée pour le Test sur les Moyennes</h2>
+<p>. . .</p>
+<p>On utilise à nouveau <span class="math inline">\(\overline X - \overline Y\)</span> (d’espérance <span class="math inline">\(\mu_1 - \mu_2\)</span>)</p>
+<p>. . .</p>
+<p>Quelle est sa variance (inconnue) ?</p>
+<p>. . .</p>
+<p><span class="math inline">\(\sigma_1 = \sigma_2 = \sigma\)</span> donc on a</p>
+<div class="square-def">
+<p><span class="math inline">\(\mathbb V(\overline X - \overline Y) = \sigma^2(\frac{1}{n_1} + \frac{1}{n_2})\)</span></p>
+</div>
+<p>. . .</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>On ne peut pas utiliser <span class="math inline">\(\sigma\)</span> pour normaliser car il est inconnu !!!</p>
+</div>
+</div>
+<p>. . .</p>
+<p>Il faut l’<strong>estimer</strong> : <span class="math inline">\(\hat \sigma = \frac{1}{n_1 + n_2 - 2}\left(\sum_{i=1}^{n_1}(X_i - \overline X)^2 + \sum_{i=1}^{n_2}(Y_i - \overline Y)^2 \right)\)</span></p>
+</section>
+<section id="test-dégalité-des-moyennes-variance-égale" class="level2">
+<h2 class="anchored" data-anchor-id="test-dégalité-des-moyennes-variance-égale">Test d’Égalité des Moyennes (Variance Égale)</h2>
+<div class="fragment callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Test T de Student pour deux populations à variance égale
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><p><span class="math inline">\(\hat \sigma^2 = \frac{1}{n_1 + n_2 - 2}\left(\sum_{i=1}^{n_1}(X_i - \overline X)^2 + \sum_{i=1}^{n_2}(Y_i - \overline Y)^2 \right)\)</span></p></li>
+<li><p>On normalise <span class="math inline">\(\overline X - \overline Y\)</span> : <span class="math display">\[\psi(X,Y) = \frac{\overline X - \overline Y}{\sqrt{\hat \sigma^2\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \sim \mathcal T(n_1+n_2 - 2) \; .\]</span></p></li>
+<li><p><span class="math inline">\(\psi(X,Y)\)</span> est pivotale <strong>car</strong> <span class="math inline">\(\sigma_1 = \sigma_2\)</span>.</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="égalité-des-moyennes-variances-inégales" class="level2">
+<h2 class="anchored" data-anchor-id="égalité-des-moyennes-variances-inégales">Égalité des Moyennes, Variances Inégales</h2>
+<p>On observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> et <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2^2)\)</span></p>
+<p>. . .</p>
+<p><span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>, <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span> sont <strong>inconnus</strong></p>
+<p>. . .</p>
+<p>Problème de test d’égalité des moyennes :</p>
+<div class="square-objective">
+<p><span class="math display">\[
+H_0: \mu_1 = \mu_2 ~~~~ \text{ ou } ~~~~ H_1: \mu_1 \neq \mu_2
+\]</span></p>
+</div>
+<p>Formellement :</p>
+<p><span class="math inline">\(\Theta_0 = \{(\mu,\sigma_1, \mu, \sigma_2), \mu \in \mathbb R, \sigma_1, \sigma_2 &gt; 0\}\)</span>.</p>
+</section>
+<section id="test-de-welch" class="level2">
+<h2 class="anchored" data-anchor-id="test-de-welch">Test de Welch</h2>
+<div class="fragment callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Statistique du test de Welch
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="math display">\[\psi(X, Y) = \frac{\overline X - \overline Y}{\sqrt{\frac{\hat \sigma_1^2}{n_1} + \frac{\hat \sigma_2^2}{n_2}}}\]</span></p>
+<ul>
+<li><a href="https://app.wooclap.com/events/RQSUIA/questions/67cad447d25f1ba0974ebeaa">Wooclap</a> <span class="math inline">\(\psi(X,Y)\)</span> <strong>n’est pas pivotale</strong></li>
+<li>Approximation gaussienne : <span class="math inline">\(\psi(X,Y) \approx \mathcal N(0,1)\)</span> quand <span class="math inline">\(n_1, n_2 \to \infty\)</span></li>
+<li>Meilleure approximation : <a href="https://fr.wikipedia.org/wiki/Test_t_de_Welch">Test de Welch</a></li>
+</ul>
+</div>
+</div>
+</section>
+</section>
+<section id="approximations-asymptotiques" class="level1">
+<h1>Approximations Asymptotiques</h1>
+<section id="principe-général" class="level2">
+<h2 class="anchored" data-anchor-id="principe-général">Principe Général</h2>
+<p>. . .</p>
+<p>On observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> et/ou <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> et on suppose que les observations sont indépendantes</p>
+<p>. . .</p>
+<p><span class="math inline">\(\mathbb E[X_i] = \mu_1\)</span>, <span class="math inline">\(\mathbb E[Y_i] = \mu_2\)</span>, variances <span class="math inline">\(\sigma_1^2\)</span> et <span class="math inline">\(\sigma_2^2\)</span>.</p>
+<p>. . .</p>
+<p>Même si les <span class="math inline">\(X_i\)</span> ne sont pas des gaussiennes standard, on peut approcher par ex. <span style="background-color: lightblue;"><span class="math inline">\(\sqrt{\tfrac{n_1}{\sigma_1^2}}(\overline X - \mu_1)\)</span> par une <span class="math inline">\(\mathcal N(0,1)\)</span></span> en utilisant le TCL.</p>
+<p>. . .</p>
+<p><span style="background-color: yellow;">Intuition : les variables centrées et normalisées</span> ressemblent toujours à des gaussiennes sous l’hypothèse d’indépendance.</p>
+<p>. . .</p>
+<p>On peut donc calculer des p-valeurs/régions de rejet approchées.</p>
+</section>
+<section id="test-de-proportion" class="level2">
+<h2 class="anchored" data-anchor-id="test-de-proportion">Test de Proportion</h2>
+<p>. . .</p>
+<p>On observe <span class="math inline">\(X \sim Bin(n_1, p_1)\)</span> et <span class="math inline">\(Y \sim Bin(n_2, p_2)\)</span>.</p>
+<p>. . .</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Ici, X n’est pas un vecteur, mais un entier !!</p>
+</div>
+</div>
+<p><span class="math inline">\(n_1\)</span>, <span class="math inline">\(n_2\)</span> sont <strong>connus</strong> mais <span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span> sont <strong>inconnus</strong> dans <span class="math inline">\((0,1)\)</span></p>
+<p>. . .</p>
+<div class="square-def">
+<p><span class="math inline">\(H_0\)</span> : <span class="math inline">\(p_1 = p_2\)</span> ou <span class="math inline">\(H_1\)</span> : <span class="math inline">\(p_1 \neq p_2\)</span></p>
+</div>
+<p>. . .</p>
+<p>Idée : utiliser <span class="math inline">\(X-Y\)</span>, car <span class="math inline">\(E[X - Y] = p_1 - p_2\)</span>. Quelle est sa variance ?</p>
+<p>. . .</p>
+<p>notation : <span class="math inline">\(X/n_1\)</span> est un estimateur de <span class="math inline">\(p_1\)</span> donc on note <span class="math inline">\(\hat p_1 = X/n_1\)</span>.</p>
+</section>
+<section id="statistique-de-test-2" class="level2">
+<h2 class="anchored" data-anchor-id="statistique-de-test-2">Statistique de Test</h2>
+<div class="fragment callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Statistique de test
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><span class="math display">\[ \psi(X,Y) = \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \; .\]</span></p>
+<ul>
+<li><span class="math inline">\(\hat p_1 = X/n_1\)</span>, <span class="math inline">\(\hat p_2 = Y/n_2\)</span></li>
+<li><span class="math inline">\(\hat p = \frac{X+Y}{n_1+n_2}\)</span> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67caf02c8f00dcba14c76a0b">Wooclap</a>]</li>
+<li>Si <span class="math inline">\(np_1, np_2 \gg 1\)</span> : <span class="math inline">\(\psi(X) \sim \mathcal N(0,1)\)</span></li>
+<li>On rejette si <span class="math inline">\(|\psi(X,Y)| \geq t_{1-\alpha/2}\)</span> (quantile gaussien)</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="exemple-2" class="level2">
+<h2 class="anchored" data-anchor-id="exemple-2">Exemple</h2>
+<p>. . .</p>
+<p>Sondage : « faut-il augmenter les taxes sur les cigarettes pour financer une réforme de la santé ? »</p>
+<p>. . .</p>
+<p>Question : Les non-fumeurs sont-ils en moyenne plus favorables à l’augmentation des taxes ?</p>
+<p>. . .</p>
+<p>Observations :</p>
+<div class="fragment">
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th></th>
+<th>Non-fumeurs</th>
+<th>Fumeurs</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>OUI</strong></td>
+<td>351</td>
+<td>41</td>
+<td>392</td>
+</tr>
+<tr class="even">
+<td><strong>NON</strong></td>
+<td>254</td>
+<td>195</td>
+<td>449</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td>605</td>
+<td>154</td>
+<td>800</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="description" class="level2">
+<h2 class="anchored" data-anchor-id="description">Description</h2>
+<p>. . .</p>
+<p><strong>Description des données</strong> : on observe <span class="math inline">\(X\)</span> et <span class="math inline">\(Y\)</span> le nombre de non-fumeurs (resp. fumeurs) favorables à l’augmentation des taxes, parmi une population de <span class="math inline">\(n_1\)</span> non-fumeurs (resp. <span class="math inline">\(n_2\)</span> fumeurs).</p>
+<p>. . .</p>
+<p><strong>Description alternative</strong> : on observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> et <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> où <span class="math inline">\(X_i\)</span> (resp. <span class="math inline">\(Y_i\)</span>) vaut <span class="math inline">\(1\)</span> si et seulement si le non-fumeur <span class="math inline">\(i\)</span> (resp. le fumeur <span class="math inline">\(i\)</span>) souhaite une augmentation des taxes.</p>
+</section>
+<section id="formulation-du-problème" class="level2">
+<h2 class="anchored" data-anchor-id="formulation-du-problème">Formulation du Problème</h2>
+<p>. . .</p>
+<p><strong>Hypothèse</strong> : On suppose l’indépendance et que <span class="math inline">\(X \sim \mathcal B(n_1, p_1)\)</span> et <span class="math inline">\(Y \sim \mathcal B(n_2, p_2)\)</span> pour des probabilités inconnues <span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span></p>
+<p>. . .</p>
+<p><strong>(Ou dans la description alternative)</strong> : <span class="math inline">\(X_i\)</span>, <span class="math inline">\(Y_i\)</span> sont indépendants et suivent des lois de Bernoulli de paramètres <span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span>. On note <span class="math inline">\(X = \sum_{i=1}^n X_i\)</span> et <span class="math inline">\(Y= \sum_{i=1}^n Y_i\)</span>.</p>
+<p>. . .</p>
+<p><strong>Problème</strong> : On veut tester</p>
+<div class="square-objective">
+<p><span class="math inline">\(H_0: p_1=p_2\)</span> VS <span class="math inline">\(H_1: p_1 &gt; p_2\)</span></p>
+</div>
+</section>
+<section id="résolution" class="level2">
+<h2 class="anchored" data-anchor-id="résolution">Résolution</h2>
+<p><span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span> : proportion de non-fumeurs ou fumeurs favorables à l’augmentation des taxes</p>
+<p><span class="math inline">\(H_0\)</span> : <span class="math inline">\(p_1=p_2\)</span> ou <span class="math inline">\(H_1\)</span> : <span class="math inline">\(p_1 &gt; p_2\)</span></p>
+<ul>
+<li><span class="math inline">\(\hat p_1 = \overline X= \approx 0.58\)</span>, <span class="math inline">\(\hat p_2=\overline Y= \approx 0.21\)</span>.</li>
+<li><span class="math inline">\(\psi(X,Y)= \frac{\hat p_1 - \hat p_2}{\sqrt{\hat p ( 1-\hat p)\left(\frac{1}{n_1} + \frac{1}{n_2}\right)}} \approx 8.99\)</span></li>
+<li><span class="math inline">\(\mathbb P(\psi(X,Y) &gt; 8.99)\)</span> = <code>1-cdf(Normal(0,1), 8.99)</code></li>
+</ul>
+</section>
+<section id="section-1" class="level2">
+<h2 class="anchored" data-anchor-id="section-1"></h2>
+<p><a href="../../../teaching/hypothesis_testing/slides/usual_distributions_fr.html">Précédent : lois usuelles</a></p>
+<p><a href="goodness_of_fit_chi2_fr.qmd">Suivant : adéquation du chi-deux</a></p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

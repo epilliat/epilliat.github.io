@@ -6,390 +6,956 @@ format:
     callout-icon: false
     theme: [default, ../custom.scss]
 smaller: false
-css: ../style.css
+css: ../../../styles.css
 #filters:
   #- parse-latex
 ---
 
+## Outline
+
+- Correlation Test (Pearson)
+- ANOVA Test
+- $\chi^2$ Homogeneity and Independence Tests
+- Wilcoxon's Signed Rank Test
+
+[Previous](goodness_of_fit_chi2.qmd)
+
 # Correlation Test
 
-::: {.callout}
+## Setup
 
-- We observe iid paired data $(X_1, Y_1), \dots, (X_n,Y_n)$ of **unknown** mean $\mu_X, \mu_Y$ and cov matrix $\Sigma$. Let $X=X_1$, $Y=Y_1$.
-- $\mathrm{Cov(X,Y)} = \mathbb E[(X- \mathbb E[X])(Y- \mathbb E[Y])]$
-- $H_0: \mathrm{Cov}(X,Y)=0$ or $H_1: \mathrm{Cov}(X,Y)\neq 0$ 
+. . .
 
+We observe iid paired data $(X_1, Y_1), \dots, (X_n,Y_n)$ of **unknown** means $\mu_X, \mu_Y$ and **unknown** covariance matrix $\Sigma$.
 
+. . .
 
-- $\sigma_X^2 = \mathrm{Cov(X,X)}$
-- $\sigma_Y^2 = \mathrm{Cov(Y,Y)}$
-- $\mathrm{Cor(X,Y)} = \frac{\mathrm{Cov(X,Y)}}{\sigma_X \sigma_Y}$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d18d44da9d0e3a03397017)]
-- Cov matrix: 
-$\Sigma = 
-\left(\begin{matrix} 
-\sigma_X^2 & \mathrm{Cov(X,Y)} \\
-\mathrm{Cov(X,Y)} & \sigma_Y^2 \\
-\end{matrix}\right)$
+Let $X = X_1$, $Y = Y_1$.
 
-:::
+. . .
 
-## Correlation Test 
-
-:::: {.columns}
-::: {.column}
-::: {.callout-note .fragment}
-## Pearson's Correlation Test
-
-- $r =  \frac{\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)}{\sqrt{\sum_{i=1}^n (X_i - \overline X)^2\sum_{i=1}^n (Y_i - \overline Y)^2}}$
-
-- $\psi(X,Y) = \frac{r}{\sqrt{1-r^2}}\sqrt{n-2}$
-- Under $H_0$, $\psi(X,Y) \approx \mathcal T(n-2)$
-:::
-:::
-::: {.column}
-
-::: {.fragment}
-![](../images/correlated_X_Y.svg)
-
-:::
-:::
-:::: 
-
-
-## Correlation Test
-
-Monte Carlo Simulation with $n=4$:
-
-![](../images/correlation_pearson.png)
-
-## ANOVA Test
-
-
-- $d$ independent groups (bags), each containing $N_1, \dots, N_d$ individuals. $N_{\mathrm{tot}} = \sum_{k=1}^d N_k$
-- For each group $k$ (eg a region), we observe $(X_{1,k}, \dots, X_{N_k,k}) \in \mathbb R^{N_k}$ (eg salaries).
-- We assume that the $X_{ik}$ are iid $\mathcal N(\mu_k, \sigma)$. 
-- Ex: $X_{ik} =$ sallary of $i$ living in region $k$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d190bd325561a195e734b3)]
-- $H_0: \mu_1 = \dots = \mu_d$ vs $H_1: \mu_l \neq \mu_k$ for some $(l,k)$ (**unknown $\sigma$**)
-
-
-## ANOVA Test
-
-::: {.callout-note }
-
-::: {.columns}
-
-::: {.column}
-
-- Empirical mean of group $k$:
-$\overline X_k = \tfrac{1}{N_k}\sum_{i=1}^{N_k} X_{ik}$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d1929a5467cc7e3e3d2163)]
-- Sum of Squares in group $k$: \
-$SS_k = \sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2$ 
-- $SS_k \sim \sigma^2\chi^2(N_k-1)$ under $H_0$
-- Empirical var of group $k$: $V_k = \tfrac{1}{N_k}SS_k$
-
-:::
-::: {.column}
-
-- Total empirical mean:
-$\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} X_{ik}$
-- Sum of Squares btween Groups: $SSB = \sum_{k=1}^{d} N_k(\overline X_k - \overline X)^2$
-- $SSB \sim \sigma^2\chi^2(d-1)$ under $H_0$
-:::
-:::
-:::
-
-## ANOVA Test
-
-
-![](../images/anova.svg){height=280}
-
-
-::: {.callout-note .fragment}
-## ANOVA Test Statistic
-- $\psi(X) = \frac{\tfrac{1}{d-1}SSB}{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}$
-- $\psi(X) \sim \mathcal F(d-1, N_{\mathrm{tot}}-d)$ (Fisher under $H_0$)
-- right-tailed test: $p_{value} = 1-\mathrm{cdf}(\mathcal F(d-1, N_{\mathrm{tot}}-d)), \psi(x_{obs})$.
-
-:::
-
-## Interpretation of variances in ANOVA
-
-:::{style="font-size: 70%"}
-$$
-\left.\begin{array}{cl}
-\overline X_k &= \frac{1}{N_k} \sum_{i=1}^{N_k} X_{ik}\\
-\overline{X} &= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_k\overline X_{k},&\end{array}\right.
-\left.\begin{array}{cl}
-V_k &= \frac{1}{N_k}\sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2
-\\
-V_W &= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_kV_k\\
-V_B &= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^{d} N_k(\overline X_k - \overline X)^2\\
-V_{T} &= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \overline X)^2 
-\end{array}
-\right.
-$$
-:::
-
-:::{.fragment style="font-size:60%"}
-- $V_k$: Empirical variance of group $k$
-- $V_W$: Average empirical variance within groups (unexplained variance)
-- $V_B$: Empirical variance between groups (explained variance)
-- $V_T$: Total variance of the sample
-
-:::{.fragment}
-$$\psi(X) = \frac{\tfrac{1}{d-1}SSB}{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}=\frac{\tfrac{1}{d-1}V_B}{\tfrac{1}{N_{tot}-d}V_W} = \frac{N_{tot}-d}{d-1} \frac{V_B}{V_W} \sim \mathcal F(d-1, N_{tot}-d) \; .$$
-:::
-:::
-
-
-
-# $\chi^2$ Homogeneity and Independence Tests
-
-## $\chi^2$ Homogeneity Test
-
-- $d$ different bags (or groups), each containing balls of $m$ potential colors.
-- If $d = 3$ and $m=2$, we observe the following $2\times 3$ matrix of **counts**:
-
-:::{.fragment}
-|         | bag 1    | bag 2    | bag 3    | Total |
-| ------- | -------- | -------- | -------- | ----- |
-| color 1 | $X_{11}$ | $X_{12}$ | $X_{13}$ | $R_1$ |
-| color 2 | $X_{21}$ | $X_{22}$ | $X_{23}$ | $R_2$ |
-| Total   | $N_1$    | $N_2$    | $N_3$    | $N$   |
-:::
-
-## Homogeneity Test
-
-:::{.callout}
-- Bag $j$: $(X_{1j}, X_{2j}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}))$
-- The parameters $p_{ij}$ are **unknown** [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d19ee99480f7e8d5dbf8da)]
-- $H_0$: $p_{i1} = p_{i2}=p_{i3}$ for all color $i$ (bags are homogeneous)
-- $H_1$: bags are heterogeneous
-- $\sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_jp_{ij})^2}{N_jp_{ij}}$ **not a test statistic**
+::: {.square-def}
+$\mathrm{Cov}(X,Y) = \mathbb{E}[(X - \mathbb{E}[X])(Y - \mathbb{E}[Y])]$
 :::
 
 . . .
 
-:::{.callout-note}
-## Chi-Squared Homogeneity Test Statistic
-- $\hat p_{i} = \tfrac{1}{N}\sum_{j=1}^{d}X_{ij} = \frac{R_i}{N}$
-- $\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_j\hat p_{i})^2}{N_j\hat p_{i}}$
-- Approximation: $\psi(X) \sim \chi^2((m-1)(d-1))$
+::: {.square-objective}
+$H_0: \mathrm{Cov}(X,Y) = 0$ vs $H_1: \mathrm{Cov}(X,Y) \neq 0$
 :::
 
+## Correlation and Covariance Matrix
 
-## Example: Soft drink preferences
+. . .
 
+$\sigma_X^2 = \mathrm{Cov}(X,X)$
 
-:::{style="font-size: 100%;"}
+$\sigma_Y^2 = \mathrm{Cov}(Y,Y)$
 
+. . .
 
-- Split population into $3$ categories: **Young Adults (18-30)**, **Middle-Aged Adults (31-50)**, and **Seniors (51 and above)**.
-- $H_0$: The groups are homogeneous in terms of soft drink preferences
-
-:::{.fragment style="font-size: 60%"}
-| Age Group    | Young Adults |  Middle-Aged | Seniors | Total |
-| ------------ | ---- | ----- | ------ | ----- |
-| Coke | 60   | 40    | 30     | 130   |
-| Pepsi  | 50   | 55    | 25     | 130   |
-| Sprite  | 30   | 45    | 55     | 130   |
-| **Total**    | 140  | 140   | 110    | 390   |
+::: {.square-def}
+$\hat \rho(X,Y) = \dfrac{\mathrm{Cov}(X,Y)}{\sigma_X \sigma_Y}$
 :::
 
-- $N_1 \hat p_1 = 140*\frac{130}{390} \approx 46.7$ (proportion of Coke lovers)
+[[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d18d44da9d0e3a03397017)]
 
-:::
-## Computation of Chi2 stat
+. . .
+
+Covariance matrix:
 
 $$
-\begin{aligned}
-\psi(X) &= \frac{(60-46.7)^2}{46.7}&+ \frac{(40-46.7)^2}{46.7}&+\frac{(30-36.7)^2}{36.7} \\
- &+\frac{(50-46.7)^2}{46.7}&+ \frac{(55-46.7)^2}{46.7}&+\frac{(25-36.7)^2}{36.7}\\
- &+\frac{(30-46.7)^2}{46.7}&+ \frac{(45-46.7)^2}{46.7}&+\frac{(55-36.7)^2}{36.7}\\
- 	&\approx 26.57
-\end{aligned}
+\Sigma = 
+\begin{pmatrix} 
+\sigma_X^2 & \mathrm{Cov}(X,Y) \\
+\mathrm{Cov}(X,Y) & \sigma_Y^2 
+\end{pmatrix}
 $$
 
+## Theoretical VS Empirical
 
-:::{.fragment}
-```julia
-1-cdf(Chisq(4), 26.57) # 2.4e-5, reject H_0
-```
+. . .
+
+We define their empirical versions:
+
+. . .
+
+$\widehat{\mathrm{Cov}}(X,Y) = \frac{1}{n-1}\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)$
+
+. . .
+
+$\hat \sigma_X^2 = \frac{1}{n-1}\sum_{i=1}^n (X_i - \overline X)^2$
+
+. . .
+
+::: {.square-def}
+$$\hat \rho(X,Y) = \frac{\widehat{\mathrm{Cov}}(X,Y)}{\hat \sigma_X \hat \sigma_Y}$$
 :::
 
-## $\chi^2$ Independence Test
+::: {.callout-warning}
+## Empirical vs. theoretical quantities
 
-::: {.callout}
-
-- Observations: Paired **Categorical** Variables $(X_1, Y_1), \dots, (X_n, Y_n)$
-- e.g. $X_i \in \{\mathrm{male}, \mathrm{female}\}$, $Y_i \in \{\mathrm{coffee}, \mathrm{tea}\}$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d1a28a4b4e2b35810c65ff)]
-- Idea: regroup the data into bags, e.g. $\{\mathrm{male}, \mathrm{female}\}$
-- Build the contingency table
-- Perform a chi-square homogeneity test
+$\hat \rho$, $\hat \sigma_X$, $\widehat{\mathrm{Cov}}$, ... are [*empirical*]{style="background-color: yellow;"} — they are computed from the data. Their counterparts $\rho$, $\sigma_X$, $\mathrm{Cov}$, ... are [*theoretical*]{style="background-color: yellow;"} (population) quantities, which are generally unknown.
 :::
 
+## Properties of Empirical Correlation
+
+. . .
+
+From the Cauchy-Schwarz inequality, we deduce that:
+
+. . .
+
+The correlation $\hat \rho$ is always between $-1$ and $1$:
+
+- If [$\hat \rho = 1$]{style="background-color: lightgreen;"}: for all $i$, $Y_i = aX_i + b$ for some [$a > 0$]{style="background-color: lightgreen;"}
+
+- If [$\hat \rho = -1$]{style="background-color: orange;"}: for all $i$, $Y_i = aX_i + b$ for some [$a < 0$]{style="background-color: orange;"}
+
+- If [$\hat \rho = 0$]{style="background-color: yellow;"}: **no linear** relationship. [notebook](../pluto/introduction.html)
+
+
+## Pearson's Correlation Test
+
+. . .
+
+Sample correlation:
+
+::: {.square-def}
+$$\hat \rho = \frac{\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)}{\sqrt{\sum_{i=1}^n (X_i - \overline X)^2\sum_{i=1}^n (Y_i - \overline Y)^2}}$$
+:::
+
+. . .
+
+Test statistic:
+
+$$\psi(X,Y) = \frac{\hat \rho}{\sqrt{1-\hat \rho^2}}\sqrt{n-2}$$
+
+Under $H_0$, if the data are Gaussian: $\psi(X,Y) \approx \mathcal{T}(n-2)$
+
+##
+
+![](../images/correlated_X_Y.svg)
+
+
+
+## Monte Carlo Validation ($n=4$)
+
+. . .
+
+![](../images/correlation_pearson.png)
+
+
+## Example
+
+. . .
+
+Does study time correlate with exam scores?
+
+| Student | Study time $X_i$ (h) | Score $Y_i$ (%) |
+|---------|----------------------|-----------------|
+| 1 | 2 | 55 |
+| 2 | 4 | 65 |
+| 3 | 6 | 70 |
+| 4 | 8 | 80 |
+| 5 | 10 | 90 |
+
+## Formalization
+
+. . .
+
+We denote $X_i$ the study time of student $i$ and $Y_i$ its score.
+
+. . .
+
+We assume that $(X_1, \dots, X_n)$ iid $\mathcal N(\mu_X, \sigma_X^2)$ and $(Y_1, \dots, Y_n)$ iid $\mathcal N(\mu_Y, \sigma_Y^2)$ where $\mu_X$, $\mu_Y$, $\sigma_X$, $\sigma_Y$ are **unknown**.
+
+. . .
+
+We denote $\rho = Cov(X,Y)$, also **unknown**. We want to test:
+
+::: {.square-objective}
+$H_0: \rho = 0$ VS $H_1: \rho \neq 0$
+:::
+
+. . .
+
+Here $\hat \rho =0.9948$ and $\hat{\rho} = \frac{170}{\sqrt{40 \times 730}} \approx 0.9948, \qquad t = \frac{0.9948\sqrt{3}}{\sqrt{1-0.9948^2}} \approx 16.94$. [Reject]{style="background-color: orange;"} (there is presence of correlation)
+
+
+# ANOVA Test
+
+## Motivation
+
+. . .
+
+Before: Correlation test between two quantitative variables $Y$ and $X$. What if $X$ represents modalities ?
+
+. . .
+
+For example: $Y$ represents salary and $X$ the region.
+
+. . .
+
+Natural question: are salaries homogeneous across regions?
+
+## Setup
+. . .
+
+We observe
+
+$(X_1, \dots, X_n) \in \{1, \dots I\}^n$\ (modalities)
+$(Y_1, \dots, Y_n) \in \mathbb R^n$ (quantitative variables)
+
+. . .
+
+Assumption: $(Y_k,X_k)$ are independent, [same variance]{style="background-color: yellow;"}, and if $X_k=i$:
+
+::: {.square-def}
+$Y_k \sim \mathcal N(\mu_k, \sigma^2)$
+:::
+
+
+. . .
+
+
+We can write:
+
+$\mu_i = \mathbb E[Y|X=i]=\frac{\mathbb E[Y\mathbf 1\{X=i\}]}{\mathbb P(X=i)}$ **(unknown)**
+
+## Test Probem
+
+. . .
+
+Are the $Y$ homogeneous relative to modalities of $X$?
+
+. . .
+
+::: {.square-def}
+$H_0: \mu_1=\dots = \mu_I$ VS  $H_1: \mu_i \neq \mu_j$ for some $i,j$
+:::
+
+. . .
+
+::: {.callout-warning}
+This is a test on the **means** not on the variances. **variance is assumed to be constant** across modalities.
+:::
+
+
+## Equivalent Setup
+
+. . .
+
+We observe 
+
+::: {.square-def}
+$Y_k = \sum_{i=1}^I\mathbf{1}\{X_k = i\} \mu_i + \sigma \varepsilon_k$
+:::
+
+
+
+where $\varepsilon_k$ are iid $\mathcal N(0,1)$
+
+## Graphical Representation
+
+. . .
+
+We observe $X=(X_1, \dots, X_n)$ and $Y=(Y_1, \dots, Y_n)$, where
+
+- $X_k \in \{1, \dots, I\}$ (Quali)
+- $Y_k \in \mathbb R$ (Quanti)
+
+. . .
+
+**Boxplot**:  represents $0, 25, 75$ and $100$ percentiles.
+
+
+## Singer Dataset (Julia StatsPlots)
+
+. . .
+
+$X$: Height (in inches), $Y$: Type of singer
+
+. . .
+
+Boxplot: (min, $q_{1/4}$, $q_{3/5}$, max) for each modality
+
+![](../images/singers.svg){width=70%}
+
+
+## Definitions
+
+. . .
+
+$X=(X_1, \dots, X_n) \in \{1, \dots, I\}^n$, 
+$Y=(Y_1, \dots, Y_n) \in \mathbb R^n$
+
+. . .
+
+if $i \in \{1, \dots, I\}$, we define partial means as
+
+::: {.square-def}
+:::{style="font-size: 80%;"}
+$N_i = \sum_{k=1}^n \mathbf 1\{X_k=i\}$ and  $\overline Y_i = \frac{1}{N_i}\sum_{k=1}^n Y_k \mathbf 1\{X_k=i\}$
+:::
+
+:::
+
+. . .
+
+Total mean:
+
+::: {.square-def}
+$\overline Y = \frac{1}{N}\sum_{k=1}^n Y_k = \frac{1}{N}\sum_{i=1}^I\sum N_i \overline Y_i$
+:::
+
+
+
+## Variance Decomposition
+
+
+. . .
 
 
 :::{style="font-size: 70%;"}
-::: {.columns}
-::: {.column .fragment}
-
-Example of **contingency table**:
-
-|Gender|	Male| Female|	Total|
-|--|--|--|--|
-|Coffee|	30|	20|	50|
-|Tea|	28	|22	|50|
-|Total|	58|	42|100|
-:::
-::: {.column .fragment}
-**Expected counts**:
-
-|Gender|	Male| Female|	Total|
-|--|--|--|--|
-|Coffee|	29|	21|	50|
-|Tea|	29	|21	|50|
-|Total|	58|	42|100|
+::: {.square-def}
+$$\frac{1}{n}\underbrace{\sum_{k=1}^n(Y_k - \overline Y)^2}_{SST} = 
+\frac{1}{n}\underbrace{\sum_{i=1}^IN_i(\overline Y_i - \overline Y)^2}_{SSB} 
++ \frac{1}{n}\underbrace{\sum_{k=1}^n\mathbf 1\{X_k=i\}(Y_k - \overline Y_i)^2}_{SSW}$$
 :::
 :::
 
+. . .
+
+**correlation ratio:**
+
+::: {.square-def}
+$$ \hat \eta^2 = \frac{SSB}{SST}  \in [0,1]$$
 :::
 
-- $N_1 \hat p_1 = 58 \cdot 50/100  = 29$, Degree of freedom $= 1$
+. . .
 
-# Wilcoxon's Signed Rank
+This is an estimator of **unknown** $\eta = \frac{\mathbb V(\mathbb E[Y|X])}{\mathbb V(Y)}$
 
-## Symetric Random Variable
 
-:::{.callout-note appearance="minimal"}
-- A median of $X$ is a $0.5$-quantile of its distribution
-- If $X$ has density $p$, the median $m$ is such that
-$$
-\int_{-\infty}^m p(x)dx = \int_{m}^{+\infty} p(x)dx =  0.5 \; .
-$$
-- A **symmetric** random variable $X$ is such that the distribution of $X$ is the same as the distribution of $-X$.
-- In particular, its median is $0$.
-- If $X$ is a **symmetric** random variable, then it has the same distribution as $\varepsilon |X|$ where $\varepsilon$ is independent of $X$ and uniformly distributed in $\{-1,1\}$
-:::
-## Symetric Random Variable
+## Distribution under $H_0$
+
+. . .
+
+**Model:** $Y_k = \mu + \varepsilon_k$, $\varepsilon_k \overset{iid}{\sim} \mathcal{N}(0, \sigma^2)$, i.e. $\mu_1 = \cdots = \mu_I = \mu$ (unknown).
+
+. . .
+
 ::: {.callout-note}
-## Symetrization
-- If $X$ and $Y$ are two **independent** variables with same density $p$, then $X-Y$ is symetric.
-- Indeed:
+## Proposition
+
+Under $H_0$, assuming $\varepsilon_k \overset{iid}{\sim} \mathcal{N}(0,\sigma^2)$:
+
+$$\frac{SSB}{\sigma^2} \sim \chi^2(I-1), \qquad \frac{SSW}{\sigma^2} \sim \chi^2(n-I)$$
+
+and $SSB \perp SSW$. Consequently,
+
+$$F = \frac{SSB/(I-1)}{SSW/(n-I)} \sim \mathcal{F}(I-1,\, n-I)$$
+
+[proof](../notes/anova.qmd)
+
+:::
+
+
+##
+
+**Degrees of freedom** have an intuitive interpretation:
+
+- $I-1$: $I$ group means, minus 1 global constraint $\overline Y$
+- $n-I$: $n$ observations, minus $I$ estimated group means
+
+. . .
+
+**Fisher test:** reject $H_0$ at level $\alpha$ when
+
+$$F > f_{1-\alpha}(I-1,\, n-I)$$
+
+where $f_{1-\alpha}(I-1, n-I)$ is the $(1-\alpha)$-quantile of $\mathcal{F}(I-1, n-I)$.
+
+## ANOVA Test
+
+. . .
+
+**Test Statistic**
+
+::: {.square-def}
+$$\psi(X,Y) = \frac{SSB/(I-1)}{SSW/(N-I)}$$
+:::
+
+. . .
+
+$\psi(X,Y) \sim \mathcal F(I-1, N-I)$ under $H_0$
+
+. . .
+
+pvalue: 
+```julia
+1-cdf(FDist(I-1, N-1), psiobs)
+```
+
+## Illustration
+
+. . .
+
+![](../images/anova.svg){height=280}
+
+## Example
+
+[Correction 2025](../annals/correction_2025.qmd)
+
+
+# $\chi^2$ Homogeneity and Independence Tests
+
+
+## General Purpose
+
+. . .
+
+Before: [Pearson correlation between quantitative]{style="background-color: yellow;"} variables $X_i$'s and $Y_i$'s
+
+. . .
+
+But what if $X_i$ and $Y_i$ represents [two modalities]{style="background-color: yellow;"} of individual $i$? 
+
+. . .
+
+example: social category and region, political opinion and age group, religion and country...
+
+
+## Multinomials Again
+
+. . .
+
+Think of modalities of [$Y$ as "bags"]{style="background-color: yellow;"} and modalities of [$X$ as "colors"]{style="background-color: yellow;"}.
+
+. . .
+
+This is just a representation, we can take $X$ for the bags
+
+. . .
+
+Then, a sampling a population is like drawing balls from bags. 
+
+. . .
+
+We get a [multinomial distribution]{style="background-color: yellow;"}
+
+
+## Contingency Table and Notation
+
+. . .
+
+We observe $X=(X_1, \dots, X_n)$ iid and $Y=(Y_1, \dots, Y_n)$ iid, where
+
+- $X_k \in \{1, \dots, I\}$ (factor with $I$ categories, "colors")
+- $Y_k \in \{1, \dots, J\}$ (factor with $J$ categories, "bags")
+
+. . .
+
+| Category X/Y| **Bag 1** | **Bag 2** | **Bag 3** | Totals |
+|---|---|---|---|---|
+| **Col 1** | $n_{11}$ | $n_{12}$ | $n_{13}$ | $R_1$ |
+| **Col 2** | $n_{21}$ | $n_{22}$ | $n_{23}$ | $R_2$ |
+| **Totals** | $N_1$ | $N_2$ | $N_3$ | $N$ |
+
+
+$n_{ij}$: number of individuals having category $i$ for $X$ and $j$ for $Y$  
+
+
+## Example: NO2trafic dataset
+
+. . .
+
+The dataset contains air quality measurements at various traffic monitoring stations. We study two qualitative variables:
+
+- **Type**: type of road --- P (périphérique), U (urban), A (highway), T (tunnel), V (green route)
+- **Fluidity**: traffic fluidity level --- A (fluid), B (moderate), C (dense), D (congested)
+
+
+## Example: NO2trafic dataset
+
+. . .
+
+**contingency table** of variable "Type" and "Fluidity"
+
+| **Fluidity**/**Type** | P | U | A | T | V |
+|---|------|-----|-----|-----|-----|
+| A | 21 | 21 | 19 | 9 | 9 |
+| B | 20 | 17 | 16 | 8 | 7 |
+| C | 17 | 17 | 16 | 8 | 7 |
+| D | 20 | 20 | 18 | 8 | 8 |
+
+In R: `table(X,Y)`
+
+
+## Two Possible Questions, One Test Statistic:
+
+. . .
+
+Are the bags homogeneous?
+
+. . .
+
+Is there a dependency between $X$ and $Y$?
+
+
+## $\chi^2$ Homogeneity Test
+
+. . .
+
+$d$ different groups (bags), each containing balls of $m$ potential colors.
+
+. . .
+
+If $d = 3$ and $m = 2$, we observe the following $2\times 3$ table of **counts**:
+
+. . .
+
+|         | bag 1    | bag 2    | bag 3    | Total |
+| ------- | -------- | -------- | -------- | ----- |
+| color 1 | $n_{11}$ | $n_{12}$ | $n_{13}$ | $R_1$ |
+| color 2 | $n_{21}$ | $n_{22}$ | $n_{23}$ | $R_2$ |
+| Total   | $N_1$    | $N_2$    | $N_3$    | $N$   |
+
+## Setup and Statistic
+
+. . .
+
+
+In bag $j$:
+
+::: {.square-def}
+$(X_{1j}, X_{2j}, \dots, X_{mj}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}, \dots, p_{mj}))$
+:::
+
+. . .
+
+
+The parameters $p_{ij}$ are **unknown** [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d19ee99480f7e8d5dbf8da)]
+
+
+. . .
+
+::: {.square-objective}
+$H_0$: $p_{i1} = p_{i2} = \dots = p_{id}$ for all color $i$ (bags are homogeneous)
+
+$H_1$: bags are heterogeneous
+:::
+
+
+
+## Test Statistic
+
+
+. . .
+
+Under $H_0$, we write $p_i = p_{i1} = p_{i2} = \dots = p_{id}$.
+
+. . .
+
+Then we can estimate
+
+$\hat{p}_{i} = \tfrac{1}{N}\sum_{j=1}^{d}X_{ij} = \dfrac{R_i}{N}$
+
+
+We define the test statistic as:
+
+::: {.square-def}
+$$\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(n_{ij}- N_j\hat{p}_{i})^2}{N_j\hat{p}_{i}} \;\asymp\; \chi^2\!\left((m-1)(d-1)\right)$$
+:::
+
+
+
+
+## Proposition
+
+. . .
+
+::: {.callout-note}
+## Proposition
+
+Under $H_0$, as $N \to \infty$ with $N_j/N \to \lambda_j > 0$,
+
+$$\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(n_{ij} - N_j\hat{p}_{i})^2}{N_j\hat{p}_{i}} \xrightarrow{\mathcal{L}} \chi^2\!\left((m-1)(d-1)\right)$$
+:::
+
+
+## Degrees of Freedom — Intuition
+
+. . .
+
+The table has $m \times d$ cells, but not all are free once margins are fixed.
+
+. . .
+
+:::{style="font-size: 85%;"}
+| | $j=1$ | $j=2$ | $\cdots$ | $j=d$ | |
+|:-:|:-:|:-:|:-:|:-:|:-:|
+| $i=1$ | $n_{11}$ | $n_{12}$ | $\cdots$ | **?** | $R_1$ |
+| $i=2$ | $n_{21}$ | $n_{22}$ | $\cdots$ | **?** | $R_2$ |
+| $\vdots$ | | | | **?** | $\vdots$ |
+| $i=m$ | **?** | **?** | $\cdots$ | **?** | $R_m$ |
+| | $C_1$ | $C_2$ | $\cdots$ | $C_d$ | $N$ |
+:::
+
+. . .
+
+Once the $(m-1)(d-1)$ **top-left block** is filled, **all other cells are determined** by the margin constraints.
+
+## Example: Soft Drink Preferences
+
+
+- Population split into 3 age groups: **Young Adults (18–30)**, **Middle-Aged (31–50)**, **Seniors (51+)**
+- $H_0$: the groups are homogeneous in terms of soft drink preferences
+
+. . .
+
+:::{style="font-size: 60%"}
+| Age Group    | Young Adults | Middle-Aged | Seniors | Total |
+| ------------ | ------------ | ----------- | ------- | ----- |
+| Coke         | 60           | 40          | 30      | 130   |
+| Pepsi        | 50           | 55          | 25      | 130   |
+| Sprite       | 30           | 45          | 55      | 130   |
+| **Total**    | 140          | 140         | 110     | 390   |
+:::
+
+. . .
+
+Expected count: $N_1 \hat{p}_1 = 140 \times \dfrac{130}{390} \approx 46.7$
+
+## Computation of $\chi^2$ Statistic
+
 $$
 \begin{aligned}
-\mathbb P(X - Y \leq t) &=\int_{-\infty}^t \mathbb P(X \leq t+y)p(y)dy \\
-&=\int_{-\infty}^t \mathbb P(Y \leq t+x)p(x)dy = \mathbb P(Y-X \leq t) \; .
+\psi(X) &= \frac{(60-46.7)^2}{46.7} + \frac{(40-46.7)^2}{46.7} + \frac{(30-36.7)^2}{36.7} \\
+        &+ \frac{(50-46.7)^2}{46.7} + \frac{(55-46.7)^2}{46.7} + \frac{(25-36.7)^2}{36.7} \\
+        &+ \frac{(30-46.7)^2}{46.7} + \frac{(45-46.7)^2}{46.7} + \frac{(55-36.7)^2}{36.7} \\
+        &\approx 26.57
 \end{aligned}
 $$
-- $X$ indep of $Y$ $\implies$ $X-Y$ symmetric $\implies$ $\mathrm{median}(X-Y) = 0$
+
+. . .
+
+```julia
+1 - cdf(Chisq(4), 26.57)  # ≈ 2.4e-5  →  reject H₀
+```
+
+
+## $\chi^2$ Dependency Test Problem
+
+$\newcommand{\VS}{\quad \mathrm{VS} \quad}$
+$\newcommand{\and}{\quad \mathrm{and} \quad}$
+
+. . .
+
+We observe  \
+$X=(X_1, \dots, X_n) \in \{1, \dots, I\}^n$ and $Y=(Y_1, \dots, Y_n) \in \{1, \dots, J\}^n$
+
+. . .
+
+**Assumptions**: $(X_k,Y_k)$ are independent, each pair has unknown distribution $P_{XY}$
+
+. . .
+
+dependency test problem:
+
+::: {.square-def}
+$$H_0: P_{XY}=P_{X}P_Y \VS H_1: P_{XY} \neq P_{X}P_{Y}$$
 :::
 
+
+
+## Definitions
+
+. . .
+
+Entries of the table:
+
+::: {.square-def}
+$$n_{ij} = \sum_{k=1}^n \mathbf 1\{X_{k} = i\}\mathbf 1\{Y_k=j\}$$
+:::
+
+. . .
+
+Total proportion of individuals $k$ of color $X_k =i$:\
+
+::: {.square-def}
+[$\hat p_{i}=\frac{R_i}{N}$]{style="background-color: yellow;"} $= \tfrac{1}{N}\sum_{j=1}^{J}n_{ij}$
+:::
+
+
+
+## $\chi^2$ Dependency Test 
+
+. . .
+
+Chi-squared statistic, or chi-squared distance:
+
+::: {.square-def}
+$$\psi(X,Y) = \sum_{i=1}^I\sum_{j=1}^J \frac{(n_{ij}- N_j\hat p_{i})^2}{N_j\hat p_{i}}$$
+:::
+
+
+
+- Approximation: $\psi(X,Y) \sim \chi^2((I-1)(J-1))$ when $n \to \infty$
+- Test: $T=\mathbf 1\{\psi(X,Y) \geq t_{1-\alpha/2}\}$, where \
+$t_{0.975}$ = `quantile(Chisq(I-1,J-1), 0.975)`
+
+
+
+## $\chi^2$ Independence Test
+
+. . .
+
+::: {.callout-note}
+## Setup
+
+- Observations: paired **categorical** variables $(X_1, Y_1), \dots, (X_n, Y_n)$
+- e.g., $X_i \in \{\mathrm{male}, \mathrm{female}\}$, $Y_i \in \{\mathrm{coffee}, \mathrm{tea}\}$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d1a28a4b4e2b35810c65ff)]
+- Idea: regroup data by one variable to form **bags**, then apply the homogeneity test
+:::
+
+. . .
+
+:::{style="font-size: 70%;"}
+:::: {.columns}
+::: {.column}
+
+**Contingency table:**
+
+| Gender  | Male | Female | Total |
+|---------|------|--------|-------|
+| Coffee  | 30   | 20     | 50    |
+| Tea     | 28   | 22     | 50    |
+| Total   | 58   | 42     | 100   |
+
+:::
+::: {.column}
+
+**Expected counts:**
+
+| Gender  | Male | Female | Total |
+|---------|------|--------|-------|
+| Coffee  | 29   | 21     | 50    |
+| Tea     | 29   | 21     | 50    |
+| Total   | 58   | 42     | 100   |
+
+:::
+::::
+:::
+
+. . .
+
+$N_1 \hat{p}_1 = 58 \cdot 50/100 = 29$, degrees of freedom $= (2-1)(2-1) = 1$
+
+# Wilcoxon's Signed Rank Test
+
+## Symmetric Random Variables
+
+. . .
+
+::: {.callout-note}
+## Definitions
+
+- A **median** of $X$ is a $0.5$-quantile of its distribution: if $X$ has density $p$, the median $m$ satisfies
+$$\int_{-\infty}^m p(x)\,dx = \int_{m}^{+\infty} p(x)\,dx = 0.5$$
+
+- A random variable $X$ is **symmetric** if $X \overset{d}{=} -X$. In particular its median is $0$.
+
+- If $X$ is symmetric: $X \overset{d}{=} \varepsilon |X|$ where $\varepsilon \perp X$ is uniform on $\{-1,1\}$.
+:::
+
+## Symmetrization
+
+. . .
+
+::: {.callout-note}
+## Symmetrization Lemma
+
+If $X$ and $Y$ are two **independent** variables with the same density $p$, then $X - Y$ is symmetric.
+
+
+
+**Proof:**
+$$
+\mathbb{P}(X - Y \leq t) = \int_{-\infty}^t \mathbb{P}(X \leq t+y)\,p(y)\,dy = \mathbb{P}(Y - X \leq t) \; .
+$$
+
+Hence $X \perp Y \Rightarrow X - Y$ symmetric $\Rightarrow \mathrm{median}(X-Y) = 0$.
+:::
 
 ## Dependency Problem for Paired Data
 
-:::{.callout-note appearance="minimal"}
-- We observe iid pairs of real numbers $(X_1, Y_1), \dots, (X_n, Y_n)$. The density of each pair $(X_i, Y_i)$  is **unknown** $p_{XY}(x,y)$.
+. . .
 
-- The marginal distribution of $X_i$ and $Y_i$ are, respectively,
-$$p_X(x) = \int_{y \in \mathbb R} p_{XY}(x,y)~~~~ \text{ and }~~~~ p_{Y}(y) = \int_{x \in \mathbb R} p_{XY}(x,y) \; .$$
-- $H_0:$ The median of $(X_i - Y_i)$ is $0$ for all $i$
-- $H_1:$ The median of  $(X_i - Y_i)$ is not $0$ for some $i$ [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d2a7e45a6787f340144164)]
+We observe iid pairs $(X_1, Y_1), \dots, (X_n, Y_n)$ with **unknown** joint density $p_{XY}(x,y)$.
+
+. . .
+
+::: {.square-objective}
+$H_0$: $\mathrm{median}(X_i - Y_i) = 0$ for all $i$
+
+$H_1$: $\mathrm{median}(X_i - Y_i) \neq 0$ for some $i$
 :::
 
-::: {.callout-note .fragment}
-## Generality of $H_0$
-- If $X_i-Y_i$ is symmetric $i$, then we are under $H_0$.
-- If $X_i$ is independent of $Y_i$ for all $i$, then we are under $H_0$.
+. . .
+
+[[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d2a7e45a6787f340144164)]
+
+. . .
+
+::: {.callout-note}
+## When is $H_0$ satisfied?
+
+- If $X_i - Y_i$ is symmetric for all $i$, we are under $H_0$.
+- If $X_i \perp Y_i$ for all $i$, we are under $H_0$.
 :::
 
-## 
+## More Formally
 
-:::{.callout-warning}
-- The pairs are assume to be independent, but within each pair, $Y_i$ **can depend on** $X_i$ (that is, we don't necessarily have $p(x,y) =p_X(x)p_Y(y)$).
+. . .
+
+::: {.square-def}
+$$X_i \perp Y_i \implies X_i - Y_i \text{ symmetric} \implies \text{med}(X_i - Y_i) = 0$$
 :::
 
 
-## Wilcoxon's Signed Rank Test
 
-- $D_i = X_i - Y_i$
-- We define the **sign** of pair $i$ as the sign of $D_i=X_i - Y_i$. It is in $\{-1, 1\}$.
-- We define the **rank** of pair $i$ as the permutation $R_i$ that satisfies $|D_{R_i}| = |D_{(i)}|$, where [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d2a963cf335081a465b092)]
-$$
-|D_{(1)}| \leq  \dots \leq |D_{(n)}| 
-$$
+## Wilcoxon's Signed Rank Test: Definitions
 
+. . .
 
-## Wilcoxon's Signed Rank Test
+Let $D_i = X_i - Y_i$.
 
-## Properties on the Signed Ranks 
-Under $H_0$, 
-
-- The signs $(D_i)$'s are independent and **uniformly distributed** in $\{-1, 1\}$. 
-- In particular, the number of signs equal to $+1$ follows a Binomial distribution $\mathcal B(n,0.5)$.
-- The ranks $R_i$ of the $(|D_i|)$'s does not depend on the **unknown** density $p_{X-Y}$. $(R_1, \dots, R_n)$ is a **random permutation** under $H_0$.
-  
-- Hence, any deterministic function of the ranks and of the differences is a **pivotal test statistic**: it does not depend on the distribution of the data under $H_0$.
+- The **sign** of pair $i$ is the sign of $D_i \in \{-1, +1\}$.
+- The **rank** $R_i$ is the position of $|D_i|$ in the sorted order:
 
 
+. . .
 
-## Wilcoxon's Signed Rank Test
+$$|D_{(1)}| \leq \dots \leq |D_{(n)}|$$
 
+[[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67d2a963cf335081a465b092)]
 
-:::{.callout-note .fragment}
-## Properties on the Signed Ranks 
+## Properties Under $H_0$
 
+. . .
 
-- Wilcoxon's test statistic:
-$W_- = \sum_{i=1}^n R_i \mathbf 1\{D_i < 0\}$
-- Sometimes, also $W_+ = \sum_{i=1}^n R_i \mathbf 1\{D_i > 0\}$ or $\min(W_-, W_+)$.
-- Gaussian approximation: $W_- \asymp n(n+1)/4 + \sqrt{n(n+1)(2n+1)/24} \mathcal N(0,1)$
-- if $H_1$: $\mathrm{median}(D_i) > 0$: left-tailed test on $W_-$.
+::: {.callout-note}
+- The signs $\mathrm{sgn}(D_i)$ are independent and **uniformly distributed** in $\{-1, +1\}$.
+- In particular, the number of positive signs $\sum \mathbf{1} \{D_i > 0\}\sim \mathcal{B}(n, 0.5)$.
+- The ranks $(R_1, \dots, R_n)$ form a **random permutation**, independent of the unknown density.
 :::
-:::{.fragment}
-To generate a $W_-$ under $H_0$:
+
+. . .
+
+::: {.callout-important}
+Any deterministic function of the ranks and signs is a **pivotal test statistic**: its distribution under $H_0$ does not depend on the unknown distribution of the data.
+:::
+
+
+## Wilcoxon Test Statistic
+
+. . .
+
+::: {.square-def}
+$$W_- = \sum_{i=1}^n R_i\, \mathbf{1}\{D_i < 0\}$$
+:::
+
+. . .
+
+Also used: $W_+ = \sum_{i=1}^n R_i\, \mathbf{1}\{D_i > 0\}$ or $\min(W_-, W_+)$.
+
+. . .
+
+## Idea:
+
+
+- Rank the $|D_i|$ from smallest to largest.
+- Under $H_0$: signs $\pm$ are random $\Rightarrow$ large and small ranks spread equally between positive and negative differences.
+- $W_-$ large (resp. small) $\Rightarrow$ negative (resp. positive) differences dominate $\Rightarrow$ evidence against $H_0$.
+
+## Gaussian Approximation
+
+. . .
+
+When $n \to +\infty$, under $H_0$, 
+
+$$W_- \;\asymp\; \frac{n(n+1)}{4} + \sqrt{\frac{n(n+1)(2n+1)}{24}}\;\mathcal{N}(0,1)$$
+
+If $H_1$: $\mathrm{median}(D_i) < 0$ -> **right--tailed** test on $W_-$
+
+. . .
+
+If $H_1$: $\mathrm{median}(D_i) > 0$ → **left-tailed** test on $W_-$.
+
+. . .
+
+To simulate $W_-$ under $H_0$:
 ```julia
 k = rand(Binomial(n, 0.5))
 w = sum(randperm(n)[1:k])
 ```
-:::
 
-##
+[proof](../notes/wilcoxon_dep.qmd)
 
-:::{.fragment}
-This approximation fits well the exact distribution. Monte-Carlo simulation:
+## Monte Carlo Validation
+
+. . .
+
+The Gaussian approximation fits well the exact distribution:
 
 ![](../images/wilcoxon_W-.svg)
-:::
 
+## Example: Effect of a Drug on Blood Pressure
 
-:::{.fragment}
+. . .
 
-:::
+- $H_0$: the drug has no effect. $H_1$: it lowers blood pressure (left-tailed test on $W_-$).
 
-## Effect of Drug on Blood Pressure
-
-- $H_0$: the drug has no effect. $H_1$: it lowers the blood pressure
-
-::: {.fragment}
+. . .
 
 :::{style="font-size: 70%;"}
 
-| Patient | $X_i$ (Before) | $Y_i$​ (After) | $D_i = X_i-Y_i$​ | $R_i$ |
-| ------- | -------------- | -------------- | ---------------- | ----- |
-| 1       | 150            | 140            | 10               | 6 (+) |
-| 2       | 135            | 130            | 5                | 5 (+) |
-| 3       | 160            | 162            | -2               | 2 (-) |
-| 4       | 145            | 146            | -1               | 1 (-) |
-| 5       | 154            | 150            | 4                | 4 (+) |
-| 6       | 171            | 160            | 11               | 7 (+) |
-| 7       | 141            | 138            | 3                | 3 (+) |
+| Patient | $X_i$ (Before) | $Y_i$ (After) | $D_i = X_i - Y_i$ | $R_i$  |
+| ------- | -------------- | ------------- | ------------------ | ------ |
+| 1       | 150            | 140           | 10                 | 6 (+)  |
+| 2       | 135            | 130           | 5                  | 5 (+)  |
+| 3       | 160            | 162           | −2                 | 2 (−)  |
+| 4       | 145            | 146           | −1                 | 1 (−)  |
+| 5       | 154            | 150           | 4                  | 4 (+)  |
+| 6       | 171            | 160           | 11                 | 7 (+)  |
+| 7       | 141            | 138           | 3                  | 3 (+)  |
 
 :::
+
+## Numerical Application
+
+. . .
+
+$W_- = 1 + 2 = 3$
+
+. . .
+
+From simulation, approximate $\mathbb{P}(W_- = i)$ for $i \in \{0,1,2,3,4,5,6\}$ under $H_0$:
+
+```
+[0.00784066, 0.00781442, 0.00781534, 0.01563892, 0.01562184, 0.02343478, ...]
+```
+
+. . .
+
+From simulation:
+
+::: {.square-def}
+$p_{\text{value}} = \mathbb{P}(W_- \leq 3) \approx 0.039 < 0.05$
 :::
 
-## Numerical Appli
-- $W_- = 1+2 = 3$.
-- From a simulation, we approx $\mathbb P(W_-=i)$, for $i \in \{0, 1, 2, 3, 4, 5,6\}$ under $H_0$ by
-- `[0.00784066, 0.00781442, 0.00781534, 0.01563892, 0.01562184, 0.02343478]`
-- From a simulation, $p_{value}=\mathbb P(W_- \leq 3) \approx 0.039 < 0.05$
+. . .
+
+We reject $H_0$ at level $5\%$: the drug appears to lower blood pressure.

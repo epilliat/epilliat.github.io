@@ -95,7 +95,7 @@
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
   <link rel="stylesheet" href="../../../site_libs/revealjs/dist/theme/quarto-8861debc0ea4df1cd525e94b7712d9b7.css">
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../../../styles.css">
   <link href="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -199,158 +199,539 @@
 </div>
 
 </section>
+<section id="outline" class="slide level2">
+<h2>Outline</h2>
+<ul>
+<li class="fragment">Correlation Test (Pearson)</li>
+<li class="fragment">ANOVA Test</li>
+<li class="fragment"><span class="math inline">\(\chi^2\)</span> Homogeneity and Independence Tests</li>
+<li class="fragment">Wilcoxon’s Signed Rank Test</li>
+</ul>
+<p><a href="../../../teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html">Previous</a></p>
+</section>
 <section>
 <section id="correlation-test" class="title-slide slide level1 center">
 <h1>Correlation Test</h1>
-<div class="callout callout-none no-icon callout-style-simple">
+
+</section>
+<section id="setup" class="slide level2">
+<h2>Setup</h2>
+<div class="fragment">
+<p>We observe iid paired data <span class="math inline">\((X_1, Y_1), \dots, (X_n,Y_n)\)</span> of <strong>unknown</strong> means <span class="math inline">\(\mu_X, \mu_Y\)</span> and <strong>unknown</strong> covariance matrix <span class="math inline">\(\Sigma\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Let <span class="math inline">\(X = X_1\)</span>, <span class="math inline">\(Y = Y_1\)</span>.</p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(\mathrm{Cov}(X,Y) = \mathbb{E}[(X - \mathbb{E}[X])(Y - \mathbb{E}[Y])]\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="square-objective">
+<p><span class="math inline">\(H_0: \mathrm{Cov}(X,Y) = 0\)</span> vs <span class="math inline">\(H_1: \mathrm{Cov}(X,Y) \neq 0\)</span></p>
+</div>
+</div>
+</section>
+<section id="correlation-and-covariance-matrix" class="slide level2">
+<h2>Correlation and Covariance Matrix</h2>
+<div class="fragment">
+<p><span class="math inline">\(\sigma_X^2 = \mathrm{Cov}(X,X)\)</span></p>
+<p><span class="math inline">\(\sigma_Y^2 = \mathrm{Cov}(Y,Y)\)</span></p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(\hat \rho(X,Y) = \dfrac{\mathrm{Cov}(X,Y)}{\sigma_X \sigma_Y}\)</span></p>
+</div>
+<p>[<a href="https://app.wooclap.com/events/RQSUIA/questions/67d18d44da9d0e3a03397017">Wooclap</a>]</p>
+</div>
+<div class="fragment">
+<p>Covariance matrix:</p>
+<p><span class="math display">\[
+\Sigma =
+\begin{pmatrix}
+\sigma_X^2 &amp; \mathrm{Cov}(X,Y) \\
+\mathrm{Cov}(X,Y) &amp; \sigma_Y^2
+\end{pmatrix}
+\]</span></p>
+</div>
+</section>
+<section id="theoretical-vs-empirical" class="slide level2">
+<h2>Theoretical VS Empirical</h2>
+<div class="fragment">
+<p>We define their empirical versions:</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\widehat{\mathrm{Cov}}(X,Y) = \frac{1}{n-1}\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)\)</span></p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\hat \sigma_X^2 = \frac{1}{n-1}\sum_{i=1}^n (X_i - \overline X)^2\)</span></p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[\hat \rho(X,Y) = \frac{\widehat{\mathrm{Cov}}(X,Y)}{\hat \sigma_X \hat \sigma_Y}\]</span></p>
+</div>
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
 <div class="callout-body">
+<div class="callout-title">
+<p><strong>Empirical vs.&nbsp;theoretical quantities</strong></p>
+</div>
 <div class="callout-content">
-<ul>
-<li class="fragment"><p>We observe iid paired data <span class="math inline">\((X_1, Y_1), \dots, (X_n,Y_n)\)</span> of <strong>unknown</strong> mean <span class="math inline">\(\mu_X, \mu_Y\)</span> and cov matrix <span class="math inline">\(\Sigma\)</span>. Let <span class="math inline">\(X=X_1\)</span>, <span class="math inline">\(Y=Y_1\)</span>.</p></li>
-<li class="fragment"><p><span class="math inline">\(\mathrm{Cov(X,Y)} = \mathbb E[(X- \mathbb E[X])(Y- \mathbb E[Y])]\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(H_0: \mathrm{Cov}(X,Y)=0\)</span> or <span class="math inline">\(H_1: \mathrm{Cov}(X,Y)\neq 0\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(\sigma_X^2 = \mathrm{Cov(X,X)}\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(\sigma_Y^2 = \mathrm{Cov(Y,Y)}\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(\mathrm{Cor(X,Y)} = \frac{\mathrm{Cov(X,Y)}}{\sigma_X \sigma_Y}\)</span> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67d18d44da9d0e3a03397017">Wooclap</a>]</p></li>
-<li class="fragment"><p>Cov matrix: <span class="math inline">\(\Sigma =
-\left(\begin{matrix}
-\sigma_X^2 &amp; \mathrm{Cov(X,Y)} \\
-\mathrm{Cov(X,Y)} &amp; \sigma_Y^2 \\
-\end{matrix}\right)\)</span></p></li>
-</ul>
+<p><span class="math inline">\(\hat \rho\)</span>, <span class="math inline">\(\hat \sigma_X\)</span>, <span class="math inline">\(\widehat{\mathrm{Cov}}\)</span>, … are <span style="background-color: yellow;"><em>empirical</em></span> — they are computed from the data. Their counterparts <span class="math inline">\(\rho\)</span>, <span class="math inline">\(\sigma_X\)</span>, <span class="math inline">\(\mathrm{Cov}\)</span>, … are <span style="background-color: yellow;"><em>theoretical</em></span> (population) quantities, which are generally unknown.</p>
+</div>
 </div>
 </div>
 </div>
 </section>
-<section id="correlation-test-1" class="slide level2">
-<h2>Correlation Test</h2>
-<div class="columns">
-<div class="column">
+<section id="properties-of-empirical-correlation" class="slide level2">
+<h2>Properties of Empirical Correlation</h2>
+<div class="fragment">
+<p>From the Cauchy-Schwarz inequality, we deduce that:</p>
+</div>
+<div class="fragment">
+<p>The correlation <span class="math inline">\(\hat \rho\)</span> is always between <span class="math inline">\(-1\)</span> and <span class="math inline">\(1\)</span>:</p>
+<ul>
+<li class="fragment"><p>If <span style="background-color: lightgreen;"><span class="math inline">\(\hat \rho = 1\)</span></span>: for all <span class="math inline">\(i\)</span>, <span class="math inline">\(Y_i = aX_i + b\)</span> for some <span style="background-color: lightgreen;"><span class="math inline">\(a &gt; 0\)</span></span></p></li>
+<li class="fragment"><p>If <span style="background-color: orange;"><span class="math inline">\(\hat \rho = -1\)</span></span>: for all <span class="math inline">\(i\)</span>, <span class="math inline">\(Y_i = aX_i + b\)</span> for some <span style="background-color: orange;"><span class="math inline">\(a &lt; 0\)</span></span></p></li>
+<li class="fragment"><p>If <span style="background-color: yellow;"><span class="math inline">\(\hat \rho = 0\)</span></span>: <strong>no linear</strong> relationship. <a href="../pluto/introduction.html">notebook</a></p></li>
+</ul>
+</div>
+</section>
+<section id="pearsons-correlation-test" class="slide level2">
+<h2>Pearson’s Correlation Test</h2>
+<div class="fragment">
+<p>Sample correlation:</p>
+<div class="square-def">
+<p><span class="math display">\[\hat \rho = \frac{\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)}{\sqrt{\sum_{i=1}^n (X_i - \overline X)^2\sum_{i=1}^n (Y_i - \overline Y)^2}}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Test statistic:</p>
+<p><span class="math display">\[\psi(X,Y) = \frac{\hat \rho}{\sqrt{1-\hat \rho^2}}\sqrt{n-2}\]</span></p>
+<p>Under <span class="math inline">\(H_0\)</span>, if the data are Gaussian: <span class="math inline">\(\psi(X,Y) \approx \mathcal{T}(n-2)\)</span></p>
+</div>
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
+
+<img data-src="../images/correlated_X_Y.svg" class="r-stretch"></section>
+<section id="monte-carlo-validation-n4" class="slide level2">
+<h2>Monte Carlo Validation (<span class="math inline">\(n=4\)</span>)</h2>
+<div class="fragment">
+<p><img data-src="../images/correlation_pearson.png"></p>
+</div>
+</section>
+<section id="example" class="slide level2">
+<h2>Example</h2>
+<div class="fragment">
+<p>Does study time correlate with exam scores?</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Student</th>
+<th>Study time <span class="math inline">\(X_i\)</span> (h)</th>
+<th>Score <span class="math inline">\(Y_i\)</span> (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>2</td>
+<td>55</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>4</td>
+<td>65</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>6</td>
+<td>70</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>8</td>
+<td>80</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>10</td>
+<td>90</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="formalization" class="slide level2">
+<h2>Formalization</h2>
+<div class="fragment">
+<p>We denote <span class="math inline">\(X_i\)</span> the study time of student <span class="math inline">\(i\)</span> and <span class="math inline">\(Y_i\)</span> its score.</p>
+</div>
+<div class="fragment">
+<p>We assume that <span class="math inline">\((X_1, \dots, X_n)\)</span> iid <span class="math inline">\(\mathcal N(\mu_X, \sigma_X^2)\)</span> and <span class="math inline">\((Y_1, \dots, Y_n)\)</span> iid <span class="math inline">\(\mathcal N(\mu_Y, \sigma_Y^2)\)</span> where <span class="math inline">\(\mu_X\)</span>, <span class="math inline">\(\mu_Y\)</span>, <span class="math inline">\(\sigma_X\)</span>, <span class="math inline">\(\sigma_Y\)</span> are <strong>unknown</strong>.</p>
+</div>
+<div class="fragment">
+<p>We denote <span class="math inline">\(\rho = Cov(X,Y)\)</span>, also <strong>unknown</strong>. We want to test:</p>
+<div class="square-objective">
+<p><span class="math inline">\(H_0: \rho = 0\)</span> VS <span class="math inline">\(H_1: \rho \neq 0\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Here <span class="math inline">\(\hat \rho =0.9948\)</span> and <span class="math inline">\(\hat{\rho} = \frac{170}{\sqrt{40 \times 730}} \approx 0.9948, \qquad t = \frac{0.9948\sqrt{3}}{\sqrt{1-0.9948^2}} \approx 16.94\)</span>. <span style="background-color: orange;">Reject</span> (there is presence of correlation)</p>
+</div>
+</section></section>
+<section>
+<section id="anova-test" class="title-slide slide level1 center">
+<h1>ANOVA Test</h1>
+
+</section>
+<section id="motivation" class="slide level2">
+<h2>Motivation</h2>
+<div class="fragment">
+<p>Before: Correlation test between two quantitative variables <span class="math inline">\(Y\)</span> and <span class="math inline">\(X\)</span>. What if <span class="math inline">\(X\)</span> represents modalities ?</p>
+</div>
+<div class="fragment">
+<p>For example: <span class="math inline">\(Y\)</span> represents salary and <span class="math inline">\(X\)</span> the region.</p>
+</div>
+<div class="fragment">
+<p>Natural question: are salaries homogeneous across regions?</p>
+</div>
+</section>
+<section id="setup-1" class="slide level2">
+<h2>Setup</h2>
+<div class="fragment">
+<p>We observe</p>
+<p><span class="math inline">\((X_1, \dots, X_n) \in \{1, \dots I\}^n\)</span>&nbsp;(modalities) <span class="math inline">\((Y_1, \dots, Y_n) \in \mathbb R^n\)</span> (quantitative variables)</p>
+</div>
+<div class="fragment">
+<p>Assumption: <span class="math inline">\((Y_k,X_k)\)</span> are independent, <span style="background-color: yellow;">same variance</span>, and if <span class="math inline">\(X_k=i\)</span>:</p>
+<div class="square-def">
+<p><span class="math inline">\(Y_k \sim \mathcal N(\mu_k, \sigma^2)\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>We can write:</p>
+<p><span class="math inline">\(\mu_i = \mathbb E[Y|X=i]=\frac{\mathbb E[Y\mathbf 1\{X=i\}]}{\mathbb P(X=i)}\)</span> <strong>(unknown)</strong></p>
+</div>
+</section>
+<section id="test-probem" class="slide level2">
+<h2>Test Probem</h2>
+<div class="fragment">
+<p>Are the <span class="math inline">\(Y\)</span> homogeneous relative to modalities of <span class="math inline">\(X\)</span>?</p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(H_0: \mu_1=\dots = \mu_I\)</span> VS <span class="math inline">\(H_1: \mu_i \neq \mu_j\)</span> for some <span class="math inline">\(i,j\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>This is a test on the <strong>means</strong> not on the variances. <strong>variance is assumed to be constant</strong> across modalities.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="equivalent-setup" class="slide level2">
+<h2>Equivalent Setup</h2>
+<div class="fragment">
+<p>We observe</p>
+<div class="square-def">
+<p><span class="math inline">\(Y_k = \sum_{i=1}^I\mathbf{1}\{X_k = i\} \mu_i + \sigma \varepsilon_k\)</span></p>
+</div>
+<p>where <span class="math inline">\(\varepsilon_k\)</span> are iid <span class="math inline">\(\mathcal N(0,1)\)</span></p>
+</div>
+</section>
+<section id="graphical-representation" class="slide level2">
+<h2>Graphical Representation</h2>
+<div class="fragment">
+<p>We observe <span class="math inline">\(X=(X_1, \dots, X_n)\)</span> and <span class="math inline">\(Y=(Y_1, \dots, Y_n)\)</span>, where</p>
+<ul>
+<li class="fragment"><span class="math inline">\(X_k \in \{1, \dots, I\}\)</span> (Quali)</li>
+<li class="fragment"><span class="math inline">\(Y_k \in \mathbb R\)</span> (Quanti)</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Boxplot</strong>: represents <span class="math inline">\(0, 25, 75\)</span> and <span class="math inline">\(100\)</span> percentiles.</p>
+</div>
+</section>
+<section id="singer-dataset-julia-statsplots" class="slide level2">
+<h2>Singer Dataset (Julia StatsPlots)</h2>
+<div class="fragment">
+<p><span class="math inline">\(X\)</span>: Height (in inches), <span class="math inline">\(Y\)</span>: Type of singer</p>
+</div>
+<div class="fragment">
+<p>Boxplot: (min, <span class="math inline">\(q_{1/4}\)</span>, <span class="math inline">\(q_{3/5}\)</span>, max) for each modality</p>
+<p><img data-src="../images/singers.svg" style="width:70.0%"></p>
+</div>
+</section>
+<section id="definitions" class="slide level2">
+<h2>Definitions</h2>
+<div class="fragment">
+<p><span class="math inline">\(X=(X_1, \dots, X_n) \in \{1, \dots, I\}^n\)</span>, <span class="math inline">\(Y=(Y_1, \dots, Y_n) \in \mathbb R^n\)</span></p>
+</div>
+<div class="fragment">
+<p>if <span class="math inline">\(i \in \{1, \dots, I\}\)</span>, we define partial means as</p>
+<div class="square-def">
+<div style="font-size: 80%;">
+<p><span class="math inline">\(N_i = \sum_{k=1}^n \mathbf 1\{X_k=i\}\)</span> and <span class="math inline">\(\overline Y_i = \frac{1}{N_i}\sum_{k=1}^n Y_k \mathbf 1\{X_k=i\}\)</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>Total mean:</p>
+<div class="square-def">
+<p><span class="math inline">\(\overline Y = \frac{1}{N}\sum_{k=1}^n Y_k = \frac{1}{N}\sum_{i=1}^I\sum N_i \overline Y_i\)</span></p>
+</div>
+</div>
+</section>
+<section id="variance-decomposition" class="slide level2">
+<h2>Variance Decomposition</h2>
+<div class="fragment">
+<div style="font-size: 70%;">
+<div class="square-def">
+<p><span class="math display">\[\frac{1}{n}\underbrace{\sum_{k=1}^n(Y_k - \overline Y)^2}_{SST} =
+\frac{1}{n}\underbrace{\sum_{i=1}^IN_i(\overline Y_i - \overline Y)^2}_{SSB}
++ \frac{1}{n}\underbrace{\sum_{k=1}^n\mathbf 1\{X_k=i\}(Y_k - \overline Y_i)^2}_{SSW}\]</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>correlation ratio:</strong></p>
+<div class="square-def">
+<p><span class="math display">\[ \hat \eta^2 = \frac{SSB}{SST}  \in [0,1]\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>This is an estimator of <strong>unknown</strong> <span class="math inline">\(\eta = \frac{\mathbb V(\mathbb E[Y|X])}{\mathbb V(Y)}\)</span></p>
+</div>
+</section>
+<section id="distribution-under-h_0" class="slide level2">
+<h2>Distribution under <span class="math inline">\(H_0\)</span></h2>
+<div class="fragment">
+<p><strong>Model:</strong> <span class="math inline">\(Y_k = \mu + \varepsilon_k\)</span>, <span class="math inline">\(\varepsilon_k \overset{iid}{\sim} \mathcal{N}(0, \sigma^2)\)</span>, i.e.&nbsp;<span class="math inline">\(\mu_1 = \cdots = \mu_I = \mu\)</span> (unknown).</p>
+</div>
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong>Pearson’s Correlation Test</strong></p>
+<p><strong>Proposition</strong></p>
 </div>
 <div class="callout-content">
-<ul>
-<li class="fragment"><p><span class="math inline">\(r =  \frac{\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)}{\sqrt{\sum_{i=1}^n (X_i - \overline X)^2\sum_{i=1}^n (Y_i - \overline Y)^2}}\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(\psi(X,Y) = \frac{r}{\sqrt{1-r^2}}\sqrt{n-2}\)</span></p></li>
-<li class="fragment"><p>Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\psi(X,Y) \approx \mathcal T(n-2)\)</span></p></li>
-</ul>
+<p>Under <span class="math inline">\(H_0\)</span>, assuming <span class="math inline">\(\varepsilon_k \overset{iid}{\sim} \mathcal{N}(0,\sigma^2)\)</span>:</p>
+<p><span class="math display">\[\frac{SSB}{\sigma^2} \sim \chi^2(I-1), \qquad \frac{SSW}{\sigma^2} \sim \chi^2(n-I)\]</span></p>
+<p>and <span class="math inline">\(SSB \perp SSW\)</span>. Consequently,</p>
+<p><span class="math display">\[F = \frac{SSB/(I-1)}{SSW/(n-I)} \sim \mathcal{F}(I-1,\, n-I)\]</span></p>
+<p><a href="../../../teaching/hypothesis_testing/notes/anova.html">proof</a></p>
 </div>
 </div>
 </div>
 </div>
-</div><div class="column">
-<div class="fragment">
-<p><img data-src="../images/correlated_X_Y.svg"></p>
-</div>
-</div></div>
 </section>
-<section id="correlation-test-2" class="slide level2">
-<h2>Correlation Test</h2>
-<p>Monte Carlo Simulation with <span class="math inline">\(n=4\)</span>:</p>
-
-<img data-src="../images/correlation_pearson.png" class="r-stretch"></section>
-<section id="anova-test" class="slide level2">
-<h2>ANOVA Test</h2>
+<section id="section-1" class="slide level2">
+<h2></h2>
+<p><strong>Degrees of freedom</strong> have an intuitive interpretation:</p>
 <ul>
-<li class="fragment"><span class="math inline">\(d\)</span> independent groups (bags), each containing <span class="math inline">\(N_1, \dots, N_d\)</span> individuals. <span class="math inline">\(N_{\mathrm{tot}} = \sum_{k=1}^d N_k\)</span></li>
-<li class="fragment">For each group <span class="math inline">\(k\)</span> (eg a region), we observe <span class="math inline">\((X_{1,k}, \dots, X_{N_k,k}) \in \mathbb R^{N_k}\)</span> (eg salaries).</li>
-<li class="fragment">We assume that the <span class="math inline">\(X_{ik}\)</span> are iid <span class="math inline">\(\mathcal N(\mu_k, \sigma)\)</span>.</li>
-<li class="fragment">Ex: <span class="math inline">\(X_{ik} =\)</span> sallary of <span class="math inline">\(i\)</span> living in region <span class="math inline">\(k\)</span> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67d190bd325561a195e734b3">Wooclap</a>]</li>
-<li class="fragment"><span class="math inline">\(H_0: \mu_1 = \dots = \mu_d\)</span> vs <span class="math inline">\(H_1: \mu_l \neq \mu_k\)</span> for some <span class="math inline">\((l,k)\)</span> (<strong>unknown <span class="math inline">\(\sigma\)</span></strong>)</li>
+<li class="fragment"><span class="math inline">\(I-1\)</span>: <span class="math inline">\(I\)</span> group means, minus 1 global constraint <span class="math inline">\(\overline Y\)</span></li>
+<li class="fragment"><span class="math inline">\(n-I\)</span>: <span class="math inline">\(n\)</span> observations, minus <span class="math inline">\(I\)</span> estimated group means</li>
 </ul>
+<div class="fragment">
+<p><strong>Fisher test:</strong> reject <span class="math inline">\(H_0\)</span> at level <span class="math inline">\(\alpha\)</span> when</p>
+<p><span class="math display">\[F &gt; f_{1-\alpha}(I-1,\, n-I)\]</span></p>
+<p>where <span class="math inline">\(f_{1-\alpha}(I-1, n-I)\)</span> is the <span class="math inline">\((1-\alpha)\)</span>-quantile of <span class="math inline">\(\mathcal{F}(I-1, n-I)\)</span>.</p>
+</div>
 </section>
 <section id="anova-test-1" class="slide level2">
 <h2>ANOVA Test</h2>
-<div class="callout callout-note no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Note</strong></p>
-</div>
-<div class="callout-content">
-<div class="columns">
-<div class="column">
-<ul>
-<li class="fragment">Empirical mean of group <span class="math inline">\(k\)</span>: <span class="math inline">\(\overline X_k = \tfrac{1}{N_k}\sum_{i=1}^{N_k} X_{ik}\)</span> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67d1929a5467cc7e3e3d2163">Wooclap</a>]</li>
-<li class="fragment">Sum of Squares in group <span class="math inline">\(k\)</span>:<br>
-<span class="math inline">\(SS_k = \sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2\)</span></li>
-<li class="fragment"><span class="math inline">\(SS_k \sim \sigma^2\chi^2(N_k-1)\)</span> under <span class="math inline">\(H_0\)</span></li>
-<li class="fragment">Empirical var of group <span class="math inline">\(k\)</span>: <span class="math inline">\(V_k = \tfrac{1}{N_k}SS_k\)</span></li>
-</ul>
-</div><div class="column">
-<ul>
-<li class="fragment">Total empirical mean: <span class="math inline">\(\overline X = \tfrac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} X_{ik}\)</span></li>
-<li class="fragment">Sum of Squares btween Groups: <span class="math inline">\(SSB = \sum_{k=1}^{d} N_k(\overline X_k - \overline X)^2\)</span></li>
-<li class="fragment"><span class="math inline">\(SSB \sim \sigma^2\chi^2(d-1)\)</span> under <span class="math inline">\(H_0\)</span></li>
-</ul>
-</div></div>
+<div class="fragment">
+<p><strong>Test Statistic</strong></p>
+<div class="square-def">
+<p><span class="math display">\[\psi(X,Y) = \frac{SSB/(I-1)}{SSW/(N-I)}\]</span></p>
 </div>
 </div>
+<div class="fragment">
+<p><span class="math inline">\(\psi(X,Y) \sim \mathcal F(I-1, N-I)\)</span> under <span class="math inline">\(H_0\)</span></p>
+</div>
+<div class="fragment">
+<p>pvalue:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="fl">1</span><span class="fu">-cdf</span>(<span class="fu">FDist</span>(I<span class="op">-</span><span class="fl">1</span>, N<span class="op">-</span><span class="fl">1</span>), psiobs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="anova-test-2" class="slide level2">
-<h2>ANOVA Test</h2>
+<section id="illustration" class="slide level2">
+<h2>Illustration</h2>
+<div class="fragment">
 <p><img data-src="../images/anova.svg" height="280"></p>
-<div class="fragment">
-<div class="callout callout-note no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>ANOVA Test Statistic</strong></p>
-</div>
-<div class="callout-content">
-<ul>
-<li class="fragment"><span class="math inline">\(\psi(X) = \frac{\tfrac{1}{d-1}SSB}{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}\)</span></li>
-<li class="fragment"><span class="math inline">\(\psi(X) \sim \mathcal F(d-1, N_{\mathrm{tot}}-d)\)</span> (Fisher under <span class="math inline">\(H_0\)</span>)</li>
-<li class="fragment">right-tailed test: <span class="math inline">\(p_{value} = 1-\mathrm{cdf}(\mathcal F(d-1, N_{\mathrm{tot}}-d)), \psi(x_{obs})\)</span>.</li>
-</ul>
-</div>
-</div>
-</div>
 </div>
 </section>
-<section id="interpretation-of-variances-in-anova" class="slide level2">
-<h2>Interpretation of variances in ANOVA</h2>
-<div style="font-size: 70%">
-<p><span class="math display">\[
-\left.\begin{array}{cl}
-\overline X_k &amp;= \frac{1}{N_k} \sum_{i=1}^{N_k} X_{ik}\\
-\overline{X} &amp;= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_k\overline X_{k},&amp;\end{array}\right.
-\left.\begin{array}{cl}
-V_k &amp;= \frac{1}{N_k}\sum_{i=1}^{N_k} (X_{ik} - \overline X_k)^2
-\\
-V_W &amp;= \frac{1}{N_{\mathrm{tot}}} \sum_{k=1}^d N_kV_k\\
-V_B &amp;= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^{d} N_k(\overline X_k - \overline X)^2\\
-V_{T} &amp;= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \overline X)^2
-\end{array}
-\right.
-\]</span></p>
-</div>
-<div class="fragment" style="font-size:60%">
-<ul>
-<li class="fragment"><span class="math inline">\(V_k\)</span>: Empirical variance of group <span class="math inline">\(k\)</span></li>
-<li class="fragment"><span class="math inline">\(V_W\)</span>: Average empirical variance within groups (unexplained variance)</li>
-<li class="fragment"><span class="math inline">\(V_B\)</span>: Empirical variance between groups (explained variance)</li>
-<li class="fragment"><span class="math inline">\(V_T\)</span>: Total variance of the sample</li>
-</ul>
-<div class="fragment">
-<p><span class="math display">\[\psi(X) = \frac{\tfrac{1}{d-1}SSB}{\tfrac{1}{N_{\mathrm{tot}} - d}\sum_{k=1}^d SS_k}=\frac{\tfrac{1}{d-1}V_B}{\tfrac{1}{N_{tot}-d}V_W} = \frac{N_{tot}-d}{d-1} \frac{V_B}{V_W} \sim \mathcal F(d-1, N_{tot}-d) \; .\]</span></p>
-</div>
-</div>
+<section id="example-1" class="slide level2">
+<h2>Example</h2>
+<p><a href="../../../teaching/hypothesis_testing/annals/correction_2025.html">Correction 2025</a></p>
 </section></section>
 <section>
 <section id="chi2-homogeneity-and-independence-tests" class="title-slide slide level1 center">
 <h1><span class="math inline">\(\chi^2\)</span> Homogeneity and Independence Tests</h1>
 
 </section>
+<section id="general-purpose" class="slide level2">
+<h2>General Purpose</h2>
+<div class="fragment">
+<p>Before: <span style="background-color: yellow;">Pearson correlation between quantitative</span> variables <span class="math inline">\(X_i\)</span>’s and <span class="math inline">\(Y_i\)</span>’s</p>
+</div>
+<div class="fragment">
+<p>But what if <span class="math inline">\(X_i\)</span> and <span class="math inline">\(Y_i\)</span> represents <span style="background-color: yellow;">two modalities</span> of individual <span class="math inline">\(i\)</span>?</p>
+</div>
+<div class="fragment">
+<p>example: social category and region, political opinion and age group, religion and country…</p>
+</div>
+</section>
+<section id="multinomials-again" class="slide level2">
+<h2>Multinomials Again</h2>
+<div class="fragment">
+<p>Think of modalities of <span style="background-color: yellow;"><span class="math inline">\(Y\)</span> as “bags”</span> and modalities of <span style="background-color: yellow;"><span class="math inline">\(X\)</span> as “colors”</span>.</p>
+</div>
+<div class="fragment">
+<p>This is just a representation, we can take <span class="math inline">\(X\)</span> for the bags</p>
+</div>
+<div class="fragment">
+<p>Then, a sampling a population is like drawing balls from bags.</p>
+</div>
+<div class="fragment">
+<p>We get a <span style="background-color: yellow;">multinomial distribution</span></p>
+</div>
+</section>
+<section id="contingency-table-and-notation" class="slide level2">
+<h2>Contingency Table and Notation</h2>
+<div class="fragment">
+<p>We observe <span class="math inline">\(X=(X_1, \dots, X_n)\)</span> iid and <span class="math inline">\(Y=(Y_1, \dots, Y_n)\)</span> iid, where</p>
+<ul>
+<li class="fragment"><span class="math inline">\(X_k \in \{1, \dots, I\}\)</span> (factor with <span class="math inline">\(I\)</span> categories, “colors”)</li>
+<li class="fragment"><span class="math inline">\(Y_k \in \{1, \dots, J\}\)</span> (factor with <span class="math inline">\(J\)</span> categories, “bags”)</li>
+</ul>
+</div>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Category X/Y</th>
+<th><strong>Bag 1</strong></th>
+<th><strong>Bag 2</strong></th>
+<th><strong>Bag 3</strong></th>
+<th>Totals</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Col 1</strong></td>
+<td><span class="math inline">\(n_{11}\)</span></td>
+<td><span class="math inline">\(n_{12}\)</span></td>
+<td><span class="math inline">\(n_{13}\)</span></td>
+<td><span class="math inline">\(R_1\)</span></td>
+</tr>
+<tr class="even">
+<td><strong>Col 2</strong></td>
+<td><span class="math inline">\(n_{21}\)</span></td>
+<td><span class="math inline">\(n_{22}\)</span></td>
+<td><span class="math inline">\(n_{23}\)</span></td>
+<td><span class="math inline">\(R_2\)</span></td>
+</tr>
+<tr class="odd">
+<td><strong>Totals</strong></td>
+<td><span class="math inline">\(N_1\)</span></td>
+<td><span class="math inline">\(N_2\)</span></td>
+<td><span class="math inline">\(N_3\)</span></td>
+<td><span class="math inline">\(N\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><span class="math inline">\(n_{ij}\)</span>: number of individuals having category <span class="math inline">\(i\)</span> for <span class="math inline">\(X\)</span> and <span class="math inline">\(j\)</span> for <span class="math inline">\(Y\)</span></p>
+</div>
+</section>
+<section id="example-no2trafic-dataset" class="slide level2">
+<h2>Example: NO2trafic dataset</h2>
+<div class="fragment">
+<p>The dataset contains air quality measurements at various traffic monitoring stations. We study two qualitative variables:</p>
+<ul>
+<li class="fragment"><strong>Type</strong>: type of road — P (périphérique), U (urban), A (highway), T (tunnel), V (green route)</li>
+<li class="fragment"><strong>Fluidity</strong>: traffic fluidity level — A (fluid), B (moderate), C (dense), D (congested)</li>
+</ul>
+</div>
+</section>
+<section id="example-no2trafic-dataset-1" class="slide level2">
+<h2>Example: NO2trafic dataset</h2>
+<div class="fragment">
+<p><strong>contingency table</strong> of variable “Type” and “Fluidity”</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th><strong>Fluidity</strong>/<strong>Type</strong></th>
+<th>P</th>
+<th>U</th>
+<th>A</th>
+<th>T</th>
+<th>V</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>21</td>
+<td>21</td>
+<td>19</td>
+<td>9</td>
+<td>9</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>20</td>
+<td>17</td>
+<td>16</td>
+<td>8</td>
+<td>7</td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td>17</td>
+<td>17</td>
+<td>16</td>
+<td>8</td>
+<td>7</td>
+</tr>
+<tr class="even">
+<td>D</td>
+<td>20</td>
+<td>20</td>
+<td>18</td>
+<td>8</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p>In R: <code>table(X,Y)</code></p>
+</div>
+</section>
+<section id="two-possible-questions-one-test-statistic" class="slide level2">
+<h2>Two Possible Questions, One Test Statistic:</h2>
+<div class="fragment">
+<p>Are the bags homogeneous?</p>
+</div>
+<div class="fragment">
+<p>Is there a dependency between <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span>?</p>
+</div>
+</section>
 <section id="chi2-homogeneity-test" class="slide level2">
 <h2><span class="math inline">\(\chi^2\)</span> Homogeneity Test</h2>
-<ul>
-<li class="fragment"><span class="math inline">\(d\)</span> different bags (or groups), each containing balls of <span class="math inline">\(m\)</span> potential colors.</li>
-<li class="fragment">If <span class="math inline">\(d = 3\)</span> and <span class="math inline">\(m=2\)</span>, we observe the following <span class="math inline">\(2\times 3\)</span> matrix of <strong>counts</strong>:</li>
-</ul>
+<div class="fragment">
+<p><span class="math inline">\(d\)</span> different groups (bags), each containing balls of <span class="math inline">\(m\)</span> potential colors.</p>
+</div>
+<div class="fragment">
+<p>If <span class="math inline">\(d = 3\)</span> and <span class="math inline">\(m = 2\)</span>, we observe the following <span class="math inline">\(2\times 3\)</span> table of <strong>counts</strong>:</p>
+</div>
 <div class="fragment">
 <table class="caption-top">
 <thead>
@@ -365,16 +746,16 @@ V_{T} &amp;= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \o
 <tbody>
 <tr class="odd">
 <td>color 1</td>
-<td><span class="math inline">\(X_{11}\)</span></td>
-<td><span class="math inline">\(X_{12}\)</span></td>
-<td><span class="math inline">\(X_{13}\)</span></td>
+<td><span class="math inline">\(n_{11}\)</span></td>
+<td><span class="math inline">\(n_{12}\)</span></td>
+<td><span class="math inline">\(n_{13}\)</span></td>
 <td><span class="math inline">\(R_1\)</span></td>
 </tr>
 <tr class="even">
 <td>color 2</td>
-<td><span class="math inline">\(X_{21}\)</span></td>
-<td><span class="math inline">\(X_{22}\)</span></td>
-<td><span class="math inline">\(X_{23}\)</span></td>
+<td><span class="math inline">\(n_{21}\)</span></td>
+<td><span class="math inline">\(n_{22}\)</span></td>
+<td><span class="math inline">\(n_{23}\)</span></td>
 <td><span class="math inline">\(R_2\)</span></td>
 </tr>
 <tr class="odd">
@@ -388,46 +769,129 @@ V_{T} &amp;= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \o
 </table>
 </div>
 </section>
-<section id="homogeneity-test" class="slide level2">
-<h2>Homogeneity Test</h2>
-<div class="callout callout-none no-icon callout-style-simple">
-<div class="callout-body">
-<div class="callout-content">
-<ul>
-<li class="fragment">Bag <span class="math inline">\(j\)</span>: <span class="math inline">\((X_{1j}, X_{2j}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}))\)</span></li>
-<li class="fragment">The parameters <span class="math inline">\(p_{ij}\)</span> are <strong>unknown</strong> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67d19ee99480f7e8d5dbf8da">Wooclap</a>]</li>
-<li class="fragment"><span class="math inline">\(H_0\)</span>: <span class="math inline">\(p_{i1} = p_{i2}=p_{i3}\)</span> for all color <span class="math inline">\(i\)</span> (bags are homogeneous)</li>
-<li class="fragment"><span class="math inline">\(H_1\)</span>: bags are heterogeneous</li>
-<li class="fragment"><span class="math inline">\(\sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_jp_{ij})^2}{N_jp_{ij}}\)</span> <strong>not a test statistic</strong></li>
-</ul>
+<section id="setup-and-statistic" class="slide level2">
+<h2>Setup and Statistic</h2>
+<div class="fragment">
+<p>In bag <span class="math inline">\(j\)</span>:</p>
+<div class="square-def">
+<p><span class="math inline">\((X_{1j}, X_{2j}, \dots, X_{mj}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}, \dots, p_{mj}))\)</span></p>
 </div>
 </div>
+<div class="fragment">
+<p>The parameters <span class="math inline">\(p_{ij}\)</span> are <strong>unknown</strong> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67d19ee99480f7e8d5dbf8da">Wooclap</a>]</p>
 </div>
+<div class="fragment">
+<div class="square-objective">
+<p><span class="math inline">\(H_0\)</span>: <span class="math inline">\(p_{i1} = p_{i2} = \dots = p_{id}\)</span> for all color <span class="math inline">\(i\)</span> (bags are homogeneous)</p>
+<p><span class="math inline">\(H_1\)</span>: bags are heterogeneous</p>
+</div>
+</div>
+</section>
+<section id="test-statistic" class="slide level2">
+<h2>Test Statistic</h2>
+<div class="fragment">
+<p>Under <span class="math inline">\(H_0\)</span>, we write <span class="math inline">\(p_i = p_{i1} = p_{i2} = \dots = p_{id}\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Then we can estimate</p>
+<p><span class="math inline">\(\hat{p}_{i} = \tfrac{1}{N}\sum_{j=1}^{d}X_{ij} = \dfrac{R_i}{N}\)</span></p>
+<p>We define the test statistic as:</p>
+<div class="square-def">
+<p><span class="math display">\[\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(n_{ij}- N_j\hat{p}_{i})^2}{N_j\hat{p}_{i}} \;\asymp\; \chi^2\!\left((m-1)(d-1)\right)\]</span></p>
+</div>
+</div>
+</section>
+<section id="proposition-1" class="slide level2">
+<h2>Proposition</h2>
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong>Chi-Squared Homogeneity Test Statistic</strong></p>
+<p><strong>Proposition</strong></p>
 </div>
 <div class="callout-content">
-<ul>
-<li class="fragment"><span class="math inline">\(\hat p_{i} = \tfrac{1}{N}\sum_{j=1}^{d}X_{ij} = \frac{R_i}{N}\)</span></li>
-<li class="fragment"><span class="math inline">\(\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(X_{ij}- N_j\hat p_{i})^2}{N_j\hat p_{i}}\)</span></li>
-<li class="fragment">Approximation: <span class="math inline">\(\psi(X) \sim \chi^2((m-1)(d-1))\)</span></li>
-</ul>
+<p>Under <span class="math inline">\(H_0\)</span>, as <span class="math inline">\(N \to \infty\)</span> with <span class="math inline">\(N_j/N \to \lambda_j &gt; 0\)</span>,</p>
+<p><span class="math display">\[\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(n_{ij} - N_j\hat{p}_{i})^2}{N_j\hat{p}_{i}} \xrightarrow{\mathcal{L}} \chi^2\!\left((m-1)(d-1)\right)\]</span></p>
 </div>
 </div>
 </div>
 </div>
 </section>
+<section id="degrees-of-freedom-intuition" class="slide level2">
+<h2>Degrees of Freedom — Intuition</h2>
+<div class="fragment">
+<p>The table has <span class="math inline">\(m \times d\)</span> cells, but not all are free once margins are fixed.</p>
+</div>
+<div class="fragment">
+<div style="font-size: 85%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: center;"></th>
+<th style="text-align: center;"><span class="math inline">\(j=1\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(j=2\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(\cdots\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(j=d\)</span></th>
+<th style="text-align: center;"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(i=1\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(n_{11}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(n_{12}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\cdots\)</span></td>
+<td style="text-align: center;"><strong>?</strong></td>
+<td style="text-align: center;"><span class="math inline">\(R_1\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(i=2\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(n_{21}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(n_{22}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\cdots\)</span></td>
+<td style="text-align: center;"><strong>?</strong></td>
+<td style="text-align: center;"><span class="math inline">\(R_2\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(\vdots\)</span></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"><strong>?</strong></td>
+<td style="text-align: center;"><span class="math inline">\(\vdots\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(i=m\)</span></td>
+<td style="text-align: center;"><strong>?</strong></td>
+<td style="text-align: center;"><strong>?</strong></td>
+<td style="text-align: center;"><span class="math inline">\(\cdots\)</span></td>
+<td style="text-align: center;"><strong>?</strong></td>
+<td style="text-align: center;"><span class="math inline">\(R_m\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"></td>
+<td style="text-align: center;"><span class="math inline">\(C_1\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(C_2\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\cdots\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(C_d\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(N\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="fragment">
+<p>Once the <span class="math inline">\((m-1)(d-1)\)</span> <strong>top-left block</strong> is filled, <strong>all other cells are determined</strong> by the margin constraints.</p>
+</div>
+</section>
 <section id="example-soft-drink-preferences" class="slide level2">
-<h2>Example: Soft drink preferences</h2>
-<div style="font-size: 100%;">
+<h2>Example: Soft Drink Preferences</h2>
 <ul>
-<li class="fragment">Split population into <span class="math inline">\(3\)</span> categories: <strong>Young Adults (18-30)</strong>, <strong>Middle-Aged Adults (31-50)</strong>, and <strong>Seniors (51 and above)</strong>.</li>
-<li class="fragment"><span class="math inline">\(H_0\)</span>: The groups are homogeneous in terms of soft drink preferences</li>
+<li class="fragment">Population split into 3 age groups: <strong>Young Adults (18–30)</strong>, <strong>Middle-Aged (31–50)</strong>, <strong>Seniors (51+)</strong></li>
+<li class="fragment"><span class="math inline">\(H_0\)</span>: the groups are homogeneous in terms of soft drink preferences</li>
 </ul>
-<div class="fragment" style="font-size: 60%">
+<div class="fragment">
+<div style="font-size: 60%">
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -470,44 +934,95 @@ V_{T} &amp;= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \o
 </tbody>
 </table>
 </div>
-<ul>
-<li class="fragment"><span class="math inline">\(N_1 \hat p_1 = 140*\frac{130}{390} \approx 46.7\)</span> (proportion of Coke lovers)</li>
-</ul>
+</div>
+<div class="fragment">
+<p>Expected count: <span class="math inline">\(N_1 \hat{p}_1 = 140 \times \dfrac{130}{390} \approx 46.7\)</span></p>
 </div>
 </section>
-<section id="computation-of-chi2-stat" class="slide level2">
-<h2>Computation of Chi2 stat</h2>
+<section id="computation-of-chi2-statistic" class="slide level2">
+<h2>Computation of <span class="math inline">\(\chi^2\)</span> Statistic</h2>
 <p><span class="math display">\[
 \begin{aligned}
-\psi(X) &amp;= \frac{(60-46.7)^2}{46.7}&amp;+ \frac{(40-46.7)^2}{46.7}&amp;+\frac{(30-36.7)^2}{36.7} \\
-&amp;+\frac{(50-46.7)^2}{46.7}&amp;+ \frac{(55-46.7)^2}{46.7}&amp;+\frac{(25-36.7)^2}{36.7}\\
-&amp;+\frac{(30-46.7)^2}{46.7}&amp;+ \frac{(45-46.7)^2}{46.7}&amp;+\frac{(55-36.7)^2}{36.7}\\
-    &amp;\approx 26.57
+\psi(X) &amp;= \frac{(60-46.7)^2}{46.7} + \frac{(40-46.7)^2}{46.7} + \frac{(30-36.7)^2}{36.7} \\
+        &amp;+ \frac{(50-46.7)^2}{46.7} + \frac{(55-46.7)^2}{46.7} + \frac{(25-36.7)^2}{36.7} \\
+        &amp;+ \frac{(30-46.7)^2}{46.7} + \frac{(45-46.7)^2}{46.7} + \frac{(55-36.7)^2}{36.7} \\
+        &amp;\approx 26.57
 \end{aligned}
 \]</span></p>
 <div class="fragment">
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="fl">1</span><span class="fu">-cdf</span>(<span class="fu">Chisq</span>(<span class="fl">4</span>), <span class="fl">26.57</span>) <span class="co"># 2.4e-5, reject H_0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a><span class="fl">1</span> <span class="op">-</span> <span class="fu">cdf</span>(<span class="fu">Chisq</span>(<span class="fl">4</span>), <span class="fl">26.57</span>)  <span class="co"># ≈ 2.4e-5  →  reject H₀</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="chi2-dependency-test-problem" class="slide level2">
+<h2><span class="math inline">\(\chi^2\)</span> Dependency Test Problem</h2>
+<p><span class="math inline">\(\newcommand{\VS}{\quad \mathrm{VS} \quad}\)</span> <span class="math inline">\(\newcommand{\and}{\quad \mathrm{and} \quad}\)</span></p>
+<div class="fragment">
+<p>We observe<br>
+<span class="math inline">\(X=(X_1, \dots, X_n) \in \{1, \dots, I\}^n\)</span> and <span class="math inline">\(Y=(Y_1, \dots, Y_n) \in \{1, \dots, J\}^n\)</span></p>
+</div>
+<div class="fragment">
+<p><strong>Assumptions</strong>: <span class="math inline">\((X_k,Y_k)\)</span> are independent, each pair has unknown distribution <span class="math inline">\(P_{XY}\)</span></p>
+</div>
+<div class="fragment">
+<p>dependency test problem:</p>
+<div class="square-def">
+<p><span class="math display">\[H_0: P_{XY}=P_{X}P_Y \VS H_1: P_{XY} \neq P_{X}P_{Y}\]</span></p>
+</div>
+</div>
+</section>
+<section id="definitions-1" class="slide level2">
+<h2>Definitions</h2>
+<div class="fragment">
+<p>Entries of the table:</p>
+<div class="square-def">
+<p><span class="math display">\[n_{ij} = \sum_{k=1}^n \mathbf 1\{X_{k} = i\}\mathbf 1\{Y_k=j\}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Total proportion of individuals <span class="math inline">\(k\)</span> of color <span class="math inline">\(X_k =i\)</span>:<br>
+</p>
+<div class="square-def">
+<p><span style="background-color: yellow;"><span class="math inline">\(\hat p_{i}=\frac{R_i}{N}\)</span></span> <span class="math inline">\(= \tfrac{1}{N}\sum_{j=1}^{J}n_{ij}\)</span></p>
+</div>
+</div>
+</section>
+<section id="chi2-dependency-test" class="slide level2">
+<h2><span class="math inline">\(\chi^2\)</span> Dependency Test</h2>
+<div class="fragment">
+<p>Chi-squared statistic, or chi-squared distance:</p>
+<div class="square-def">
+<p><span class="math display">\[\psi(X,Y) = \sum_{i=1}^I\sum_{j=1}^J \frac{(n_{ij}- N_j\hat p_{i})^2}{N_j\hat p_{i}}\]</span></p>
+</div>
+<ul>
+<li class="fragment">Approximation: <span class="math inline">\(\psi(X,Y) \sim \chi^2((I-1)(J-1))\)</span> when <span class="math inline">\(n \to \infty\)</span></li>
+<li class="fragment">Test: <span class="math inline">\(T=\mathbf 1\{\psi(X,Y) \geq t_{1-\alpha/2}\}\)</span>, where<br>
+<span class="math inline">\(t_{0.975}\)</span> = <code>quantile(Chisq(I-1,J-1), 0.975)</code></li>
+</ul>
 </div>
 </section>
 <section id="chi2-independence-test" class="slide level2">
 <h2><span class="math inline">\(\chi^2\)</span> Independence Test</h2>
-<div class="callout callout-none no-icon callout-style-simple">
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
+<div class="callout-title">
+<p><strong>Setup</strong></p>
+</div>
 <div class="callout-content">
 <ul>
-<li class="fragment">Observations: Paired <strong>Categorical</strong> Variables <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span></li>
-<li class="fragment">e.g.&nbsp;<span class="math inline">\(X_i \in \{\mathrm{male}, \mathrm{female}\}\)</span>, <span class="math inline">\(Y_i \in \{\mathrm{coffee}, \mathrm{tea}\}\)</span> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67d1a28a4b4e2b35810c65ff">Wooclap</a>]</li>
-<li class="fragment">Idea: regroup the data into bags, e.g.&nbsp;<span class="math inline">\(\{\mathrm{male}, \mathrm{female}\}\)</span></li>
-<li class="fragment">Build the contingency table</li>
-<li class="fragment">Perform a chi-square homogeneity test</li>
+<li class="fragment">Observations: paired <strong>categorical</strong> variables <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span></li>
+<li class="fragment">e.g., <span class="math inline">\(X_i \in \{\mathrm{male}, \mathrm{female}\}\)</span>, <span class="math inline">\(Y_i \in \{\mathrm{coffee}, \mathrm{tea}\}\)</span> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67d1a28a4b4e2b35810c65ff">Wooclap</a>]</li>
+<li class="fragment">Idea: regroup data by one variable to form <strong>bags</strong>, then apply the homogeneity test</li>
 </ul>
 </div>
 </div>
 </div>
+</div>
+<div class="fragment">
 <div style="font-size: 70%;">
 <div class="columns">
-<div class="column fragment">
-<p>Example of <strong>contingency table</strong>:</p>
+<div class="column">
+<p><strong>Contingency table:</strong></p>
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -538,8 +1053,8 @@ V_{T} &amp;= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \o
 </tr>
 </tbody>
 </table>
-</div><div class="column fragment">
-<p><strong>Expected counts</strong>:</p>
+</div><div class="column">
+<p><strong>Expected counts:</strong></p>
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -572,172 +1087,203 @@ V_{T} &amp;= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \o
 </table>
 </div></div>
 </div>
-<ul>
-<li class="fragment"><span class="math inline">\(N_1 \hat p_1 = 58 \cdot 50/100  = 29\)</span>, Degree of freedom <span class="math inline">\(= 1\)</span></li>
-</ul>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(N_1 \hat{p}_1 = 58 \cdot 50/100 = 29\)</span>, degrees of freedom <span class="math inline">\(= (2-1)(2-1) = 1\)</span></p>
+</div>
 </section></section>
 <section>
-<section id="wilcoxons-signed-rank" class="title-slide slide level1 center">
-<h1>Wilcoxon’s Signed Rank</h1>
+<section id="wilcoxons-signed-rank-test" class="title-slide slide level1 center">
+<h1>Wilcoxon’s Signed Rank Test</h1>
 
 </section>
-<section id="symetric-random-variable" class="slide level2">
-<h2>Symetric Random Variable</h2>
-<div class="callout callout-note no-icon callout-style-simple">
-<div class="callout-body">
-<div class="callout-content">
-<ul>
-<li class="fragment">A median of <span class="math inline">\(X\)</span> is a <span class="math inline">\(0.5\)</span>-quantile of its distribution</li>
-<li class="fragment">If <span class="math inline">\(X\)</span> has density <span class="math inline">\(p\)</span>, the median <span class="math inline">\(m\)</span> is such that <span class="math display">\[
-\int_{-\infty}^m p(x)dx = \int_{m}^{+\infty} p(x)dx =  0.5 \; .
-\]</span></li>
-<li class="fragment">A <strong>symmetric</strong> random variable <span class="math inline">\(X\)</span> is such that the distribution of <span class="math inline">\(X\)</span> is the same as the distribution of <span class="math inline">\(-X\)</span>.</li>
-<li class="fragment">In particular, its median is <span class="math inline">\(0\)</span>.</li>
-<li class="fragment">If <span class="math inline">\(X\)</span> is a <strong>symmetric</strong> random variable, then it has the same distribution as <span class="math inline">\(\varepsilon |X|\)</span> where <span class="math inline">\(\varepsilon\)</span> is independent of <span class="math inline">\(X\)</span> and uniformly distributed in <span class="math inline">\(\{-1,1\}\)</span></li>
-</ul>
-</div>
-</div>
-</div>
-</section>
-<section id="symetric-random-variable-1" class="slide level2">
-<h2>Symetric Random Variable</h2>
+<section id="symmetric-random-variables" class="slide level2">
+<h2>Symmetric Random Variables</h2>
+<div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong>Symetrization</strong></p>
+<p><strong>Definitions</strong></p>
 </div>
 <div class="callout-content">
 <ul>
-<li class="fragment">If <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are two <strong>independent</strong> variables with same density <span class="math inline">\(p\)</span>, then <span class="math inline">\(X-Y\)</span> is symetric.</li>
-<li class="fragment">Indeed: <span class="math display">\[
-\begin{aligned}
-\mathbb P(X - Y \leq t) &amp;=\int_{-\infty}^t \mathbb P(X \leq t+y)p(y)dy \\
-&amp;=\int_{-\infty}^t \mathbb P(Y \leq t+x)p(x)dy = \mathbb P(Y-X \leq t) \; .
-\end{aligned}
-\]</span></li>
-<li class="fragment"><span class="math inline">\(X\)</span> indep of <span class="math inline">\(Y\)</span> <span class="math inline">\(\implies\)</span> <span class="math inline">\(X-Y\)</span> symmetric <span class="math inline">\(\implies\)</span> <span class="math inline">\(\mathrm{median}(X-Y) = 0\)</span></li>
+<li class="fragment"><p>A <strong>median</strong> of <span class="math inline">\(X\)</span> is a <span class="math inline">\(0.5\)</span>-quantile of its distribution: if <span class="math inline">\(X\)</span> has density <span class="math inline">\(p\)</span>, the median <span class="math inline">\(m\)</span> satisfies <span class="math display">\[\int_{-\infty}^m p(x)\,dx = \int_{m}^{+\infty} p(x)\,dx = 0.5\]</span></p></li>
+<li class="fragment"><p>A random variable <span class="math inline">\(X\)</span> is <strong>symmetric</strong> if <span class="math inline">\(X \overset{d}{=} -X\)</span>. In particular its median is <span class="math inline">\(0\)</span>.</p></li>
+<li class="fragment"><p>If <span class="math inline">\(X\)</span> is symmetric: <span class="math inline">\(X \overset{d}{=} \varepsilon |X|\)</span> where <span class="math inline">\(\varepsilon \perp X\)</span> is uniform on <span class="math inline">\(\{-1,1\}\)</span>.</p></li>
 </ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="symmetrization" class="slide level2">
+<h2>Symmetrization</h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Symmetrization Lemma</strong></p>
+</div>
+<div class="callout-content">
+<p>If <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are two <strong>independent</strong> variables with the same density <span class="math inline">\(p\)</span>, then <span class="math inline">\(X - Y\)</span> is symmetric.</p>
+<p><strong>Proof:</strong> <span class="math display">\[
+\mathbb{P}(X - Y \leq t) = \int_{-\infty}^t \mathbb{P}(X \leq t+y)\,p(y)\,dy = \mathbb{P}(Y - X \leq t) \; .
+\]</span></p>
+<p>Hence <span class="math inline">\(X \perp Y \Rightarrow X - Y\)</span> symmetric <span class="math inline">\(\Rightarrow \mathrm{median}(X-Y) = 0\)</span>.</p>
+</div>
 </div>
 </div>
 </div>
 </section>
 <section id="dependency-problem-for-paired-data" class="slide level2">
 <h2>Dependency Problem for Paired Data</h2>
-<div class="callout callout-note no-icon callout-style-simple">
-<div class="callout-body">
-<div class="callout-content">
-<ul>
-<li class="fragment"><p>We observe iid pairs of real numbers <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span>. The density of each pair <span class="math inline">\((X_i, Y_i)\)</span> is <strong>unknown</strong> <span class="math inline">\(p_{XY}(x,y)\)</span>.</p></li>
-<li class="fragment"><p>The marginal distribution of <span class="math inline">\(X_i\)</span> and <span class="math inline">\(Y_i\)</span> are, respectively, <span class="math display">\[p_X(x) = \int_{y \in \mathbb R} p_{XY}(x,y)~~~~ \text{ and }~~~~ p_{Y}(y) = \int_{x \in \mathbb R} p_{XY}(x,y) \; .\]</span></p></li>
-<li class="fragment"><p><span class="math inline">\(H_0:\)</span> The median of <span class="math inline">\((X_i - Y_i)\)</span> is <span class="math inline">\(0\)</span> for all <span class="math inline">\(i\)</span></p></li>
-<li class="fragment"><p><span class="math inline">\(H_1:\)</span> The median of <span class="math inline">\((X_i - Y_i)\)</span> is not <span class="math inline">\(0\)</span> for some <span class="math inline">\(i\)</span> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67d2a7e45a6787f340144164">Wooclap</a>]</p></li>
-</ul>
+<div class="fragment">
+<p>We observe iid pairs <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span> with <strong>unknown</strong> joint density <span class="math inline">\(p_{XY}(x,y)\)</span>.</p>
+</div>
+<div class="fragment">
+<div class="square-objective">
+<p><span class="math inline">\(H_0\)</span>: <span class="math inline">\(\mathrm{median}(X_i - Y_i) = 0\)</span> for all <span class="math inline">\(i\)</span></p>
+<p><span class="math inline">\(H_1\)</span>: <span class="math inline">\(\mathrm{median}(X_i - Y_i) \neq 0\)</span> for some <span class="math inline">\(i\)</span></p>
 </div>
 </div>
+<div class="fragment">
+<p>[<a href="https://app.wooclap.com/events/RQSUIA/questions/67d2a7e45a6787f340144164">Wooclap</a>]</p>
 </div>
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong>Generality of <span class="math inline">\(H_0\)</span></strong></p>
+<p><strong>When is <span class="math inline">\(H_0\)</span> satisfied?</strong></p>
 </div>
 <div class="callout-content">
 <ul>
-<li class="fragment">If <span class="math inline">\(X_i-Y_i\)</span> is symmetric <span class="math inline">\(i\)</span>, then we are under <span class="math inline">\(H_0\)</span>.</li>
-<li class="fragment">If <span class="math inline">\(X_i\)</span> is independent of <span class="math inline">\(Y_i\)</span> for all <span class="math inline">\(i\)</span>, then we are under <span class="math inline">\(H_0\)</span>.</li>
+<li class="fragment">If <span class="math inline">\(X_i - Y_i\)</span> is symmetric for all <span class="math inline">\(i\)</span>, we are under <span class="math inline">\(H_0\)</span>.</li>
+<li class="fragment">If <span class="math inline">\(X_i \perp Y_i\)</span> for all <span class="math inline">\(i\)</span>, we are under <span class="math inline">\(H_0\)</span>.</li>
 </ul>
 </div>
 </div>
 </div>
 </div>
 </section>
-<section id="section" class="slide level2">
-<h2></h2>
-<div class="callout callout-warning no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Warning</strong></p>
+<section id="more-formally" class="slide level2">
+<h2>More Formally</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[X_i \perp Y_i \implies X_i - Y_i \text{ symmetric} \implies \text{med}(X_i - Y_i) = 0\]</span></p>
 </div>
-<div class="callout-content">
+</div>
+</section>
+<section id="wilcoxons-signed-rank-test-definitions" class="slide level2">
+<h2>Wilcoxon’s Signed Rank Test: Definitions</h2>
+<div class="fragment">
+<p>Let <span class="math inline">\(D_i = X_i - Y_i\)</span>.</p>
 <ul>
-<li class="fragment">The pairs are assume to be independent, but within each pair, <span class="math inline">\(Y_i\)</span> <strong>can depend on</strong> <span class="math inline">\(X_i\)</span> (that is, we don’t necessarily have <span class="math inline">\(p(x,y) =p_X(x)p_Y(y)\)</span>).</li>
+<li class="fragment">The <strong>sign</strong> of pair <span class="math inline">\(i\)</span> is the sign of <span class="math inline">\(D_i \in \{-1, +1\}\)</span>.</li>
+<li class="fragment">The <strong>rank</strong> <span class="math inline">\(R_i\)</span> is the position of <span class="math inline">\(|D_i|\)</span> in the sorted order:</li>
 </ul>
 </div>
+<div class="fragment">
+<p><span class="math display">\[|D_{(1)}| \leq \dots \leq |D_{(n)}|\]</span></p>
+<p>[<a href="https://app.wooclap.com/events/RQSUIA/questions/67d2a963cf335081a465b092">Wooclap</a>]</p>
 </div>
-</div>
 </section>
-<section id="wilcoxons-signed-rank-test" class="slide level2">
-<h2>Wilcoxon’s Signed Rank Test</h2>
-<ul>
-<li class="fragment"><span class="math inline">\(D_i = X_i - Y_i\)</span></li>
-<li class="fragment">We define the <strong>sign</strong> of pair <span class="math inline">\(i\)</span> as the sign of <span class="math inline">\(D_i=X_i - Y_i\)</span>. It is in <span class="math inline">\(\{-1, 1\}\)</span>.</li>
-<li class="fragment">We define the <strong>rank</strong> of pair <span class="math inline">\(i\)</span> as the permutation <span class="math inline">\(R_i\)</span> that satisfies <span class="math inline">\(|D_{R_i}| = |D_{(i)}|\)</span>, where [<a href="https://app.wooclap.com/events/RQSUIA/questions/67d2a963cf335081a465b092">Wooclap</a>] <span class="math display">\[
-|D_{(1)}| \leq  \dots \leq |D_{(n)}|
-\]</span></li>
-</ul>
-</section>
-<section id="wilcoxons-signed-rank-test-1" class="slide level2">
-<h2>Wilcoxon’s Signed Rank Test</h2>
-</section>
-<section id="properties-on-the-signed-ranks" class="slide level2">
-<h2>Properties on the Signed Ranks</h2>
-<p>Under <span class="math inline">\(H_0\)</span>,</p>
-<ul>
-<li class="fragment"><p>The signs <span class="math inline">\((D_i)\)</span>’s are independent and <strong>uniformly distributed</strong> in <span class="math inline">\(\{-1, 1\}\)</span>.</p></li>
-<li class="fragment"><p>In particular, the number of signs equal to <span class="math inline">\(+1\)</span> follows a Binomial distribution <span class="math inline">\(\mathcal B(n,0.5)\)</span>.</p></li>
-<li class="fragment"><p>The ranks <span class="math inline">\(R_i\)</span> of the <span class="math inline">\((|D_i|)\)</span>’s does not depend on the <strong>unknown</strong> density <span class="math inline">\(p_{X-Y}\)</span>. <span class="math inline">\((R_1, \dots, R_n)\)</span> is a <strong>random permutation</strong> under <span class="math inline">\(H_0\)</span>.</p></li>
-<li class="fragment"><p>Hence, any deterministic function of the ranks and of the differences is a <strong>pivotal test statistic</strong>: it does not depend on the distribution of the data under <span class="math inline">\(H_0\)</span>.</p></li>
-</ul>
-</section>
-<section id="wilcoxons-signed-rank-test-2" class="slide level2">
-<h2>Wilcoxon’s Signed Rank Test</h2>
+<section id="properties-under-h_0" class="slide level2">
+<h2>Properties Under <span class="math inline">\(H_0\)</span></h2>
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong>Properties on the Signed Ranks</strong></p>
+<p><strong>Note</strong></p>
 </div>
 <div class="callout-content">
 <ul>
-<li class="fragment">Wilcoxon’s test statistic: <span class="math inline">\(W_- = \sum_{i=1}^n R_i \mathbf 1\{D_i &lt; 0\}\)</span></li>
-<li class="fragment">Sometimes, also <span class="math inline">\(W_+ = \sum_{i=1}^n R_i \mathbf 1\{D_i &gt; 0\}\)</span> or <span class="math inline">\(\min(W_-, W_+)\)</span>.</li>
-<li class="fragment">Gaussian approximation: <span class="math inline">\(W_- \asymp n(n+1)/4 + \sqrt{n(n+1)(2n+1)/24} \mathcal N(0,1)\)</span></li>
-<li class="fragment">if <span class="math inline">\(H_1\)</span>: <span class="math inline">\(\mathrm{median}(D_i) &gt; 0\)</span>: left-tailed test on <span class="math inline">\(W_-\)</span>.</li>
+<li class="fragment">The signs <span class="math inline">\(\mathrm{sgn}(D_i)\)</span> are independent and <strong>uniformly distributed</strong> in <span class="math inline">\(\{-1, +1\}\)</span>.</li>
+<li class="fragment">In particular, the number of positive signs <span class="math inline">\(\sum \mathbf{1} \{D_i &gt; 0\}\sim \mathcal{B}(n, 0.5)\)</span>.</li>
+<li class="fragment">The ranks <span class="math inline">\((R_1, \dots, R_n)\)</span> form a <strong>random permutation</strong>, independent of the unknown density.</li>
 </ul>
 </div>
 </div>
 </div>
 </div>
 <div class="fragment">
-<p>To generate a <span class="math inline">\(W_-\)</span> under <span class="math inline">\(H_0\)</span>:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a>k <span class="op">=</span> <span class="fu">rand</span>(<span class="fu">Binomial</span>(n, <span class="fl">0.5</span>))</span>
-<span id="cb2-2"><a></a>w <span class="op">=</span> <span class="fu">sum</span>(<span class="fu">randperm</span>(n)[<span class="fl">1</span><span class="op">:</span>k])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-important no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>Any deterministic function of the ranks and signs is a <strong>pivotal test statistic</strong>: its distribution under <span class="math inline">\(H_0\)</span> does not depend on the unknown distribution of the data.</p>
+</div>
+</div>
+</div>
 </div>
 </section>
-<section id="section-1" class="slide level2">
-<h2></h2>
+<section id="wilcoxon-test-statistic" class="slide level2">
+<h2>Wilcoxon Test Statistic</h2>
 <div class="fragment">
-<p>This approximation fits well the exact distribution. Monte-Carlo simulation:</p>
+<div class="square-def">
+<p><span class="math display">\[W_- = \sum_{i=1}^n R_i\, \mathbf{1}\{D_i &lt; 0\}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Also used: <span class="math inline">\(W_+ = \sum_{i=1}^n R_i\, \mathbf{1}\{D_i &gt; 0\}\)</span> or <span class="math inline">\(\min(W_-, W_+)\)</span>.</p>
+</div>
+</section>
+<section id="idea" class="slide level2">
+<h2>Idea:</h2>
+<ul>
+<li class="fragment">Rank the <span class="math inline">\(|D_i|\)</span> from smallest to largest.</li>
+<li class="fragment">Under <span class="math inline">\(H_0\)</span>: signs <span class="math inline">\(\pm\)</span> are random <span class="math inline">\(\Rightarrow\)</span> large and small ranks spread equally between positive and negative differences.</li>
+<li class="fragment"><span class="math inline">\(W_-\)</span> large (resp. small) <span class="math inline">\(\Rightarrow\)</span> negative (resp. positive) differences dominate <span class="math inline">\(\Rightarrow\)</span> evidence against <span class="math inline">\(H_0\)</span>.</li>
+</ul>
+</section>
+<section id="gaussian-approximation" class="slide level2">
+<h2>Gaussian Approximation</h2>
+<div class="fragment">
+<p>When <span class="math inline">\(n \to +\infty\)</span>, under <span class="math inline">\(H_0\)</span>,</p>
+<p><span class="math display">\[W_- \;\asymp\; \frac{n(n+1)}{4} + \sqrt{\frac{n(n+1)(2n+1)}{24}}\;\mathcal{N}(0,1)\]</span></p>
+<p>If <span class="math inline">\(H_1\)</span>: <span class="math inline">\(\mathrm{median}(D_i) &lt; 0\)</span> -&gt; <strong>right–tailed</strong> test on <span class="math inline">\(W_-\)</span></p>
+</div>
+<div class="fragment">
+<p>If <span class="math inline">\(H_1\)</span>: <span class="math inline">\(\mathrm{median}(D_i) &gt; 0\)</span> → <strong>left-tailed</strong> test on <span class="math inline">\(W_-\)</span>.</p>
+</div>
+<div class="fragment">
+<p>To simulate <span class="math inline">\(W_-\)</span> under <span class="math inline">\(H_0\)</span>:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a></a>k <span class="op">=</span> <span class="fu">rand</span>(<span class="fu">Binomial</span>(n, <span class="fl">0.5</span>))</span>
+<span id="cb3-2"><a></a>w <span class="op">=</span> <span class="fu">sum</span>(<span class="fu">randperm</span>(n)[<span class="fl">1</span><span class="op">:</span>k])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><a href="../../../teaching/hypothesis_testing/notes/wilcoxon_dep.html">proof</a></p>
+</div>
+</section>
+<section id="monte-carlo-validation" class="slide level2">
+<h2>Monte Carlo Validation</h2>
+<div class="fragment">
+<p>The Gaussian approximation fits well the exact distribution:</p>
 <p><img data-src="../images/wilcoxon_W-.svg"></p>
 </div>
-<div class="fragment">
-
-</div>
 </section>
-<section id="effect-of-drug-on-blood-pressure" class="slide level2">
-<h2>Effect of Drug on Blood Pressure</h2>
+<section id="example-effect-of-a-drug-on-blood-pressure" class="slide level2">
+<h2>Example: Effect of a Drug on Blood Pressure</h2>
+<div class="fragment">
 <ul>
-<li class="fragment"><span class="math inline">\(H_0\)</span>: the drug has no effect. <span class="math inline">\(H_1\)</span>: it lowers the blood pressure</li>
+<li class="fragment"><span class="math inline">\(H_0\)</span>: the drug has no effect. <span class="math inline">\(H_1\)</span>: it lowers blood pressure (left-tailed test on <span class="math inline">\(W_-\)</span>).</li>
 </ul>
+</div>
 <div class="fragment">
 <div style="font-size: 70%;">
 <table class="caption-top">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 24%">
+<col style="width: 22%">
+<col style="width: 31%">
+<col style="width: 10%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Patient</th>
 <th><span class="math inline">\(X_i\)</span> (Before)</th>
-<th><span class="math inline">\(Y_i\)</span>​ (After)</th>
-<th><span class="math inline">\(D_i = X_i-Y_i\)</span>​</th>
+<th><span class="math inline">\(Y_i\)</span> (After)</th>
+<th><span class="math inline">\(D_i = X_i - Y_i\)</span></th>
 <th><span class="math inline">\(R_i\)</span></th>
 </tr>
 </thead>
@@ -760,15 +1306,15 @@ V_{T} &amp;= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \o
 <td>3</td>
 <td>160</td>
 <td>162</td>
-<td>-2</td>
-<td>2 (-)</td>
+<td>−2</td>
+<td>2 (−)</td>
 </tr>
 <tr class="even">
 <td>4</td>
 <td>145</td>
 <td>146</td>
-<td>-1</td>
-<td>1 (-)</td>
+<td>−1</td>
+<td>1 (−)</td>
 </tr>
 <tr class="odd">
 <td>5</td>
@@ -796,16 +1342,26 @@ V_{T} &amp;= \frac{1}{N_{\mathrm{tot}}}\sum_{k=1}^d\sum_{i=1}^{N_k} (X_{ik} - \o
 </div>
 </div>
 </section>
-<section id="numerical-appli" class="slide level2">
-<h2>Numerical Appli</h2>
-<ul>
-<li class="fragment"><span class="math inline">\(W_- = 1+2 = 3\)</span>.</li>
-<li class="fragment">From a simulation, we approx <span class="math inline">\(\mathbb P(W_-=i)\)</span>, for <span class="math inline">\(i \in \{0, 1, 2, 3, 4, 5,6\}\)</span> under <span class="math inline">\(H_0\)</span> by</li>
-<li class="fragment"><code>[0.00784066, 0.00781442, 0.00781534, 0.01563892, 0.01562184, 0.02343478]</code></li>
-<li class="fragment">From a simulation, <span class="math inline">\(p_{value}=\mathbb P(W_- \leq 3) \approx 0.039 &lt; 0.05\)</span></li>
-</ul>
+<section id="numerical-application" class="slide level2">
+<h2>Numerical Application</h2>
+<div class="fragment">
+<p><span class="math inline">\(W_- = 1 + 2 = 3\)</span></p>
+</div>
+<div class="fragment">
+<p>From simulation, approximate <span class="math inline">\(\mathbb{P}(W_- = i)\)</span> for <span class="math inline">\(i \in \{0,1,2,3,4,5,6\}\)</span> under <span class="math inline">\(H_0\)</span>:</p>
+<pre><code>[0.00784066, 0.00781442, 0.00781534, 0.01563892, 0.01562184, 0.02343478, ...]</code></pre>
+</div>
+<div class="fragment">
+<p>From simulation:</p>
+<div class="square-def">
+<p><span class="math inline">\(p_{\text{value}} = \mathbb{P}(W_- \leq 3) \approx 0.039 &lt; 0.05\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>We reject <span class="math inline">\(H_0\)</span> at level <span class="math inline">\(5\%\)</span>: the drug appears to lower blood pressure.</p>
 
 
+</div>
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">

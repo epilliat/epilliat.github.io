@@ -1,0 +1,80 @@
+---
+title: "La p-valeur comme plus petit niveau de rejet"
+format:
+  html:
+    toc: true
+    html-math-method: mathjax
+    theme: cosmo
+    self-contained: true
+---
+
+## Cadre
+
+On considère un modèle paramétrique $(P_\theta)_{\theta \in \Theta}$ et une hypothèse nulle $H_0: \theta \in \Theta_0$, où $\Theta_0 \subseteq \Theta$ n'est pas nécessairement un singleton.
+
+::: {.callout-note title="Statistique de test pivotale"}
+Une statistique de test $\psi: \mathcal{X} \to \mathbb{R}$ est **pivotale** sous $H_0$ si la loi de $\psi(X)$ ne dépend pas de $\theta \in \Theta_0$ : pour tous $\theta, \theta' \in \Theta_0$ et tout ensemble mesurable $A \subseteq \mathbb{R}$,
+$$
+\mathbb{P}_{\theta}(\psi(X) \in A) = \mathbb{P}_{\theta'}(\psi(X) \in A).
+$$
+:::
+
+Puisque $\psi$ est pivotale, on peut écrire $\mathbb{P}_{H_0}(\cdot)$ sans ambiguïté pour les probabilités faisant intervenir $\psi(X)$ sous $H_0$.
+
+On considère un test qui rejette $H_0$ pour les grandes valeurs de $\psi$. Au niveau $\alpha \in (0,1)$, la région de rejet est
+$$
+\mathcal{R}_\alpha = \bigl\{ x \in \mathcal{X} : \psi(x) > c_\alpha \bigr\},
+$$
+où $c_\alpha$ est la valeur critique vérifiant $\mathbb{P}_{H_0}(\psi(X) > c_\alpha) = \alpha$.
+
+::: {.callout-tip title="Hypothèse"}
+On suppose que la loi de $\psi(X)$ sous $H_0$ est **continue**, de sorte que sa fonction de répartition $F$ est continue et strictement croissante sur le support de $\psi(X)$.
+:::
+
+Étant donnée une observation $x \in \mathcal{X}$, la **p-valeur** est définie par
+$$
+p(x) = \mathbb{P}_{H_0}\bigl(\psi(X) \geq \psi(x)\bigr).
+$$
+
+## Propriété
+
+::: {.callout-important title="Propriété"}
+La p-valeur est le plus petit niveau $\alpha$ auquel on rejette $H_0$ :
+$$
+p(x) = \inf\bigl\{\alpha \in (0,1) : x \in \mathcal{R}_\alpha\bigr\}.
+$$
+:::
+
+### Démonstration
+
+Soit $F$ la fonction de répartition (continue, strictement croissante) de $\psi(X)$ sous $H_0$, et notons $t = \psi(x)$ la valeur observée de la statistique de test.
+
+Par définition, la valeur critique $c_\alpha$ vérifie
+$$
+\mathbb{P}_{H_0}(\psi(X) > c_\alpha) = 1 - F(c_\alpha) = \alpha,
+$$
+d'où $c_\alpha = F^{-1}(1 - \alpha)$. Puisque $F$ est continue et strictement croissante, l'application $\alpha \mapsto c_\alpha$ est continue et strictement décroissante.
+
+La p-valeur vaut
+$$
+p(x) = \mathbb{P}_{H_0}(\psi(X) \geq t) = 1 - F(t),
+$$
+où l'égalité $\mathbb{P}_{H_0}(\psi(X) \geq t) = \mathbb{P}_{H_0}(\psi(X) > t)$ résulte de la continuité de la loi.
+
+**Étape 1.** Montrons que si $\alpha > p(x)$, alors $x \in \mathcal{R}_\alpha$, c'est-à-dire $t > c_\alpha$.
+
+Si $\alpha > p(x) = 1 - F(t)$, alors $F(t) > 1 - \alpha = F(c_\alpha)$. Puisque $F$ est strictement croissante, on obtient $t > c_\alpha$, d'où $x \in \mathcal{R}_\alpha$.
+
+**Étape 2.** Montrons que si $\alpha \leq p(x)$, alors $x \notin \mathcal{R}_\alpha$, c'est-à-dire $t \leq c_\alpha$.
+
+Si $\alpha \leq p(x) = 1 - F(t)$, alors $F(t) \leq 1 - \alpha = F(c_\alpha)$. Puisque $F$ est strictement croissante, $t \leq c_\alpha$, donc $x \notin \mathcal{R}_\alpha$.
+
+**Conclusion.** En combinant les deux étapes, $x \in \mathcal{R}_\alpha$ si et seulement si $\alpha > p(x)$. Par conséquent,
+$$
+\inf\bigl\{\alpha \in (0,1) : x \in \mathcal{R}_\alpha\bigr\} = p(x).
+$$
+$\blacksquare$
+
+::: {.callout-warning title="Remarque"}
+Le caractère pivotal de $\psi$ est essentiel : il garantit que la p-valeur $p(x)$ et les valeurs critiques $c_\alpha$ sont uniquement déterminées, indépendamment du paramètre inconnu $\theta \in \Theta_0$. Sans pivotalité, la quantité $\mathbb{P}_{H_0}(\psi(X) \geq \psi(x))$ dépendrait de $\theta$ et ne pourrait pas servir de résumé unique de l'évidence contre $H_0$.
+:::
