@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>TP: Hypothesis Testing – Emmanuel Pilliat</title>
+<title>TP : Tests d’hypothèses – Emmanuel Pilliat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -193,12 +193,12 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#student-test" id="toc-student-test" class="nav-link active" data-scroll-target="#student-test">0. Student Test</a></li>
-  <li><a href="#monte-carlo-and-chi-squared-tests" id="toc-monte-carlo-and-chi-squared-tests" class="nav-link" data-scroll-target="#monte-carlo-and-chi-squared-tests">1. Monte Carlo and Chi-squared Tests</a>
+  <li><a href="#test-de-student" id="toc-test-de-student" class="nav-link active" data-scroll-target="#test-de-student">0. Test de Student</a></li>
+  <li><a href="#monte-carlo-et-tests-du-chi-deux" id="toc-monte-carlo-et-tests-du-chi-deux" class="nav-link" data-scroll-target="#monte-carlo-et-tests-du-chi-deux">1. Monte Carlo et tests du chi-deux</a>
   <ul class="collapse">
   <li><a href="#questions" id="toc-questions" class="nav-link" data-scroll-target="#questions">Questions</a></li>
   </ul></li>
-  <li><a href="#application-with-bitcoin" id="toc-application-with-bitcoin" class="nav-link" data-scroll-target="#application-with-bitcoin">2. Application with Bitcoin</a></li>
+  <li><a href="#application-avec-le-bitcoin" id="toc-application-avec-le-bitcoin" class="nav-link" data-scroll-target="#application-avec-le-bitcoin">2. Application avec le Bitcoin</a></li>
   </ul>
 </nav>
     </div>
@@ -207,7 +207,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">TP: Hypothesis Testing</h1>
+<h1 class="title">TP : Tests d’hypothèses</h1>
 </div>
 
 
@@ -224,96 +224,96 @@ window.Quarto = {
 </header>
 
 
-<section id="student-test" class="level2">
-<h2 class="anchored" data-anchor-id="student-test">0. Student Test</h2>
-<p>We observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> iid <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> and <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> iid <span class="math inline">\(\mathcal N(\mu_2, \sigma_2^2)\)</span>. We assume that the vectors <span class="math inline">\(X\)</span> and <span class="math inline">\(Y\)</span> are independent. We want to test <span class="math inline">\(H_0\)</span>: <span class="math inline">\(\mu_1 = \mu_2\)</span> VS <span class="math inline">\(H_1\)</span>: <span class="math inline">\(\mu_1 \neq \mu_2\)</span>.</p>
-<p>We observe the data:</p>
+<section id="test-de-student" class="level2">
+<h2 class="anchored" data-anchor-id="test-de-student">0. Test de Student</h2>
+<p>On observe <span class="math inline">\((X_1, \dots, X_{n_1})\)</span> i.i.d. <span class="math inline">\(\mathcal N(\mu_1, \sigma_1^2)\)</span> et <span class="math inline">\((Y_1, \dots, Y_{n_2})\)</span> i.i.d. <span class="math inline">\(\mathcal N(\mu_2, \sigma_2^2)\)</span>. On suppose que les vecteurs <span class="math inline">\(X\)</span> et <span class="math inline">\(Y\)</span> sont indépendants. On veut tester <span class="math inline">\(H_0\)</span> : <span class="math inline">\(\mu_1 = \mu_2\)</span> contre <span class="math inline">\(H_1\)</span> : <span class="math inline">\(\mu_1 \neq \mu_2\)</span>.</p>
+<p>On observe les données :</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>X<span class="op">=</span>[<span class="op">-</span><span class="fl">0.2657064426519085</span>, <span class="op">-</span><span class="fl">0.27538323622274347</span>, <span class="fl">0.11419811877193782</span>, <span class="fl">0.1158736466676504</span>, <span class="fl">1.7071154417851981</span>, <span class="fl">0.9306910454777643</span>, <span class="fl">0.5834941669559498</span>, <span class="op">-</span><span class="fl">1.536447927372139</span>, <span class="op">-</span><span class="fl">1.4158768806157345</span>, <span class="fl">1.0532694288697444</span>, <span class="fl">1.2955133629200777</span>, <span class="op">-</span><span class="fl">0.4195557179577367</span>]</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Y<span class="op">=</span>[<span class="op">-</span><span class="fl">0.6452416530469819</span>, <span class="fl">0.3662048411679129</span>, <span class="op">-</span><span class="fl">0.09943069837472361</span>, <span class="fl">0.8738423322164134</span>, <span class="fl">0.7163913715056272</span>, <span class="op">-</span><span class="fl">0.32450102319617485</span>, <span class="fl">0.9159821874321818</span>, <span class="op">-</span><span class="fl">2.3583609849887224</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ol type="1">
-<li>Compute the Welch test statistic <span class="math inline">\(\tfrac{\overline X - \overline Y}{\sqrt{\hat\sigma_1^2/n_1 + \hat\sigma_2^2/n_2}}\)</span>.</li>
-<li>Conclude using a Gaussian approximation (use the cdf of a <span class="math inline">\(\mathcal N(0,1)\)</span>).</li>
-<li>Conclude using <code>UnequalVarianceTTest</code> <a href="https://juliastats.org/HypothesisTests.jl/dev/parametric/">(Julia)</a> or <code>test.welch</code> <a href="https://search.r-project.org/CRAN/refmans/misty/html/test.welch.html">(R)</a> or <code>scipy.stats.ttest_ind(a, b, equal_var=False)</code> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html">(Python)</a>.</li>
-<li><strong>Bonus.</strong> Conclude using a better <a href="https://fr.wikipedia.org/wiki/Test_t_de_Welch">chi-squared approximation</a>. Compare these results to 3.</li>
+<li>Calculer la statistique du test de Welch <span class="math inline">\(\tfrac{\overline X - \overline Y}{\sqrt{\hat\sigma_1^2/n_1 + \hat\sigma_2^2/n_2}}\)</span>.</li>
+<li>Conclure en utilisant une approximation gaussienne (utiliser la fonction de répartition d’une <span class="math inline">\(\mathcal N(0,1)\)</span>).</li>
+<li>Conclure en utilisant <code>UnequalVarianceTTest</code> <a href="https://juliastats.org/HypothesisTests.jl/dev/parametric/">(Julia)</a> ou <code>test.welch</code> <a href="https://search.r-project.org/CRAN/refmans/misty/html/test.welch.html">(R)</a> ou <code>scipy.stats.ttest_ind(a, b, equal_var=False)</code> <a href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html">(Python)</a>.</li>
+<li><strong>Bonus.</strong> Conclure en utilisant une meilleure <a href="https://fr.wikipedia.org/wiki/Test_t_de_Welch">approximation chi-deux</a>. Comparer ces résultats avec ceux du 3.</li>
 </ol>
 </section>
-<section id="monte-carlo-and-chi-squared-tests" class="level2">
-<h2 class="anchored" data-anchor-id="monte-carlo-and-chi-squared-tests">1. Monte Carlo and Chi-squared Tests</h2>
-<p>A statistician observes <span class="math inline">\(X = (X_1, \dots, X_n)\)</span> where the <span class="math inline">\(X_i\)</span>’s are iid of distribution <span class="math inline">\(P\)</span>. If the problem is to test whether <span class="math inline">\(P\)</span> is Gaussian with <strong>known</strong> <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span>, the problem is:</p>
-<p><span class="math display">\[H_0: P=\mathcal N(\mu, \sigma^2) \quad \text{VS} \quad H_1: P\neq \mathcal N(\mu, \sigma^2)\]</span></p>
-<p>If <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> are <strong>unknown</strong>, the problem is: <span class="math display">\[H_0: P\in \{\mathcal N(\mu, \sigma^2), \mu \in \mathbb R, \sigma &gt;0\}\quad \text{VS} \quad H_1: P\not \in \{\mathcal N(\mu, \sigma^2), \mu \in \mathbb R, \sigma &gt;0\}\]</span></p>
-<p>We first assume that <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> are <strong>known</strong>, and that:</p>
+<section id="monte-carlo-et-tests-du-chi-deux" class="level2">
+<h2 class="anchored" data-anchor-id="monte-carlo-et-tests-du-chi-deux">1. Monte Carlo et tests du chi-deux</h2>
+<p>Un statisticien observe <span class="math inline">\(X = (X_1, \dots, X_n)\)</span> où les <span class="math inline">\(X_i\)</span> sont i.i.d. de loi <span class="math inline">\(P\)</span>. Si le problème consiste à tester si <span class="math inline">\(P\)</span> est gaussienne avec <span class="math inline">\(\mu\)</span> et <span class="math inline">\(\sigma\)</span> <strong>connus</strong>, le problème est :</p>
+<p><span class="math display">\[H_0: P=\mathcal N(\mu, \sigma^2) \quad \text{contre} \quad H_1: P\neq \mathcal N(\mu, \sigma^2)\]</span></p>
+<p>Si <span class="math inline">\(\mu\)</span> et <span class="math inline">\(\sigma\)</span> sont <strong>inconnus</strong>, le problème est : <span class="math display">\[H_0: P\in \{\mathcal N(\mu, \sigma^2), \mu \in \mathbb R, \sigma &gt;0\}\quad \text{contre} \quad H_1: P\not \in \{\mathcal N(\mu, \sigma^2), \mu \in \mathbb R, \sigma &gt;0\}\]</span></p>
+<p>On suppose d’abord que <span class="math inline">\(\mu\)</span> et <span class="math inline">\(\sigma\)</span> sont <strong>connus</strong>, et que :</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>mu <span class="op">=</span> <span class="fl">0</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sigma <span class="op">=</span> <span class="fl">1</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="fl">100</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> <span class="fl">5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>This practical exercise aims to empirically demonstrate how a chi-squared test statistic converges to a chi-squared distribution in both known and unknown parameter scenarios. We will:</p>
+<p>Ce TP vise à démontrer empiriquement comment une statistique de test du chi-deux converge vers une loi chi-deux dans les cas de paramètres connus et inconnus. On va :</p>
 <ol type="1">
-<li>Divide the observation space into <span class="math inline">\(2m+2\)</span> disjoint intervals.</li>
-<li>Count how many observations fall into each interval for randomly generated data.</li>
-<li>Calculate the chi-squared test statistic for randomly generated data.</li>
-<li>Repeat this process <span class="math inline">\(1000\)</span> times to build an empirical distribution (a histogram).</li>
-<li>The resulting empirical histogram should approach a theoretical chi-squared distribution as both the sample size <span class="math inline">\(n\)</span> and the number of repetitions <span class="math inline">\(N\)</span> approach infinity.</li>
+<li>Diviser l’espace des observations en <span class="math inline">\(2m+2\)</span> intervalles disjoints.</li>
+<li>Compter combien d’observations tombent dans chaque intervalle pour des données générées aléatoirement.</li>
+<li>Calculer la statistique du test du chi-deux pour des données générées aléatoirement.</li>
+<li>Répéter ce processus <span class="math inline">\(1000\)</span> fois pour construire une distribution empirique (un histogramme).</li>
+<li>L’histogramme empirique résultant devrait approcher une loi chi-deux théorique lorsque la taille d’échantillon <span class="math inline">\(n\)</span> et le nombre de répétitions <span class="math inline">\(N\)</span> tendent vers l’infini.</li>
 </ol>
 <section id="questions" class="level3">
 <h3 class="anchored" data-anchor-id="questions">Questions</h3>
 <ol type="1">
-<li>Generate a vector <span class="math inline">\(X\)</span> of <span class="math inline">\(n\)</span> iid <span class="math inline">\(\mathcal N(\mu, \sigma^2)\)</span> samples.</li>
-<li>Compute the vector <span class="math inline">\(Z = \frac{X-\mu}{\sigma}\)</span>.</li>
-<li>Compute the list of counts <span class="math inline">\(C\)</span> of <span class="math inline">\(Z\)</span> in <span class="math inline">\((-\infty, -3)\)</span>, <span class="math inline">\([\tfrac{3i}{m}, \tfrac{3(i+1)}{m})\)</span> for <span class="math inline">\(i \in \{-m, \dots, m-1\}\)</span>, and <span class="math inline">\([3,+\infty)\)</span>.
+<li>Générer un vecteur <span class="math inline">\(X\)</span> de <span class="math inline">\(n\)</span> échantillons i.i.d. <span class="math inline">\(\mathcal N(\mu, \sigma^2)\)</span>.</li>
+<li>Calculer le vecteur <span class="math inline">\(Z = \frac{X-\mu}{\sigma}\)</span>.</li>
+<li>Calculer la liste des effectifs <span class="math inline">\(C\)</span> de <span class="math inline">\(Z\)</span> dans <span class="math inline">\((-\infty, -3)\)</span>, <span class="math inline">\([\tfrac{3i}{m}, \tfrac{3(i+1)}{m})\)</span> pour <span class="math inline">\(i \in \{-m, \dots, m-1\}\)</span>, et <span class="math inline">\([3,+\infty)\)</span>.
 <ol type="a">
-<li>How many intervals are there in total?</li>
-<li>What is the expected number of entries of <span class="math inline">\(Z\)</span> falling in <span class="math inline">\([3, +\infty)\)</span>? (Compute this using the cdf function.) The expected count should be at least <span class="math inline">\(5\)</span>; what value of <span class="math inline">\(n\)</span> ensures this?</li>
+<li>Combien d’intervalles y a-t-il au total ?</li>
+<li>Quel est l’effectif théorique de <span class="math inline">\(Z\)</span> tombant dans <span class="math inline">\([3, +\infty)\)</span> ? (Calculer cela en utilisant la fonction de répartition.) L’effectif théorique doit être au moins <span class="math inline">\(5\)</span> ; quelle valeur de <span class="math inline">\(n\)</span> garantit cela ?</li>
 </ol></li>
 </ol>
 <div class="columns">
 <div class="column">
-<div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Julia: use the broadcasting .</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(x <span class="op">.&lt;=</span> Z <span class="op">.&lt;</span> y) <span class="co"># counts in [x, y)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Julia : utiliser le broadcasting .</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(x <span class="op">.&lt;=</span> Z <span class="op">.&lt;</span> y) <span class="co"># effectifs dans [x, y)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div><div class="column">
-<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># R: use bitwise operator &amp;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(Z <span class="sc">&gt;=</span> x <span class="sc">&amp;</span> Z <span class="sc">&lt;</span> y) <span class="co"># counts in [x, y)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># R : utiliser l'opérateur binaire &amp;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(Z <span class="sc">&gt;=</span> x <span class="sc">&amp;</span> Z <span class="sc">&lt;</span> y) <span class="co"># effectifs dans [x, y)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 <ol start="4" type="1">
-<li>Using the cdf of <span class="math inline">\(\mathcal N(0,1)\)</span>, compute the list of expected counts in the same intervals.</li>
-<li>Compute the chi-squared test statistic using the two preceding questions. Recall that <span class="math inline">\(\psi(Z) = \sum_{j} \tfrac{(c_j - e_j)^2}{e_j}\)</span> where <span class="math inline">\(c_j\)</span> and <span class="math inline">\(e_j\)</span> are the observed and expected counts for interval <span class="math inline">\(j\)</span>.</li>
-<li>Summarize the preceding questions into a function <code>trial_chisq(X, mu, sigma, m)</code> that normalizes <span class="math inline">\(X\)</span>, computes counts, expected counts, and the chi-squared test statistic:</li>
+<li>En utilisant la fonction de répartition de <span class="math inline">\(\mathcal N(0,1)\)</span>, calculer la liste des effectifs théoriques dans les mêmes intervalles.</li>
+<li>Calculer la statistique du test du chi-deux en utilisant les deux questions précédentes. Rappel : <span class="math inline">\(\psi(Z) = \sum_{j} \tfrac{(c_j - e_j)^2}{e_j}\)</span> où <span class="math inline">\(c_j\)</span> et <span class="math inline">\(e_j\)</span> sont les effectifs observés et théoriques de l’intervalle <span class="math inline">\(j\)</span>.</li>
+<li>Résumer les questions précédentes dans une fonction <code>trial_chisq(X, mu, sigma, m)</code> qui normalise <span class="math inline">\(X\)</span>, calcule les effectifs, les effectifs théoriques et la statistique du chi-deux :</li>
 </ol>
 <div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># function trial_chisq(X, mu, sigma, m)</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># n = length(X)</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Z = (X .- mu) ./ sigma</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute counts </span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute expcounts</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute and return chisq</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculer les effectifs </span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculer les effectifs théoriques</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculer et retourner chisq</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ol start="7" type="1">
-<li>Using the previous question, write a function <code>monte_carlo_known</code> that computes <span class="math inline">\(N\)</span> chi-squared test statistics on iid random samples <span class="math inline">\(X\sim \mathcal N(\mu, \sigma^2)^{\otimes n}\)</span>. It returns a list <code>trials</code> of length <span class="math inline">\(N\)</span>.</li>
+<li>En utilisant la question précédente, écrire une fonction <code>monte_carlo_known</code> qui calcule <span class="math inline">\(N\)</span> statistiques du test du chi-deux sur des échantillons aléatoires i.i.d. <span class="math inline">\(X\sim \mathcal N(\mu, \sigma^2)^{\otimes n}\)</span>. Elle retourne une liste <code>trials</code> de longueur <span class="math inline">\(N\)</span>.</li>
 </ol>
 <div class="sourceCode" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>N <span class="op">=</span> <span class="fl">1000</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># function monte_carlo_known(N, mu, sigma, n, m)</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># empty list trials</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># liste vide trials</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co"># for i = 1 ... N</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   Generate X of n iid Gaussian(mu, sigma)</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   append trial_chisq(X, mu, sigma, m) to trials</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   Générer X de n gaussiennes iid(mu, sigma)</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   ajouter trial_chisq(X, mu, sigma, m) à trials</span></span>
 <span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># endfor</span></span>
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># return trials</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ol start="8" type="1">
-<li>Plot a histogram of <code>trials</code> using a built-in function. Normalize it as a density (area <span class="math inline">\(= 1\)</span>), and use bins <code>(0:0.5:30)</code>.</li>
-<li>What is a good theoretical distribution to approximate this histogram? Plot the distribution’s density and check that it fits. Vary the parameters <span class="math inline">\(m\)</span>, <span class="math inline">\(n\)</span>, and <span class="math inline">\(N\)</span>.</li>
+<li>Tracer un histogramme de <code>trials</code> en utilisant une fonction intégrée. Le normaliser en densité (aire <span class="math inline">\(= 1\)</span>), et utiliser les bins <code>(0:0.5:30)</code>.</li>
+<li>Quelle est la bonne distribution théorique pour approximer cet histogramme ? Tracer la densité de cette distribution et vérifier qu’elle s’ajuste. Faire varier les paramètres <span class="math inline">\(m\)</span>, <span class="math inline">\(n\)</span> et <span class="math inline">\(N\)</span>.</li>
 </ol>
-<p>Now, we assume that <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> are <strong>unknown</strong>.</p>
+<p>On suppose maintenant que <span class="math inline">\(\mu\)</span> et <span class="math inline">\(\sigma\)</span> sont <strong>inconnus</strong>.</p>
 <ol start="10" type="1">
-<li>Given <span class="math inline">\(X\)</span>, compute estimators <code>hatmu</code> and <code>hatsigma</code> of <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span>.</li>
-<li>Similarly to Q.7, write a function <code>monte_carlo_unknown(N, n, m)</code> that computes a Monte Carlo simulation. <span class="math inline">\(\hat\mu\)</span> and <span class="math inline">\(\hat\sigma\)</span> must be estimated separately for each trial <span class="math inline">\(i = 1, \dots, N\)</span>.</li>
-<li>Revisit questions 8 and 9 for the unknown parameter case. How does estimating <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span> affect the distribution of the chi-squared statistic?</li>
+<li>À partir de <span class="math inline">\(X\)</span>, calculer des estimateurs <code>hatmu</code> et <code>hatsigma</code> de <span class="math inline">\(\mu\)</span> et <span class="math inline">\(\sigma\)</span>.</li>
+<li>De même qu’à la Q.7, écrire une fonction <code>monte_carlo_unknown(N, n, m)</code> qui effectue une simulation de Monte Carlo. <span class="math inline">\(\hat\mu\)</span> et <span class="math inline">\(\hat\sigma\)</span> doivent être estimés séparément pour chaque tirage <span class="math inline">\(i = 1, \dots, N\)</span>.</li>
+<li>Revisiter les questions 8 et 9 pour le cas de paramètres inconnus. Comment l’estimation de <span class="math inline">\(\mu\)</span> et <span class="math inline">\(\sigma\)</span> affecte-t-elle la distribution de la statistique du chi-deux ?</li>
 </ol>
 </section>
 </section>
-<section id="application-with-bitcoin" class="level2">
-<h2 class="anchored" data-anchor-id="application-with-bitcoin">2. Application with Bitcoin</h2>
+<section id="application-avec-le-bitcoin" class="level2">
+<h2 class="anchored" data-anchor-id="application-avec-le-bitcoin">2. Application avec le Bitcoin</h2>
 <ol type="1">
-<li>Use your favorite AI to write the code to import the last <span class="math inline">\(500\)</span> hourly close prices of Bitcoin in USDT from Binance. Plot the prices and compute the returns defined as <span class="math inline">\(R_t = \tfrac{P_t}{P_{t-1}}-1\)</span>, where <span class="math inline">\(P_t\)</span> is the price at time <span class="math inline">\(t\)</span> (in hours).</li>
+<li>Utiliser l’IA de votre choix pour écrire le code permettant d’importer les <span class="math inline">\(500\)</span> derniers prix de clôture horaires du Bitcoin en USDT depuis Binance. Tracer les prix et calculer les rendements définis par <span class="math inline">\(R_t = \tfrac{P_t}{P_{t-1}}-1\)</span>, où <span class="math inline">\(P_t\)</span> est le prix à l’instant <span class="math inline">\(t\)</span> (en heures).</li>
 </ol>
 <div class="callout callout-style-default callout-tip no-icon callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
@@ -321,7 +321,7 @@ window.Quarto = {
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-R (Click to See a Solution)
+R (Cliquer pour voir une solution)
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
@@ -356,7 +356,7 @@ R (Click to See a Solution)
 <i class="callout-icon no-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Julia (Click to See a Solution)
+Julia (Cliquer pour voir une solution)
 </div>
 <div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
@@ -385,14 +385,14 @@ Julia (Click to See a Solution)
 </div>
 </div>
 <ol start="2" type="1">
-<li>We first test<br>
-<span class="math inline">\(H_0\)</span>: the mean of the returns is zero VS <span class="math inline">\(H_1\)</span>: it is nonzero.<br>
-Compute <span class="math inline">\(\hat\sigma\)</span> as <code>std(R)</code> and the Student statistic <span class="math inline">\(\psi(R) = \sqrt{n}\tfrac{\overline R}{\hat\sigma}\)</span>. Compute the p-value using the cdf of a Student<span class="math inline">\((n-1)\)</span> distribution (or Gaussian). Obtain the same result with a library function: <code>OneSampleTTest</code> in Julia, <code>t.test</code> in R, or <code>ttest_1samp</code> in Python.</li>
-<li>Plot a histogram of the returns, normalized as a density. Plot on the same graph the density of a Gaussian with mean <code>mean(R)</code> and standard deviation <code>std(R)</code>.</li>
-<li>Using the function from Section 1 with <span class="math inline">\(m=5\)</span>, compute a chi-squared statistic and an approximated p-value.</li>
-<li>Do a scatter plot of <span class="math inline">\((R_{t-1}, R_t)\)</span>. Do you see any correlation between <span class="math inline">\(R_{t-1}\)</span> and <span class="math inline">\(R_t\)</span>?</li>
-<li>Compute the correlation <span class="math inline">\(r\)</span> between <span class="math inline">\((R_t)\)</span> and <span class="math inline">\((R_{t-1})\)</span>.</li>
-<li>Compute the p-value of a two-sided Pearson correlation test, using the test statistic <span class="math inline">\(\tfrac{r}{\sqrt{1-r^2}}\sqrt{n-2}\)</span> and the cdf of a Student distribution. Compare with <code>CorrelationTest</code> in Julia, <code>cor.test</code> in R, or <code>pearsonr</code> in Python.</li>
+<li>On teste d’abord<br>
+<span class="math inline">\(H_0\)</span> : la moyenne des rendements est nulle contre <span class="math inline">\(H_1\)</span> : elle est non nulle.<br>
+Calculer <span class="math inline">\(\hat\sigma\)</span> comme <code>std(R)</code> et la statistique de Student <span class="math inline">\(\psi(R) = \sqrt{n}\tfrac{\overline R}{\hat\sigma}\)</span>. Calculer la p-valeur en utilisant la fonction de répartition d’un Student<span class="math inline">\((n-1)\)</span> (ou gaussienne). Obtenir le même résultat avec une fonction de bibliothèque : <code>OneSampleTTest</code> en Julia, <code>t.test</code> en R, ou <code>ttest_1samp</code> en Python.</li>
+<li>Tracer un histogramme des rendements, normalisé en densité. Tracer sur le même graphique la densité d’une gaussienne de moyenne <code>mean(R)</code> et d’écart-type <code>std(R)</code>.</li>
+<li>En utilisant la fonction de la Section 1 avec <span class="math inline">\(m=5\)</span>, calculer une statistique du chi-deux et une p-valeur approchée.</li>
+<li>Tracer un nuage de points de <span class="math inline">\((R_{t-1}, R_t)\)</span>. Observe-t-on une corrélation entre <span class="math inline">\(R_{t-1}\)</span> et <span class="math inline">\(R_t\)</span> ?</li>
+<li>Calculer la corrélation <span class="math inline">\(r\)</span> entre <span class="math inline">\((R_t)\)</span> et <span class="math inline">\((R_{t-1})\)</span>.</li>
+<li>Calculer la p-valeur d’un test de corrélation de Pearson bilatéral, en utilisant la statistique de test <span class="math inline">\(\tfrac{r}{\sqrt{1-r^2}}\sqrt{n-2}\)</span> et la fonction de répartition d’une loi de Student. Comparer avec <code>CorrelationTest</code> en Julia, <code>cor.test</code> en R, ou <code>pearsonr</code> en Python.</li>
 </ol>
 
 

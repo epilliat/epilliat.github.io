@@ -1,0 +1,170 @@
+---
+title: "TP : Tests d'hypothèses"
+format: 
+  html:
+    callout-icon: false
+    theme: [default]
+    smaller: false
+---
+
+## 0. Test de Student
+
+On observe $(X_1, \dots, X_{n_1})$ i.i.d. $\mathcal N(\mu_1, \sigma_1^2)$ et $(Y_1, \dots, Y_{n_2})$ i.i.d. $\mathcal N(\mu_2, \sigma_2^2)$. On suppose que les vecteurs $X$ et $Y$ sont indépendants. On veut tester
+$H_0$ : $\mu_1 = \mu_2$ contre $H_1$ : $\mu_1 \neq \mu_2$.
+
+On observe les données :
+```julia
+X=[-0.2657064426519085, -0.27538323622274347, 0.11419811877193782, 0.1158736466676504, 1.7071154417851981, 0.9306910454777643, 0.5834941669559498, -1.536447927372139, -1.4158768806157345, 1.0532694288697444, 1.2955133629200777, -0.4195557179577367]
+Y=[-0.6452416530469819, 0.3662048411679129, -0.09943069837472361, 0.8738423322164134, 0.7163913715056272, -0.32450102319617485, 0.9159821874321818, -2.3583609849887224]
+```
+
+1. Calculer la statistique du test de Welch $\tfrac{\overline X - \overline Y}{\sqrt{\hat\sigma_1^2/n_1 + \hat\sigma_2^2/n_2}}$.
+2. Conclure en utilisant une approximation gaussienne (utiliser la fonction de répartition d'une $\mathcal N(0,1)$).
+3. Conclure en utilisant `UnequalVarianceTTest` [(Julia)](https://juliastats.org/HypothesisTests.jl/dev/parametric/) ou `test.welch` [(R)](https://search.r-project.org/CRAN/refmans/misty/html/test.welch.html) ou `scipy.stats.ttest_ind(a, b, equal_var=False)` [(Python)](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.ttest_ind.html).
+4. **Bonus.** Conclure en utilisant une meilleure [approximation chi-deux](https://fr.wikipedia.org/wiki/Test_t_de_Welch). Comparer ces résultats avec ceux du 3.
+
+## 1. Monte Carlo et tests du chi-deux
+
+Un statisticien observe $X = (X_1, \dots, X_n)$ où les $X_i$ sont i.i.d. de loi $P$. Si le problème consiste à tester si $P$ est gaussienne avec $\mu$ et $\sigma$ **connus**, le problème est :
+
+$$H_0: P=\mathcal N(\mu, \sigma^2) \quad \text{contre} \quad H_1: P\neq \mathcal N(\mu, \sigma^2)$$
+
+Si $\mu$ et $\sigma$ sont **inconnus**, le problème est :
+$$H_0: P\in \{\mathcal N(\mu, \sigma^2), \mu \in \mathbb R, \sigma >0\}\quad \text{contre} \quad H_1: P\not \in \{\mathcal N(\mu, \sigma^2), \mu \in \mathbb R, \sigma >0\}$$
+
+On suppose d'abord que $\mu$ et $\sigma$ sont **connus**, et que :
+```julia
+mu = 0
+sigma = 1
+n = 100
+m = 5
+```
+
+Ce TP vise à démontrer empiriquement comment une statistique de test du chi-deux converge vers une loi chi-deux dans les cas de paramètres connus et inconnus.
+On va :
+
+1. Diviser l'espace des observations en $2m+2$ intervalles disjoints.
+2. Compter combien d'observations tombent dans chaque intervalle pour des données générées aléatoirement.
+3. Calculer la statistique du test du chi-deux pour des données générées aléatoirement.
+4. Répéter ce processus $1000$ fois pour construire une distribution empirique (un histogramme).
+5. L'histogramme empirique résultant devrait approcher une loi chi-deux théorique lorsque la taille d'échantillon $n$ et le nombre de répétitions $N$ tendent vers l'infini.
+
+### Questions
+
+1. Générer un vecteur $X$ de $n$ échantillons i.i.d. $\mathcal N(\mu, \sigma^2)$.
+2. Calculer le vecteur $Z = \frac{X-\mu}{\sigma}$.
+3. Calculer la liste des effectifs $C$ de $Z$ dans $(-\infty, -3)$, $[\tfrac{3i}{m}, \tfrac{3(i+1)}{m})$ pour $i \in \{-m, \dots, m-1\}$, et $[3,+\infty)$.
+    a. Combien d'intervalles y a-t-il au total ?
+    b. Quel est l'effectif théorique de $Z$ tombant dans $[3, +\infty)$ ? (Calculer cela en utilisant la fonction de répartition.) L'effectif théorique doit être au moins $5$ ; quelle valeur de $n$ garantit cela ?
+
+::: {.columns}
+::: {.column}
+```julia
+# Julia : utiliser le broadcasting .
+sum(x .<= Z .< y) # effectifs dans [x, y)
+```
+:::
+::: {.column}
+```R
+# R : utiliser l'opérateur binaire &
+sum(Z >= x & Z < y) # effectifs dans [x, y)
+```
+:::
+:::
+
+4. En utilisant la fonction de répartition de $\mathcal N(0,1)$, calculer la liste des effectifs théoriques dans les mêmes intervalles.
+5. Calculer la statistique du test du chi-deux en utilisant les deux questions précédentes. Rappel : $\psi(Z) = \sum_{j} \tfrac{(c_j - e_j)^2}{e_j}$ où $c_j$ et $e_j$ sont les effectifs observés et théoriques de l'intervalle $j$.
+6. Résumer les questions précédentes dans une fonction `trial_chisq(X, mu, sigma, m)` qui normalise $X$, calcule les effectifs, les effectifs théoriques et la statistique du chi-deux :
+```julia
+# function trial_chisq(X, mu, sigma, m)
+# n = length(X)
+# Z = (X .- mu) ./ sigma
+# Calculer les effectifs 
+# Calculer les effectifs théoriques
+# Calculer et retourner chisq
+```
+
+7. En utilisant la question précédente, écrire une fonction `monte_carlo_known` qui calcule $N$ statistiques du test du chi-deux sur des échantillons aléatoires i.i.d. $X\sim \mathcal N(\mu, \sigma^2)^{\otimes n}$. Elle retourne une liste `trials` de longueur $N$.
+```julia
+N = 1000
+# function monte_carlo_known(N, mu, sigma, n, m)
+# liste vide trials
+
+# for i = 1 ... N
+#   Générer X de n gaussiennes iid(mu, sigma)
+#   ajouter trial_chisq(X, mu, sigma, m) à trials
+# endfor
+# return trials
+```
+8. Tracer un histogramme de `trials` en utilisant une fonction intégrée. Le normaliser en densité (aire $= 1$), et utiliser les bins `(0:0.5:30)`.
+9. Quelle est la bonne distribution théorique pour approximer cet histogramme ? Tracer la densité de cette distribution et vérifier qu'elle s'ajuste. Faire varier les paramètres $m$, $n$ et $N$.
+
+On suppose maintenant que $\mu$ et $\sigma$ sont **inconnus**.
+
+10. À partir de $X$, calculer des estimateurs `hatmu` et `hatsigma` de $\mu$ et $\sigma$.
+11. De même qu'à la Q.7, écrire une fonction `monte_carlo_unknown(N, n, m)` qui effectue une simulation de Monte Carlo. $\hat\mu$ et $\hat\sigma$ doivent être estimés séparément pour chaque tirage $i = 1, \dots, N$.
+12. Revisiter les questions 8 et 9 pour le cas de paramètres inconnus. Comment l'estimation de $\mu$ et $\sigma$ affecte-t-elle la distribution de la statistique du chi-deux ?
+
+## 2. Application avec le Bitcoin
+
+1. Utiliser l'IA de votre choix pour écrire le code permettant d'importer les $500$ derniers prix de clôture horaires du Bitcoin en USDT depuis Binance. Tracer les prix et calculer les rendements définis par $R_t = \tfrac{P_t}{P_{t-1}}-1$, où $P_t$ est le prix à l'instant $t$ (en heures).
+
+::: {.callout-tip collapse="true"}
+## R (Cliquer pour voir une solution)
+```r
+library(httr)
+library(jsonlite)
+api_url <- "https://api.binance.com/api/v3/klines"
+symbol <- "BTCUSDT"
+interval <- "1h"
+limit <- 500
+
+query_params <- list(
+    symbol = symbol,
+    interval = interval,
+    limit = limit
+)
+
+response <- GET(api_url, query = query_params)
+data <- content(response, as = "text", encoding = "UTF-8")
+data <- fromJSON(data)
+data <- data.frame(data)[2]
+data <- data.frame(lapply(data, as.numeric))
+n <- length(data$X2)
+R <- (data[2:n,1] / data[1:(n - 1),1]) - 1
+```
+:::
+
+::: {.callout-tip collapse="true"}
+## Julia (Cliquer pour voir une solution)
+```julia
+using HTTP
+using JSON
+using DataFrames
+
+function BTC_returns()
+    api_url = "https://api.binance.com/api/v3/klines"
+    symbol = "BTCUSDT"
+    interval = "1h"
+    limit = 500
+
+    query_url = "$api_url?symbol=$symbol&interval=$interval&limit=$limit"
+    response = HTTP.get(query_url)
+    data = JSON.parse(String(response.body))
+    P = [parse(Float64, data[i][2]) for i in 1:length(data)]
+    R = [P[t] / P[t-1] - 1 for t in 2:length(P)]
+    return R
+end
+
+R = BTC_returns()
+```
+:::
+
+2. On teste d'abord \
+$H_0$ : la moyenne des rendements est nulle contre $H_1$ : elle est non nulle. \
+Calculer $\hat\sigma$ comme `std(R)` et la statistique de Student $\psi(R) = \sqrt{n}\tfrac{\overline R}{\hat\sigma}$. Calculer la p-valeur en utilisant la fonction de répartition d'un Student$(n-1)$ (ou gaussienne). Obtenir le même résultat avec une fonction de bibliothèque : `OneSampleTTest` en Julia, `t.test` en R, ou `ttest_1samp` en Python.
+3. Tracer un histogramme des rendements, normalisé en densité. Tracer sur le même graphique la densité d'une gaussienne de moyenne `mean(R)` et d'écart-type `std(R)`.
+4. En utilisant la fonction de la Section 1 avec $m=5$, calculer une statistique du chi-deux et une p-valeur approchée.
+5. Tracer un nuage de points de $(R_{t-1}, R_t)$. Observe-t-on une corrélation entre $R_{t-1}$ et $R_t$ ?
+6. Calculer la corrélation $r$ entre $(R_t)$ et $(R_{t-1})$.
+7. Calculer la p-valeur d'un test de corrélation de Pearson bilatéral, en utilisant la statistique de test $\tfrac{r}{\sqrt{1-r^2}}\sqrt{n-2}$ et la fonction de répartition d'une loi de Student. Comparer avec `CorrelationTest` en Julia, `cor.test` en R, ou `pearsonr` en Python.

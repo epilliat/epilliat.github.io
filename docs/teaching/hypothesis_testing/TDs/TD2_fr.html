@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>TD1: Introduction to statistical models – Emmanuel Pilliat</title>
+<title>TD2 : Populations gaussiennes – Emmanuel Pilliat</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -158,13 +158,12 @@ window.Quarto = {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#distributions-to-know-reflexes" id="toc-distributions-to-know-reflexes" class="nav-link active" data-scroll-target="#distributions-to-know-reflexes">Distributions to know (reflexes)</a></li>
-  <li><a href="#distributions-to-know-reflexes-1" id="toc-distributions-to-know-reflexes-1" class="nav-link" data-scroll-target="#distributions-to-know-reflexes-1">Distributions to know (reflexes)</a></li>
-  <li><a href="#exercise-0-2sigma-game" id="toc-exercise-0-2sigma-game" class="nav-link" data-scroll-target="#exercise-0-2sigma-game">Exercise 0: <span class="math inline">\(2\sigma\)</span>-Game</a></li>
-  <li><a href="#exercise-1" id="toc-exercise-1" class="nav-link" data-scroll-target="#exercise-1">Exercise 1</a></li>
-  <li><a href="#exercise-2" id="toc-exercise-2" class="nav-link" data-scroll-target="#exercise-2">Exercise 2</a></li>
-  <li><a href="#exercise-3" id="toc-exercise-3" class="nav-link" data-scroll-target="#exercise-3">Exercise 3</a></li>
-  <li><a href="#exercise-4" id="toc-exercise-4" class="nav-link" data-scroll-target="#exercise-4">Exercise 4</a></li>
+  <li><a href="#distributions-à-connaître" id="toc-distributions-à-connaître" class="nav-link active" data-scroll-target="#distributions-à-connaître">Distributions à connaître</a></li>
+  <li><a href="#exercice-0-jeu-des-2sigma" id="toc-exercice-0-jeu-des-2sigma" class="nav-link" data-scroll-target="#exercice-0-jeu-des-2sigma">Exercice 0 : Jeu des <span class="math inline">\(2\sigma\)</span></a></li>
+  <li><a href="#exercice-1" id="toc-exercice-1" class="nav-link" data-scroll-target="#exercice-1">Exercice 1</a></li>
+  <li><a href="#exercice-2" id="toc-exercice-2" class="nav-link" data-scroll-target="#exercice-2">Exercice 2</a></li>
+  <li><a href="#exercice-3" id="toc-exercice-3" class="nav-link" data-scroll-target="#exercice-3">Exercice 3</a></li>
+  <li><a href="#exercice-4" id="toc-exercice-4" class="nav-link" data-scroll-target="#exercice-4">Exercice 4</a></li>
   </ul>
 </nav>
     </div>
@@ -173,7 +172,7 @@ window.Quarto = {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">TD1: Introduction to statistical models</h1>
+<h1 class="title">TD2 : Populations gaussiennes</h1>
 </div>
 
 
@@ -190,162 +189,135 @@ window.Quarto = {
 </header>
 
 
-<section id="distributions-to-know-reflexes" class="level2">
-<h2 class="anchored" data-anchor-id="distributions-to-know-reflexes">Distributions to know (reflexes)</h2>
-</section>
-<section id="distributions-to-know-reflexes-1" class="level2">
-<h2 class="anchored" data-anchor-id="distributions-to-know-reflexes-1">Distributions to know (reflexes)</h2>
+<section id="distributions-à-connaître" class="level2">
+<h2 class="anchored" data-anchor-id="distributions-à-connaître">Distributions à connaître</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
-<col style="width: 20%">
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
 </colgroup>
 <thead>
 <tr class="header">
 <th>Distribution</th>
 <th>Support</th>
-<th>Mean</th>
-<th>Variance</th>
-<th>Density / PMF</th>
+<th>Approximation gaussienne</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><span class="math inline">\(\mathcal{N}(\mu, \sigma^2)\)</span></td>
+<td><span class="math inline">\(\chi^2(k)\)</span></td>
+<td><span class="math inline">\(\mathbb{R}_+\)</span></td>
+<td><span class="math inline">\(\mathcal{N}(k,\, 2k)\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(t(\nu)\)</span></td>
 <td><span class="math inline">\(\mathbb{R}\)</span></td>
-<td><span class="math inline">\(\mu\)</span></td>
-<td><span class="math inline">\(\sigma^2\)</span></td>
-<td><span class="math inline">\(\dfrac{1}{\sigma\sqrt{2\pi}}e^{-\frac{(x-\mu)^2}{2\sigma^2}}\)</span></td>
-</tr>
-<tr class="even">
-<td><span class="math inline">\(\mathrm{Bin}(n, p)\)</span></td>
-<td><span class="math inline">\(\{0,\ldots,n\}\)</span></td>
-<td><span class="math inline">\(np\)</span></td>
-<td><span class="math inline">\(np(1-p)\)</span></td>
-<td><span class="math inline">\(\dbinom{n}{k}p^k(1-p)^{n-k}\)</span></td>
+<td><span class="math inline">\(\mathcal{N}(0,\, 1)\)</span> pour <span class="math inline">\(\nu\)</span> grand</td>
 </tr>
 <tr class="odd">
-<td><span class="math inline">\(\mathcal{G}(p)\)</span></td>
-<td><span class="math inline">\(\mathbb{N}^*\)</span></td>
-<td><span class="math inline">\(1/p\)</span></td>
-<td><span class="math inline">\((1-p)/p^2\)</span></td>
-<td><span class="math inline">\((1-p)^{k-1}p\)</span></td>
-</tr>
-<tr class="even">
-<td><span class="math inline">\(\mathcal{E}(\lambda)\)</span></td>
+<td><span class="math inline">\(F(n_1,n_2)\)</span></td>
 <td><span class="math inline">\(\mathbb{R}_+\)</span></td>
-<td><span class="math inline">\(1/\lambda\)</span></td>
-<td><span class="math inline">\(1/\lambda^2\)</span></td>
-<td><span class="math inline">\(\lambda e^{-\lambda x}\)</span></td>
-</tr>
-<tr class="odd">
-<td><span class="math inline">\(\mathcal{P}(\lambda)\)</span></td>
-<td><span class="math inline">\(\mathbb{N}\)</span></td>
-<td><span class="math inline">\(\lambda\)</span></td>
-<td><span class="math inline">\(\lambda\)</span></td>
-<td><span class="math inline">\(e^{-\lambda}\dfrac{\lambda^k}{k!}\)</span></td>
-</tr>
-<tr class="even">
-<td><span class="math inline">\(\Gamma(k,\lambda)\)</span></td>
-<td><span class="math inline">\(\mathbb{R}_+\)</span></td>
-<td><span class="math inline">\(k/\lambda\)</span></td>
-<td><span class="math inline">\(k/\lambda^2\)</span></td>
-<td><span class="math inline">\(\dfrac{\lambda^k x^{k-1} e^{-\lambda x}}{\Gamma(k)}\)</span></td>
+<td><span class="math inline">\(\mathcal{N}\!\left(1,\, \frac{2}{n_1}+\frac{2}{n_2}\right)\)</span> pour <span class="math inline">\(n_1,n_2\)</span> grands</td>
 </tr>
 </tbody>
 </table>
-<p><strong>What to remember:</strong></p>
+</section>
+<section id="exercice-0-jeu-des-2sigma" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-0-jeu-des-2sigma">Exercice 0 : Jeu des <span class="math inline">\(2\sigma\)</span></h2>
+<p>Pour chaque distribution <span class="math inline">\(P\)</span>, calculer l’intervalle <span class="math inline">\(2\sigma\)</span> <span class="math inline">\([\mu - 2\sigma,\, \mu + 2\sigma]\)</span> en utilisant l’approximation gaussienne, et indiquer si <span class="math inline">\(x_\mathrm{obs}\)</span> se trouve à l’intérieur ou à l’extérieur.</p>
 <ul>
-<li><span class="math inline">\(\mathrm{Bin}(n, p)\)</span>: sum of <span class="math inline">\(n\)</span> independent Bernoulli<span class="math inline">\((p)\)</span> — counts the number of successes.</li>
-<li><span class="math inline">\(\mathcal{G}(p)\)</span>: number of trials until the first success (geometric waiting time).</li>
-<li><span class="math inline">\(\mathcal{E}(\lambda)\)</span>: duration of an exponential clock ticking at rate <span class="math inline">\(\lambda\)</span> — memoryless.</li>
-<li><span class="math inline">\(\mathcal{P}(\lambda)\)</span>: number of ticks of a rate-<span class="math inline">\(\lambda\)</span> Poisson clock on <span class="math inline">\([0, 1]\)</span>.</li>
-<li><span class="math inline">\(\Gamma(k, \lambda)\)</span>: sum of <span class="math inline">\(k\)</span> independent <span class="math inline">\(\mathcal{E}(\lambda)\)</span> variables (for integer <span class="math inline">\(k\)</span>; the distribution extends to all <span class="math inline">\(k &gt; 0\)</span>). <strong>You don’t have to learn it’s density</strong>.</li>
+<li><span class="math inline">\(P = \chi^2(20)\)</span>, <span class="math inline">\(x_\mathrm{obs} = 321\)</span></li>
+<li><span class="math inline">\(P = \chi^2(100)\)</span>, <span class="math inline">\(x_\mathrm{obs} = 95\)</span></li>
+<li><span class="math inline">\(P = t(30)\)</span>, <span class="math inline">\(x_\mathrm{obs} = 0{,}5\)</span></li>
+<li><span class="math inline">\(P = t(50)\)</span>, <span class="math inline">\(x_\mathrm{obs} = 6{,}1\)</span></li>
+<li><span class="math inline">\(P = F(10, 30)\)</span>, <span class="math inline">\(x_\mathrm{obs} = 5\)</span></li>
+<li><span class="math inline">\(P = F(20, 20)\)</span>, <span class="math inline">\(x_\mathrm{obs} = 1{,}2\)</span></li>
 </ul>
 </section>
-<section id="exercise-0-2sigma-game" class="level2">
-<h2 class="anchored" data-anchor-id="exercise-0-2sigma-game">Exercise 0: <span class="math inline">\(2\sigma\)</span>-Game</h2>
-<p>For each distribution <span class="math inline">\(P\)</span>, compute the <span class="math inline">\(2\sigma\)</span> interval <span class="math inline">\([\mu - 2\sigma,\, \mu + 2\sigma]\)</span> and indicate whether <span class="math inline">\(x_\mathrm{obs}\)</span> falls inside or outside.</p>
-<ul>
-<li><span class="math inline">\(P = \mathcal{N}(2,\; 1.5^2)\)</span>, <span class="math inline">\(x_\mathrm{obs} = 5\)</span></li>
-<li><span class="math inline">\(P = \mathcal{N}(-10,\; 50^2)\)</span>, <span class="math inline">\(x_\mathrm{obs} = 90\)</span></li>
-<li><span class="math inline">\(P = \mathcal{P}(12)\)</span>, <span class="math inline">\(x_\mathrm{obs} = 20\)</span></li>
-<li><span class="math inline">\(P = \mathrm{Bin}(100,\; 0.4)\)</span>, <span class="math inline">\(x_\mathrm{obs} = 55\)</span></li>
-<li><span class="math inline">\(P = \mathcal{E}(1)\)</span>, <span class="math inline">\(x_\mathrm{obs} = 3\)</span></li>
-<li><span class="math inline">\(P = \mathcal{G}(0.25)\)</span>, <span class="math inline">\(x_\mathrm{obs} = 10\)</span></li>
-</ul>
-</section>
-<section id="exercise-1" class="level2">
-<h2 class="anchored" data-anchor-id="exercise-1">Exercise 1</h2>
-<p>We aim to determine whether ENSAI students have any preference for cats or dogs. We assume that, a priori, they have no preference on average. We ask <span class="math inline">\(n\)</span> students what their preferences are, and we let <span class="math inline">\(X\)</span> be the number of “cat” answers.</p>
+<section id="exercice-1" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-1">Exercice 1</h2>
+<p>Une usine de fabrication de pain souhaite mettre en place des procédures de contrôle avec pour objectif principal de réduire les problèmes de surproduction, sources de pertes pour l’usine. On s’intéresse ici au poids des baguettes produites par l’usine, dont le poids cible est de <span class="math inline">\(250\)</span> grammes. Pour un échantillon de <span class="math inline">\(n = 30\)</span> baguettes, la moyenne empirique est <span class="math inline">\(\bar{X}_n = 256{,}3\)</span> et la variance empirique est <span class="math inline">\(S^2_n = 82{,}1\)</span>.</p>
+<p><strong>A priori</strong>, l’usine atteint le poids cible de <span class="math inline">\(250\)</span> grammes. On souhaite tester au niveau de signification <span class="math inline">\(\alpha = 0{,}01\)</span> s’il existe un problème de <strong>surproduction</strong>.</p>
 <ol type="1">
-<li><p>Define <span class="math inline">\(H_0\)</span> and <span class="math inline">\(H_1\)</span>. Is it a one-sided (<em>unilatéral</em>) or two-sided (<em>bilatéral</em>) test?</p></li>
-<li><p>We observe <span class="math inline">\(n = 10\)</span> students and <span class="math inline">\(X = 8\)</span> “cat” answers. Compute the p-value in this specific case. Interpret the result.</p></li>
-<li><p>Write the expression of the p-value in terms of <span class="math inline">\(n\)</span>, <span class="math inline">\(X\)</span>, and <span class="math inline">\(F\)</span>, the CDF of <span class="math inline">\(\mathrm{Bin}(n, 0.5)\)</span>. <em>Hint: recall that for a discrete distribution, the upper-tail probability is <span class="math inline">\(P(X \geq k) = 1 - F(k-1)\)</span>.</em></p></li>
-<li><p>Write a line of code to compute the p-value in Julia, Python, or R.</p></li>
-<li><p>What is the p-value if <span class="math inline">\(H_1\)</span> is instead:</p>
-<ol type="a">
-<li>“Students prefer cats”, or</li>
-<li>“Students prefer dogs”?</li>
-</ol></li>
+<li><p>S’agit-il d’un test unilatéral ou bilatéral ?</p></li>
+<li><p>Formuler le problème de test d’hypothèses : définir les paramètres du modèle, les distributions correspondantes (en précisant quels paramètres sont connus et lesquels sont inconnus), et écrire <span class="math inline">\(H_0\)</span> et <span class="math inline">\(H_1\)</span> ainsi que les ensembles de paramètres correspondants <span class="math inline">\(\Theta_0\)</span> et <span class="math inline">\(\Theta_1\)</span>.</p></li>
+<li><p>Quelle statistique de test utiliser, et quelle est sa distribution sous <span class="math inline">\(H_0\)</span> ? <em>Remarque : puisque <span class="math inline">\(\sigma^2\)</span> est inconnu, expliquer pourquoi un test de Student est approprié ici.</em></p></li>
+<li><p>Déterminer la région de rejet.</p></li>
+<li><p>L’usine a-t-elle un problème de surproduction ?</p></li>
 </ol>
 </section>
-<section id="exercise-2" class="level2">
-<h2 class="anchored" data-anchor-id="exercise-2">Exercise 2</h2>
-<p>Let <span class="math inline">\((X_1, X_2, \ldots, X_n)\)</span> be i.i.d. random variables following distribution <span class="math inline">\(\mathcal{E}(\lambda)\)</span>. We want to test: <span class="math display">\[
-H_0: \lambda = \tfrac{1}{2} \quad \text{vs.} \quad H_1: \lambda = 1.
+<section id="exercice-2" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-2">Exercice 2</h2>
+<p>On souhaite tester la précision d’une méthode de mesure du taux d’alcoolémie sur un échantillon sanguin. La précision est définie comme le double de l’écart-type de la méthode (supposée suivre une loi gaussienne). L’échantillon de référence est divisé en <span class="math inline">\(6\)</span> tubes à essai, qui sont soumis à une analyse en laboratoire. Les taux d’alcoolémie obtenus en g/L sont les suivants : <span class="math display">\[
+1{,}35, \quad 1{,}26, \quad 1{,}48, \quad 1{,}32, \quad 1{,}50, \quad 1{,}44.
 \]</span></p>
-<p>We recall that the density of <span class="math inline">\(\Gamma(k, \lambda)\)</span> (shape <span class="math inline">\(k\)</span>, rate <span class="math inline">\(\lambda\)</span>) is: <span class="math display">\[
-p(x) = \frac{\lambda^k x^{k-1} e^{-\lambda x}}{(k-1)!}, \quad x &gt; 0, \quad k \in \mathbb{N}^*.
-\]</span></p>
+<p>On souhaite tester l’hypothèse que la précision est supérieure à <span class="math inline">\(0{,}1\,\text{g/L}\)</span> (c’est-à-dire que la méthode <strong>n’est pas</strong> suffisamment précise).</p>
 <ol type="1">
-<li><p>Show that if <span class="math inline">\(X \sim \mathcal{E}(\lambda)\)</span> and <span class="math inline">\(Y \sim \Gamma(k, \lambda)\)</span> are independent, with <span class="math inline">\(k \in \mathbb{N}^*\)</span>, then <span class="math inline">\(X + Y \sim \Gamma(k+1, \lambda)\)</span>.</p></li>
-<li><p>Deduce that <span class="math inline">\(S_n = \sum_{i=1}^n X_i\)</span> follows a Gamma distribution <span class="math inline">\(\Gamma(n, \lambda)\)</span>.</p></li>
-<li><p>For a sample of size <span class="math inline">\(n = 10\)</span>, what is the rejection region of <span class="math inline">\(S_n\)</span> for the simple likelihood ratio test at the <span class="math inline">\(0.05\)</span> significance level?<br>
-<em>We admit that <span class="math inline">\(\Gamma(n, \tfrac{1}{2}) \overset{d}{=} \chi^2(2n)\)</span>.</em><br>
-<strong>Bonus:</strong> Show this fact for <span class="math inline">\(n = 1\)</span>, using the result that if <span class="math inline">\(Z \sim \mathcal{N}(0,1)\)</span> then <span class="math inline">\(Z^2 \sim \chi^2(1)\)</span>, and a suitable change of variable.</p></li>
-<li><p>The empirical mean is <span class="math inline">\(\bar{x}_{10} = 2.5\)</span>. What can we conclude?</p></li>
-<li><p>Recall what a CDF is. The p-value is a tail probability <span class="math inline">\(P_{H_0}(S_{10} \geq s_{\mathrm{obs}})\)</span>; explain how to read it as <span class="math inline">\(1 - F(s_{\mathrm{obs}})\)</span> from the CDF of the <span class="math inline">\(\chi^2(20)\)</span> distribution shown below.</p>
-<p><img src="cdfs/chi20.svg" class="img-fluid"></p></li>
-<li><p>Compare the p-value obtained when using a Gaussian approximation of <span class="math inline">\(\sum X_i\)</span> via the CLT. We recall that <span class="math inline">\(\mathbb{V}(X_1) = \frac{1}{\lambda^2}\)</span>.</p></li>
+<li><p>Formuler le problème de test d’hypothèses. Notons que « précision <span class="math inline">\(\leq 0{,}1\)</span> g/L » signifie <span class="math inline">\(2\sigma \leq 0{,}1\)</span>, c’est-à-dire <span class="math inline">\(\sigma^2 \leq \sigma_0^2 = 0{,}0025\)</span>. Écrire <span class="math inline">\(H_0\)</span>, <span class="math inline">\(H_1\)</span>, <span class="math inline">\(\Theta_0\)</span> et <span class="math inline">\(\Theta_1\)</span>.</p></li>
+<li><p>Écrire la statistique de test et donner sa distribution sous <span class="math inline">\(H_0 : \sigma^2 = \sigma_0^2\)</span>.</p></li>
+<li><p>Effectuer le test au niveau de signification <span class="math inline">\(\alpha = 0{,}05\)</span>.</p></li>
+<li><p>Montrer que la p-valeur de ce test est comprise entre <span class="math inline">\(0{,}001\)</span> et <span class="math inline">\(0{,}01\)</span>. <em>Utiliser le fait que <span class="math inline">\(\chi^2_5(0{,}99) \approx 15{,}09\)</span> et <span class="math inline">\(\chi^2_5(0{,}999) \approx 20{,}52\)</span>.</em></p></li>
 </ol>
 </section>
-<section id="exercise-3" class="level2">
-<h2 class="anchored" data-anchor-id="exercise-3">Exercise 3</h2>
-<p>Let <span class="math inline">\(X_1, X_2, \ldots, X_n\)</span> be i.i.d. random variables drawn from <span class="math inline">\(\mathcal{N}(\theta, 1)\)</span>. To test <span class="math inline">\(H_0: \theta = 5\)</span> against <span class="math inline">\(H_1: \theta &gt; 5\)</span>, we consider the test: <span class="math display">\[
-T = \mathbf{1}\bigl\{\bar{X} &gt; 5 + u\bigr\},
-\]</span> where <span class="math inline">\(\bar{X}\)</span> is the empirical mean and <span class="math inline">\(u &gt; 0\)</span> is to be fixed.</p>
+<section id="exercice-3" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-3">Exercice 3</h2>
+<p>Un candidat aux élections européennes souhaite savoir si sa popularité diffère entre les hommes et les femmes. Un sondage a été réalisé auprès de <span class="math inline">\(250\)</span> hommes, dont <span class="math inline">\(42\%\)</span> se sont déclarés favorables au candidat, et <span class="math inline">\(250\)</span> femmes, dont <span class="math inline">\(51\%\)</span> se sont déclarées favorables.</p>
 <ol type="1">
-<li><ol type="a">
-<li><p>Let <span class="math inline">\(g(t) = P(Z \geq t) - e^{-t^2/2}\)</span> for <span class="math inline">\(Z \sim \mathcal{N}(0,1)\)</span> and <span class="math inline">\(t \geq 0\)</span>. Compute <span class="math inline">\(g'(t)\)</span> and study its sign.</p></li>
-<li><p>Using the behaviour of <span class="math inline">\(g\)</span> at <span class="math inline">\(+\infty\)</span> and the sign of <span class="math inline">\(g'\)</span>, deduce that <span class="math inline">\(g(t) \leq 0\)</span> for all <span class="math inline">\(t \geq 0\)</span>, i.e.: <span class="math display">\[
-P(Z \geq t) \leq e^{-t^2/2}.
-\]</span> <em>Hint: treat separately the intervals <span class="math inline">\([0, \frac{1}{\sqrt{2\pi}}]\)</span> and <span class="math inline">\([\frac{1}{\sqrt{2\pi}}, +\infty)\)</span>.</em></p></li>
-</ol></li>
-<li><p>Deduce a value of <span class="math inline">\(u\)</span> such that the type I error of the test <span class="math inline">\(T\)</span> is at most <span class="math inline">\(\alpha\)</span>. Rewrite the test <span class="math inline">\(T\)</span> as a function of <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(n\)</span>.</p></li>
-<li><p>Fix <span class="math inline">\(\alpha = 1/e\)</span> (so that <span class="math inline">\(u = \sqrt{2/n}\)</span>). Compute the power function <span class="math inline">\(\beta(\theta) = P_\theta(T = 1)\)</span> for <span class="math inline">\(\theta &gt; 5\)</span>.</p></li>
+<li><p>Formuler le problème de test d’hypothèses. On note <span class="math inline">\(p_h\)</span> et <span class="math inline">\(p_f\)</span> les proportions réelles de soutien respectivement chez les hommes et chez les femmes.</p></li>
+<li><p>Pour tester <span class="math inline">\(H_0: p_h = p_f\)</span>, utiliser la proportion poolée <span class="math inline">\(\hat{p} = (\hat{p}_h + \hat{p}_f)/2\)</span> pour estimer la variance commune sous <span class="math inline">\(H_0\)</span>, et construire une statistique <span class="math inline">\(z\)</span>. Au niveau de signification <span class="math inline">\(\alpha = 0{,}05\)</span>, la différence est-elle statistiquement significative ?</p></li>
+<li><p>Donner la p-valeur sous la forme <span class="math inline">\(2F(z_\mathrm{obs})\)</span> où <span class="math inline">\(F\)</span> est la fonction de répartition de <span class="math inline">\(\mathcal{N}(0,1)\)</span> et <span class="math inline">\(z_\mathrm{obs} &lt; 0\)</span>, et la lire sur le graphique ci-dessous.</p>
+<p><img src="cdfs/gauss.svg" class="img-fluid"></p></li>
 </ol>
 </section>
-<section id="exercise-4" class="level2">
-<h2 class="anchored" data-anchor-id="exercise-4">Exercise 4</h2>
-<p>Let the family of Pareto distributions with <strong>known</strong> parameter <span class="math inline">\(a &gt; 0\)</span> and <strong>unknown</strong> parameter <span class="math inline">\(\theta &gt; 0\)</span>: <span class="math display">\[
-f(x;\theta) =
-\begin{cases}
-\dfrac{\theta}{a}\!\left(\dfrac{a}{x}\right)^{\!\theta+1}, &amp; x \geq a, \\[6pt]
-0, &amp; x &lt; a.
-\end{cases}
+<section id="exercice-4" class="level2">
+<h2 class="anchored" data-anchor-id="exercice-4">Exercice 4</h2>
+<p>On souhaite comparer les durées moyennes journalières (en heures) des trajets domicile-travail dans deux départements notés <span class="math inline">\(A\)</span> et <span class="math inline">\(B\)</span>. On a interrogé aléatoirement <span class="math inline">\(26\)</span> personnes dans <span class="math inline">\(A\)</span> et <span class="math inline">\(22\)</span> dans <span class="math inline">\(B\)</span>. Soit <span class="math inline">\(X_i\)</span> la durée du trajet de la personne <span class="math inline">\(i\)</span> dans le département <span class="math inline">\(A\)</span>, et <span class="math inline">\(Y_j\)</span> celle de la personne <span class="math inline">\(j\)</span> dans le département <span class="math inline">\(B\)</span>. On suppose que les échantillons sont i.i.d. et gaussiens : <span class="math display">\[
+X_i \sim \mathcal{N}(\mu_A,\, \sigma_A^2) \quad \text{et} \quad
+Y_j \sim \mathcal{N}(\mu_B,\, \sigma_B^2).
 \]</span></p>
+<p>Voici un résumé des données :</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: center;">Département <span class="math inline">\(A\)</span></th>
+<th style="text-align: center;">Département <span class="math inline">\(B\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Taille de l’échantillon</td>
+<td style="text-align: center;"><span class="math inline">\(n_A = 26\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(n_B = 22\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(\sum x_i\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(533\)</span></td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(\sum y_j\)</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><span class="math inline">\(396\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(\sum x_i^2\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(11626\)</span></td>
+<td style="text-align: center;">—</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(\sum y_j^2\)</span></td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;"><span class="math inline">\(7590\)</span></td>
+</tr>
+</tbody>
+</table>
 <ol type="1">
-<li><p>Compute the mean and variance of <span class="math inline">\(X \sim \mathrm{Pareto}(a, \theta)\)</span>. <em>You may assume <span class="math inline">\(\theta &gt; 2\)</span> for the variance to be finite.</em></p></li>
-<li><p>Rewrite the density in the exponential family form <span class="math inline">\(f(x;\theta) = a(x)\,b(\theta)\,\exp\!\bigl(c(\theta)\,d(x)\bigr)\)</span> and identify <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, <span class="math inline">\(c\)</span>, and <span class="math inline">\(d\)</span>.</p></li>
-<li><p>Deduce the general form of the uniformly most powerful test <span class="math inline">\(\mathrm{UMP}_\alpha\)</span> for <span class="math display">\[H_0: \theta \geq \theta_0 \quad \text{vs.} \quad H_1: \theta &lt; \theta_0.\]</span> <em>Indicate carefully the direction of the rejection region for <span class="math inline">\(\sum d(X_i)\)</span>.</em></p></li>
-<li><p>For <span class="math inline">\(a = 1\)</span>, construct the UMP test for the null hypothesis: “the mean of the distribution is smaller than or equal to <span class="math inline">\(2\)</span>.” <em>Start by expressing this constraint in terms of <span class="math inline">\(\theta\)</span>.</em></p></li>
-<li><p>What is the distribution of <span class="math inline">\(d(X_1)\)</span>? (<em><span class="math inline">\(d\)</span> is defined in Q.2.</em>)<br>
-Deduce the distribution of <span class="math inline">\(\sum_{i=1}^n d(X_i)\)</span> under <span class="math inline">\(H_0\)</span>, and identify a pivot that follows a <span class="math inline">\(\chi^2\)</span> distribution.</p></li>
-<li><p>For <span class="math inline">\(a = 1\)</span>, <span class="math inline">\(n = 20\)</span>, and <span class="math inline">\(\alpha = 0.05\)</span>, write a line of code in Julia, Python, or R to compute the rejection threshold (i.e., the critical value of <span class="math inline">\(\sum_{i=1}^n \log X_i\)</span>).</p></li>
+<li><p>Formuler le problème de test d’hypothèses pour la comparaison des deux moyennes.</p></li>
+<li><p>Tester l’égalité des variances <span class="math inline">\(H_0: \sigma_A^2 = \sigma_B^2\)</span> au niveau de signification <span class="math inline">\(\alpha = 0{,}1\)</span>, à l’aide d’un test <span class="math inline">\(F\)</span>. Qu’en concluez-vous pour le choix du test à la Q.3 ?</p></li>
+<li><p>En utilisant la conclusion de la Q.2, tester l’égalité des durées moyennes de trajet <span class="math inline">\(H_0: \mu_A = \mu_B\)</span> au niveau de signification <span class="math inline">\(\alpha = 0{,}05\)</span>, et conclure.</p></li>
+<li><p>Donner une approximation gaussienne de la statistique de test en utilisant le TCL et la LGN, et approcher la p-valeur à l’aide du graphique de la fonction de répartition de <span class="math inline">\(\mathcal{N}(0,1)\)</span> de l’Exercice 3.</p></li>
 </ol>
 
 

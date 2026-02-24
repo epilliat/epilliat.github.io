@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.22">
+
+  <title>Emmanuel Pilliat – Corrélation, Homogénéité et Dépendance</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/theme/quarto-8861debc0ea4df1cd525e94b7712d9b7.css">
+  <link rel="stylesheet" href="../../../styles.css">
+  <link href="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Corrélation, Homogénéité et Dépendance</h1>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section id="plan" class="slide level2">
+<h2>Plan</h2>
+<ul>
+<li class="fragment">Test de corrélation (Pearson)</li>
+<li class="fragment">Test ANOVA</li>
+<li class="fragment">Tests d’homogénéité et d’indépendance du <span class="math inline">\(\chi^2\)</span></li>
+<li class="fragment">Test des rangs signés de Wilcoxon</li>
+</ul>
+<p><a href="../../../teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html">Précédent</a></p>
+</section>
+<section>
+<section id="test-de-corrélation" class="title-slide slide level1 center">
+<h1>Test de Corrélation</h1>
+
+</section>
+<section id="cadre" class="slide level2">
+<h2>Cadre</h2>
+<div class="fragment">
+<p>On observe des données appariées i.i.d. <span class="math inline">\((X_1, Y_1), \dots, (X_n,Y_n)\)</span> de moyennes <strong>inconnues</strong> <span class="math inline">\(\mu_X, \mu_Y\)</span> et de matrice de covariance <strong>inconnue</strong> <span class="math inline">\(\Sigma\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Soit <span class="math inline">\(X = X_1\)</span>, <span class="math inline">\(Y = Y_1\)</span>.</p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(\mathrm{Cov}(X,Y) = \mathbb{E}[(X - \mathbb{E}[X])(Y - \mathbb{E}[Y])]\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="square-objective">
+<p><span class="math inline">\(H_0: \mathrm{Cov}(X,Y) = 0\)</span> contre <span class="math inline">\(H_1: \mathrm{Cov}(X,Y) \neq 0\)</span></p>
+</div>
+</div>
+</section>
+<section id="corrélation-et-matrice-de-covariance" class="slide level2">
+<h2>Corrélation et Matrice de Covariance</h2>
+<div class="fragment">
+<p><span class="math inline">\(\sigma_X^2 = \mathrm{Cov}(X,X)\)</span></p>
+<p><span class="math inline">\(\sigma_Y^2 = \mathrm{Cov}(Y,Y)\)</span></p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(\hat \rho(X,Y) = \dfrac{\mathrm{Cov}(X,Y)}{\sigma_X \sigma_Y}\)</span></p>
+</div>
+<p>[<a href="https://app.wooclap.com/events/RQSUIA/questions/67d18d44da9d0e3a03397017">Wooclap</a>]</p>
+</div>
+<div class="fragment">
+<p>Matrice de covariance :</p>
+<p><span class="math display">\[
+\Sigma =
+\begin{pmatrix}
+\sigma_X^2 &amp; \mathrm{Cov}(X,Y) \\
+\mathrm{Cov}(X,Y) &amp; \sigma_Y^2
+\end{pmatrix}
+\]</span></p>
+</div>
+</section>
+<section id="quantités-théoriques-vs-empiriques" class="slide level2">
+<h2>Quantités Théoriques VS Empiriques</h2>
+<div class="fragment">
+<p>On définit leurs versions empiriques :</p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\widehat{\mathrm{Cov}}(X,Y) = \frac{1}{n-1}\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)\)</span></p>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\hat \sigma_X^2 = \frac{1}{n-1}\sum_{i=1}^n (X_i - \overline X)^2\)</span></p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[\hat \rho(X,Y) = \frac{\widehat{\mathrm{Cov}}(X,Y)}{\hat \sigma_X \hat \sigma_Y}\]</span></p>
+</div>
+</div>
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Quantités empiriques vs.&nbsp;théoriques</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math inline">\(\hat \rho\)</span>, <span class="math inline">\(\hat \sigma_X\)</span>, <span class="math inline">\(\widehat{\mathrm{Cov}}\)</span>, … sont des quantités <span style="background-color: yellow;"><em>empiriques</em></span> — elles sont calculées à partir des données. Leurs homologues <span class="math inline">\(\rho\)</span>, <span class="math inline">\(\sigma_X\)</span>, <span class="math inline">\(\mathrm{Cov}\)</span>, … sont des quantités <span style="background-color: yellow;"><em>théoriques</em></span> (de population), généralement inconnues.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="propriétés-de-la-corrélation-empirique" class="slide level2">
+<h2>Propriétés de la Corrélation Empirique</h2>
+<div class="fragment">
+<p>À partir de l’inégalité de Cauchy-Schwarz, on déduit que :</p>
+</div>
+<div class="fragment">
+<p>La corrélation <span class="math inline">\(\hat \rho\)</span> est toujours comprise entre <span class="math inline">\(-1\)</span> et <span class="math inline">\(1\)</span> :</p>
+<ul>
+<li class="fragment"><p>Si <span style="background-color: lightgreen;"><span class="math inline">\(\hat \rho = 1\)</span></span> : pour tout <span class="math inline">\(i\)</span>, <span class="math inline">\(Y_i = aX_i + b\)</span> pour un certain <span style="background-color: lightgreen;"><span class="math inline">\(a &gt; 0\)</span></span></p></li>
+<li class="fragment"><p>Si <span style="background-color: orange;"><span class="math inline">\(\hat \rho = -1\)</span></span> : pour tout <span class="math inline">\(i\)</span>, <span class="math inline">\(Y_i = aX_i + b\)</span> pour un certain <span style="background-color: orange;"><span class="math inline">\(a &lt; 0\)</span></span></p></li>
+<li class="fragment"><p>Si <span style="background-color: yellow;"><span class="math inline">\(\hat \rho = 0\)</span></span> : <strong>aucune</strong> relation linéaire. <a href="../pluto/introduction.html">notebook</a></p></li>
+</ul>
+</div>
+</section>
+<section id="test-de-corrélation-de-pearson" class="slide level2">
+<h2>Test de Corrélation de Pearson</h2>
+<div class="fragment">
+<p>Corrélation empirique :</p>
+<div class="square-def">
+<p><span class="math display">\[\hat \rho = \frac{\sum_{i=1}^n (X_i - \overline X)(Y_i - \overline Y)}{\sqrt{\sum_{i=1}^n (X_i - \overline X)^2\sum_{i=1}^n (Y_i - \overline Y)^2}}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Statistique de test :</p>
+<p><span class="math display">\[\psi(X,Y) = \frac{\hat \rho}{\sqrt{1-\hat \rho^2}}\sqrt{n-2}\]</span></p>
+<p>Sous <span class="math inline">\(H_0\)</span>, si les données sont gaussiennes : <span class="math inline">\(\psi(X,Y) \approx \mathcal{T}(n-2)\)</span></p>
+</div>
+</section>
+<section id="section-1" class="slide level2">
+<h2></h2>
+
+<img data-src="../images/correlated_X_Y.svg" class="r-stretch"></section>
+<section id="validation-par-monte-carlo-n4" class="slide level2">
+<h2>Validation par Monte Carlo (<span class="math inline">\(n=4\)</span>)</h2>
+<div class="fragment">
+<p><img data-src="../images/correlation_pearson.png"></p>
+</div>
+</section>
+<section id="exemple" class="slide level2">
+<h2>Exemple</h2>
+<div class="fragment">
+<p>Le temps d’étude est-il corrélé avec les notes aux examens ?</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Étudiant</th>
+<th>Temps d’étude <span class="math inline">\(X_i\)</span> (h)</th>
+<th>Note <span class="math inline">\(Y_i\)</span> (%)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>2</td>
+<td>55</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>4</td>
+<td>65</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>6</td>
+<td>70</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>8</td>
+<td>80</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>10</td>
+<td>90</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="formalisation" class="slide level2">
+<h2>Formalisation</h2>
+<div class="fragment">
+<p>On note <span class="math inline">\(X_i\)</span> le temps d’étude de l’étudiant <span class="math inline">\(i\)</span> et <span class="math inline">\(Y_i\)</span> sa note.</p>
+</div>
+<div class="fragment">
+<p>On suppose que <span class="math inline">\((X_1, \dots, X_n)\)</span> i.i.d. <span class="math inline">\(\mathcal N(\mu_X, \sigma_X^2)\)</span> et <span class="math inline">\((Y_1, \dots, Y_n)\)</span> i.i.d. <span class="math inline">\(\mathcal N(\mu_Y, \sigma_Y^2)\)</span> où <span class="math inline">\(\mu_X\)</span>, <span class="math inline">\(\mu_Y\)</span>, <span class="math inline">\(\sigma_X\)</span>, <span class="math inline">\(\sigma_Y\)</span> sont <strong>inconnus</strong>.</p>
+</div>
+<div class="fragment">
+<p>On note <span class="math inline">\(\rho = Cov(X,Y)\)</span>, également <strong>inconnu</strong>. On veut tester :</p>
+<div class="square-objective">
+<p><span class="math inline">\(H_0: \rho = 0\)</span> contre <span class="math inline">\(H_1: \rho \neq 0\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Ici <span class="math inline">\(\hat \rho =0{,}9948\)</span> et <span class="math inline">\(\hat{\rho} = \frac{170}{\sqrt{40 \times 730}} \approx 0{,}9948, \qquad t = \frac{0{,}9948\sqrt{3}}{\sqrt{1-0{,}9948^2}} \approx 16{,}94\)</span>. <span style="background-color: orange;">Rejet</span> (présence de corrélation)</p>
+</div>
+</section></section>
+<section>
+<section id="test-anova" class="title-slide slide level1 center">
+<h1>Test ANOVA</h1>
+
+</section>
+<section id="motivation" class="slide level2">
+<h2>Motivation</h2>
+<div class="fragment">
+<p>Précédemment : test de corrélation entre deux variables <span style="background-color: yellow;">quantitatives</span> <span class="math inline">\(Y\)</span> et <span class="math inline">\(X\)</span>. Que faire si <span class="math inline">\(X\)</span> représente des modalités ?</p>
+</div>
+<div class="fragment">
+<p>Par exemple : <span class="math inline">\(Y\)</span> représente le salaire et <span class="math inline">\(X\)</span> la région.</p>
+</div>
+<div class="fragment">
+<p>Question naturelle : les salaires sont-ils homogènes entre les régions ?</p>
+</div>
+</section>
+<section id="cadre-1" class="slide level2">
+<h2>Cadre</h2>
+<div class="fragment">
+<p>On observe</p>
+<p><span class="math inline">\((X_1, \dots, X_n) \in \{1, \dots I\}^n\)</span>&nbsp;(modalités) <span class="math inline">\((Y_1, \dots, Y_n) \in \mathbb R^n\)</span> (variables quantitatives)</p>
+</div>
+<div class="fragment">
+<p>Hypothèse : <span class="math inline">\((Y_k,X_k)\)</span> sont indépendants, de <span style="background-color: yellow;">même variance</span>, et si <span class="math inline">\(X_k=i\)</span> :</p>
+<div class="square-def">
+<p><span class="math inline">\(Y_k \sim \mathcal N(\mu_k, \sigma^2)\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>On peut écrire :</p>
+<p><span class="math inline">\(\mu_i = \mathbb E[Y|X=i]=\frac{\mathbb E[Y\mathbf 1\{X=i\}]}{\mathbb P(X=i)}\)</span> <strong>(inconnu)</strong></p>
+</div>
+</section>
+<section id="problème-de-test" class="slide level2">
+<h2>Problème de Test</h2>
+<div class="fragment">
+<p>Les <span class="math inline">\(Y\)</span> sont-ils homogènes par rapport aux modalités de <span class="math inline">\(X\)</span> ?</p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(H_0: \mu_1=\dots = \mu_I\)</span> contre <span class="math inline">\(H_1: \mu_i \neq \mu_j\)</span> pour certains <span class="math inline">\(i,j\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>Il s’agit d’un test sur les <strong>moyennes</strong> et non sur les variances. La <strong>variance est supposée constante</strong> pour toutes les modalités.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="formulation-équivalente" class="slide level2">
+<h2>Formulation Équivalente</h2>
+<div class="fragment">
+<p>On observe</p>
+<div class="square-def">
+<p><span class="math inline">\(Y_k = \sum_{i=1}^I\mathbf{1}\{X_k = i\} \mu_i + \sigma \varepsilon_k\)</span></p>
+</div>
+<p>où les <span class="math inline">\(\varepsilon_k\)</span> sont i.i.d. <span class="math inline">\(\mathcal N(0,1)\)</span></p>
+</div>
+</section>
+<section id="représentation-graphique" class="slide level2">
+<h2>Représentation Graphique</h2>
+<div class="fragment">
+<p>On observe <span class="math inline">\(X=(X_1, \dots, X_n)\)</span> et <span class="math inline">\(Y=(Y_1, \dots, Y_n)\)</span>, où</p>
+<ul>
+<li class="fragment"><span class="math inline">\(X_k \in \{1, \dots, I\}\)</span> (Qualitatif)</li>
+<li class="fragment"><span class="math inline">\(Y_k \in \mathbb R\)</span> (Quantitatif)</li>
+</ul>
+</div>
+<div class="fragment">
+<p><strong>Boxplot</strong> : représente les percentiles <span class="math inline">\(0\)</span>, <span class="math inline">\(25\)</span>, <span class="math inline">\(75\)</span> et <span class="math inline">\(100\)</span>.</p>
+</div>
+</section>
+<section id="jeu-de-données-des-chanteurs-julia-statsplots" class="slide level2">
+<h2>Jeu de Données des Chanteurs (Julia StatsPlots)</h2>
+<div class="fragment">
+<p><span class="math inline">\(X\)</span> : Taille (en pouces), <span class="math inline">\(Y\)</span> : Type de chanteur</p>
+</div>
+<div class="fragment">
+<p>Boxplot : (min, <span class="math inline">\(q_{1/4}\)</span>, <span class="math inline">\(q_{3/5}\)</span>, max) pour chaque modalité</p>
+<p><img data-src="../images/singers.svg" style="width:60.0%"></p>
+</div>
+</section>
+<section id="définitions" class="slide level2">
+<h2>Définitions</h2>
+<div class="fragment">
+<p><span class="math inline">\(X=(X_1, \dots, X_n) \in \{1, \dots, I\}^n\)</span>, <span class="math inline">\(Y=(Y_1, \dots, Y_n) \in \mathbb R^n\)</span></p>
+</div>
+<div class="fragment">
+<p>Pour <span class="math inline">\(i \in \{1, \dots, I\}\)</span>, on définit les moyennes partielles :</p>
+<div class="square-def">
+<div style="font-size: 80%;">
+<p><span class="math inline">\(N_i = \sum_{k=1}^n \mathbf 1\{X_k=i\}\)</span> et <span class="math inline">\(\overline Y_i = \frac{1}{N_i}\sum_{k=1}^n Y_k \mathbf 1\{X_k=i\}\)</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>Moyenne totale :</p>
+<div class="square-def">
+<p><span class="math inline">\(\overline Y = \frac{1}{N}\sum_{k=1}^n Y_k = \frac{1}{N}\sum_{i=1}^I\sum N_i \overline Y_i\)</span></p>
+</div>
+</div>
+</section>
+<section id="décomposition-de-la-variance" class="slide level2">
+<h2>Décomposition de la Variance</h2>
+<div class="fragment">
+<div style="font-size: 70%;">
+<div class="square-def">
+<p><span class="math display">\[\frac{1}{n}\underbrace{\sum_{k=1}^n(Y_k - \overline Y)^2}_{SCT} =
+\frac{1}{n}\underbrace{\sum_{i=1}^IN_i(\overline Y_i - \overline Y)^2}_{SCB}
++ \frac{1}{n}\underbrace{\sum_{k=1}^n\mathbf 1\{X_k=i\}(Y_k - \overline Y_i)^2}_{SCW}\]</span></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Rapport de corrélation :</strong></p>
+<div class="square-def">
+<p><span class="math display">\[ \hat \eta^2 = \frac{SCB}{SCT}  \in [0,1]\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>C’est un estimateur de <span class="math inline">\(\eta = \frac{\mathbb V(\mathbb E[Y|X])}{\mathbb V(Y)}\)</span> <strong>inconnu</strong></p>
+</div>
+</section>
+<section id="distribution-sous-h_0" class="slide level2">
+<h2>Distribution sous <span class="math inline">\(H_0\)</span></h2>
+<div class="fragment">
+<p><strong>Modèle :</strong> <span class="math inline">\(Y_k = \mu + \varepsilon_k\)</span>, <span class="math inline">\(\varepsilon_k \overset{iid}{\sim} \mathcal{N}(0, \sigma^2)\)</span>, c’est-à-dire <span class="math inline">\(\mu_1 = \cdots = \mu_I = \mu\)</span> (inconnu).</p>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Proposition</strong></p>
+</div>
+<div class="callout-content">
+<p>Sous <span class="math inline">\(H_0\)</span>, en supposant <span class="math inline">\(\varepsilon_k \overset{iid}{\sim} \mathcal{N}(0,\sigma^2)\)</span> :</p>
+<p><span class="math display">\[\frac{SCB}{\sigma^2} \sim \chi^2(I-1), \qquad \frac{SCW}{\sigma^2} \sim \chi^2(n-I)\]</span></p>
+<p>et <span class="math inline">\(SCB \perp SCW\)</span>. Par conséquent,</p>
+<p><span class="math display">\[F = \frac{SCB/(I-1)}{SCW/(n-I)} \sim \mathcal{F}(I-1,\, n-I)\]</span></p>
+<p><a href="../../../teaching/hypothesis_testing/notes/anova.html">preuve</a></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="section-2" class="slide level2">
+<h2></h2>
+<p>Les <strong>degrés de liberté</strong> ont une interprétation intuitive :</p>
+<ul>
+<li class="fragment"><span class="math inline">\(I-1\)</span> : <span class="math inline">\(I\)</span> moyennes de groupe, moins 1 contrainte globale <span class="math inline">\(\overline Y\)</span></li>
+<li class="fragment"><span class="math inline">\(n-I\)</span> : <span class="math inline">\(n\)</span> observations, moins <span class="math inline">\(I\)</span> moyennes de groupe estimées</li>
+</ul>
+<div class="fragment">
+<p><strong>Test de Fisher :</strong> rejeter <span class="math inline">\(H_0\)</span> au niveau <span class="math inline">\(\alpha\)</span> lorsque</p>
+<p><span class="math display">\[F &gt; f_{1-\alpha}(I-1,\, n-I)\]</span></p>
+<p>où <span class="math inline">\(f_{1-\alpha}(I-1, n-I)\)</span> est le quantile <span class="math inline">\((1-\alpha)\)</span> de <span class="math inline">\(\mathcal{F}(I-1, n-I)\)</span>.</p>
+</div>
+</section>
+<section id="test-anova-1" class="slide level2">
+<h2>Test ANOVA</h2>
+<div class="fragment">
+<p><strong>Statistique de test</strong></p>
+<div class="square-def">
+<p><span class="math display">\[\psi(X,Y) = \frac{SCB/(I-1)}{SCW/(N-I)}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\psi(X,Y) \sim \mathcal F(I-1, N-I)\)</span> sous <span class="math inline">\(H_0\)</span></p>
+</div>
+<div class="fragment">
+<p>p-valeur :</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="fl">1</span><span class="fu">-cdf</span>(<span class="fu">FDist</span>(I<span class="op">-</span><span class="fl">1</span>, N<span class="op">-</span><span class="fl">1</span>), psiobs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="illustration" class="slide level2">
+<h2>Illustration</h2>
+<div class="fragment">
+<p><img data-src="../images/anova.svg" height="280"></p>
+</div>
+</section>
+<section id="exemple-1" class="slide level2">
+<h2>Exemple</h2>
+<p><a href="../../../teaching/hypothesis_testing/annals/correction_2025.html">Correction 2025</a></p>
+</section></section>
+<section>
+<section id="tests-dhomogénéité-et-dindépendance-du-chi2" class="title-slide slide level1 center">
+<h1>Tests d’Homogénéité et d’Indépendance du <span class="math inline">\(\chi^2\)</span></h1>
+
+</section>
+<section id="objectif-général" class="slide level2">
+<h2>Objectif Général</h2>
+<div class="fragment">
+<p>Précédemment : <span style="background-color: yellow;">corrélation de Pearson entre variables quantitatives</span> <span class="math inline">\(X_i\)</span> et <span class="math inline">\(Y_i\)</span></p>
+</div>
+<div class="fragment">
+<p>Mais que faire si <span class="math inline">\(X_i\)</span> et <span class="math inline">\(Y_i\)</span> représentent <span style="background-color: yellow;">deux modalités</span> de l’individu <span class="math inline">\(i\)</span> ?</p>
+</div>
+<div class="fragment">
+<p>Exemple : catégorie socioprofessionnelle et région, opinion politique et tranche d’âge, religion et pays…</p>
+</div>
+</section>
+<section id="de-nouveau-les-multinomiales" class="slide level2">
+<h2>De Nouveau les Multinomiales</h2>
+<div class="fragment">
+<p>Pensez aux modalités de <span style="background-color: yellow;"><span class="math inline">\(Y\)</span> comme des « sacs »</span> et aux modalités de <span style="background-color: yellow;"><span class="math inline">\(X\)</span> comme des « couleurs »</span>.</p>
+</div>
+<div class="fragment">
+<p>Il s’agit juste d’une représentation, on peut prendre <span class="math inline">\(X\)</span> pour les sacs.</p>
+</div>
+<div class="fragment">
+<p>Ainsi, échantillonner une population revient à tirer des boules dans des sacs.</p>
+</div>
+<div class="fragment">
+<p>On obtient une <span style="background-color: yellow;">loi multinomiale</span></p>
+</div>
+</section>
+<section id="tableau-de-contingence-et-notations" class="slide level2">
+<h2>Tableau de Contingence et Notations</h2>
+<div class="fragment">
+<p>On observe <span class="math inline">\(X=(X_1, \dots, X_n)\)</span> i.i.d. et <span class="math inline">\(Y=(Y_1, \dots, Y_n)\)</span> i.i.d., où</p>
+<ul>
+<li class="fragment"><span class="math inline">\(X_k \in \{1, \dots, I\}\)</span> (facteur à <span class="math inline">\(I\)</span> catégories, « couleurs »)</li>
+<li class="fragment"><span class="math inline">\(Y_k \in \{1, \dots, J\}\)</span> (facteur à <span class="math inline">\(J\)</span> catégories, « sacs »)</li>
+</ul>
+</div>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Catégorie X/Y</th>
+<th><strong>Sac 1</strong></th>
+<th><strong>Sac 2</strong></th>
+<th><strong>Sac 3</strong></th>
+<th>Totaux</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Col 1</strong></td>
+<td><span class="math inline">\(n_{11}\)</span></td>
+<td><span class="math inline">\(n_{12}\)</span></td>
+<td><span class="math inline">\(n_{13}\)</span></td>
+<td><span class="math inline">\(R_1\)</span></td>
+</tr>
+<tr class="even">
+<td><strong>Col 2</strong></td>
+<td><span class="math inline">\(n_{21}\)</span></td>
+<td><span class="math inline">\(n_{22}\)</span></td>
+<td><span class="math inline">\(n_{23}\)</span></td>
+<td><span class="math inline">\(R_2\)</span></td>
+</tr>
+<tr class="odd">
+<td><strong>Totaux</strong></td>
+<td><span class="math inline">\(N_1\)</span></td>
+<td><span class="math inline">\(N_2\)</span></td>
+<td><span class="math inline">\(N_3\)</span></td>
+<td><span class="math inline">\(N\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><span class="math inline">\(n_{ij}\)</span> : nombre d’individus ayant la catégorie <span class="math inline">\(i\)</span> pour <span class="math inline">\(X\)</span> et <span class="math inline">\(j\)</span> pour <span class="math inline">\(Y\)</span></p>
+</div>
+</section>
+<section id="exemple-jeu-de-données-no2trafic" class="slide level2">
+<h2>Exemple : Jeu de Données NO2trafic</h2>
+<div class="fragment">
+<p>Le jeu de données contient des mesures de qualité de l’air à différentes stations de surveillance du trafic. On étudie deux variables qualitatives :</p>
+<ul>
+<li class="fragment"><strong>Type</strong> : type de route — P (périphérique), U (urbain), A (autoroute), T (tunnel), V (voie verte)</li>
+<li class="fragment"><strong>Fluidité</strong> : niveau de fluidité du trafic — A (fluide), B (modéré), C (dense), D (congestionné)</li>
+</ul>
+</div>
+</section>
+<section id="exemple-jeu-de-données-no2trafic-1" class="slide level2">
+<h2>Exemple : Jeu de Données NO2trafic</h2>
+<div class="fragment">
+<p><strong>Tableau de contingence</strong> des variables « Type » et « Fluidité »</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th><strong>Fluidité</strong>/<strong>Type</strong></th>
+<th>P</th>
+<th>U</th>
+<th>A</th>
+<th>T</th>
+<th>V</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>21</td>
+<td>21</td>
+<td>19</td>
+<td>9</td>
+<td>9</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>20</td>
+<td>17</td>
+<td>16</td>
+<td>8</td>
+<td>7</td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td>17</td>
+<td>17</td>
+<td>16</td>
+<td>8</td>
+<td>7</td>
+</tr>
+<tr class="even">
+<td>D</td>
+<td>20</td>
+<td>20</td>
+<td>18</td>
+<td>8</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p>En R : <code>table(X,Y)</code></p>
+</div>
+</section>
+<section id="deux-questions-possibles-une-même-statistique" class="slide level2">
+<h2>Deux Questions Possibles, Une Même Statistique :</h2>
+<div class="fragment">
+<p>Les sacs sont-ils homogènes ?</p>
+</div>
+<div class="fragment">
+<p>Existe-t-il une dépendance entre <span class="math inline">\(X\)</span> et <span class="math inline">\(Y\)</span> ?</p>
+</div>
+</section>
+<section id="test-dhomogénéité-du-chi2" class="slide level2">
+<h2>Test d’Homogénéité du <span class="math inline">\(\chi^2\)</span></h2>
+<div class="fragment">
+<p><span class="math inline">\(d\)</span> groupes différents (sacs), chacun contenant des boules de <span class="math inline">\(m\)</span> couleurs possibles.</p>
+</div>
+<div class="fragment">
+<p>Si <span class="math inline">\(d = 3\)</span> et <span class="math inline">\(m = 2\)</span>, on observe le tableau <span class="math inline">\(2\times 3\)</span> d’<strong>effectifs</strong> suivant :</p>
+</div>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>sac 1</th>
+<th>sac 2</th>
+<th>sac 3</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>couleur 1</td>
+<td><span class="math inline">\(n_{11}\)</span></td>
+<td><span class="math inline">\(n_{12}\)</span></td>
+<td><span class="math inline">\(n_{13}\)</span></td>
+<td><span class="math inline">\(R_1\)</span></td>
+</tr>
+<tr class="even">
+<td>couleur 2</td>
+<td><span class="math inline">\(n_{21}\)</span></td>
+<td><span class="math inline">\(n_{22}\)</span></td>
+<td><span class="math inline">\(n_{23}\)</span></td>
+<td><span class="math inline">\(R_2\)</span></td>
+</tr>
+<tr class="odd">
+<td>Total</td>
+<td><span class="math inline">\(N_1\)</span></td>
+<td><span class="math inline">\(N_2\)</span></td>
+<td><span class="math inline">\(N_3\)</span></td>
+<td><span class="math inline">\(N\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="cadre-et-statistique" class="slide level2">
+<h2>Cadre et Statistique</h2>
+<div class="fragment">
+<p>Dans le sac <span class="math inline">\(j\)</span> :</p>
+<div class="square-def">
+<p><span class="math inline">\((X_{1j}, X_{2j}, \dots, X_{mj}) \sim \mathrm{Mult}(N_j, (p_{1j}, p_{2j}, \dots, p_{mj}))\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Les paramètres <span class="math inline">\(p_{ij}\)</span> sont <strong>inconnus</strong> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67d19ee99480f7e8d5dbf8da">Wooclap</a>]</p>
+</div>
+<div class="fragment">
+<div class="square-objective">
+<p><span class="math inline">\(H_0\)</span> : <span class="math inline">\(p_{i1} = p_{i2} = \dots = p_{id}\)</span> pour toute couleur <span class="math inline">\(i\)</span> (les sacs sont homogènes)</p>
+<p><span class="math inline">\(H_1\)</span> : les sacs sont hétérogènes</p>
+</div>
+</div>
+</section>
+<section id="statistique-de-test" class="slide level2">
+<h2>Statistique de Test</h2>
+<div class="fragment">
+<p>Sous <span class="math inline">\(H_0\)</span>, on écrit <span class="math inline">\(p_i = p_{i1} = p_{i2} = \dots = p_{id}\)</span>.</p>
+</div>
+<div class="fragment">
+<p>On peut alors estimer</p>
+<p><span class="math inline">\(\hat{p}_{i} = \tfrac{1}{N}\sum_{j=1}^{d}X_{ij} = \dfrac{R_i}{N}\)</span></p>
+<p>On définit la statistique de test comme :</p>
+<div class="square-def">
+<p><span class="math display">\[\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(n_{ij}- N_j\hat{p}_{i})^2}{N_j\hat{p}_{i}} \;\asymp\; \chi^2\!\left((m-1)(d-1)\right)\]</span></p>
+</div>
+</div>
+</section>
+<section id="proposition-1" class="slide level2">
+<h2>Proposition</h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Proposition</strong></p>
+</div>
+<div class="callout-content">
+<p>Sous <span class="math inline">\(H_0\)</span>, lorsque <span class="math inline">\(N \to \infty\)</span> avec <span class="math inline">\(N_j/N \to \lambda_j &gt; 0\)</span>,</p>
+<p><span class="math display">\[\psi(X) = \sum_{i=1}^m\sum_{j=1}^d \frac{(n_{ij} - N_j\hat{p}_{i})^2}{N_j\hat{p}_{i}} \xrightarrow{\mathcal{L}} \chi^2\!\left((m-1)(d-1)\right)\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="degrés-de-liberté-intuition" class="slide level2">
+<h2>Degrés de Liberté — Intuition</h2>
+<div class="fragment">
+<p>Le tableau comporte <span class="math inline">\(m \times d\)</span> cases, mais toutes ne sont pas libres une fois les marges fixées.</p>
+</div>
+<div class="fragment">
+<div style="font-size: 80%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: center;"></th>
+<th style="text-align: center;"><span class="math inline">\(j=1\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(j=2\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(\cdots\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(j=d\)</span></th>
+<th style="text-align: center;"></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(i=1\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(n_{11}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(n_{12}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\cdots\)</span></td>
+<td style="text-align: center;"><strong>?</strong></td>
+<td style="text-align: center;"><span class="math inline">\(R_1\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(i=2\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(n_{21}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(n_{22}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\cdots\)</span></td>
+<td style="text-align: center;"><strong>?</strong></td>
+<td style="text-align: center;"><span class="math inline">\(R_2\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(\vdots\)</span></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"><strong>?</strong></td>
+<td style="text-align: center;"><span class="math inline">\(\vdots\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(i=m\)</span></td>
+<td style="text-align: center;"><strong>?</strong></td>
+<td style="text-align: center;"><strong>?</strong></td>
+<td style="text-align: center;"><span class="math inline">\(\cdots\)</span></td>
+<td style="text-align: center;"><strong>?</strong></td>
+<td style="text-align: center;"><span class="math inline">\(R_m\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"></td>
+<td style="text-align: center;"><span class="math inline">\(C_1\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(C_2\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\cdots\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(C_d\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(N\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="fragment">
+<p>Une fois le <strong>bloc supérieur gauche</strong> de <span class="math inline">\((m-1)(d-1)\)</span> cases rempli, <strong>toutes les autres cases sont déterminées</strong> par les contraintes des marges.</p>
+</div>
+</section>
+<section id="exemple-préférences-de-boissons-gazeuses" class="slide level2">
+<h2>Exemple : Préférences de Boissons Gazeuses</h2>
+<div style="font-size: 80%;">
+
+</div>
+<div class="fragment">
+<div style="font-size: 60%">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Groupe d’âge</th>
+<th>Jeunes adultes</th>
+<th>Âge moyen</th>
+<th>Seniors</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Coca</td>
+<td>60</td>
+<td>40</td>
+<td>30</td>
+<td>130</td>
+</tr>
+<tr class="even">
+<td>Pepsi</td>
+<td>50</td>
+<td>55</td>
+<td>25</td>
+<td>130</td>
+</tr>
+<tr class="odd">
+<td>Sprite</td>
+<td>30</td>
+<td>45</td>
+<td>55</td>
+<td>130</td>
+</tr>
+<tr class="even">
+<td><strong>Total</strong></td>
+<td>140</td>
+<td>140</td>
+<td>110</td>
+<td>390</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="fragment">
+<p>Effectif théorique : <span class="math inline">\(N_1 \hat{p}_1 = 140 \times \dfrac{130}{390} \approx 46{,}7\)</span></p>
+</div>
+</section>
+<section id="calcul-de-la-statistique-du-chi2" class="slide level2">
+<h2>Calcul de la Statistique du <span class="math inline">\(\chi^2\)</span></h2>
+<div class="fragment">
+<p><span class="math display">\[
+\begin{aligned}
+\psi(X) &amp;= \frac{(60-46{,}7)^2}{46{,}7} + \frac{(40-46{,}7)^2}{46{,}7} + \frac{(30-36{,}7)^2}{36{,}7} \\
+        &amp;+ \frac{(50-46{,}7)^2}{46{,}7} + \frac{(55-46{,}7)^2}{46{,}7} + \frac{(25-36{,}7)^2}{36{,}7} \\
+        &amp;+ \frac{(30-46{,}7)^2}{46{,}7} + \frac{(45-46{,}7)^2}{46{,}7} + \frac{(55-36{,}7)^2}{36{,}7} \\
+        &amp;\approx 26{,}57
+\end{aligned}
+\]</span></p>
+</div>
+<div class="fragment">
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a><span class="fl">1</span> <span class="op">-</span> <span class="fu">cdf</span>(<span class="fu">Chisq</span>(<span class="fl">4</span>), <span class="fl">26.57</span>)  <span class="co"># ≈ 2.4e-5  →  rejeter H₀</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="test-dindépendance-du-chi2" class="slide level2">
+<h2>Test d’Indépendance du <span class="math inline">\(\chi^2\)</span></h2>
+<p><span class="math inline">\(\newcommand{\VS}{\quad \mathrm{contre} \quad}\)</span> <span class="math inline">\(\newcommand{\and}{\quad \mathrm{et} \quad}\)</span></p>
+<div class="fragment">
+<p>On observe<br>
+<span class="math inline">\(X=(X_1, \dots, X_n) \in \{1, \dots, I\}^n\)</span> et <span class="math inline">\(Y=(Y_1, \dots, Y_n) \in \{1, \dots, J\}^n\)</span></p>
+</div>
+<div class="fragment">
+<p><strong>Hypothèses</strong> : <span class="math inline">\((X_k,Y_k)\)</span> sont indépendants, chaque paire a une distribution inconnue <span class="math inline">\(P_{XY}\)</span></p>
+</div>
+<div class="fragment">
+<p>Problème de test de dépendance :</p>
+<div class="square-def">
+<p><span class="math display">\[H_0: P_{XY}=P_{X}P_Y \VS H_1: P_{XY} \neq P_{X}P_{Y}\]</span></p>
+</div>
+</div>
+</section>
+<section id="définitions-1" class="slide level2">
+<h2>Définitions</h2>
+<div class="fragment">
+<p>Cases du tableau :</p>
+<div class="square-def">
+<p><span class="math display">\[n_{ij} = \sum_{k=1}^n \mathbf 1\{X_{k} = i\}\mathbf 1\{Y_k=j\}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Proportion totale des individus <span class="math inline">\(k\)</span> de couleur <span class="math inline">\(X_k =i\)</span> :<br>
+</p>
+<div class="square-def">
+<p><span style="background-color: yellow;"><span class="math inline">\(\hat p_{i}=\frac{R_i}{N}\)</span></span> <span class="math inline">\(= \tfrac{1}{N}\sum_{j=1}^{J}n_{ij}\)</span></p>
+</div>
+</div>
+</section>
+<section id="test-dindépendance-du-chi2-1" class="slide level2">
+<h2>Test d’Indépendance du <span class="math inline">\(\chi^2\)</span></h2>
+<div class="fragment">
+<p>Statistique du chi-deux, ou distance du chi-deux :</p>
+<div class="square-def">
+<p><span class="math display">\[\psi(X,Y) = \sum_{i=1}^I\sum_{j=1}^J \frac{(n_{ij}- N_j\hat p_{i})^2}{N_j\hat p_{i}}\]</span></p>
+</div>
+<ul>
+<li class="fragment">Approximation : <span class="math inline">\(\psi(X,Y) \sim \chi^2((I-1)(J-1))\)</span> quand <span class="math inline">\(n \to \infty\)</span></li>
+<li class="fragment">Test : <span class="math inline">\(T=\mathbf 1\{\psi(X,Y) \geq t_{1-\alpha/2}\}\)</span>, où<br>
+<span class="math inline">\(t_{0{,}975}\)</span> = <code>quantile(Chisq(I-1,J-1), 0.975)</code></li>
+</ul>
+</div>
+</section>
+<section id="test-dindépendance-du-chi2-2" class="slide level2">
+<h2>Test d’Indépendance du <span class="math inline">\(\chi^2\)</span></h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Cadre</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment">Observations : variables <strong>catégorielles</strong> appariées <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span></li>
+<li class="fragment">Ex. : <span class="math inline">\(X_i \in \{\mathrm{homme}, \mathrm{femme}\}\)</span>, <span class="math inline">\(Y_i \in \{\mathrm{café}, \mathrm{thé}\}\)</span> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67d1a28a4b4e2b35810c65ff">Wooclap</a>]</li>
+<li class="fragment">Idée : regrouper les données selon une variable pour former des <strong>sacs</strong>, puis appliquer le test d’homogénéité</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div style="font-size: 70%;">
+<div class="columns">
+<div class="column">
+<p><strong>Tableau de contingence :</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Sexe</th>
+<th>Homme</th>
+<th>Femme</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Café</td>
+<td>30</td>
+<td>20</td>
+<td>50</td>
+</tr>
+<tr class="even">
+<td>Thé</td>
+<td>28</td>
+<td>22</td>
+<td>50</td>
+</tr>
+<tr class="odd">
+<td>Total</td>
+<td>58</td>
+<td>42</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+</div><div class="column">
+<p><strong>Effectifs théoriques :</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Sexe</th>
+<th>Homme</th>
+<th>Femme</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Café</td>
+<td>29</td>
+<td>21</td>
+<td>50</td>
+</tr>
+<tr class="even">
+<td>Thé</td>
+<td>29</td>
+<td>21</td>
+<td>50</td>
+</tr>
+<tr class="odd">
+<td>Total</td>
+<td>58</td>
+<td>42</td>
+<td>100</td>
+</tr>
+</tbody>
+</table>
+</div></div>
+</div>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(N_1 \hat{p}_1 = 58 \cdot 50/100 = 29\)</span>, degrés de liberté <span class="math inline">\(= (2-1)(2-1) = 1\)</span></p>
+</div>
+</section></section>
+<section>
+<section id="test-des-rangs-signés-de-wilcoxon" class="title-slide slide level1 center">
+<h1>Test des Rangs Signés de Wilcoxon</h1>
+
+</section>
+<section id="variables-aléatoires-symétriques" class="slide level2">
+<h2>Variables Aléatoires Symétriques</h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Définitions</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><p>Une <strong>médiane</strong> de <span class="math inline">\(X\)</span> est un quantile d’ordre <span class="math inline">\(0{,}5\)</span> de sa distribution : si <span class="math inline">\(X\)</span> a une densité <span class="math inline">\(p\)</span>, la médiane <span class="math inline">\(m\)</span> vérifie <span class="math display">\[\int_{-\infty}^m p(x)\,dx = \int_{m}^{+\infty} p(x)\,dx = 0{,}5\]</span></p></li>
+<li class="fragment"><p>Une variable aléatoire <span class="math inline">\(X\)</span> est <strong>symétrique</strong> si <span class="math inline">\(X \overset{d}{=} -X\)</span>. En particulier sa médiane est <span class="math inline">\(0\)</span>.</p></li>
+<li class="fragment"><p>Si <span class="math inline">\(X\)</span> est symétrique : <span class="math inline">\(X \overset{d}{=} \varepsilon |X|\)</span> où <span class="math inline">\(\varepsilon \perp X\)</span> est uniforme sur <span class="math inline">\(\{-1,1\}\)</span>.</p></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="symétrisation" class="slide level2">
+<h2>Symétrisation</h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Lemme de Symétrisation</strong></p>
+</div>
+<div class="callout-content">
+<p>Si <span class="math inline">\(X\)</span> et <span class="math inline">\(Y\)</span> sont deux variables <strong>indépendantes</strong> de même densité <span class="math inline">\(p\)</span>, alors <span class="math inline">\(X - Y\)</span> est symétrique.</p>
+<p><strong>Preuve :</strong> <span class="math display">\[
+\mathbb{P}(X - Y \leq t) = \int_{-\infty}^t \mathbb{P}(X \leq t+y)\,p(y)\,dy = \mathbb{P}(Y - X \leq t) \; .
+\]</span></p>
+<p>Donc <span class="math inline">\(X \perp Y \Rightarrow X - Y\)</span> symétrique <span class="math inline">\(\Rightarrow \mathrm{médiane}(X-Y) = 0\)</span>.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="problème-de-dépendance-pour-données-appariées" class="slide level2">
+<h2>Problème de Dépendance pour Données Appariées</h2>
+<div class="fragment">
+<p>On observe des paires i.i.d. <span class="math inline">\((X_1, Y_1), \dots, (X_n, Y_n)\)</span> de densité jointe <strong>inconnue</strong> <span class="math inline">\(p_{XY}(x,y)\)</span>.</p>
+</div>
+<div class="fragment">
+<div class="square-objective">
+<p><span class="math inline">\(H_0\)</span> : <span class="math inline">\(\mathrm{médiane}(X_i - Y_i) = 0\)</span> pour tout <span class="math inline">\(i\)</span></p>
+<p><span class="math inline">\(H_1\)</span> : <span class="math inline">\(\mathrm{médiane}(X_i - Y_i) \neq 0\)</span> pour un certain <span class="math inline">\(i\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>[<a href="https://app.wooclap.com/events/RQSUIA/questions/67d2a7e45a6787f340144164">Wooclap</a>]</p>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Quand <span class="math inline">\(H_0\)</span> est-elle vérifiée ?</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment">Si <span class="math inline">\(X_i - Y_i\)</span> est symétrique pour tout <span class="math inline">\(i\)</span>, on est sous <span class="math inline">\(H_0\)</span>.</li>
+<li class="fragment">Si <span class="math inline">\(X_i \perp Y_i\)</span> pour tout <span class="math inline">\(i\)</span>, on est sous <span class="math inline">\(H_0\)</span>.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="plus-formellement" class="slide level2">
+<h2>Plus Formellement</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[X_i \perp Y_i \implies X_i - Y_i \text{ symétrique} \implies \text{méd}(X_i - Y_i) = 0\]</span></p>
+</div>
+</div>
+</section>
+<section id="test-des-rangs-signés-de-wilcoxon-définitions" class="slide level2">
+<h2>Test des Rangs Signés de Wilcoxon : Définitions</h2>
+<div class="fragment">
+<p>Soit <span class="math inline">\(D_i = X_i - Y_i\)</span>.</p>
+<ul>
+<li class="fragment">Le <strong>signe</strong> de la paire <span class="math inline">\(i\)</span> est le signe de <span class="math inline">\(D_i \in \{-1, +1\}\)</span>.</li>
+<li class="fragment">Le <strong>rang</strong> <span class="math inline">\(R_i\)</span> est la position de <span class="math inline">\(|D_i|\)</span> dans l’ordre trié :</li>
+</ul>
+</div>
+<div class="fragment">
+<p><span class="math display">\[|D_{(1)}| \leq \dots \leq |D_{(n)}|\]</span></p>
+<p>[<a href="https://app.wooclap.com/events/RQSUIA/questions/67d2a963cf335081a465b092">Wooclap</a>]</p>
+</div>
+</section>
+<section id="propriétés-sous-h_0" class="slide level2">
+<h2>Propriétés sous <span class="math inline">\(H_0\)</span></h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment">Les signes <span class="math inline">\(\mathrm{sgn}(D_i)\)</span> sont indépendants et <strong>uniformément distribués</strong> dans <span class="math inline">\(\{-1, +1\}\)</span>.</li>
+<li class="fragment">En particulier, le nombre de signes positifs <span class="math inline">\(\sum \mathbf{1} \{D_i &gt; 0\}\sim \mathcal{B}(n, 0{,}5)\)</span>.</li>
+<li class="fragment">Les rangs <span class="math inline">\((R_1, \dots, R_n)\)</span> forment une <strong>permutation aléatoire</strong>, indépendante de la densité inconnue.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-important no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>Toute fonction déterministe des rangs et des signes est une <strong>statistique de test pivot</strong> : sa distribution sous <span class="math inline">\(H_0\)</span> ne dépend pas de la distribution inconnue des données.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="statistique-du-test-de-wilcoxon" class="slide level2">
+<h2>Statistique du Test de Wilcoxon</h2>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[W_- = \sum_{i=1}^n R_i\, \mathbf{1}\{D_i &lt; 0\}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>On utilise aussi : <span class="math inline">\(W_+ = \sum_{i=1}^n R_i\, \mathbf{1}\{D_i &gt; 0\}\)</span> ou <span class="math inline">\(\min(W_-, W_+)\)</span>.</p>
+</div>
+</section>
+<section id="idée" class="slide level2">
+<h2>Idée :</h2>
+<ul>
+<li class="fragment">Classer les <span class="math inline">\(|D_i|\)</span> du plus petit au plus grand.</li>
+<li class="fragment">Sous <span class="math inline">\(H_0\)</span> : les signes <span class="math inline">\(\pm\)</span> sont aléatoires <span class="math inline">\(\Rightarrow\)</span> les grands et petits rangs se répartissent équitablement entre différences positives et négatives.</li>
+<li class="fragment"><span class="math inline">\(W_-\)</span> grand (resp. petit) <span class="math inline">\(\Rightarrow\)</span> les différences négatives (resp. positives) dominent <span class="math inline">\(\Rightarrow\)</span> preuve contre <span class="math inline">\(H_0\)</span>.</li>
+</ul>
+</section>
+<section id="approximation-gaussienne" class="slide level2">
+<h2>Approximation Gaussienne</h2>
+<div class="fragment">
+<p>Lorsque <span class="math inline">\(n \to +\infty\)</span>, sous <span class="math inline">\(H_0\)</span>,</p>
+<p><span class="math display">\[W_- \;\asymp\; \frac{n(n+1)}{4} + \sqrt{\frac{n(n+1)(2n+1)}{24}}\;\mathcal{N}(0,1)\]</span></p>
+<p>Si <span class="math inline">\(H_1\)</span> : <span class="math inline">\(\mathrm{médiane}(D_i) &lt; 0\)</span> → test <strong>unilatéral droit</strong> sur <span class="math inline">\(W_-\)</span></p>
+</div>
+<div class="fragment">
+<p>Si <span class="math inline">\(H_1\)</span> : <span class="math inline">\(\mathrm{médiane}(D_i) &gt; 0\)</span> → test <strong>unilatéral gauche</strong> sur <span class="math inline">\(W_-\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Pour simuler <span class="math inline">\(W_-\)</span> sous <span class="math inline">\(H_0\)</span> :</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a></a>k <span class="op">=</span> <span class="fu">rand</span>(<span class="fu">Binomial</span>(n, <span class="fl">0.5</span>))</span>
+<span id="cb3-2"><a></a>w <span class="op">=</span> <span class="fu">sum</span>(<span class="fu">randperm</span>(n)[<span class="fl">1</span><span class="op">:</span>k])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><a href="../../../teaching/hypothesis_testing/notes/wilcoxon_dep.html">preuve</a></p>
+</div>
+</section>
+<section id="validation-par-monte-carlo" class="slide level2">
+<h2>Validation par Monte Carlo</h2>
+<div class="fragment">
+<p>L’approximation gaussienne s’ajuste bien à la distribution exacte :</p>
+<p><img data-src="../images/wilcoxon_W-.svg"></p>
+</div>
+</section>
+<section id="exemple-effet-dun-médicament-sur-la-pression-artérielle" class="slide level2">
+<h2>Exemple : Effet d’un Médicament sur la Pression Artérielle</h2>
+<div class="fragment">
+<ul>
+<li class="fragment"><span class="math inline">\(H_0\)</span> : le médicament n’a aucun effet. <span class="math inline">\(H_1\)</span> : il abaisse la pression artérielle (test unilatéral gauche sur <span class="math inline">\(W_-\)</span>).</li>
+</ul>
+</div>
+<div class="fragment">
+<div style="font-size: 70%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 24%">
+<col style="width: 22%">
+<col style="width: 31%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Patient</th>
+<th><span class="math inline">\(X_i\)</span> (Avant)</th>
+<th><span class="math inline">\(Y_i\)</span> (Après)</th>
+<th><span class="math inline">\(D_i = X_i - Y_i\)</span></th>
+<th><span class="math inline">\(R_i\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>150</td>
+<td>140</td>
+<td>10</td>
+<td>6 (+)</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>135</td>
+<td>130</td>
+<td>5</td>
+<td>5 (+)</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>160</td>
+<td>162</td>
+<td>−2</td>
+<td>2 (−)</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>145</td>
+<td>146</td>
+<td>−1</td>
+<td>1 (−)</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>154</td>
+<td>150</td>
+<td>4</td>
+<td>4 (+)</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>171</td>
+<td>160</td>
+<td>11</td>
+<td>7 (+)</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>141</td>
+<td>138</td>
+<td>3</td>
+<td>3 (+)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="application-numérique" class="slide level2">
+<h2>Application Numérique</h2>
+<div class="fragment">
+<p><span class="math inline">\(W_- = 1 + 2 = 3\)</span></p>
+</div>
+<div class="fragment">
+<p>Par simulation, on approche <span class="math inline">\(\mathbb{P}(W_- = i)\)</span> pour <span class="math inline">\(i \in \{0,1,2,3,4,5,6\}\)</span> sous <span class="math inline">\(H_0\)</span> :</p>
+<pre><code>[0.00784066, 0.00781442, 0.00781534, 0.01563892, 0.01562184, 0.02343478, ...]</code></pre>
+</div>
+<div class="fragment">
+<p>Par simulation :</p>
+<div class="square-def">
+<p><span class="math inline">\(p_{\text{valeur}} = \mathbb{P}(W_- \leq 3) \approx 0{,}039 &lt; 0{,}05\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>On rejette <span class="math inline">\(H_0\)</span> au niveau <span class="math inline">\(5\%\)</span> : le médicament semble abaisser la pression artérielle.</p>
+
+
+</div>
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

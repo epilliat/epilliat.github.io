@@ -1,441 +1,411 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
-
-<meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.22">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-
-
-<title>Goodness of Fit and Homogeneity Tests – Emmanuel Pilliat</title>
-<style>
-code{white-space: pre-wrap;}
-span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
-div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-ul.task-list{list-style: none;}
-ul.task-list li input[type="checkbox"] {
-  width: 0.8em;
-  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
-  vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
-</style>
-
-
-<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<html lang="en"><head>
 <script src="../../../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../../../">
-<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabby.min.js"></script>
 <script src="../../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../../site_libs/bootstrap/bootstrap-338eaa8bf8d7f1eb506da55f2b711d05.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
-<script id="quarto-search-options" type="application/json">{
-  "location": "navbar",
-  "copy-button": false,
-  "collapse-after": 3,
-  "panel-placement": "end",
-  "type": "overlay",
-  "limit": 50,
-  "keyboard-shortcut": [
-    "f",
-    "/",
-    "s"
-  ],
-  "show-item-context": false,
-  "language": {
-    "search-no-results-text": "No results",
-    "search-matching-documents-text": "matching documents",
-    "search-copy-link-title": "Copy link to search",
-    "search-hide-matches-text": "Hide additional matches",
-    "search-more-match-text": "more match in this document",
-    "search-more-matches-text": "more matches in this document",
-    "search-clear-button-title": "Clear",
-    "search-text-placeholder": "",
-    "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit",
-    "search-label": "Search"
-  }
-}</script>
+<link href="../../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.22">
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
+  <title>Emmanuel Pilliat – Goodness of Fit and Homogeneity Tests</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
     }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
-
-<link rel="stylesheet" href="../../../styles.css">
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/theme/quarto-8861debc0ea4df1cd525e94b7712d9b7.css">
+  <link rel="stylesheet" href="../../../styles.css">
+  <link href="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
 </head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
 
-<body class="nav-fixed quarto-light">
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Goodness of Fit and Homogeneity Tests</h1>
 
-<div id="quarto-search-results"></div>
-  <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
-      <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../../../index.html">
-    <span class="navbar-title">Emmanuel Pilliat</span>
-    </a>
-  </div>
-            <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
-  <span class="navbar-toggler-icon"></span>
-</button>
-          <div class="collapse navbar-collapse" id="navbarCollapse">
-            <ul class="navbar-nav navbar-nav-scroll me-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="../../../index.html"> 
-<span class="menu-text">Home</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../../teaching/teaching.html"> 
-<span class="menu-text">Teaching</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../../../coding/coding.html"> 
-<span class="menu-text">Coding</span></a>
-  </li>  
-</ul>
-            <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/epilliat"> <i class="bi bi-github" role="img">
-</i> 
-<span class="menu-text"></span></a>
-  </li>  
-  <li class="nav-item compact">
-    <a class="nav-link" href="https://fr.linkedin.com/in/emmanuel-pilliat-18ab2b180"> <i class="bi bi-linkedin" role="img">
-</i> 
-<span class="menu-text"></span></a>
-  </li>  
-</ul>
-          </div> <!-- /navcollapse -->
-            <div class="quarto-navbar-tools">
-</div>
-      </div> <!-- /container-fluid -->
-    </nav>
-</header>
-<!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
-<!-- sidebar -->
-<!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#outline" id="toc-outline" class="nav-link active" data-scroll-target="#outline">Outline</a></li>
-  <li><a href="#multinomial-distribution" id="toc-multinomial-distribution" class="nav-link" data-scroll-target="#multinomial-distribution">Multinomial Distribution</a>
-  <ul class="collapse">
-  <li><a href="#binomial-distribution" id="toc-binomial-distribution" class="nav-link" data-scroll-target="#binomial-distribution">Binomial distribution</a></li>
-  <li><a href="#multinomial-distribution-1" id="toc-multinomial-distribution-1" class="nav-link" data-scroll-target="#multinomial-distribution-1">Multinomial distribution</a></li>
-  <li><a href="#formula" id="toc-formula" class="nav-link" data-scroll-target="#formula">Formula</a></li>
-  <li><a href="#proof-of-the-formula" id="toc-proof-of-the-formula" class="nav-link" data-scroll-target="#proof-of-the-formula">Proof of the Formula</a></li>
-  <li><a href="#example" id="toc-example" class="nav-link" data-scroll-target="#example">Example</a></li>
-  <li><a href="#exercise" id="toc-exercise" class="nav-link" data-scroll-target="#exercise">Exercise</a></li>
-  </ul></li>
-  <li><a href="#chi2-goodness-of-fit" id="toc-chi2-goodness-of-fit" class="nav-link" data-scroll-target="#chi2-goodness-of-fit"><span class="math inline">\(\chi^2\)</span> Goodness of Fit</a>
-  <ul class="collapse">
-  <li><a href="#chi2-goodness-of-fit-problem" id="toc-chi2-goodness-of-fit-problem" class="nav-link" data-scroll-target="#chi2-goodness-of-fit-problem"><span class="math inline">\(\chi^2\)</span> Goodness of Fit Problem</a></li>
-  <li><a href="#chi2-goodness-of-fit-test-adéquation" id="toc-chi2-goodness-of-fit-test-adéquation" class="nav-link" data-scroll-target="#chi2-goodness-of-fit-test-adéquation"><span class="math inline">\(\chi^2\)</span> Goodness of Fit Test (Adéquation)</a></li>
-  <li><a href="#property" id="toc-property" class="nav-link" data-scroll-target="#property">Property</a></li>
-  <li><a href="#proof" id="toc-proof" class="nav-link" data-scroll-target="#proof">Proof</a></li>
-  <li><a href="#test-and-rejection-region" id="toc-test-and-rejection-region" class="nav-link" data-scroll-target="#test-and-rejection-region">Test and Rejection Region</a></li>
-  <li><a href="#section" id="toc-section" class="nav-link" data-scroll-target="#section"></a></li>
-  <li><a href="#example-bag-of-sweets" id="toc-example-bag-of-sweets" class="nav-link" data-scroll-target="#example-bag-of-sweets">Example: Bag of Sweets</a></li>
-  </ul></li>
-  <li><a href="#comparison-to-a-theoretical-disrtribution" id="toc-comparison-to-a-theoretical-disrtribution" class="nav-link" data-scroll-target="#comparison-to-a-theoretical-disrtribution">Comparison to a Theoretical Disrtribution</a>
-  <ul class="collapse">
-  <li><a href="#representation-with-indicators" id="toc-representation-with-indicators" class="nav-link" data-scroll-target="#representation-with-indicators">Representation with Indicators</a></li>
-  <li><a href="#histograms-with-this-representation" id="toc-histograms-with-this-representation" class="nav-link" data-scroll-target="#histograms-with-this-representation">Histograms with this Representation</a></li>
-  <li><a href="#histogram-in-practice" id="toc-histogram-in-practice" class="nav-link" data-scroll-target="#histogram-in-practice">Histogram in Practice</a></li>
-  <li><a href="#illustration" id="toc-illustration" class="nav-link" data-scroll-target="#illustration">Illustration</a></li>
-  <li><a href="#law-of-large-numbers-monte-carlo-informal" id="toc-law-of-large-numbers-monte-carlo-informal" class="nav-link" data-scroll-target="#law-of-large-numbers-monte-carlo-informal">Law of large numbers, Monte Carlo (informal)</a></li>
-  <li><a href="#convergence-of-the-histogram-proof" id="toc-convergence-of-the-histogram-proof" class="nav-link" data-scroll-target="#convergence-of-the-histogram-proof">Convergence of the histogram (Proof)</a></li>
-  <li><a href="#section-1" id="toc-section-1" class="nav-link" data-scroll-target="#section-1"></a></li>
-  <li><a href="#section-2" id="toc-section-2" class="nav-link" data-scroll-target="#section-2"></a></li>
-  <li><a href="#chi2-goodness-of-fit-to-a-given-distribution" id="toc-chi2-goodness-of-fit-to-a-given-distribution" class="nav-link" data-scroll-target="#chi2-goodness-of-fit-to-a-given-distribution"><span class="math inline">\(\chi^2\)</span> Goodness of Fit to a given distribution</a></li>
-  <li><a href="#section-3" id="toc-section-3" class="nav-link" data-scroll-target="#section-3"></a></li>
-  <li><a href="#chi-squared-test-statistic" id="toc-chi-squared-test-statistic" class="nav-link" data-scroll-target="#chi-squared-test-statistic">Chi-squared test statistic</a></li>
-  <li><a href="#corrected-chi2-test" id="toc-corrected-chi2-test" class="nav-link" data-scroll-target="#corrected-chi2-test">Corrected <span class="math inline">\(\chi^2\)</span> Test</a></li>
-  <li><a href="#distribution-of-the-corrected-chi2" id="toc-distribution-of-the-corrected-chi2" class="nav-link" data-scroll-target="#distribution-of-the-corrected-chi2">Distribution of the Corrected <span class="math inline">\(\chi^2\)</span></a></li>
-  <li><a href="#example-goodness-of-fit-to-a-poisson-distribution" id="toc-example-goodness-of-fit-to-a-poisson-distribution" class="nav-link" data-scroll-target="#example-goodness-of-fit-to-a-poisson-distribution">Example: Goodness of Fit to a Poisson distribution</a></li>
-  <li><a href="#section-4" id="toc-section-4" class="nav-link" data-scroll-target="#section-4"></a></li>
-  <li><a href="#comparison-with-qq-plots" id="toc-comparison-with-qq-plots" class="nav-link" data-scroll-target="#comparison-with-qq-plots">Comparison with QQ-Plots</a></li>
-  <li><a href="#qq-plot" id="toc-qq-plot" class="nav-link" data-scroll-target="#qq-plot">QQ-Plot</a></li>
-  <li><a href="#kolmogorov-smirnov-test" id="toc-kolmogorov-smirnov-test" class="nav-link" data-scroll-target="#kolmogorov-smirnov-test">Kolmogorov-Smirnov Test</a></li>
-  <li><a href="#section-5" id="toc-section-5" class="nav-link" data-scroll-target="#section-5"></a></li>
-  <li><a href="#section-6" id="toc-section-6" class="nav-link" data-scroll-target="#section-6"></a></li>
-  </ul></li>
-  </ul>
-<div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="goodness_of_fit_chi2.html"><i class="bi bi-file-slides"></i>RevealJS</a></li></ul></div></nav>
-    </div>
-<!-- main -->
-<main class="content" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Goodness of Fit and Homogeneity Tests</h1>
+<div class="quarto-title-authors">
 </div>
 
-
-
-<div class="quarto-title-meta">
-
-    
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<section id="outline" class="level2">
-<h2 class="anchored" data-anchor-id="outline">Outline</h2>
+</section>
+<section id="outline" class="slide level2">
+<h2>Outline</h2>
 <ul>
-<li>Multinomial Distributions</li>
-<li>Goodness of Fit
+<li class="fragment">Multinomial Distributions</li>
+<li class="fragment">Goodness of Fit
 <ul>
-<li>Chi-squared goodness of fit test</li>
-<li>Histograms</li>
-<li>Chi-squared goodness of fit to compare distributions</li>
-<li>Using CDFs and KS test</li>
+<li class="fragment">Chi-squared goodness of fit test</li>
+<li class="fragment">Histograms</li>
+<li class="fragment">Chi-squared goodness of fit to compare distributions</li>
+<li class="fragment">Using CDFs and KS test</li>
 </ul></li>
 </ul>
 <p><a href="../../../teaching/hypothesis_testing/slides/gaussian_populations.html">previous</a> <a href="../../../teaching/hypothesis_testing/slides/dependency.html">next</a></p>
 </section>
-<section id="multinomial-distribution" class="level1">
+<section>
+<section id="multinomial-distribution" class="title-slide slide level1 center">
 <h1>Multinomial Distribution</h1>
-<section id="binomial-distribution" class="level2">
-<h2 class="anchored" data-anchor-id="binomial-distribution">Binomial distribution</h2>
-<p>. . .</p>
+
+</section>
+<section id="binomial-distribution" class="slide level2">
+<h2>Binomial distribution</h2>
+<div class="fragment">
 <p>Draw <span class="math inline">\(n\)</span> balls, <strong>blue or red</strong>, <span style="background-color: yellow;">with resampling</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\(p_1, (1-p_1)\)</span>: proportion of blues/red [<a href="https://app.wooclap.com/events/RQSUIA/questions/67cefbabf8118ebcec70b8ca">Wooclap</a>]</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\(X\)</span>, <span class="math inline">\(Y\)</span>: counts of blues/red</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Then:</p>
 <div class="square-def">
 <p><span class="math inline">\(X \sim \mathrm{Bin}(n,p_1)\)</span>, <span class="math inline">\(Y=n-X \sim \mathrm{Bin}(n,1-p_1)\)</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>If <span class="math inline">\(k_1 +k_2 = n\)</span>:</p>
 <div class="square-def">
 <p><span class="math inline">\(\mathbb P((X,Y) = (k_1,k_2)) = \binom{n}{k_1}p_1^k(1-p_1)^{k_2}\)</span><br>
 </p>
 </div>
+</div>
 </section>
-<section id="multinomial-distribution-1" class="level2">
-<h2 class="anchored" data-anchor-id="multinomial-distribution-1">Multinomial distribution</h2>
-<p>. . .</p>
+<section id="multinomial-distribution-1" class="slide level2">
+<h2>Multinomial distribution</h2>
+<div class="fragment">
 <p>Draw <span class="math inline">\(n\)</span> balls, <strong><span class="math inline">\(m\)</span> potential colors</strong>, <span style="background-color: yellow;">with resampling</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\((p_1, \dots, p_m)\)</span>: proportions of each color: <span class="math inline">\(\sum_{i=1}^m p_i = 1\)</span> <!--[[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67cefcca7dbb16ec8c93ba35)]--></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\(X_1, \dots, X_m\)</span>: counts of each color [<a href="https://app.wooclap.com/events/RQSUIA/questions/67cefe72f151baf0223710ec">Wooclap</a>]</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Then:</p>
 <div class="square-def">
 <p><span class="math inline">\((X_1, \dots, X_m) \sim \mathrm{Mult}(n,(p_1, \dots, p_m))\)</span></p>
 </div>
+</div>
 </section>
-<section id="formula" class="level2">
-<h2 class="anchored" data-anchor-id="formula">Formula</h2>
+<section id="formula" class="slide level2">
+<h2>Formula</h2>
 <p>If <span class="math inline">\(k_1 + \dots + k_m = n\)</span> and <span class="math inline">\(\dfrac{n!}{k_1!\dots k_m!} = \binom{n}{k_1,\dots, k_m}\)</span> is a <strong>multinomial</strong> coefficient:</p>
 <div class="square-def">
 <p><span class="math inline">\(\mathbb P((X_1, \dots, X_m)=(k_1, \dots, k_m)) = \dfrac{n!}{k_1!\dots k_m!}p_1^{k_1} \dots p_m^{k_m}\)</span><br>
 </p>
 </div>
 </section>
-<section id="proof-of-the-formula" class="level2">
-<h2 class="anchored" data-anchor-id="proof-of-the-formula">Proof of the Formula</h2>
-<p>. . .</p>
+<section id="proof-of-the-formula" class="slide level2">
+<h2>Proof of the Formula</h2>
+<div class="fragment">
 <p><strong>Step 1: probability of one ordered sequence with counts <span class="math inline">\((k_1, \dots, k_m)\)</span></strong></p>
 <p><span class="math display">\[\underbrace{1, \dots, 1}_{k_1}, \underbrace{2, \dots, 2}_{k_2}, \dots, \underbrace{m, \dots, m}_{k_m} \quad \longrightarrow \quad p_1^{k_1} \cdots p_m^{k_m}\]</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><strong>Step 2: number of such sequences</strong></p>
 <p>Permutations of <span class="math inline">\(n\)</span> objects with <span class="math inline">\(k_i\)</span> identical of type <span class="math inline">\(i\)</span>:</p>
 <p><span class="math display">\[\frac{n!}{k_1! \dots k_m!}\]</span></p>
+</div>
 </section>
-<section id="example" class="level2">
-<h2 class="anchored" data-anchor-id="example">Example</h2>
-<p>. . .</p>
+<section id="example" class="slide level2">
+<h2>Example</h2>
+<div class="fragment">
 <p>Take <span class="math inline">\(n\)</span> draws of a dice. This follows a <span class="math inline">\(Mult(n, (1/6, \cdot, 1/6))\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Ask <span class="math inline">\(n\)</span> people their favorite color among <span class="math inline">\(k\)</span> options: <span class="math inline">\(\text{Mult}(n, (p_1, \ldots, p_k))\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Generate <span class="math inline">\(n\)</span> words from a vocabulary of size <span class="math inline">\(V\)</span>: <span class="math inline">\(\text{Mult}(n, (p_1, \ldots, p_V))\)</span>.</p>
+</div>
 </section>
-<section id="exercise" class="level2">
-<h2 class="anchored" data-anchor-id="exercise">Exercise</h2>
-<p>. . .</p>
+<section id="exercise" class="slide level2">
+<h2>Exercise</h2>
+<div class="fragment">
 <p>Take <span class="math inline">\((X_1, \dots, X_m) \sim \mathrm{Mult}(3,(1/4, 1/2, 1/4))\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>What is the probability of observing <span class="math inline">\((2, 1, 0)\)</span>?</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\(\mathbb P((X_1,X_2,X_3)=(2,1,0)) = \frac{3!}{2!\,1!\,0!}\left(\frac{1}{4}\right)^2\left(\frac{1}{2}\right)^1\left(\frac{1}{4}\right)^0 \\= 3 \cdot \frac{1}{16} \cdot \frac{1}{2} = \frac{3}{32}\)</span></p>
-</section>
-</section>
-<section id="chi2-goodness-of-fit" class="level1">
+</div>
+</section></section>
+<section>
+<section id="chi2-goodness-of-fit" class="title-slide slide level1 center">
 <h1><span class="math inline">\(\chi^2\)</span> Goodness of Fit</h1>
-<section id="chi2-goodness-of-fit-problem" class="level2">
-<h2 class="anchored" data-anchor-id="chi2-goodness-of-fit-problem"><span class="math inline">\(\chi^2\)</span> Goodness of Fit Problem</h2>
-<p>. . .</p>
+
+</section>
+<section id="chi2-goodness-of-fit-problem" class="slide level2">
+<h2><span class="math inline">\(\chi^2\)</span> Goodness of Fit Problem</h2>
+<div class="fragment">
 <p>We observe <span class="math inline">\((X_1, \dots, X_m) \sim \mathrm{Mult}(n, q)\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>This corresponds to <span class="math inline">\(n\)</span> counts: <span class="math inline">\(X_1 + \dots + X_m = n\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\(q = (q_1, \dots, q_m)\)</span> corresponds to probabilities of getting color <span class="math inline">\(1, \dots, m\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Let <span style="background-color: lightblue;"><span class="math inline">\(p = (p_1, \dots, p_m)\)</span> be a known vector</span> s.t. <span class="math inline">\(p_1 + \dots + p_m = 1\)</span>.</p>
 <div class="square-objective">
 <p><span class="math inline">\(H_0:~ q = p ~~~\text{or}~~~ H_1: q \neq p \; .\)</span></p>
 </div>
+</div>
 </section>
-<section id="chi2-goodness-of-fit-test-adéquation" class="level2">
-<h2 class="anchored" data-anchor-id="chi2-goodness-of-fit-test-adéquation"><span class="math inline">\(\chi^2\)</span> Goodness of Fit Test (Adéquation)</h2>
-<p>. . .</p>
+<section id="chi2-goodness-of-fit-test-adéquation" class="slide level2">
+<h2><span class="math inline">\(\chi^2\)</span> Goodness of Fit Test (Adéquation)</h2>
+<div class="fragment">
 <p>Chi-squared test statistic:</p>
 <div class="square-def">
 <p><span class="math display">\[\psi(X) = \sum_{i=1}^m\frac{(X_i-n_i)^2}{n_i} \; .\]</span></p>
 </div>
 <p>where <span style="background-color: lightblue;"><span class="math inline">\(n_i = np_i = \mathbb E[X_i]\)</span></span> is the expected number of counts for color <span class="math inline">\(i\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Sometimes written as:</p>
 <p><span class="math inline">\(\psi(X) = \sum_{i=1}^m\frac{(O_i-E_i)^2}{E_i} \; ,\)</span></p>
 <p>where <span class="math inline">\(O_i\)</span> stands for “observed count of <span class="math inline">\(i\)</span>” and <span class="math inline">\(E_i\)</span> stands for “expected count”</p>
+</div>
 </section>
-<section id="property" class="level2">
-<h2 class="anchored" data-anchor-id="property">Property</h2>
-<p>. . .</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<section id="property" class="slide level2">
+<h2>Property</h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Chi-squared approximation</strong></p>
 </div>
-<div class="callout-title-container flex-fill">
-Chi-squared approximation
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<div class="callout-content">
 <p>When <span class="math inline">\(np_i\)</span> are large, under <span class="math inline">\(H_0\)</span>: <span class="math display">\[\psi(X) \xrightarrow{d} \chi^2(m-1)\]</span></p>
 </div>
 </div>
-<hr>
+</div>
+</div>
 </section>
-<section id="proof" class="level2">
-<h2 class="anchored" data-anchor-id="proof">Proof</h2>
-<p>. . .</p>
+<section id="proof" class="slide level2">
+<h2>Proof</h2>
+<div class="fragment">
 <p><span class="math inline">\(X \sim \text{Mult}(n, p)\)</span> has mean <span class="math inline">\(np\)</span> and covariance <span class="math inline">\(n\Sigma\)</span> where <span class="math inline">\(\Sigma = \text{diag}(p) - pp^\top\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Indeed: <span class="math display">\[\Sigma_{ij} = \text{Cov}(X_i, X_j) = \begin{cases} np_i(1-p_i) &amp; i = j \\ -np_ip_j &amp; i \neq j \end{cases}\]</span> which gives <span class="math inline">\(\Sigma = n(\text{diag}(p) - pp^\top)\)</span>.</p>
 <p>By the multivariate CLT: <span class="math display">\[\frac{X - np}{\sqrt{n}} \xrightarrow{d} \mathcal{N}(0, \Sigma)\]</span></p>
-<hr>
-<p>. . .</p>
-<p>Let <span class="math inline">\(Z = \text{diag}(p)^{-1/2}(X - np)/\sqrt{n}\)</span>, so that <span class="math inline">\(\psi(X) = \|Z\|^2\)</span>. By the continuous mapping theorem:</p>
-<p>. . .</p>
-<p><span class="math display">\[Z \xrightarrow{d} \mathcal{N}(0,\, P), \quad P = I - \sqrt{p}\sqrt{p}^\top\]</span> Since <span class="math inline">\(P\)</span> is an orthogonal projection of rank <span class="math inline">\(m-1\)</span>, <span class="math inline">\(\mathcal{N}(0, P) \stackrel{d}{=} PG\)</span> with <span class="math inline">\(G \sim \mathcal{N}(0, I)\)</span>, therefore: <span class="math display">\[\psi(X) = \|Z\|^2 \xrightarrow{d} \|PG\|^2 \sim \chi^2(m-1)\]</span></p>
-</section>
-<section id="test-and-rejection-region" class="level2">
-<h2 class="anchored" data-anchor-id="test-and-rejection-region">Test and Rejection Region</h2>
-<p>. . .</p>
-<p>Reject <span class="math inline">\(H_0\)</span> if <span class="math inline">\(\psi(X) &gt; t_{1-\alpha}\)</span>, the <span style="background-color: lightblue;"><span class="math inline">\((1-\alpha)\)</span>-quantile of <span class="math inline">\(\chi^2(m-1)\)</span></span>.</p>
-<p>. . .</p>
-<p>We reject for large values of <span class="math inline">\(\psi\)</span> (right-tailed test).</p>
-<p>. . .</p>
-<p>Question: We observe a <span style="background-color: yellow;"><span class="math inline">\(\chi^2\)</span> stat equal to <span class="math inline">\(32\)</span></span> for 1000 draws of a supposedly unbiased dice. It it normal?</p>
-<p>. . .</p>
-<p>If we observe <span style="background-color: yellow;"><span class="math inline">\(\chi^2\)</span> stat equal to <span class="math inline">\(0.001\)</span></span>, what does it mean?</p>
-</section>
-<section id="section" class="level2">
-<h2 class="anchored" data-anchor-id="section"></h2>
-<p><img src="../images/chisq3.svg" class="img-fluid"></p>
-</section>
-<section id="example-bag-of-sweets" class="level2">
-<h2 class="anchored" data-anchor-id="example-bag-of-sweets">Example: Bag of Sweets</h2>
-<div class="callout callout-style-simple callout-none no-icon">
-<div class="callout-body d-flex">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
 </div>
-<div class="callout-body-container">
+</section>
+<section class="slide level2">
+
+<div class="fragment">
+<p>Let <span class="math inline">\(Z = \text{diag}(p)^{-1/2}(X - np)/\sqrt{n}\)</span>, so that <span class="math inline">\(\psi(X) = \|Z\|^2\)</span>. By the continuous mapping theorem:</p>
+</div>
+<div class="fragment">
+<p><span class="math display">\[Z \xrightarrow{d} \mathcal{N}(0,\, P), \quad P = I - \sqrt{p}\sqrt{p}^\top\]</span> Since <span class="math inline">\(P\)</span> is an orthogonal projection of rank <span class="math inline">\(m-1\)</span>, <span class="math inline">\(\mathcal{N}(0, P) \stackrel{d}{=} PG\)</span> with <span class="math inline">\(G \sim \mathcal{N}(0, I)\)</span>, therefore: <span class="math display">\[\psi(X) = \|Z\|^2 \xrightarrow{d} \|PG\|^2 \sim \chi^2(m-1)\]</span></p>
+</div>
+</section>
+<section id="test-and-rejection-region" class="slide level2">
+<h2>Test and Rejection Region</h2>
+<div class="fragment">
+<p>Reject <span class="math inline">\(H_0\)</span> if <span class="math inline">\(\psi(X) &gt; t_{1-\alpha}\)</span>, the <span style="background-color: lightblue;"><span class="math inline">\((1-\alpha)\)</span>-quantile of <span class="math inline">\(\chi^2(m-1)\)</span></span>.</p>
+</div>
+<div class="fragment">
+<p>We reject for large values of <span class="math inline">\(\psi\)</span> (right-tailed test).</p>
+</div>
+<div class="fragment">
+<p>Question: We observe a <span style="background-color: yellow;"><span class="math inline">\(\chi^2\)</span> stat equal to <span class="math inline">\(32\)</span></span> for 1000 draws of a supposedly unbiased dice. It it normal?</p>
+</div>
+<div class="fragment">
+<p>If we observe <span style="background-color: yellow;"><span class="math inline">\(\chi^2\)</span> stat equal to <span class="math inline">\(0.001\)</span></span>, what does it mean?</p>
+</div>
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
+
+<img data-src="../images/chisq3.svg" class="r-stretch"></section>
+<section id="example-bag-of-sweets" class="slide level2">
+<h2>Example: Bag of Sweets</h2>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
 <ul>
-<li>We observe a <strong>bag of sweets</strong> containing <span class="math inline">\(n=100\)</span> sweets of <span class="math inline">\(m=3\)</span> different colors: <strong>red</strong>, <strong>green</strong>, and <strong>yellow</strong>.</li>
-<li>Manufacturer: <span class="math inline">\(p_1= 40\%\)</span> red, <span class="math inline">\(p_2=35\%\)</span> green, and <span class="math inline">\(p_3=25\%\)</span> yellow.</li>
-<li><span class="math inline">\(H_0: q=p\)</span> (manufacturer’s claim is correct)</li>
-<li><span class="math inline">\(H_1: q\neq p\)</span> (manufacturer’s claim is incorrect)</li>
+<li class="fragment">We observe a <strong>bag of sweets</strong> containing <span class="math inline">\(n=100\)</span> sweets of <span class="math inline">\(m=3\)</span> different colors: <strong>red</strong>, <strong>green</strong>, and <strong>yellow</strong>.</li>
+<li class="fragment">Manufacturer: <span class="math inline">\(p_1= 40\%\)</span> red, <span class="math inline">\(p_2=35\%\)</span> green, and <span class="math inline">\(p_3=25\%\)</span> yellow.</li>
+<li class="fragment"><span class="math inline">\(H_0: q=p\)</span> (manufacturer’s claim is correct)</li>
+<li class="fragment"><span class="math inline">\(H_1: q\neq p\)</span> (manufacturer’s claim is incorrect)</li>
 </ul>
 </div>
 </div>
@@ -443,7 +413,7 @@ Chi-squared approximation
 <div class="columns">
 <div class="column">
 <div class="fragment" style="font-size:50%;">
-<table class="caption-top table">
+<table class="caption-top">
 <thead>
 <tr class="header">
 <th>Color</th>
@@ -468,7 +438,7 @@ Chi-squared approximation
 </div>
 </div><div class="column">
 <div class="fragment" style="font-size:50%;">
-<table class="caption-top table">
+<table class="caption-top">
 <thead>
 <tr class="header">
 <th>Expected Counts</th>
@@ -487,204 +457,235 @@ Chi-squared approximation
 </tbody>
 </table>
 </div>
-</div>
-</div>
-<div class="fragment callout callout-style-simple callout-none no-icon">
-<div class="callout-body d-flex">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-body-container">
+</div></div>
+<div class="fragment">
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
 <ul>
-<li><span class="math inline">\(\psi(X) = \sum_{i=1}^m\frac{(X_i-n_i)^2}{n_i} \approx 2.5 +0.71+1 \approx 4.21\)</span></li>
-<li><span class="math inline">\(\mathrm{cdf}(\chi^2(2), 4.21) \approx 0.878\)</span> (<span class="math inline">\(p_{value} \approx 0.222\)</span>)</li>
-<li>Conclusion: do not reject <span class="math inline">\(H_0\)</span></li>
+<li class="fragment"><span class="math inline">\(\psi(X) = \sum_{i=1}^m\frac{(X_i-n_i)^2}{n_i} \approx 2.5 +0.71+1 \approx 4.21\)</span></li>
+<li class="fragment"><span class="math inline">\(\mathrm{cdf}(\chi^2(2), 4.21) \approx 0.878\)</span> (<span class="math inline">\(p_{value} \approx 0.222\)</span>)</li>
+<li class="fragment">Conclusion: do not reject <span class="math inline">\(H_0\)</span></li>
 </ul>
 </div>
 </div>
 </div>
-</section>
-</section>
-<section id="comparison-to-a-theoretical-disrtribution" class="level1">
+</div>
+</section></section>
+<section>
+<section id="comparison-to-a-theoretical-disrtribution" class="title-slide slide level1 center">
 <h1>Comparison to a Theoretical Disrtribution</h1>
-<section id="representation-with-indicators" class="level2">
-<h2 class="anchored" data-anchor-id="representation-with-indicators">Representation with Indicators</h2>
-<p>. . .</p>
+
+</section>
+<section id="representation-with-indicators" class="slide level2">
+<h2>Representation with Indicators</h2>
+<div class="fragment">
 <p>We draws <span style="background-color: yellow;">independently and with resampling</span> <span style="background-color: lightblue;"><span class="math inline">\(m\)</span> categories <span class="math inline">\((c_1, \dots, c_m)\)</span></span>. Probability of getting category <span class="math inline">\(c_k\)</span> is <span class="math inline">\(p_k\)</span>.</p>
 <p>Let <span class="math inline">\(Z_i\)</span> be the category of the <span class="math inline">\(i^{th}\)</span> draw</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Then, if <span class="math inline">\(X_k= \sum_{i=1}^n \mathbf{1}\{Z_i = c_k\}\)</span></p>
 <div class="square-def">
 <p><span class="math inline">\((X_1, \dots, X_m) \sim Mult(n, (p_1, \dots, p_m))\)</span></p>
 </div>
+</div>
 </section>
-<section id="histograms-with-this-representation" class="level2">
-<h2 class="anchored" data-anchor-id="histograms-with-this-representation">Histograms with this Representation</h2>
-<p>. . .</p>
+<section id="histograms-with-this-representation" class="slide level2">
+<h2>Histograms with this Representation</h2>
+<div class="fragment">
 <p>We observe <span class="math inline">\((Z_1, \dots, Z_n) \in \mathbb R^n\)</span><br>
 </p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Fix some intervals <span class="math inline">\((I_1, \dots, I_m)\)</span> intervals that partition <span class="math inline">\(\mathbb R\)</span></p>
-<p>. . .</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
 </div>
-<div class="callout-title-container flex-fill">
-Histogram
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Histogram</strong></p>
 </div>
-</div>
-<div class="callout-body-container callout-body">
+<div class="callout-content">
 <p><span class="math inline">\(\mathrm{counts}(I) = \sum_{i=1}^n \mathbf 1\{Z_i \in I\} \in \{1, \dots, n\}\;\)</span></p>
 <p><span class="math inline">\(\mathrm{freq}(I) = \mathrm{counts}(I)/n\)</span></p>
 <p><span class="math inline">\(\mathrm{hist}(a,b,k) = (\mathrm{counts}(I_1), \dots,\mathrm{counts}(I_m))\)</span></p>
 </div>
 </div>
+</div>
+</div>
 </section>
-<section id="histogram-in-practice" class="level2">
-<h2 class="anchored" data-anchor-id="histogram-in-practice">Histogram in Practice</h2>
-<p>. . .</p>
+<section id="histogram-in-practice" class="slide level2">
+<h2>Histogram in Practice</h2>
+<div class="fragment">
 <p>Usually, we use <span style="background-color: yellow;">balanced histograms</span> on <span class="math inline">\([a,b)\)</span>:</p>
 <p><span class="math inline">\(I_l = \big[a + (l-1)\tfrac{b-a}{m},a + l\tfrac{b-a}{m}\big)\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We can add <span class="math inline">\((-\infty, a)\)</span> and <span class="math inline">\([b, +\infty)\)</span> to get a partition of <span class="math inline">\(\mathbb R\)</span></p>
-<div class="fragment callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
+<div class="fragment">
+<div class="callout callout-warning callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
-<div class="callout-title-container flex-fill">
-Normalization
+<p><strong>Normalization</strong></p>
 </div>
-</div>
-<div class="callout-body-container callout-body">
+<div class="callout-content">
 <p>Can be normalized in <strong>counts</strong> (default), <strong>frequency</strong>, or <strong>density</strong> (area under the curve = 1)</p>
 </div>
 </div>
-<p>. . .</p>
+</div>
+</div>
+</div>
+<div class="fragment">
 <p>We can similarly define formally histograms when <span class="math inline">\(X_i \in \mathbb R^p\)</span> (even if there is no clean representation).</p>
+</div>
 </section>
-<section id="illustration" class="level2">
-<h2 class="anchored" data-anchor-id="illustration">Illustration</h2>
-<p>. . .</p>
-<p><img src="../images/histogram.svg" class="img-fluid"></p>
+<section id="illustration" class="slide level2">
+<h2>Illustration</h2>
+<div class="fragment">
+<p><img data-src="../images/histogram.svg"></p>
+</div>
 </section>
-<section id="law-of-large-numbers-monte-carlo-informal" class="level2">
-<h2 class="anchored" data-anchor-id="law-of-large-numbers-monte-carlo-informal">Law of large numbers, Monte Carlo (informal)</h2>
-<p>. . .</p>
+<section id="law-of-large-numbers-monte-carlo-informal" class="slide level2">
+<h2>Law of large numbers, Monte Carlo (informal)</h2>
+<div class="fragment">
 <p>Assume that <span class="math inline">\((X_1, \dots, X_n)\)</span> are iid of distrib <span class="math inline">\(P\)</span>, and that <span class="math inline">\(a\)</span>,<span class="math inline">\(b\)</span>, <span class="math inline">\(m\)</span> are fixed</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>The histogram <span class="math inline">\(\mathrm{hist}(a,b,m)\)</span> converges to the histogram of the density <span class="math inline">\(P\)</span></p>
+</div>
 </section>
-<section id="convergence-of-the-histogram-proof" class="level2">
-<h2 class="anchored" data-anchor-id="convergence-of-the-histogram-proof">Convergence of the histogram (Proof)</h2>
-<p>. . .</p>
+<section id="convergence-of-the-histogram-proof" class="slide level2">
+<h2>Convergence of the histogram (Proof)</h2>
+<div class="fragment">
 <p>Let <span class="math inline">\(I_j = \bigl[a + (j-1)\tfrac{b-a}{k},\ a + j\tfrac{b-a}{m}\bigr)\)</span> for <span class="math inline">\(j=1,\dots,m\)</span> be the bins. The height of the <span class="math inline">\(j\)</span>-th bar is</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math display">\[\hat{h}_j = \frac{1}{n} \sum_{i=1}^n \mathbf{1}_{X_i \in I_j}.\]</span></p>
 <p>Since the <span class="math inline">\(X_i\)</span> are iid, the indicators <span class="math inline">\(\mathbf{1}_{X_i \in I_j}\)</span> are iid Bernoulli with mean <span class="math inline">\(P(I_j)\)</span>. By the <strong>strong LLN</strong>,</p>
 <p><span class="math display">\[\hat{h}_j \xrightarrow{a.s.} P(I_j) \quad \text{as } n\to\infty.\]</span></p>
+</div>
 </section>
-<section id="section-1" class="level2">
-<h2 class="anchored" data-anchor-id="section-1"></h2>
-<p><img src="../images/histogram_discrete_continuous.svg" class="img-fluid" style="width:60.0%"></p>
-</section>
-<section id="section-2" class="level2">
-<h2 class="anchored" data-anchor-id="section-2"></h2>
-<p><img src="../images/chi-2-sweets.svg" class="img-fluid"></p>
-</section>
-<section id="chi2-goodness-of-fit-to-a-given-distribution" class="level2">
-<h2 class="anchored" data-anchor-id="chi2-goodness-of-fit-to-a-given-distribution"><span class="math inline">\(\chi^2\)</span> Goodness of Fit to a given distribution</h2>
-<p>. . .</p>
+<section id="section-1" class="slide level2">
+<h2></h2>
+
+<img data-src="../images/histogram_discrete_continuous.svg" style="width:60.0%" class="r-stretch"></section>
+<section id="section-2" class="slide level2">
+<h2></h2>
+
+<img data-src="../images/chi-2-sweets.svg" class="r-stretch"></section>
+<section id="chi2-goodness-of-fit-to-a-given-distribution" class="slide level2">
+<h2><span class="math inline">\(\chi^2\)</span> Goodness of Fit to a given distribution</h2>
+<div class="fragment">
 <p>We observe <span class="math inline">\((X_1, \dots, X_n) \in \mathbb R^n\)</span>, iid with <strong>unknown</strong> distrib <span class="math inline">\(P\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We want to test whether <span class="math inline">\(P\)</span> is equal to a <span style="background-color: yellow;"><strong>known</strong> distribution <span class="math inline">\(P_0\)</span></span></p>
 <div class="square-objective">
 <p><span class="math inline">\(H_0\)</span>: <span class="math inline">\(P = P_0\)</span> VS <span class="math inline">\(H_1\)</span>: <span class="math inline">\(P \neq P_0\)</span></p>
 </div>
 <p>[<a href="https://app.wooclap.com/events/RQSUIA/questions/67cf0175f151baf0223ad812">Wooclap</a>]</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Idea: partition <span class="math inline">\(\mathbb R\)</span> and compare empirical VS theoretical histograms.</p>
+</div>
 </section>
-<section id="section-3" class="level2">
-<h2 class="anchored" data-anchor-id="section-3"></h2>
-<p>. . .</p>
+<section id="section-3" class="slide level2">
+<h2></h2>
+<div class="fragment">
 <p>If <span class="math inline">\((I_1, \dots, I_m)\)</span> are disjoint intervals,</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>we write <span style="background-color: lightblue;"><span class="math inline">\(p_1 = P_0(I_1), \dots, p_{m} = P_0(I_m)\)</span></span> for the theoretical probabilities</p>
-<p>. . .</p>
-<div class="callout callout-style-default callout-important callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
 </div>
-<div class="callout-title-container flex-fill">
-Important
+<div class="fragment">
+<div class="callout callout-important no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Important</strong></p>
 </div>
-</div>
-<div class="callout-body-container callout-body">
+<div class="callout-content">
 <p>These are known because <span class="math inline">\(P_0\)</span> is known and <span class="math inline">\(I_j\)</span> are fixed by ourselves!!</p>
 </div>
 </div>
-<p>. . .</p>
+</div>
+</div>
+<div class="fragment">
 <p>We write <span class="math inline">\(C_j = \sum_{i=1}^n \mathbf{1}\{X_{i} \in I_j\}\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span class="math inline">\(C_j\)</span> is the empirical number of times we get observations in <span class="math inline">\(I_j\)</span>.</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>By definition, <span style="background-color: orange;">under <span class="math inline">\(P_0\)</span></span>, <span class="math inline">\(C_j\)</span> follow a <strong>multinomial</strong> distribution <span style="background-color: lightblue;"><span class="math inline">\(\mathrm{Mult}(n, (p_1, \dots, p_{m}))\)</span></span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We want to compare <span class="math inline">\(C_j\)</span> (empirical) against <span class="math inline">\(np_j\)</span> (theoretical)</p>
+</div>
 </section>
-<section id="chi-squared-test-statistic" class="level2">
-<h2 class="anchored" data-anchor-id="chi-squared-test-statistic">Chi-squared test statistic</h2>
-<p>. . .</p>
+<section id="chi-squared-test-statistic" class="slide level2">
+<h2>Chi-squared test statistic</h2>
+<div class="fragment">
 <p>We observe <span class="math inline">\(X=(X_1, \dots, X_n) \in \mathbb R^n\)</span>, and define <span class="math inline">\(C_j := C_j(X) = \sum_{i=1}^n \mathbf{1}(X_i \in I_j)\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Chi-squared statistic:</p>
 <div class="square-def">
 <p><span class="math inline">\(\psi(X)=\sum_{j=1}^m \frac{(C_j - np_j)^2}{np_j}\)</span></p>
 </div>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>If <span class="math inline">\(np_j\)</span> are large enough for all <span class="math inline">\(j\)</span> (say <span class="math inline">\(np_j \geq 15\)</span>) then <span class="math inline">\(\psi(X) \asymp \chi^2(m-1)\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p><span style="background-color: yellow;">Rejection Region: <span class="math inline">\([t_{1-\alpha}, +\infty)\)</span></span> where <span class="math inline">\(t_{1-\alpha}\)</span> is the <span class="math inline">\((1-\alpha)\)</span>-quantile of <span class="math inline">\(\chi^2(m-1)\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>This is an symptotic test</p>
+</div>
 </section>
-<section id="corrected-chi2-test" class="level2">
-<h2 class="anchored" data-anchor-id="corrected-chi2-test">Corrected <span class="math inline">\(\chi^2\)</span> Test</h2>
-<p>. . .</p>
+<section id="corrected-chi2-test" class="slide level2">
+<h2>Corrected <span class="math inline">\(\chi^2\)</span> Test</h2>
+<div class="fragment">
 <p>If <span class="math inline">\(P_0\)</span> is <strong>unknown</strong>, lying in a parametric family <span class="math inline">\(\mathcal{P} = \{P_\theta : \theta \in \Theta \subset \mathbb{R}^\ell\}\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Estimate <span class="math inline">\(\theta\)</span> by MLE <span class="math inline">\(\hat\theta\)</span> from the data <span class="math inline">\(X_1,\dots,X_n\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Replace theoretical probabilities by <span class="math inline">\(\hat p_j = P_{\hat\theta}(I_j)\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Compute the corrected statistic:</p>
 <div class="square-def">
 <p><span class="math display">\[\psi(X) = \sum_{j=1}^m \frac{(C_j - n\hat{p}_j)^2}{n\hat{p}_j}\]</span></p>
 </div>
+</div>
 </section>
-<section id="distribution-of-the-corrected-chi2" class="level2">
-<h2 class="anchored" data-anchor-id="distribution-of-the-corrected-chi2">Distribution of the Corrected <span class="math inline">\(\chi^2\)</span></h2>
-<p>. . .</p>
+<section id="distribution-of-the-corrected-chi2" class="slide level2">
+<h2>Distribution of the Corrected <span class="math inline">\(\chi^2\)</span></h2>
+<div class="fragment">
 <p>Under <span class="math inline">\(H_0\)</span>, <strong>each estimated parameter costs one degree of freedom</strong>:</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math inline">\(\psi(X) \asymp \chi^2(m - 1 - \ell)\)</span></p>
 </div>
 <p><strong>Intuition:</strong> estimating <span class="math inline">\(\ell\)</span> parameters from the data imposes <span class="math inline">\(\ell\)</span> additional constraints on the counts <span class="math inline">\(C_j\)</span>,</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>Reducing the effective degrees of freedom from <span class="math inline">\(m-1\)</span> to <span class="math inline">\(m-1-\ell\)</span>.</p>
+</div>
 </section>
-<section id="example-goodness-of-fit-to-a-poisson-distribution" class="level2">
-<h2 class="anchored" data-anchor-id="example-goodness-of-fit-to-a-poisson-distribution">Example: Goodness of Fit to a Poisson distribution</h2>
+<section id="example-goodness-of-fit-to-a-poisson-distribution" class="slide level2">
+<h2>Example: Goodness of Fit to a Poisson distribution</h2>
 <p><span class="math inline">\(H_0\)</span>: <span class="math inline">\(X_i\)</span> iid <span class="math inline">\(\mathcal P(2)\)</span></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> [<span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a>X <span class="op">=</span> [<span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">4</span>, <span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">2</span>, <span class="fl">0</span>, <span class="fl">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div style="font-size: 80%;">
 <div class="fragment">
-<table class="caption-top table">
+<table class="caption-top">
 <thead>
 <tr class="header">
 <th></th>
@@ -718,535 +719,511 @@ Important
 </div>
 <div class="columns">
 <div class="column">
-<div class="fragment callout callout-style-simple callout-none no-icon">
-<div class="callout-body d-flex">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
-</div>
-<div class="callout-body-container">
+<div class="fragment">
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
 <ul>
-<li>To get <span class="math inline">\(9.7\)</span>, we compute <code>(1-cdf(Poisson(2),2))*30</code></li>
-<li>chi square stat <span class="math inline">\(\gtrsim \frac{(16-4)^2}{4} = 36\)</span></li>
-<li><code>(1-cdf(Chisq(3),36))</code> is very small: Reject</li>
+<li class="fragment">To get <span class="math inline">\(9.7\)</span>, we compute <code>(1-cdf(Poisson(2),2))*30</code></li>
+<li class="fragment">chi square stat <span class="math inline">\(\gtrsim \frac{(16-4)^2}{4} = 36\)</span></li>
+<li class="fragment"><code>(1-cdf(Chisq(3),36))</code> is very small: Reject</li>
 </ul>
+</div>
 </div>
 </div>
 </div>
 </div><div class="column">
-<div class="fragment callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
 </div>
-<div class="callout-title-container flex-fill">
-Warning
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<div class="callout-content">
 <ul>
-<li>If <span class="math inline">\(H_0\)</span> is <span class="math inline">\(X_i\)</span> iid <span class="math inline">\(\mathcal P(\lambda)\)</span> with <strong>unknown</strong> <span class="math inline">\(\lambda\)</span></li>
-<li><span class="math inline">\(\hat \lambda = 0.8\)</span>, <span class="math inline">\(\sum_{i=1}^4 \frac{(X_i - n_i)^2}{n_i} \approx 9.4\)</span></li>
-<li>Not <span class="math inline">\(\chi^2(3)\)</span> but <span class="math inline">\(\chi^2(2)\)</span></li>
-<li><code>(1-cdf(Chisq(2),9.4))</code> <span class="math inline">\(\approx 0.009\)</span>. Reject at level 1%</li>
+<li class="fragment">If <span class="math inline">\(H_0\)</span> is <span class="math inline">\(X_i\)</span> iid <span class="math inline">\(\mathcal P(\lambda)\)</span> with <strong>unknown</strong> <span class="math inline">\(\lambda\)</span></li>
+<li class="fragment"><span class="math inline">\(\hat \lambda = 0.8\)</span>, <span class="math inline">\(\sum_{i=1}^4 \frac{(X_i - n_i)^2}{n_i} \approx 9.4\)</span></li>
+<li class="fragment">Not <span class="math inline">\(\chi^2(3)\)</span> but <span class="math inline">\(\chi^2(2)\)</span></li>
+<li class="fragment"><code>(1-cdf(Chisq(2),9.4))</code> <span class="math inline">\(\approx 0.009\)</span>. Reject at level 1%</li>
 </ul>
 </div>
 </div>
 </div>
 </div>
+</div></div>
 </section>
-<section id="section-4" class="level2">
-<h2 class="anchored" data-anchor-id="section-4"></h2>
+<section id="section-4" class="slide level2">
+<h2></h2>
 <p>[<a href="https://app.wooclap.com/events/RQSUIA/questions/67cf06270ea10e736b0e07fe">Wooclap</a>]</p>
 </section>
-<section id="comparison-with-qq-plots" class="level2">
-<h2 class="anchored" data-anchor-id="comparison-with-qq-plots">Comparison with QQ-Plots</h2>
-<p>. . .</p>
+<section id="comparison-with-qq-plots" class="slide level2">
+<h2>Comparison with QQ-Plots</h2>
+<div class="fragment">
 <p>We observe <span class="math inline">\((X_1, \dots, X_n) \in \mathbb R^n\)</span> of <strong>unknown</strong> CDF <span class="math inline">\(F\)</span></p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <p>We want to test whether <span class="math inline">\(F= F_0\)</span>:</p>
-<p>. . .</p>
+</div>
+<div class="fragment">
 <div class="square-objective">
 <p><span class="math inline">\(H_0\)</span>: <span class="math inline">\(F = F_0\)</span> VS <span class="math inline">\(H_1\)</span>: <span class="math inline">\(F \neq F_0\)</span></p>
 </div>
-<p>. . .</p>
-<p>We write <span class="math inline">\(X_{(1)} \leq \dots \leq X_{(n)}\)</span> for the ordered data</p>
-<p>. . .</p>
-<p><strong>empirical <span class="math inline">\(\frac{k}{n}\)</span>-quantile</strong>: <span class="math inline">\(X_{(k)}\)</span> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67cf08cca3464294aa47e094">Wooclap</a>]</p>
-<p>. . .</p>
-<p><strong><span class="math inline">\(\frac{k}{n}\)</span>-quantile</strong>: <span class="math inline">\(x\)</span> such that <span class="math inline">\(F_0(x) = \frac{k}{n}\)</span></p>
-<p>. . .</p>
-<p><strong>Idea</strong>: Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(X_{(k)}\)</span> should be approximately equal to the <span class="math inline">\(k/n\)</span>-quantile of <span class="math inline">\(F_0\)</span></p>
-</section>
-<section id="qq-plot" class="level2">
-<h2 class="anchored" data-anchor-id="qq-plot">QQ-Plot</h2>
-<ul>
-<li>Represent the empirical quantiles in function of the theoretical quantiles.</li>
-<li>Compare the scatter plot with <span class="math inline">\(y=x\)</span></li>
-</ul>
-<p><img src="../images/qqplot_NNTN.svg" class="img-fluid"></p>
-</section>
-<section id="kolmogorov-smirnov-test" class="level2">
-<h2 class="anchored" data-anchor-id="kolmogorov-smirnov-test">Kolmogorov-Smirnov Test</h2>
-<div class="callout callout-style-simple callout-none no-icon">
-<div class="callout-body d-flex">
-<div class="callout-icon-container">
-<i class="callout-icon no-icon"></i>
 </div>
-<div class="callout-body-container">
+<div class="fragment">
+<p>We write <span class="math inline">\(X_{(1)} \leq \dots \leq X_{(n)}\)</span> for the ordered data</p>
+</div>
+<div class="fragment">
+<p><strong>empirical <span class="math inline">\(\frac{k}{n}\)</span>-quantile</strong>: <span class="math inline">\(X_{(k)}\)</span> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67cf08cca3464294aa47e094">Wooclap</a>]</p>
+</div>
+<div class="fragment">
+<p><strong><span class="math inline">\(\frac{k}{n}\)</span>-quantile</strong>: <span class="math inline">\(x\)</span> such that <span class="math inline">\(F_0(x) = \frac{k}{n}\)</span></p>
+</div>
+<div class="fragment">
+<p><strong>Idea</strong>: Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(X_{(k)}\)</span> should be approximately equal to the <span class="math inline">\(k/n\)</span>-quantile of <span class="math inline">\(F_0\)</span></p>
+</div>
+</section>
+<section id="qq-plot" class="slide level2">
+<h2>QQ-Plot</h2>
+<ul>
+<li class="fragment">Represent the empirical quantiles in function of the theoretical quantiles.</li>
+<li class="fragment">Compare the scatter plot with <span class="math inline">\(y=x\)</span></li>
+</ul>
+
+<img data-src="../images/qqplot_NNTN.svg" class="r-stretch"></section>
+<section id="kolmogorov-smirnov-test" class="slide level2">
+<h2>Kolmogorov-Smirnov Test</h2>
+<div class="callout callout-none no-icon callout-style-simple">
+<div class="callout-body">
+<div class="callout-content">
 <div class="columns">
 <div class="column" style="width:50%;">
 <ul>
-<li>We observe <span class="math inline">\((X_1, \dots, X_n)\)</span> of <strong>unknown</strong> CDF <span class="math inline">\(F\)</span></li>
-<li><span class="math inline">\(H_0\)</span>: <span class="math inline">\(F = F_0\)</span> where <span class="math inline">\(F_0\)</span> is <strong>known</strong></li>
-<li><span class="math inline">\(H_1\)</span>: <span class="math inline">\(F \neq F_0\)</span></li>
-<li>We write <span class="math inline">\(X_{(1)} \leq \dots \leq X_{(n)}\)</span> for the ordered data</li>
-<li><strong>empirical <span class="math inline">\(\frac{k}{n}\)</span>-quantile</strong>:</li>
-<li><strong><span class="math inline">\(\frac{k}{n}\)</span>-quantile</strong>: <span class="math inline">\(x\)</span> such that <span class="math inline">\(F_0(x) = \frac{k}{n}\)</span> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67cf0b5ff151baf0224cbd31">Wooclap</a>]</li>
-<li><strong>Empirical CDF</strong>: <span class="math inline">\(\hat F(x) = \frac{1}{n}\sum_{i=1}^n \mathbf 1\{X_i \leq x\}\)</span></li>
-<li>Idea: Max distance between empirical and true CDF</li>
+<li class="fragment">We observe <span class="math inline">\((X_1, \dots, X_n)\)</span> of <strong>unknown</strong> CDF <span class="math inline">\(F\)</span></li>
+<li class="fragment"><span class="math inline">\(H_0\)</span>: <span class="math inline">\(F = F_0\)</span> where <span class="math inline">\(F_0\)</span> is <strong>known</strong></li>
+<li class="fragment"><span class="math inline">\(H_1\)</span>: <span class="math inline">\(F \neq F_0\)</span></li>
+<li class="fragment">We write <span class="math inline">\(X_{(1)} \leq \dots \leq X_{(n)}\)</span> for the ordered data</li>
+<li class="fragment"><strong>empirical <span class="math inline">\(\frac{k}{n}\)</span>-quantile</strong>:</li>
+<li class="fragment"><strong><span class="math inline">\(\frac{k}{n}\)</span>-quantile</strong>: <span class="math inline">\(x\)</span> such that <span class="math inline">\(F_0(x) = \frac{k}{n}\)</span> [<a href="https://app.wooclap.com/events/RQSUIA/questions/67cf0b5ff151baf0224cbd31">Wooclap</a>]</li>
+<li class="fragment"><strong>Empirical CDF</strong>: <span class="math inline">\(\hat F(x) = \frac{1}{n}\sum_{i=1}^n \mathbf 1\{X_i \leq x\}\)</span></li>
+<li class="fragment">Idea: Max distance between empirical and true CDF</li>
 </ul>
 </div><div class="column">
 <div class="r-stack">
-<p><img src="../images/empirical_cdf.svg" class="fragment img-fluid"></p>
-<p><img src="../images/ks_illustration.svg" class="fragment img-fluid"></p>
+<p><img data-src="../images/empirical_cdf.svg" class="fragment"></p>
+<p><img data-src="../images/ks_illustration.svg" class="fragment"></p>
 </div>
-</div>
-</div>
+</div></div>
 </div>
 </div>
 </div>
 </section>
-<section id="section-5" class="level2">
-<h2 class="anchored" data-anchor-id="section-5"></h2>
-<div class="fragment callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<section id="section-5" class="slide level2">
+<h2></h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Kolmogorov-Smirnov test</strong></p>
 </div>
-<div class="callout-title-container flex-fill">
-Kolmogorov-Smirnov test
-</div>
-</div>
-<div class="callout-body-container callout-body">
+<div class="callout-content">
 <ul>
-<li><span class="math inline">\(\psi(X) = \sup_{x}|\hat F(x) - F_0(x)|\)</span></li>
-<li>Approx: <span class="math inline">\(\mathbb P_0(\psi(X) &gt;c/\sqrt{n}) \to 2\sum_{r=1}^{+\infty}(-1)^{r-1}\exp(-2c^2r^2)\)</span> when <span class="math inline">\(n \to +\infty\)</span></li>
-<li>In practice, use Julia, Python or R for KS Tests</li>
+<li class="fragment"><span class="math inline">\(\psi(X) = \sup_{x}|\hat F(x) - F_0(x)|\)</span></li>
+<li class="fragment">Approx: <span class="math inline">\(\mathbb P_0(\psi(X) &gt;c/\sqrt{n}) \to 2\sum_{r=1}^{+\infty}(-1)^{r-1}\exp(-2c^2r^2)\)</span> when <span class="math inline">\(n \to +\infty\)</span></li>
+<li class="fragment">In practice, use Julia, Python or R for KS Tests</li>
 </ul>
 </div>
 </div>
+</div>
+</div>
 </section>
-<section id="section-6" class="level2">
-<h2 class="anchored" data-anchor-id="section-6"></h2>
+<section id="section-6" class="slide level2">
+<h2></h2>
 <p><a href="../../../teaching/hypothesis_testing/slides/gaussian_populations.html">previous</a> <a href="../../../teaching/hypothesis_testing/slides/dependency.html">next</a></p>
 
 
-</section>
-</section>
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
 
-</main> <!-- /main -->
-<script id="quarto-html-after-body" type="application/javascript">
-  window.document.addEventListener("DOMContentLoaded", function (event) {
-    const icon = "";
-    const anchorJS = new window.AnchorJS();
-    anchorJS.options = {
-      placement: 'right',
-      icon: icon
-    };
-    anchorJS.add('.anchored');
-    const isCodeAnnotation = (el) => {
-      for (const clz of el.classList) {
-        if (clz.startsWith('code-annotation-')) {                     
-          return true;
-        }
-      }
-      return false;
-    }
-    const onCopySuccess = function(e) {
-      // button target
-      const button = e.trigger;
-      // don't keep focus
-      button.blur();
-      // flash "checked"
-      button.classList.add('code-copy-button-checked');
-      var currentTitle = button.getAttribute("title");
-      button.setAttribute("title", "Copied!");
-      let tooltip;
-      if (window.bootstrap) {
-        button.setAttribute("data-bs-toggle", "tooltip");
-        button.setAttribute("data-bs-placement", "left");
-        button.setAttribute("data-bs-title", "Copied!");
-        tooltip = new bootstrap.Tooltip(button, 
-          { trigger: "manual", 
-            customClass: "code-copy-button-tooltip",
-            offset: [0, -8]});
-        tooltip.show();    
-      }
-      setTimeout(function() {
-        if (tooltip) {
-          tooltip.hide();
-          button.removeAttribute("data-bs-title");
-          button.removeAttribute("data-bs-toggle");
-          button.removeAttribute("data-bs-placement");
-        }
-        button.setAttribute("title", currentTitle);
-        button.classList.remove('code-copy-button-checked');
-      }, 1000);
-      // clear code selection
-      e.clearSelection();
-    }
-    const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
-        }
-        return codeEl.innerText;
-    }
-    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
-      text: getTextToCopy
-    });
-    clipboard.on('success', onCopySuccess);
-    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
-      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
-        text: getTextToCopy,
-        container: window.document.getElementById('quarto-embedded-source-code-modal')
-      });
-      clipboardModal.on('success', onCopySuccess);
-    }
-      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-      var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp('/' + window.location.host + '/');
-      var isInternal = (href) => {
-          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-      }
-      // Inspect non-navigation links and adorn them if external
-     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
-      for (var i=0; i<links.length; i++) {
-        const link = links[i];
-        if (!isInternal(link.href)) {
-          // undo the damage that might have been done by quarto-nav.js in the case of
-          // links that we want to consider external
-          if (link.dataset.originalHref !== undefined) {
-            link.href = link.dataset.originalHref;
-          }
-        }
-      }
-    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-      const config = {
-        allowHTML: true,
-        maxWidth: 500,
-        delay: 100,
-        arrow: false,
-        appendTo: function(el) {
-            return el.parentElement;
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
         },
-        interactive: true,
-        interactiveBorder: 10,
-        theme: 'quarto',
-        placement: 'bottom-start',
-      };
-      if (contentFn) {
-        config.content = contentFn;
-      }
-      if (onTriggerFn) {
-        config.onTrigger = onTriggerFn;
-      }
-      if (onUntriggerFn) {
-        config.onUntrigger = onUntriggerFn;
-      }
-      window.tippy(el, config); 
-    }
-    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-    for (var i=0; i<noterefs.length; i++) {
-      const ref = noterefs[i];
-      tippyHover(ref, function() {
-        // use id or data attribute instead here
-        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-        try { href = new URL(href).hash; } catch {}
-        const id = href.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note) {
-          return note.innerHTML;
-        } else {
-          return "";
-        }
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
       });
-    }
-    const xrefs = window.document.querySelectorAll('a.quarto-xref');
-    const processXRef = (id, note) => {
-      // Strip column container classes
-      const stripColumnClz = (el) => {
-        el.classList.remove("page-full", "page-columns");
-        if (el.children) {
-          for (const child of el.children) {
-            stripColumnClz(child);
-          }
-        }
-      }
-      stripColumnClz(note)
-      if (id === null || id.startsWith('sec-')) {
-        // Special case sections, only their first couple elements
-        const container = document.createElement("div");
-        if (note.children && note.children.length > 2) {
-          container.appendChild(note.children[0].cloneNode(true));
-          for (let i = 1; i < note.children.length; i++) {
-            const child = note.children[i];
-            if (child.tagName === "P" && child.innerText === "") {
-              continue;
-            } else {
-              container.appendChild(child.cloneNode(true));
-              break;
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
             }
           }
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(container);
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
           }
-          return container.innerHTML
-        } else {
-          if (window.Quarto?.typesetMath) {
-            window.Quarto.typesetMath(note);
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
           }
-          return note.innerHTML;
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
         }
-      } else {
-        // Remove any anchor links if they are present
-        const anchorLink = note.querySelector('a.anchorjs-link');
-        if (anchorLink) {
-          anchorLink.remove();
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(note);
-        }
-        if (note.classList.contains("callout")) {
-          return note.outerHTML;
-        } else {
-          return note.innerHTML;
-        }
-      }
-    }
-    for (var i=0; i<xrefs.length; i++) {
-      const xref = xrefs[i];
-      tippyHover(xref, undefined, function(instance) {
-        instance.disable();
-        let url = xref.getAttribute('href');
-        let hash = undefined; 
-        if (url.startsWith('#')) {
-          hash = url;
-        } else {
-          try { hash = new URL(url).hash; } catch {}
-        }
-        if (hash) {
-          const id = hash.replace(/^#\/?/, "");
-          const note = window.document.getElementById(id);
-          if (note !== null) {
-            try {
-              const html = processXRef(id, note.cloneNode(true));
-              instance.setContent(html);
-            } finally {
-              instance.enable();
-              instance.show();
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
             }
           } else {
-            // See if we can fetch this
-            fetch(url.split('#')[0])
-            .then(res => res.text())
-            .then(html => {
-              const parser = new DOMParser();
-              const htmlDoc = parser.parseFromString(html, "text/html");
-              const note = htmlDoc.getElementById(id);
-              if (note !== null) {
-                const html = processXRef(id, note);
-                instance.setContent(html);
-              } 
-            }).finally(() => {
-              instance.enable();
-              instance.show();
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
             });
           }
-        } else {
-          // See if we can fetch a full url (with no hash to target)
-          // This is a special case and we should probably do some content thinning / targeting
-          fetch(url)
-          .then(res => res.text())
-          .then(html => {
-            const parser = new DOMParser();
-            const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.querySelector('main.content');
-            if (note !== null) {
-              // This should only happen for chapter cross references
-              // (since there is no id in the URL)
-              // remove the first header
-              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-                note.children[0].remove();
-              }
-              const html = processXRef(null, note);
-              instance.setContent(html);
-            } 
-          }).finally(() => {
-            instance.enable();
-            instance.show();
-          });
         }
-      }, function(instance) {
       });
-    }
-        let selectedAnnoteEl;
-        const selectorForAnnotation = ( cell, annotation) => {
-          let cellAttr = 'data-code-cell="' + cell + '"';
-          let lineAttr = 'data-code-annotation="' +  annotation + '"';
-          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-          return selector;
-        }
-        const selectCodeLines = (annoteEl) => {
-          const doc = window.document;
-          const targetCell = annoteEl.getAttribute("data-target-cell");
-          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-          const lineIds = lines.map((line) => {
-            return targetCell + "-" + line;
-          })
-          let top = null;
-          let height = null;
-          let parent = null;
-          if (lineIds.length > 0) {
-              //compute the position of the single el (top and bottom and make a div)
-              const el = window.document.getElementById(lineIds[0]);
-              top = el.offsetTop;
-              height = el.offsetHeight;
-              parent = el.parentElement.parentElement;
-            if (lineIds.length > 1) {
-              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-              height = bottom - top;
-            }
-            if (top !== null && height !== null && parent !== null) {
-              // cook up a div (if necessary) and position it 
-              let div = window.document.getElementById("code-annotation-line-highlight");
-              if (div === null) {
-                div = window.document.createElement("div");
-                div.setAttribute("id", "code-annotation-line-highlight");
-                div.style.position = 'absolute';
-                parent.appendChild(div);
-              }
-              div.style.top = top - 2 + "px";
-              div.style.height = height + 4 + "px";
-              div.style.left = 0;
-              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-              if (gutterDiv === null) {
-                gutterDiv = window.document.createElement("div");
-                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-                gutterDiv.style.position = 'absolute';
-                const codeCell = window.document.getElementById(targetCell);
-                const gutter = codeCell.querySelector('.code-annotation-gutter');
-                gutter.appendChild(gutterDiv);
-              }
-              gutterDiv.style.top = top - 2 + "px";
-              gutterDiv.style.height = height + 4 + "px";
-            }
-            selectedAnnoteEl = annoteEl;
-          }
-        };
-        const unselectCodeLines = () => {
-          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-          elementsIds.forEach((elId) => {
-            const div = window.document.getElementById(elId);
-            if (div) {
-              div.remove();
-            }
-          });
-          selectedAnnoteEl = undefined;
-        };
-          // Handle positioning of the toggle
-      window.addEventListener(
-        "resize",
-        throttle(() => {
-          elRect = undefined;
-          if (selectedAnnoteEl) {
-            selectCodeLines(selectedAnnoteEl);
-          }
-        }, 10)
-      );
-      function throttle(fn, ms) {
-      let throttle = false;
-      let timer;
-        return (...args) => {
-          if(!throttle) { // first call gets through
-              fn.apply(this, args);
-              throttle = true;
-          } else { // all the others get throttled
-              if(timer) clearTimeout(timer); // cancel #2
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = throttle = false;
-              }, ms);
-          }
-        };
-      }
-        // Attach click handler to the DT
-        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-        for (const annoteDlNode of annoteDls) {
-          annoteDlNode.addEventListener('click', (event) => {
-            const clickedEl = event.target;
-            if (clickedEl !== selectedAnnoteEl) {
-              unselectCodeLines();
-              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-              if (activeEl) {
-                activeEl.classList.remove('code-annotation-active');
-              }
-              selectCodeLines(clickedEl);
-              clickedEl.classList.add('code-annotation-active');
-            } else {
-              // Unselect the line
-              unselectCodeLines();
-              clickedEl.classList.remove('code-annotation-active');
-            }
-          });
-        }
-    const findCites = (el) => {
-      const parentEl = el.parentElement;
-      if (parentEl) {
-        const cites = parentEl.dataset.cites;
-        if (cites) {
-          return {
-            el,
-            cites: cites.split(' ')
-          };
-        } else {
-          return findCites(el.parentElement)
-        }
-      } else {
-        return undefined;
-      }
-    };
-    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-    for (var i=0; i<bibliorefs.length; i++) {
-      const ref = bibliorefs[i];
-      const citeInfo = findCites(ref);
-      if (citeInfo) {
-        tippyHover(citeInfo.el, function() {
-          var popup = window.document.createElement('div');
-          citeInfo.cites.forEach(function(cite) {
-            var citeDiv = window.document.createElement('div');
-            citeDiv.classList.add('hanging-indent');
-            citeDiv.classList.add('csl-entry');
-            var biblioDiv = window.document.getElementById('ref-' + cite);
-            if (biblioDiv) {
-              citeDiv.innerHTML = biblioDiv.innerHTML;
-            }
-            popup.appendChild(citeDiv);
-          });
-          return popup.innerHTML;
-        });
-      }
-    }
-  });
-  </script>
-</div> <!-- /content -->
-
-
-
+      </script>
+    
 
 </body></html>
