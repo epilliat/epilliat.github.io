@@ -1,0 +1,137 @@
+---
+title: "Tests de Shapiro-Wilk et Shapiro-Francia"
+subtitle: "Construction, équivalence avec le $R^2$ du QQ-plot, et loi sous $H_0$"
+format:
+  html:
+    self-contained: true
+    toc: true
+    theme: cosmo
+    html-math-method: mathjax
+---
+
+## Cadre
+
+On observe $X_1, \dots, X_n$ i.i.d. de loi $P$ **inconnue**, à densité, et on veut tester
+
+$$
+H_0: P = \mathcal N(\mu, \sigma^2) \text{ pour un certain } (\mu, \sigma^2) \quad \text{contre} \quad H_1: P \neq \mathcal N(\mu, \sigma^2) \text{ pour tout } (\mu, \sigma^2).
+$$
+
+Les paramètres $\mu, \sigma^2$ sont **inconnus** : on teste l'appartenance à la **famille** des lois gaussiennes, pas à une loi gaussienne particulière.
+
+On note $X_{(1)} \leq X_{(2)} \leq \dots \leq X_{(n)}$ les statistiques d'ordre et $Z \sim \mathcal N(0, 1)$ avec statistiques d'ordre $Z_{(1)}, \dots, Z_{(n)}$. On pose
+$$
+m_i = \mathbb E[Z_{(i)}], \qquad V_{ij} = \mathrm{Cov}(Z_{(i)}, Z_{(j)}).
+$$
+
+Le vecteur $m = (m_1, \dots, m_n)^\top$ et la matrice $V$ ne dépendent que de $n$ et se calculent une fois pour toutes.
+
+::: {.callout-note title="Antisymétrie de $m$"}
+Par symétrie de la loi gaussienne, $Z_{(n+1-i)} \stackrel{d}{=} -Z_{(i)}$, donc
+$$
+m_i = -m_{n+1-i}, \qquad \sum_{i=1}^n m_i = 0.
+$$
+Cette propriété sera utilisée à plusieurs reprises dans la suite.
+:::
+
+## Shapiro-Francia (1972)
+
+### Définition
+
+::: {.callout-note title="Statistique de Shapiro-Francia"}
+$$
+W' = \dfrac{\left(\sum_{i=1}^n m_i\,X_{(i)}\right)^2}{\left(\sum_{i=1}^n m_i^2\right)\,\cdot\,\sum_{i=1}^n (X_i - \bar X)^2}.
+$$
+:::
+
+On rejette $H_0$ quand $W'$ est **trop petit**.
+
+### Équivalence avec le $R^2$ du QQ-plot
+
+Le **QQ-plot gaussien** est obtenu en traçant les points $(m_i, X_{(i)})$ pour $i = 1, \dots, n$. Si les données sont gaussiennes, on s'attend à ce que ces points s'alignent sur une droite, puisque sous $H_0$ on peut écrire le modèle
+$$
+X_{(i)} = \mu + \sigma\,m_i + \varepsilon_i,
+$$
+où les $\varepsilon_i$ sont les **résidus** (centrés, corrélés entre eux selon $\sigma^2 V$).
+
+Ajustons cette droite par **moindres carrés ordinaires** — on estime $(\mu, \sigma)$ en minimisant $\sum_i \varepsilon_i^2$ — et calculons le **coefficient de détermination** $R^2$ :
+
+::: {.callout-note title="Proposition"}
+$$
+R^2_{\text{QQ}} = W'.
+$$
+C'est-à-dire : la statistique de Shapiro-Francia est **exactement** le $R^2$ de la régression linéaire OLS du QQ-plot gaussien.
+:::
+
+### Preuve
+
+Par la formule standard du $R^2$ pour une régression linéaire simple :
+$$
+R^2_{\text{QQ}} = \dfrac{\left(\sum_{i=1}^n (m_i - \bar m)(X_{(i)} - \bar X)\right)^2}{\sum_{i=1}^n (m_i - \bar m)^2 \,\cdot\,\sum_{i=1}^n (X_{(i)} - \bar X)^2}.
+$$
+
+Par antisymétrie de $m$, $\bar m = 0$, donc $\sum_i (m_i - \bar m)^2 = \sum_i m_i^2$, et le produit au numérateur se simplifie en
+$$
+\sum_i (m_i - \bar m)(X_{(i)} - \bar X) = \sum_i m_i\,X_{(i)} - \bar X\,\underbrace{\sum_i m_i}_{=\,0} = \sum_i m_i\,X_{(i)}.
+$$
+
+De plus, la somme $\sum_i (X_i - \bar X)^2$ est invariante par permutation des $X_i$, donc $\sum_i (X_{(i)} - \bar X)^2 = \sum_i (X_i - \bar X)^2$. En injectant ces simplifications :
+$$
+R^2_{\text{QQ}} = \dfrac{\left(\sum_i m_i\,X_{(i)}\right)^2}{\left(\sum_i m_i^2\right)\,\cdot\,\sum_i (X_i - \bar X)^2} = W'. \qquad \blacksquare
+$$
+
+### Interprétation visuelle
+
+$W'$ quantifie donc **la qualité de l'alignement** des points $(m_i, X_{(i)})$ sur une droite :
+
+- si les données sont gaussiennes, les points forment presque une droite parfaite et $W' \approx 1$
+- si les données dévient de la gaussianité, les points s'écartent de toute droite et $W' < 1$
+
+Rejeter $H_0$ quand $W' < W'_\alpha$ revient à **rejeter quand le QQ-plot est trop mal aligné**.
+
+## Shapiro-Wilk (1965)
+
+### Définition
+
+::: {.callout-note title="Statistique de Shapiro-Wilk"}
+$$
+W = \dfrac{\left(\sum_{i=1}^n a_i\,X_{(i)}\right)^2}{\sum_{i=1}^n (X_i - \bar X)^2},
+$$
+où les coefficients $a_i$ sont les entrées du vecteur
+$$
+a = \dfrac{V^{-1} m}{\|V^{-1} m\|}.
+$$
+:::
+
+Les $a_i$ sont **tabulés** : ils dépendent de $n$ mais pas des données.
+
+### Construction via les moindres carrés généralisés
+
+La matrice $V$ est la **matrice de covariance des statistiques d'ordre** d'une gaussienne standard :
+$$
+V_{ij} = \mathrm{Cov}(Z_{(i)}, Z_{(j)}), \qquad Z \sim \mathcal N(0, 1).
+$$
+
+Elle ne dépend que de $n$ et peut être calculée une fois pour toutes (les statistiques d'ordre sont **corrélées** entre elles, donc $V$ n'est pas diagonale).
+
+Sous $H_0$, $X_{(i)} = \mu + \sigma\,Z_{(i)}$ en loi, donc
+$$
+\mathbb E[X_{(i)}] = \mu + \sigma\,m_i, \qquad \mathrm{Cov}(X_{(i)}, X_{(j)}) = \sigma^2\,V_{ij}.
+$$
+
+On est dans un **modèle linéaire** en $(\mu, \sigma)$ :
+$$
+X_{(i)} = \mu + \sigma\,m_i + \varepsilon_i, \qquad \mathrm{Cov}(\varepsilon) = \sigma^2 V.
+$$
+
+Comme les résidus $\varepsilon_i$ ne sont **pas** indépendants, la régression OLS (moindres carrés ordinaires) n'est pas optimale : on utilise les **moindres carrés généralisés** (GLS, pour *Generalized Least Squares*), qui consiste à minimiser la forme quadratique pondérée par $V^{-1}$ :
+$$
+(\hat\mu, \hat\sigma) = \arg\min_{\mu, \sigma}\; \varepsilon^\top V^{-1} \varepsilon.
+$$
+
+L'estimateur GLS de $\sigma$ obtenu est
+$$
+\hat\sigma_{\text{GLS}} \;\propto\; m^\top V^{-1}\,X_{(\cdot)} \;=\; \sum_{i=1}^n (V^{-1} m)_i\,X_{(i)}.
+$$
+
+Après normalisation (pour que $\|a\| = 1$), on obtient les coefficients $a_i$ de Shapiro-Wilk. Le numérateur de $W$ est ainsi le carré d'un estimateur GLS de $\sigma$, à comparer avec le dénominateur $\sum_i (X_i - \bar X)^2 \propto (n-1)\hat\sigma^2_{\text{classique}}$, qui est l'estimateur usuel de $\sigma^2$.

@@ -358,10 +358,10 @@
 <section id="preuve" class="slide level2">
 <h2>Preuve</h2>
 <div class="fragment">
-<p><span class="math inline">\(X \sim \text{Mult}(n, p)\)</span> a pour espérance <span class="math inline">\(np\)</span> et pour covariance <span class="math inline">\(n\Sigma\)</span> où <span class="math inline">\(\Sigma = \text{diag}(p) - pp^\top\)</span>.</p>
+<p><span class="math inline">\(X \sim \text{Mult}(n, p)\)</span> s’écrit <span class="math inline">\(X= \sum_{i=1}^n \xi_i\)</span> où les <span class="math inline">\(\xi \in \mathbb \{0,1\}^k\)</span> sont iid d’espérance <span class="math inline">\(p\)</span> de matrice de covariance <span class="math inline">\(\Sigma\)</span></p>
 </div>
 <div class="fragment">
-<p>En effet : <span class="math display">\[\Sigma_{ij} = \text{Cov}(X_i, X_j) = \begin{cases} np_i(1-p_i) &amp; i = j \\ -np_ip_j &amp; i \neq j \end{cases}\]</span> ce qui donne <span class="math inline">\(\Sigma = n(\text{diag}(p) - pp^\top)\)</span>.</p>
+<p><span class="math display">\[\Sigma_{ij} = \text{Cov}(\xi_{1i}, \xi_{1j}) = \begin{cases} p_i(1-p_i) &amp; i = j \\ -p_ip_j &amp; i \neq j \end{cases}\]</span></p>
 <p>Par le TCL multivarié : <span class="math display">\[\frac{X - np}{\sqrt{n}} \xrightarrow{d} \mathcal{N}(0, \Sigma)\]</span></p>
 </div>
 </section>
@@ -371,7 +371,16 @@
 <p>Posons <span class="math inline">\(Z = \text{diag}(p)^{-1/2}(X - np)/\sqrt{n}\)</span>, de sorte que <span class="math inline">\(\psi(X) = \|Z\|^2\)</span>. Par le théorème de la fonction continue :</p>
 </div>
 <div class="fragment">
-<p><span class="math display">\[Z \xrightarrow{d} \mathcal{N}(0,\, P), \quad P = I - \sqrt{p}\sqrt{p}^\top\]</span> Comme <span class="math inline">\(P\)</span> est une projection orthogonale de rang <span class="math inline">\(m-1\)</span>, <span class="math inline">\(\mathcal{N}(0, P) \stackrel{d}{=} PG\)</span> avec <span class="math inline">\(G \sim \mathcal{N}(0, I)\)</span>, donc : <span class="math display">\[\psi(X) = \|Z\|^2 \xrightarrow{d} \|PG\|^2 \sim \chi^2(m-1)\]</span></p>
+<p><span class="math display">\[Z \xrightarrow{d} \mathcal{N}(0,\, P), \quad P = I - \sqrt{p}\sqrt{p}^\top\]</span></p>
+</div>
+<div class="fragment">
+<p>En effet, la covariance de <span class="math inline">\(Z\)</span> est <span class="math inline">\(\text{diag}(p)^{-1/2}\,\Sigma\,\text{diag}(p)^{-1/2}\)</span>, dont le coefficient <span class="math inline">\((i,j)\)</span> vaut <span class="math display">\[\frac{\Sigma_{ij}}{\sqrt{p_i}\sqrt{p_j}} = \frac{p_i\,\delta_{ij} - p_i p_j}{\sqrt{p_i}\sqrt{p_j}} = \delta_{ij} - \sqrt{p_i}\sqrt{p_j},\]</span> ce qui est exactement le coefficient <span class="math inline">\((i,j)\)</span> de <span class="math inline">\(I - \sqrt{p}\sqrt{p}^\top\)</span>.</p>
+</div>
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
+<div class="fragment">
+<p>Comme <span class="math inline">\(P\)</span> est une projection orthogonale de rang <span class="math inline">\(m-1\)</span>, <span class="math inline">\(\mathcal{N}(0, P) \stackrel{d}{=} PG\)</span> avec <span class="math inline">\(G \sim \mathcal{N}(0, I)\)</span>, donc : <span class="math display">\[\psi(X) = \|Z\|^2 \xrightarrow{d} \|PG\|^2 \sim \chi^2(m-1)\]</span></p>
 </div>
 </section>
 <section id="test-et-région-de-rejet" class="slide level2">
@@ -389,7 +398,7 @@
 <p>Si on observe une <span style="background-color: yellow;">statistique <span class="math inline">\(\chi^2\)</span> égale à <span class="math inline">\(0{,}001\)</span></span>, qu’est-ce que cela signifie ?</p>
 </div>
 </section>
-<section id="section" class="slide level2">
+<section id="section-1" class="slide level2">
 <h2></h2>
 
 <img data-src="../images/chisq3.svg" class="r-stretch"></section>
@@ -554,8 +563,8 @@
 <p>L’histogramme <span class="math inline">\(\mathrm{hist}(a,b,m)\)</span> converge vers l’histogramme de la densité <span class="math inline">\(P\)</span></p>
 </div>
 </section>
-<section id="convergence-de-lhistogramme-preuve" class="slide level2">
-<h2>Convergence de l’histogramme (Preuve)</h2>
+<section id="convergence-de-lhistogramme" class="slide level2">
+<h2>Convergence de l’histogramme</h2>
 <div class="fragment">
 <p>Soient <span class="math inline">\(I_j = \bigl[a + (j-1)\tfrac{b-a}{k},\ a + j\tfrac{b-a}{m}\bigr)\)</span> pour <span class="math inline">\(j=1,\dots,m\)</span> les classes. La hauteur de la <span class="math inline">\(j\)</span>-ème barre est</p>
 </div>
@@ -565,11 +574,11 @@
 <p><span class="math display">\[\hat{h}_j \xrightarrow{p.s.} P(I_j) \quad \text{quand } n\to\infty.\]</span></p>
 </div>
 </section>
-<section id="section-1" class="slide level2">
+<section id="section-2" class="slide level2">
 <h2></h2>
 
 <img data-src="../images/histogram_discrete_continuous.svg" style="width:60.0%" class="r-stretch"></section>
-<section id="section-2" class="slide level2">
+<section id="section-3" class="slide level2">
 <h2></h2>
 
 <img data-src="../images/chi-2-sweets.svg" class="r-stretch"></section>
@@ -589,7 +598,7 @@
 <p>Idée : partitionner <span class="math inline">\(\mathbb R\)</span> et comparer les histogrammes empiriques et théoriques.</p>
 </div>
 </section>
-<section id="section-3" class="slide level2">
+<section id="section-4" class="slide level2">
 <h2></h2>
 <div class="fragment">
 <p>Si <span class="math inline">\((I_1, \dots, I_m)\)</span> sont des intervalles disjoints,</p>
@@ -715,7 +724,7 @@
 </div>
 </div>
 </section>
-<section id="section-4" class="slide level2">
+<section id="section-5" class="slide level2">
 <h2></h2>
 <div class="columns">
 <div class="column">
@@ -752,6 +761,101 @@
 </div>
 </div></div>
 <p>[<a href="https://app.wooclap.com/events/RQSUIA/questions/67cf06270ea10e736b0e07fe">Wooclap</a>]</p>
+</section>
+<section id="exemple-adéquation-à-une-loi-gaussienne" class="slide level2">
+<h2>Exemple : adéquation à une loi gaussienne</h2>
+<div class="fragment">
+<p>On observe <span class="math inline">\(n=200\)</span> tailles (en cm). On teste si elles suivent une loi <span class="math inline">\(\mathcal N(\mu, \sigma^2)\)</span> avec <span class="math inline">\(\mu\)</span> et <span class="math inline">\(\sigma^2\)</span> <strong>inconnus</strong> (<span class="math inline">\(\ell = 2\)</span> paramètres).</p>
+</div>
+<div class="fragment">
+<p>Données simulées sous <span class="math inline">\(H_0\)</span> :</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb2-2"><a></a>X <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">200</span>, <span class="at">mean=</span><span class="dv">170</span>, <span class="at">sd=</span><span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<p>Estimation par MLE :</p>
+<p><span class="math display">\[\hat\mu = \bar X \approx 169{,}78, \qquad \hat\sigma \approx 7{,}80\]</span></p>
+</div>
+</section>
+<section id="regroupement-en-classes" class="slide level2">
+<h2>Regroupement en classes</h2>
+<div class="fragment">
+<p>On choisit <span class="math inline">\(m=8\)</span> classes <strong>équiprobables</strong> sous <span class="math inline">\(\mathcal N(\hat\mu, \hat\sigma^2)\)</span> : chaque <span class="math inline">\(\hat p_j = 1/8\)</span>, donc <span class="math inline">\(n\hat p_j = 25 \geq 5\)</span> pour tout <span class="math inline">\(j\)</span> .</p>
+</div>
+<div class="fragment">
+<p>Bornes : <span class="math inline">\(\hat\mu + \hat\sigma\,\Phi^{-1}(j/8)\)</span> pour <span class="math inline">\(j=1,\dots,7\)</span>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>m <span class="ot">&lt;-</span> <span class="dv">8</span></span>
+<span id="cb3-2"><a></a>breaks <span class="ot">&lt;-</span> <span class="fu">qnorm</span>((<span class="dv">0</span><span class="sc">:</span>m)<span class="sc">/</span>m, <span class="at">mean=</span><span class="fu">mean</span>(X), <span class="at">sd=</span><span class="fu">sd</span>(X))</span>
+<span id="cb3-3"><a></a>breaks[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="sc">-</span><span class="cn">Inf</span>; breaks[m<span class="sc">+</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="cn">Inf</span></span>
+<span id="cb3-4"><a></a>O <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">table</span>(<span class="fu">cut</span>(X, breaks)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div style="font-size: 75%;">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Classe</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Observé <span class="math inline">\(O_j\)</span></td>
+<td>24</td>
+<td>23</td>
+<td>28</td>
+<td>24</td>
+<td>27</td>
+<td>23</td>
+<td>24</td>
+<td>27</td>
+</tr>
+<tr class="even">
+<td>Attendu <span class="math inline">\(n\hat p_j\)</span></td>
+<td>25</td>
+<td>25</td>
+<td>25</td>
+<td>25</td>
+<td>25</td>
+<td>25</td>
+<td>25</td>
+<td>25</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="calcul-et-conclusion" class="slide level2">
+<h2>Calcul et conclusion</h2>
+<div class="fragment">
+<p><span class="math display">\[\psi(X) = \sum_{j=1}^{8} \frac{(O_j - 25)^2}{25} \approx 1{,}12\]</span></p>
+</div>
+<div class="fragment">
+<p>Degrés de liberté : <span class="math inline">\(m - 1 - \ell = 8 - 1 - 2 = 5\)</span></p>
+</div>
+<div class="fragment">
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="dv">1</span> <span class="sc">-</span> <span class="fu">pchisq</span>(<span class="fl">1.12</span>, <span class="at">df =</span> <span class="dv">5</span>)  <span class="co"># p-valeur ≈ 0,95</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math inline">\(p_{\text{valeur}} \gg 0{,}05\)</span> : on ne rejette pas <span class="math inline">\(H_0\)</span>. Les données sont compatibles avec une loi gaussienne (ce qui est attendu puisqu’elles ont été simulées sous <span class="math inline">\(H_0\)</span>).</p>
+</div>
+</div>
+</div>
+</div>
 </section>
 <section id="comparaison-avec-les-qq-plots" class="slide level2">
 <h2>Comparaison avec les QQ-plots</h2>
@@ -814,7 +918,7 @@
 </div>
 </div>
 </section>
-<section id="section-5" class="slide level2">
+<section id="section-6" class="slide level2">
 <h2></h2>
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
@@ -833,7 +937,254 @@
 </div>
 </div>
 </section>
-<section id="section-6" class="slide level2">
+<section id="exemple-temps-dattente-à-un-guichet" class="slide level2">
+<h2>Exemple : temps d’attente à un guichet</h2>
+<div class="fragment">
+<p>On observe <span class="math inline">\(n=50\)</span> temps d’attente (en minutes). On se demande s’ils suivent une loi exponentielle de moyenne <span class="math inline">\(3\)</span> minutes.</p>
+</div>
+<div class="fragment">
+<div class="square-objective">
+<p><span class="math inline">\(H_0 : F = F_{\mathcal E(1/3)}\)</span> contre <span class="math inline">\(H_1 : F \neq F_{\mathcal E(1/3)}\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Données simulées sous <span class="math inline">\(H_0\)</span> :</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb5-2"><a></a>X <span class="ot">&lt;-</span> <span class="fu">rexp</span>(<span class="dv">50</span>, <span class="at">rate =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="exemple-conclusion" class="slide level2">
+<h2>Exemple : conclusion</h2>
+<div class="fragment">
+<p>Calcul du test via R :</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="fu">ks.test</span>(X, <span class="st">"pexp"</span>, <span class="at">rate =</span> <span class="dv">1</span><span class="sc">/</span><span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment">Statistique observée : <span class="math inline">\(\psi(X) \approx 0{,}084\)</span></li>
+<li class="fragment"><span class="math inline">\(p_{\text{valeur}} \approx 0{,}84\)</span></li>
+</ul>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math inline">\(p_{\text{valeur}} &gt; 0{,}05\)</span> : on <strong>ne rejette pas</strong> <span class="math inline">\(H_0\)</span>. Les données sont compatibles avec une loi exponentielle de moyenne <span class="math inline">\(3\)</span>.</p>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="test-de-shapiro-wilk" class="title-slide slide level1 center">
+<h1>Test de Shapiro-Wilk</h1>
+
+</section>
+<section id="motivation" class="slide level2">
+<h2>Motivation</h2>
+<div class="fragment">
+<p>Beaucoup de tests classiques (Student, ANOVA, régression linéaire…) reposent sur l’hypothèse de <strong>normalité des données</strong>. Avant de les appliquer, il est naturel de vouloir la <strong>vérifier</strong>.</p>
+</div>
+<div class="fragment">
+<p>On a déjà vu plusieurs outils pour ça : <span class="math inline">\(\chi^2\)</span> d’adéquation, Kolmogorov-Smirnov, QQ-plots. Le <strong>test de Shapiro-Wilk</strong> (1965) est le test <strong>dédié</strong> à la normalité, et c’est le plus puissant en pratique à petit échantillon.</p>
+</div>
+</section>
+<section id="cadre" class="slide level2">
+<h2>Cadre</h2>
+<div class="fragment">
+<p>On observe <span class="math inline">\(n\)</span> variables aléatoires <span class="math inline">\(X_1, \dots, X_n\)</span> i.i.d. de loi <span class="math inline">\(P\)</span> <strong>inconnue</strong>.</p>
+</div>
+<div class="fragment">
+<p>On suppose que <span class="math inline">\(P\)</span> est une loi <strong>continue</strong> (pas de masses de Dirac).</p>
+</div>
+<div class="fragment">
+<p>On veut tester :</p>
+<div class="square-objective">
+<p><span class="math inline">\(H_0: P = \mathcal N(\mu, \sigma^2)\)</span> pour un certain <span class="math inline">\((\mu, \sigma^2)\)</span> contre <span class="math inline">\(H_1: P \neq \mathcal N(\mu, \sigma^2)\)</span> pour tout <span class="math inline">\((\mu, \sigma^2)\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>Les paramètres <span class="math inline">\(\mu\)</span> et <span class="math inline">\(\sigma^2\)</span> sont <strong>inconnus</strong> : on ne teste pas « les données suivent <span class="math inline">\(\mathcal N(170, 64)\)</span> » mais « les données suivent <em>une</em> loi gaussienne, peu importe laquelle ».</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="statistique-de-shapiro-wilk" class="slide level2">
+<h2>Statistique de Shapiro-Wilk</h2>
+<div class="fragment">
+<p>Soient <span class="math inline">\(X_{(1)} \leq X_{(2)} \leq \dots \leq X_{(n)}\)</span> les statistiques d’ordre (données triées).</p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[W = \dfrac{\left(\sum_{i=1}^n a_i\,X_{(i)}\right)^2}{\sum_{i=1}^n (X_i - \overline X)^2}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Les coefficients <span class="math inline">\(a_i\)</span> sont <strong>tabulés</strong> : ils dépendent de <span class="math inline">\(n\)</span> et proviennent de la covariance des statistiques d’ordre d’une gaussienne standard.</p>
+<p><a href="../notes/shapiro_fr.html">Note détaillée : construction, preuves et loi sous <span class="math inline">\(H_0\)</span></a></p>
+</div>
+</section>
+<section id="section-7" class="slide level2">
+<h2></h2>
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>Pour <span class="math inline">\(\chi^2\)</span> ou Kolmogorov-Smirnov, on disposait au moins d’une <strong>loi asymptotique</strong> explicite (<span class="math inline">\(\chi^2(k-1)\)</span>, loi de Kolmogorov). Pour <span class="math inline">\(W\)</span>, <strong>ni la loi exacte, ni la loi asymptotique ne sont connues sous forme close</strong>. Les p-valeurs s’obtiennent par :</p>
+<ul>
+<li class="fragment">des <strong>tables</strong> (Shapiro-Wilk, 1965) pour <span class="math inline">\(n \leq 50\)</span></li>
+<li class="fragment">une <strong>approximation gaussienne</strong> après transformation (Royston, 1992) pour <span class="math inline">\(n\)</span> plus grand</li>
+<li class="fragment">ou par <strong>simulation Monte-Carlo</strong> directe</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="intuition" class="slide level2">
+<h2>Intuition</h2>
+<div class="fragment">
+<p>Le numérateur <span class="math inline">\(\left(\sum_i a_i X_{(i)}\right)^2\)</span> est une estimation de <span class="math inline">\(\sigma^2\)</span> <strong>fondée sur les statistiques d’ordre</strong> — elle utilise les espacements entre quantiles empiriques.</p>
+</div>
+<div class="fragment">
+<p>Le dénominateur <span class="math inline">\(\sum_i (X_i - \bar X)^2 = (n-1)\hat\sigma^2\)</span> est l’estimation classique de <span class="math inline">\(\sigma^2\)</span>.</p>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><strong>Sous <span class="math inline">\(H_0\)</span></strong> (gaussien) : les deux estimateurs coïncident (à une constante près), donc <span class="math inline">\(W \approx 1\)</span></li>
+<li class="fragment"><strong>Sous <span class="math inline">\(H_1\)</span></strong> (non-gaussien) : les deux divergent, et <span class="math inline">\(W\)</span> s’éloigne de <span class="math inline">\(1\)</span> vers <span class="math inline">\(0\)</span></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Règle de décision</strong> : on rejette <span class="math inline">\(H_0\)</span> quand <span class="math inline">\(W\)</span> est <strong>trop petit</strong>.</p>
+</div>
+</section>
+<section id="lien-avec-les-qq-plots" class="slide level2">
+<h2>Lien avec les QQ-plots</h2>
+<div class="fragment">
+<p>Si on trace les <span class="math inline">\(X_{(i)}\)</span> contre les <span class="math inline">\(m_i = \mathbb E[Z_{(i)}]\)</span> (espérances des statistiques d’ordre d’une <span class="math inline">\(\mathcal N(0,1)\)</span>), on obtient le <strong>QQ-plot gaussien</strong>.</p>
+</div>
+<div class="fragment">
+<p>Le <strong><span class="math inline">\(R^2\)</span></strong> de la régression linéaire de ce QQ-plot vaut <span class="math display">\[
+R^2 = \dfrac{\left(\sum_i m_i\,X_{(i)}\right)^2}{\sum_i m_i^2\,\cdot\,\sum_i (X_{(i)} - \overline X)^2}
+\]</span></p>
+</div>
+<div class="fragment">
+<p>C’est <strong>très proche</strong> de <span class="math inline">\(W\)</span>, mais pas tout à fait identique.</p>
+</div>
+</section>
+<section id="variante-test-de-shapiro-francia" class="slide level2">
+<h2>Variante : test de Shapiro-Francia</h2>
+<div class="fragment">
+<p>En remplaçant <span class="math inline">\(a_i\)</span> par <span class="math inline">\(m_i/\sqrt{\sum_j m_j^2}\)</span> dans la formule de <span class="math inline">\(W\)</span>, on obtient le <strong>test de Shapiro-Francia</strong> (1972) :</p>
+<div class="square-def">
+<p><span class="math display">\[W' = \dfrac{\left(\sum_i m_i\,X_{(i)}\right)^2}{\sum_i m_i^2\,\cdot\,\sum_i (X_{(i)} - \overline X)^2}\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p><strong>C’est exactement</strong> le <span class="math inline">\(R^2\)</span> de la régression linéaire du QQ-plot gaussien.</p>
+</div>
+</section>
+<section id="section-8" class="slide level2">
+<h2></h2>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><strong>Shapiro-Wilk</strong> (<span class="math inline">\(W\)</span>) : utilise <span class="math inline">\(a \propto V^{-1}m\)</span>, légèrement plus puissant à petit <span class="math inline">\(n\)</span></li>
+<li class="fragment"><strong>Shapiro-Francia</strong> (<span class="math inline">\(W'\)</span>) : utilise <span class="math inline">\(m\)</span> directement, plus simple et asymptotiquement équivalent</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Interprétation visuelle commune</strong> : plus les points du QQ-plot s’alignent sur une droite, plus la statistique est proche de <span class="math inline">\(1\)</span>. Rejeter <span class="math inline">\(H_0\)</span> revient à dire que les points <strong>s’écartent trop</strong> d’une droite.</p>
+</div>
+</section>
+<section id="exemple-numérique" class="slide level2">
+<h2>Exemple numérique</h2>
+<div class="fragment">
+<p>Avec R : <code>shapiro.test(x)</code> renvoie directement la statistique <span class="math inline">\(W\)</span> et la p-valeur.</p>
+</div>
+<div class="fragment">
+<pre><code>&gt; shapiro.test(rnorm(30))
+
+    Shapiro-Wilk normality test
+
+data:  rnorm(30)
+W = 0.9753, p-value = 0.6912</code></pre>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(p &gt; 0{,}05\)</span> : on <strong>ne rejette pas</strong> <span class="math inline">\(H_0\)</span>. Les données sont compatibles avec une loi gaussienne. Cohérent, on les a simulées ainsi !</p>
+</div>
+</section>
+<section id="forces-et-limites" class="slide level2">
+<h2>Forces et limites</h2>
+<div class="fragment">
+<div title="Avantages">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Avantages</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><strong>Plus puissant</strong> que <span class="math inline">\(\chi^2\)</span> ou KS pour tester spécifiquement la normalité</li>
+<li class="fragment">Particulièrement efficace à <strong>petit échantillon</strong> (<span class="math inline">\(n \leq 50\)</span>)</li>
+<li class="fragment">Facile à utiliser en pratique (une seule fonction dans R/Python)</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div title="Limites">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Limites</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><strong>Trop sensible</strong> en grand échantillon : pour <span class="math inline">\(n = 10\,000\)</span>, Shapiro rejette la normalité pour des écarts minuscules, sans importance pratique</li>
+<li class="fragment">Spécifique à la loi gaussienne — pas adapté aux autres familles de lois</li>
+<li class="fragment">Les coefficients <span class="math inline">\(a_i\)</span> sont tabulés et moins transparents que la statistique <span class="math inline">\(\chi^2\)</span></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="section-9" class="slide level2">
+<h2></h2>
+<p><strong>En pratique</strong> : utiliser Shapiro-Wilk pour valider la normalité <strong>avant</strong> un test de Student ou une ANOVA à petit échantillon. Pour <span class="math inline">\(n\)</span> grand, préférer une inspection visuelle (QQ-plot) complétée par Shapiro avec prudence.</p>
+</section>
+<section id="section-10" class="slide level2">
 <h2></h2>
 <p><a href="../../../teaching/hypothesis_testing/slides/gaussian_populations_fr.html">précédent</a> <a href="../../../teaching/hypothesis_testing/slides/dependency_fr.html">suivant</a></p>
 

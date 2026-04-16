@@ -27,6 +27,33 @@ $$\mathrm{Var}(W_-) = \frac{1}{4}\sum_{i=1}^n i^2 = \frac{n(n+1)(2n+1)}{24}.$$
 
 **CLT.** The summands $X_i = i\,\varepsilon_i$ are independent. Check Lyapunov's condition with $\delta=2$:
 
-$$\frac{\sum_{i=1}^n \mathbb{E}[|X_i - \mathbb{E}X_i|^4]}{s_n^4} \leq \frac{\sum_{i=1}^n i^4}{\left(\sum_{i=1}^n i^2\right)^2} = O\!\left(\frac{n^5}{n^6}\right) = O(n^{-1}) \to 0,$$
+$$\frac{\sum_{i=1}^n \mathbb{E}[|X_i - \mathbb{E}X_i|^4]}{\mathrm{Var}(W_-)^2} \leq \frac{\sum_{i=1}^n i^4}{\left(\sum_{i=1}^n i^2\right)^2} = O\!\left(\frac{n^5}{n^6}\right) = O(n^{-1}) \to 0.$$
 
-where $s_n^2 = \mathrm{Var}(W_-)$. Hence $\dfrac{W_- - \mathbb{E}[W_-]}{\sqrt{\mathrm{Var}(W_-)}} \xrightarrow{d} \mathcal{N}(0,1)$. $\blacksquare$
+Hence $\dfrac{W_- - \mathbb{E}[W_-]}{\sqrt{\mathrm{Var}(W_-)}} \xrightarrow{d} \mathcal{N}(0,1)$. $\blacksquare$
+
+## Appendix: Lyapunov's CLT
+
+::: {.callout-note title="Lyapunov's Central Limit Theorem"}
+Let $X_1, X_2, \dots$ be **independent** random variables (not necessarily identically distributed) with $\mathbb E[X_k] = \mu_k$ and finite variance $\mathrm{Var}(X_k) = \sigma_k^2$. Set
+$$
+S_n = \sum_{k=1}^n X_k, \qquad s_n^2 = \mathrm{Var}(S_n) = \sum_{k=1}^n \sigma_k^2.
+$$
+
+If there exists $\delta > 0$ such that
+$$
+\lim_{n \to \infty}\; \frac{1}{s_n^{2 + \delta}}\,\sum_{k=1}^n \mathbb E\!\left[\,|X_k - \mu_k|^{2 + \delta}\,\right] \;=\; 0, \tag{Lyapunov}
+$$
+then
+$$
+\frac{S_n - \mathbb E[S_n]}{\sqrt{\mathrm{Var}(S_n)}} \;\xrightarrow[n \to \infty]{d}\; \mathcal N(0, 1).
+$$
+:::
+
+**Intuition.** The condition says that no single term $X_k$ dominates the sum: the contribution of each term to the higher-order moment $\sum_k \mathbb E|X_k - \mu_k|^{2+\delta}$ is asymptotically negligible compared to the total variance raised to the power $(2+\delta)/2$. In the i.i.d. case ($\sigma_k^2 = \sigma^2$), Lyapunov's condition is automatically satisfied and reduces to the classical CLT.
+
+**Common choice.** Taking $\delta = 1$ requires controlling third absolute moments:
+$$
+\frac{1}{s_n^3}\sum_{k=1}^n \mathbb E\!\left[|X_k - \mu_k|^3\right] \to 0.
+$$
+
+In the Wilcoxon proof above we use $\delta = 2$ (fourth moments) because the bounded Bernoulli terms make fourth moments especially easy to compute.

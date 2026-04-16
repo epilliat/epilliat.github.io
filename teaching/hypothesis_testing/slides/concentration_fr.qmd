@@ -1,0 +1,329 @@
+---
+title: "Inégalités de concentration"
+format:
+  revealjs:
+    incremental: true
+    callout-icon: false
+    theme: [default, ../custom.scss]
+smaller: false
+css: ../../../styles.css
+---
+
+## Plan
+
+- Motivation : des bornes non-asymptotiques
+- Markov, Chebyshev
+- Variables sous-gaussiennes
+- Lemme et inégalité de Hoeffding
+- Applications : intervalle de confiance et test non-asymptotiques
+
+[précédent](dependency_fr.qmd)
+
+# Motivation
+
+## Ce qu'on veut
+
+. . .
+
+Jusqu'ici, pour construire un test sur la moyenne, on utilise le **Théorème Central Limite** :
+
+$$\sqrt n\,\frac{\overline X_n - \mu}{\sigma} \xrightarrow[n \to \infty]{\text{loi}} \mathcal N(0,1)$$
+
+. . .
+
+**Problème** : ce résultat est **asymptotique**. Il ne donne aucun contrôle quantitatif pour un $n$ fixé.
+
+. . .
+
+::: {.callout-warning}
+Combien d'observations faut-il *réellement* pour que l'approximation gaussienne soit valide ? Le TCL ne répond pas à cette question.
+:::
+
+## Ce qu'on voudrait
+
+. . .
+
+Une borne **non-asymptotique** de la forme :
+
+$$\mathbb P\!\left(|\overline X_n - \mu| \geq t\right) \leq f(n,t)$$
+
+. . .
+
+où $f(n,t)$ est **explicite** et **valable pour tout $n \geq 1$**.
+
+. . .
+
+::: {.callout-note}
+## Exemple concret
+Un institut de sondage veut estimer la proportion $p$ d'intentions de vote pour un candidat. Combien de personnes faut-il interroger pour garantir une précision de $\pm 2\%$ avec probabilité $\geq 95\%$ ?
+:::
+
+. . .
+
+Le TCL dit « pour $n$ assez grand »... mais **assez grand comment ?**
+
+# Rappels : Markov et Chebyshev
+
+## Inégalité de Markov
+
+. . .
+
+::: {.callout-note}
+## Inégalité de Markov
+Soit $Y$ une variable aléatoire **positive**. Pour tout $t > 0$ :
+$$\mathbb P(Y \geq t) \leq \frac{\mathbb E[Y]}{t}$$
+:::
+
+. . .
+
+**Preuve** : $Y \geq t\,\mathbf 1\{Y \geq t\}$, donc $\mathbb E[Y] \geq t\,\mathbb P(Y \geq t)$.
+
+## Inégalité de Chebyshev
+
+. . .
+
+En appliquant Markov à $Y = (X - \mu)^2$ :
+
+::: {.callout-note}
+## Inégalité de Chebyshev
+Soit $X$ de moyenne $\mu$ et de variance $\sigma^2$. Pour tout $t > 0$ :
+$$\mathbb P(|X - \mu| \geq t) \leq \frac{\sigma^2}{t^2}$$
+:::
+
+. . .
+
+Appliquée à $\overline X_n$ (de variance $\sigma^2/n$) :
+
+::: {.square-def}
+$$\mathbb P(|\overline X_n - \mu| \geq t) \leq \frac{\sigma^2}{n t^2}$$
+:::
+
+## Exemple numérique
+
+. . .
+
+Pour $\sigma = 1$, $n = 100$, $t = 0{,}3$ :
+
+$$\mathbb P(|\overline X_n - \mu| \geq 0{,}3) \leq \frac{1}{100 \times 0{,}09} \approx 0{,}11$$
+
+. . .
+
+Or, le TCL suggère une borne **bien meilleure** : pour $\sqrt n \,t/\sigma = 3$,
+
+$$\mathbb P(|\overline X_n - \mu| \geq 0{,}3) \approx 2(1 - \Phi(3)) \approx 0{,}0027$$
+
+. . .
+
+Chebyshev est **40 fois trop pessimiste**. On va faire beaucoup mieux avec des hypothèses sur la *queue* de la loi.
+
+# Variables sous-gaussiennes
+
+## Définition
+
+. . .
+
+::: {.callout-note title="Définition : variable sous-gaussienne"}
+Une variable aléatoire $X$ de moyenne $\mu$ est **$\sigma^2$-sous-gaussienne** si pour tout $\lambda \in \mathbb R$ :
+
+$$\mathbb E\!\left[e^{\lambda (X - \mu)}\right] \leq e^{\lambda^2 \sigma^2 / 2}$$
+:::
+
+. . .
+
+Autrement dit : la **fonction génératrice des moments** de $X - \mu$ est dominée par celle d'une gaussienne $\mathcal N(0, \sigma^2)$.
+
+. . .
+
+**Intuition** : cela force la queue de $X$ à décroître *au moins aussi vite* qu'une gaussienne.
+
+## Exemples fondamentaux
+
+. . .
+
+**1. Gaussiennes** : si $X \sim \mathcal N(\mu, \sigma^2)$, alors $X$ est $\sigma^2$-sous-gaussienne.
+
+. . .
+
+En effet, on calcule explicitement $\mathbb E[e^{\lambda(X-\mu)}] = e^{\lambda^2 \sigma^2 / 2}$ (égalité !).
+
+. . .
+
+**2. Variables bornées (Lemme de Hoeffding)** : si $X \in [a,b]$ presque sûrement, alors $X$ est $\dfrac{(b-a)^2}{4}$-sous-gaussienne.
+
+. . .
+
+**3. Rademacher** : si $\mathbb P(X = 1) = \mathbb P(X = -1) = 1/2$, alors $X$ est $1$-sous-gaussienne.
+
+. . .
+
+(cas particulier du précédent avec $a = -1, b = 1$)
+
+## Lemme de Hoeffding
+
+. . .
+
+::: {.callout-note title="Lemme de Hoeffding"}
+Soit $X$ une variable aléatoire telle que $X \in [a, b]$ presque sûrement, de moyenne $\mu$. Alors $X$ est $\dfrac{(b-a)^2}{4}$-sous-gaussienne, c'est-à-dire :
+
+$$\mathbb E\!\left[e^{\lambda (X - \mu)}\right] \leq e^{\lambda^2 (b - a)^2 / 8} \quad \forall \lambda \in \mathbb R$$
+:::
+
+. . .
+
+[Preuve](../notes/hoeffding_fr.html).
+
+## Lemme de Hoeffding — idées de la preuve
+
+. . .
+
+**1. Convexité.** $x \mapsto e^{\lambda x}$ est convexe, donc pour tout $x \in [a, b]$ :
+
+$$e^{\lambda x} \leq \frac{b - x}{b - a}\,e^{\lambda a} + \frac{x - a}{b - a}\,e^{\lambda b}$$
+
+. . .
+
+**2. Changement de variables.** En posant $p = -a/(b-a)$ et $u = \lambda(b-a)$, on se ramène à montrer :
+
+$$\varphi(u) = -p u + \log\!\left[(1-p) + p\,e^{u}\right] \leq \frac{u^2}{8}$$
+
+## Somme de sous-gaussiennes indépendantes
+
+. . .
+
+::: {.callout-note title="Propriété"}
+Si $X_1, \dots, X_n$ sont **indépendantes** et $X_i$ est $\sigma_i^2$-sous-gaussienne, alors
+
+$$S_n = \sum_{i=1}^n (X_i - \mu_i)$$
+
+est $\left(\sum_{i=1}^n \sigma_i^2\right)$-sous-gaussienne.
+:::
+
+. . .
+
+**Preuve** : par indépendance,
+
+$$\mathbb E[e^{\lambda S_n}] = \prod_{i=1}^n \mathbb E[e^{\lambda(X_i - \mu_i)}] \leq \prod_{i=1}^n e^{\lambda^2 \sigma_i^2/2} = e^{\lambda^2 (\sum_i \sigma_i^2)/2}$$
+
+# Inégalité de Hoeffding
+
+## Méthode de Chernoff
+
+. . .
+
+**Idée clé** : au lieu d'appliquer Markov à $Y = (X-\mu)^2$ (Chebyshev), on l'applique à $Y = e^{\lambda(X-\mu)}$, puis on **optimise** en $\lambda$.
+
+. . .
+
+Pour tout $\lambda > 0$ :
+
+$$\mathbb P(X - \mu \geq t) = \mathbb P(e^{\lambda(X - \mu)} \geq e^{\lambda t}) \leq e^{-\lambda t}\,\mathbb E[e^{\lambda(X-\mu)}]$$
+
+. . .
+
+Si $X$ est $\sigma^2$-sous-gaussienne :
+
+$$\mathbb P(X - \mu \geq t) \leq e^{-\lambda t + \lambda^2 \sigma^2/2}$$
+
+. . .
+
+**Minimisation en $\lambda$** : le minimum est atteint en $\lambda^* = t/\sigma^2$, et vaut
+
+$$\mathbb P(X - \mu \geq t) \leq e^{-t^2/(2\sigma^2)}$$
+
+## Inégalité de Hoeffding
+
+. . .
+
+::: {.callout-note title="Théorème : inégalité de Hoeffding"}
+Soient $X_1, \dots, X_n$ **indépendantes**, telles que chaque $X_i$ soit $\sigma^2$-sous-gaussienne de moyenne $\mu$. Alors pour tout $t > 0$ :
+
+$$\mathbb P\!\left(|\overline X_n - \mu| \geq t\right) \leq 2\,e^{-n t^2 / (2 \sigma^2)}$$
+:::
+
+. . .
+
+**Idée de Preuve** : on applique la méthode de Chernoff à $S_n = \sum(X_i - \mu)$, qui est $n\sigma^2$-sous-gaussienne. On obtient
+
+$$\mathbb P(S_n \geq nt) \leq e^{-nt^2/(2\sigma^2)}$$
+
+## Comparaison Chebyshev vs Hoeffding
+
+. . .
+
+Pour $\sigma = 1$, $n = 100$, $t = 0{,}3$ :
+
+| Méthode | Borne |
+|:---|:---:|
+| Chebyshev | $\leq 0{,}111$ |
+| Hoeffding | $\leq 2\,e^{-100 \times 0{,}09/2} = 2\,e^{-4{,}5} \approx 0{,}022$ |
+| TCL (approx.) | $\approx 0{,}0027$ |
+
+. . .
+
+Hoeffding est **5 fois meilleur** que Chebyshev, et pas trop loin du TCL — avec une **garantie non-asymptotique**.
+
+# Applications
+
+## Intervalle de confiance non-asymptotique
+
+. . .
+
+On fixe un niveau de confiance $1 - \delta$. On cherche $t$ tel que
+
+$$\mathbb P(|\overline X_n - \mu| \geq t) \leq \delta$$
+
+. . .
+
+Par Hoeffding, il suffit que $2 e^{-nt^2/(2\sigma^2)} \leq \delta$, soit :
+
+::: {.square-def}
+$t \geq \sigma\sqrt{\dfrac{2 \log(2/\delta)}{n}}$
+:::
+
+. . .
+
+IC: $\overline X_n \pm \sigma\sqrt{\dfrac{2 \log(2/\delta)}{n}}$
+
+## Retour sur l'exemple du sondage
+
+. . .
+
+On interroge $n$ personnes. Chaque réponse $X_i \in \{0,1\}$ est bornée, donc $1/4$-sous-gaussienne.
+
+. . .
+
+On veut une précision $\pm 0{,}02$ avec probabilité $\geq 0{,}95$, donc $\delta = 0{,}05$.
+
+. . .
+
+Il faut $\sigma\sqrt{2\log(2/\delta)/n} \leq 0{,}02$, soit avec $\sigma^2 = 1/4$ :
+
+$$n \geq \frac{2 \log(40)}{4 \times 0{,}02^2} = \frac{2 \times 3{,}69}{0{,}0016} \approx 4\,610$$
+
+. . .
+
+::: {.callout-warning}
+Ce résultat est **garanti**, sans aucune hypothèse sur la vraie proportion $p$, et sans invoquer le TCL.
+:::
+
+## Test non-asymptotique à un échantillon
+
+. . .
+
+On observe $X_1, \dots, X_n$ i.i.d. $\sigma^2$-sous-gaussiennes de moyenne $\mu$ inconnue. On veut tester :
+
+::: {.square-objective}
+$H_0: \mu = 0 \quad$ contre $\quad H_1: \mu \neq 0$
+:::
+
+. . .
+
+**Test de Hoeffding de niveau $\delta$** :
+
+::: {.square-def}
+$T(X) = \mathbf 1\!\left\{|\overline X_n| > \sigma\sqrt{\dfrac{2 \log(2/\delta)}{n}}\right\}$
+:::
+
+. . .
+
+**Niveau garanti** : par Hoeffding, sous $H_0$, $\mathbb P(T = 1) \leq \delta$ pour tout $n$.

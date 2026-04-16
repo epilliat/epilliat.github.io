@@ -9,7 +9,7 @@
 <link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.22">
 
-  <title>Emmanuel Pilliat – Lois usuelles et propriétés</title>
+  <title>Emmanuel Pilliat – Inégalités de concentration</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -127,7 +127,7 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Lois usuelles et propriétés</h1>
+  <h1 class="title">Inégalités de concentration</h1>
 
 <div class="quarto-title-authors">
 </div>
@@ -136,388 +136,372 @@
 <section id="plan" class="slide level2">
 <h2>Plan</h2>
 <ul>
-<li class="fragment">Lois gaussiennes et TCL</li>
-<li class="fragment">Chi-deux, Student et Fisher</li>
-<li class="fragment">Théorème de Cochran</li>
+<li class="fragment">Motivation : des bornes non-asymptotiques</li>
+<li class="fragment">Markov, Chebyshev</li>
+<li class="fragment">Variables sous-gaussiennes</li>
+<li class="fragment">Lemme et inégalité de Hoeffding</li>
+<li class="fragment">Applications : intervalle de confiance et test non-asymptotiques</li>
 </ul>
-<p><a href="../../../teaching/hypothesis_testing/slides/testing_models_fr.html">Précédent : tester des modèles</a></p>
-<p><a href="../../../teaching/hypothesis_testing/slides/gaussian_populations_fr.html">Suivant : populations gaussiennes</a></p>
+<p><a href="../../../teaching/hypothesis_testing/slides/dependency_fr.html">précédent</a></p>
 </section>
 <section>
-<section id="gaussiennes-et-tcl" class="title-slide slide level1 center">
-<h1>Gaussiennes et TCL</h1>
+<section id="motivation" class="title-slide slide level1 center">
+<h1>Motivation</h1>
 
 </section>
-<section id="loi-gaussienne" class="slide level2">
-<h2>Loi gaussienne</h2>
+<section id="ce-quon-veut" class="slide level2">
+<h2>Ce qu’on veut</h2>
+<div class="fragment">
+<p>Jusqu’ici, pour construire un test sur la moyenne, on utilise le <strong>Théorème Central Limite</strong> :</p>
+<p><span class="math display">\[\sqrt n\,\frac{\overline X_n - \mu}{\sigma} \xrightarrow[n \to \infty]{\text{loi}} \mathcal N(0,1)\]</span></p>
+</div>
+<div class="fragment">
+<p><strong>Problème</strong> : ce résultat est <strong>asymptotique</strong>. Il ne donne aucun contrôle quantitatif pour un <span class="math inline">\(n\)</span> fixé.</p>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>Combien d’observations faut-il <em>réellement</em> pour que l’approximation gaussienne soit valide ? Le TCL ne répond pas à cette question.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="ce-quon-voudrait" class="slide level2">
+<h2>Ce qu’on voudrait</h2>
+<div class="fragment">
+<p>Une borne <strong>non-asymptotique</strong> de la forme :</p>
+<p><span class="math display">\[\mathbb P\!\left(|\overline X_n - \mu| \geq t\right) \leq f(n,t)\]</span></p>
+</div>
+<div class="fragment">
+<p>où <span class="math inline">\(f(n,t)\)</span> est <strong>explicite</strong> et <strong>valable pour tout <span class="math inline">\(n \geq 1\)</span></strong>.</p>
+</div>
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong>Définition de la loi gaussienne</strong></p>
+<p><strong>Exemple concret</strong></p>
 </div>
 <div class="callout-content">
-<p>Une loi gaussienne (ou normale) de <span style="background-color: yellow;">moyenne <span class="math inline">\(\mu \in \mathbb{R}\)</span></span> et de <span style="background-color: yellow;">variance <span class="math inline">\(\sigma^2 &gt; 0\)</span></span> est la loi de densité</p>
-<div class="square-def">
-<p><span class="math display">\[f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x - \mu)^2}{2\sigma^2}\right)\]</span></p>
-</div>
-<p>On note <span class="math inline">\(\mathcal{N}(\mu, \sigma^2)\)</span> cette loi. Lorsque <span class="math inline">\(\mu = 0\)</span> et <span class="math inline">\(\sigma^2 = 1\)</span>, on parle de <strong>loi normale centrée réduite</strong>.</p>
+<p>Un institut de sondage veut estimer la proportion <span class="math inline">\(p\)</span> d’intentions de vote pour un candidat. Combien de personnes faut-il interroger pour garantir une précision de <span class="math inline">\(\pm 2\%\)</span> avec probabilité <span class="math inline">\(\geq 95\%\)</span> ?</p>
 </div>
 </div>
 </div>
 </div>
 <div class="fragment">
-<div class="callout callout-tip no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Propriétés</strong></p>
-</div>
-<div class="callout-content">
-<ul>
-<li class="fragment">Pour des gaussiennes iid, <span class="math inline">\(\sum_{i=1}^n X_i = n \mu + \sqrt{n} \mathcal N(0,1)\)</span></li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="jeu" class="slide level2">
-<h2>Jeu</h2>
-<p>Je génère <span class="math inline">\(X \sim \mathcal{N}(0,1)\)</span>.</p>
-<div class="fragment">
-<p>On observe <span style="background-color: lightblue;"><span class="math inline">\(0.37\)</span></span>. Cela pourrait-il provenir d’une <span class="math inline">\(\mathcal{N}(0,1)\)</span> ?</p>
-</div>
-<div class="fragment">
-<p>On observe <span style="background-color: lightblue;"><span class="math inline">\(3.82\)</span></span>. Cela pourrait-il provenir d’une <span class="math inline">\(\mathcal{N}(0,1)\)</span> ?</p>
-</div>
-<div class="fragment">
-<p>On observe <span style="background-color: lightblue;"><span class="math inline">\(-0.91\)</span></span>. Et ça ??</p>
-</div>
-</section>
-<section id="formalisation" class="slide level2">
-<h2>Formalisation :</h2>
-<div class="fragment">
-<p><span class="math inline">\(H_0\)</span> : <span class="math inline">\(X \sim \mathcal N(0,1)\)</span> VS <span class="math inline">\(H_1\)</span> : <span class="math inline">\(X \sim \mathcal N(\mu, 1)\)</span>, <span class="math inline">\(\mu \neq 0\)</span></p>
-<ul>
-<li class="fragment">statistique de test : <span class="math inline">\(X\)</span> test : <span class="math inline">\(|X| &gt; t\)</span> (<span style="background-color: yellow;">Bilatéral</span>)</li>
-<li class="fragment"><span class="math inline">\(t\)</span> = <code>quantile(Normal(0,1), 0.975) = 1.96</code></li>
-<li class="fragment">observation : <span class="math inline">\(3.82\)</span></li>
-<li class="fragment">conclusion : rejet au niveau <span class="math inline">\(5\%\)</span></li>
-<li class="fragment">ou avec la p-valeur : <code>2 * (1 - cdf(Normal(0,1), abs(3.82))) ≈ 0.0001</code></li>
-</ul>
-</div>
-</section>
-<section id="définition-et-lien-avec-le-tcl" class="slide level2">
-<h2>Définition et lien avec le TCL</h2>
-<p>On observe <span class="math inline">\((X_1, \dots, X_n)\)</span> des variables aléatoires réelles iid.</p>
-<div class="fragment">
-<div title="TCL">
-<div class="callout callout-note no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>TCL</strong></p>
-</div>
-<div class="callout-content">
-<p>Soit <span class="math inline">\(S_n = \sum_{i=1}^n X_i\)</span> avec <span class="math inline">\((X_1, \dots, X_n)\)</span> iid (<span class="math inline">\(L^2\)</span>) alors <span class="math display">\[ \frac{S_n - \mathbb E[S_n]}{\sqrt{\mathrm{Var}(S_n)}} \approx \mathcal N(0,1) \text{ quand } n \to \infty \]</span></p>
-<p>Règle empirique : <span class="math inline">\(n \geq 30\)</span> (!!! attention à cette règle)</p>
-<p>C’est une égalité lorsque les <span class="math inline">\(X_i\)</span> sont gaussiennes <span class="math inline">\(\mathcal N(\mu, \sigma^2)\)</span></p>
-</div>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="exemple-binomiales" class="slide level2">
-<h2>Exemple : binomiales</h2>
-<div class="fragment">
-<p>Fixons <span class="math inline">\(p \in (0,1)\)</span>. Alors, <span class="math inline">\(\frac{\mathrm{Bin}(n,p) - np}{\sqrt{np(1-p)}} \approx \mathcal N(0,1)\)</span> quand <span class="math inline">\(n \to \infty\)</span></p>
-</div>
-<div class="fragment">
-<p><span class="math inline">\(n\)</span> doit être <span class="math inline">\(\gg \frac{1}{p}\)</span> (pas <span class="math inline">\(30\)</span> !!!)</p>
-<div class="columns">
-<div class="column">
-<div class="fragment">
-<p>Bonne approximation pour (<span class="math inline">\(n=100\)</span>, <span class="math inline">\(p=0.2\)</span>)</p>
-<p><img data-src="../images/clt2.svg" style="width:70.0%"></p>
-</div>
-</div><div class="column">
-<div class="fragment">
-<p>Mauvaise approximation pour (<span class="math inline">\(n=100\)</span>, <span class="math inline">\(p=0.01\)</span>) <img data-src="../images/clt001.svg" style="width:70.0%"></p>
-</div>
-</div></div>
+<p>Le TCL dit « pour <span class="math inline">\(n\)</span> assez grand »… mais <strong>assez grand comment ?</strong></p>
 </div>
 </section></section>
 <section>
-<section id="chi-deux-student-et-fisher" class="title-slide slide level1 center">
-<h1>Chi-deux, Student et Fisher</h1>
+<section id="rappels-markov-et-chebyshev" class="title-slide slide level1 center">
+<h1>Rappels : Markov et Chebyshev</h1>
 
 </section>
-<section id="loi-du-chi-deux" class="slide level2">
-<h2>Loi du Chi-deux</h2>
+<section id="inégalité-de-markov" class="slide level2">
+<h2>Inégalité de Markov</h2>
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong>Définition de la loi du Chi-deux</strong></p>
+<p><strong>Inégalité de Markov</strong></p>
 </div>
 <div class="callout-content">
-<p>Une loi du chi-deux à <span style="background-color: yellow;">degré de liberté <span class="math inline">\(k\)</span></span> est la loi de</p>
-<div class="square-def">
-<p><span class="math display">\[X = \sum_{i=1}^k Z_i^2\]</span></p>
-</div>
-<p>où les <span class="math inline">\((Z_1, \dots, Z_k)\)</span> sont <span style="background-color: lightblue;">iid <span class="math inline">\(\mathcal N(0,1)\)</span></span>. On note <span class="math inline">\(\chi^2(k)\)</span> cette loi.</p>
+<p>Soit <span class="math inline">\(Y\)</span> une variable aléatoire <strong>positive</strong>. Pour tout <span class="math inline">\(t &gt; 0\)</span> : <span class="math display">\[\mathbb P(Y \geq t) \leq \frac{\mathbb E[Y]}{t}\]</span></p>
 </div>
 </div>
 </div>
 </div>
 <div class="fragment">
-<div class="callout callout-tip no-icon callout-titled callout-style-default">
+<p><strong>Preuve</strong> : <span class="math inline">\(Y \geq t\,\mathbf 1\{Y \geq t\}\)</span>, donc <span class="math inline">\(\mathbb E[Y] \geq t\,\mathbb P(Y \geq t)\)</span>.</p>
+</div>
+</section>
+<section id="inégalité-de-chebyshev" class="slide level2">
+<h2>Inégalité de Chebyshev</h2>
+<div class="fragment">
+<p>En appliquant Markov à <span class="math inline">\(Y = (X - \mu)^2\)</span> :</p>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong>Propriétés</strong></p>
+<p><strong>Inégalité de Chebyshev</strong></p>
 </div>
 <div class="callout-content">
-<ul>
-<li class="fragment"><span class="math inline">\(\mathbb E[X] = k\)</span>, <span class="math inline">\(\mathbb V[X] = 2k\)</span></li>
-<li class="fragment"><span class="math inline">\(\chi^2(k) \sim k + \sqrt{2k}\mathcal N(0,1)\)</span> quand <span class="math inline">\(k \to +\infty\)</span></li>
-</ul>
+<p>Soit <span class="math inline">\(X\)</span> de moyenne <span class="math inline">\(\mu\)</span> et de variance <span class="math inline">\(\sigma^2\)</span>. Pour tout <span class="math inline">\(t &gt; 0\)</span> : <span class="math display">\[\mathbb P(|X - \mu| \geq t) \leq \frac{\sigma^2}{t^2}\]</span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>Appliquée à <span class="math inline">\(\overline X_n\)</span> (de variance <span class="math inline">\(\sigma^2/n\)</span>) :</p>
+<div class="square-def">
+<p><span class="math display">\[\mathbb P(|\overline X_n - \mu| \geq t) \leq \frac{\sigma^2}{n t^2}\]</span></p>
+</div>
+</div>
+</section>
+<section id="exemple-numérique" class="slide level2">
+<h2>Exemple numérique</h2>
+<div class="fragment">
+<p>Pour <span class="math inline">\(\sigma = 1\)</span>, <span class="math inline">\(n = 100\)</span>, <span class="math inline">\(t = 0{,}3\)</span> :</p>
+<p><span class="math display">\[\mathbb P(|\overline X_n - \mu| \geq 0{,}3) \leq \frac{1}{100 \times 0{,}09} \approx 0{,}11\]</span></p>
+</div>
+<div class="fragment">
+<p>Or, le TCL suggère une borne <strong>bien meilleure</strong> : pour <span class="math inline">\(\sqrt n \,t/\sigma = 3\)</span>,</p>
+<p><span class="math display">\[\mathbb P(|\overline X_n - \mu| \geq 0{,}3) \approx 2(1 - \Phi(3)) \approx 0{,}0027\]</span></p>
+</div>
+<div class="fragment">
+<p>Chebyshev est <strong>40 fois trop pessimiste</strong>. On va faire beaucoup mieux avec des hypothèses sur la <em>queue</em> de la loi.</p>
+</div>
+</section></section>
+<section>
+<section id="variables-sous-gaussiennes" class="title-slide slide level1 center">
+<h1>Variables sous-gaussiennes</h1>
+
+</section>
+<section id="définition" class="slide level2">
+<h2>Définition</h2>
+<div class="fragment">
+<div title="Définition : variable sous-gaussienne">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Définition : variable sous-gaussienne</strong></p>
+</div>
+<div class="callout-content">
+<p>Une variable aléatoire <span class="math inline">\(X\)</span> de moyenne <span class="math inline">\(\mu\)</span> est <strong><span class="math inline">\(\sigma^2\)</span>-sous-gaussienne</strong> si pour tout <span class="math inline">\(\lambda \in \mathbb R\)</span> :</p>
+<p><span class="math display">\[\mathbb E\!\left[e^{\lambda (X - \mu)}\right] \leq e^{\lambda^2 \sigma^2 / 2}\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>Autrement dit : la <strong>fonction génératrice des moments</strong> de <span class="math inline">\(X - \mu\)</span> est dominée par celle d’une gaussienne <span class="math inline">\(\mathcal N(0, \sigma^2)\)</span>.</p>
+</div>
+<div class="fragment">
+<p><strong>Intuition</strong> : cela force la queue de <span class="math inline">\(X\)</span> à décroître <em>au moins aussi vite</em> qu’une gaussienne.</p>
+</div>
+</section>
+<section id="exemples-fondamentaux" class="slide level2">
+<h2>Exemples fondamentaux</h2>
+<div class="fragment">
+<p><strong>1. Gaussiennes</strong> : si <span class="math inline">\(X \sim \mathcal N(\mu, \sigma^2)\)</span>, alors <span class="math inline">\(X\)</span> est <span class="math inline">\(\sigma^2\)</span>-sous-gaussienne.</p>
+</div>
+<div class="fragment">
+<p>En effet, on calcule explicitement <span class="math inline">\(\mathbb E[e^{\lambda(X-\mu)}] = e^{\lambda^2 \sigma^2 / 2}\)</span> (égalité !).</p>
+</div>
+<div class="fragment">
+<p><strong>2. Variables bornées (Lemme de Hoeffding)</strong> : si <span class="math inline">\(X \in [a,b]\)</span> presque sûrement, alors <span class="math inline">\(X\)</span> est <span class="math inline">\(\dfrac{(b-a)^2}{4}\)</span>-sous-gaussienne.</p>
+</div>
+<div class="fragment">
+<p><strong>3. Rademacher</strong> : si <span class="math inline">\(\mathbb P(X = 1) = \mathbb P(X = -1) = 1/2\)</span>, alors <span class="math inline">\(X\)</span> est <span class="math inline">\(1\)</span>-sous-gaussienne.</p>
+</div>
+<div class="fragment">
+<p>(cas particulier du précédent avec <span class="math inline">\(a = -1, b = 1\)</span>)</p>
+</div>
+</section>
+<section id="lemme-de-hoeffding" class="slide level2">
+<h2>Lemme de Hoeffding</h2>
+<div class="fragment">
+<div title="Lemme de Hoeffding">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Lemme de Hoeffding</strong></p>
+</div>
+<div class="callout-content">
+<p>Soit <span class="math inline">\(X\)</span> une variable aléatoire telle que <span class="math inline">\(X \in [a, b]\)</span> presque sûrement, de moyenne <span class="math inline">\(\mu\)</span>. Alors <span class="math inline">\(X\)</span> est <span class="math inline">\(\dfrac{(b-a)^2}{4}\)</span>-sous-gaussienne, c’est-à-dire :</p>
+<p><span class="math display">\[\mathbb E\!\left[e^{\lambda (X - \mu)}\right] \leq e^{\lambda^2 (b - a)^2 / 8} \quad \forall \lambda \in \mathbb R\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><a href="../notes/hoeffding_fr.html">Preuve</a>.</p>
+</div>
+</section>
+<section id="lemme-de-hoeffding-idées-de-la-preuve" class="slide level2">
+<h2>Lemme de Hoeffding — idées de la preuve</h2>
+<div class="fragment">
+<p><strong>1. Convexité.</strong> <span class="math inline">\(x \mapsto e^{\lambda x}\)</span> est convexe, donc pour tout <span class="math inline">\(x \in [a, b]\)</span> :</p>
+<p><span class="math display">\[e^{\lambda x} \leq \frac{b - x}{b - a}\,e^{\lambda a} + \frac{x - a}{b - a}\,e^{\lambda b}\]</span></p>
+</div>
+<div class="fragment">
+<p><strong>2. Changement de variables.</strong> En posant <span class="math inline">\(p = -a/(b-a)\)</span> et <span class="math inline">\(u = \lambda(b-a)\)</span>, on se ramène à montrer :</p>
+<p><span class="math display">\[\varphi(u) = -p u + \log\!\left[(1-p) + p\,e^{u}\right] \leq \frac{u^2}{8}\]</span></p>
+</div>
+</section>
+<section id="somme-de-sous-gaussiennes-indépendantes" class="slide level2">
+<h2>Somme de sous-gaussiennes indépendantes</h2>
+<div class="fragment">
+<div title="Propriété">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Propriété</strong></p>
+</div>
+<div class="callout-content">
+<p>Si <span class="math inline">\(X_1, \dots, X_n\)</span> sont <strong>indépendantes</strong> et <span class="math inline">\(X_i\)</span> est <span class="math inline">\(\sigma_i^2\)</span>-sous-gaussienne, alors</p>
+<p><span class="math display">\[S_n = \sum_{i=1}^n (X_i - \mu_i)\]</span></p>
+<p>est <span class="math inline">\(\left(\sum_{i=1}^n \sigma_i^2\right)\)</span>-sous-gaussienne.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Preuve</strong> : par indépendance,</p>
+<p><span class="math display">\[\mathbb E[e^{\lambda S_n}] = \prod_{i=1}^n \mathbb E[e^{\lambda(X_i - \mu_i)}] \leq \prod_{i=1}^n e^{\lambda^2 \sigma_i^2/2} = e^{\lambda^2 (\sum_i \sigma_i^2)/2}\]</span></p>
+</div>
+</section></section>
+<section>
+<section id="inégalité-de-hoeffding" class="title-slide slide level1 center">
+<h1>Inégalité de Hoeffding</h1>
+
+</section>
+<section id="méthode-de-chernoff" class="slide level2">
+<h2>Méthode de Chernoff</h2>
+<div class="fragment">
+<p><strong>Idée clé</strong> : au lieu d’appliquer Markov à <span class="math inline">\(Y = (X-\mu)^2\)</span> (Chebyshev), on l’applique à <span class="math inline">\(Y = e^{\lambda(X-\mu)}\)</span>, puis on <strong>optimise</strong> en <span class="math inline">\(\lambda\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Pour tout <span class="math inline">\(\lambda &gt; 0\)</span> :</p>
+<p><span class="math display">\[\mathbb P(X - \mu \geq t) = \mathbb P(e^{\lambda(X - \mu)} \geq e^{\lambda t}) \leq e^{-\lambda t}\,\mathbb E[e^{\lambda(X-\mu)}]\]</span></p>
+</div>
+<div class="fragment">
+<p>Si <span class="math inline">\(X\)</span> est <span class="math inline">\(\sigma^2\)</span>-sous-gaussienne :</p>
+<p><span class="math display">\[\mathbb P(X - \mu \geq t) \leq e^{-\lambda t + \lambda^2 \sigma^2/2}\]</span></p>
+</div>
+<div class="fragment">
+<p><strong>Minimisation en <span class="math inline">\(\lambda\)</span></strong> : le minimum est atteint en <span class="math inline">\(\lambda^* = t/\sigma^2\)</span>, et vaut</p>
+<p><span class="math display">\[\mathbb P(X - \mu \geq t) \leq e^{-t^2/(2\sigma^2)}\]</span></p>
+</div>
+</section>
+<section id="inégalité-de-hoeffding-1" class="slide level2">
+<h2>Inégalité de Hoeffding</h2>
+<div class="fragment">
+<div title="Théorème : inégalité de Hoeffding">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Théorème : inégalité de Hoeffding</strong></p>
+</div>
+<div class="callout-content">
+<p>Soient <span class="math inline">\(X_1, \dots, X_n\)</span> <strong>indépendantes</strong>, telles que chaque <span class="math inline">\(X_i\)</span> soit <span class="math inline">\(\sigma^2\)</span>-sous-gaussienne de moyenne <span class="math inline">\(\mu\)</span>. Alors pour tout <span class="math inline">\(t &gt; 0\)</span> :</p>
+<p><span class="math display">\[\mathbb P\!\left(|\overline X_n - \mu| \geq t\right) \leq 2\,e^{-n t^2 / (2 \sigma^2)}\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Idée de Preuve</strong> : on applique la méthode de Chernoff à <span class="math inline">\(S_n = \sum(X_i - \mu)\)</span>, qui est <span class="math inline">\(n\sigma^2\)</span>-sous-gaussienne. On obtient</p>
+<p><span class="math display">\[\mathbb P(S_n \geq nt) \leq e^{-nt^2/(2\sigma^2)}\]</span></p>
+</div>
+</section>
+<section id="comparaison-chebyshev-vs-hoeffding" class="slide level2">
+<h2>Comparaison Chebyshev vs Hoeffding</h2>
+<div class="fragment">
+<p>Pour <span class="math inline">\(\sigma = 1\)</span>, <span class="math inline">\(n = 100\)</span>, <span class="math inline">\(t = 0{,}3\)</span> :</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 44%">
+<col style="width: 55%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Méthode</th>
+<th style="text-align: center;">Borne</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Chebyshev</td>
+<td style="text-align: center;"><span class="math inline">\(\leq 0{,}111\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Hoeffding</td>
+<td style="text-align: center;"><span class="math inline">\(\leq 2\,e^{-100 \times 0{,}09/2} = 2\,e^{-4{,}5} \approx 0{,}022\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">TCL (approx.)</td>
+<td style="text-align: center;"><span class="math inline">\(\approx 0{,}0027\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<p>Hoeffding est <strong>5 fois meilleur</strong> que Chebyshev, et pas trop loin du TCL — avec une <strong>garantie non-asymptotique</strong>.</p>
+</div>
+</section></section>
+<section>
+<section id="applications" class="title-slide slide level1 center">
+<h1>Applications</h1>
+
+</section>
+<section id="intervalle-de-confiance-non-asymptotique" class="slide level2">
+<h2>Intervalle de confiance non-asymptotique</h2>
+<div class="fragment">
+<p>On fixe un niveau de confiance <span class="math inline">\(1 - \delta\)</span>. On cherche <span class="math inline">\(t\)</span> tel que</p>
+<p><span class="math display">\[\mathbb P(|\overline X_n - \mu| \geq t) \leq \delta\]</span></p>
+</div>
+<div class="fragment">
+<p>Par Hoeffding, il suffit que <span class="math inline">\(2 e^{-nt^2/(2\sigma^2)} \leq \delta\)</span>, soit :</p>
+<div class="square-def">
+<p><span class="math inline">\(t \geq \sigma\sqrt{\dfrac{2 \log(2/\delta)}{n}}\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>IC: <span class="math inline">\(\overline X_n \pm \sigma\sqrt{\dfrac{2 \log(2/\delta)}{n}}\)</span></p>
+</div>
+</section>
+<section id="retour-sur-lexemple-du-sondage" class="slide level2">
+<h2>Retour sur l’exemple du sondage</h2>
+<div class="fragment">
+<p>On interroge <span class="math inline">\(n\)</span> personnes. Chaque réponse <span class="math inline">\(X_i \in \{0,1\}\)</span> est bornée, donc <span class="math inline">\(1/4\)</span>-sous-gaussienne.</p>
+</div>
+<div class="fragment">
+<p>On veut une précision <span class="math inline">\(\pm 0{,}02\)</span> avec probabilité <span class="math inline">\(\geq 0{,}95\)</span>, donc <span class="math inline">\(\delta = 0{,}05\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Il faut <span class="math inline">\(\sigma\sqrt{2\log(2/\delta)/n} \leq 0{,}02\)</span>, soit avec <span class="math inline">\(\sigma^2 = 1/4\)</span> :</p>
+<p><span class="math display">\[n \geq \frac{2 \log(40)}{4 \times 0{,}02^2} = \frac{2 \times 3{,}69}{0{,}0016} \approx 4\,610\]</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>Ce résultat est <strong>garanti</strong>, sans aucune hypothèse sur la vraie proportion <span class="math inline">\(p\)</span>, et sans invoquer le TCL.</p>
 </div>
 </div>
 </div>
 </div>
 </section>
-<section id="espérance-et-variance" class="slide level2">
-<h2>Espérance et variance</h2>
-<p><span class="math inline">\(X = \sum_{i=1}^k Z_i^2\)</span></p>
+<section id="test-non-asymptotique-à-un-échantillon" class="slide level2">
+<h2>Test non-asymptotique à un échantillon</h2>
 <div class="fragment">
-<p><span class="math display">\[\mathbb{E}[X] = \sum_{i=1}^k \mathbb{E}[Z_i^2] = \sum_{i=1}^k 1 = k\]</span></p>
-</div>
-<div class="fragment">
-<p><span class="math display">\[\mathbb{V}[X] = \sum_{i=1}^k \mathbb{V}[Z_i^2] = k* (3-1) = 2k\]</span></p>
-</div>
-</section>
-<section id="convergence-en-loi" class="slide level2">
-<h2>Convergence en loi</h2>
-<p>Les <span class="math inline">\(Z_i^2\)</span> sont iid de moyenne <span class="math inline">\(\mu = 1\)</span> et de variance <span class="math inline">\(\sigma^2 = 2\)</span>. Par le TCL :</p>
-<p><span class="math display">\[\frac{X - \mathbb E[X]}{\mathbb V(X)} = \frac{X - k}{\sqrt{2k}} \xrightarrow{\mathcal{L}} \mathcal{N}(0,1) \quad \text{quand } k \to +\infty\]</span></p>
-<p>En réarrangeant :</p>
-<p><span class="math display">\[X \approx k + \sqrt{2k}\,\mathcal{N}(0,1) \qquad \blacksquare\]</span></p>
-</section>
-<section id="jeu-1" class="slide level2">
-<h2>Jeu</h2>
-<p>Je génère <span class="math inline">\(X \sim \chi^2(53)\)</span>.</p>
-<div class="fragment">
-<p>On observe <span style="background-color: lightblue;"><span class="math inline">\(112.7\)</span></span>. Cela pourrait-il provenir d’une <span class="math inline">\(\chi^2(53)\)</span> ?</p>
-</div>
-<div class="fragment">
-<p>On observe <span style="background-color: lightblue;"><span class="math inline">\(50.1\)</span></span>. Cela pourrait-il provenir d’une <span class="math inline">\(\chi^2(53)\)</span> ?</p>
-</div>
-<div class="fragment">
-<p>On observe <span style="background-color: lightblue;"><span class="math inline">\(15.4\)</span></span>. Et ça ??</p>
-</div>
-</section>
-<section id="formalisation-1" class="slide level2">
-<h2>Formalisation :</h2>
-<div class="fragment">
+<p>On observe <span class="math inline">\(X_1, \dots, X_n\)</span> i.i.d. <span class="math inline">\(\sigma^2\)</span>-sous-gaussiennes de moyenne <span class="math inline">\(\mu\)</span> inconnue. On veut tester :</p>
 <div class="square-objective">
-<p><span class="math inline">\(H_0\)</span> : <span class="math inline">\(X \sim \chi^2(53)\)</span> VS <span class="math inline">\(H_1\)</span> : <span class="math inline">\(X \not\sim \chi^2(53)\)</span></p>
+<p><span class="math inline">\(H_0: \mu = 0 \quad\)</span> contre <span class="math inline">\(\quad H_1: \mu \neq 0\)</span></p>
 </div>
-<ul>
-<li class="fragment">statistique de test : <span class="math inline">\(X\)</span> test : <span class="math inline">\(X &lt; t_1\)</span> ou <span class="math inline">\(X &gt; t_2\)</span> (<span style="background-color: yellow;">Bilatéral ici</span>. Habituellement avec le chi-deux : unilatéral à droite)</li>
-<li class="fragment"><span class="math inline">\(t_1\)</span> = <code>quantile(Chisq(53), 0.025) = 34.78</code></li>
-<li class="fragment"><span class="math inline">\(t_2\)</span> = <code>quantile(Chisq(53), 0.975) = 74.47</code></li>
-<li class="fragment">observation : <span class="math inline">\(112.7\)</span></li>
-<li class="fragment">conclusion : rejet au niveau <span class="math inline">\(5\%\)</span></li>
-<li class="fragment">ou avec la p-valeur : <code>2 * min(cdf(Chisq(53), 112.7), 1 - cdf(Chisq(53), 112.7)) ≈ 0</code></li>
-</ul>
 </div>
-</section>
-<section id="loi-de-student" class="slide level2">
-<h2>Loi de Student</h2>
 <div class="fragment">
-<div class="callout callout-note no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Définition de la loi de Student</strong></p>
-</div>
-<div class="callout-content">
-<p>Une loi de Student à <span style="background-color: yellow;">degré de liberté <span class="math inline">\(k\)</span></span> est la loi de</p>
+<p><strong>Test de Hoeffding de niveau <span class="math inline">\(\delta\)</span></strong> :</p>
 <div class="square-def">
-<p><span class="math display">\[T = \frac{Z}{\sqrt{U/k}}\]</span></p>
-</div>
-<p>où <span class="math inline">\(Z\)</span> et <span class="math inline">\(U\)</span> sont <span style="background-color: lightblue;">indépendants</span>, avec <span class="math inline">\(Z \sim \mathcal N(0,1)\)</span> et <span class="math inline">\(U \sim \chi^2(k)\)</span>. On note <span class="math inline">\(\mathcal T(k)\)</span> cette loi.</p>
-</div>
-</div>
+<p><span class="math inline">\(T(X) = \mathbf 1\!\left\{|\overline X_n| &gt; \sigma\sqrt{\dfrac{2 \log(2/\delta)}{n}}\right\}\)</span></p>
 </div>
 </div>
 <div class="fragment">
-<div class="callout callout-tip no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Propriétés</strong></p>
-</div>
-<div class="callout-content">
-<ul>
-<li class="fragment"><span class="math inline">\(\mathbb E[T] = 0\)</span> pour <span class="math inline">\(k &gt; 1\)</span>, <span class="math inline">\(\mathbb V[T] = \frac{k}{k-2}\)</span> pour <span class="math inline">\(k &gt; 2\)</span></li>
-<li class="fragment"><span class="math inline">\(\mathcal T(k) \sim \mathcal N(0,1)\)</span> quand <span class="math inline">\(k \to +\infty\)</span></li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="démonstration" class="slide level2">
-<h2>Démonstration</h2>
-<div class="fragment">
-<p><strong>Espérance :</strong> Pour <span class="math inline">\(k &gt; 1\)</span>, puisque <span class="math inline">\(Z\)</span> et <span class="math inline">\(U\)</span> sont indépendants, <span class="math display">\[\mathbb{E}[T] = \mathbb{E}[Z] \cdot \mathbb{E}\!\left[\frac{1}{\sqrt{U/k}}\right] = 0\]</span> car <span class="math inline">\(\mathbb{E}[Z] = 0\)</span>.</p>
-</div>
-<div class="fragment">
-<p><strong>Normalité asymptotique :</strong> On écrit <span class="math inline">\(T = \frac{Z}{\sqrt{U/k}}\)</span>. Par la loi des grands nombres, <span class="math inline">\(U/k = \frac{1}{k}\sum_{i=1}^k Z_i^2 \xrightarrow{\text{p.s.}} \mathbb{E}[Z_1^2] = 1\)</span> quand <span class="math inline">\(k \to \infty\)</span>.</p>
-</div>
-</section>
-<section id="jeu-2" class="slide level2">
-<h2>Jeu</h2>
-<p>Je génère <span class="math inline">\(T \sim \mathcal{T}(10)\)</span>.</p>
-<div class="fragment">
-<p>On observe <span style="background-color: lightblue;"><span class="math inline">\(-5.2\)</span></span>. Cela pourrait-il être anormalement petit pour une <span class="math inline">\(\mathcal{T}(10)\)</span> ?</p>
-</div>
-<div class="fragment">
-<p>On observe <span style="background-color: lightblue;"><span class="math inline">\(3.45\)</span></span>. Cela pourrait-il être anormalement petit pour une <span class="math inline">\(\mathcal{T}(10)\)</span> ?</p>
-</div>
-<div class="fragment">
-<p>On observe <span style="background-color: lightblue;"><span class="math inline">\(-0.15\)</span></span>. Et ça ??</p>
-</div>
-</section>
-<section id="formalisation-2" class="slide level2">
-<h2>Formalisation :</h2>
-<div class="fragment">
-<div class="square-objective">
-<p><span class="math inline">\(H_0\)</span> : <span class="math inline">\(T \sim \mathcal T(10)\)</span> VS <span class="math inline">\(H_1\)</span> : <span class="math inline">\(T \sim \mathcal T(10) + \mu\)</span> avec <span class="math inline">\(\mu &lt; 0\)</span></p>
-</div>
-<ul>
-<li class="fragment">statistique de test : <span class="math inline">\(T\)</span></li>
-<li class="fragment">test : <span class="math inline">\(T &lt; -t\)</span></li>
-<li class="fragment">t = <code>quantile(TDist(10), 0.05) = -1.81</code></li>
-<li class="fragment">observation : <span class="math inline">\(-3.45\)</span></li>
-<li class="fragment">conclusion : rejet au niveau <span class="math inline">\(5\%\)</span></li>
-<li class="fragment">ou avec la p-valeur : <code>cdf(TDist(10), -3.45) = 0.003</code></li>
-</ul>
-</div>
-</section>
-<section id="loi-de-fisher" class="slide level2">
-<h2>Loi de Fisher</h2>
-<div class="fragment">
-<div class="callout callout-note no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Définition de la loi de Fisher</strong></p>
-</div>
-<div class="callout-content">
-<p>Une loi de Fisher à <span style="background-color: yellow;">degrés de liberté <span class="math inline">\((k_1, k_2)\)</span></span> est la loi de</p>
-<div class="square-def">
-<p><span class="math inline">\(F = \frac{U_1/k_1}{U_2/k_2}\)</span></p>
-</div>
-<p>où <span class="math inline">\(U_1\)</span> et <span class="math inline">\(U_2\)</span> sont <span style="background-color: lightblue;">indépendants</span>, avec <span class="math inline">\(U_1 \sim \chi^2(k_1)\)</span> et <span class="math inline">\(U_2 \sim \chi^2(k_2)\)</span>. On note <span class="math inline">\(\mathcal F(k_1, k_2)\)</span> cette loi.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="fragment">
-<div class="callout callout-tip no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Propriétés</strong></p>
-</div>
-<div class="callout-content">
-<ul>
-<li class="fragment"><span class="math inline">\(\mathbb E[F] = \frac{k_2}{k_2 - 2}\)</span> pour <span class="math inline">\(k_2 &gt; 2\)</span></li>
-<li class="fragment"><span class="math inline">\(\mathcal F(k_1,k_2) \approx 1 + \sqrt{\frac{2}{k_1} + \frac{2}{k_2}}\,\mathcal N(0, 1)\)</span> quand <span class="math inline">\(k_1,k_2 \to +\infty\)</span></li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</section>
-<section id="illustration" class="slide level2">
-<h2>Illustration</h2>
-<div class="fragment">
-<p><img data-src="../images/Fisher.svg"></p>
-</div>
-</section>
-<section id="convergence-idée-de-la-démonstration" class="slide level2">
-<h2>Convergence : idée de la démonstration</h2>
-<div class="fragment">
-<p>En utilisant l’approximation du TCL <span class="math inline">\(U_1 \sim k_1 + \sqrt{2k_1} Z_1\)</span> et <span class="math inline">\(U_2 \sim k_1 + \sqrt{2k_2} Z_2\)</span></p>
-</div>
-<div class="fragment">
-<p><span class="math display">\[F = \frac{U_1/k_1}{U_2/k_2} = \frac{1 + \sqrt{\frac{2}{k_1}}\,Z_1}{1 + \sqrt{\frac{2}{k_2}}\,Z_2} \approx 1 + \sqrt{\frac{2}{k_1}}\,Z_1 - \sqrt{\frac{2}{k_2}}\,Z_2\]</span></p>
-<p>Puisque <span class="math inline">\(U_1\)</span> et <span class="math inline">\(U_2\)</span> sont indépendants, la variance du membre de droite est <span class="math inline">\(\frac{2}{k_1} + \frac{2}{k_2}\)</span>, donc :</p>
-<p><span class="math display">\[F \approx 1 + \sqrt{\frac{2}{k_1} + \frac{2}{k_2}}\,\mathcal{N}(0,1)\]</span></p>
-</div>
-</section>
-<section id="jeu-3" class="slide level2">
-<h2>Jeu</h2>
-<p>Je génère <span class="math inline">\(F \sim \mathcal{F}(5, 20)\)</span>.</p>
-<div class="fragment">
-<p>On observe <span style="background-color: lightblue;"><span class="math inline">\(1.12\)</span></span>. Cela pourrait-il être anormalement grand pour une <span class="math inline">\(\mathcal{F}(5,20)\)</span> ?</p>
-</div>
-<div class="fragment">
-<p>On observe <span style="background-color: lightblue;"><span class="math inline">\(4.87\)</span></span>. Cela pourrait-il être anormalement grand pour une <span class="math inline">\(\mathcal{F}(5,20)\)</span> ?</p>
-</div>
-<div class="fragment">
-<p>On observe <span style="background-color: lightblue;"><span class="math inline">\(0.95\)</span></span>. Et ça ??</p>
-</div>
-</section>
-<section id="formalisation-3" class="slide level2">
-<h2>Formalisation :</h2>
-<div class="fragment">
-<p><span class="math inline">\(H_0\)</span> : <span class="math inline">\(F \sim \mathcal F(5,20)\)</span> VS <span class="math inline">\(H_1\)</span> : <span class="math inline">\(F\)</span> est stochastiquement plus grande que <span class="math inline">\(\mathcal F(5,20)\)</span></p>
-<ul>
-<li class="fragment">statistique de test : <span class="math inline">\(F\)</span></li>
-<li class="fragment">test : <span class="math inline">\(F &gt; t\)</span></li>
-<li class="fragment">t = <code>quantile(FDist(5,20), 0.95) = 2.71</code></li>
-<li class="fragment">observation : <span class="math inline">\(4.87\)</span></li>
-<li class="fragment">conclusion : rejet au niveau <span class="math inline">\(5\%\)</span></li>
-<li class="fragment">ou avec la p-valeur : <code>1 - cdf(FDist(5,20), 4.87) = 0.004</code></li>
-</ul>
-</div>
-</section>
-<section id="test-de-fisher" class="slide level2">
-<h2>Test de Fisher</h2>
-<ul>
-<li class="fragment"><span class="math inline">\(\psi(X,Y)=\frac{\hat \sigma^2_1}{\hat \sigma_2^2}\)</span> est indépendant de <span class="math inline">\(\mu_1\)</span>, <span class="math inline">\(\mu_2\)</span>, <span class="math inline">\(\sigma_1\)</span>, <span class="math inline">\(\sigma_2\)</span>. C’est une statistique <strong>pivotale</strong></li>
-<li class="fragment">Elle suit la loi <span class="math inline">\(\mathcal F(n_1-1, n_2-1)\)</span></li>
-</ul>
-</section>
-<section id="théorème-de-cochran" class="slide level2">
-<h2>Théorème de Cochran</h2>
-<div class="fragment">
-<div class="callout callout-note no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Note</strong></p>
-</div>
-<div class="callout-content">
-<p>Soit <span class="math inline">\(Y \sim \mathcal{N}(0, I_n)\)</span>. Soient <span class="math inline">\(E\)</span> et <span class="math inline">\(F\)</span> deux sous-espaces orthogonaux de <span class="math inline">\(\mathbb{R}^n\)</span>, c’est-à-dire <span class="math inline">\(E \perp F\)</span>, de dimensions <span class="math inline">\(\dim(E) = p\)</span> et <span class="math inline">\(\dim(F) = q\)</span>. On note <span class="math inline">\(\Pi_E\)</span> et <span class="math inline">\(\Pi_F\)</span> les projections orthogonales sur <span class="math inline">\(E\)</span> et <span class="math inline">\(F\)</span> respectivement. Alors :</p>
-<ol type="1">
-<li class="fragment"><p><strong>Indépendance :</strong> <span class="math inline">\(\Pi_E Y\)</span> et <span class="math inline">\(\Pi_F Y\)</span> sont des vecteurs gaussiens indépendants.</p></li>
-<li class="fragment"><p><strong>Lois du chi-deux :</strong> <span class="math inline">\(\|\Pi_E Y\|^2 \sim \chi^2(p)\)</span> et <span class="math inline">\(\|\Pi_F Y\|^2 \sim \chi^2(q)\)</span>.</p></li>
-<li class="fragment"><p><strong>Décomposition pythagoricienne :</strong> Si <span class="math inline">\(\mathbb{R}^n = E \oplus F\)</span> (c’est-à-dire <span class="math inline">\(p + q = n\)</span>), alors <span class="math inline">\(\|Y\|^2 = \|\Pi_E Y\|^2 + \|\Pi_F Y\|^2\)</span></p></li>
-</ol>
-</div>
-</div>
-</div>
-</div>
-<div class="fragment">
-<p>voir aussi la <a href="../../../teaching/hypothesis_testing/notes/cochran.html">démonstration</a></p>
-</div>
-</section>
-<section id="section" class="slide level2">
-<h2></h2>
-<p><a href="../../../teaching/hypothesis_testing/slides/testing_models_fr.html">Précédent : tester des modèles</a></p>
-<p><a href="../../../teaching/hypothesis_testing/slides/gaussian_populations_fr.html">Suivant : populations gaussiennes</a></p>
+<p><strong>Niveau garanti</strong> : par Hoeffding, sous <span class="math inline">\(H_0\)</span>, <span class="math inline">\(\mathbb P(T = 1) \leq \delta\)</span> pour tout <span class="math inline">\(n\)</span>.</p>
 
 
+</div>
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">

@@ -1,0 +1,183 @@
+---
+title: "Test de corrélation de Pearson"
+subtitle: "D'où vient la statistique et pourquoi elle suit une loi de Student"
+format:
+  html:
+    self-contained: true
+    toc: true
+    theme: cosmo
+    html-math-method: mathjax
+---
+
+## Cadre
+
+On observe $n$ couples i.i.d. $(X_1, Y_1), \dots, (X_n, Y_n)$ gaussiens, et on teste
+$$
+H_0: \rho(X, Y) = 0 \quad \text{contre} \quad H_1: \rho(X, Y) \neq 0.
+$$
+
+Sous $H_0$, $X$ et $Y$ sont indépendantes. On rappelle les versions empiriques :
+$$
+\hat\sigma_X^2 = \frac{1}{n-1}\sum_{i=1}^n (X_i - \bar X)^2, \qquad \widehat{\mathrm{Cov}}(X,Y) = \frac{1}{n-1}\sum_{i=1}^n (X_i - \bar X)(Y_i - \bar Y),
+$$
+$$
+\hat\rho = \frac{\widehat{\mathrm{Cov}}(X,Y)}{\hat\sigma_X\,\hat\sigma_Y}.
+$$
+
+L'objectif de cette note est d'expliquer **d'où vient** la statistique
+$$
+T = \hat\rho\,\sqrt{\frac{n-2}{1 - \hat\rho^2}},
+$$
+et pourquoi, sous $H_0$, $T \sim \mathcal T(n-2)$.
+
+## Le pont avec la régression linéaire
+
+On suppose que les couples $(X_i, Y_i)$ sont **jointement gaussiens**, de moyennes $\mu_X, \mu_Y$, variances $\sigma_X^2, \sigma_Y^2$ et corrélation $\rho$. Dans ce cas, on dispose de la loi conditionnelle explicite :
+
+::: {.callout-note title="Loi conditionnelle de $Y \mid X$"}
+Pour $(X, Y)$ jointement gaussien,
+$$
+Y \mid X = x \;\sim\; \mathcal N\!\left(\mu_Y + \rho\,\dfrac{\sigma_Y}{\sigma_X}\,(x - \mu_X),\;\; (1 - \rho^2)\,\sigma_Y^2\right).
+$$
+
+- L'espérance conditionnelle est **affine** en $x$ : $\mathbb E[Y \mid X = x] = \alpha + \beta\,x$ avec
+$$
+\beta = \rho\,\dfrac{\sigma_Y}{\sigma_X}, \qquad \alpha = \mu_Y - \beta\,\mu_X.
+$$
+- La variance conditionnelle $(1 - \rho^2)\sigma_Y^2$ **ne dépend pas de $x$** — le modèle est homoscédastique.
+- Sous $H_0$ ($\rho = 0$), on retrouve $\beta = 0$, $\alpha = \mu_Y$ et variance $\sigma_Y^2$.
+:::
+
+On en déduit que, conditionnellement aux $X_i$, les $Y_i$ suivent **exactement** le modèle de régression linéaire gaussienne :
+$$
+Y_i = \alpha + \beta\,X_i + \varepsilon_i, \qquad \varepsilon_i \mid X \;\underset{\mathrm{i.i.d.}}{\sim}\; \mathcal N(0, \sigma^2),
+$$
+avec $\sigma^2 = (1 - \rho^2)\,\sigma_Y^2$. Autrement dit, la régression linéaire **n'est pas une hypothèse supplémentaire** : elle est automatique dès lors que $(X, Y)$ est jointement gaussien, et c'est simplement la décomposition canonique de $Y$ en la partie affine $\alpha + \beta X$ et un résidu indépendant.
+
+Enfin, puisque $\beta = \rho\,\sigma_Y/\sigma_X$, on a $\rho = 0 \iff \beta = 0$, et **tester la corrélation revient à tester la nullité de la pente** d'une régression linéaire.
+
+La statistique $T$ n'est alors rien d'autre que la statistique de Student pour le test $\beta = 0$.
+
+## L'estimateur et son erreur-type
+
+Géométriquement, l'ajustement par moindres carrés est la **projection orthogonale** de $Y$ sur le sous-espace
+$$
+F = \mathrm{Vect}(\mathbf 1, X) \subset \mathbb R^n,
+$$
+et $(\hat\alpha, \hat\beta)$ sont les **coordonnées** de $\Pi_F Y$ dans la base $(\mathbf 1, X)$.
+
+Conditionnellement à $X$, le vecteur $Y$ est gaussien et $\Pi_F$ est une application linéaire ; donc $\Pi_F Y$ est encore un vecteur gaussien, et ses coordonnées $(\hat\alpha, \hat\beta)$ sont **gaussiennes**.
+
+### Variance de $\hat\beta$ via un vecteur unitaire
+
+Posons $\tilde X = X - \bar X\,\mathbf 1$ et $\tilde Y = Y - \bar Y\,\mathbf 1$. Avec ces notations :
+$$
+\|\tilde X\|^2 = (n-1)\,\hat\sigma_X^2, \qquad \langle \tilde X, \tilde Y\rangle = (n-1)\,\widehat{\mathrm{Cov}}(X, Y),
+$$
+et l'estimateur des moindres carrés se réécrit naturellement
+$$
+\hat\beta = \frac{\widehat{\mathrm{Cov}}(X,Y)}{\hat\sigma_X^2} = \frac{\langle \tilde X, \tilde Y\rangle}{\|\tilde X\|^2}.
+$$
+
+**Simplification clé.** Comme $\tilde X \perp \mathbf 1$, on a $\langle \tilde X, \bar Y\,\mathbf 1\rangle = 0$, donc
+$$
+\langle \tilde X, \tilde Y\rangle = \langle \tilde X, Y\rangle.
+$$
+
+On peut donc écrire
+$$
+\hat\beta = \frac{\langle \tilde X, Y\rangle}{\|\tilde X\|^2} = \frac{1}{\|\tilde X\|}\,\langle u, Y\rangle, \qquad u := \frac{\tilde X}{\|\tilde X\|}.
+$$
+
+La quantité $\langle u, Y\rangle$ est la **projection scalaire** de $Y$ sur le vecteur unitaire $u$ ; $\hat\beta$ vaut cette projection **divisée par $\|\tilde X\|$** (un facteur déterministe conditionnellement à $X$).
+
+**Propriété clé.** Si $Y \mid X \sim \mathcal N(m, \sigma^2 I_n)$ et $u$ est un vecteur unitaire (déterministe conditionnellement à $X$), alors
+$$
+\langle u, Y\rangle \mid X \;\sim\; \mathcal N\!\bigl(\langle u, m\rangle,\; \sigma^2\bigr).
+$$
+
+Appliquons ceci avec $m = \alpha\,\mathbf 1 + \beta\,X$ :
+
+- $\langle u, \mathbf 1\rangle = 0$ car $u \propto \tilde X \perp \mathbf 1$
+- $\langle u, X\rangle = \langle u, \tilde X + \bar X\,\mathbf 1\rangle = \langle u, \tilde X\rangle = \|\tilde X\|$
+
+Donc $\langle u, Y\rangle \mid X \sim \mathcal N(\beta\,\|\tilde X\|,\; \sigma^2)$.
+
+En divisant par $\|\tilde X\|$ :
+$$
+\hat\beta \mid X \;\sim\; \mathcal N\!\left(\beta,\; \frac{\sigma^2}{\|\tilde X\|^2}\right) = \mathcal N\!\left(\beta,\; \frac{\sigma^2}{(n-1)\,\hat\sigma_X^2}\right).
+$$
+
+Sous $H_0$ ($\beta = 0$) :
+$$
+\hat\beta \mid X \;\sim\; \mathcal N\!\left(0,\; \frac{\sigma^2}{(n-1)\,\hat\sigma_X^2}\right).
+$$
+
+### Estimateur de l'écart-type de $\hat\beta$
+
+Le calcul précédent donne
+$$
+\mathrm{Var}(\hat\beta \mid X) = \frac{\sigma^2}{(n-1)\,\hat\sigma_X^2},
+$$
+mais cette expression fait intervenir la variance résiduelle $\sigma^2$, **qui est inconnue**. On ne peut donc pas utiliser directement cet écart-type pour construire un test — il faut d'abord estimer $\sigma^2$.
+
+**Estimateur de $\sigma^2$.** On l'estime par la somme des carrés résiduels :
+$$
+\hat\sigma^2 = \frac{\mathrm{RSS}}{n-2}, \qquad \mathrm{RSS} = \sum_{i=1}^n (Y_i - \hat\alpha - \hat\beta X_i)^2 = (n-1)\,\hat\sigma_Y^2\,(1 - \hat\rho^2).
+$$
+
+::: {.callout-note title="Pourquoi $n - 2$ ?"}
+Les résidus $Y - \hat Y$ forment la projection de $Y$ sur $F^\perp$, de dimension $n-2$. Donc
+$$
+\mathbb E\!\left[\mathrm{RSS} \mid X\right] = (n-2)\,\sigma^2
+$$
+(un vecteur gaussien de covariance $\sigma^2 I$ projeté sur un sous-espace de dimension $d$ a une norme carrée d'espérance $d\sigma^2$). Diviser $\mathrm{RSS}$ par $n-2$ donne donc un estimateur **sans biais** de $\sigma^2$.
+:::
+
+**Définition de $\hat\sigma_{\hat\beta}$.** On obtient alors l'estimateur de l'écart-type de $\hat\beta$ en **remplaçant $\sigma^2$ par $\hat\sigma^2$** dans la formule de la variance :
+$$
+\hat\sigma_{\hat\beta}^2 \;:=\; \frac{\hat\sigma^2}{(n-1)\,\hat\sigma_X^2}.
+$$
+
+En injectant $\hat\sigma^2 = (n-1)\,\hat\sigma_Y^2\,(1 - \hat\rho^2)/(n-2)$, la formule se simplifie :
+$$
+\hat\sigma_{\hat\beta}^2 = \frac{\hat\sigma_Y^2\,(1 - \hat\rho^2)}{(n-2)\,\hat\sigma_X^2}, \qquad \hat\sigma_{\hat\beta} = \frac{\hat\sigma_Y}{\hat\sigma_X}\,\sqrt{\dfrac{1 - \hat\rho^2}{n - 2}}.
+$$
+
+## D'où vient la statistique $T$
+
+La statistique de Student est le rapport de $\hat\beta$ à son erreur-type estimée :
+$$
+T = \frac{\hat\beta}{\hat\sigma_{\hat\beta}}.
+$$
+
+En substituant $\hat\beta = \hat\rho\,\hat\sigma_Y/\hat\sigma_X$ :
+
+$$
+T = \frac{\hat\rho\,\hat\sigma_Y/\hat\sigma_X}{(\hat\sigma_Y/\hat\sigma_X)\sqrt{(1 - \hat\rho^2)/(n-2)}} = \hat\rho\,\sqrt{\dfrac{n - 2}{1 - \hat\rho^2}}.
+$$
+
+Les facteurs $\hat\sigma_X$ et $\hat\sigma_Y$ se **simplifient** : la statistique ne dépend plus des paramètres inconnus. C'est ce qui rend $T$ **pivotale** sous $H_0$.
+
+## Loi de $T$ sous $H_0$
+
+On a deux ingrédients :
+
+1. $\hat\beta \mid X \sim \mathcal N(0, \sigma^2/((n-1)\hat\sigma_X^2))$, donc en normalisant :
+$$
+Z := \frac{\hat\beta}{\sigma/\sqrt{(n-1)\hat\sigma_X^2}} \;\Big|\; X \;\sim\; \mathcal N(0, 1).
+$$
+
+2. $\mathrm{RSS}/\sigma^2 \mid X \sim \chi^2(n-2)$, et $\hat\beta$ et $\mathrm{RSS}$ sont **indépendants** (théorème de Cochran : projections sur $F$ et $F^\perp$ orthogonales).
+
+La statistique $T$ se réécrit alors :
+$$
+T = \frac{\hat\beta}{\hat\sigma_{\hat\beta}} = \frac{Z}{\sqrt{\mathrm{RSS}/((n-2)\sigma^2)}} = \frac{Z}{\sqrt{\chi^2(n-2)/(n-2)}}.
+$$
+
+C'est, par définition, une loi de Student à $n-2$ degrés de liberté :
+$$
+\boxed{\; T \mid X \sim \mathcal T(n - 2). \;}
+$$
+
+Cette loi conditionnelle **ne dépend pas de $X$** : la loi marginale est donc aussi $\mathcal T(n-2)$. $\blacksquare$

@@ -160,6 +160,7 @@ window.Quarto = {
   <ul>
   <li><a href="#proposition" id="toc-proposition" class="nav-link active" data-scroll-target="#proposition">Proposition</a></li>
   <li><a href="#proof" id="toc-proof" class="nav-link" data-scroll-target="#proof">Proof</a></li>
+  <li><a href="#appendix-lyapunovs-clt" id="toc-appendix-lyapunovs-clt" class="nav-link" data-scroll-target="#appendix-lyapunovs-clt">Appendix: Lyapunov’s CLT</a></li>
   </ul>
 </nav>
     </div>
@@ -199,8 +200,36 @@ window.Quarto = {
 <p><strong>Variance.</strong> Since the <span class="math inline">\(\varepsilon_i\)</span> are independent and <span class="math inline">\(\mathrm{Var}(\varepsilon_i) = 1/4\)</span>,</p>
 <p><span class="math display">\[\mathrm{Var}(W_-) = \frac{1}{4}\sum_{i=1}^n i^2 = \frac{n(n+1)(2n+1)}{24}.\]</span></p>
 <p><strong>CLT.</strong> The summands <span class="math inline">\(X_i = i\,\varepsilon_i\)</span> are independent. Check Lyapunov’s condition with <span class="math inline">\(\delta=2\)</span>:</p>
-<p><span class="math display">\[\frac{\sum_{i=1}^n \mathbb{E}[|X_i - \mathbb{E}X_i|^4]}{s_n^4} \leq \frac{\sum_{i=1}^n i^4}{\left(\sum_{i=1}^n i^2\right)^2} = O\!\left(\frac{n^5}{n^6}\right) = O(n^{-1}) \to 0,\]</span></p>
-<p>where <span class="math inline">\(s_n^2 = \mathrm{Var}(W_-)\)</span>. Hence <span class="math inline">\(\dfrac{W_- - \mathbb{E}[W_-]}{\sqrt{\mathrm{Var}(W_-)}} \xrightarrow{d} \mathcal{N}(0,1)\)</span>. <span class="math inline">\(\blacksquare\)</span></p>
+<p><span class="math display">\[\frac{\sum_{i=1}^n \mathbb{E}[|X_i - \mathbb{E}X_i|^4]}{\mathrm{Var}(W_-)^2} \leq \frac{\sum_{i=1}^n i^4}{\left(\sum_{i=1}^n i^2\right)^2} = O\!\left(\frac{n^5}{n^6}\right) = O(n^{-1}) \to 0.\]</span></p>
+<p>Hence <span class="math inline">\(\dfrac{W_- - \mathbb{E}[W_-]}{\sqrt{\mathrm{Var}(W_-)}} \xrightarrow{d} \mathcal{N}(0,1)\)</span>. <span class="math inline">\(\blacksquare\)</span></p>
+</section>
+<section id="appendix-lyapunovs-clt" class="level2">
+<h2 class="anchored" data-anchor-id="appendix-lyapunovs-clt">Appendix: Lyapunov’s CLT</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="Lyapunov's Central Limit Theorem">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lyapunov’s Central Limit Theorem
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Let <span class="math inline">\(X_1, X_2, \dots\)</span> be <strong>independent</strong> random variables (not necessarily identically distributed) with <span class="math inline">\(\mathbb E[X_k] = \mu_k\)</span> and finite variance <span class="math inline">\(\mathrm{Var}(X_k) = \sigma_k^2\)</span>. Set <span class="math display">\[
+S_n = \sum_{k=1}^n X_k, \qquad s_n^2 = \mathrm{Var}(S_n) = \sum_{k=1}^n \sigma_k^2.
+\]</span></p>
+<p>If there exists <span class="math inline">\(\delta &gt; 0\)</span> such that <span class="math display">\[
+\lim_{n \to \infty}\; \frac{1}{s_n^{2 + \delta}}\,\sum_{k=1}^n \mathbb E\!\left[\,|X_k - \mu_k|^{2 + \delta}\,\right] \;=\; 0, \tag{Lyapunov}
+\]</span> then <span class="math display">\[
+\frac{S_n - \mathbb E[S_n]}{\sqrt{\mathrm{Var}(S_n)}} \;\xrightarrow[n \to \infty]{d}\; \mathcal N(0, 1).
+\]</span></p>
+</div>
+</div>
+<p><strong>Intuition.</strong> The condition says that no single term <span class="math inline">\(X_k\)</span> dominates the sum: the contribution of each term to the higher-order moment <span class="math inline">\(\sum_k \mathbb E|X_k - \mu_k|^{2+\delta}\)</span> is asymptotically negligible compared to the total variance raised to the power <span class="math inline">\((2+\delta)/2\)</span>. In the i.i.d. case (<span class="math inline">\(\sigma_k^2 = \sigma^2\)</span>), Lyapunov’s condition is automatically satisfied and reduces to the classical CLT.</p>
+<p><strong>Common choice.</strong> Taking <span class="math inline">\(\delta = 1\)</span> requires controlling third absolute moments: <span class="math display">\[
+\frac{1}{s_n^3}\sum_{k=1}^n \mathbb E\!\left[|X_k - \mu_k|^3\right] \to 0.
+\]</span></p>
+<p>In the Wilcoxon proof above we use <span class="math inline">\(\delta = 2\)</span> (fourth moments) because the bounded Bernoulli terms make fourth moments especially easy to compute.</p>
 
 
 </section>

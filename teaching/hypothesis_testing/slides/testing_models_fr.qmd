@@ -11,6 +11,25 @@ css: ../../../styles.css
 
 # Introduction
 
+## Enseignants
+
+Professeur: Emmanuel Pilliat, Bureau 265
+
+Chargés de TD:
+- BING Candice
+- FERNANDEZ Adrien
+- NJANJOUO  Boris Hermann
+- GRAINDORGE Guillaume
+- ZERRAD Ali
+
+
+## Brève Présentation
+
+- Enseignant-chercheur au CREST en statistique et informatique avec pour thèmes:
+- recherche en crowdsourcing
+- apprentissage actif (théorie des bandits)
+- calcul parallèle sur GPU
+
 ## Organisation
 
 - 15h de cours magistraux, 18h de TD
@@ -20,9 +39,33 @@ css: ../../../styles.css
 
 [Suivant : lois usuelles](usual_distributions_fr.qmd)
 
-## Évaluation
 
-- Un examen final de 2h (QCM et exercice sur papier)
+## Généralités
+
+- Un test, c'est trois étapes simples :
+  - formuler une hypothèse
+  - observer des données
+  - invalider ou conserver cette hypothèse selon ce que les données révèlent
+- C'est exactement la démarche scientifique
+
+---
+
+## Plusieurs domaines d'application
+
+- Les tests sont omniprésents dans toutes les sciences
+- Exemple en informatique : on veut vérifier si $f(x,y)$ calcule bien $x+y$ pour tout $x,y$
+  - on observe $f(2,5) = 7$ — peut-on valider l'hypothèse ?
+  - non ! Une seule observation ne suffit pas, il en faut beaucoup plus
+
+---
+
+## Ce cours
+
+- On s'intéresse aux tests d'un point de vue **statistique**
+- On formule une hypothèse sur la **distribution** des données observées
+  - par exemple : la moyenne vaut $5$, ou la variance vaut $12$
+- On cherche à déterminer si cette hypothèse peut être **invalidée** par les données
+- La particularité des statistiques : les données sont aléatoires et l'erreur est quantifiée en **probabilité**
 
 ## Objectif
 
@@ -32,6 +75,8 @@ css: ../../../styles.css
 2. Choisir une statistique adaptée au problème
 3. Calculer cette statistique et sa p-valeur (ou une approximation)
 4. Conclure et prendre une décision
+
+
 
 ## Principes Généraux
 
@@ -65,6 +110,8 @@ en supposant que $H_0$ est vraie
      d'observer une baisse aussi importante par le seul hasard »
 
 . . .
+
+Intuitivement, pour un test déterministe comme 2+5 == 7, la p-valeur vaut 0 si ce test échoue.
 
 ## Règle de Décision
 
@@ -988,16 +1035,15 @@ $$
 :::
 
 
-## Exemple 1 : Test z à un échantillon
+## Exemple 1 : Test Gaussien à un échantillon
 
 . . .
 
 $X_1, \dots, X_n \overset{\text{iid}}{\sim} \mathcal N(\mu, \sigma_0)$ avec $\sigma_0$ connue. Test $H_0: \mu = 0$ vs $H_1: \mu \neq 0$.
 
-::: {.fragment}
 La statistique pivotale est
 $$ \psi(X) = \frac{\sqrt{n}\,\overline{X}}{\sigma_0} \sim \mathcal N(0,1) \quad \text{sous } H_0 \; .$$
-:::
+
 
 ## Exemple Numérique
 
@@ -1018,13 +1064,13 @@ Puisque $p_{value} = 0.0244 \leq \alpha = 0.05$, on **rejette** $H_0$.
 
 $X_1, \dots, X_n \overset{\text{iid}}{\sim} \mathcal N(\mu, \sigma)$ avec $\sigma$ **inconnue**. Test $H_0: \mu = 0$ vs $H_1: \mu > 0$.
 
-::: {.fragment}
+
 On utilise la statistique de test suivante :
 $$ \psi(X) = \frac{\sqrt{n}\,\overline{X}}{S} \sim t_{n-1} \quad \text{sous } H_0$$
 où $S^2 = \frac{1}{n-1}\sum_{i=1}^n (X_i - \overline{X})^2$. Le paramètre $\sigma$ se simplifie (comme dans la diapositive précédente), donc $\psi$ est pivotale sur $\Theta_0 = \{(\mu, \sigma): \mu = 0,\, \sigma > 0\}$.
-:::
 
-::: {.fragment}
+##
+
 **Exemple numérique :** $n=10$, $\overline{x}_{\mathrm{obs}} = 1.5$, $s = 2.1$.
 
 $$\psi(x_{\mathrm{obs}}) = \frac{\sqrt{10} \times 1.5}{2.1} = 2.26$$
@@ -1032,7 +1078,6 @@ $$\psi(x_{\mathrm{obs}}) = \frac{\sqrt{10} \times 1.5}{2.1} = 2.26$$
 P-valeur unilatérale droite : $p_{value} = \mathbb P(T_9 \geq 2.26) = 0.025$.
 
 Puisque $p_{value} = 0.025 \leq \alpha = 0.05$, on **rejette** $H_0$.
-:::
 
 
 ## Propriété de la p-valeur

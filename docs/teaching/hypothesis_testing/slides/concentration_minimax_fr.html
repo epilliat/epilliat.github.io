@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.22">
+
+  <title>Emmanuel Pilliat – Tests multiples et vitesses de détection</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+  </style>
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/theme/quarto-8861debc0ea4df1cd525e94b7712d9b7.css">
+  <link rel="stylesheet" href="../../../styles.css">
+  <link href="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Tests multiples et vitesses de détection</h1>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section id="plan" class="slide level2">
+<h2>Plan</h2>
+<ul>
+<li class="fragment"><strong>Partie I</strong> — Tests multiples
+<ul>
+<li class="fragment">Le problème des comparaisons multiples</li>
+<li class="fragment">Erreur familiale (FWER)</li>
+<li class="fragment">Correction de Bonferroni</li>
+<li class="fragment">Le “prix” du nombre de tests</li>
+</ul></li>
+<li class="fragment"><strong>Partie II</strong> — Introduction au point de vue minimax
+<ul>
+<li class="fragment">Risque d’un test et risque minimax</li>
+<li class="fragment">Cas gaussien : <span class="math inline">\(\mathcal N(0,1)\)</span> contre <span class="math inline">\(\mathcal N(\rho, 1)\)</span></li>
+<li class="fragment">Vitesse optimale de séparation</li>
+</ul></li>
+</ul>
+<p><a href="../../../teaching/hypothesis_testing/slides/dependency_fr.html">précédent</a></p>
+</section>
+<section>
+<section id="partie-i-tests-multiples" class="title-slide slide level1 center">
+<h1>Partie I — Tests multiples</h1>
+
+</section>
+<section id="une-histoire-vraie-presque" class="slide level2">
+<h2>Une histoire vraie (presque)</h2>
+<div class="fragment">
+<p>Un chercheur veut savoir si les <strong>bonbons</strong> causent de l’acné. Il fait un test :</p>
+<blockquote>
+<p><strong>p-valeur = 0.23</strong> → pas significatif.</p>
+</blockquote>
+</div>
+<div class="fragment">
+<p>Il insiste et teste <strong>une par une</strong> 20 couleurs différentes :</p>
+<ul>
+<li class="fragment">rouge : p = 0.52</li>
+<li class="fragment">bleu : p = 0.41</li>
+<li class="fragment">…</li>
+<li class="fragment"><strong>vert : p = 0.04</strong> ✓</li>
+</ul>
+</div>
+<div class="fragment">
+<p>Il publie : <em>« Les bonbons verts causent de l’acné ! »</em></p>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Problème</strong> : ce résultat n’a aucune valeur. En faisant 20 tests sous <span class="math inline">\(H_0\)</span>, trouver au moins une p-valeur <span class="math inline">\(&lt; 0.05\)</span> est <strong>presque certain</strong>.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="quantifions-le-phénomène" class="slide level2">
+<h2>Quantifions le phénomène</h2>
+<div class="fragment">
+<p>Supposons que <strong>toutes</strong> les hypothèses nulles sont vraies et que les <span class="math inline">\(m\)</span> tests sont indépendants. Chaque test rejette à tort avec probabilité <span class="math inline">\(\alpha = 5\%\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Probabilité de rejeter <strong>au moins un</strong> test à tort :</p>
+</div>
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
+<p><span class="math display">\[\mathbb P(\text{au moins un rejet}) = 1 - (1 - \alpha)^m\]</span></p>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: center;"><span class="math inline">\(m\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(1 - (1-0{,}05)^m\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0{,}05\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(5\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0{,}23\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(10\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0{,}40\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(20\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0{,}64\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(100\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0{,}994\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="illustration-simulation" class="slide level2">
+<h2>Illustration : simulation</h2>
+<div class="fragment">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="../images/jellybeans_fwer.svg" style="width:60.0%"></p>
+<figcaption>Simulation : on génère <span class="math inline">\(m\)</span> échantillons de <span class="math inline">\(\mathcal N(0,1)\)</span> ; le nuage de points montre la <span class="math inline">\(p\)</span>-valeur la plus petite parmi les <span class="math inline">\(m\)</span> tests</figcaption>
+</figure>
+</div>
+</div>
+<div class="fragment">
+<p>Plus on fait de tests, plus la plus petite p-valeur observée est artificiellement petite — <strong>même quand aucune hypothèse alternative n’est vraie</strong>.</p>
+</div>
+</section>
+<section id="exemples-réels" class="slide level2">
+<h2>Exemples réels</h2>
+<div class="fragment">
+<ul>
+<li class="fragment"><p><strong>Génomique</strong> : on teste <span class="math inline">\(m \approx 20\,000\)</span> gènes pour voir lesquels sont associés à une maladie</p></li>
+<li class="fragment"><p><strong>A/B testing</strong> : on compare <span class="math inline">\(m\)</span> variantes d’une page web pour décider laquelle maximise les ventes</p></li>
+<li class="fragment"><p><strong>Finance</strong> : on teste <span class="math inline">\(m\)</span> stratégies de trading sur des données historiques (<em>data snooping</em>)</p></li>
+</ul>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>Dans tous ces cas, <span class="math inline">\(m\)</span> est très grand et le <strong>contrôle des faux positifs par test individuel</strong> est totalement insuffisant.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="formalisation" class="slide level2">
+<h2>Formalisation</h2>
+<div class="fragment">
+<p>On dispose de <span class="math inline">\(m\)</span> échantillons indépendants. Pour chaque <span class="math inline">\(j \in \{1, \dots, m\}\)</span> :</p>
+<ul>
+<li class="fragment">on observe <span class="math inline">\(X_1^{(j)}, \dots, X_n^{(j)}\)</span> i.i.d. <span class="math inline">\(\mathcal N(\mu_j, \sigma^2)\)</span></li>
+<li class="fragment">on veut tester</li>
+</ul>
+<div class="square-objective">
+<p><span class="math inline">\(H_0^{(j)}: \mu_j = 0 \quad\)</span> contre <span class="math inline">\(\quad H_1^{(j)}: \mu_j \neq 0\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Chaque test produit une statistique <span class="math inline">\(\overline X^{(j)} = \frac{1}{n}\sum_i X_i^{(j)}\)</span> et une p-valeur <span class="math inline">\(p_j\)</span>.</p>
+</div>
+</section>
+<section id="erreur-familiale-fwer" class="slide level2">
+<h2>Erreur familiale (FWER)</h2>
+<div class="fragment">
+<p>Pour contrôler le risque global, on introduit une nouvelle notion d’erreur.</p>
+</div>
+<div class="fragment">
+<div title="Définition : FWER">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Définition : FWER</strong></p>
+</div>
+<div class="callout-content">
+<p>Le <strong>Family-Wise Error Rate</strong> (erreur familiale) est la probabilité de rejeter <strong>au moins une</strong> hypothèse nulle vraie :</p>
+<p><span class="math display">\[\text{FWER} = \mathbb P\!\left(\text{au moins un rejet à tort}\right)\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Objectif</strong> : construire une procédure qui contrôle FWER <span class="math inline">\(\leq \alpha\)</span> (typiquement <span class="math inline">\(\alpha = 5\%\)</span>), quelles que soient les valeurs vraies <span class="math inline">\(\mu_1, \dots, \mu_m\)</span>.</p>
+</div>
+</section>
+<section id="le-seuil-naïf-ne-marche-pas" class="slide level2">
+<h2>Le seuil “naïf” ne marche pas</h2>
+<div class="fragment">
+<p>Seuil individuel au niveau <span class="math inline">\(\alpha = 5\%\)</span> sur chaque test :</p>
+<ul>
+<li class="fragment"><p>on rejette <span class="math inline">\(H_0^{(j)}\)</span> si <span class="math inline">\(|\overline X^{(j)}| &gt; \dfrac{\sigma}{\sqrt n}\,z_{1-\alpha/2}\)</span></p></li>
+<li class="fragment"><p>chaque test a une erreur de niveau <span class="math inline">\(\leq \alpha\)</span></p></li>
+</ul>
+</div>
+<div class="fragment">
+<p>Mais sous <span class="math inline">\(H_0\)</span> globale, par indépendance :</p>
+<p><span class="math display">\[\text{FWER} = 1 - (1 - \alpha)^m \xrightarrow[m \to \infty]{} 1\]</span></p>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p>Le FWER <strong>explose</strong> avec <span class="math inline">\(m\)</span> si on ne corrige pas le seuil.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="loutil-clé-lunion-bound" class="slide level2">
+<h2>L’outil clé : l’union bound</h2>
+<div class="fragment">
+<div title="Union bound (rappel de proba)">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Union bound (rappel de proba)</strong></p>
+</div>
+<div class="callout-content">
+<p>Pour des événements <span class="math inline">\(A_1, \dots, A_m\)</span> quelconques (pas besoin d’indépendance !) :</p>
+<p><span class="math display">\[\mathbb P\!\left(A_1 \cup A_2 \cup \dots \cup A_m\right) \leq \sum_{j=1}^m \mathbb P(A_j)\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Preuve</strong> : récurrence à partir de <span class="math inline">\(\mathbb P(A \cup B) = \mathbb P(A) + \mathbb P(B) - \mathbb P(A \cap B) \leq \mathbb P(A) + \mathbb P(B)\)</span>.</p>
+</div>
+<div class="fragment">
+<p><strong>Idée</strong> : si on fait en sorte que chaque <span class="math inline">\(\mathbb P(A_j)\)</span> soit petit, alors la somme reste petite — et donc la probabilité de l’union aussi.</p>
+</div>
+</section>
+<section id="correction-de-bonferroni" class="slide level2">
+<h2>Correction de Bonferroni</h2>
+<div class="fragment">
+<p>Appliquons l’union bound à <span class="math inline">\(A_j = \{\)</span> le test <span class="math inline">\(j\)</span> rejette à tort <span class="math inline">\(\}\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Si chaque test individuel est au niveau <span class="math inline">\(\alpha/m\)</span>, alors</p>
+<p><span class="math display">\[\text{FWER} \leq \sum_{j=1}^m \frac{\alpha}{m} = \alpha\]</span></p>
+</div>
+<div class="fragment">
+<div title="Principe de Bonferroni">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Principe de Bonferroni</strong></p>
+</div>
+<div class="callout-content">
+<p>Pour contrôler le FWER au niveau <span class="math inline">\(\alpha\)</span>, on effectue chaque test individuel au niveau <span class="math inline">\(\alpha/m\)</span>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>En termes de p-valeurs</strong> : on rejette <span class="math inline">\(H_0^{(j)}\)</span> si <span class="math inline">\(p_j \leq \alpha/m\)</span>.</p>
+</div>
+</section>
+<section id="traduction-en-termes-de-seuil" class="slide level2">
+<h2>Traduction en termes de seuil</h2>
+<div class="fragment">
+<p>Pour le test de la moyenne gaussienne, le seuil individuel au niveau <span class="math inline">\(\alpha\)</span> est :</p>
+<p><span class="math inline">\(t_\alpha = \dfrac{\sigma}{\sqrt n}\,z_{1 - \alpha/2}\)</span></p>
+</div>
+<div class="fragment">
+<p><strong>Un seul test</strong> (niveau <span class="math inline">\(\alpha\)</span>) : <span class="math inline">\(t_1 = \dfrac{\sigma}{\sqrt n}\,z_{1 - \alpha/2}\)</span></p>
+</div>
+<div class="fragment">
+<p><strong><span class="math inline">\(m\)</span> tests Bonferroni</strong> (niveau individuel <span class="math inline">\(\alpha/m\)</span>) :</p>
+<div class="square-def">
+<p><span class="math inline">\(t_m = \dfrac{\sigma}{\sqrt n}\,z_{1 - \alpha/(2m)}\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Garantie</strong> : FWER <span class="math inline">\(\leq \alpha\)</span>, quel que soit <span class="math inline">\(m\)</span>.</p>
+</div>
+</section>
+<section id="comportement-du-seuil-en-fonction-de-m" class="slide level2">
+<h2>Comportement du seuil en fonction de <span class="math inline">\(m\)</span></h2>
+<div class="fragment">
+<p>Pour <span class="math inline">\(\sigma = 1\)</span>, <span class="math inline">\(n = 100\)</span>, <span class="math inline">\(\alpha = 5\%\)</span> :</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: center;"><span class="math inline">\(m\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(\alpha/(2m)\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(z_{1-\alpha/(2m)}\)</span></th>
+<th style="text-align: center;">Seuil <span class="math inline">\(t_m\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0{,}025\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(1{,}96\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0{,}196\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(10\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0{,}0025\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(2{,}81\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0{,}281\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(100\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(2{,}5 \cdot 10^{-4}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(3{,}48\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0{,}348\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(1\,000\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(2{,}5 \cdot 10^{-5}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(4{,}06\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0{,}406\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(10^6\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(2{,}5 \cdot 10^{-8}\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(5{,}45\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(0{,}545\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="pourquoi-ce-comportement-logarithmique" class="slide level2">
+<h2>Pourquoi ce comportement logarithmique ?</h2>
+<div class="fragment">
+<p>Pour <span class="math inline">\(\alpha\)</span> petit, le quantile gaussien admet l’approximation :</p>
+<p><span class="math inline">\(z_{1 - \alpha} \approx \sqrt{2 \log(1/\alpha)}\)</span></p>
+</div>
+<div class="fragment">
+<p><strong>Intuition</strong> : la queue de <span class="math inline">\(\mathcal N(0,1)\)</span> décroît comme <span class="math inline">\(e^{-t^2/2}\)</span>. Résoudre <span class="math inline">\(\mathbb P(Z &gt; t) = \alpha\)</span> revient à <span class="math inline">\(\log(1/\alpha) \approx t^2/2\)</span>, d’où <span class="math inline">\(t \approx \sqrt{2\log(1/\alpha)}\)</span>.</p>
+</div>
+<div class="fragment">
+<p>En injectant dans le seuil de Bonferroni :</p>
+<div class="square-def">
+<p><span class="math inline">\(t_m \approx \dfrac{\sigma}{\sqrt n}\,\sqrt{2 \log(2m/\alpha)}\)</span></p>
+</div>
+</div>
+</section>
+<section id="la-morphose-du-seuil" class="slide level2">
+<h2>La morphose du seuil</h2>
+<div class="fragment">
+<p>On compare les seuils pour <span class="math inline">\(1\)</span> et <span class="math inline">\(m\)</span> tests :</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: center;">Seuil (approx.)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(1\)</span> test</td>
+<td style="text-align: center;"><span class="math inline">\(\dfrac{\sigma}{\sqrt n}\sqrt{2 \log(2/\alpha)}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(m\)</span> tests</td>
+<td style="text-align: center;"><span class="math inline">\(\dfrac{\sigma}{\sqrt n}\sqrt{2 \log(2m/\alpha)}\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Observation clé</strong></p>
+</div>
+<div class="callout-content">
+<p>Passer de <span class="math inline">\(1\)</span> à <span class="math inline">\(m\)</span> tests revient à remplacer <span class="math inline">\(\log(2/\alpha)\)</span> par <span class="math inline">\(\log(2m/\alpha)\)</span>.</p>
+<p><strong>Le nombre de tests <span class="math inline">\(m\)</span> rentre sous un logarithme, puis sous une racine.</strong></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="illustration-graphique" class="slide level2">
+<h2>Illustration graphique</h2>
+<div class="fragment">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="../images/bonferroni_threshold.svg" style="width:60.0%"></p>
+<figcaption>Seuil corrigé <span class="math inline">\(t_m\)</span> en fonction du nombre de tests <span class="math inline">\(m\)</span>, en échelle log — la croissance en <span class="math inline">\(\sqrt{\log m}\)</span> est très lente</figcaption>
+</figure>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Lecture</strong> : passer de <span class="math inline">\(m = 1\)</span> à <span class="math inline">\(m = 10^6\)</span> tests n’augmente le seuil que d’un facteur <span class="math inline">\(\approx 2{,}8\)</span> — c’est à peine plus exigeant.</p>
+</div>
+</section>
+<section id="résumé" class="slide level2">
+<h2>Résumé</h2>
+<div class="fragment">
+<div title="Correction de Bonferroni">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Correction de Bonferroni</strong></p>
+</div>
+<div class="callout-content">
+<ul>
+<li class="fragment"><strong>Procédure</strong> : rejeter <span class="math inline">\(H_0^{(j)}\)</span> si <span class="math inline">\(p_j \leq \alpha/m\)</span> (ou de façon équivalente, <span class="math inline">\(|\overline X^{(j)}| &gt; (\sigma/\sqrt n)\,z_{1-\alpha/(2m)}\)</span>)</li>
+<li class="fragment"><strong>Garantie</strong> : FWER <span class="math inline">\(\leq \alpha\)</span>, quels que soient <span class="math inline">\(m\)</span>, <span class="math inline">\(n\)</span> et les vraies valeurs <span class="math inline">\(\mu_j\)</span></li>
+<li class="fragment"><strong>Coût</strong> : le seuil augmente en <span class="math inline">\(\sqrt{\log m}\)</span> — très raisonnable</li>
+<li class="fragment"><strong>Preuve</strong> : union bound, une ligne</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="partie-ii-introduction-au-point-de-vue-minimax" class="title-slide slide level1 center">
+<h1>Partie II — Introduction au point de vue minimax</h1>
+
+</section>
+<section id="nouvelle-question" class="slide level2">
+<h2>Nouvelle question</h2>
+<div class="fragment">
+<p>On a construit des tests, on sait calculer des seuils… <strong>mais sont-ils optimaux ?</strong></p>
+</div>
+<div class="fragment">
+<p>Autrement dit : à <span class="math inline">\(n\)</span> fixé, à partir de quelle valeur de <span class="math inline">\(|\mu|\)</span> peut-on <strong>espérer</strong> détecter que <span class="math inline">\(\mu \neq 0\)</span> ?</p>
+</div>
+<div class="fragment">
+<p>Le cadre minimax formalise cette question. Il demande :</p>
+<blockquote>
+<p><strong>Tous tests confondus</strong>, quelle est la plus petite séparation que l’on peut détecter de façon fiable ?</p>
+</blockquote>
+</div>
+</section>
+<section id="cadre-général-hypothèses-composites" class="slide level2">
+<h2>Cadre général : hypothèses composites</h2>
+<div class="fragment">
+<p>On considère un modèle paramétrique <span class="math inline">\((P_\theta)_{\theta \in \Theta}\)</span> et deux sous-ensembles disjoints <span class="math inline">\(\Theta_0, \Theta_1 \subset \Theta\)</span>.</p>
+</div>
+<div class="fragment">
+<div class="square-objective">
+<p><span class="math inline">\(H_0: \theta \in \Theta_0 \quad\)</span> contre <span class="math inline">\(\quad H_1: \theta \in \Theta_1\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Les hypothèses sont <strong>composites</strong> en général : chacune regroupe une famille de lois.</p>
+</div>
+</section>
+<section id="risque-dun-test" class="slide level2">
+<h2>Risque d’un test</h2>
+<div class="fragment">
+<p>Soit <span class="math inline">\(T: \mathcal X \to \{0,1\}\)</span> un test. Comme <span class="math inline">\(H_0\)</span> et <span class="math inline">\(H_1\)</span> sont composites, on prend le <strong>pire des cas</strong> dans chaque hypothèse :</p>
+</div>
+<div class="fragment">
+<div title="Risque du test">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Risque du test</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[R(T) = \underbrace{\sup_{\theta \in \Theta_0} \mathbb P_\theta(T = 1)}_{\text{1ère espèce (pire cas)}} \; + \; \underbrace{\sup_{\theta \in \Theta_1} \mathbb P_\theta(T = 0)}_{\text{2nde espèce (pire cas)}}\]</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Lecture</strong> : <span class="math inline">\(R(T)\)</span> est la performance du test <em>contre l’adversaire le plus défavorable</em> — un <span class="math inline">\(\theta\)</span> sous <span class="math inline">\(H_0\)</span> qui maximise la proba de rejeter à tort, ou un <span class="math inline">\(\theta\)</span> sous <span class="math inline">\(H_1\)</span> qui la rend indétectable.</p>
+</div>
+</section>
+<section id="risque-minimax" class="slide level2">
+<h2>Risque minimax</h2>
+<div class="fragment">
+<div title="Définition : risque minimax">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Définition : risque minimax</strong></p>
+</div>
+<div class="callout-content">
+<p><span class="math display">\[R^* = \inf_{T} R(T)\]</span></p>
+<p>où l’infimum est pris sur <strong>tous les tests possibles</strong>.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>C’est la performance du <strong>meilleur test</strong> contre le <strong>pire paramètre</strong> : <em>min</em> sur les tests, <em>max</em> sur <span class="math inline">\(\theta\)</span> — d’où le nom <strong>minimax</strong>.</p>
+</div>
+<div class="fragment">
+<p><strong>Question centrale</strong> : quand a-t-on <span class="math inline">\(R^*\)</span> petit ? Autrement dit, quand peut-on espérer un test fiable ?</p>
+</div>
+</section></section>
+<section>
+<section id="exemple-le-cas-gaussien" class="title-slide slide level1 center">
+<h1>Exemple : le cas gaussien</h1>
+
+</section>
+<section id="cadre" class="slide level2">
+<h2>Cadre</h2>
+<div class="fragment">
+<p>On se place dans le cas <strong>le plus simple possible</strong> : on observe <strong>une seule</strong> variable <span class="math inline">\(X \sim \mathcal N(\theta, 1)\)</span>, avec <span class="math inline">\(\Theta = \mathbb R\)</span>.</p>
+</div>
+<div class="fragment">
+<div class="square-objective">
+<p><span class="math inline">\(\Theta_0 = \{0\}, \quad \Theta_1 = \{\rho\}\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>Les deux hypothèses sont <strong>simples</strong> (chacune réduite à un point). Les <span class="math inline">\(\sup\)</span> disparaissent :</p>
+<p><span class="math display">\[R(T, \rho) = \mathbb P_{\theta=0}(T = 1) + \mathbb P_{\theta=\rho}(T = 0)\]</span></p>
+</div>
+<div class="fragment">
+<p><strong>Remarque</strong> : observer <span class="math inline">\(n\)</span> variables <span class="math inline">\(X_1, \dots, X_n \sim \mathcal N(\mu, \sigma^2)\)</span> est équivalent à observer <span class="math inline">\(\overline X_n \sim \mathcal N(\mu, \sigma^2/n)\)</span>. L’analyse sur une seule gaussienne couvre donc le cas général — il suffira de lire <span class="math inline">\(\rho\)</span> en unités de <span class="math inline">\(\sigma/\sqrt n\)</span>.</p>
+</div>
+</section>
+<section id="visualisation-des-deux-lois" class="slide level2">
+<h2>Visualisation des deux lois</h2>
+<div class="fragment">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="../images/two_gaussians.svg" style="width:75.0%"></p>
+<figcaption>Densités de <span class="math inline">\(\mathcal N(0,1)\)</span> (bleu) et <span class="math inline">\(\mathcal N(\rho,1)\)</span> (rouge) pour <span class="math inline">\(\rho \in \{0{,}3,\; 1,\; 3\}\)</span></figcaption>
+</figure>
+</div>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment"><span class="math inline">\(\rho = 0{,}3\)</span> : densités presque confondues <span class="math inline">\(\Rightarrow\)</span> test impossible</li>
+<li class="fragment"><span class="math inline">\(\rho = 1\)</span> : zone de transition</li>
+<li class="fragment"><span class="math inline">\(\rho = 3\)</span> : densités bien séparées <span class="math inline">\(\Rightarrow\)</span> test facile</li>
+</ul>
+</div>
+</section>
+<section id="borne-supérieure-un-test-explicite" class="slide level2">
+<h2>Borne supérieure : un test explicite</h2>
+<div class="fragment">
+<p>Considérons le test “naturel” :</p>
+<p><span class="math display">\[T(X) = \mathbf 1\{X &gt; \rho/2\}\]</span></p>
+</div>
+<div class="fragment">
+<p><strong>Erreur de 1ère espèce</strong> (sous <span class="math inline">\(\theta = 0\)</span>) :</p>
+<p><span class="math inline">\(\mathbb P_{\theta = 0}(X &gt; \rho/2) = 1 - \Phi(\rho/2)\)</span></p>
+</div>
+<div class="fragment">
+<p><strong>Erreur de 2nde espèce</strong> (sous <span class="math inline">\(\theta = \rho\)</span>) : par symétrie,</p>
+<p><span class="math inline">\(\mathbb P_{\theta = \rho}(X \leq \rho/2) = \mathbb P(X - \rho \leq -\rho/2) = 1 - \Phi(\rho/2)\)</span></p>
+</div>
+<div class="fragment">
+<p><strong>Conclusion</strong> :</p>
+<div class="square-def">
+<p><span class="math inline">\(R^*(\rho) \leq R(T, \rho) = 2\,(1 - \Phi(\rho/2))\)</span></p>
+</div>
+</div>
+</section>
+<section id="interprétation" class="slide level2">
+<h2>Interprétation</h2>
+<div class="fragment">
+<p>La fonction <span class="math inline">\(1 - \Phi(\rho/2)\)</span> décroît très vite :</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: center;"><span class="math inline">\(\rho\)</span></th>
+<th style="text-align: center;"><span class="math inline">\(R(T, \rho)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(0{,}5\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\approx 1{,}60\)</span> (trivial)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(1\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\approx 1{,}22\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(2\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\approx 0{,}62\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(3\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\approx 0{,}27\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;"><span class="math inline">\(4\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\approx 0{,}046\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: center;"><span class="math inline">\(6\)</span></td>
+<td style="text-align: center;"><span class="math inline">\(\approx 0{,}0027\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="traduction-pour-n-observations" class="slide level2">
+<h2>Traduction pour <span class="math inline">\(n\)</span> observations</h2>
+<div class="fragment">
+<p>En lisant <span class="math inline">\(\rho\)</span> comme <span class="math inline">\(\sqrt n\,\mu/\sigma\)</span> (passage d’une seule gaussienne à la moyenne de <span class="math inline">\(n\)</span> observations) :</p>
+</div>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Le test de la moyenne peut détecter un signal <span class="math inline">\(\mu \neq 0\)</span> dès que</p>
+<p><span class="math display">\[|\mu| \gtrsim \dfrac{\sigma}{\sqrt n}\]</span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Est-ce optimal ?</strong> Peut-on faire mieux avec un autre test ?</p>
+</div>
+</section>
+<section id="borne-inférieure" class="slide level2">
+<h2>Borne inférieure</h2>
+<div class="fragment">
+<p>Notons <span class="math inline">\(f_0, f_1\)</span> les densités de <span class="math inline">\(\mathcal N(0,1)\)</span> et <span class="math inline">\(\mathcal N(\rho, 1)\)</span>. Pour tout test <span class="math inline">\(T\)</span> :</p>
+<p><span class="math display">\[R(T, \rho) = \int T\,f_0 + \int (1 - T)\,f_1 \;\geq\; \int \min(f_0, f_1)\,dx\]</span></p>
+</div>
+<div class="fragment">
+<div class="square-def">
+<p><span class="math display">\[R^*(\rho) \geq \int \min(f_0, f_1)\,dx\]</span></p>
+</div>
+</div>
+<div class="fragment">
+<p>C’est l’<strong>aire sous le minimum des deux densités</strong> — l’aire de recouvrement.</p>
+</div>
+</section>
+<section id="calcul-de-laire-de-recouvrement" class="slide level2">
+<h2>Calcul de l’aire de recouvrement</h2>
+<div class="fragment">
+<p><img data-src="../images/two_gaussians_overlap.svg" style="width:55.0%"></p>
+</div>
+<div class="fragment">
+<p>Par symétrie autour de <span class="math inline">\(\rho/2\)</span> :</p>
+<p><span class="math inline">\(R^*(\rho) = 2\,\mathbb P_{\theta = 0}(X \geq \rho/2) = 2\bigl(1 - \Phi(\rho/2)\bigr)\)</span></p>
+</div>
+<div class="fragment">
+<p>C’est <strong>exactement</strong> le risque atteint par le test <span class="math inline">\(T^*(X) = \mathbf 1\{X \geq \rho/2\}\)</span> — il est donc <strong>optimal</strong>.</p>
+</div>
+</section>
+<section id="vitesse-de-séparation-minimax" class="slide level2">
+<h2>Vitesse de séparation minimax</h2>
+<div class="fragment">
+<p>On a obtenu <strong>la valeur exacte</strong> du risque minimax :</p>
+<div class="square-def">
+<p>Pour le test de <span class="math inline">\(\mathcal N(0,1)\)</span> contre <span class="math inline">\(\mathcal N(\rho, 1)\)</span> : <span class="math display">\[R^*(\rho) = 2\bigl(1 - \Phi(\rho/2)\bigr)\]</span></p>
+<p>et donc <span class="math inline">\(\rho^*_{\min} \asymp 1\)</span>.</p>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Traduction</strong> pour <span class="math inline">\(X_1, \dots, X_n\)</span> i.i.d. <span class="math inline">\(\mathcal N(\mu, \sigma^2)\)</span> :</p>
+<p><span class="math display">\[|\mu|^*_{\min} \asymp \dfrac{\sigma}{\sqrt n}\]</span></p>
+</div>
+<div class="fragment">
+<p>C’est <strong>exactement</strong> la vitesse donnée par le TCL… mais ici on a en plus la garantie qu’<strong>aucun test ne peut faire mieux</strong>. Le <span class="math inline">\(1/\sqrt n\)</span> est intrinsèque au problème.</p>
+</div>
+</section>
+<section id="conclusion-du-chapitre" class="slide level2">
+<h2>Conclusion du chapitre</h2>
+<div class="fragment">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Les deux messages</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Partie I — Tests multiples</strong> : passer de <span class="math inline">\(1\)</span> à <span class="math inline">\(m\)</span> tests ne coûte qu’un facteur <span class="math inline">\(\sqrt{\log m}\)</span> dans le seuil. Bonferroni (via l’union bound) est simple et efficace.</p>
+<p><strong>Partie II — Minimax</strong> : le seuil de détection en <span class="math inline">\(\sigma/\sqrt n\)</span> d’un test de moyenne n’est pas arbitraire. C’est la <strong>vitesse optimale</strong> : aucun test ne peut détecter un signal plus petit.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>Les seuils que vous avez appris dans ce cours ne sont pas des choix techniques arbitraires — ce sont les <strong>bonnes vitesses</strong>.</p>
+<p><a href="../../../teaching/hypothesis_testing/slides/dependency_fr.html">précédent</a></p>
+
+
+</div>
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

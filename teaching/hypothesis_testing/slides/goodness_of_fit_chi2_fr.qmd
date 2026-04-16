@@ -195,14 +195,11 @@ $$\psi(X) \xrightarrow{d} \chi^2(m-1)$$
 
 . . .
 
-$X \sim \text{Mult}(n, p)$ a pour espérance $np$ et pour covariance $n\Sigma$ où $\Sigma = \text{diag}(p) - pp^\top$. 
+$X \sim \text{Mult}(n, p)$ s'écrit $X= \sum_{i=1}^n \xi_i$ où les $\xi \in \mathbb \{0,1\}^k$ sont iid d'espérance $p$ de matrice de covariance $\Sigma$
 
 . . .
 
-
-En effet :
-$$\Sigma_{ij} = \text{Cov}(X_i, X_j) = \begin{cases} np_i(1-p_i) & i = j \\ -np_ip_j & i \neq j \end{cases}$$
-ce qui donne $\Sigma = n(\text{diag}(p) - pp^\top)$.
+$$\Sigma_{ij} = \text{Cov}(\xi_{1i}, \xi_{1j}) = \begin{cases} p_i(1-p_i) & i = j \\ -p_ip_j & i \neq j \end{cases}$$
 
 Par le TCL multivarié :
 $$\frac{X - np}{\sqrt{n}} \xrightarrow{d} \mathcal{N}(0, \Sigma)$$
@@ -216,6 +213,17 @@ Posons $Z = \text{diag}(p)^{-1/2}(X - np)/\sqrt{n}$, de sorte que $\psi(X) = \|Z
 . . .
 
 $$Z \xrightarrow{d} \mathcal{N}(0,\, P), \quad P = I - \sqrt{p}\sqrt{p}^\top$$
+
+. . .
+
+En effet, la covariance de $Z$ est $\text{diag}(p)^{-1/2}\,\Sigma\,\text{diag}(p)^{-1/2}$, dont le coefficient $(i,j)$ vaut
+$$\frac{\Sigma_{ij}}{\sqrt{p_i}\sqrt{p_j}} = \frac{p_i\,\delta_{ij} - p_i p_j}{\sqrt{p_i}\sqrt{p_j}} = \delta_{ij} - \sqrt{p_i}\sqrt{p_j},$$
+ce qui est exactement le coefficient $(i,j)$ de $I - \sqrt{p}\sqrt{p}^\top$.
+
+##
+
+. . .
+
 Comme $P$ est une projection orthogonale de rang $m-1$, $\mathcal{N}(0, P) \stackrel{d}{=} PG$ avec $G \sim \mathcal{N}(0, I)$, donc :
 $$\psi(X) = \|Z\|^2 \xrightarrow{d} \|PG\|^2 \sim \chi^2(m-1)$$
 
@@ -363,7 +371,7 @@ Supposons que $(X_1, \dots, X_n)$ sont iid de distribution $P$, et que $a$, $b$,
 
 L'histogramme $\mathrm{hist}(a,b,m)$ converge vers l'histogramme de la densité $P$
 
-## Convergence de l'histogramme (Preuve)
+## Convergence de l'histogramme
 
 . . .
 
@@ -551,7 +559,77 @@ X = [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 4, 3, 0, 1, 1, 2, 3, 0, 1, 0, 0, 2, 1, 0, 1, 
 ::: 
 
 [[Wooclap](https://app.wooclap.com/events/RQSUIA/questions/67cf06270ea10e736b0e07fe)]
-  
+
+
+## Exemple : adéquation à une loi gaussienne
+
+. . .
+
+On observe $n=200$ tailles (en cm). On teste si elles suivent une loi $\mathcal N(\mu, \sigma^2)$ avec $\mu$ et $\sigma^2$ **inconnus** ($\ell = 2$ paramètres).
+
+. . .
+
+Données simulées sous $H_0$ :
+
+```r
+set.seed(42)
+X <- rnorm(200, mean=170, sd=8)
+```
+
+. . .
+
+Estimation par MLE :
+
+$$\hat\mu = \bar X \approx 169{,}78, \qquad \hat\sigma \approx 7{,}80$$
+
+## Regroupement en classes
+
+. . .
+
+On choisit $m=8$ classes **équiprobables** sous $\mathcal N(\hat\mu, \hat\sigma^2)$ : chaque $\hat p_j = 1/8$, donc $n\hat p_j = 25 \geq 5$ pour tout $j$ .
+
+. . .
+
+Bornes : $\hat\mu + \hat\sigma\,\Phi^{-1}(j/8)$ pour $j=1,\dots,7$.
+
+```r
+m <- 8
+breaks <- qnorm((0:m)/m, mean=mean(X), sd=sd(X))
+breaks[1] <- -Inf; breaks[m+1] <- Inf
+O <- as.vector(table(cut(X, breaks)))
+```
+
+. . .
+
+:::{style="font-size: 75%;"}
+| Classe | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+|---|---|---|---|---|---|---|---|---|
+| Observé $O_j$ | 24 | 23 | 28 | 24 | 27 | 23 | 24 | 27 |
+| Attendu $n\hat p_j$ | 25 | 25 | 25 | 25 | 25 | 25 | 25 | 25 |
+:::
+
+## Calcul et conclusion
+
+. . .
+
+$$\psi(X) = \sum_{j=1}^{8} \frac{(O_j - 25)^2}{25} \approx 1{,}12$$
+
+. . .
+
+Degrés de liberté : $m - 1 - \ell = 8 - 1 - 2 = 5$
+
+. . .
+
+```r
+1 - pchisq(1.12, df = 5)  # p-valeur ≈ 0,95
+```
+
+. . .
+
+::: {.callout-note}
+$p_{\text{valeur}} \gg 0{,}05$ : on ne rejette pas $H_0$. Les données sont compatibles avec une loi gaussienne (ce qui est attendu puisqu'elles ont été simulées sous $H_0$).
+:::
+
 
 ## Comparaison avec les QQ-plots
 
@@ -632,6 +710,220 @@ On note $X_{(1)} \leq \dots \leq X_{(n)}$ les données ordonnées
 - Approximation : $\mathbb P_0(\psi(X) >c/\sqrt{n}) \to 2\sum_{r=1}^{+\infty}(-1)^{r-1}\exp(-2c^2r^2)$ quand $n \to +\infty$
 - En pratique, utiliser Julia, Python ou R pour les tests KS
 ::::
+
+## Exemple : temps d'attente à un guichet
+
+. . .
+
+On observe $n=50$ temps d'attente (en minutes). On se demande s'ils suivent une loi exponentielle de moyenne $3$ minutes.
+
+. . .
+
+::: {.square-objective}
+$H_0 : F = F_{\mathcal E(1/3)}$ contre $H_1 : F \neq F_{\mathcal E(1/3)}$
+:::
+
+. . .
+
+Données simulées sous $H_0$ :
+
+```r
+set.seed(42)
+X <- rexp(50, rate = 1/3)
+```
+
+## Exemple : conclusion
+
+. . .
+
+Calcul du test via R :
+
+```r
+ks.test(X, "pexp", rate = 1/3)
+```
+
+. . .
+
+- Statistique observée : $\psi(X) \approx 0{,}084$
+- $p_{\text{valeur}} \approx 0{,}84$
+
+. . .
+
+::: {.callout-note}
+$p_{\text{valeur}} > 0{,}05$ : on **ne rejette pas** $H_0$. Les données sont compatibles avec une loi exponentielle de moyenne $3$.
+:::
+
+# Test de Shapiro-Wilk
+
+## Motivation
+
+. . .
+
+Beaucoup de tests classiques (Student, ANOVA, régression linéaire...) reposent sur l'hypothèse de **normalité des données**. Avant de les appliquer, il est naturel de vouloir la **vérifier**.
+
+. . .
+
+On a déjà vu plusieurs outils pour ça : $\chi^2$ d'adéquation, Kolmogorov-Smirnov, QQ-plots. Le **test de Shapiro-Wilk** (1965) est le test **dédié** à la normalité, et c'est le plus puissant en pratique à petit échantillon.
+
+## Cadre
+
+. . .
+
+On observe $n$ variables aléatoires $X_1, \dots, X_n$ i.i.d. de loi $P$ **inconnue**.
+
+. . .
+
+On suppose que $P$ est une loi **continue** (pas de masses de Dirac).
+
+. . .
+
+On veut tester :
+
+::: {.square-objective}
+$H_0: P = \mathcal N(\mu, \sigma^2)$ pour un certain $(\mu, \sigma^2)$
+contre
+$H_1: P \neq \mathcal N(\mu, \sigma^2)$ pour tout $(\mu, \sigma^2)$
+:::
+
+. . .
+
+::: {.callout-warning}
+Les paramètres $\mu$ et $\sigma^2$ sont **inconnus** : on ne teste pas « les données suivent $\mathcal N(170, 64)$ » mais « les données suivent *une* loi gaussienne, peu importe laquelle ».
+:::
+
+## Statistique de Shapiro-Wilk
+
+. . .
+
+Soient $X_{(1)} \leq X_{(2)} \leq \dots \leq X_{(n)}$ les statistiques d'ordre (données triées).
+
+. . .
+
+::: {.square-def}
+$$W = \dfrac{\left(\sum_{i=1}^n a_i\,X_{(i)}\right)^2}{\sum_{i=1}^n (X_i - \overline X)^2}$$
+:::
+
+. . .
+
+Les coefficients $a_i$ sont **tabulés** : ils dépendent de $n$ et proviennent de la covariance des statistiques d'ordre d'une gaussienne standard.
+
+[Note détaillée : construction, preuves et loi sous $H_0$](../notes/shapiro_fr.html)
+
+##
+
+::: {.callout-warning}
+Pour $\chi^2$ ou Kolmogorov-Smirnov, on disposait au moins d'une **loi asymptotique** explicite ($\chi^2(k-1)$, loi de Kolmogorov). Pour $W$, **ni la loi exacte, ni la loi asymptotique ne sont connues sous forme close**. Les p-valeurs s'obtiennent par :
+
+- des **tables** (Shapiro-Wilk, 1965) pour $n \leq 50$
+- une **approximation gaussienne** après transformation (Royston, 1992) pour $n$ plus grand
+- ou par **simulation Monte-Carlo** directe
+:::
+
+## Intuition
+
+. . .
+
+Le numérateur $\left(\sum_i a_i X_{(i)}\right)^2$ est une estimation de $\sigma^2$ **fondée sur les statistiques d'ordre** — elle utilise les espacements entre quantiles empiriques.
+
+. . .
+
+Le dénominateur $\sum_i (X_i - \bar X)^2 = (n-1)\hat\sigma^2$ est l'estimation classique de $\sigma^2$.
+
+. . .
+
+::: {.callout-note}
+- **Sous $H_0$** (gaussien) : les deux estimateurs coïncident (à une constante près), donc $W \approx 1$
+- **Sous $H_1$** (non-gaussien) : les deux divergent, et $W$ s'éloigne de $1$ vers $0$
+:::
+
+. . .
+
+**Règle de décision** : on rejette $H_0$ quand $W$ est **trop petit**.
+
+## Lien avec les QQ-plots
+
+. . .
+
+Si on trace les $X_{(i)}$ contre les $m_i = \mathbb E[Z_{(i)}]$ (espérances des statistiques d'ordre d'une $\mathcal N(0,1)$), on obtient le **QQ-plot gaussien**.
+
+. . .
+
+Le **$R^2$** de la régression linéaire de ce QQ-plot vaut
+$$
+R^2 = \dfrac{\left(\sum_i m_i\,X_{(i)}\right)^2}{\sum_i m_i^2\,\cdot\,\sum_i (X_{(i)} - \overline X)^2}
+$$
+
+. . .
+
+C'est **très proche** de $W$, mais pas tout à fait identique.
+
+## Variante : test de Shapiro-Francia
+
+. . .
+
+En remplaçant $a_i$ par $m_i/\sqrt{\sum_j m_j^2}$ dans la formule de $W$, on obtient le **test de Shapiro-Francia** (1972) :
+
+::: {.square-def}
+$$W' = \dfrac{\left(\sum_i m_i\,X_{(i)}\right)^2}{\sum_i m_i^2\,\cdot\,\sum_i (X_{(i)} - \overline X)^2}$$
+:::
+
+. . .
+
+**C'est exactement** le $R^2$ de la régression linéaire du QQ-plot gaussien.
+
+## 
+
+::: {.callout-note}
+- **Shapiro-Wilk** ($W$) : utilise $a \propto V^{-1}m$, légèrement plus puissant à petit $n$
+- **Shapiro-Francia** ($W'$) : utilise $m$ directement, plus simple et asymptotiquement équivalent
+:::
+
+. . .
+
+**Interprétation visuelle commune** : plus les points du QQ-plot s'alignent sur une droite, plus la statistique est proche de $1$. Rejeter $H_0$ revient à dire que les points **s'écartent trop** d'une droite.
+
+## Exemple numérique
+
+. . .
+
+Avec R : `shapiro.test(x)` renvoie directement la statistique $W$ et la p-valeur.
+
+. . .
+
+```
+> shapiro.test(rnorm(30))
+
+    Shapiro-Wilk normality test
+
+data:  rnorm(30)
+W = 0.9753, p-value = 0.6912
+```
+
+. . .
+
+$p > 0{,}05$ : on **ne rejette pas** $H_0$. Les données sont compatibles avec une loi gaussienne. Cohérent, on les a simulées ainsi !
+
+## Forces et limites
+
+. . .
+
+::: {.callout-note title="Avantages"}
+- **Plus puissant** que $\chi^2$ ou KS pour tester spécifiquement la normalité
+- Particulièrement efficace à **petit échantillon** ($n \leq 50$)
+- Facile à utiliser en pratique (une seule fonction dans R/Python)
+:::
+
+. . .
+
+::: {.callout-warning title="Limites"}
+- **Trop sensible** en grand échantillon : pour $n = 10\,000$, Shapiro rejette la normalité pour des écarts minuscules, sans importance pratique
+- Spécifique à la loi gaussienne — pas adapté aux autres familles de lois
+- Les coefficients $a_i$ sont tabulés et moins transparents que la statistique $\chi^2$
+:::
+
+##
+
+**En pratique** : utiliser Shapiro-Wilk pour valider la normalité **avant** un test de Student ou une ANOVA à petit échantillon. Pour $n$ grand, préférer une inspection visuelle (QQ-plot) complétée par Shapiro avec prudence.
 
 ##
 

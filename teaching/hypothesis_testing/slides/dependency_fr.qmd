@@ -135,6 +135,8 @@ $$\psi(X,Y) = \frac{\hat \rho}{\sqrt{1-\hat \rho^2}}\sqrt{n-2}$$
 
 Sous $H_0$, si les données sont gaussiennes : $\psi(X,Y) \approx \mathcal{T}(n-2)$
 
+[Motivation et preuve](../notes/pearson_student_fr.html)
+
 ##
 
 ![](../images/correlated_X_Y.svg)
@@ -321,9 +323,9 @@ $\overline Y = \frac{1}{N}\sum_{k=1}^n Y_k = \frac{1}{N}\sum_{i=1}^I\sum N_i \ov
 
 :::{style="font-size: 70%;"}
 ::: {.square-def}
-$$\frac{1}{n}\underbrace{\sum_{k=1}^n(Y_k - \overline Y)^2}_{SCT} = 
-\frac{1}{n}\underbrace{\sum_{i=1}^IN_i(\overline Y_i - \overline Y)^2}_{SCB} 
-+ \frac{1}{n}\underbrace{\sum_{k=1}^n\mathbf 1\{X_k=i\}(Y_k - \overline Y_i)^2}_{SCW}$$
+$$\frac{1}{n}\underbrace{\sum_{k=1}^n(Y_k - \overline Y)^2}_{S_{\text{tot}}} = 
+\frac{1}{n}\underbrace{\sum_{i=1}^IN_i(\overline Y_i - \overline Y)^2}_{S_{\text{inter}}} 
++ \frac{1}{n}\underbrace{\sum_{k=1}^n\mathbf 1\{X_k=i\}(Y_k - \overline Y_i)^2}_{S_{\text{intra}}}$$
 :::
 :::
 
@@ -332,7 +334,7 @@ $$\frac{1}{n}\underbrace{\sum_{k=1}^n(Y_k - \overline Y)^2}_{SCT} =
 **Rapport de corrélation :**
 
 ::: {.square-def}
-$$ \hat \eta^2 = \frac{SCB}{SCT}  \in [0,1]$$
+$$ \hat \eta^2 = \frac{S_{\text{inter}}}{S_{\text{tot}}}  \in [0,1]$$
 :::
 
 . . .
@@ -353,11 +355,11 @@ C'est un estimateur de $\eta = \frac{\mathbb V(\mathbb E[Y|X])}{\mathbb V(Y)}$ *
 
 Sous $H_0$, en supposant $\varepsilon_k \overset{iid}{\sim} \mathcal{N}(0,\sigma^2)$ :
 
-$$\frac{SCB}{\sigma^2} \sim \chi^2(I-1), \qquad \frac{SCW}{\sigma^2} \sim \chi^2(n-I)$$
+$$\frac{S_{\text{inter}}}{\sigma^2} \sim \chi^2(I-1), \qquad \frac{S_{\text{intra}}}{\sigma^2} \sim \chi^2(n-I)$$
 
-et $SCB \perp SCW$. Par conséquent,
+et $S_{\text{inter}} \perp S_{\text{intra}}$. Par conséquent,
 
-$$F = \frac{SCB/(I-1)}{SCW/(n-I)} \sim \mathcal{F}(I-1,\, n-I)$$
+$$F = \frac{S_{\text{inter}}/(I-1)}{S_{\text{intra}}/(n-I)} \sim \mathcal{F}(I-1,\, n-I)$$
 
 [preuve](../notes/anova.qmd)
 
@@ -386,7 +388,7 @@ où $f_{1-\alpha}(I-1, n-I)$ est le quantile $(1-\alpha)$ de $\mathcal{F}(I-1, n
 **Statistique de test**
 
 ::: {.square-def}
-$$\psi(X,Y) = \frac{SCB/(I-1)}{SCW/(N-I)}$$
+$$\psi(X,Y) = \frac{S_{\text{inter}}/(I-1)}{S_{\text{intra}}/(N-I)}$$
 :::
 
 . . .
@@ -771,9 +773,47 @@ $N_1 \hat{p}_1 = 58 \cdot 50/100 = 29$, degrés de liberté $= (2-1)(2-1) = 1$
 $$\int_{-\infty}^m p(x)\,dx = \int_{m}^{+\infty} p(x)\,dx = 0{,}5$$
 
 - Une variable aléatoire $X$ est **symétrique** si $X \overset{d}{=} -X$. En particulier sa médiane est $0$.
-
-- Si $X$ est symétrique : $X \overset{d}{=} \varepsilon |X|$ où $\varepsilon \perp X$ est uniforme sur $\{-1,1\}$.
 :::
+
+## Caractérisation par signe et valeur absolue
+
+. . .
+
+::: {.callout-note title="Proposition"}
+Soit $X$ une variable aléatoire avec $\mathbb P(X = 0) = 0$. Les propriétés suivantes sont **équivalentes** :
+
+1. $X$ est symétrique ($X \overset{d}{=} -X$).
+
+2. $X \overset{d}{=} \varepsilon\,|X|$, où $\varepsilon$ est **uniforme sur $\{-1, +1\}$** et **indépendante** de $|X|$.
+:::
+
+. . .
+
+Autrement dit : une variable symétrique se décompose en un **signe aléatoire équilibré**, indépendant de son **amplitude** $|X|$.
+
+## Idée de preuve ($1 \Rightarrow 2$)
+
+. . .
+
+Il suffit de montrer que $\mathrm{sgn}(X) \perp |X|$ avec $\mathrm{sgn}(X)$ uniforme sur $\{-1, +1\}$. Pour cela, on vérifie que pour tout $t > 0$ :
+
+:::{style="font-size: 70%;"}
+$\mathbb P\bigl(\mathrm{sgn}(X) = +1,\; |X| \geq t\bigr) = \mathbb P\bigl(\mathrm{sgn}(X) = +1\bigr)\,\cdot\,\mathbb P\bigl(|X| \geq t\bigr).$
+:::
+
+. . .
+
+**Membre de gauche.** L'événement $\{\mathrm{sgn}(X) = +1\} \cap \{|X| \geq t\}$ est exactement $\{X \geq t\}$, donc
+$$
+\mathbb P\bigl(\mathrm{sgn}(X) = +1,\; |X| \geq t\bigr) = \mathbb P(X \geq t).
+$$
+
+##
+
+**Par symétrie**, $\mathbb P(X \geq t) = \mathbb P(-X \geq t) = \mathbb P(X \leq -t)$, donc
+$$
+\mathbb P(X \geq t) = \dfrac{\mathbb P(X \geq t) + \mathbb P(X \leq -t)}{2} = \dfrac{\mathbb P(|X| \geq t)}{2}.
+$$
 
 ## Symétrisation
 
@@ -962,3 +1002,34 @@ $p_{\text{valeur}} = \mathbb{P}(W_- \leq 3) \approx 0{,}039 < 0{,}05$
 . . .
 
 On rejette $H_0$ au niveau $5\%$ : le médicament semble abaisser la pression artérielle.
+
+## Correction pour les ex-aequo
+
+. . .
+
+La construction du test suppose que les $|D_i|$ sont **tous distincts**, de sorte que les rangs $1, 2, \dots, n$ sont bien définis. Dans la pratique, il arrive que plusieurs $|D_i|$ soient égaux (arrondis, données discrètes, ...).
+
+. . .
+
+**Traitement usuel** : à chaque groupe d'ex-aequo, on attribue la **moyenne** de leurs rangs (*midranks*). Par exemple, si $|D_3|$ et $|D_5|$ sont tous deux à la 4ème position dans le tri, ils reçoivent tous les deux le rang $(4 + 5)/2 = 4{,}5$.
+
+##
+
+**Conséquence sur la loi** : la variance de $W_-$ est **réduite** par rapport au cas sans ex-aequo. La formule corrigée est
+
+$$
+\mathrm{Var}(W_-) = \dfrac{n(n+1)(2n+1)}{24} - \dfrac{1}{48}\sum_{k} (t_k^3 - t_k)
+$$
+
+où $t_k$ est la taille du $k$-ième groupe d'ex-aequo.
+
+##
+
+::: {.callout-note}
+En R : `wilcox.test(x, y, paired=TRUE)` applique automatiquement la correction. Un message d'avertissement apparaît quand des ex-aequo sont détectés (« *cannot compute exact p-value with ties* »), et le logiciel bascule sur l'approximation gaussienne avec variance corrigée.
+:::
+
+##
+
+[précédent](goodness_of_fit_chi2_fr.qmd)
+[suivant : tests multiples et vitesses de détection](multiple_minimax_fr.qmd)

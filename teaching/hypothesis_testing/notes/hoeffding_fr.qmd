@@ -1,0 +1,216 @@
+---
+title: "Lemme et inégalité de Hoeffding"
+subtitle: "Preuve complète pour les variables bornées et sous-gaussiennes"
+format:
+  html:
+    self-contained: true
+    toc: true
+    theme: cosmo
+    html-math-method: mathjax
+---
+
+## Cadre et rappels
+
+On rappelle qu'une variable aléatoire $X$ de moyenne $\mu$ est dite **$\sigma^2$-sous-gaussienne** si, pour tout $\lambda \in \mathbb R$,
+
+$$
+\mathbb E\!\left[e^{\lambda (X - \mu)}\right] \leq e^{\lambda^2 \sigma^2 / 2}.
+$$
+
+Autrement dit, la fonction génératrice des moments de $X - \mu$ est dominée par celle d'une gaussienne $\mathcal N(0, \sigma^2)$.
+
+L'objectif de cette note est double :
+
+1. Montrer que toute variable **bornée** $X \in [a, b]$ est sous-gaussienne de paramètre $(b-a)^2/4$ (**lemme de Hoeffding**).
+2. En déduire, via la méthode de Chernoff, l'**inégalité de Hoeffding** pour la moyenne empirique.
+
+## Lemme de Hoeffding
+
+::: {.callout-note title="Lemme de Hoeffding"}
+Soit $X$ une variable aléatoire telle que $X \in [a, b]$ presque sûrement et $\mathbb E[X] = 0$. Alors, pour tout $\lambda \in \mathbb R$ :
+
+$$
+\mathbb E\!\left[e^{\lambda X}\right] \leq e^{\lambda^2 (b - a)^2 / 8}.
+$$
+
+Autrement dit, $X$ est $\dfrac{(b-a)^2}{4}$-sous-gaussienne.
+:::
+
+### Étape 1 — Majoration par convexité
+
+La fonction $x \mapsto e^{\lambda x}$ est convexe. Pour tout $x \in [a, b]$, on peut donc écrire $x$ comme combinaison convexe des extrémités :
+
+$$
+x = \frac{b - x}{b - a}\,a + \frac{x - a}{b - a}\,b,
+$$
+
+et par convexité :
+
+$$
+e^{\lambda x} \leq \frac{b - x}{b - a}\,e^{\lambda a} + \frac{x - a}{b - a}\,e^{\lambda b}.
+$$
+
+En prenant l'espérance et en utilisant $\mathbb E[X] = 0$ :
+
+$$
+\mathbb E[e^{\lambda X}] \leq \frac{b}{b - a}\,e^{\lambda a} - \frac{a}{b - a}\,e^{\lambda b}.
+$$
+
+### Étape 2 — Changement de variables
+
+Puisque $\mathbb E[X] = 0$ et $X \in [a, b]$, on a nécessairement $a \leq 0 \leq b$. Posons :
+
+$$
+p = \frac{-a}{b - a} \in [0, 1], \qquad u = \lambda(b - a).
+$$
+
+On vérifie alors que $\dfrac{b}{b-a} = 1 - p$ et $\lambda a = -p u$, donc :
+
+$$
+\frac{b}{b-a}\,e^{\lambda a} - \frac{a}{b-a}\,e^{\lambda b} = (1-p)\,e^{-pu} + p\,e^{(1-p)u} = e^{-pu}\!\left[(1 - p) + p\,e^{u}\right].
+$$
+
+On souhaite montrer que cette quantité est majorée par $e^{u^2/8}$. Il est équivalent d'obtenir, en passant au logarithme :
+
+$$
+\varphi(u) := -p u + \log\!\left[(1 - p) + p\,e^{u}\right] \leq \frac{u^2}{8}, \qquad \forall u \in \mathbb R.
+$$
+
+### Étape 3 — Étude de la fonction $\varphi$
+
+**Valeur en $0$ :** $\varphi(0) = 0 + \log(1) = 0$.
+
+**Dérivée première.** On calcule :
+
+$$
+\varphi'(u) = -p + \frac{p\,e^{u}}{(1 - p) + p\,e^{u}}.
+$$
+
+En particulier, $\varphi'(0) = -p + p = 0$.
+
+**Dérivée seconde.** Posons
+
+$$
+q(u) = \frac{p\,e^{u}}{(1 - p) + p\,e^{u}}.
+$$
+
+On observe que $q(u) \in [0, 1]$ pour tout $u \in \mathbb R$ (c'est la fonction logistique). Un calcul direct donne :
+
+$$
+q'(u) = \frac{p\,e^{u}\bigl[(1-p) + p\,e^u\bigr] - p\,e^u \cdot p\,e^u}{\bigl[(1-p) + p\,e^u\bigr]^2} = \frac{p(1-p)\,e^u}{\bigl[(1-p) + p\,e^u\bigr]^2} = q(u)\bigl(1 - q(u)\bigr).
+$$
+
+Et donc :
+
+$$
+\varphi''(u) = q'(u) = q(u)\bigl(1 - q(u)\bigr).
+$$
+
+**Majoration uniforme.** Pour tout $x \in [0, 1]$, on a $x(1 - x) \leq 1/4$ (maximum atteint en $x = 1/2$). Par conséquent :
+
+$$
+\varphi''(u) \leq \frac{1}{4}, \qquad \forall u \in \mathbb R.
+$$
+
+### Étape 4 — Conclusion par Taylor
+
+On a $\varphi(0) = 0$, $\varphi'(0) = 0$ et $\varphi''(u) \leq 1/4$ partout. Par la formule de Taylor avec reste intégral :
+
+$$
+\varphi(u) = \varphi(0) + \varphi'(0)\,u + \int_0^u (u - s)\,\varphi''(s)\,ds \leq \int_0^u (u - s)\,\frac{1}{4}\,ds = \frac{u^2}{8}.
+$$
+
+(Pour $u < 0$, la même majoration s'obtient en changeant l'orientation de l'intégrale.)
+
+En repassant à l'exponentielle et en remplaçant $u = \lambda(b - a)$ :
+
+$$
+\mathbb E[e^{\lambda X}] \leq e^{\varphi(u)} \leq e^{u^2/8} = e^{\lambda^2 (b - a)^2 / 8}.
+$$
+
+Ceci étant valable pour tout $\lambda \in \mathbb R$, $X$ est $\dfrac{(b-a)^2}{4}$-sous-gaussienne. $\blacksquare$
+
+## Somme de sous-gaussiennes indépendantes
+
+::: {.callout-note title="Propriété d'additivité"}
+Si $X_1, \dots, X_n$ sont **indépendantes** et que $X_i$ est $\sigma_i^2$-sous-gaussienne de moyenne $\mu_i$, alors
+
+$$
+S_n = \sum_{i=1}^n (X_i - \mu_i)
+$$
+
+est $\bigl(\sum_{i=1}^n \sigma_i^2\bigr)$-sous-gaussienne.
+:::
+
+**Preuve.** Par indépendance,
+
+$$
+\mathbb E\!\left[e^{\lambda S_n}\right] = \prod_{i=1}^n \mathbb E\!\left[e^{\lambda (X_i - \mu_i)}\right] \leq \prod_{i=1}^n e^{\lambda^2 \sigma_i^2 / 2} = e^{\lambda^2 \left(\sum_i \sigma_i^2\right) / 2}.
+$$
+
+En particulier, si les $X_i$ sont i.i.d. et $\sigma^2$-sous-gaussiennes, alors $S_n$ est $n \sigma^2$-sous-gaussienne.
+
+## Inégalité de Hoeffding
+
+::: {.callout-note title="Théorème (inégalité de Hoeffding)"}
+Soient $X_1, \dots, X_n$ des variables aléatoires **indépendantes**, chacune $\sigma^2$-sous-gaussienne et de même moyenne $\mu$. Alors, pour tout $t > 0$ :
+
+$$
+\mathbb P\!\left(\,|\overline X_n - \mu| \geq t\,\right) \leq 2\,e^{-n t^2 / (2 \sigma^2)},
+$$
+
+où $\overline X_n = \frac{1}{n}\sum_{i=1}^n X_i$.
+:::
+
+**Preuve (méthode de Chernoff).** On écrit $S_n = \sum_{i=1}^n (X_i - \mu)$, de sorte que $\overline X_n - \mu = S_n/n$. Par la propriété d'additivité, $S_n$ est $n\sigma^2$-sous-gaussienne.
+
+Pour tout $\lambda > 0$, l'inégalité de Markov appliquée à $e^{\lambda S_n}$ donne :
+
+$$
+\mathbb P(S_n \geq n t) = \mathbb P\!\left(e^{\lambda S_n} \geq e^{\lambda n t}\right) \leq e^{-\lambda n t}\,\mathbb E[e^{\lambda S_n}] \leq e^{-\lambda n t + \lambda^2 n \sigma^2 / 2}.
+$$
+
+Cette majoration est valable pour tout $\lambda > 0$. En optimisant en $\lambda$ : la fonction $\lambda \mapsto -\lambda n t + \lambda^2 n \sigma^2 / 2$ atteint son minimum en $\lambda^* = t/\sigma^2$, et vaut alors $-n t^2/(2\sigma^2)$. On obtient :
+
+$$
+\mathbb P(\overline X_n - \mu \geq t) = \mathbb P(S_n \geq n t) \leq e^{-n t^2 / (2\sigma^2)}.
+$$
+
+Le même raisonnement appliqué à $-S_n$ (qui est également $n\sigma^2$-sous-gaussienne) donne :
+
+$$
+\mathbb P(\overline X_n - \mu \leq -t) \leq e^{-n t^2 / (2\sigma^2)}.
+$$
+
+En sommant les deux inégalités, on obtient le résultat annoncé. $\blacksquare$
+
+## Applications
+
+### Intervalle de confiance non-asymptotique
+
+En posant $\delta = 2 e^{-n t^2/(2\sigma^2)}$ et en résolvant en $t$, on obtient : avec probabilité au moins $1 - \delta$,
+
+$$
+|\overline X_n - \mu| \leq \sigma\sqrt{\frac{2 \log(2/\delta)}{n}}.
+$$
+
+Cet intervalle est **non-asymptotique** : il est valable pour tout $n \geq 1$, contrairement à l'intervalle de Student qui repose sur une approximation gaussienne.
+
+### Cas des variables bornées (Hoeffding historique)
+
+Si $X_1, \dots, X_n$ sont indépendantes avec $X_i \in [a_i, b_i]$ presque sûrement, on combine :
+
+- le lemme de Hoeffding : $X_i - \mathbb E[X_i]$ est $(b_i - a_i)^2/4$-sous-gaussienne,
+- la propriété d'additivité : $S_n$ est donc $\frac{1}{4}\sum_{i=1}^n (b_i - a_i)^2$-sous-gaussienne,
+
+et la méthode de Chernoff donne alors l'inégalité historique de Hoeffding :
+
+$$
+\mathbb P\!\left(|\overline X_n - \mu| \geq t\right) \leq 2\,\exp\!\left(-\frac{2 n^2 t^2}{\sum_{i=1}^n (b_i - a_i)^2}\right).
+$$
+
+En particulier, si toutes les $X_i$ sont à valeurs dans un même intervalle $[a, b]$, cette borne se simplifie en :
+
+$$
+\mathbb P\!\left(|\overline X_n - \mu| \geq t\right) \leq 2\,\exp\!\left(-\frac{2 n t^2}{(b - a)^2}\right).
+$$

@@ -138,6 +138,20 @@
 <h1>Introduction</h1>
 
 </section>
+<section id="enseignants" class="slide level2">
+<h2>Enseignants</h2>
+<p>Professeur: Emmanuel Pilliat, Bureau 265</p>
+<p>Chargés de TD: - BING Candice - FERNANDEZ Adrien - NJANJOUO Boris Hermann - GRAINDORGE Guillaume - ZERRAD Ali</p>
+</section>
+<section id="brève-présentation" class="slide level2">
+<h2>Brève Présentation</h2>
+<ul>
+<li class="fragment">Enseignant-chercheur au CREST en statistique et informatique avec pour thèmes:</li>
+<li class="fragment">recherche en crowdsourcing</li>
+<li class="fragment">apprentissage actif (théorie des bandits)</li>
+<li class="fragment">calcul parallèle sur GPU</li>
+</ul>
+</section>
 <section id="organisation" class="slide level2">
 <h2>Organisation</h2>
 <ul>
@@ -148,10 +162,39 @@
 </ul>
 <p><a href="../../../teaching/hypothesis_testing/slides/usual_distributions_fr.html">Suivant : lois usuelles</a></p>
 </section>
-<section id="évaluation" class="slide level2">
-<h2>Évaluation</h2>
+<section id="généralités" class="slide level2">
+<h2>Généralités</h2>
 <ul>
-<li class="fragment">Un examen final de 2h (QCM et exercice sur papier)</li>
+<li class="fragment">Un test, c’est trois étapes simples :
+<ul>
+<li class="fragment">formuler une hypothèse</li>
+<li class="fragment">observer des données</li>
+<li class="fragment">invalider ou conserver cette hypothèse selon ce que les données révèlent</li>
+</ul></li>
+<li class="fragment">C’est exactement la démarche scientifique</li>
+</ul>
+</section>
+<section id="plusieurs-domaines-dapplication" class="slide level2">
+<h2>Plusieurs domaines d’application</h2>
+<ul>
+<li class="fragment">Les tests sont omniprésents dans toutes les sciences</li>
+<li class="fragment">Exemple en informatique : on veut vérifier si <span class="math inline">\(f(x,y)\)</span> calcule bien <span class="math inline">\(x+y\)</span> pour tout <span class="math inline">\(x,y\)</span>
+<ul>
+<li class="fragment">on observe <span class="math inline">\(f(2,5) = 7\)</span> — peut-on valider l’hypothèse ?</li>
+<li class="fragment">non ! Une seule observation ne suffit pas, il en faut beaucoup plus</li>
+</ul></li>
+</ul>
+</section>
+<section id="ce-cours" class="slide level2">
+<h2>Ce cours</h2>
+<ul>
+<li class="fragment">On s’intéresse aux tests d’un point de vue <strong>statistique</strong></li>
+<li class="fragment">On formule une hypothèse sur la <strong>distribution</strong> des données observées
+<ul>
+<li class="fragment">par exemple : la moyenne vaut <span class="math inline">\(5\)</span>, ou la variance vaut <span class="math inline">\(12\)</span></li>
+</ul></li>
+<li class="fragment">On cherche à déterminer si cette hypothèse peut être <strong>invalidée</strong> par les données</li>
+<li class="fragment">La particularité des statistiques : les données sont aléatoires et l’erreur est quantifiée en <strong>probabilité</strong></li>
 </ul>
 </section>
 <section id="objectif" class="slide level2">
@@ -196,6 +239,9 @@
 <li class="fragment">p-valeur = 0.03 signifie :</li>
 <li class="fragment">→ « Si le médicament n’avait <strong>aucun effet</strong>, il n’y aurait que <strong>3% de chances</strong> d’observer une baisse aussi importante par le seul hasard »</li>
 </ul>
+</div>
+<div class="fragment">
+<p>Intuitivement, pour un test déterministe comme 2+5 == 7, la p-valeur vaut 0 si ce test échoue.</p>
 </div>
 </section>
 <section id="règle-de-décision" class="slide level2">
@@ -1183,13 +1229,11 @@ p(x) = \inf\bigl\{\alpha \in (0,1) : x \in \mathcal{R}_\alpha\bigr\}.
 </div>
 </div>
 </section>
-<section id="exemple-1-test-z-à-un-échantillon" class="slide level2">
-<h2>Exemple 1 : Test z à un échantillon</h2>
+<section id="exemple-1-test-gaussien-à-un-échantillon" class="slide level2">
+<h2>Exemple 1 : Test Gaussien à un échantillon</h2>
 <div class="fragment">
 <p><span class="math inline">\(X_1, \dots, X_n \overset{\text{iid}}{\sim} \mathcal N(\mu, \sigma_0)\)</span> avec <span class="math inline">\(\sigma_0\)</span> connue. Test <span class="math inline">\(H_0: \mu = 0\)</span> vs <span class="math inline">\(H_1: \mu \neq 0\)</span>.</p>
-<div class="fragment">
 <p>La statistique pivotale est <span class="math display">\[ \psi(X) = \frac{\sqrt{n}\,\overline{X}}{\sigma_0} \sim \mathcal N(0,1) \quad \text{sous } H_0 \; .\]</span></p>
-</div>
 </div>
 </section>
 <section id="exemple-numérique" class="slide level2">
@@ -1205,16 +1249,15 @@ p(x) = \inf\bigl\{\alpha \in (0,1) : x \in \mathcal{R}_\alpha\bigr\}.
 <h2>Exemple 2 : Test t à un échantillon</h2>
 <div class="fragment">
 <p><span class="math inline">\(X_1, \dots, X_n \overset{\text{iid}}{\sim} \mathcal N(\mu, \sigma)\)</span> avec <span class="math inline">\(\sigma\)</span> <strong>inconnue</strong>. Test <span class="math inline">\(H_0: \mu = 0\)</span> vs <span class="math inline">\(H_1: \mu &gt; 0\)</span>.</p>
-<div class="fragment">
 <p>On utilise la statistique de test suivante : <span class="math display">\[ \psi(X) = \frac{\sqrt{n}\,\overline{X}}{S} \sim t_{n-1} \quad \text{sous } H_0\]</span> où <span class="math inline">\(S^2 = \frac{1}{n-1}\sum_{i=1}^n (X_i - \overline{X})^2\)</span>. Le paramètre <span class="math inline">\(\sigma\)</span> se simplifie (comme dans la diapositive précédente), donc <span class="math inline">\(\psi\)</span> est pivotale sur <span class="math inline">\(\Theta_0 = \{(\mu, \sigma): \mu = 0,\, \sigma &gt; 0\}\)</span>.</p>
 </div>
-<div class="fragment">
+</section>
+<section id="section" class="slide level2">
+<h2></h2>
 <p><strong>Exemple numérique :</strong> <span class="math inline">\(n=10\)</span>, <span class="math inline">\(\overline{x}_{\mathrm{obs}} = 1.5\)</span>, <span class="math inline">\(s = 2.1\)</span>.</p>
 <p><span class="math display">\[\psi(x_{\mathrm{obs}}) = \frac{\sqrt{10} \times 1.5}{2.1} = 2.26\]</span></p>
 <p>P-valeur unilatérale droite : <span class="math inline">\(p_{value} = \mathbb P(T_9 \geq 2.26) = 0.025\)</span>.</p>
 <p>Puisque <span class="math inline">\(p_{value} = 0.025 \leq \alpha = 0.05\)</span>, on <strong>rejette</strong> <span class="math inline">\(H_0\)</span>.</p>
-</div>
-</div>
 </section>
 <section id="propriété-de-la-p-valeur" class="slide level2">
 <h2>Propriété de la p-valeur</h2>
@@ -1258,7 +1301,7 @@ p(x) = \inf\bigl\{\alpha \in (0,1) : x \in \mathcal{R}_\alpha\bigr\}.
 </div>
 </div>
 </section>
-<section id="section" class="slide level2">
+<section id="section-1" class="slide level2">
 <h2></h2>
 <p><a href="../../../teaching/hypothesis_testing/slides/usual_distributions_fr.html">Suivant : lois usuelles</a></p>
 

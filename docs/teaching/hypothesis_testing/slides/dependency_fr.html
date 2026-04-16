@@ -312,6 +312,7 @@
 <p>Statistique de test :</p>
 <p><span class="math display">\[\psi(X,Y) = \frac{\hat \rho}{\sqrt{1-\hat \rho^2}}\sqrt{n-2}\]</span></p>
 <p>Sous <span class="math inline">\(H_0\)</span>, si les données sont gaussiennes : <span class="math inline">\(\psi(X,Y) \approx \mathcal{T}(n-2)\)</span></p>
+<p><a href="../notes/pearson_student_fr.html">Motivation et preuve</a></p>
 </div>
 </section>
 <section id="section-1" class="slide level2">
@@ -499,16 +500,16 @@
 <div class="fragment">
 <div style="font-size: 70%;">
 <div class="square-def">
-<p><span class="math display">\[\frac{1}{n}\underbrace{\sum_{k=1}^n(Y_k - \overline Y)^2}_{SCT} =
-\frac{1}{n}\underbrace{\sum_{i=1}^IN_i(\overline Y_i - \overline Y)^2}_{SCB}
-+ \frac{1}{n}\underbrace{\sum_{k=1}^n\mathbf 1\{X_k=i\}(Y_k - \overline Y_i)^2}_{SCW}\]</span></p>
+<p><span class="math display">\[\frac{1}{n}\underbrace{\sum_{k=1}^n(Y_k - \overline Y)^2}_{S_{\text{tot}}} =
+\frac{1}{n}\underbrace{\sum_{i=1}^IN_i(\overline Y_i - \overline Y)^2}_{S_{\text{inter}}}
++ \frac{1}{n}\underbrace{\sum_{k=1}^n\mathbf 1\{X_k=i\}(Y_k - \overline Y_i)^2}_{S_{\text{intra}}}\]</span></p>
 </div>
 </div>
 </div>
 <div class="fragment">
 <p><strong>Rapport de corrélation :</strong></p>
 <div class="square-def">
-<p><span class="math display">\[ \hat \eta^2 = \frac{SCB}{SCT}  \in [0,1]\]</span></p>
+<p><span class="math display">\[ \hat \eta^2 = \frac{S_{\text{inter}}}{S_{\text{tot}}}  \in [0,1]\]</span></p>
 </div>
 </div>
 <div class="fragment">
@@ -528,9 +529,9 @@
 </div>
 <div class="callout-content">
 <p>Sous <span class="math inline">\(H_0\)</span>, en supposant <span class="math inline">\(\varepsilon_k \overset{iid}{\sim} \mathcal{N}(0,\sigma^2)\)</span> :</p>
-<p><span class="math display">\[\frac{SCB}{\sigma^2} \sim \chi^2(I-1), \qquad \frac{SCW}{\sigma^2} \sim \chi^2(n-I)\]</span></p>
-<p>et <span class="math inline">\(SCB \perp SCW\)</span>. Par conséquent,</p>
-<p><span class="math display">\[F = \frac{SCB/(I-1)}{SCW/(n-I)} \sim \mathcal{F}(I-1,\, n-I)\]</span></p>
+<p><span class="math display">\[\frac{S_{\text{inter}}}{\sigma^2} \sim \chi^2(I-1), \qquad \frac{S_{\text{intra}}}{\sigma^2} \sim \chi^2(n-I)\]</span></p>
+<p>et <span class="math inline">\(S_{\text{inter}} \perp S_{\text{intra}}\)</span>. Par conséquent,</p>
+<p><span class="math display">\[F = \frac{S_{\text{inter}}/(I-1)}{S_{\text{intra}}/(n-I)} \sim \mathcal{F}(I-1,\, n-I)\]</span></p>
 <p><a href="../../../teaching/hypothesis_testing/notes/anova.html">preuve</a></p>
 </div>
 </div>
@@ -555,7 +556,7 @@
 <div class="fragment">
 <p><strong>Statistique de test</strong></p>
 <div class="square-def">
-<p><span class="math display">\[\psi(X,Y) = \frac{SCB/(I-1)}{SCW/(N-I)}\]</span></p>
+<p><span class="math display">\[\psi(X,Y) = \frac{S_{\text{inter}}/(I-1)}{S_{\text{intra}}/(N-I)}\]</span></p>
 </div>
 </div>
 <div class="fragment">
@@ -1113,12 +1114,55 @@
 <ul>
 <li class="fragment"><p>Une <strong>médiane</strong> de <span class="math inline">\(X\)</span> est un quantile d’ordre <span class="math inline">\(0{,}5\)</span> de sa distribution : si <span class="math inline">\(X\)</span> a une densité <span class="math inline">\(p\)</span>, la médiane <span class="math inline">\(m\)</span> vérifie <span class="math display">\[\int_{-\infty}^m p(x)\,dx = \int_{m}^{+\infty} p(x)\,dx = 0{,}5\]</span></p></li>
 <li class="fragment"><p>Une variable aléatoire <span class="math inline">\(X\)</span> est <strong>symétrique</strong> si <span class="math inline">\(X \overset{d}{=} -X\)</span>. En particulier sa médiane est <span class="math inline">\(0\)</span>.</p></li>
-<li class="fragment"><p>Si <span class="math inline">\(X\)</span> est symétrique : <span class="math inline">\(X \overset{d}{=} \varepsilon |X|\)</span> où <span class="math inline">\(\varepsilon \perp X\)</span> est uniforme sur <span class="math inline">\(\{-1,1\}\)</span>.</p></li>
 </ul>
 </div>
 </div>
 </div>
 </div>
+</section>
+<section id="caractérisation-par-signe-et-valeur-absolue" class="slide level2">
+<h2>Caractérisation par signe et valeur absolue</h2>
+<div class="fragment">
+<div title="Proposition">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Proposition</strong></p>
+</div>
+<div class="callout-content">
+<p>Soit <span class="math inline">\(X\)</span> une variable aléatoire avec <span class="math inline">\(\mathbb P(X = 0) = 0\)</span>. Les propriétés suivantes sont <strong>équivalentes</strong> :</p>
+<ol type="1">
+<li class="fragment"><p><span class="math inline">\(X\)</span> est symétrique (<span class="math inline">\(X \overset{d}{=} -X\)</span>).</p></li>
+<li class="fragment"><p><span class="math inline">\(X \overset{d}{=} \varepsilon\,|X|\)</span>, où <span class="math inline">\(\varepsilon\)</span> est <strong>uniforme sur <span class="math inline">\(\{-1, +1\}\)</span></strong> et <strong>indépendante</strong> de <span class="math inline">\(|X|\)</span>.</p></li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>Autrement dit : une variable symétrique se décompose en un <strong>signe aléatoire équilibré</strong>, indépendant de son <strong>amplitude</strong> <span class="math inline">\(|X|\)</span>.</p>
+</div>
+</section>
+<section id="idée-de-preuve-1-rightarrow-2" class="slide level2">
+<h2>Idée de preuve (<span class="math inline">\(1 \Rightarrow 2\)</span>)</h2>
+<div class="fragment">
+<p>Il suffit de montrer que <span class="math inline">\(\mathrm{sgn}(X) \perp |X|\)</span> avec <span class="math inline">\(\mathrm{sgn}(X)\)</span> uniforme sur <span class="math inline">\(\{-1, +1\}\)</span>. Pour cela, on vérifie que pour tout <span class="math inline">\(t &gt; 0\)</span> :</p>
+<div style="font-size: 70%;">
+<p><span class="math inline">\(\mathbb P\bigl(\mathrm{sgn}(X) = +1,\; |X| \geq t\bigr) = \mathbb P\bigl(\mathrm{sgn}(X) = +1\bigr)\,\cdot\,\mathbb P\bigl(|X| \geq t\bigr).\)</span></p>
+</div>
+</div>
+<div class="fragment">
+<p><strong>Membre de gauche.</strong> L’événement <span class="math inline">\(\{\mathrm{sgn}(X) = +1\} \cap \{|X| \geq t\}\)</span> est exactement <span class="math inline">\(\{X \geq t\}\)</span>, donc <span class="math display">\[
+\mathbb P\bigl(\mathrm{sgn}(X) = +1,\; |X| \geq t\bigr) = \mathbb P(X \geq t).
+\]</span></p>
+</div>
+</section>
+<section id="section-3" class="slide level2">
+<h2></h2>
+<p><strong>Par symétrie</strong>, <span class="math inline">\(\mathbb P(X \geq t) = \mathbb P(-X \geq t) = \mathbb P(X \leq -t)\)</span>, donc <span class="math display">\[
+\mathbb P(X \geq t) = \dfrac{\mathbb P(X \geq t) + \mathbb P(X \leq -t)}{2} = \dfrac{\mathbb P(|X| \geq t)}{2}.
+\]</span></p>
 </section>
 <section id="symétrisation" class="slide level2">
 <h2>Symétrisation</h2>
@@ -1363,9 +1407,43 @@
 </div>
 <div class="fragment">
 <p>On rejette <span class="math inline">\(H_0\)</span> au niveau <span class="math inline">\(5\%\)</span> : le médicament semble abaisser la pression artérielle.</p>
-
-
 </div>
+</section>
+<section id="correction-pour-les-ex-aequo" class="slide level2">
+<h2>Correction pour les ex-aequo</h2>
+<div class="fragment">
+<p>La construction du test suppose que les <span class="math inline">\(|D_i|\)</span> sont <strong>tous distincts</strong>, de sorte que les rangs <span class="math inline">\(1, 2, \dots, n\)</span> sont bien définis. Dans la pratique, il arrive que plusieurs <span class="math inline">\(|D_i|\)</span> soient égaux (arrondis, données discrètes, …).</p>
+</div>
+<div class="fragment">
+<p><strong>Traitement usuel</strong> : à chaque groupe d’ex-aequo, on attribue la <strong>moyenne</strong> de leurs rangs (<em>midranks</em>). Par exemple, si <span class="math inline">\(|D_3|\)</span> et <span class="math inline">\(|D_5|\)</span> sont tous deux à la 4ème position dans le tri, ils reçoivent tous les deux le rang <span class="math inline">\((4 + 5)/2 = 4{,}5\)</span>.</p>
+</div>
+</section>
+<section id="section-4" class="slide level2">
+<h2></h2>
+<p><strong>Conséquence sur la loi</strong> : la variance de <span class="math inline">\(W_-\)</span> est <strong>réduite</strong> par rapport au cas sans ex-aequo. La formule corrigée est</p>
+<p><span class="math display">\[
+\mathrm{Var}(W_-) = \dfrac{n(n+1)(2n+1)}{24} - \dfrac{1}{48}\sum_{k} (t_k^3 - t_k)
+\]</span></p>
+<p>où <span class="math inline">\(t_k\)</span> est la taille du <span class="math inline">\(k\)</span>-ième groupe d’ex-aequo.</p>
+</section>
+<section id="section-5" class="slide level2">
+<h2></h2>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>En R : <code>wilcox.test(x, y, paired=TRUE)</code> applique automatiquement la correction. Un message d’avertissement apparaît quand des ex-aequo sont détectés (« <em>cannot compute exact p-value with ties</em> »), et le logiciel bascule sur l’approximation gaussienne avec variance corrigée.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="section-6" class="slide level2">
+<h2></h2>
+<p><a href="../../../teaching/hypothesis_testing/slides/goodness_of_fit_chi2_fr.html">précédent</a> <a href="../../../teaching/hypothesis_testing/slides/multiple_minimax_fr.html">suivant : tests multiples et vitesses de détection</a></p>
+
+
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
