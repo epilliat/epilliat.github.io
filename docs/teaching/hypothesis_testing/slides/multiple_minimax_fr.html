@@ -636,29 +636,31 @@
 <p>On se place dans le cas <strong>le plus simple possible</strong> : on observe <strong>une seule</strong> variable <span class="math inline">\(X \sim \mathcal N(\theta, 1)\)</span>, avec <span class="math inline">\(\Theta = \mathbb R\)</span>.</p>
 </div>
 <div class="fragment">
+<p>On fixe une séparation <span class="math inline">\(\rho &gt; 0\)</span> et on considère le test <strong>unilatéral droit</strong> :</p>
 <div class="square-objective">
-<p><span class="math inline">\(\Theta_0 = \{0\}, \quad \Theta_1 = \{\rho\}\)</span></p>
+<p><span class="math inline">\(\Theta_0 = \{0\}, \quad \Theta_1 = [\rho, +\infty)\)</span></p>
 </div>
 </div>
 <div class="fragment">
-<p>Les deux hypothèses sont <strong>simples</strong> (chacune réduite à un point). Les <span class="math inline">\(\sup\)</span> disparaissent :</p>
-<p><span class="math display">\[R(T, \rho) = \mathbb P_{\theta=0}(T = 1) + \mathbb P_{\theta=\rho}(T = 0)\]</span></p>
+<p><span class="math inline">\(H_0\)</span> est simple, mais <span class="math inline">\(H_1\)</span> est <strong>composite</strong> : elle regroupe tous les <span class="math inline">\(\theta \geq \rho\)</span>. Le risque s’écrit donc</p>
+<p><span class="math display">\[R(T, \rho) = \mathbb P_{\theta=0}(T = 1) + \sup_{\theta \geq \rho} \mathbb P_{\theta}(T = 0)\]</span></p>
 </div>
 <div class="fragment">
 <p><strong>Remarque</strong> : observer <span class="math inline">\(n\)</span> variables <span class="math inline">\(X_1, \dots, X_n \sim \mathcal N(\mu, \sigma^2)\)</span> est équivalent à observer <span class="math inline">\(\overline X_n \sim \mathcal N(\mu, \sigma^2/n)\)</span>. L’analyse sur une seule gaussienne couvre donc le cas général — il suffira de lire <span class="math inline">\(\rho\)</span> en unités de <span class="math inline">\(\sigma/\sqrt n\)</span>.</p>
 </div>
 </section>
-<section id="visualisation-des-deux-lois" class="slide level2">
-<h2>Visualisation des deux lois</h2>
+<section id="visualisation" class="slide level2">
+<h2>Visualisation</h2>
 <div class="fragment">
 <div class="quarto-figure quarto-figure-center">
 <figure>
 <p><img data-src="../images/two_gaussians.svg" style="width:75.0%"></p>
-<figcaption>Densités de <span class="math inline">\(\mathcal N(0,1)\)</span> (bleu) et <span class="math inline">\(\mathcal N(\rho,1)\)</span> (rouge) pour <span class="math inline">\(\rho \in \{0{,}3,\; 1,\; 3\}\)</span></figcaption>
+<figcaption>Densité de <span class="math inline">\(\mathcal N(0,1)\)</span> (bleu) et de <span class="math inline">\(\mathcal N(\theta,1)\)</span> (rouge) pour <span class="math inline">\(\theta \geq \rho\)</span>, avec <span class="math inline">\(\rho \in \{0{,}3,\; 1,\; 3\}\)</span></figcaption>
 </figure>
 </div>
 </div>
 <div class="fragment">
+<p>Sous <span class="math inline">\(H_1\)</span>, le <strong>pire cas</strong> (le plus dur à distinguer de <span class="math inline">\(H_0\)</span>) correspond à <span class="math inline">\(\theta = \rho\)</span>, le bord de <span class="math inline">\(\Theta_1\)</span> — plus <span class="math inline">\(\theta\)</span> est grand, plus la détection est facile.</p>
 <ul>
 <li class="fragment"><span class="math inline">\(\rho = 0{,}3\)</span> : densités presque confondues <span class="math inline">\(\Rightarrow\)</span> test impossible</li>
 <li class="fragment"><span class="math inline">\(\rho = 1\)</span> : zone de transition</li>
@@ -677,8 +679,8 @@
 <p><span class="math inline">\(\mathbb P_{\theta = 0}(X &gt; \rho/2) = 1 - \Phi(\rho/2)\)</span></p>
 </div>
 <div class="fragment">
-<p><strong>Erreur de 2nde espèce</strong> (sous <span class="math inline">\(\theta = \rho\)</span>) : par symétrie,</p>
-<p><span class="math inline">\(\mathbb P_{\theta = \rho}(X \leq \rho/2) = \mathbb P(X - \rho \leq -\rho/2) = 1 - \Phi(\rho/2)\)</span></p>
+<p><strong>Erreur de 2nde espèce</strong> (sous <span class="math inline">\(\theta \geq \rho\)</span>) : la fonction <span class="math inline">\(\theta \mapsto \mathbb P_\theta(X \leq \rho/2) = \Phi(\rho/2 - \theta)\)</span> est <strong>décroissante</strong> en <span class="math inline">\(\theta\)</span>, donc le pire cas est atteint en <span class="math inline">\(\theta = \rho\)</span> :</p>
+<p><span class="math inline">\(\sup_{\theta \geq \rho} \mathbb P_{\theta}(X \leq \rho/2) = \mathbb P_{\theta = \rho}(X \leq \rho/2) = 1 - \Phi(\rho/2)\)</span></p>
 </div>
 <div class="fragment">
 <p><strong>Conclusion</strong> :</p>
@@ -752,16 +754,16 @@
 <section id="borne-inférieure" class="slide level2">
 <h2>Borne inférieure</h2>
 <div class="fragment">
-<p>Notons <span class="math inline">\(f_0, f_1\)</span> les densités de <span class="math inline">\(\mathcal N(0,1)\)</span> et <span class="math inline">\(\mathcal N(\rho, 1)\)</span>. Pour tout test <span class="math inline">\(T\)</span> :</p>
-<p><span class="math display">\[R(T, \rho) = \int T\,f_0 + \int (1 - T)\,f_1 \;\geq\; \int \min(f_0, f_1)\,dx\]</span></p>
+<p>Notons <span class="math inline">\(f_0, f_\rho\)</span> les densités de <span class="math inline">\(\mathcal N(0,1)\)</span> et <span class="math inline">\(\mathcal N(\rho, 1)\)</span>. Comme <span class="math inline">\(\rho \in \Theta_1\)</span>, on a <span class="math inline">\(\sup_{\theta \geq \rho} \mathbb P_\theta(T = 0) \geq \mathbb P_\rho(T = 0)\)</span>, donc pour tout test <span class="math inline">\(T\)</span> :</p>
+<p><span class="math display">\[R(T, \rho) \;\geq\; \int T\,f_0 + \int (1 - T)\,f_\rho \;\geq\; \int \min(f_0, f_\rho)\,dx\]</span></p>
 </div>
 <div class="fragment">
 <div class="square-def">
-<p><span class="math display">\[R^*(\rho) \geq \int \min(f_0, f_1)\,dx\]</span></p>
+<p><span class="math display">\[R^*(\rho) \geq \int \min(f_0, f_\rho)\,dx\]</span></p>
 </div>
 </div>
 <div class="fragment">
-<p>C’est l’<strong>aire sous le minimum des deux densités</strong> — l’aire de recouvrement.</p>
+<p>C’est l’<strong>aire sous le minimum des deux densités</strong> — l’aire de recouvrement à la frontière <span class="math inline">\(\theta = \rho\)</span>.</p>
 </div>
 </section>
 <section id="calcul-de-laire-de-recouvrement" class="slide level2">

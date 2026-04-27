@@ -379,27 +379,31 @@ On se place dans le cas **le plus simple possible** : on observe **une seule** v
 
 . . .
 
+On fixe une séparation $\rho > 0$ et on considère le test **unilatéral droit** :
+
 ::: {.square-objective}
-$\Theta_0 = \{0\}, \quad \Theta_1 = \{\rho\}$
+$\Theta_0 = \{0\}, \quad \Theta_1 = [\rho, +\infty)$
 :::
 
 . . .
 
-Les deux hypothèses sont **simples** (chacune réduite à un point). Les $\sup$ disparaissent :
+$H_0$ est simple, mais $H_1$ est **composite** : elle regroupe tous les $\theta \geq \rho$. Le risque s'écrit donc
 
-$$R(T, \rho) = \mathbb P_{\theta=0}(T = 1) + \mathbb P_{\theta=\rho}(T = 0)$$
+$$R(T, \rho) = \mathbb P_{\theta=0}(T = 1) + \sup_{\theta \geq \rho} \mathbb P_{\theta}(T = 0)$$
 
 . . .
 
 **Remarque** : observer $n$ variables $X_1, \dots, X_n \sim \mathcal N(\mu, \sigma^2)$ est équivalent à observer $\overline X_n \sim \mathcal N(\mu, \sigma^2/n)$. L'analyse sur une seule gaussienne couvre donc le cas général — il suffira de lire $\rho$ en unités de $\sigma/\sqrt n$.
 
-## Visualisation des deux lois
+## Visualisation
 
 . . .
 
-![Densités de $\mathcal N(0,1)$ (bleu) et $\mathcal N(\rho,1)$ (rouge) pour $\rho \in \{0{,}3,\; 1,\; 3\}$](../images/two_gaussians.svg){width=75%}
+![Densité de $\mathcal N(0,1)$ (bleu) et de $\mathcal N(\theta,1)$ (rouge) pour $\theta \geq \rho$, avec $\rho \in \{0{,}3,\; 1,\; 3\}$](../images/two_gaussians.svg){width=75%}
 
 . . .
+
+Sous $H_1$, le **pire cas** (le plus dur à distinguer de $H_0$) correspond à $\theta = \rho$, le bord de $\Theta_1$ — plus $\theta$ est grand, plus la détection est facile.
 
 - $\rho = 0{,}3$ : densités presque confondues $\Rightarrow$ test impossible
 - $\rho = 1$ : zone de transition
@@ -421,9 +425,9 @@ $\mathbb P_{\theta = 0}(X > \rho/2) = 1 - \Phi(\rho/2)$
 
 . . .
 
-**Erreur de 2nde espèce** (sous $\theta = \rho$) : par symétrie,
+**Erreur de 2nde espèce** (sous $\theta \geq \rho$) : la fonction $\theta \mapsto \mathbb P_\theta(X \leq \rho/2) = \Phi(\rho/2 - \theta)$ est **décroissante** en $\theta$, donc le pire cas est atteint en $\theta = \rho$ :
 
-$\mathbb P_{\theta = \rho}(X \leq \rho/2) = \mathbb P(X - \rho \leq -\rho/2) = 1 - \Phi(\rho/2)$
+$\sup_{\theta \geq \rho} \mathbb P_{\theta}(X \leq \rho/2) = \mathbb P_{\theta = \rho}(X \leq \rho/2) = 1 - \Phi(\rho/2)$
 
 . . .
 
@@ -470,21 +474,19 @@ $$|\mu| \gtrsim \dfrac{\sigma}{\sqrt n}$$
 
 . . .
 
-Notons $f_0, f_1$ les densités de $\mathcal N(0,1)$ et $\mathcal N(\rho, 1)$. Pour tout test $T$ :
+Notons $f_0, f_\rho$ les densités de $\mathcal N(0,1)$ et $\mathcal N(\rho, 1)$. Comme $\rho \in \Theta_1$, on a $\sup_{\theta \geq \rho} \mathbb P_\theta(T = 0) \geq \mathbb P_\rho(T = 0)$, donc pour tout test $T$ :
 
-$$R(T, \rho) = \int T\,f_0 + \int (1 - T)\,f_1 \;\geq\; \int \min(f_0, f_1)\,dx$$
-
-
+$$R(T, \rho) \;\geq\; \int T\,f_0 + \int (1 - T)\,f_\rho \;\geq\; \int \min(f_0, f_\rho)\,dx$$
 
 . . .
 
 ::: {.square-def}
-$$R^*(\rho) \geq \int \min(f_0, f_1)\,dx$$
+$$R^*(\rho) \geq \int \min(f_0, f_\rho)\,dx$$
 :::
 
 . . .
 
-C'est l'**aire sous le minimum des deux densités** — l'aire de recouvrement.
+C'est l'**aire sous le minimum des deux densités** — l'aire de recouvrement à la frontière $\theta = \rho$.
 
 ## Calcul de l'aire de recouvrement
 

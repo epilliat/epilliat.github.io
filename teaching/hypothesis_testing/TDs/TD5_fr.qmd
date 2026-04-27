@@ -1,0 +1,274 @@
+---
+title: "TD5 : Exercices complémentaires"
+format:
+  html:
+    callout-icon: false
+    theme: [default]
+    smaller: false
+---
+
+## Exercice 1 : Loi binomiale négative — Contrôle qualité
+
+Une usine fabrique des composants électroniques. Un protocole de contrôle qualité consiste à tester les pièces une par une, séquentiellement, jusqu'à trouver un nombre fixé $r$ de pièces défectueuses. On note $X$ le nombre total de pièces testées au moment où la $r$-ème pièce défectueuse est trouvée.
+
+On rappelle que $X$ suit une loi **binomiale négative** $\mathrm{NegBin}(r, p)$, où $p$ est la probabilité qu'une pièce soit défectueuse. Sa loi est :
+$$
+P(X = n) = \binom{n-1}{r-1} p^r (1-p)^{n-r}, \quad n = r,\, r+1,\, r+2, \dots
+$$
+
+1. Montrer que $\mathbb{E}[X] = \frac{r}{p}$ et $\mathbb{V}(X) = \frac{r(1-p)}{p^2}$.
+
+    *Indication : écrire $X = Y_1 + \cdots + Y_r$ où les $Y_i$ sont i.i.d. de loi géométrique $\mathcal G(p)$.*
+
+2. Montrer que la famille $\{\mathrm{NegBin}(r, p) : p \in (0,1)\}$ (avec $r$ fixé) est une famille exponentielle en identifiant les fonctions $a(n)$, $b(p)$, $c(p)$ et $d(n)$ telles que :
+$$
+P(X = n) = a(n)\, b(p)\, \exp\!\bigl(c(p)\, d(n)\bigr).
+$$
+
+3. Le fabricant garantit un taux de défaut d'au plus $p_0$. On veut tester :
+$$
+H_0 : p \leq p_0 \quad \text{contre} \quad H_1 : p > p_0.
+$$
+    En utilisant le théorème de Karlin--Rubin (théorème 5 du cours), montrer que le test UMP au niveau $\alpha$ rejette $H_0$ pour les petites valeurs de $X$.
+
+    *Interpréter : pourquoi observe-t-on peu de pièces testées quand le taux de défaut est élevé ?*
+
+4. **Dualité binomiale négative--binomiale.**
+    Montrer que pour tout $n \geq r$ :
+$$
+P_{p}(X \leq n) = P(Y \geq r) \quad \text{où} \quad Y \sim \mathrm{Bin}(n, p).
+$$
+    *Indication : interpréter les deux événements. $\{X \leq n\}$ signifie « au moins $r$ défauts parmi les $n$ premières pièces ». Comparer avec $\{Y \geq r\}$.*
+
+5. **Application numérique.** L'inspecteur fixe $r = 19$ et le fabricant garantit $p_0 = 0{,}10$. Après avoir testé $n = 100$ pièces, l'inspecteur a trouvé ses $19$ pièces défectueuses.
+
+    a. En utilisant la question 4, exprimer la p-valeur en termes d'une loi binomiale.
+    b. Calculer la p-valeur approchée en utilisant le TCL appliqué à $Y \sim \mathrm{Bin}(100,\, 0{,}10)$.
+
+        *On rappelle que $\Phi(3) \approx 0{,}9987$.*
+
+    c. Conclure au niveau de signification $\alpha = 0{,}01$.
+
+6. **Bonus : lien avec la loi Gamma.** On rappelle que $\mathcal G(p) = p \cdot \mathrm{NegBin}(1, p)$ (en loi, à un facteur $p$ près). Montrer que si $X_1 \sim \mathcal G(p)$, alors quand $p \to 0$ :
+$$
+p\, X_1 \xrightarrow{d} \mathcal E(1).
+$$
+    En déduire que $p \cdot \mathrm{NegBin}(r, p) \xrightarrow{d} \Gamma(r, 1)$ quand $p \to 0$.
+
+    *C'est l'analogue discret-continu : la géométrique est la version discrète de l'exponentielle, et la binomiale négative est la version discrète de la Gamma.*
+
+
+## Exercice 2 : Analyse statistique de rendements de cryptomonnaie
+
+Le **Bitcoin** (BTC) est une cryptomonnaie dont le prix est coté en continu. On note $P_t$ le prix de clôture à l'heure $t$. Le **rendement** (ou *return*) horaire est défini par :
+$$
+R_t = \frac{P_t - P_{t-1}}{P_{t-1}},
+$$
+c'est-à-dire la variation relative du prix entre deux heures consécutives, exprimée en pourcentage. Par exemple, si le prix passe de $100$ à $102$, le rendement est $R = 2\%$.
+
+Un analyste quantitatif dispose de rendements horaires du Bitcoin sur deux périodes distinctes :
+
+- **Période haussière** (*bull run*, janvier--mars 2024) : $n_1 = 1776$ rendements horaires,
+- **Période baissière** (*bear market*, mai--août 2022) : $n_2 = 2208$ rendements horaires.
+
+Les statistiques descriptives (en pourcentage) sont résumées ci-dessous :
+
+| | Période haussière | Période baissière |
+|:--|:--:|:--:|
+| Taille $n$ | $1776$ | $2208$ |
+| Moyenne empirique $\overline R$ (en %) | $0{,}031$ | $-0{,}018$ |
+| Écart-type empirique $\hat\sigma$ (en %) | $0{,}566$ | $0{,}877$ |
+
+L'analyste dispose également des rendements horaires de l'**Ethereum** (ETH) sur les mêmes périodes, et a calculé les statistiques suivantes.
+
+**Corrélations de Pearson :**
+
+On note $S_t = R_t^{\text{BTC}} - R_t^{\text{ETH}}$ le **spread** entre les rendements du Bitcoin et de l'Ethereum.
+
+| Paire de variables | Période | $r$ | $n$ |
+|:--|:--|:--:|:--:|
+| $(R_t^{\text{BTC}},\, R_{t+1}^{\text{BTC}})$ — autocorrélation BTC | Bull | $0{,}008$ | $1775$ |
+| $(R_t^{\text{BTC}},\, R_{t+1}^{\text{BTC}})$ — autocorrélation BTC | Bear | $0{,}007$ | $2207$ |
+| $(R_t^{\text{BTC}},\, R_t^{\text{ETH}})$ — corrélation BTC/ETH | Bull | $0{,}76$ | $1776$ |
+| $(R_t^{\text{BTC}},\, R_t^{\text{ETH}})$ — corrélation BTC/ETH | Bear | $0{,}91$ | $2208$ |
+| $(S_t,\, S_{t+1})$ — autocorrélation du spread | Bull | $-0{,}062$ | $1775$ |
+| $(S_t,\, S_{t+1})$ — autocorrélation du spread | Bear | $-0{,}029$ | $2207$ |
+
+**Tests de normalité :**
+
+- Test du $\chi^2$ d'adéquation à $\mathcal N(\hat\mu, \hat\sigma^2)$ avec $m = 5$ (soit $12$ intervalles) :
+
+| Série | Période | $\chi^2$ |
+|:--|:--|:--:|
+| $R^{\text{BTC}}$ | Bull | $622{,}8$ |
+| $R^{\text{BTC}}$ | Bear | $524{,}7$ |
+| $S = R^{\text{BTC}} - R^{\text{ETH}}$ | Bull | $385{,}1$ |
+| $S = R^{\text{BTC}} - R^{\text{ETH}}$ | Bear | $498{,}1$ |
+
+
+On suppose que les rendements sont des réalisations de variables aléatoires gaussiennes i.i.d. au sein de chaque période, et que les deux échantillons sont indépendants.
+
+Pour chaque question, on définira précisément $H_0$ et $H_1$ avec des notations mathématiques, on choisira le test adapté, on calculera la statistique de test et la p-valeur, et on conclura au niveau $\alpha = 0{,}05$.
+
+1. Le rendement moyen du BTC est-il significativement différent de $0$ en période bull ? En période bear ?
+
+2. Le BTC a perdu environ $40\%$ de sa valeur sur la période bear ($38\,000 \to 23\,000$ USD). Comment expliquer que le test de la question 1 ne rejette pas $H_0$ en période bear ?
+
+3. Le rendement d'une heure du BTC permet-il de prédire le rendement de l'heure suivante ? Répondre pour les deux périodes.
+
+4. Les rendements du Bitcoin et de l'Ethereum évoluent-ils ensemble ? Répondre pour les deux périodes. Comment la corrélation évolue-t-elle entre bull et bear ? Interpréter.
+
+5. Le spread $S_t$ est-il autocorrélé ? Répondre pour les deux périodes. Interpréter la différence avec la question 3.
+
+6. Les rendements du BTC suivent-ils une loi gaussienne ? Justifier le nombre de degrés de liberté et conclure. Même question pour le spread $S_t$. Ce résultat est-il surprenant pour des données financières ?
+
+7. La volatilité du BTC est-elle la même dans les deux régimes de marché ?
+
+8. Le rendement moyen du BTC diffère-t-il entre les deux périodes ? Justifier le choix du test.
+
+9. L'analyste discrétise les rendements en quatre catégories et obtient le tableau de contingence suivant :
+
+    | | $R < -1\%$ | $-1\% \leq R < 0\%$ | $0\% \leq R < 1\%$ | $R \geq 1\%$ | Total |
+    |:--|:--:|:--:|:--:|:--:|:--:|
+    | Bull | $53$ | $803$ | $848$ | $72$ | $1776$ |
+    | Bear | $188$ | $951$ | $908$ | $161$ | $2208$ |
+    | **Total** | $241$ | $1754$ | $1756$ | $233$ | $3984$ |
+
+    La distribution des rendements est-elle la même dans les deux régimes ?
+
+10. Comparer les conclusions des questions 7, 8 et 9. Que peut-on dire globalement sur la différence de comportement du Bitcoin entre les périodes haussière et baissière ?
+
+11. **Test binomial.** On compte le nombre de rendements horaires strictement positifs :
+
+    | Période | Rendements positifs | $n$ |
+    |:--|:--:|:--:|
+    | Bull | $920$ | $1776$ |
+    | Bear | $1069$ | $2208$ |
+
+    a. La proportion de rendements positifs est-elle significativement différente de $50\%$ en période bull ? En période bear ?
+
+    b. Comparer avec la conclusion de la question 1 (test de Student). Comment expliquer que le test binomial ne rejette pas alors que le test de Student rejette en période bull ?
+
+12. **Test de Wilcoxon.** Les rendements du BTC et de l'ETH sont observés aux mêmes instants. On considère les différences $D_t = R_t^{\text{BTC}} - R_t^{\text{ETH}}$ et on observe :
+
+    | Période | Médiane de $D_t$ (en %) | $n$ |
+    |:--|:--:|:--:|
+    | Bull | $0{,}017$ | $1776$ |
+    | Bear | $0{,}007$ | $2208$ |
+
+    a. Effectuer un test des rangs signés de Wilcoxon sur les données appariées $(R_t^{\text{BTC}}, R_t^{\text{ETH}})$ en période bull et en période bear.
+
+    b. On a vu à la question 4 que BTC et ETH sont très corrélés. Le test de Wilcoxon montre-t-il que leurs distributions sont différentes ? Interpréter.
+
+13. On a vu à la question 3 que les rendements $R_t$ et $R_{t+1}$ ne sont pas corrélés. On calcule maintenant les corrélations de Pearson sur les **carrés** des rendements :
+
+    | Paire de variables | Période | $r$ | $n$ |
+    |:--|:--|:--:|:--:|
+    | $(R_t^2,\, R_{t+1}^2)$ | Bull | $0{,}321$ | $1775$ |
+    | $(R_t^2,\, R_{t+1}^2)$ | Bear | $0{,}292$ | $2207$ |
+
+    a. Tester si $R_t^2$ et $R_{t+1}^2$ sont corrélés, en période bull et en période bear.
+
+    b. Comment interpréter ce résultat ? Que signifie-t-il sur la volatilité du Bitcoin ?
+
+    c. Les rendements $R_t$ et $R_{t+1}$ sont-ils indépendants ? Justifier.
+
+14. **Haute fréquence.** On dispose maintenant de $n = 14\,400$ rendements **à la minute** du BTC et de l'ETH sur $10$ jours. On calcule l'autocorrélation du spread $S_t = R_t^{\text{BTC}} - R_t^{\text{ETH}}$ à différents décalages (*lags*) :
+
+    | | Lag $1$ min | Lag $2$ min | Lag $5$ min | Lag $30$ min |
+    |:--|:--:|:--:|:--:|:--:|
+    | Spread $S_t$ | $-0{,}026$ | $-0{,}027$ | $-0{,}003$ | $-0{,}000$ |
+    | BTC $R_t$ | $-0{,}007$ | $-0{,}019$ | $-0{,}006$ | $+0{,}029$ |
+
+    ($n \approx 14\,400$ pour chaque test.)
+
+    a. Tester si le spread est autocorrélé au lag $1$ min et au lag $5$ min.
+
+    b. Même question pour le BTC seul au lag $1$ min et au lag $2$ min.
+
+    c. Le signe de la corrélation du spread aux lags $1$ et $2$ min est négatif. Qu'est-ce que cela signifie pour le comportement du spread à court terme ?
+
+    d. Comparer l'autocorrélation du spread et du BTC seul au lag $1$ min. Comment expliquer que le spread ait une autocorrélation plus forte ?
+
+
+## Exercice 3 : Test multivarié — vitesse de détection en grande dimension
+
+On observe un vecteur gaussien $X = (X_1, \ldots, X_p) \in \mathbb{R}^p$ dont les coordonnées sont indépendantes, $X_j \sim \mathcal{N}(\theta_j, 1)$. Le paramètre inconnu est $\theta = (\theta_1, \ldots, \theta_p) \in \mathbb{R}^p$.
+
+On veut tester l'hypothèse "rien ne se passe" contre l'hypothèse "au moins une coordonnée porte un signal au moins $\rho$" :
+$$
+H_0 : \theta = 0 \qquad \text{contre} \qquad H_1(\rho) : \|\theta\|_\infty \geq \rho,
+$$
+où $\|\theta\|_\infty = \max_{1 \leq j \leq p} |\theta_j|$ et $\rho > 0$.
+
+L'objectif est de comprendre comment la dimension $p$ affecte la séparation minimale $\rho$ détectable. On considère le test "naturel" basé sur la norme infinie de l'observation :
+$$
+T(X) = \mathbf{1}\bigl\{\|X\|_\infty > t\bigr\}, \qquad \|X\|_\infty = \max_{1 \leq j \leq p} |X_j|,
+$$
+où $t > 0$ est un seuil à choisir. Le risque s'écrit
+$$
+R(T, \rho) = \mathbb{P}_0\bigl(\|X\|_\infty > t\bigr) + \sup_{\|\theta\|_\infty \geq \rho} \mathbb{P}_\theta\bigl(\|X\|_\infty \leq t\bigr).
+$$
+
+1. **Erreur de 1ère espèce.** En utilisant l'union bound et la majoration de la queue gaussienne $1 - \Phi(t) \leq e^{-t^2/2}$ pour $t > 0$, montrer que :
+$$
+\mathbb{P}_0\bigl(\|X\|_\infty > t\bigr) \leq 2p\, e^{-t^2/2}.
+$$
+
+2. **Erreur de 2nde espèce.** Soit $\theta \in \mathbb{R}^p$ avec $\|\theta\|_\infty \geq \rho$. Montrer que pour tout $t \in (0, \rho)$ :
+$$
+\mathbb{P}_\theta\bigl(\|X\|_\infty \leq t\bigr) \leq e^{-(\rho - t)^2/2}.
+$$
+
+    *Indication : choisir $j^*$ tel que $|\theta_{j^*}| \geq \rho$ et majorer $\mathbb{P}_\theta(\|X\|_\infty \leq t)$ par $\mathbb{P}_\theta(|X_{j^*}| \leq t)$.*
+
+3. **Choix du seuil et borne supérieure minimax.** Soit $\beta \in (0, 1)$. Choisissant $t = \sqrt{2 \log(4p/\beta)}$, montrer que pour tout $\rho \geq 2t$ :
+$$
+R(T, \rho) \leq \beta.
+$$
+
+    En déduire que le risque minimax vérifie $R^*(\rho) \leq \beta$ dès que
+$$
+\rho \;\geq\; 2\sqrt{2 \log(4p/\beta)}.
+$$
+    En d'autres termes, la vitesse de séparation minimax satisfait
+$$
+\rho^*_{\min}(p) \;\lesssim\; \sqrt{\log p}.
+$$
+
+4. **Comparaison.** Pour $p = 1$, on a vu en cours que $\rho^*_{\min} \asymp 1$. Quel est le coût (en $\rho$) de tester en dimension $p$ par rapport à la dimension $1$ ? Le résultat est-il surprenant compte tenu de la correction de Bonferroni ?
+
+5. **Bonus : borne inférieure.** On veut montrer que le test de la question 3 est essentiellement optimal :
+$$
+\rho^*_{\min}(p) \;\gtrsim\; \sqrt{\log p}.
+$$
+
+    On utilise une borne inférieure bayésienne. Soit $\pi$ la loi uniforme sur les $2p$ vecteurs $\{\pm \rho\, e_j : j = 1, \ldots, p\}$, où $e_j$ désigne le $j$-ème vecteur de la base canonique de $\mathbb{R}^p$. Notons $f_0$ la densité de $\mathcal{N}(0, I_p)$ et
+$$
+f_\pi(x) = \frac{1}{2p} \sum_{j=1}^p \bigl(f_{\rho e_j}(x) + f_{-\rho e_j}(x)\bigr)
+$$
+    la densité du mélange.
+
+    a. Montrer que pour tout test $T$ :
+$$
+R(T, \rho) \geq \int T\, f_0\, dx + \int (1-T)\, f_\pi\, dx \geq \int \min(f_0, f_\pi)\, dx.
+$$
+
+    b. Montrer que
+$$
+\frac{f_{\theta}(x)}{f_0(x)} = \exp\!\Bigl(\theta^\top x - \tfrac{1}{2}\|\theta\|^2\Bigr) \quad \text{et} \quad \mathbb{E}_0\!\bigl[e^{\rho X_j}\bigr] = e^{\rho^2/2}.
+$$
+    En déduire que
+$$
+\chi^2(f_\pi, f_0) := \int \frac{f_\pi^2}{f_0}\, dx - 1 = \frac{\cosh(\rho^2) - 1}{p}.
+$$
+
+    c. En déduire que pour $\rho^2 = c \log p$ avec $c < 1$, on a $\chi^2(f_\pi, f_0) \to 0$ quand $p \to \infty$.
+
+    d. En utilisant l'inégalité (admise)
+$$
+\int \min(f_0, f_\pi)\, dx \;\geq\; 1 - \tfrac{1}{2}\sqrt{\chi^2(f_\pi, f_0)},
+$$
+    conclure que $\rho^*_{\min}(p) \gtrsim \sqrt{\log p}$.
+
+    *Conclusion : pour le test en norme infinie en dimension $p$, la vitesse minimax exacte est $\rho^*_{\min}(p) \asymp \sqrt{\log p}$. La dimension n'entre que **logarithmiquement** dans le seuil de détection — c'est une nouvelle illustration du phénomène déjà rencontré avec la correction de Bonferroni.*
