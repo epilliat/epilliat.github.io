@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.22">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Crowdsourcing — ranking workers &amp; estimating ability – Emmanuel Pilliat</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-a5cd134f9b40a21b85be3e62cd27a8fe.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-0d617061f55d490b71e06a598f619273.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Emmanuel Pilliat</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../research.html"> 
+<span class="menu-text">Research</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../teaching/teaching.html"> 
+<span class="menu-text">Teaching</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../software/software.html"> 
+<span class="menu-text">Software</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../cv.html"> 
+<span class="menu-text">CV</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/epilliat"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://fr.linkedin.com/in/emmanuel-pilliat-18ab2b180"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="mailto:emmanuel.pilliat@ensai.fr"> <i class="bi bi-envelope" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Crowdsourcing — ranking workers &amp; estimating ability</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><a href="../../research.html" class="back-link">← Research</a></p>
+<div class="paper-eyebrow">
+<p>Crowdsourcing · ranking &amp; ability estimation</p>
+</div>
+<div class="paper-hook">
+<p>A crowd answers a pile of tasks — each worker getting some right, some wrong. <strong>From the answers alone, can you rank the workers and estimate how good each one is?</strong></p>
+</div>
+<div class="paper-sub">
+<p>Each worker <span class="math inline">\(i\)</span> and task <span class="math inline">\(k\)</span> has a hidden <strong>score</strong> <span class="math inline">\(M_{ik} \in [0,1]\)</span>, <strong>bi-isotonic</strong>: the workers can be ordered so one is <em>uniformly</em> better than another (higher score on <strong>every</strong> task), and the tasks likewise from easy to hard. We never see <span class="math inline">\(M\)</span> — only noisy answers. Two models: <strong>Bernoulli</strong> (binary answers in <code>{0,1}</code>, correct with a probability that rises with <span class="math inline">\(M\)</span> up to a <strong>peak ability</strong>) and <strong>Gaussian</strong> (<span class="math inline">\(M\)</span> observed as <span class="math inline">\(M + \mathcal N(0,\sigma^2)\)</span>).</p>
+</div>
+<p><strong>Top:</strong> the true matrix <span class="math inline">\(M\)</span> — left as the bi-isotonic score curves, right as a heat-map (it never changes; only the <em>data</em> below does). <strong>Bottom:</strong> the answers we actually observe. <strong>Shuffle</strong> the rows and/or columns to hide the orderings — that’s exactly what a ranking algorithm must undo.</p>
+<div class="bandit-controls" style="margin-top:1rem">
+  <span class="bench-group"><span class="bench-label">model</span>
+    <button id="csModelB" class="bench-btn on">Bernoulli</button>
+    <button id="csModelG" class="bench-btn">Gaussian</button>
+  </span>
+  <button id="csNew" class="bandit-btn">↻ new sample</button>
+  <label class="bandit-readout">workers <input id="csN" class="bandit-speed" type="range" min="5" max="300" step="1" value="40"> <b id="csNv">40</b></label>
+  <label class="bandit-readout">tasks <input id="csD" class="bandit-speed" type="range" min="5" max="300" step="1" value="80"> <b id="csDv">80</b></label>
+  <label class="bandit-readout" id="csHwrap">peak ability <input id="csH" class="bandit-speed" type="range" min="0.55" max="1" step="0.01" value="0.9"> <b id="csHv">0.90</b></label>
+  <label class="bandit-readout" id="csSwrap" style="display:none">noise σ · 𝒩(0, σ²) <input id="csS" class="bandit-speed" type="range" min="0" max="3" step="0.05" value="0.3"> <b id="csSv">0.30</b></label>
+</div>
+<div class="bench-plot cs-plot"><canvas id="csCanvas"></canvas><div class="bench-tip" id="csTip"></div></div>
+
+<div class="cs-obs-row">
+  <div class="bench-plot cs-obs"><canvas id="csObs"></canvas><div class="bench-tip" id="csObsTip"></div></div>
+  <div class="cs-obs-side">
+    <div class="bench-label">observed answers</div>
+    <button id="csShufR" class="bench-btn">⤢ shuffle rows</button>
+    <button id="csShufC" class="bench-btn">⤡ shuffle columns</button>
+    <div class="cs-model-text" id="csModelText"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var top = document.getElementById("csCanvas"), tip = document.getElementById("csTip");
+  var obs = document.getElementById("csObs"), obsTip = document.getElementById("csObsTip");
+  if (!top || !obs) return;
+  var MAXN = 300, MAXD = 300;
+  var state = { n: 40, d: 80, H: 0.9, sigma: 0.3, model: "bernoulli", shR: false, shC: false };
+  var Mfull, Z, U, selRows, selCols, rkey, ckey, gTop = null, gObs = null;
+  var hc = document.createElement("canvas"), hx = hc.getContext("2d");
+
+  function* dyadic(l, r) { if (r - l <= 1) return; if (r - l === 2) { yield [l, l + 1, r]; return; } var med = (l + r) >> 1; yield [l, med, r]; yield* dyadic(l, med); yield* dyadic(med, r); }
+  function genBiiso(n, d) {
+    var R = n + 2, C = d + 2, m = Array.from({ length: R }, function () { return new Float64Array(C).fill(0.5); });
+    for (var j = 0; j < C; j++) { m[0][j] = 0; m[n + 1][j] = 1; }
+    for (var i = 0; i < R; i++) { m[i][0] = 0; m[i][d + 1] = 1; }
+    m[0][0] = 0; m[0][d + 1] = 0; m[n + 1][0] = 0; m[n + 1][d + 1] = 1;
+    var cols = [...dyadic(0, d + 1)];
+    [...dyadic(0, n + 1)].forEach(function (rt) { cols.forEach(function (ct) {
+      var down = rt[0], em = rt[1], up = rt[2], left = ct[0], qm = ct[1], right = ct[2];
+      var upc = Math.min(m[up][qm], m[em][right]), dnc = Math.max(m[down][qm], m[em][left]);
+      m[em][qm] = dnc + (upc - dnc) * Math.random();
+    }); });
+    return m;
+  }
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function randperm(max) { var a = []; for (var i = 1; i <= max; i++) a.push(i); for (var j = max - 1; j > 0; j--) { var k = (Math.random() * (j + 1)) | 0, t = a[j]; a[j] = a[k]; a[k] = t; } return a; }
+  function mat(f) { var a = []; for (var i = 0; i <= MAXN; i++) { var r = new Float32Array(MAXD + 1); for (var j = 0; j <= MAXD; j++) r[j] = f(); a.push(r); } return a; }
+  function vec(m) { var a = new Float64Array(m + 1); for (var i = 0; i <= m; i++) a[i] = Math.random(); return a; }
+  function regen() { Mfull = genBiiso(MAXN, MAXD); selRows = randperm(MAXN); selCols = randperm(MAXD); Z = mat(gauss); U = mat(Math.random); rkey = vec(MAXN); ckey = vec(MAXD); }
+
+  function observed(r, c) {
+    if (state.model === "bernoulli") return U[r][c] < (0.5 + (2 * state.H - 1) * (Mfull[r][c] - 0.5)) ? 1 : 0;   // binary; best worker → H, worst → 1−H
+    return Math.max(0, Math.min(1, Mfull[r][c] + state.sigma * Z[r][c]));                               // M + N(0,σ²), clamped
+  }
+  function rankRows() { return selRows.slice(0, state.n).sort(function (a, b) { return a - b; }); }      // worst → best
+  function rankCols() { return selCols.slice(0, state.d).sort(function (a, b) { return a - b; }); }      // hard → easy
+
+  function frame(canvas) { var dpr = window.devicePixelRatio || 1, w = canvas.offsetWidth, h = canvas.offsetHeight;
+    if (!w || !h) return null; canvas.width = w * dpr; canvas.height = h * dpr; var c = canvas.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h); return { c: c, w: w, h: h }; }
+  function paintHeat(c, rows, cols, fn, lo, hi, X0, Y0, Rw, Rh, smooth) {
+    var n = rows.length, d = cols.length; hc.width = d; hc.height = n; var img = hx.createImageData(d, n), dt = img.data, p = 0;
+    for (var py = 0; py < n; py++) { var rr = rows[py]; for (var px = 0; px < d; px++) { var g = (16 + (fn(rr, cols[px]) - lo) / (hi - lo) * 230) | 0; dt[p] = dt[p + 1] = dt[p + 2] = g; dt[p + 3] = 255; p += 4; } }
+    hx.putImageData(img, 0, 0); c.imageSmoothingEnabled = smooth; c.drawImage(hc, 0, 0, d, n, X0, Y0, Rw, Rh);
+  }
+
+  function drawTop() {                                  // TRUE M — never depends on the model, ability or noise
+    var s = frame(top); if (!s) return; var c = s.c, w = s.w, h = s.h, rows = rankRows(), cols = rankCols();
+    var Ty = 14, By = h - 26, ph = By - Ty, gap = 46, split = Math.round(w * 0.53);
+    var Lx0 = 42, Lx1 = split - gap / 2, Rx0 = split + gap / 2, Rx1 = w - 14, Rw = Rx1 - Rx0;
+    c.font = "10px system-ui,sans-serif";
+    function LY(p) { return By - p * ph; } function LX(k) { return Lx0 + (state.d > 1 ? k / (state.d - 1) : 0) * (Lx1 - Lx0); }
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.beginPath(); c.moveTo(Lx0, Ty); c.lineTo(Lx0, By); c.lineTo(Lx1, By); c.stroke();
+    c.fillStyle = "rgba(170,180,205,0.8)"; c.textAlign = "right"; [0, 0.5, 1].forEach(function (p) { c.fillText(p.toFixed(1), Lx0 - 5, LY(p) + 3); });
+    c.save(); c.translate(12, (Ty + By) / 2); c.rotate(-Math.PI / 2); c.textAlign = "center"; c.fillText("score  M", 0, 0); c.restore();
+    c.textAlign = "center"; c.fillStyle = "rgba(170,180,205,0.8)"; c.fillText("tasks  (hard → easy)", (Lx0 + Lx1) / 2, h - 8);
+    c.lineWidth = 1; c.strokeStyle = "rgba(255,255,255,0.30)";
+    for (var i = 0; i < rows.length; i++) { var row = rows[i]; c.beginPath(); for (var k = 0; k < cols.length; k++) { var x = LX(k), y = LY(Mfull[row][cols[k]]); k ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke(); }
+    paintHeat(c, rows, cols, function (r, cc) { return Mfull[r][cc]; }, 0, 1, Rx0, Ty, Rw, ph, false);   // crisp cells, no blur
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.strokeRect(Rx0, Ty, Rw, ph);
+    c.fillStyle = "rgba(170,180,205,0.8)"; c.textAlign = "center"; c.fillText("true  M", (Rx0 + Rx1) / 2, h - 8);
+    c.save(); c.translate(Rx0 - 8, (Ty + By) / 2); c.rotate(-Math.PI / 2); c.textAlign = "center"; c.fillText("workers (worst → best)", 0, 0); c.restore();
+    gTop = { Rx0: Rx0, Ty: Ty, Rw: Rw, ph: ph, rows: rows, cols: cols };
+  }
+
+  function drawObs() {                                  // OBSERVED answers — model-dependent, with optional row/col shuffles
+    var s = frame(obs); if (!s || !gTop) return; var c = s.c, w = s.w, h = s.h;
+    var rows = rankRows(), cols = rankCols();
+    if (state.shR) rows = rows.slice().sort(function (a, b) { return rkey[a] - rkey[b]; });
+    if (state.shC) cols = cols.slice().sort(function (a, b) { return ckey[a] - ckey[b]; });
+    var X0 = 40, ph = gTop.ph, Rw = Math.min(gTop.Rw, w - X0 - 12), Ty = Math.max(12, (h - ph) / 2), By = Ty + ph;   // same box as the true-M panel
+    paintHeat(c, rows, cols, observed, 0, 1, X0, Ty, Rw, ph, false);   // crisp cells (σ=0 ⇒ exactly the top-right M)
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.strokeRect(X0, Ty, Rw, ph);
+    c.font = "10px system-ui,sans-serif"; c.fillStyle = "rgba(170,180,205,0.8)"; c.textAlign = "center";
+    c.fillText(state.shC ? "tasks (shuffled)" : "tasks (hard → easy)", X0 + Rw / 2, By + 14);
+    c.save(); c.translate(14, (Ty + By) / 2); c.rotate(-Math.PI / 2); c.textAlign = "center"; c.fillText(state.shR ? "workers (shuffled)" : "workers (worst → best)", 0, 0); c.restore();
+    gObs = { Rx0: X0, Ty: Ty, Rw: Rw, ph: ph, rows: rows, cols: cols };
+  }
+
+  function modelText() {
+    var r = state.shR, c = state.shC, t;
+    if (r && c) t = "<b>SST model</b> — both orderings are hidden (Strong Stochastic Transitivity). See <a href=\"https://arxiv.org/abs/1510.05610\" target=\"_blank\" rel=\"noopener\">Shah et&nbsp;al. (2017)</a>.";
+    else if (r || c) t = "<b>Bi-isotonic ranking model</b> — one ordering is hidden and must be recovered.";
+    else t = "Nothing shuffled — recovering <b>M</b> is just <b>bi-isotonic estimation</b> (the orderings are known).";
+    document.getElementById("csModelText").innerHTML = t;
+  }
+
+  function drawAll() { drawTop(); drawObs(); }
+
+  function hoverHeat(canvas, getG, tipEl, html) {
+    canvas.addEventListener("mousemove", function (e) {
+      var g = getG(); if (!g) return; var rect = canvas.getBoundingClientRect(), mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      var dc = Math.floor((mx - g.Rx0) / (g.Rw / g.cols.length)), dr = Math.floor((my - g.Ty) / (g.ph / g.rows.length));
+      if (dc >= 0 && dc < g.cols.length && dr >= 0 && dr < g.rows.length) { tipEl.style.display = "block"; tipEl.style.left = mx + "px"; tipEl.style.top = (my - 8) + "px"; tipEl.innerHTML = html(g.rows[dr], g.cols[dc], dr, dc); }
+      else tipEl.style.display = "none";
+    });
+    canvas.addEventListener("mouseleave", function () { tipEl.style.display = "none"; });
+  }
+  hoverHeat(top, function () { return gTop; }, tip, function (r, c) { return "<b>M = " + Mfull[r][c].toFixed(3) + "</b>"; });
+  hoverHeat(obs, function () { return gObs; }, obsTip, function (r, c) {
+    return state.model === "gaussian" ? "M = " + Mfull[r][c].toFixed(3) + " · <b>obs = " + observed(r, c).toFixed(3) + "</b>" : "<b>answer = " + observed(r, c) + "</b>  ·  M = " + Mfull[r][c].toFixed(2);
+  });
+
+  var pending = false; function schedule() { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; drawAll(); }); }
+  var SLIDERS = [["csN", "n", "csNv", null], ["csD", "d", "csDv", null], ["csH", "H", "csHv", function (v) { return v.toFixed(2); }], ["csS", "sigma", "csSv", function (v) { return v.toFixed(2); }]];
+  function applySlider(s) { var v = +document.getElementById(s[0]).value; state[s[1]] = v; document.getElementById(s[2]).textContent = s[3] ? s[3](v) : v; }
+  SLIDERS.forEach(function (s) { document.getElementById(s[0]).addEventListener("input", function () { applySlider(s); schedule(); }); });
+  function syncFromInputs() { SLIDERS.forEach(applySlider); }   // read whatever the browser restored, so cursors == drawn quantities after a refresh
+  function setModel(m) { state.model = m;
+    document.getElementById("csModelB").classList.toggle("on", m === "bernoulli");
+    document.getElementById("csModelG").classList.toggle("on", m === "gaussian");
+    document.getElementById("csHwrap").style.display = m === "bernoulli" ? "" : "none";
+    document.getElementById("csSwrap").style.display = m === "gaussian" ? "" : "none";
+    drawObs();   // top is unchanged
+  }
+  document.getElementById("csModelB").addEventListener("click", function () { setModel("bernoulli"); });
+  document.getElementById("csModelG").addEventListener("click", function () { setModel("gaussian"); });
+  document.getElementById("csShufR").addEventListener("click", function () { state.shR = !state.shR; this.classList.toggle("on", state.shR); drawObs(); modelText(); });
+  document.getElementById("csShufC").addEventListener("click", function () { state.shC = !state.shC; this.classList.toggle("on", state.shC); drawObs(); modelText(); });
+  document.getElementById("csNew").addEventListener("click", function () { regen(); schedule(); });
+  var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+  syncFromInputs(); regen(); drawAll(); modelText();
+})();
+</script>
+<section id="the-model-in-one-line" class="level2">
+<h2 class="anchored" data-anchor-id="the-model-in-one-line">The model in one line</h2>
+<p>Workers and tasks each have a hidden <strong>rank</strong>; the score matrix <span class="math inline">\(M_{ik}\)</span> is non-decreasing as the worker gets better and as the task gets easier (bi-isotonicity). We only see one noisy draw per entry, yet the monotone shape lets us <strong>borrow strength across rows and columns</strong> to recover the orderings and the scores at the optimal rate.</p>
+</section>
+<section id="removing-the-row-constraint-the-isotonic-model" class="level2">
+<h2 class="anchored" data-anchor-id="removing-the-row-constraint-the-isotonic-model">Removing the row constraint — the isotonic model</h2>
+<p>Now <strong>drop bi-isotonicity on the rows</strong>: we keep only that every task ranks the workers the <em>same way</em> (each <strong>column</strong> is non-decreasing in worker ability), but a single worker’s scores <em>across</em> tasks may be arbitrary. The workers are still totally ordered — so the ranking is recoverable — yet the tasks carry no order. The latent matrix <span class="math inline">\(M\)</span> is on the <strong>left</strong>, the noisy answers on the <strong>right</strong>; <strong>shuffle the rows</strong> to hide the worker ranking the algorithm has to rebuild.</p>
+<div class="bandit-controls" style="margin-top:1rem">
+  <span class="bench-group"><span class="bench-label">model</span>
+    <button id="isModelB" class="bench-btn on">Bernoulli</button>
+    <button id="isModelG" class="bench-btn">Gaussian</button>
+  </span>
+  <button id="isNew" class="bandit-btn">↻ new sample</button>
+  <label class="bandit-readout">workers <input id="isN" class="bandit-speed" type="range" min="5" max="300" step="1" value="40"> <b id="isNv">40</b></label>
+  <label class="bandit-readout">tasks <input id="isD" class="bandit-speed" type="range" min="5" max="300" step="1" value="80"> <b id="isDv">80</b></label>
+  <label class="bandit-readout" id="isHwrap">peak ability <input id="isH" class="bandit-speed" type="range" min="0.55" max="1" step="0.01" value="0.9"> <b id="isHv">0.90</b></label>
+  <label class="bandit-readout" id="isSwrap" style="display:none">noise σ · 𝒩(0, σ²) <input id="isS" class="bandit-speed" type="range" min="0" max="3" step="0.05" value="0.3"> <b id="isSv">0.30</b></label>
+  <button id="isShufR" class="bench-btn">⤢ shuffle rows</button>
+</div>
+<div class="cs-iso-row">
+  <div class="bench-plot cs-iso"><canvas id="isTrue"></canvas><div class="bench-tip" id="isTrueTip"></div></div>
+  <div class="bench-plot cs-iso"><canvas id="isObs"></canvas><div class="bench-tip" id="isObsTip"></div></div>
+</div>
+
+<script>
+(function () {
+  var trueC = document.getElementById("isTrue"), trueTip = document.getElementById("isTrueTip");
+  var obsC = document.getElementById("isObs"), obsTip = document.getElementById("isObsTip");
+  if (!trueC || !obsC) return;
+  var MAXN = 300, MAXD = 300;
+  var state = { n: 40, d: 80, H: 0.9, sigma: 0.3, model: "bernoulli", shR: false };
+  var Mfull, Z, U, selRows, selCols, rkey, gTrue = null, gObs = null;
+  var hc = document.createElement("canvas"), hx = hc.getContext("2d");
+
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function randperm(max) { var a = []; for (var i = 1; i <= max; i++) a.push(i); for (var j = max - 1; j > 0; j--) { var k = (Math.random() * (j + 1)) | 0, t = a[j]; a[j] = a[k]; a[k] = t; } return a; }
+  function genIsotonic(n, d) {                         // each column monotone in worker rank; columns (tasks) independent → rows arbitrary
+    var m = Array.from({ length: n + 1 }, function () { return new Float64Array(d + 1); }), col = new Float64Array(n);
+    for (var j = 1; j <= d; j++) {
+      for (var i = 0; i < n; i++) col[i] = Math.random();
+      Array.prototype.sort.call(col, function (a, b) { return a - b; });
+      var g = 0.35 + Math.random() * 2.65;            // random difficulty shape per task
+      for (var i = 1; i <= n; i++) m[i][j] = Math.pow(col[i - 1], g);
+    }
+    return m;
+  }
+  function mat(f) { var a = []; for (var i = 0; i <= MAXN; i++) { var r = new Float32Array(MAXD + 1); for (var j = 0; j <= MAXD; j++) r[j] = f(); a.push(r); } return a; }
+  function vec(m) { var a = new Float64Array(m + 1); for (var i = 0; i <= m; i++) a[i] = Math.random(); return a; }
+  function regen() { Mfull = genIsotonic(MAXN, MAXD); selRows = randperm(MAXN); selCols = randperm(MAXD); Z = mat(gauss); U = mat(Math.random); rkey = vec(MAXN); }
+
+  function observed(r, c) {
+    if (state.model === "bernoulli") return U[r][c] < (0.5 + (2 * state.H - 1) * (Mfull[r][c] - 0.5)) ? 1 : 0;
+    return Math.max(0, Math.min(1, Mfull[r][c] + state.sigma * Z[r][c]));
+  }
+  function rankRows() { return selRows.slice(0, state.n).sort(function (a, b) { return a - b; }); }   // worst → best
+  function theCols() { return selCols.slice(0, state.d).sort(function (a, b) { return a - b; }); }
+
+  function frame(canvas) { var dpr = window.devicePixelRatio || 1, w = canvas.offsetWidth, h = canvas.offsetHeight;
+    if (!w || !h) return null; canvas.width = w * dpr; canvas.height = h * dpr; var c = canvas.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h); return { c: c, w: w, h: h }; }
+  function paintHeat(c, rows, cols, fn, X0, Y0, Rw, Rh, smooth) {
+    var n = rows.length, d = cols.length; hc.width = d; hc.height = n; var img = hx.createImageData(d, n), dt = img.data, p = 0;
+    for (var py = 0; py < n; py++) { var rr = rows[py]; for (var px = 0; px < d; px++) { var g = (16 + fn(rr, cols[px]) * 230) | 0; dt[p] = dt[p + 1] = dt[p + 2] = g; dt[p + 3] = 255; p += 4; } }
+    hx.putImageData(img, 0, 0); c.imageSmoothingEnabled = smooth; c.drawImage(hc, 0, 0, d, n, X0, Y0, Rw, Rh);
+  }
+  function drawMatrix(canvas, rows, cols, fn, smooth, title, rowLabel, setG) {
+    var s = frame(canvas); if (!s) return; var c = s.c, w = s.w, h = s.h;
+    var X0 = 40, Ty = 22, By = h - 24, ph = By - Ty, Rw = w - X0 - 12;
+    paintHeat(c, rows, cols, fn, X0, Ty, Rw, ph, smooth);
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.strokeRect(X0, Ty, Rw, ph);
+    c.font = "10px system-ui,sans-serif"; c.fillStyle = "rgba(170,180,205,0.85)"; c.textAlign = "left"; c.fillText(title, X0, 14);
+    c.textAlign = "center"; c.fillText("tasks", X0 + Rw / 2, h - 7);
+    c.save(); c.translate(14, (Ty + By) / 2); c.rotate(-Math.PI / 2); c.textAlign = "center"; c.fillText(rowLabel, 0, 0); c.restore();
+    setG({ Rx0: X0, Ty: Ty, Rw: Rw, ph: ph, rows: rows, cols: cols });
+  }
+
+  function drawAll() {
+    var rows = rankRows(), cols = theCols();
+    drawMatrix(trueC, rows, cols, function (r, cc) { return Mfull[r][cc]; }, false, "true  M", "workers (worst → best)", function (g) { gTrue = g; });
+    var orows = state.shR ? rows.slice().sort(function (a, b) { return rkey[a] - rkey[b]; }) : rows;
+    drawMatrix(obsC, orows, cols, observed, false, "observed answers", state.shR ? "workers (shuffled)" : "workers (worst → best)", function (g) { gObs = g; });
+  }
+
+  function hoverHeat(canvas, getG, tipEl, html) {
+    canvas.addEventListener("mousemove", function (e) {
+      var g = getG(); if (!g) return; var rect = canvas.getBoundingClientRect(), mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      var dc = Math.floor((mx - g.Rx0) / (g.Rw / g.cols.length)), dr = Math.floor((my - g.Ty) / (g.ph / g.rows.length));
+      if (dc >= 0 && dc < g.cols.length && dr >= 0 && dr < g.rows.length) { tipEl.style.display = "block"; tipEl.style.left = mx + "px"; tipEl.style.top = (my - 8) + "px"; tipEl.innerHTML = html(g.rows[dr], g.cols[dc]); }
+      else tipEl.style.display = "none";
+    });
+    canvas.addEventListener("mouseleave", function () { tipEl.style.display = "none"; });
+  }
+  hoverHeat(trueC, function () { return gTrue; }, trueTip, function (r, c) { return "<b>M = " + Mfull[r][c].toFixed(3) + "</b>"; });
+  hoverHeat(obsC, function () { return gObs; }, obsTip, function (r, c) {
+    return state.model === "gaussian" ? "M = " + Mfull[r][c].toFixed(3) + " · <b>obs = " + observed(r, c).toFixed(3) + "</b>" : "<b>answer = " + observed(r, c) + "</b>  ·  M = " + Mfull[r][c].toFixed(2);
+  });
+
+  var pending = false; function schedule() { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; drawAll(); }); }
+  var SLIDERS = [["isN", "n", "isNv", null], ["isD", "d", "isDv", null], ["isH", "H", "isHv", function (v) { return v.toFixed(2); }], ["isS", "sigma", "isSv", function (v) { return v.toFixed(2); }]];
+  function applySlider(s) { var v = +document.getElementById(s[0]).value; state[s[1]] = v; document.getElementById(s[2]).textContent = s[3] ? s[3](v) : v; }
+  SLIDERS.forEach(function (s) { document.getElementById(s[0]).addEventListener("input", function () { applySlider(s); schedule(); }); });
+  function syncFromInputs() { SLIDERS.forEach(applySlider); }
+  function setModel(m) { state.model = m;
+    document.getElementById("isModelB").classList.toggle("on", m === "bernoulli");
+    document.getElementById("isModelG").classList.toggle("on", m === "gaussian");
+    document.getElementById("isHwrap").style.display = m === "bernoulli" ? "" : "none";
+    document.getElementById("isSwrap").style.display = m === "gaussian" ? "" : "none";
+    schedule();
+  }
+  document.getElementById("isModelB").addEventListener("click", function () { setModel("bernoulli"); });
+  document.getElementById("isModelG").addEventListener("click", function () { setModel("gaussian"); });
+  document.getElementById("isShufR").addEventListener("click", function () { state.shR = !state.shR; this.classList.toggle("on", state.shR); schedule(); });
+  document.getElementById("isNew").addEventListener("click", function () { regen(); schedule(); });
+  var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+  syncFromInputs(); regen(); drawAll();
+})();
+</script>
+</section>
+<section id="the-final-step-recovering-the-labels" class="level2">
+<h2 class="anchored" data-anchor-id="the-final-step-recovering-the-labels">The final step — recovering the labels</h2>
+<p>Everything above assumed we <em>knew</em> the right answers and only ranked workers or estimated <span class="math inline">\(M\)</span>. The last paper drops that. Each task <span class="math inline">\(k\)</span> now carries an <strong>unknown</strong> binary label <span class="math inline">\(x^*_k \in \{-1,+1\}\)</span>, and all we see are the votes: worker <span class="math inline">\(i\)</span> answers task <span class="math inline">\(k\)</span> <strong>correctly with probability</strong> <span class="math inline">\(\tfrac{1+M_{ik}}{2}\)</span>, i.e.&nbsp;<span class="math inline">\(Y_{ik} = x^*_k\)</span> with probability <span class="math inline">\(\tfrac{1+M_{ik}}{2}\)</span> and <span class="math inline">\(-x^*_k\)</span> otherwise — where <span class="math inline">\(M_{ik}=1\)</span> is a perfect worker and <span class="math inline">\(M_{ik}=0\)</span> a coin flip — with entries possibly <strong>missing</strong> (each vote observed with probability <span class="math inline">\(\lambda\)</span>). The ability matrix <span class="math inline">\(M\)</span> is <strong>isotonic</strong> after an unknown worker permutation, exactly the structure visualised just above. Plain <strong>majority vote</strong> can be barely better than chance when abilities are low; the COLT 2025 paper gives the first <strong>polynomial-time</strong> estimator that recovers <span class="math inline">\(x^*\)</span> at the <strong>minimax-optimal</strong> rate — and, as a by-product, recovers the earlier ranking and estimation guarantees as special cases.</p>
+<p>Each column below is a task with a hidden label <span class="math inline">\(x^*_k\)</span>; the workers’ <span class="math inline">\(\pm1\)</span> votes fill the matrix (green <span class="math inline">\(-1\)</span>, blue <span class="math inline">\(+1\)</span>). The two strips compare the <strong>true labels</strong> with the <strong>majority vote</strong> — drag <strong>ability</strong> down or remove workers and watch majority vote start making errors (outlined red).</p>
+<div class="bandit-controls" style="margin-top:1rem">
+  <button id="lbNew" class="bandit-btn">↻ new sample</button>
+  <label class="bandit-readout">workers <input id="lbN" class="bandit-speed" type="range" min="3" max="200" step="1" value="15"> <b id="lbNv">15</b></label>
+  <label class="bandit-readout">tasks <input id="lbD" class="bandit-speed" type="range" min="10" max="200" step="1" value="60"> <b id="lbDv">60</b></label>
+  <label class="bandit-readout">ability <input id="lbA" class="bandit-speed" type="range" min="0" max="1" step="0.02" value="0.35"> <b id="lbAv">0.35</b></label>
+  <span class="bandit-readout"><span style="display:inline-block;width:10px;height:10px;background:rgb(20,20,24);border:1px solid rgba(255,255,255,0.3);border-radius:2px;vertical-align:middle"></span> −1 <span style="display:inline-block;width:10px;height:10px;background:rgb(238,240,245);border:1px solid rgba(255,255,255,0.3);border-radius:2px;vertical-align:middle"></span> +1</span>
+  <span class="bandit-readout">majority-vote errors: <b id="lbErr">–</b></span>
+</div>
+<div class="bench-plot lb-plot"><canvas id="lbCanvas"></canvas><div class="bench-tip" id="lbTip"></div></div>
+
+<script>
+(function () {
+  var cv = document.getElementById("lbCanvas"), tip = document.getElementById("lbTip");
+  if (!cv) return;
+  var MAXN = 200, MAXD = 200;
+  var state = { n: 15, d: 60, a: 0.35 };
+  var Mfull, U, xstar, selRows, selCols, geom = null;
+  var hc = document.createElement("canvas"), hx = hc.getContext("2d");
+  var GREEN = [20, 20, 24], BLUE = [238, 240, 245];   // −1 near-black, +1 near-white
+
+  function randperm(max) { var a = []; for (var i = 1; i <= max; i++) a.push(i); for (var j = max - 1; j > 0; j--) { var k = (Math.random() * (j + 1)) | 0, t = a[j]; a[j] = a[k]; a[k] = t; } return a; }
+  function genIsotonic(n, d) {
+    var m = Array.from({ length: n + 1 }, function () { return new Float64Array(d + 1); }), col = new Float64Array(n);
+    for (var j = 1; j <= d; j++) {
+      for (var i = 0; i < n; i++) col[i] = Math.random();
+      Array.prototype.sort.call(col, function (a, b) { return a - b; });
+      var g = 0.35 + Math.random() * 2.65;
+      for (var i = 1; i <= n; i++) m[i][j] = Math.pow(col[i - 1], g);
+    }
+    return m;
+  }
+  function mat(f) { var a = []; for (var i = 0; i <= MAXN; i++) { var r = new Float32Array(MAXD + 1); for (var j = 0; j <= MAXD; j++) r[j] = f(); a.push(r); } return a; }
+  function regen() { Mfull = genIsotonic(MAXN, MAXD); U = mat(Math.random); xstar = []; for (var j = 0; j <= MAXD; j++) xstar.push(Math.random() < 0.5 ? -1 : 1); selRows = randperm(MAXN); selCols = randperm(MAXD); }
+  function vote(i, k) { return U[i][k] < (1 + state.a * Mfull[i][k]) / 2 ? xstar[k] : -xstar[k]; }   // correct w.p. (1+aM)/2
+  function rows() { return selRows.slice(0, state.n).sort(function (a, b) { return a - b; }); }
+  function cols() { return selCols.slice(0, state.d); }
+
+  function frame(canvas) { var dpr = window.devicePixelRatio || 1, w = canvas.offsetWidth, h = canvas.offsetHeight;
+    if (!w || !h) return null; canvas.width = w * dpr; canvas.height = h * dpr; var c = canvas.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h); return { c: c, w: w, h: h }; }
+
+  function draw() {
+    var s = frame(cv); if (!s) return; var c = s.c, w = s.w, h = s.h;
+    var rs = rows(), cs = cols(), n = rs.length, d = cs.length;
+    var X0 = 72, X1 = w - 12, Rw = X1 - X0, Ty = 20, mainBy = h - 64, ph = mainBy - Ty, cw = Rw / d;
+    hc.width = d; hc.height = n; var img = hx.createImageData(d, n), dt = img.data, p = 0;
+    for (var py = 0; py < n; py++) { var ri = rs[py]; for (var px = 0; px < d; px++) { var col = vote(ri, cs[px]) > 0 ? BLUE : GREEN; dt[p] = col[0]; dt[p + 1] = col[1]; dt[p + 2] = col[2]; dt[p + 3] = 255; p += 4; } }
+    hx.putImageData(img, 0, 0); c.imageSmoothingEnabled = false; c.drawImage(hc, 0, 0, d, n, X0, Ty, Rw, ph);
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.lineWidth = 1; c.strokeRect(X0, Ty, Rw, ph);
+    var sh = 16, trueY = h - 54, mvY = h - 32, errs = 0;
+    for (var px = 0; px < d; px++) {
+      var k = cs[px], x = X0 + px * cw, tx = xstar[k];
+      c.fillStyle = "rgb(" + (tx > 0 ? BLUE : GREEN).join(",") + ")"; c.fillRect(x, trueY, Math.ceil(cw), sh);
+      var ssum = 0; for (var py = 0; py < n; py++) ssum += vote(rs[py], k); var mv = ssum >= 0 ? 1 : -1;
+      c.fillStyle = "rgb(" + (mv > 0 ? BLUE : GREEN).join(",") + ")"; c.fillRect(x, mvY, Math.ceil(cw), sh);
+      if (mv !== tx) { errs++; c.strokeStyle = "#ff5b6e"; c.lineWidth = 1.5; c.strokeRect(x + 0.75, mvY + 0.75, Math.ceil(cw) - 1.5, sh - 1.5); }
+    }
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.lineWidth = 1; c.strokeRect(X0, trueY, Rw, sh); c.strokeRect(X0, mvY, Rw, sh);
+    c.font = "10px system-ui,sans-serif"; c.fillStyle = "rgba(170,180,205,0.85)"; c.textAlign = "left"; c.fillText("worker votes  Y  (±1)", X0, 14);
+    c.textAlign = "right"; c.fillText("true  x*", X0 - 6, trueY + 12); c.fillText("maj. vote", X0 - 6, mvY + 12);
+    c.textAlign = "center"; c.fillText("tasks  →", X0 + Rw / 2, h - 6);
+    document.getElementById("lbErr").textContent = errs + " / " + d;
+    geom = { X0: X0, Ty: Ty, Rw: Rw, ph: ph, rows: rs, cols: cs };
+  }
+
+  cv.addEventListener("mousemove", function (e) {
+    if (!geom) { return; } var rect = cv.getBoundingClientRect(), mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    var dc = Math.floor((mx - geom.X0) / (geom.Rw / geom.cols.length)), dr = Math.floor((my - geom.Ty) / (geom.ph / geom.rows.length));
+    if (dc >= 0 && dc < geom.cols.length && dr >= 0 && dr < geom.rows.length) {
+      var ri = geom.rows[dr], k = geom.cols[dc], v = vote(ri, k), ok = v === xstar[k];
+      tip.style.display = "block"; tip.style.left = mx + "px"; tip.style.top = (my - 8) + "px";
+      tip.innerHTML = "worker #" + (dr + 1) + " · task #" + (dc + 1) + "<br><b>vote " + (v > 0 ? "+1" : "−1") + "</b> · " + (ok ? "correct" : "wrong");
+    } else tip.style.display = "none";
+  });
+  cv.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+
+  var pending = false; function schedule() { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; draw(); }); }
+  var SLIDERS = [["lbN", "n", "lbNv", null], ["lbD", "d", "lbDv", null], ["lbA", "a", "lbAv", function (v) { return v.toFixed(2); }]];
+  function applySlider(s) { var v = +document.getElementById(s[0]).value; state[s[1]] = v; document.getElementById(s[2]).textContent = s[3] ? s[3](v) : v; }
+  SLIDERS.forEach(function (s) { document.getElementById(s[0]).addEventListener("input", function () { applySlider(s); schedule(); }); });
+  document.getElementById("lbNew").addEventListener("click", function () { regen(); schedule(); });
+  var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(draw, 120); });
+  SLIDERS.forEach(applySlider); regen(); draw();
+})();
+</script>
+</section>
+<section id="references-links" class="level2">
+<h2 class="anchored" data-anchor-id="references-links">References &amp; links</h2>
+<div class="aurora-card-grid">
+  <a class="aurora-card" href="https://proceedings.mlr.press/v291/pilliat25a.html">
+    <span class="aurora-card__icon">🏷️</span>
+    <span class="aurora-card__title">Recovering Labels from Crowdsourced Data</span>
+    <span class="aurora-card__desc">An optimal, polynomial-time method for recovering the true labels — COLT 2025.</span>
+    <span class="aurora-card__more">PMLR →</span>
+  </a>
+  <a class="aurora-card" href="https://arxiv.org/abs/2211.04092">
+    <span class="aurora-card__icon">🔢</span>
+    <span class="aurora-card__title">Optimal Permutation Estimation in Crowd-Sourcing</span>
+    <span class="aurora-card__desc">Minimax-optimal, polynomial-time estimation of the worker permutation — Annals of Statistics.</span>
+    <span class="aurora-card__more">arXiv →</span>
+  </a>
+  <a class="aurora-card" href="https://arxiv.org/abs/2310.01133">
+    <span class="aurora-card__icon">📐</span>
+    <span class="aurora-card__title">Ranking a Permuted Isotonic Matrix</span>
+    <span class="aurora-card__desc">Optimal rates for recovering the permutation of an isotonic matrix — SODA 2024.</span>
+    <span class="aurora-card__more">arXiv →</span>
+  </a>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
