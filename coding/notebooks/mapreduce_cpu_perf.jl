@@ -1,12 +1,14 @@
 ### A Pluto.jl notebook ###
-# v0.20.21
+# v0.20.24
 
 using Markdown
 using InteractiveUtils
 
 # ╔═╡ 6a11ce45-a560-4bac-a1da-deacc3bb9084
 begin
-	using BenchmarkTools
+	using BenchmarkTools, Plots
+	ENV["GKSwstype"] = "100"                            # headless plotting backend
+	BenchmarkTools.DEFAULT_PARAMETERS.seconds = 0.2     # keep the notebook quick to re-run
 end
 
 # ╔═╡ 4090abca-7991-4a23-8355-07eaef7c006b
@@ -299,6 +301,7 @@ md"""
 
 # ╔═╡ df5bd6be-1297-4bf1-9bd5-9c08b814c33f
 @noinline function mapreduce_block(f::F, op, A::AbstractArray{T}, L, R, init=nothing) where {T, F<: Function}
+    R < L && return init                       # empty range → neutral (avoids a Val(1) OOB vload)
     if R-L+1<32
         return mapreduce_boundedsize(f,op,A,L,R,Val(32))
 	end
@@ -428,6 +431,60 @@ end
 # ╔═╡ 9e4c5bf5-b681-4f72-855d-de1db2b4ce6d
 @btime sum($(a[1:12345]))
 
+# ╔═╡ aaaa0001-0000-0000-0000-000000000001
+md"""
+## Correctness tests
+
+Before trusting `mapreduce_tree`, we check it against a ground-truth reduction over many random
+**types**, **lengths** (including the awkward 31/32/33, 1023/1024/1025, … and the *empty* range)
+and **offsets** `L`. This harness is what flushed out the empty-range bug fixed in
+`mapreduce_block` above (a `Val(1)` `vload` reading past the end).
+"""
+
+# ╔═╡ aaaa0002-0000-0000-0000-000000000002
+let
+	fails = 0; tested = 0
+	for T in (Float32, Float64, Int32, Int64)
+		refsum(x) = T <: AbstractFloat ? sum(Float64.(x)) : sum(x)
+		ok(g, w) = T <: AbstractFloat ? isapprox(g, w; rtol = 1e-3) : g == w
+		for len in unique([0,1,2,3,16,31,32,33,63,64,1023,1024,1025,8191,8192,8193,12345,65536, rand(1:5000, 8)...])
+			for L in (1, 2, 5)
+				a = T <: AbstractFloat ? rand(T, L - 1 + len) : rand(T(-100):T(100), L - 1 + len)
+				R = L + len - 1
+				tested += 1
+				got  = mapreduce_tree(identity, +, a, L, R, Val(8192), Val(16), zero(T))
+				want = len == 0 ? zero(T) : refsum(@view a[L:R])
+				ok(got, want) || (fails += 1)
+			end
+		end
+	end
+	(tested = tested, failures = fails)
+end
+
+# ╔═╡ aaaa0003-0000-0000-0000-000000000003
+md"""
+## Throughput across sizes
+
+Reductions are memory-bound, so the meaningful metric is **throughput (GB/s)**, swept across
+sizes that cross the cache hierarchy (L1 → L2 → L3 → DRAM). `mapreduce_tree` stays ahead of
+`Base.sum` while in cache, and the two converge once the array spills to DRAM.
+"""
+
+# ╔═╡ aaaa0004-0000-0000-0000-000000000004
+let
+	gbs(t, n) = n * sizeof(Float32) / t / 1e9
+	sizes = [2^k for k in 6:2:24]
+	tree = Float64[]; base = Float64[]
+	for n in sizes
+		a = rand(Float32, n)
+		push!(tree, gbs((@belapsed mapreduce_tree(identity, +, $a, 1, $n, Val(8192), Val(16), 0.0f0)), n))
+		push!(base, gbs((@belapsed sum($a)), n))
+	end
+	plot(sizes, [tree base]; xscale = :log2, lw = 2, marker = :circle,
+		label = ["mapreduce_tree" "Base.sum"], xlabel = "array length (Float32)",
+		ylabel = "throughput (GB/s)", title = "CPU sum throughput vs size", legend = :bottomleft)
+end
+
 # ╔═╡ e09b711e-028c-4a59-bacd-b684b4800df2
 md"""
 ## Conclusion
@@ -452,9 +509,11 @@ s=min(s,A[i])
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [compat]
 BenchmarkTools = "~1.6.3"
+Plots = "~1.40.0"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -664,6 +723,10 @@ version = "5.11.0+0"
 # ╠═77bd328d-b984-418a-9775-05711c3c5d7c
 # ╠═84991c3f-2657-4f30-8e99-1e3cc88c94ba
 # ╠═9e4c5bf5-b681-4f72-855d-de1db2b4ce6d
+# ╟─aaaa0001-0000-0000-0000-000000000001
+# ╠═aaaa0002-0000-0000-0000-000000000002
+# ╟─aaaa0003-0000-0000-0000-000000000003
+# ╠═aaaa0004-0000-0000-0000-000000000004
 # ╟─e09b711e-028c-4a59-bacd-b684b4800df2
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

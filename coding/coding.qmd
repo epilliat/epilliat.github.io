@@ -1,42 +1,243 @@
 ---
-title: "Coding"
-sidebar: "coding"
+title: "Software"
+sidebar: false
+toc: false
 format:
   html:
-    theme: 
+    theme:
       - darkly
+      - ../theme-aurora.scss
       - custom.scss
-    
 ---
 
-While my primary research focuses on statistics, I have a strong interest in high-performance computing with Julia across both GPU and CPU architectures. My work in this area began with reduction operations—fundamental parallel primitives that underpin computations ranging from vector dot products to matrix-vector multiplications in higher-dimensional settings.
+::: {.page-intro}
+While my primary research is in statistics, I build **high-performance computing tools in
+Julia**, targeting both GPU and CPU. Much of this work centers on **parallel primitives** —
+reductions, scans and `mapreduce` — that underpin everything from dot products to
+matrix–vector multiplication over arbitrary vector spaces.
+:::
 
-Julia's design is particularly well-suited to this domain: users can define custom operators such as `+` and `*`, enabling matrix-vector multiplication over arbitrary vector spaces with concrete element types (types with fixed size like `QuaternionsF32` or `NTuple{2, Float64}`).
-Moreover, the [KernelAbstractions.jl](https://juliagpu.github.io/KernelAbstractions.jl/stable/) package enables straightforward development of cross-architecture GPU kernels. A single `@kernel` function can be compiled to different low-level representations—PTX for NVIDIA, SPIR-V for Intel, or GCN for AMD—with minimal developing cost.
+```{=html}
+<div class="aurora-card-grid">
 
-## KernelForge
+  <div class="aurora-card" data-scroll="sec-kernelforge">
+    <span class="aurora-card__icon">🔥</span>
+    <span class="aurora-card__title">KernelForge.jl</span>
+    <span class="aurora-card__desc">Portable, high-performance GPU primitives (<code>mapreduce</code>, <code>accumulate</code>) aiming to match vendor libraries like NVIDIA's CUB/CUBLAS while staying cross-platform.</span>
+    <span class="aurora-card__badges">
+      <span class="aurora-badge aurora-badge--lang">Julia</span>
+      <span class="aurora-badge aurora-badge--level">GPU</span>
+      <span class="aurora-badge aurora-badge--venue">Active</span>
+    </span>
+    <span class="aurora-card__shields">
+      <a class="gh-stars" href="https://github.com/epilliat/KernelForge.jl/stargazers" data-gh="epilliat/KernelForge.jl"><i class="bi bi-star-fill"></i> <span class="gh-stars__n">18</span> stars</a>
+    </span>
+    <span class="card-links">
+      <a class="card-link" href="https://epilliat.github.io/KernelForge.jl/dev"><i class="bi bi-book"></i> Docs</a>
+      <a class="card-link" href="https://github.com/epilliat/KernelForge.jl"><i class="bi bi-github"></i> GitHub</a>
+    </span>
+  </div>
 
-I'm developing [**KernelForge.jl**](https://epilliat.github.io/KernelForge.jl/dev), a Julia package for high-performance GPU algorithms. The goal is to provide efficient, portable implementations of parallel primitives that match the performance of vendor-optimized libraries like NVIDIA's CUB or CUBLAS, while maintaining cross-platform compatibility.
+  <div class="aurora-card" data-scroll="sec-intrinsics">
+    <span class="aurora-card__icon">⚙️</span>
+    <span class="aurora-card__title">KernelIntrinsics.jl</span>
+    <span class="aurora-card__desc">Low-level GPU building blocks for KernelAbstractions.jl: memory fences, warp-level shuffles/reductions, and vectorized loads &amp; stores.</span>
+    <span class="aurora-card__badges">
+      <span class="aurora-badge aurora-badge--lang">Julia</span>
+      <span class="aurora-badge aurora-badge--level">CUDA / PTX</span>
+      <span class="aurora-badge aurora-badge--venue">Active</span>
+    </span>
+    <span class="aurora-card__shields">
+      <a class="gh-stars" href="https://github.com/epilliat/KernelIntrinsics.jl/stargazers" data-gh="epilliat/KernelIntrinsics.jl"><i class="bi bi-star-fill"></i> <span class="gh-stars__n">10</span> stars</a>
+    </span>
+    <span class="card-links">
+      <a class="card-link" href="https://epilliat.github.io/KernelIntrinsics.jl"><i class="bi bi-book"></i> Docs</a>
+      <a class="card-link" href="https://github.com/epilliat/KernelIntrinsics.jl"><i class="bi bi-github"></i> GitHub</a>
+    </span>
+  </div>
 
-## Kernel Intrinsics
+  <div class="aurora-card" data-scroll="sec-cpu">
+    <span class="aurora-card__icon">🖥️</span>
+    <span class="aurora-card__title">CPU <code>mapreduce</code></span>
+    <span class="aurora-card__desc">A small side experiment: a tree-based <code>mapreduce</code> for the CPU that edges past Julia Base while keeping good floating-point precision.</span>
+    <span class="aurora-card__badges">
+      <span class="aurora-badge aurora-badge--lang">Julia</span>
+      <span class="aurora-badge aurora-badge--level">CPU</span>
+    </span>
+    <span class="card-links">
+      <a class="card-link" href="notebooks/mapreduce_cpu_perf.html"><i class="bi bi-graph-up"></i> Performance notebook</a>
+    </span>
+  </div>
 
-**KernelForge.jl** strongly relies on [**KernelIntrinsics.jl**](https://epilliat.github.io/KernelIntrinsics.jl), a lower level package I'm developping providing fundamental functions for julia kernels. KernelIntrinsics.jl provides low-level GPU programming primitives for use with KernelAbstractions.jl, enabling fine-grained control over memory ordering, synchronization, and vectorized operations. The package offers:
+</div>
+```
 
-- **Memory fences and ordered access**: Explicit acquire/release semantics via `@fence` and `@access` macros for correct multi-threaded synchronization
-- **Warp-level operations**: Shuffle primitives (`@shfl`), inclusive scans (`@warpreduce`), and reductions (`@warpfold`) for efficient intra-warp communication
-- **Vectorized memory transactions**: Hardware-accelerated vector loads and stores (`vload`, `vstore!`) for improved memory bandwidth
+## KernelForge.jl {#sec-kernelforge}
 
-The current implementation targets CUDA GPUs, leveraging PTX instructions for optimal performance, but the macro-based API is designed with cross-platform portability in mind for future extension to other backends.
+The goal of [**KernelForge.jl**](https://epilliat.github.io/KernelForge.jl/dev) is to provide
+efficient, portable implementations of parallel primitives that match the performance of
+vendor-optimized libraries like NVIDIA's CUB or CUBLAS, while staying cross-platform.
 
+This is made possible by Julia's design. Users can define custom operators such as `+` and `*`,
+enabling reductions and matrix–vector multiplication over arbitrary vector spaces with concrete
+element types (fixed-size types like `QuaternionsF32` or `NTuple{2, Float64}`). On top of that,
+[KernelAbstractions.jl](https://juliagpu.github.io/KernelAbstractions.jl/stable/) lets a single
+`@kernel` compile to different low-level targets — **PTX** for NVIDIA, **SPIR-V** for Intel, or
+**GCN** for AMD — at minimal development cost.
 
-## CPUs
+### Live benchmarks
 
-I've also worked on optimizing Julia's `mapreduce` function for CPU execution. This implementation achieves:
+KernelForge against vendor libraries (CUB / rocPRIM), KernelAbstractions (AK) and CUDA / Base —
+pulled live from the [benchmark repo](https://github.com/epilliat/KernelForge-benchmarks). Pick a
+GPU, operation, element type and metric; hover a point for the exact number.
 
-- **20% performance improvement** over Julia Base
-- Consistent speedups across most array sizes
-- Support for multiple numeric types, including Float32
-- **Maintained numerical precision** for floating-point operations
+```{=html}
+<div class="bench">
+  <div class="bench-controls" id="kfControls"></div>
+  <div class="bench-plot"><canvas id="kfChart"></canvas><div class="bench-tip" id="kfTip"></div></div>
+  <div class="bench-status" id="kfStatus"></div>
+</div>
+<script>
+(function () {
+  var REPO = "https://raw.githubusercontent.com/epilliat/KernelForge-benchmarks/main/results/";
+  var ARCHS = [["A40", "NVIDIA A40"], ["MI300X", "AMD MI300X"], ["RTX1000", "RTX 1000"]];
+  var OPS = [["mapreduce", "mapreduce", 1], ["scan", "scan", 2]];   // [id, label, bytes/elem factor]
+  var SIZEOF = { Float32: 4, Float64: 8, UInt8: 1, Int32: 4, Int64: 8, "UnitFloat8→Float32": 1 };
+  var COLORS = { KernelForge: "#5b8cff", CUDA: "#5ec8b0", cuBLAS: "#5ec8b0", CUB: "#b79cff", rocPRIM: "#b79cff", Thrust: "#f5a623", AK: "#9aa6c0", Base: "#67728c", AMDGPU: "#5ec8b0" };
+  var controls = document.getElementById("kfControls"), cv = document.getElementById("kfChart"), tip = document.getElementById("kfTip"), statusEl = document.getElementById("kfStatus");
+  if (!cv) return;
+  var state = { arch: "A40", op: "mapreduce", type: "Float32", metric: "bandwidth" };
+  var cache = {}, pts = [], lastRows = [];
 
-[**View the CPU mapreduce performance notebook**](notebooks/mapreduce_cpu_perf.html)
+  function parseCSV(text) {
+    var lines = text.trim().split(/\r?\n/), head = lines[0].split(","), ci = {};
+    head.forEach(function (hh, i) { ci[hh] = i; });
+    return lines.slice(1).map(function (l) { var f = l.split(","); return { n: +f[ci.n], type: f[ci.type], method: f[ci.method], us: +f[ci["mean_kernel_μs"]] }; })
+      .filter(function (r) { return isFinite(r.n) && isFinite(r.us); });
+  }
+  function load() {
+    var key = state.arch + "/" + state.op;
+    if (cache[key]) return Promise.resolve(cache[key]);
+    return fetch(REPO + state.arch + "/" + state.op + ".csv").then(function (r) { if (!r.ok) throw 0; return r.text(); })
+      .then(function (t) { cache[key] = parseCSV(t); return cache[key]; }).catch(function () { cache[key] = "ERR"; return "ERR"; });
+  }
+  function group(label, items, key) {
+    var g = document.createElement("div"); g.className = "bench-group";
+    var l = document.createElement("span"); l.className = "bench-label"; l.textContent = label; g.appendChild(l);
+    items.forEach(function (it) { var b = document.createElement("button"); b.className = "bench-btn" + (state[key] === it[0] ? " on" : ""); b.textContent = it[1];
+      b.onclick = function () { if (state[key] === it[0]) return; state[key] = it[0]; refresh(); }; g.appendChild(b); });
+    controls.appendChild(g);
+  }
+  function buildControls(types) {
+    controls.innerHTML = "";
+    group("GPU", ARCHS.map(function (a) { return [a[0], a[1]]; }), "arch");
+    group("operation", OPS.map(function (o) { return [o[0], o[1]]; }), "op");
+    group("type", types.map(function (t) { return [t, t]; }), "type");
+    group("metric", [["bandwidth", "bandwidth"], ["time", "time"]], "metric");
+  }
+  function refresh() {
+    statusEl.textContent = "Loading " + state.arch + " / " + state.op + " …";
+    load().then(function (rows) {
+      if (rows === "ERR") { buildControls([]); lastRows = []; draw([]); statusEl.textContent = "No data for " + state.arch + " / " + state.op + " yet."; return; }
+      var types = []; rows.forEach(function (r) { if (types.indexOf(r.type) < 0) types.push(r.type); });
+      if (types.indexOf(state.type) < 0) state.type = types[0];
+      buildControls(types);
+      lastRows = rows.filter(function (r) { return r.type === state.type; });
+      statusEl.textContent = ARCHS.filter(function (a) { return a[0] === state.arch; })[0][1] + " · " + state.op + " · " + state.type + " — live from the benchmark repo";
+      draw(lastRows);
+    });
+  }
+  function metricVal(r) {
+    if (state.metric === "time") return r.us;
+    var op = OPS.filter(function (o) { return o[0] === state.op; })[0], bytes = op ? op[2] : 1, sz = SIZEOF[state.type] || 4;
+    return r.n * sz * bytes / (r.us * 1e-6) / 1e9;  // GB/s
+  }
+  function draw(rows) {
+    var dpr = window.devicePixelRatio || 1, w = cv.offsetWidth, h = cv.offsetHeight;
+    if (!w || !h) return;
+    cv.width = w * dpr; cv.height = h * dpr; var c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h);
+    pts = []; if (!rows.length) return;
+    var meth = {}; rows.forEach(function (r) { (meth[r.method] = meth[r.method] || []).push(r); });
+    Object.keys(meth).forEach(function (m) { meth[m].sort(function (a, b) { return a.n - b.n; }); });
+    var ns = rows.map(function (r) { return r.n; }), vs = rows.map(metricVal);
+    var lx0 = Math.log10(Math.min.apply(null, ns)), lx1 = Math.log10(Math.max.apply(null, ns)); if (lx1 <= lx0) lx1 = lx0 + 1;
+    var logY = state.metric === "time", vmax = Math.max.apply(null, vs), vmin = Math.min.apply(null, vs);
+    var ylo = logY ? Math.log10(Math.max(vmin * 0.7, 1e-2)) : 0, yhi = logY ? Math.log10(vmax * 1.3) : vmax * 1.12;
+    var padL = 56, padR = 14, padT = 14, padB = 40, X0 = padL, X1 = w - padR, Y0 = padT, Y1 = h - padB;
+    function X(n) { return X0 + (Math.log10(n) - lx0) / (lx1 - lx0) * (X1 - X0); }
+    function Y(v) { var t = logY ? (Math.log10(v) - ylo) / (yhi - ylo) : (v - ylo) / (yhi - ylo); return Y1 - t * (Y1 - Y0); }
+    c.font = "10px system-ui,sans-serif"; c.textAlign = "center";
+    for (var e = Math.ceil(lx0); e <= Math.floor(lx1); e++) { var xx = X(Math.pow(10, e)); c.strokeStyle = "rgba(255,255,255,0.06)"; c.beginPath(); c.moveTo(xx, Y0); c.lineTo(xx, Y1); c.stroke(); c.fillStyle = "rgba(154,166,192,0.7)"; c.fillText("1e" + e, xx, Y1 + 14); }
+    c.textAlign = "right";
+    var yt = []; if (logY) { for (var ee = Math.ceil(ylo); ee <= Math.floor(yhi); ee++) yt.push(Math.pow(10, ee)); } else { for (var i = 0; i <= 5; i++) yt.push(yhi * i / 5); }
+    yt.forEach(function (v) { var yy = Y(v); c.strokeStyle = "rgba(255,255,255,0.06)"; c.beginPath(); c.moveTo(X0, yy); c.lineTo(X1, yy); c.stroke(); c.fillStyle = "rgba(154,166,192,0.7)"; c.fillText(v >= 100 || v === 0 ? Math.round(v) : v.toFixed(logY ? 0 : 1), X0 - 6, yy + 3); });
+    c.save(); c.translate(13, (Y0 + Y1) / 2); c.rotate(-Math.PI / 2); c.textAlign = "center"; c.fillStyle = "rgba(170,180,205,0.85)"; c.fillText(state.metric === "time" ? "kernel time (µs) · lower better" : "bandwidth (GB/s) · higher better", 0, 0); c.restore();
+    c.textAlign = "center"; c.fillStyle = "rgba(170,180,205,0.85)"; c.fillText("n  (elements)", (X0 + X1) / 2, h - 6);
+    Object.keys(meth).sort(function (a, b) { return (a === "KernelForge") - (b === "KernelForge"); }).forEach(function (m) {
+      var col = COLORS[m] || "#9aa6c0", arr = meth[m], kf = m === "KernelForge";
+      c.strokeStyle = col; c.lineWidth = kf ? 2.6 : 1.4; c.beginPath();
+      arr.forEach(function (r, i) { var x = X(r.n), y = Y(metricVal(r)); i ? c.lineTo(x, y) : c.moveTo(x, y); pts.push({ x: x, y: y, m: m, n: r.n, v: metricVal(r), col: col }); }); c.stroke();
+      arr.forEach(function (r) { var x = X(r.n), y = Y(metricVal(r)); c.fillStyle = col; c.beginPath(); c.arc(x, y, kf ? 3.6 : 2.5, 0, 6.2832); c.fill(); });
+    });
+    var ly = Y0 + 10; Object.keys(meth).forEach(function (m) { var col = COLORS[m] || "#9aa6c0"; c.fillStyle = col; c.fillRect(X1 - 96, ly - 7, 10, 10); c.fillStyle = "rgba(220,226,238,0.92)"; c.textAlign = "left"; c.font = (m === "KernelForge" ? "600 " : "") + "11px system-ui,sans-serif"; c.fillText(m, X1 - 82, ly + 2); ly += 15; });
+  }
+  cv.addEventListener("mousemove", function (e) {
+    var rect = cv.getBoundingClientRect(), mx = e.clientX - rect.left, my = e.clientY - rect.top, best = null, bd = 1e9;
+    pts.forEach(function (p) { var d = (p.x - mx) * (p.x - mx) + (p.y - my) * (p.y - my); if (d < bd) { bd = d; best = p; } });
+    if (best && bd < 500) { tip.style.display = "block"; tip.style.left = best.x + "px"; tip.style.top = (best.y - 8) + "px";
+      tip.innerHTML = "<b style='color:" + best.col + "'>" + best.m + "</b>  ·  n = " + best.n.toExponential(0) + "<br>" + (state.metric === "time" ? best.v.toFixed(1) + " µs" : best.v.toFixed(0) + " GB/s"); }
+    else tip.style.display = "none";
+  });
+  cv.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+  var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(function () { draw(lastRows); }, 120); });
+  refresh();
+})();
+</script>
+```
 
+## KernelIntrinsics.jl {#sec-intrinsics}
+
+[**KernelIntrinsics.jl**](https://epilliat.github.io/KernelIntrinsics.jl) is the lower-level
+package KernelForge builds on, giving fine-grained control over memory ordering, synchronization
+and vectorized access from within Julia kernels:
+
+- **Memory fences & ordered access** — explicit acquire/release semantics via `@fence` and `@access` for correct multi-threaded synchronization
+- **Warp-level operations** — shuffles (`@shfl`), inclusive scans (`@warpreduce`) and reductions (`@warpfold`) for efficient intra-warp communication
+- **Vectorized memory transactions** — hardware-accelerated vector loads and stores (`vload`, `vstore!`) for higher memory bandwidth
+
+The current implementation targets CUDA GPUs via PTX instructions, but the macro-based API is
+designed for portability to other backends.
+
+## CPU `mapreduce` {#sec-cpu}
+
+A smaller side experiment: I looked at Julia's `mapreduce` on the CPU. A tree-based version
+lands a modest improvement over Base while keeping precision under control.
+
+[**View the CPU `mapreduce` performance notebook →**](notebooks/mapreduce_cpu_perf.html){.btn-aurora .btn-aurora--ghost}
+
+```{=html}
+<script>
+// Refresh the baked-in GitHub star counts live (falls back to the baked number if rate-limited/offline)
+(function () {
+  document.querySelectorAll('.gh-stars[data-gh]').forEach(function (el) {
+    fetch('https://api.github.com/repos/' + el.dataset.gh)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        if (d && typeof d.stargazers_count === 'number') {
+          el.querySelector('.gh-stars__n').textContent = d.stargazers_count;
+        }
+      })
+      .catch(function () {});
+  });
+  // clickable project cards → smooth-scroll to their section below
+  document.querySelectorAll('.aurora-card[data-scroll]').forEach(function (card) {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', function (e) {
+      if (e.target.closest('a')) return;
+      var el = document.getElementById(card.getAttribute('data-scroll'));
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+})();
+</script>
+```

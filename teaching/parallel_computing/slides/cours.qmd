@@ -1,0 +1,224 @@
+---
+title: "Calcul Parallèle"
+subtitle: "Pourquoi le même calcul peut être 100× plus rapide"
+author: "Emmanuel Pilliat — ENSAI 3A"
+format:
+  revealjs:
+    incremental: true
+    callout-icon: false
+    slide-number: true
+    theme: [default, ../custom.scss]
+smaller: false
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+## Plan du cours
+
+:::{.nonincremental}
+- [**1 — Interprété vs compilé**]{style="background-color: yellow;"} : pourquoi un même calcul
+  peut être 100× plus rapide (spécialisation par les types, benchmark).
+- [**2 — Multiple dispatch vs POO Python**]{style="background-color: yellow;"} : comment Julia
+  choisit la méthode à exécuter, face à l'orienté objet de Python.
+- [**3 — Threads & concurrence**]{style="background-color: yellow;"} : le parallélisme CPU, et
+  la somme parallèle qui donne un résultat faux.
+- [**4 — Mémoire & GPU**]{style="background-color: yellow;"} : la hiérarchie mémoire, le
+  batching, et le GPU.
+:::
+
+. . .
+
+**Exemple conducteur du cours :** l'estimation de $\pi$ par Monte-Carlo
+(séquentiel → multi-thread → GPU).
+
+. . .
+
+> Julia comme banc d'essai, **Python comme point de comparaison**.
+
+## Comment travailler
+
+:::{.nonincremental}
+- Ces slides **structurent** le cours ; les démos vivent dans les **notebooks**.
+- Chaque module a une **activité** : une piste [Python (pour tous)]{style="background-color: lightgreen;"}
+  et une piste [Julia (approfondissement)]{style="background-color: orange;"}.
+- On compare les **chiffres** entre les deux langages — c'est tout l'intérêt.
+:::
+
+# 1 — Interprété vs compilé {style="text-align: center;"}
+
+## Objectifs
+
+:::{.nonincremental}
+- Comprendre ce qui se passe entre le code source et le processeur.
+- Voir la **spécialisation par les types** (pourquoi Julia ≈ C).
+- Apprendre à **mesurer proprement** une performance.
+:::
+
+. . .
+
+> ▶ Notebook (démo + corrigé) : [Interprété vs compilé](../pluto/1_compilation_et_types.jl)
+
+## Des écarts de plusieurs ordres de grandeur
+
+- Sommer un grand vecteur : boucle Python vs `numpy` vs boucle Julia.
+- *Même calcul* — temps très différents.
+- _(TODO : chiffres de la démo)_
+
+## Les étapes de la compilation
+
+- `@code_lowered` → `@code_typed` → `@code_native`.
+- Interprété (CPython, bytecode) vs compilé JIT (Julia).
+
+. . .
+
+> **Distinction clé — quand le type est-il connu ?**
+> **À l'exécution** (Python) : redécouvert à chaque opération → lent.
+> **À la compilation** (Julia/JIT) : connu une fois, code spécialisé → rapide.
+
+## Le piège : l'instabilité de type
+
+- Variable globale non typée → code dynamique, comparable à Python.
+- L'outil : `@code_warntype` (le rouge = `Any`).
+- **Règle d'or** : mettre le travail dans des **fonctions** qui reçoivent leurs données en arguments.
+
+## Mesurer proprement
+
+- Piège A : mesurer la compilation au lieu du calcul.
+- Piège B : ne mesurer qu'une seule fois → `@btime` / `@benchmark`.
+- Piège C : raisonner en **débit** (Go/s), pas en secondes absolues.
+
+# 2 — Multiple dispatch vs POO Python {style="text-align: center;"}
+
+## Objectifs
+
+:::{.nonincremental}
+- Le **multiple dispatch** : la méthode choisie sur le type de **tous** les arguments.
+- Le comparer à l'**orienté objet** de Python (`obj.methode()`).
+- Voir que c'est **le moteur** de la spécialisation/vitesse.
+:::
+
+. . .
+
+> ▶ Notebook (démo + corrigé) : [Multiple dispatch vs POO Python](../pluto/2_dispatch_vs_poo.jl)
+
+## POO Python vs dispatch Julia
+
+- Python : la méthode vit **dans** l'objet, dispatch sur **un seul** argument.
+- Julia : fonction **générique** extérieure, dispatch sur **tous** les arguments.
+- _(TODO : exemple `aire(Cercle)` / `aire(Rectangle)`)_
+
+## Ce que ça change
+
+- **Extensibilité** : ajouter un *type* ou une *opération* sans toucher au reste.
+- **Dispatch multi-arguments** : `interaction(a, b)` selon le couple de types.
+- C'est inexprimable proprement avec `a.methode(b)`.
+
+## Le lien avec la compilation
+
+- Choisir la méthode selon les types → **compiler une version native spécialisée**.
+- Python : dispatch **à l'exécution**, sans spécialisation ; Julia : types **connus à la compilation**.
+- Multiple dispatch + JIT = générique **et** rapide.
+- On le reverra : un `*` bascule sur **GPU** parce que ses arguments sont des `CuArray`.
+
+# 3 — Threads & concurrence {style="text-align: center;"}
+
+## Objectifs
+
+:::{.nonincremental}
+- Le parallélisme CPU **sans GIL** : vrai parallélisme mémoire partagée.
+- Cas classique : la **somme parallèle fausse** (*race condition*).
+- Réparer proprement : **minimiser le partage**.
+:::
+
+. . .
+
+> ▶ Notebook (démo + corrigé) : [Threads & concurrence](../pluto/3_threads_et_concurrence.jl)
+
+## Le GIL de Python
+
+- `threading` ne parallélise pas le CPU (un seul thread exécute du bytecode).
+- Julia n'a pas de GIL → `@threads` tourne vraiment sur plusieurs cœurs.
+- ... ce qui ouvre la porte aux **bugs de concurrence**.
+
+## La somme parallèle fausse
+
+- `s += xs[i]` partagé → résultat **faux** *et* **non déterministe**.
+- Cause : *race condition* (lire-ajouter-réécrire non atomique).
+
+. . .
+
+::: {.callout-warning}
+En mémoire partagée, écrire au même endroit depuis plusieurs threads sans précaution =
+corruption silencieuse. Pas d'erreur, juste un résultat faux.
+:::
+
+## Réparer
+
+| Approche | Correct ? | Rapide ? |
+|---|---|---|
+| `s += ...` partagé | ❌ | — |
+| `@atomic` partout | ✅ | ❌ |
+| accumulateurs locaux + réduction | ✅ | ✅ |
+
+. . .
+
+> Paralléliser une réduction, ce n'est pas « ajouter `@threads` » : c'est **minimiser le partage**.
+
+# 4 — Mémoire & GPU {style="text-align: center;"}
+
+## Objectifs
+
+:::{.nonincremental}
+- La **hiérarchie mémoire** : le CPU passe son temps à *attendre* la mémoire.
+- La **localité** (column-major Julia vs row-major numpy).
+- Le **batching** et le **GPU**.
+:::
+
+. . .
+
+> ▶ Notebook (démo + corrigé) : [Mémoire & GPU](../pluto/4_memoire_et_gpu.jl)
+
+## Hiérarchie mémoire
+
+- Registres → L1 → L2 → L3 → RAM : plus c'est gros, plus c'est loin, plus c'est lent.
+- Le cache parie sur la **localité** (temporelle et spatiale).
+
+## Parcourir une matrice dans le bon sens
+
+- Somme colonne par colonne vs ligne par ligne : *même calcul*, temps très différents.
+- **Julia est column-major** : boucle intérieure sur le 1ᵉʳ indice (l'inverse de numpy).
+- _(expérience « cache cliff » : on voit les paliers L1/L2/L3/RAM)_
+
+## Caches CPU vs caches GPU : deux stratégies
+
+- **Même principe** : registres → L1/scratchpad → L2 → mémoire lointaine ; la **localité** décide.
+- **CPU** : gros caches, peu de threads ; caches **automatiques**.
+- **GPU** : petits caches, **très grand nombre de threads** pour masquer la latence (*occupancy*) ; *shared memory* **gérée explicitement**.
+- Localité spatiale GPU = **coalescence** (un *warp* lit des adresses contiguës) — mesurée dans le notebook.
+
+## Du batching au GPU
+
+- Intensité arithmétique : *memory-bound* vs *compute-bound*.
+- Batcher = matrice-vecteur → matrice-matrice : le **temps par exemple** chute fortement.
+- GPU : des milliers de threads, **rentable seulement à grande échelle** (CPU vs GPU mesuré).
+
+# Synthèse {style="text-align: center;"}
+
+## Synthèse
+
+:::{.nonincremental}
+1. **Compiler et spécialiser** supprime le surcoût *par opération*.
+2. **Le multiple dispatch** : générique *et* rapide ; il fait même basculer un calcul sur GPU.
+3. **Paralléliser** exige de *minimiser le partage*, sinon le résultat est faux.
+4. **Alimenter le matériel** : respecter le cache, batcher, saturer le GPU.
+:::
+
+. . .
+
+> La performance ne vient pas d'un langage magique, mais de **comprendre ce que la machine fait
+> vraiment** : le coût de chaque opération, qui partage quoi, et où voyagent les données.
+
+. . .
+
+> En filigrane de tout le cours : **type découvert à l'exécution = lent ; type connu à la compilation = rapide**.

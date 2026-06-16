@@ -4,13 +4,18 @@ bibliography: biblio.bib
 csl: apa.csl
 citation-location: margin
 suppress-bibliography: true
-format: 
+format:
   revealjs:
     incremental: true
     slide-number: true
     callout-icon: false
+    include-after-body:
+      text: |
+        <script src="replay.js"></script>
 smaller: false
 css: "styles.css"
+resources:
+  - replay.js
 #filters:
   #- parse-latex
 ---
@@ -23,6 +28,12 @@ css: "styles.css"
 - Sequential decision problems
 - Unbounded set of options
 - Limited sampling budget
+
+. . .
+
+::: {.hl-legend}
+Colour code: [key idea]{.hl-key} · [definition]{.hl-def} · [positive result]{.hl-pos} · [limitation]{.hl-neg}
+:::
 
 ## Classical Bandit Problems
 
@@ -46,7 +57,7 @@ $X_{1,s} = \mu_{1} + \varepsilon_{1,s} \quad \and \quad X_{2,s} = \mu_{2} + \var
 
 At each timestep $t$
 
-- Based on past obsevation
+- Based on past observation
 - The learner pulls arm $\hat a_t \in \{1, 2\}$ and get reward $X_{\hat a_t, s}$
 - $s = N_{\hat a_t,t}$ is the number of times arm $\hat a_t$ has been pulled
 
@@ -73,7 +84,7 @@ $R = \sum_{t=1}^n (\mu_1 - \mu_{j_t})$
 
 Optimism in face of uncertainty: 
 
-Choose arms that [maximizes upper-confidence]{style="background-color: yellow;"} bound
+Choose arms that [maximizes upper-confidence]{.hl-key} bound
 
 ::: {.square-def}
 $UCB_{a,t} \asymp \hat \mu_a + \frac{c}{\sqrt{N_{a,t}}}$
@@ -82,7 +93,16 @@ $UCB_{a,t} \asymp \hat \mu_a + \frac{c}{\sqrt{N_{a,t}}}$
 
 ## Illustration of UCB
 
-![](ucb.png)
+:::{.replay-hint}
+← / → step · ↓ skip to next slide
+:::
+
+::: {.replay data-algo="ucb"}
+:::
+
+::: {.notes}
+Watch the confidence intervals shrink as arms are pulled; UCB keeps picking the highest upper bound.
+:::
 
 ## Upper Bound on Cumulative Regret
 
@@ -133,7 +153,7 @@ Observations for arm $a$ (if ever observed):
 $X_{a,s} = \mu_a + \varepsilon_{a,s}$
 :::
 
-- $\mu_a$ are drown independently from some distribution $\mathcal D$
+- $\mu_a$ are drawn independently from some distribution $\mathcal D$
 - $\varepsilon_{a,s}$ are independent $\mathcal N(0,1)$
 
 
@@ -151,15 +171,28 @@ $X_{a,s} = \lambda_{\gamma(a)} + \varepsilon_{a,s}$
 
 . . .
 
-$\rightarrow$ $\gamma(a)$ represents a [continuous rank]{style="background-color: yellow;"} of arm $a$
+$\rightarrow$ $\gamma(a)$ represents a [continuous rank]{.hl-key} of arm $a$
 
 . . .
 
-$\rightarrow$ "[best arm]{style="background-color: lightblue;"}" corresponds to [$\gamma(a)=0$]{style="background-color: lightblue;"}
+$\rightarrow$ "[best arm]{.hl-def}" corresponds to [$\gamma(a)=0$]{.hl-def}
 
 . . .
 
 $\rightarrow$ Unbounded distribution of arm means iff $\lambda_0 = +\infty$
+
+## Seeing the Reservoir
+
+:::{.replay-hint}
+← / → step · ↓ skip · watch the **right panel**: arms appear on the curve $\lambda_\eta = A(1-\eta^\alpha)$ by their continuous rank
+:::
+
+::: {.replay data-algo="ose"}
+:::
+
+::: {.notes}
+Each new arm lands on the reservoir curve at its rank x = γ(a). Low rank ≈ near-best arm.
+:::
 
 ## When Cumulative Regret Fails
 
@@ -180,12 +213,12 @@ $\lambda_{\eta}= \begin{cases}
 
 . . .
 
-@de2021bandits established that it is [impossible to adapt to $\eta_0$]{style="background-color: orange;"} to get a "good" [cumulative regret]{style="background-color: orange;"}
+@de2021bandits established that it is [impossible to adapt to $\eta_0$]{.hl-neg} to get a "good" [cumulative regret]{.hl-neg}
 
 
 . . .
 
-It is [possible to adapt to $\eta_0$]{style="background-color: lightgreen;"} if we consider [simple regret]{style="background-color: lightgreen;"}
+It is [possible to adapt to $\eta_0$]{.hl-pos} if we consider [simple regret]{.hl-pos}
 
 ## Simple Recommendation Reward
 
@@ -198,17 +231,17 @@ At each timestep $t$, the learner:
 
 . . .
 
-The [simple expected reward]{style="background-color: yellow;"} is $\lambda_{\gamma(\hat r_t)}$
+The [simple expected reward]{.hl-key} is $\lambda_{\gamma(\hat r_t)}$
 
 
 ## $\epsilon$-Good Arms and Simple Regrets
 
 . . .
 
-Two main criteria in the litterature:
+Two main criteria in the literature:
 
-- $\epsilon$-good arm: [$\mathbb P(\lambda_{\gamma(\hat r_t)} \geq \lambda_0 - \epsilon) \geq 1-\delta$]{style="background-color: lightblue;"}
-- Simple regret: [$\lambda_0 - \lambda_{\hat r_t}$]{style="background-color: lightblue;"}
+- $\epsilon$-good arm: [$\mathbb P(\lambda_{\gamma(\hat r_t)} \geq \lambda_0 - \epsilon) \geq 1-\delta$]{.hl-def}
+- Simple regret: [$\lambda_0 - \lambda_{\hat r_t}$]{.hl-def}
 
 . . .
 
@@ -221,7 +254,7 @@ $\lambda_0 - \lambda_{\hat a_t}$
 
 . . .
 
-$\to$ we [need boundedness]{style="background-color: orange;"} ($\lambda_0 < +\infty$)to define them!
+$\to$ we [need boundedness]{.hl-neg} ($\lambda_0 < +\infty$) to define them!
 
 ## Main Question
 
@@ -262,10 +295,34 @@ Define for $0< \rho < \nu < 1$:
 $G(\rho, \nu) = \frac{\nu}{\rho} \frac{1}{(\lambda_{\rho}- \lambda_{\nu})^2} \lor \frac{1}{\rho}$
 :::
 
-- $\frac{1}{(\lambda_{\rho}- \lambda_{\nu})^2}$ correspond to the [inverse squared gap]{style="background-color: yellow;"} between ranks $\nu$ and $\rho$
-- It would correspond to the [sample complexity]{style="background-color: yellow;"} if we had [only two arms]{style="background-color: yellow;"} with mean $\lambda_\nu$ and $\lambda_{\rho}$
-- For one arm s.t. $\gamma(a) \leq \rho$, there are [$\nu/\rho$]{style="background-color: lightblue;"} arms s.t. $\gamma(a) \leq \nu$
+- $\frac{1}{(\lambda_{\rho}- \lambda_{\nu})^2}$ correspond to the [inverse squared gap]{.hl-key} between ranks $\nu$ and $\rho$
+- It would correspond to the [sample complexity]{.hl-key} if we had [only two arms]{.hl-key} with mean $\lambda_\nu$ and $\lambda_{\rho}$
+- For one arm s.t. $\gamma(a) \leq \rho$, there are [$\nu/\rho$]{.hl-def} arms s.t. $\gamma(a) \leq \nu$
 
+
+## Distinguishing two ranks
+
+The two means differ by the gap $\Delta=\lambda_\rho-\lambda_\nu$ — separating them is a [two-armed problem]{.hl-key}.
+
+![](plots/g_gap.png){width=66%}
+
+## … which needs $\sim 1/\Delta^2$ pulls
+
+![](plots/g_gap_shrink.png){width=92%}
+
+## Good arms are rare
+
+![](plots/g_rarity_strip.png){width=94%}
+
+## … seen on the reservoir
+
+![](plots/g_rarity_reservoir.png){width=64%}
+
+. . .
+
+::: {.square-def}
+$G = \underbrace{\tfrac{\nu}{\rho}}_{\text{crowding}}\,\underbrace{\tfrac{1}{(\lambda_\rho-\lambda_\nu)^2}}_{\text{2-arm cost}}\ \lor\ \underbrace{\tfrac{1}{\rho}}_{\text{find a candidate}}$
+:::
 
 ## Main Result
 
@@ -275,7 +332,7 @@ $G(\rho, \nu) = \frac{\nu}{\rho} \frac{1}{(\lambda_{\rho}- \lambda_{\nu})^2} \lo
 $G(\rho, \nu) = \frac{\nu}{\rho} \frac{1}{(\lambda_{\rho}- \lambda_{\nu})^2} \lor \frac{1}{\rho}$
 :::
 
-We are able to [detect quantile $\eta$]{style="background-color: yellow;"} at time $t$
+We are able to [detect quantile $\eta$]{.hl-key} at time $t$
 
 . . .
 
@@ -295,19 +352,39 @@ $G(\rho, \nu) \ll t$
 . . .
 
 
-This results is also valid for [unbounded distributions]{style="background-color: yellow;"} !
+This result is also valid for [unbounded distributions]{.hl-key} !
 
-## Consequences
+## Distribution Families
 
-- $\zeta$: noise level
-- $\mathbf{t}=t \cdot (polylog)$ 
+. . .
 
-:::{style="font-size: 60%;"}
-| Type of the distribution $\mathcal{D}$ | Quantile Function $\lambda_{\eta}$ | Upper Bound on $\gamma(\hat r_t)$ | Lower Bound on $\lambda_{\gamma(\hat r_t)}$ |
+Three classes instantiate the quantile function $\lambda_\eta$:
+
+- **Bernoulli** (two-level), **Beta** ($\lambda_\eta = 1-\eta^\alpha$, bounded), **Pareto** ($\lambda_\eta = \eta^{-\alpha}$, unbounded)
+
+. . .
+
+![](plots/beta_pareto_pdfs_combined.png){width=85%}
+
+## Consequences — Bounded $\mathcal D$
+
+Notation: $\zeta$ = noise level,  $\mathbf{t}=t \cdot (polylog)$
+
+:::{style="font-size: 72%;"}
+| Type of $\mathcal{D}$ | Quantile $\lambda_{\eta}$ | Upper Bound on $\gamma(\hat r_t)$ | Lower Bound on $\lambda_{\gamma(\hat r_t)}$ |
 |:---:|:---:|:---:|:---:|
 | **Bernoulli** | $u\mathbf{1}\{\eta \leq \eta_0\}$ | $\eta_0 \mathbf{1}\{\mathbf{t} \geq \frac{\zeta^2}{\eta_0 u^2}\}$ | $u \mathbf{1}\{\mathbf{t} \geq \frac{\zeta^2}{\eta_0 u^2}\}$ |
 | **Beta** ($\alpha < 1/2$) | $1-\eta^{\alpha}$ | $\frac{1 \lor \frac{\zeta^2}{\alpha^2}}{\mathbf{t}}$ | $1-\left(\frac{1 \lor \frac{\zeta^2}{\alpha^2}}{\mathbf{t}}\right)^\alpha$ |
 | **Beta** ($\alpha \geq 1/2$) | $1-\eta^{\alpha}$ | $\frac{1}{\mathbf{t}} \lor \left(\frac{\zeta^2}{\mathbf{t}}\right)^{\frac{1}{2\alpha}}$ | $1-\frac{1}{\mathbf{t}^\alpha} \lor \sqrt{\frac{\zeta^2}{\mathbf{t}}}$ |
+:::
+
+## Consequences — Unbounded $\mathcal D$ (Pareto)
+
+Notation: $\zeta$ = noise level,  $\mathbf{t}=t \cdot (polylog)$
+
+:::{style="font-size: 72%;"}
+| Type of $\mathcal{D}$ | Quantile $\lambda_{\eta}$ | Upper Bound on $\gamma(\hat r_t)$ | Lower Bound on $\lambda_{\gamma(\hat r_t)}$ |
+|:---:|:---:|:---:|:---:|
 | **Pareto** ($\alpha < 1/2$) | $\eta^{-\alpha}$ | $\frac{1}{\mathbf{t}} \lor \left( \frac{\zeta^2}{\alpha^2\mathbf{t}}\right)^{\frac{1}{1-2\alpha}}$ | $\mathbf{t}^\alpha \land \left(\frac{\alpha^2\mathbf{t}}{\zeta^2}\right)^{\frac{\alpha}{1-2\alpha}}$ |
 | **Pareto** ($\alpha \geq 1/2$) | $\eta^{-\alpha}$ | $\frac{1}{\mathbf{t}}\lor \mathbf{1}\{\mathbf{t} \geq \zeta^{1/\alpha}\}$ | $\mathbf{t}^\alpha \mathbf{1}\{\mathbf{t} \geq \zeta^{1/\alpha}\}$ |
 :::
@@ -315,11 +392,11 @@ This results is also valid for [unbounded distributions]{style="background-color
 
 # Algorithms
 
-## Litterature
+## Literature
 
 - @carpentier2015simple: Assumes that $\lambda_{\eta} = 1- \eta^{\alpha}$ and estimate $\alpha$ to adapt
-- @jamieson2013finding: [Bracketing trick]{style="background-color: lightgreen;"} consisting in increasing disjoint sets of explored arms
-- @zhao2023revisiting: Sequential halving, [doubling trick]{style="background-color: orange;"} and [bracketing trick]{style="background-color: lightgreen;"}
+- @jamieson2013finding: [Bracketing trick]{.hl-pos} consisting in increasing disjoint sets of explored arms
+- @zhao2023revisiting: Sequential halving, [doubling trick]{.hl-neg} and [bracketing trick]{.hl-pos}
 
 ## OSE and PROSE
 
@@ -339,12 +416,21 @@ $LCB_{a,t} = \hat \lambda_{\gamma(a)} - \frac{C}{\sqrt{N_{a,t}}} \quad \text{and
 At each time $t$:
 
 - **Draw** an exploration scope $Z \sim t^U$, where $U \sim \mathcal U(0,1)$
-- **Pull** UCB over $\{1, \dots, Z\}$, [$\hat a_t = \mathrm{argmax}_{a \leq Z} UCB_{a,t}$]{style="background-color: lightblue;"}
-- **Recommend** LCB over all arms, [$\hat r_t = \mathrm{argmax}_{a \in \mathcal A} LCB_{a,t}$]{style="background-color: lightblue;"}
+- **Pull** UCB over $\{1, \dots, Z\}$, [$\hat a_t = \mathrm{argmax}_{a \leq Z} UCB_{a,t}$]{.hl-def}
+- **Recommend** LCB over all arms, [$\hat r_t = \mathrm{argmax}_{a \in \mathcal A} LCB_{a,t}$]{.hl-def}
 
 . . .
 
-There is [also a deterministic version]{style="background-color: lightgreen;"} (better in practice and computationally more efficient)
+There is [also a deterministic version]{.hl-pos} (better in practice and computationally more efficient)
+
+## OSE in action
+
+:::{.replay-hint}
+← / → step · ↓ skip · **left panel**: the shaded scope $Z$ and the argmax-UCB pull inside it
+:::
+
+::: {.replay data-algo="ose"}
+:::
 
 ## Why do we take $Z \sim t^U$ ?
 
@@ -395,25 +481,34 @@ Then, with probability at least $1-\delta$, OSE recommends arms $(\hat r_t)_{t \
 ## Practical Limitations
 
 - $\mathbb P(Z=1) = 1/\log_2(t)$
-- Even if we know [first arms]{style="background-color: orange;"} are bad, we [keep pulling them]{style="background-color: orange;"} a lot ($t/\log_2(t)$)
-- [Idea: rank the arms]{style="background-color: lightgreen;"} iteratively with a pessimistic metric
+- Even if we know [first arms]{.hl-neg} are bad, we [keep pulling them]{.hl-neg} a lot ($t/\log_2(t)$)
+- [Idea: rank the arms]{.hl-pos} iteratively with a pessimistic metric
 
 ## PROSE
 
 . . .
 
-Start from some [arbitrary ranking $\pi$]{style="background-color: yellow;"}. For each $t$:
+Start from some [arbitrary ranking $\pi$]{.hl-key}. For each $t$:
 
 - **Draw** an exploration scope $Z \sim t^U$, where $U \sim \mathcal U(0,1)$
-- **Pull** UCB over $\{1, \dots, Z\}$, [$\hat a_t = \mathrm{argmax}_{\pi(a) \leq Z} UCB_{a,t}$]{style="background-color: lightblue;"}
-- [**Sort** the arms]{style="background-color: yellow;"} by LCB: $LCB_{\pi^{-1}(1),t} \geq LCB_{\pi^{-1}(2),t}\dots$
-- **Recommend** LCB over all arms, [$\hat r_t = LCB_{\pi^{-1}(1),t}$]{style="background-color: lightblue;"}
+- **Pull** UCB over $\{1, \dots, Z\}$, [$\hat a_t = \mathrm{argmax}_{\pi(a) \leq Z} UCB_{a,t}$]{.hl-def}
+- [**Sort** the arms]{.hl-key} by LCB: $LCB_{\pi^{-1}(1),t} \geq LCB_{\pi^{-1}(2),t}\dots$
+- **Recommend** LCB over all arms, [$\hat r_t = LCB_{\pi^{-1}(1),t}$]{.hl-def}
 
 . . .
 
 Naive implementation: time complexity $\asymp \tilde O(t^2)$
 
 Deterministic version + cascading trick for max: time complexity $\asymp \tilde O(t)$
+
+## PROSE in action
+
+:::{.replay-hint}
+← / → step · ↓ skip · the arms get **re-sorted by LCB** so good arms drift left
+:::
+
+::: {.replay data-algo="prose"}
+:::
 
 # Numerical Study
 
@@ -422,7 +517,7 @@ Deterministic version + cascading trick for max: time complexity $\asymp \tilde 
 - $\lambda_{\eta} = 1-\eta^{\alpha}$ with $\alpha \in \{0.25, 0.5, 1, 2\}$
 - $K = 5000$ arms 
 - $T_{\mathrm{max}}=50000$
-- Mean of [simple regret trajectories]{style="background-color: yellow;"} over $N=2000$ trials
+- Mean of [simple regret trajectories]{.hl-key} over $N=2000$ trials
 
 ## Main Result
 
@@ -446,9 +541,9 @@ Deterministic version + cascading trick for max: time complexity $\asymp \tilde 
 
 ## Implementation Details
 
-- **PROSE** ([optimized deterministic]{style="background-color: yellow;"} version): [$\sim$ 76 ms/trial]{style="background-color: lightgreen;"} <!-- (range: 30--184 ms)-->
-- **BSH** ([home made]{style="background-color: yellow;"} implementation): [$\sim$ 89 ms/trial]{style="background-color: lightgreen;"} <!--(range: 33--439 ms) --> 
-- **BSH** ([original version]{style="background-color: yellow;"} from \cite{zhao2023revisiting}): 
-  - [$\sim  14s$/trial]{style="background-color: orange;"} (slow pace language Python or R).
+- **PROSE** ([optimized deterministic]{.hl-key} version): [$\sim$ 76 ms/trial]{.hl-pos} <!-- (range: 30--184 ms)-->
+- **BSH** ([home made]{.hl-key} implementation): [$\sim$ 89 ms/trial]{.hl-pos} <!--(range: 33--439 ms) --> 
+- **BSH** ([original version]{.hl-key} from @zhao2023revisiting):
+  - [$\sim  14s$/trial]{.hl-neg} (slow pace language Python or R).
   - ignores the authors' recommendation to carry over confidence bounds across doubling trick restarts
   
