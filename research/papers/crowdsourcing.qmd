@@ -1,0 +1,432 @@
+---
+title: "Crowdsourcing — ranking workers & estimating ability"
+toc: false
+sidebar: false
+---
+
+[← Research](../../research.qmd){.back-link}
+
+::: {.paper-eyebrow}
+Crowdsourcing · ranking & ability estimation
+:::
+
+::: {.paper-hook}
+A crowd answers a pile of tasks — each worker getting some right, some wrong. <strong>From the answers alone, can you rank the workers and estimate how good each one is?</strong>
+:::
+
+::: {.paper-sub}
+Each worker $i$ and task $k$ has a hidden **score** $M_{ik} \in [0,1]$, **bi-isotonic**: the workers
+can be ordered so one is *uniformly* better than another (higher score on **every** task), and the
+tasks likewise from easy to hard. We never see $M$ — only noisy answers. Two models:
+**Bernoulli** (binary answers in `{0,1}`, correct with a probability that rises with $M$ up to a
+**peak ability**) and **Gaussian** ($M$ observed as $M + \mathcal N(0,\sigma^2)$).
+:::
+
+**Top:** the true matrix $M$ — left as the bi-isotonic score curves, right as a heat-map (it never
+changes; only the *data* below does). **Bottom:** the answers we actually observe. **Shuffle** the
+rows and/or columns to hide the orderings — that's exactly what a ranking algorithm must undo.
+
+```{=html}
+<div class="bandit-controls" style="margin-top:1rem">
+  <span class="bench-group"><span class="bench-label">model</span>
+    <button id="csModelB" class="bench-btn on">Bernoulli</button>
+    <button id="csModelG" class="bench-btn">Gaussian</button>
+  </span>
+  <button id="csNew" class="bandit-btn">↻ new sample</button>
+  <label class="bandit-readout">workers <input id="csN" class="bandit-speed" type="range" min="5" max="300" step="1" value="40"> <b id="csNv">40</b></label>
+  <label class="bandit-readout">tasks <input id="csD" class="bandit-speed" type="range" min="5" max="300" step="1" value="80"> <b id="csDv">80</b></label>
+  <label class="bandit-readout" id="csHwrap">peak ability <input id="csH" class="bandit-speed" type="range" min="0.55" max="1" step="0.01" value="0.9"> <b id="csHv">0.90</b></label>
+  <label class="bandit-readout" id="csSwrap" style="display:none">noise σ · 𝒩(0, σ²) <input id="csS" class="bandit-speed" type="range" min="0" max="3" step="0.05" value="0.3"> <b id="csSv">0.30</b></label>
+</div>
+<div class="bench-plot cs-plot"><canvas id="csCanvas"></canvas><div class="bench-tip" id="csTip"></div></div>
+
+<div class="cs-obs-row">
+  <div class="bench-plot cs-obs"><canvas id="csObs"></canvas><div class="bench-tip" id="csObsTip"></div></div>
+  <div class="cs-obs-side">
+    <div class="bench-label">observed answers</div>
+    <button id="csShufR" class="bench-btn">⤢ shuffle rows</button>
+    <button id="csShufC" class="bench-btn">⤡ shuffle columns</button>
+    <div class="cs-model-text" id="csModelText"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var top = document.getElementById("csCanvas"), tip = document.getElementById("csTip");
+  var obs = document.getElementById("csObs"), obsTip = document.getElementById("csObsTip");
+  if (!top || !obs) return;
+  var MAXN = 300, MAXD = 300;
+  var state = { n: 40, d: 80, H: 0.9, sigma: 0.3, model: "bernoulli", shR: false, shC: false };
+  var Mfull, Z, U, selRows, selCols, rkey, ckey, gTop = null, gObs = null;
+  var hc = document.createElement("canvas"), hx = hc.getContext("2d");
+
+  function* dyadic(l, r) { if (r - l <= 1) return; if (r - l === 2) { yield [l, l + 1, r]; return; } var med = (l + r) >> 1; yield [l, med, r]; yield* dyadic(l, med); yield* dyadic(med, r); }
+  function genBiiso(n, d) {
+    var R = n + 2, C = d + 2, m = Array.from({ length: R }, function () { return new Float64Array(C).fill(0.5); });
+    for (var j = 0; j < C; j++) { m[0][j] = 0; m[n + 1][j] = 1; }
+    for (var i = 0; i < R; i++) { m[i][0] = 0; m[i][d + 1] = 1; }
+    m[0][0] = 0; m[0][d + 1] = 0; m[n + 1][0] = 0; m[n + 1][d + 1] = 1;
+    var cols = [...dyadic(0, d + 1)];
+    [...dyadic(0, n + 1)].forEach(function (rt) { cols.forEach(function (ct) {
+      var down = rt[0], em = rt[1], up = rt[2], left = ct[0], qm = ct[1], right = ct[2];
+      var upc = Math.min(m[up][qm], m[em][right]), dnc = Math.max(m[down][qm], m[em][left]);
+      m[em][qm] = dnc + (upc - dnc) * Math.random();
+    }); });
+    return m;
+  }
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function randperm(max) { var a = []; for (var i = 1; i <= max; i++) a.push(i); for (var j = max - 1; j > 0; j--) { var k = (Math.random() * (j + 1)) | 0, t = a[j]; a[j] = a[k]; a[k] = t; } return a; }
+  function mat(f) { var a = []; for (var i = 0; i <= MAXN; i++) { var r = new Float32Array(MAXD + 1); for (var j = 0; j <= MAXD; j++) r[j] = f(); a.push(r); } return a; }
+  function vec(m) { var a = new Float64Array(m + 1); for (var i = 0; i <= m; i++) a[i] = Math.random(); return a; }
+  function regen() { Mfull = genBiiso(MAXN, MAXD); selRows = randperm(MAXN); selCols = randperm(MAXD); Z = mat(gauss); U = mat(Math.random); rkey = vec(MAXN); ckey = vec(MAXD); }
+
+  function observed(r, c) {
+    if (state.model === "bernoulli") return U[r][c] < (0.5 + (2 * state.H - 1) * (Mfull[r][c] - 0.5)) ? 1 : 0;   // binary; best worker → H, worst → 1−H
+    return Math.max(0, Math.min(1, Mfull[r][c] + state.sigma * Z[r][c]));                               // M + N(0,σ²), clamped
+  }
+  function rankRows() { return selRows.slice(0, state.n).sort(function (a, b) { return a - b; }); }      // worst → best
+  function rankCols() { return selCols.slice(0, state.d).sort(function (a, b) { return a - b; }); }      // hard → easy
+
+  function frame(canvas) { var dpr = window.devicePixelRatio || 1, w = canvas.offsetWidth, h = canvas.offsetHeight;
+    if (!w || !h) return null; canvas.width = w * dpr; canvas.height = h * dpr; var c = canvas.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h); return { c: c, w: w, h: h }; }
+  function paintHeat(c, rows, cols, fn, lo, hi, X0, Y0, Rw, Rh, smooth) {
+    var n = rows.length, d = cols.length; hc.width = d; hc.height = n; var img = hx.createImageData(d, n), dt = img.data, p = 0;
+    for (var py = 0; py < n; py++) { var rr = rows[py]; for (var px = 0; px < d; px++) { var g = (16 + (fn(rr, cols[px]) - lo) / (hi - lo) * 230) | 0; dt[p] = dt[p + 1] = dt[p + 2] = g; dt[p + 3] = 255; p += 4; } }
+    hx.putImageData(img, 0, 0); c.imageSmoothingEnabled = smooth; c.drawImage(hc, 0, 0, d, n, X0, Y0, Rw, Rh);
+  }
+
+  function drawTop() {                                  // TRUE M — never depends on the model, ability or noise
+    var s = frame(top); if (!s) return; var c = s.c, w = s.w, h = s.h, rows = rankRows(), cols = rankCols();
+    var Ty = 14, By = h - 26, ph = By - Ty, gap = 46, split = Math.round(w * 0.53);
+    var Lx0 = 42, Lx1 = split - gap / 2, Rx0 = split + gap / 2, Rx1 = w - 14, Rw = Rx1 - Rx0;
+    c.font = "10px system-ui,sans-serif";
+    function LY(p) { return By - p * ph; } function LX(k) { return Lx0 + (state.d > 1 ? k / (state.d - 1) : 0) * (Lx1 - Lx0); }
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.beginPath(); c.moveTo(Lx0, Ty); c.lineTo(Lx0, By); c.lineTo(Lx1, By); c.stroke();
+    c.fillStyle = "rgba(170,180,205,0.8)"; c.textAlign = "right"; [0, 0.5, 1].forEach(function (p) { c.fillText(p.toFixed(1), Lx0 - 5, LY(p) + 3); });
+    c.save(); c.translate(12, (Ty + By) / 2); c.rotate(-Math.PI / 2); c.textAlign = "center"; c.fillText("score  M", 0, 0); c.restore();
+    c.textAlign = "center"; c.fillStyle = "rgba(170,180,205,0.8)"; c.fillText("tasks  (hard → easy)", (Lx0 + Lx1) / 2, h - 8);
+    c.lineWidth = 1; c.strokeStyle = "rgba(255,255,255,0.30)";
+    for (var i = 0; i < rows.length; i++) { var row = rows[i]; c.beginPath(); for (var k = 0; k < cols.length; k++) { var x = LX(k), y = LY(Mfull[row][cols[k]]); k ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke(); }
+    paintHeat(c, rows, cols, function (r, cc) { return Mfull[r][cc]; }, 0, 1, Rx0, Ty, Rw, ph, false);   // crisp cells, no blur
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.strokeRect(Rx0, Ty, Rw, ph);
+    c.fillStyle = "rgba(170,180,205,0.8)"; c.textAlign = "center"; c.fillText("true  M", (Rx0 + Rx1) / 2, h - 8);
+    c.save(); c.translate(Rx0 - 8, (Ty + By) / 2); c.rotate(-Math.PI / 2); c.textAlign = "center"; c.fillText("workers (worst → best)", 0, 0); c.restore();
+    gTop = { Rx0: Rx0, Ty: Ty, Rw: Rw, ph: ph, rows: rows, cols: cols };
+  }
+
+  function drawObs() {                                  // OBSERVED answers — model-dependent, with optional row/col shuffles
+    var s = frame(obs); if (!s || !gTop) return; var c = s.c, w = s.w, h = s.h;
+    var rows = rankRows(), cols = rankCols();
+    if (state.shR) rows = rows.slice().sort(function (a, b) { return rkey[a] - rkey[b]; });
+    if (state.shC) cols = cols.slice().sort(function (a, b) { return ckey[a] - ckey[b]; });
+    var X0 = 40, ph = gTop.ph, Rw = Math.min(gTop.Rw, w - X0 - 12), Ty = Math.max(12, (h - ph) / 2), By = Ty + ph;   // same box as the true-M panel
+    paintHeat(c, rows, cols, observed, 0, 1, X0, Ty, Rw, ph, false);   // crisp cells (σ=0 ⇒ exactly the top-right M)
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.strokeRect(X0, Ty, Rw, ph);
+    c.font = "10px system-ui,sans-serif"; c.fillStyle = "rgba(170,180,205,0.8)"; c.textAlign = "center";
+    c.fillText(state.shC ? "tasks (shuffled)" : "tasks (hard → easy)", X0 + Rw / 2, By + 14);
+    c.save(); c.translate(14, (Ty + By) / 2); c.rotate(-Math.PI / 2); c.textAlign = "center"; c.fillText(state.shR ? "workers (shuffled)" : "workers (worst → best)", 0, 0); c.restore();
+    gObs = { Rx0: X0, Ty: Ty, Rw: Rw, ph: ph, rows: rows, cols: cols };
+  }
+
+  function modelText() {
+    var r = state.shR, c = state.shC, t;
+    if (r && c) t = "<b>SST model</b> — both orderings are hidden (Strong Stochastic Transitivity). See <a href=\"https://arxiv.org/abs/1510.05610\" target=\"_blank\" rel=\"noopener\">Shah et&nbsp;al. (2017)</a>.";
+    else if (r || c) t = "<b>Bi-isotonic ranking model</b> — one ordering is hidden and must be recovered.";
+    else t = "Nothing shuffled — recovering <b>M</b> is just <b>bi-isotonic estimation</b> (the orderings are known).";
+    document.getElementById("csModelText").innerHTML = t;
+  }
+
+  function drawAll() { drawTop(); drawObs(); }
+
+  function hoverHeat(canvas, getG, tipEl, html) {
+    canvas.addEventListener("mousemove", function (e) {
+      var g = getG(); if (!g) return; var rect = canvas.getBoundingClientRect(), mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      var dc = Math.floor((mx - g.Rx0) / (g.Rw / g.cols.length)), dr = Math.floor((my - g.Ty) / (g.ph / g.rows.length));
+      if (dc >= 0 && dc < g.cols.length && dr >= 0 && dr < g.rows.length) { tipEl.style.display = "block"; tipEl.style.left = mx + "px"; tipEl.style.top = (my - 8) + "px"; tipEl.innerHTML = html(g.rows[dr], g.cols[dc], dr, dc); }
+      else tipEl.style.display = "none";
+    });
+    canvas.addEventListener("mouseleave", function () { tipEl.style.display = "none"; });
+  }
+  hoverHeat(top, function () { return gTop; }, tip, function (r, c) { return "<b>M = " + Mfull[r][c].toFixed(3) + "</b>"; });
+  hoverHeat(obs, function () { return gObs; }, obsTip, function (r, c) {
+    return state.model === "gaussian" ? "M = " + Mfull[r][c].toFixed(3) + " · <b>obs = " + observed(r, c).toFixed(3) + "</b>" : "<b>answer = " + observed(r, c) + "</b>  ·  M = " + Mfull[r][c].toFixed(2);
+  });
+
+  var pending = false; function schedule() { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; drawAll(); }); }
+  var SLIDERS = [["csN", "n", "csNv", null], ["csD", "d", "csDv", null], ["csH", "H", "csHv", function (v) { return v.toFixed(2); }], ["csS", "sigma", "csSv", function (v) { return v.toFixed(2); }]];
+  function applySlider(s) { var v = +document.getElementById(s[0]).value; state[s[1]] = v; document.getElementById(s[2]).textContent = s[3] ? s[3](v) : v; }
+  SLIDERS.forEach(function (s) { document.getElementById(s[0]).addEventListener("input", function () { applySlider(s); schedule(); }); });
+  function syncFromInputs() { SLIDERS.forEach(applySlider); }   // read whatever the browser restored, so cursors == drawn quantities after a refresh
+  function setModel(m) { state.model = m;
+    document.getElementById("csModelB").classList.toggle("on", m === "bernoulli");
+    document.getElementById("csModelG").classList.toggle("on", m === "gaussian");
+    document.getElementById("csHwrap").style.display = m === "bernoulli" ? "" : "none";
+    document.getElementById("csSwrap").style.display = m === "gaussian" ? "" : "none";
+    drawObs();   // top is unchanged
+  }
+  document.getElementById("csModelB").addEventListener("click", function () { setModel("bernoulli"); });
+  document.getElementById("csModelG").addEventListener("click", function () { setModel("gaussian"); });
+  document.getElementById("csShufR").addEventListener("click", function () { state.shR = !state.shR; this.classList.toggle("on", state.shR); drawObs(); modelText(); });
+  document.getElementById("csShufC").addEventListener("click", function () { state.shC = !state.shC; this.classList.toggle("on", state.shC); drawObs(); modelText(); });
+  document.getElementById("csNew").addEventListener("click", function () { regen(); schedule(); });
+  var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+  syncFromInputs(); regen(); drawAll(); modelText();
+})();
+</script>
+```
+
+## The model in one line
+
+Workers and tasks each have a hidden **rank**; the score matrix $M_{ik}$ is non-decreasing as the
+worker gets better and as the task gets easier (bi-isotonicity). We only see one noisy draw per entry,
+yet the monotone shape lets us **borrow strength across rows and columns** to recover the orderings
+and the scores at the optimal rate.
+
+## Removing the row constraint — the isotonic model
+
+Now **drop bi-isotonicity on the rows**: we keep only that every task ranks the workers the *same
+way* (each **column** is non-decreasing in worker ability), but a single worker's scores *across*
+tasks may be arbitrary. The workers are still totally ordered — so the ranking is recoverable — yet
+the tasks carry no order. The latent matrix $M$ is on the **left**, the noisy answers on the
+**right**; **shuffle the rows** to hide the worker ranking the algorithm has to rebuild.
+
+```{=html}
+<div class="bandit-controls" style="margin-top:1rem">
+  <span class="bench-group"><span class="bench-label">model</span>
+    <button id="isModelB" class="bench-btn on">Bernoulli</button>
+    <button id="isModelG" class="bench-btn">Gaussian</button>
+  </span>
+  <button id="isNew" class="bandit-btn">↻ new sample</button>
+  <label class="bandit-readout">workers <input id="isN" class="bandit-speed" type="range" min="5" max="300" step="1" value="40"> <b id="isNv">40</b></label>
+  <label class="bandit-readout">tasks <input id="isD" class="bandit-speed" type="range" min="5" max="300" step="1" value="80"> <b id="isDv">80</b></label>
+  <label class="bandit-readout" id="isHwrap">peak ability <input id="isH" class="bandit-speed" type="range" min="0.55" max="1" step="0.01" value="0.9"> <b id="isHv">0.90</b></label>
+  <label class="bandit-readout" id="isSwrap" style="display:none">noise σ · 𝒩(0, σ²) <input id="isS" class="bandit-speed" type="range" min="0" max="3" step="0.05" value="0.3"> <b id="isSv">0.30</b></label>
+  <button id="isShufR" class="bench-btn">⤢ shuffle rows</button>
+</div>
+<div class="cs-iso-row">
+  <div class="bench-plot cs-iso"><canvas id="isTrue"></canvas><div class="bench-tip" id="isTrueTip"></div></div>
+  <div class="bench-plot cs-iso"><canvas id="isObs"></canvas><div class="bench-tip" id="isObsTip"></div></div>
+</div>
+
+<script>
+(function () {
+  var trueC = document.getElementById("isTrue"), trueTip = document.getElementById("isTrueTip");
+  var obsC = document.getElementById("isObs"), obsTip = document.getElementById("isObsTip");
+  if (!trueC || !obsC) return;
+  var MAXN = 300, MAXD = 300;
+  var state = { n: 40, d: 80, H: 0.9, sigma: 0.3, model: "bernoulli", shR: false };
+  var Mfull, Z, U, selRows, selCols, rkey, gTrue = null, gObs = null;
+  var hc = document.createElement("canvas"), hx = hc.getContext("2d");
+
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function randperm(max) { var a = []; for (var i = 1; i <= max; i++) a.push(i); for (var j = max - 1; j > 0; j--) { var k = (Math.random() * (j + 1)) | 0, t = a[j]; a[j] = a[k]; a[k] = t; } return a; }
+  function genIsotonic(n, d) {                         // each column monotone in worker rank; columns (tasks) independent → rows arbitrary
+    var m = Array.from({ length: n + 1 }, function () { return new Float64Array(d + 1); }), col = new Float64Array(n);
+    for (var j = 1; j <= d; j++) {
+      for (var i = 0; i < n; i++) col[i] = Math.random();
+      Array.prototype.sort.call(col, function (a, b) { return a - b; });
+      var g = 0.35 + Math.random() * 2.65;            // random difficulty shape per task
+      for (var i = 1; i <= n; i++) m[i][j] = Math.pow(col[i - 1], g);
+    }
+    return m;
+  }
+  function mat(f) { var a = []; for (var i = 0; i <= MAXN; i++) { var r = new Float32Array(MAXD + 1); for (var j = 0; j <= MAXD; j++) r[j] = f(); a.push(r); } return a; }
+  function vec(m) { var a = new Float64Array(m + 1); for (var i = 0; i <= m; i++) a[i] = Math.random(); return a; }
+  function regen() { Mfull = genIsotonic(MAXN, MAXD); selRows = randperm(MAXN); selCols = randperm(MAXD); Z = mat(gauss); U = mat(Math.random); rkey = vec(MAXN); }
+
+  function observed(r, c) {
+    if (state.model === "bernoulli") return U[r][c] < (0.5 + (2 * state.H - 1) * (Mfull[r][c] - 0.5)) ? 1 : 0;
+    return Math.max(0, Math.min(1, Mfull[r][c] + state.sigma * Z[r][c]));
+  }
+  function rankRows() { return selRows.slice(0, state.n).sort(function (a, b) { return a - b; }); }   // worst → best
+  function theCols() { return selCols.slice(0, state.d).sort(function (a, b) { return a - b; }); }
+
+  function frame(canvas) { var dpr = window.devicePixelRatio || 1, w = canvas.offsetWidth, h = canvas.offsetHeight;
+    if (!w || !h) return null; canvas.width = w * dpr; canvas.height = h * dpr; var c = canvas.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h); return { c: c, w: w, h: h }; }
+  function paintHeat(c, rows, cols, fn, X0, Y0, Rw, Rh, smooth) {
+    var n = rows.length, d = cols.length; hc.width = d; hc.height = n; var img = hx.createImageData(d, n), dt = img.data, p = 0;
+    for (var py = 0; py < n; py++) { var rr = rows[py]; for (var px = 0; px < d; px++) { var g = (16 + fn(rr, cols[px]) * 230) | 0; dt[p] = dt[p + 1] = dt[p + 2] = g; dt[p + 3] = 255; p += 4; } }
+    hx.putImageData(img, 0, 0); c.imageSmoothingEnabled = smooth; c.drawImage(hc, 0, 0, d, n, X0, Y0, Rw, Rh);
+  }
+  function drawMatrix(canvas, rows, cols, fn, smooth, title, rowLabel, setG) {
+    var s = frame(canvas); if (!s) return; var c = s.c, w = s.w, h = s.h;
+    var X0 = 40, Ty = 22, By = h - 24, ph = By - Ty, Rw = w - X0 - 12;
+    paintHeat(c, rows, cols, fn, X0, Ty, Rw, ph, smooth);
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.strokeRect(X0, Ty, Rw, ph);
+    c.font = "10px system-ui,sans-serif"; c.fillStyle = "rgba(170,180,205,0.85)"; c.textAlign = "left"; c.fillText(title, X0, 14);
+    c.textAlign = "center"; c.fillText("tasks", X0 + Rw / 2, h - 7);
+    c.save(); c.translate(14, (Ty + By) / 2); c.rotate(-Math.PI / 2); c.textAlign = "center"; c.fillText(rowLabel, 0, 0); c.restore();
+    setG({ Rx0: X0, Ty: Ty, Rw: Rw, ph: ph, rows: rows, cols: cols });
+  }
+
+  function drawAll() {
+    var rows = rankRows(), cols = theCols();
+    drawMatrix(trueC, rows, cols, function (r, cc) { return Mfull[r][cc]; }, false, "true  M", "workers (worst → best)", function (g) { gTrue = g; });
+    var orows = state.shR ? rows.slice().sort(function (a, b) { return rkey[a] - rkey[b]; }) : rows;
+    drawMatrix(obsC, orows, cols, observed, false, "observed answers", state.shR ? "workers (shuffled)" : "workers (worst → best)", function (g) { gObs = g; });
+  }
+
+  function hoverHeat(canvas, getG, tipEl, html) {
+    canvas.addEventListener("mousemove", function (e) {
+      var g = getG(); if (!g) return; var rect = canvas.getBoundingClientRect(), mx = e.clientX - rect.left, my = e.clientY - rect.top;
+      var dc = Math.floor((mx - g.Rx0) / (g.Rw / g.cols.length)), dr = Math.floor((my - g.Ty) / (g.ph / g.rows.length));
+      if (dc >= 0 && dc < g.cols.length && dr >= 0 && dr < g.rows.length) { tipEl.style.display = "block"; tipEl.style.left = mx + "px"; tipEl.style.top = (my - 8) + "px"; tipEl.innerHTML = html(g.rows[dr], g.cols[dc]); }
+      else tipEl.style.display = "none";
+    });
+    canvas.addEventListener("mouseleave", function () { tipEl.style.display = "none"; });
+  }
+  hoverHeat(trueC, function () { return gTrue; }, trueTip, function (r, c) { return "<b>M = " + Mfull[r][c].toFixed(3) + "</b>"; });
+  hoverHeat(obsC, function () { return gObs; }, obsTip, function (r, c) {
+    return state.model === "gaussian" ? "M = " + Mfull[r][c].toFixed(3) + " · <b>obs = " + observed(r, c).toFixed(3) + "</b>" : "<b>answer = " + observed(r, c) + "</b>  ·  M = " + Mfull[r][c].toFixed(2);
+  });
+
+  var pending = false; function schedule() { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; drawAll(); }); }
+  var SLIDERS = [["isN", "n", "isNv", null], ["isD", "d", "isDv", null], ["isH", "H", "isHv", function (v) { return v.toFixed(2); }], ["isS", "sigma", "isSv", function (v) { return v.toFixed(2); }]];
+  function applySlider(s) { var v = +document.getElementById(s[0]).value; state[s[1]] = v; document.getElementById(s[2]).textContent = s[3] ? s[3](v) : v; }
+  SLIDERS.forEach(function (s) { document.getElementById(s[0]).addEventListener("input", function () { applySlider(s); schedule(); }); });
+  function syncFromInputs() { SLIDERS.forEach(applySlider); }
+  function setModel(m) { state.model = m;
+    document.getElementById("isModelB").classList.toggle("on", m === "bernoulli");
+    document.getElementById("isModelG").classList.toggle("on", m === "gaussian");
+    document.getElementById("isHwrap").style.display = m === "bernoulli" ? "" : "none";
+    document.getElementById("isSwrap").style.display = m === "gaussian" ? "" : "none";
+    schedule();
+  }
+  document.getElementById("isModelB").addEventListener("click", function () { setModel("bernoulli"); });
+  document.getElementById("isModelG").addEventListener("click", function () { setModel("gaussian"); });
+  document.getElementById("isShufR").addEventListener("click", function () { state.shR = !state.shR; this.classList.toggle("on", state.shR); schedule(); });
+  document.getElementById("isNew").addEventListener("click", function () { regen(); schedule(); });
+  var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(drawAll, 120); });
+  syncFromInputs(); regen(); drawAll();
+})();
+</script>
+```
+
+## The final step — recovering the labels
+
+Everything above assumed we *knew* the right answers and only ranked workers or estimated $M$. The
+last paper drops that. Each task $k$ now carries an **unknown** binary label $x^*_k \in \{-1,+1\}$,
+and all we see are the votes: worker $i$ answers task $k$ **correctly with probability**
+$\tfrac{1+M_{ik}}{2}$, i.e. $Y_{ik} = x^*_k$ with probability $\tfrac{1+M_{ik}}{2}$ and $-x^*_k$
+otherwise — where $M_{ik}=1$ is a perfect worker and $M_{ik}=0$ a coin flip — with entries possibly
+**missing** (each vote observed with probability $\lambda$). The ability matrix $M$ is **isotonic**
+after an unknown worker permutation, exactly the structure visualised just above. Plain **majority
+vote** can be barely better than chance when abilities are low; the COLT 2025 paper gives the first
+**polynomial-time** estimator that recovers $x^*$ at the **minimax-optimal** rate — and, as a
+by-product, recovers the earlier ranking and estimation guarantees as special cases.
+
+Each column below is a task with a hidden label $x^*_k$; the workers' $\pm1$ votes fill the matrix
+(green $-1$, blue $+1$). The two strips compare the **true labels** with the **majority vote** —
+drag **ability** down or remove workers and watch majority vote start making errors (outlined red).
+
+```{=html}
+<div class="bandit-controls" style="margin-top:1rem">
+  <button id="lbNew" class="bandit-btn">↻ new sample</button>
+  <label class="bandit-readout">workers <input id="lbN" class="bandit-speed" type="range" min="3" max="200" step="1" value="15"> <b id="lbNv">15</b></label>
+  <label class="bandit-readout">tasks <input id="lbD" class="bandit-speed" type="range" min="10" max="200" step="1" value="60"> <b id="lbDv">60</b></label>
+  <label class="bandit-readout">ability <input id="lbA" class="bandit-speed" type="range" min="0" max="1" step="0.02" value="0.35"> <b id="lbAv">0.35</b></label>
+  <span class="bandit-readout"><span style="display:inline-block;width:10px;height:10px;background:rgb(20,20,24);border:1px solid rgba(255,255,255,0.3);border-radius:2px;vertical-align:middle"></span> −1&ensp;<span style="display:inline-block;width:10px;height:10px;background:rgb(238,240,245);border:1px solid rgba(255,255,255,0.3);border-radius:2px;vertical-align:middle"></span> +1</span>
+  <span class="bandit-readout">majority-vote errors: <b id="lbErr">–</b></span>
+</div>
+<div class="bench-plot lb-plot"><canvas id="lbCanvas"></canvas><div class="bench-tip" id="lbTip"></div></div>
+
+<script>
+(function () {
+  var cv = document.getElementById("lbCanvas"), tip = document.getElementById("lbTip");
+  if (!cv) return;
+  var MAXN = 200, MAXD = 200;
+  var state = { n: 15, d: 60, a: 0.35 };
+  var Mfull, U, xstar, selRows, selCols, geom = null;
+  var hc = document.createElement("canvas"), hx = hc.getContext("2d");
+  var GREEN = [20, 20, 24], BLUE = [238, 240, 245];   // −1 near-black, +1 near-white
+
+  function randperm(max) { var a = []; for (var i = 1; i <= max; i++) a.push(i); for (var j = max - 1; j > 0; j--) { var k = (Math.random() * (j + 1)) | 0, t = a[j]; a[j] = a[k]; a[k] = t; } return a; }
+  function genIsotonic(n, d) {
+    var m = Array.from({ length: n + 1 }, function () { return new Float64Array(d + 1); }), col = new Float64Array(n);
+    for (var j = 1; j <= d; j++) {
+      for (var i = 0; i < n; i++) col[i] = Math.random();
+      Array.prototype.sort.call(col, function (a, b) { return a - b; });
+      var g = 0.35 + Math.random() * 2.65;
+      for (var i = 1; i <= n; i++) m[i][j] = Math.pow(col[i - 1], g);
+    }
+    return m;
+  }
+  function mat(f) { var a = []; for (var i = 0; i <= MAXN; i++) { var r = new Float32Array(MAXD + 1); for (var j = 0; j <= MAXD; j++) r[j] = f(); a.push(r); } return a; }
+  function regen() { Mfull = genIsotonic(MAXN, MAXD); U = mat(Math.random); xstar = []; for (var j = 0; j <= MAXD; j++) xstar.push(Math.random() < 0.5 ? -1 : 1); selRows = randperm(MAXN); selCols = randperm(MAXD); }
+  function vote(i, k) { return U[i][k] < (1 + state.a * Mfull[i][k]) / 2 ? xstar[k] : -xstar[k]; }   // correct w.p. (1+aM)/2
+  function rows() { return selRows.slice(0, state.n).sort(function (a, b) { return a - b; }); }
+  function cols() { return selCols.slice(0, state.d); }
+
+  function frame(canvas) { var dpr = window.devicePixelRatio || 1, w = canvas.offsetWidth, h = canvas.offsetHeight;
+    if (!w || !h) return null; canvas.width = w * dpr; canvas.height = h * dpr; var c = canvas.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h); return { c: c, w: w, h: h }; }
+
+  function draw() {
+    var s = frame(cv); if (!s) return; var c = s.c, w = s.w, h = s.h;
+    var rs = rows(), cs = cols(), n = rs.length, d = cs.length;
+    var X0 = 72, X1 = w - 12, Rw = X1 - X0, Ty = 20, mainBy = h - 64, ph = mainBy - Ty, cw = Rw / d;
+    hc.width = d; hc.height = n; var img = hx.createImageData(d, n), dt = img.data, p = 0;
+    for (var py = 0; py < n; py++) { var ri = rs[py]; for (var px = 0; px < d; px++) { var col = vote(ri, cs[px]) > 0 ? BLUE : GREEN; dt[p] = col[0]; dt[p + 1] = col[1]; dt[p + 2] = col[2]; dt[p + 3] = 255; p += 4; } }
+    hx.putImageData(img, 0, 0); c.imageSmoothingEnabled = false; c.drawImage(hc, 0, 0, d, n, X0, Ty, Rw, ph);
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.lineWidth = 1; c.strokeRect(X0, Ty, Rw, ph);
+    var sh = 16, trueY = h - 54, mvY = h - 32, errs = 0;
+    for (var px = 0; px < d; px++) {
+      var k = cs[px], x = X0 + px * cw, tx = xstar[k];
+      c.fillStyle = "rgb(" + (tx > 0 ? BLUE : GREEN).join(",") + ")"; c.fillRect(x, trueY, Math.ceil(cw), sh);
+      var ssum = 0; for (var py = 0; py < n; py++) ssum += vote(rs[py], k); var mv = ssum >= 0 ? 1 : -1;
+      c.fillStyle = "rgb(" + (mv > 0 ? BLUE : GREEN).join(",") + ")"; c.fillRect(x, mvY, Math.ceil(cw), sh);
+      if (mv !== tx) { errs++; c.strokeStyle = "#ff5b6e"; c.lineWidth = 1.5; c.strokeRect(x + 0.75, mvY + 0.75, Math.ceil(cw) - 1.5, sh - 1.5); }
+    }
+    c.strokeStyle = "rgba(255,255,255,0.14)"; c.lineWidth = 1; c.strokeRect(X0, trueY, Rw, sh); c.strokeRect(X0, mvY, Rw, sh);
+    c.font = "10px system-ui,sans-serif"; c.fillStyle = "rgba(170,180,205,0.85)"; c.textAlign = "left"; c.fillText("worker votes  Y  (±1)", X0, 14);
+    c.textAlign = "right"; c.fillText("true  x*", X0 - 6, trueY + 12); c.fillText("maj. vote", X0 - 6, mvY + 12);
+    c.textAlign = "center"; c.fillText("tasks  →", X0 + Rw / 2, h - 6);
+    document.getElementById("lbErr").textContent = errs + " / " + d;
+    geom = { X0: X0, Ty: Ty, Rw: Rw, ph: ph, rows: rs, cols: cs };
+  }
+
+  cv.addEventListener("mousemove", function (e) {
+    if (!geom) { return; } var rect = cv.getBoundingClientRect(), mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    var dc = Math.floor((mx - geom.X0) / (geom.Rw / geom.cols.length)), dr = Math.floor((my - geom.Ty) / (geom.ph / geom.rows.length));
+    if (dc >= 0 && dc < geom.cols.length && dr >= 0 && dr < geom.rows.length) {
+      var ri = geom.rows[dr], k = geom.cols[dc], v = vote(ri, k), ok = v === xstar[k];
+      tip.style.display = "block"; tip.style.left = mx + "px"; tip.style.top = (my - 8) + "px";
+      tip.innerHTML = "worker #" + (dr + 1) + " · task #" + (dc + 1) + "<br><b>vote " + (v > 0 ? "+1" : "−1") + "</b> · " + (ok ? "correct" : "wrong");
+    } else tip.style.display = "none";
+  });
+  cv.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+
+  var pending = false; function schedule() { if (pending) return; pending = true; requestAnimationFrame(function () { pending = false; draw(); }); }
+  var SLIDERS = [["lbN", "n", "lbNv", null], ["lbD", "d", "lbDv", null], ["lbA", "a", "lbAv", function (v) { return v.toFixed(2); }]];
+  function applySlider(s) { var v = +document.getElementById(s[0]).value; state[s[1]] = v; document.getElementById(s[2]).textContent = s[3] ? s[3](v) : v; }
+  SLIDERS.forEach(function (s) { document.getElementById(s[0]).addEventListener("input", function () { applySlider(s); schedule(); }); });
+  document.getElementById("lbNew").addEventListener("click", function () { regen(); schedule(); });
+  var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(draw, 120); });
+  SLIDERS.forEach(applySlider); regen(); draw();
+})();
+</script>
+```
+
+## References & links
+
+```{=html}
+<div class="aurora-card-grid">
+  <a class="aurora-card" href="https://proceedings.mlr.press/v291/pilliat25a.html">
+    <span class="aurora-card__icon">🏷️</span>
+    <span class="aurora-card__title">Recovering Labels from Crowdsourced Data</span>
+    <span class="aurora-card__desc">An optimal, polynomial-time method for recovering the true labels — COLT 2025.</span>
+    <span class="aurora-card__more">PMLR →</span>
+  </a>
+  <a class="aurora-card" href="https://arxiv.org/abs/2211.04092">
+    <span class="aurora-card__icon">🔢</span>
+    <span class="aurora-card__title">Optimal Permutation Estimation in Crowd-Sourcing</span>
+    <span class="aurora-card__desc">Minimax-optimal, polynomial-time estimation of the worker permutation — Annals of Statistics.</span>
+    <span class="aurora-card__more">arXiv →</span>
+  </a>
+  <a class="aurora-card" href="https://arxiv.org/abs/2310.01133">
+    <span class="aurora-card__icon">📐</span>
+    <span class="aurora-card__title">Ranking a Permuted Isotonic Matrix</span>
+    <span class="aurora-card__desc">Optimal rates for recovering the permutation of an isotonic matrix — SODA 2024.</span>
+    <span class="aurora-card__more">arXiv →</span>
+  </a>
+</div>
+```
