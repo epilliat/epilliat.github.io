@@ -1,0 +1,390 @@
+---
+title: "Adaptive Algorithms for Infinitely Many-Armed Bandits"
+toc: false
+sidebar: false
+---
+
+[← Research](../../research.qmd){.back-link}
+
+::: {.paper-eyebrow}
+JMLR · 2026 · Emmanuel Pilliat
+:::
+
+::: {.paper-hook}
+Recommending a near-best option when there are <strong>far more candidates than the sampling budget</strong>.
+:::
+
+::: {.paper-sub}
+In the *infinitely many-armed bandit* problem, the pool of options (arms) is much larger than the
+number of pulls available — too large to try even once. The objective is therefore not to minimise
+regret but to **recommend** an arm whose mean reward ranks near the top of the pool. This paper
+introduces two distribution-free algorithms, **OSE** and **PROSE**, with near-optimal guarantees.
+The visualisation below runs them against the **BSH** baseline on a shared reservoir of arms; each
+panel reports the true rank of its current recommendation (`1` = best arm).
+:::
+
+```{=html}
+<div class="bandit-anim">
+  <div class="bandit-controls">
+    <button id="bdPlay" class="bandit-btn">▶ Play</button>
+    <button id="bdPrev" class="bandit-btn" title="previous step (←)">◀ prev</button>
+    <button id="bdNext" class="bandit-btn" title="next step (→)">next ▶</button>
+    <button id="bdReplay" class="bandit-btn">↻ New reservoir</button>
+    <label class="bandit-readout">speed <input id="bdSpeed" class="bandit-speed" type="range" min="1" max="120" value="5"> <b id="bdSpeedV">5</b></label>
+    <label class="bandit-readout">reservoir shape α <input id="bdAlpha" class="bandit-speed" type="range" min="0.25" max="2" step="0.05" value="0.75"> <b id="bdAlphaV">0.75</b></label>
+    <label class="bandit-readout">noise <input id="bdNoise" class="bandit-speed" type="range" min="0" max="2" step="0.05" value="0.5"> <b id="bdNoiseV">0.50</b></label>
+    <label class="bandit-readout">arms <input id="bdArms" class="bandit-speed" type="range" min="20" max="3000" step="20" value="160"> <b id="bdArmsV">160</b></label>
+    <span class="bandit-readout">pull <b id="bdT">0</b> / 1500</span>
+  </div>
+  <div class="bandit-dist">
+    <div class="bandit-dist__head">The reservoir — the quantile curve <em>λ</em>. Each algorithm's current pull ● , its noisy reward ✕ and its recommendation ★ ride along it.</div>
+    <canvas id="cvDist"></canvas>
+  </div>
+  <div class="bandit-panels">
+    <div class="bandit-panel">
+      <div class="bandit-panel__head"><span class="bandit-panel__name"><span class="bandit-dot" style="background:#5ec8b0"></span>BSH<small>bracketed sequential halving · Zhao et&nbsp;al. 2023</small></span><span class="bandit-panel__rank" id="rankBSH">rank —</span></div>
+      <canvas id="cvBSH"></canvas>
+      <div class="bandit-panel__note">Brackets + sequential halving: pull the survivors, drop the worse half each round.</div>
+    </div>
+    <div class="bandit-panel">
+      <div class="bandit-panel__head"><span class="bandit-panel__name"><span class="bandit-dot" style="background:#5b8cff"></span>OSE<small>optimistic scope exploration · this paper</small></span><span class="bandit-panel__rank" id="rankOSE">rank —</span></div>
+      <canvas id="cvOSE"></canvas>
+      <div class="bandit-panel__note">Pull the highest-UCB arm within the exploration scope; recommend the highest-LCB arm.</div>
+    </div>
+    <div class="bandit-panel">
+      <div class="bandit-panel__head"><span class="bandit-panel__name"><span class="bandit-dot" style="background:#b79cff"></span>PROSE<small>progressive ranking for OSE · this paper</small></span><span class="bandit-panel__rank" id="rankPROSE">rank —</span></div>
+      <canvas id="cvPROSE"></canvas>
+      <div class="bandit-panel__note">Rank arms by LCB; pull the highest-UCB within the top scope; recommend the highest-LCB arm.</div>
+    </div>
+  </div>
+  <div class="bandit-dist bandit-curve" style="margin-top:1rem">
+    <div class="bandit-dist__head">Cumulative reward — total collected so far; the curve is the reward <em>per pull</em> (how well each algorithm exploits over time).</div>
+    <canvas id="cvCum"></canvas>
+    <div class="bandit-readout" id="cumTotals" style="margin-top:.45rem"></div>
+  </div>
+  <div class="bandit-legend">
+    Each vertical whisker is an arm's confidence interval; the dot is its empirical mean, the faint tick its true mean.
+    <span class="k-scope">▮ shaded</span> = the current exploration scope · <span class="k-pull">▮ purple</span> = the arm pulled this step · <span class="k-reco">★ gold</span> = the recommended arm.
+  </div>
+
+  <div class="bandit-zoom" id="bdZoom">
+    <div class="bandit-zoom__inner">
+      <div class="bandit-zoom__head">
+        <span id="bdZoomTitle"></span>
+        <span class="bandit-zoom__ctrls">
+          <span class="bandit-readout" id="bdZoomStep"></span>
+          <button class="bandit-btn" id="bdZoomPrev" title="previous step (←)">◀ prev</button>
+          <button class="bandit-btn" id="bdZoomNext" title="next step (→)">next ▶</button>
+          <button class="bandit-btn" id="bdZoomClose">✕ close</button>
+        </span>
+      </div>
+      <canvas id="cvZoom"></canvas>
+      <div class="bandit-panel__note" id="bdZoomNote"></div>
+    </div>
+  </div>
+
+<script>
+(function () {
+  "use strict";
+  var canvases = {
+    BSH: document.getElementById("cvBSH"),
+    OSE: document.getElementById("cvOSE"),
+    PROSE: document.getElementById("cvPROSE"),
+  };
+  if (!canvases.BSH) return;
+
+  // ---- reservoir + model -------------------------------------------------
+  // Parameters matched to the /bandits replay: A=2, β=2, σ=0.5, γ=0. (α is adjustable below; /bandits used 3/2.)
+  var N = 160, A = 2.0, SIGMA = 0.5, BETA = 2.0, GAMMA = 0.0, K = 40, TMAX = 1500, ALPHA = 0.75;
+  var MEANS, RANK, GAM, ORDER, NOISE;
+  var COLORS = { BSH: "#5ec8b0", OSE: "#5b8cff", PROSE: "#b79cff" };
+  var distCv = document.getElementById("cvDist");
+  var cumCv = document.getElementById("cvCum"), cumTotalsEl = document.getElementById("cumTotals");
+  var zoomEl = document.getElementById("bdZoom"), zoomCv = document.getElementById("cvZoom"), zoomTitle = document.getElementById("bdZoomTitle"), zoomStepEl = document.getElementById("bdZoomStep"), zoomNoteEl = document.getElementById("bdZoomNote"), zoomAlgo = null;
+  function lam(x) { return A * (1 - Math.pow(x, ALPHA)); }   // reservoir quantile function  λ_x
+
+  // Seeded PRNG so a run is fully reproducible — lets us step BACKWARD by replaying from t=0.
+  var seed = 1;
+  function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  var rng = mulberry32(seed);
+  function newSeed() { return (Math.random() * 4294967296) >>> 0; }
+  function gauss() { var u = 0, v = 0; while (!u) u = rng(); while (!v) v = rng();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function makeReservoir() {
+    // Arms sit at distinct ranks on the quantile curve λ_x = 1 − x^α (shuffled across arm indices).
+    // iid reservoir, exactly as in /bandits: γ ~ U(0,1), mean = A(1 − γ^α)
+    MEANS = new Array(N); GAM = new Array(N);
+    for (var a = 0; a < N; a++) { GAM[a] = rng(); MEANS[a] = lam(GAM[a]); }
+    var ord = MEANS.map(function (_, i) { return i; }).sort(function (i, j) { return MEANS[j] - MEANS[i]; });
+    RANK = new Array(N); ord.forEach(function (idx, r) { RANK[idx] = r + 1; }); // rank 1 = best
+    ORDER = randperm(N);   // ONE shared arrival order, so the three algorithms see the same reservoir
+    NOISE = new Array(N); for (var q = 0; q < N; q++) NOISE[q] = []; // shared observation reservoir (common random numbers)
+  }
+  // The k-th pull of arm a draws the SAME noise for every algorithm — so all three run on one reservoir.
+  function noiseFor(a, k) { var arr = NOISE[a]; while (arr.length <= k) arr.push(gauss()); return arr[k]; }
+  function newStats() { var s = []; for (var i = 0; i < N; i++) s.push({ pulls: 0, sum: 0 }); return s; }
+  function randperm(n) { var a = []; for (var i = 0; i < n; i++) a.push(i);
+    for (var j = n - 1; j > 0; j--) { var k = (rng() * (j + 1)) | 0; var t = a[j]; a[j] = a[k]; a[k] = t; } return a; }
+  function median(arr) { var s = arr.slice().sort(function (a, b) { return a - b; }); var n = s.length;
+    return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; }
+
+  // ---- OSE / PROSE (growing scope, UCB / LCB) ----------------------------
+  function Scope() { this.stats = newStats(); this.reco = null; this.lastPulled = null;
+    this.t = 0; this.J = 1; this.explored = []; this.scopeZ = 0; this.order = ORDER; }
+  Scope.prototype.emp = function (i) { var s = this.stats[i]; return s.pulls ? s.sum / s.pulls : 0; };
+  Scope.prototype.hw = function (i) { var s = this.stats[i]; return s.pulls ? Math.sqrt(BETA / s.pulls) : Infinity; };
+  Scope.prototype.ucb = function (i) { return this.emp(i) + this.hw(i); };
+  Scope.prototype.lcb = function (i) { return this.emp(i) - this.hw(i); };
+  Scope.prototype.pull = function (i) { var s = this.stats[i]; var r = MEANS[i] + SIGMA * noiseFor(i, s.pulls); s.pulls++; s.sum += r; this.lastPulled = i; this.lastReward = r; };
+  // Deterministic scope schedule (matches /bandits): U = (J/Jmax)^exp(−γ), Z = ⌊t^U⌋, J cycles 1..Jmax.
+  Scope.prototype.zForT = function (t, Jmax) { if (Jmax < 1) Jmax = 1;
+    if (this.J > Jmax) this.J = 1; var U = Math.pow(this.J / Jmax, Math.exp(-GAMMA)); return Math.floor(Math.pow(t, U)); };
+  Scope.prototype.view = function () {
+    var self = this, items = this.explored.slice(0, K).map(function (idx) {
+      return { idx: idx, emp: self.emp(idx), lo: self.lcb(idx), hi: self.ucb(idx), pulls: self.stats[idx].pulls }; });
+    return { items: items, scope: Math.min(this.scopeZ, items.length), reco: this.reco, pulled: this.lastPulled }; };
+
+  function OSE() { Scope.call(this); } OSE.prototype = Object.create(Scope.prototype);
+  OSE.prototype.step = function () { this.t++; var t = this.t, Z = this.zForT(t, Math.floor(Math.log2(t + 1)));
+    if (Z > this.explored.length && this.explored.length < N) this.explored.push(this.order[this.explored.length]);
+    Z = Math.min(Z, this.explored.length); this.scopeZ = Z;
+    var bi = 0; for (var i = 1; i < Z; i++) { var e = this.explored[i], be = this.explored[bi];
+      if (this.ucb(e) > this.ucb(be) || (this.ucb(e) === this.ucb(be) && e < be)) bi = i; }
+    this.pull(this.explored[bi]);
+    var r = 0; for (var j = 1; j < this.explored.length; j++) { var ej = this.explored[j], br = this.explored[r];
+      if (this.lcb(ej) > this.lcb(br) || (this.lcb(ej) === this.lcb(br) && ej < br)) r = j; }
+    this.reco = this.explored[r]; this.J++; };
+
+  function PROSE() { Scope.call(this); } PROSE.prototype = Object.create(Scope.prototype);
+  PROSE.prototype.sortByLcb = function () { var self = this;
+    this.explored.sort(function (a, b) { return (self.lcb(b) - self.lcb(a)) || (a - b); }); };
+  PROSE.prototype.step = function () { this.t++; var t = this.t, Z = this.zForT(t, Math.ceil(Math.log2(t + 1)));
+    if (Z > this.explored.length && this.explored.length < N) this.explored.push(this.order[this.explored.length]);
+    this.sortByLcb(); Z = Math.min(Z, this.explored.length); this.scopeZ = Z;
+    var bi = 0; for (var i = 1; i < Z; i++) { var e = this.explored[i], be = this.explored[bi];
+      if (this.ucb(e) > this.ucb(be) || (this.ucb(e) === this.ucb(be) && e < be)) bi = i; }
+    this.pull(this.explored[bi]); this.sortByLcb(); this.reco = this.explored[0]; this.J++; };
+
+  // ---- BSH (brackets + sequential halving) -------------------------------
+  function BSH() { this.stats = newStats(); this.t = 0; this.B = 0; this.b = 0; this.reco = null; this.lastPulled = null;
+    this.brackets = []; this.surv = []; this.stages = []; this.sp = []; this.budg = []; this.recos = []; this.emps = []; }
+  BSH.prototype.emp = function (i) { var s = this.stats[i]; return s.pulls ? s.sum / s.pulls : 0; };
+  BSH.prototype.pull = function (i) { var s = this.stats[i]; var r = MEANS[i] + SIGMA * noiseFor(i, s.pulls); s.pulls++; s.sum += r; this.lastPulled = i; this.lastReward = r; };
+  BSH.prototype.step = function () { this.t++; var t = this.t;
+    if (t >= this.B * Math.pow(2, this.B)) { this.B++; var u = Math.min(Math.pow(2, this.B), N);
+      var bracket = []; if (u < N) { for (var q = 0; q < u; q++) bracket.push((rng() * N) | 0); }
+      else { for (var z = 0; z < N; z++) bracket.push(z); }
+      this.brackets.push(bracket); this.surv.push(bracket.slice()); this.stages.push(1); this.sp.push(0);
+      this.budg.push(Math.ceil(u * Math.log2(Math.max(u, 2)))); this.recos.push(bracket[0]); this.emps.push(-Infinity); }
+    if (this.B > 0) { var b = this.b, br = this.brackets[b], sv = this.surv[b], self = this;
+      if (sv.length > 0) { var ns = Math.max(1, Math.ceil(Math.log2(Math.max(br.length, 2)))), T = this.budg[b];
+        var ppa = Math.max(1, Math.floor(T / (sv.length * ns))), ai = this.sp[b] % sv.length;
+        this.pull(sv[ai]); this.sp[b]++;
+        if (this.sp[b] >= sv.length * ppa) {
+          if (sv.length > 1) { var ms = sv.map(function (a) { return self.emp(a); }), md = median(ms);
+            this.surv[b] = sv.filter(function (a, i) { return ms[i] >= md; }); sv = this.surv[b]; }
+          this.sp[b] = 0; this.stages[b]++;
+          if (this.surv[b].length === 1 || this.stages[b] > ns) { var best = this.surv[b][0];
+            this.recos[b] = best; this.emps[b] = this.emp(best);
+            this.budg[b] *= 2; this.surv[b] = br.slice(); this.stages[b] = 1; this.sp[b] = 0; } } }
+      var bbi = 0, bm = -Infinity; for (var i = 0; i < this.B; i++) if (this.emps[i] > bm) { bm = this.emps[i]; bbi = i; }
+      this.reco = bm > -Infinity ? this.recos[bbi] : br[0];
+      this.b = this.b < this.B - 1 ? this.b + 1 : 0;
+    } else this.reco = 0; };
+  BSH.prototype.view = function () { var self = this, sv = (this.surv[this.b] || []).slice()
+      .sort(function (a, b) { return self.emp(b) - self.emp(a); }).slice(0, K);
+    var items = sv.map(function (idx) { var p = self.stats[idx].pulls, e = self.emp(idx), s = p ? 1 / Math.sqrt(p) : Infinity;
+      return { idx: idx, emp: e, lo: p ? e - s : -Infinity, hi: p ? e + s : Infinity, pulls: p }; });
+    return { items: items, scope: 0, reco: this.reco, pulled: this.lastPulled }; }; // BSH has no growing scope
+
+  // ---- drawing -----------------------------------------------------------
+  function draw(cv, algo, color) {
+    var dpr = window.devicePixelRatio || 1, w = cv.offsetWidth, h = cv.offsetHeight;
+    if (!w || !h) return;
+    cv.width = w * dpr; cv.height = h * dpr; var ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    var pX = 8, pT = 16, pB = 8, v = algo.view(), items = v.items, m = items.length;
+    // headroom above AND below the reward scale [0,A] so tall UCB/LCB whiskers aren't clipped at either edge
+    var VLO = -0.18 * A, VHI = 1.15 * A;
+    function Y(val) { var c = Math.max(0, Math.min(1, (val - VLO) / (VHI - VLO))); return pT + (1 - c) * (h - pT - pB); }
+    // Fixed K-slot scaling so every panel uses the SAME column width and stays stable over time.
+    var colW = (w - 2 * pX) / K, X = function (i) { return pX + (i + 0.5) * colW; };
+    if (v.scope > 0 && m) { ctx.fillStyle = "rgba(91,140,255,0.18)"; ctx.fillRect(pX, pT - 6, v.scope * colW, h - pT - pB + 12); }
+    for (var i = 0; i < m; i++) {
+      var it = items[i], x = X(i), isReco = it.idx === v.reco, isPull = it.idx === v.pulled;
+      ctx.fillStyle = "rgba(255,255,255,0.16)"; ctx.fillRect(x - 2.5, Y(MEANS[it.idx]), 5, 1);
+      var hi = Y(it.hi), lo = Y(it.lo);   // Y clamps ±Infinity (unpulled arms) into the panel
+      ctx.strokeStyle = isPull ? color : "rgba(170,195,255,0.42)";
+      ctx.lineWidth = isPull ? 2.4 : 1; ctx.beginPath(); ctx.moveTo(x, hi); ctx.lineTo(x, lo); ctx.stroke();
+      if (it.pulls > 0) { ctx.fillStyle = isReco ? "#f5c518" : (isPull ? color : "rgba(232,236,245,0.85)");
+        ctx.beginPath(); ctx.arc(x, Y(it.emp), isReco ? 3.2 : 1.8, 0, 6.2832); ctx.fill(); }
+      if (isReco) { ctx.fillStyle = "#f5c518"; ctx.font = "10px system-ui,sans-serif"; ctx.textAlign = "center"; ctx.fillText("★", x, pT - 3); }
+    }
+  }
+
+  // ---- top panel: the reservoir / quantile curve, with each algorithm on it
+  function drawReservoir() {
+    var cv = distCv; if (!cv) return;
+    var dpr = window.devicePixelRatio || 1, w = cv.offsetWidth, h = cv.offsetHeight;
+    if (!w || !h) return;
+    cv.width = w * dpr; cv.height = h * dpr; var ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    var padL = 30, padR = 14, padT = 12, padB = 20, axisB = h - padB;
+    function X(g) { var c = Math.max(0, Math.min(1, g)); return padL + c * (w - padL - padR); }
+    function Y(m) { var c = Math.max(-0.05, Math.min(1.05, m / A)); return padT + (1 - c) * (axisB - padT); }
+    // the reservoir / quantile curve  λ_x = 1 − x^α
+    ctx.strokeStyle = "rgba(180,198,255,0.55)"; ctx.lineWidth = 1.6; ctx.beginPath();
+    for (var s = 0; s <= 120; s++) { var x = s / 120, px = X(x), py = Y(lam(x)); s ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+    ctx.stroke();
+    ctx.fillStyle = "rgba(154,166,192,0.7)"; ctx.font = "9px system-ui,sans-serif";
+    ctx.textAlign = "left"; ctx.fillText("best (rank → 0)", X(0), axisB + 13);
+    ctx.textAlign = "right"; ctx.fillText("worse (rank → 1)", X(1), axisB + 13);
+    ctx.save(); ctx.translate(10, (padT + axisB) / 2); ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = "center"; ctx.fillText("mean reward  λ", 0, 0); ctx.restore();
+    var names = ["BSH", "OSE", "PROSE"];
+    for (var li = 0; li < 3; li++) {
+      var a = algos[names[li]], col = COLORS[names[li]];
+      // explored arms — faint dots on the curve (they cluster toward the good end)
+      ctx.fillStyle = col; ctx.globalAlpha = 0.22;
+      for (var i = 0; i < N; i++) if (a.stats[i].pulls > 0) { ctx.beginPath(); ctx.arc(X(GAM[i]), Y(MEANS[i]), 1.4, 0, 6.2832); ctx.fill(); }
+      ctx.globalAlpha = 1;
+      // current pull on the curve + its noisy reward (vertical scatter around the true mean)
+      if (a.lastPulled != null && a.lastReward != null) {
+        var gx = X(GAM[a.lastPulled]), my = Y(MEANS[a.lastPulled]), ry = Y(a.lastReward);
+        ctx.strokeStyle = col; ctx.globalAlpha = 0.45; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(gx, my); ctx.lineTo(gx, ry); ctx.stroke(); ctx.globalAlpha = 1;
+        ctx.lineWidth = 1.4; var rs = 2.6;
+        ctx.beginPath(); ctx.moveTo(gx - rs, ry - rs); ctx.lineTo(gx + rs, ry + rs); ctx.moveTo(gx + rs, ry - rs); ctx.lineTo(gx - rs, ry + rs); ctx.stroke(); // reward ✕
+        ctx.fillStyle = col; ctx.beginPath(); ctx.arc(gx, my, 3.4, 0, 6.2832); ctx.fill(); // pulled arm ●
+      }
+      // recommendation ★ on the curve
+      if (a.reco != null) { ctx.fillStyle = col; ctx.font = "13px system-ui,sans-serif"; ctx.textAlign = "center"; ctx.fillText("★", X(GAM[a.reco]), Y(MEANS[a.reco]) - 5); }
+    }
+  }
+
+  // ---- cumulative reward / reward-rate chart -----------------------------
+  function drawCum() {
+    var cv = cumCv; if (!cv) return;
+    var dpr = window.devicePixelRatio || 1, w = cv.offsetWidth, h = cv.offsetHeight;
+    if (!w || !h) return;
+    cv.width = w * dpr; cv.height = h * dpr; var ctx = cv.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    var padL = 26, padR = 46, padT = 8, padB = 16, x0 = padL, x1 = w - padR, y0 = padT, y1 = h - padB;
+    var YMIN = 0.55, YMAX = 1.0;
+    function X(tt) { return x0 + (tt / TMAX) * (x1 - x0); }
+    function Y(v) { var c = Math.max(YMIN, Math.min(YMAX, v)); return y1 - (c - YMIN) / (YMAX - YMIN) * (y1 - y0); }
+    ctx.fillStyle = "rgba(154,166,192,0.6)"; ctx.font = "9px system-ui,sans-serif"; ctx.textAlign = "right";
+    [0.6, 0.7, 0.8, 0.9, 1.0].forEach(function (g) { var yy = Y(g); ctx.strokeStyle = "rgba(255,255,255,0.07)"; ctx.beginPath(); ctx.moveTo(x0, yy); ctx.lineTo(x1, yy); ctx.stroke(); ctx.fillText(g.toFixed(1), x0 - 4, yy + 3); });
+    ctx.save(); ctx.translate(8, (y0 + y1) / 2); ctx.rotate(-Math.PI / 2); ctx.textAlign = "center"; ctx.fillText("reward / pull", 0, 0); ctx.restore();
+    if (!histT.length) return;
+    ["BSH", "OSE", "PROSE"].forEach(function (name) {
+      var H = hist[name]; if (!H.length) return; var col = COLORS[name];
+      ctx.strokeStyle = col; ctx.lineWidth = 1.7; ctx.beginPath();
+      for (var i = 0; i < H.length; i++) { var px = X(histT[i]), py = Y(H[i]); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+      ctx.stroke();
+      var lv = H[H.length - 1];
+      ctx.fillStyle = col; ctx.textAlign = "left"; ctx.font = "10px system-ui,sans-serif"; ctx.fillText(lv.toFixed(3), x1 + 4, Y(lv) + 3);
+    });
+  }
+
+  // ---- loop / controls ---------------------------------------------------
+  var algos, t, playing = false, raf = null, PPS = 5, lastTs = null, acc = 0, cum, histT, hist;
+  function render() {
+    for (var k in algos) { draw(canvases[k], algos[k], COLORS[k]);
+      var a = algos[k];
+      document.getElementById("rank" + k).innerHTML = a.reco != null
+        ? "reward <b>" + (MEANS[a.reco] / A).toFixed(3) + "</b> <span style='opacity:.55'>#" + RANK[a.reco] + "</span>"
+        : "reward —"; }
+    if (zoomAlgo) { draw(zoomCv, algos[zoomAlgo], COLORS[zoomAlgo]); zoomStepEl.textContent = "pull " + t + " / " + TMAX; }
+    drawReservoir(); drawCum();
+    if (cumTotalsEl) cumTotalsEl.innerHTML = "cumulative reward — " +
+      ["BSH", "OSE", "PROSE"].map(function (n) { return "<b style='color:" + COLORS[n] + "'>" + n + "</b> " + Math.round(cum[n]); }).join(" · ");
+    document.getElementById("bdT").textContent = t;
+  }
+  function buildFromSeed(s) { seed = s; rng = mulberry32(s); makeReservoir();
+    algos = { BSH: new BSH(), OSE: new OSE(), PROSE: new PROSE() };
+    t = 0; cum = { BSH: 0, OSE: 0, PROSE: 0 }; histT = []; hist = { BSH: [], OSE: [], PROSE: [] }; }
+  function stepOnce() { if (t >= TMAX) return; t++;
+    for (var k in algos) { algos[k].step(); cum[k] += algos[k].lastReward || 0; }
+    histT.push(t); hist.BSH.push(cum.BSH / t / A); hist.OSE.push(cum.OSE / t / A); hist.PROSE.push(cum.PROSE / t / A); }
+  function setup(s) { buildFromSeed(s == null ? newSeed() : s); render(); }                 // new reservoir
+  function gotoStep(target) { buildFromSeed(seed); var lim = Math.max(0, Math.min(TMAX, target)); // replay same reservoir
+    for (var i = 0; i < lim; i++) stepOnce(); render(); }
+  function frame(ts) {
+    if (lastTs == null) lastTs = ts;
+    var dtMs = ts - lastTs; lastTs = ts;
+    if (playing && t < TMAX) {
+      acc += dtMs * (PPS / 1000);
+      var did = false, guard = 0;
+      while (acc >= 1 && t < TMAX && guard < 60) { acc -= 1; stepOnce(); did = true; guard++; }
+      if (did) render();
+    } else { acc = 0; }
+    raf = window.requestAnimationFrame(frame);
+  }
+  // New reservoir resets but stays paused until the user presses Play.
+  document.getElementById("bdReplay").addEventListener("click", function () { setup(); playing = false; document.getElementById("bdPlay").textContent = "▶ Play"; });
+  document.getElementById("bdPlay").addEventListener("click", function () { playing = !playing; this.textContent = playing ? "⏸ Pause" : "▶ Play"; });
+  document.getElementById("bdSpeed").addEventListener("input", function () { PPS = +this.value; document.getElementById("bdSpeedV").textContent = this.value; });
+  document.getElementById("bdAlpha").addEventListener("input", function () { ALPHA = +this.value; document.getElementById("bdAlphaV").textContent = ALPHA.toFixed(2); setup(); });
+  document.getElementById("bdNoise").addEventListener("input", function () { SIGMA = +this.value; document.getElementById("bdNoiseV").textContent = SIGMA.toFixed(2); setup(); });
+  document.getElementById("bdArms").addEventListener("input", function () { N = +this.value; document.getElementById("bdArmsV").textContent = this.value; setup(); });
+
+  // Click a panel to zoom it into a large overlay where the bars have room.
+  var ALGO_SUB = { BSH: "bracketed sequential halving", OSE: "optimistic scope exploration", PROSE: "progressive ranking for OSE" };
+  var NOTES = { BSH: "Brackets + sequential halving: pull the survivors, drop the worse half each round.", OSE: "Pull the highest-UCB arm within the exploration scope; recommend the highest-LCB arm.", PROSE: "Rank arms by LCB; pull the highest-UCB within the top scope; recommend the highest-LCB arm." };
+  function openZoom(name) { zoomAlgo = name; zoomTitle.textContent = name + " — " + ALGO_SUB[name]; zoomNoteEl.textContent = NOTES[name]; zoomEl.classList.add("show"); doPause(); render(); }
+  function closeZoom() { zoomAlgo = null; zoomEl.classList.remove("show"); }
+  ["BSH", "OSE", "PROSE"].forEach(function (name) { canvases[name].style.cursor = "zoom-in"; canvases[name].addEventListener("click", function () { openZoom(name); }); });
+  document.getElementById("bdZoomClose").addEventListener("click", closeZoom);
+  zoomEl.addEventListener("click", function (e) { if (e.target === zoomEl) closeZoom(); });
+
+  // Manual stepping: clicking a card pauses; prev/next (buttons or ← / →) step through pulls.
+  function doPause() { playing = false; document.getElementById("bdPlay").textContent = "▶ Play"; }
+  function prevStep() { doPause(); gotoStep(t - 1); }
+  function nextStep() { doPause(); if (t < TMAX) { stepOnce(); render(); } }
+  document.getElementById("bdPrev").addEventListener("click", prevStep);
+  document.getElementById("bdNext").addEventListener("click", nextStep);
+  document.getElementById("bdZoomPrev").addEventListener("click", prevStep);
+  document.getElementById("bdZoomNext").addEventListener("click", nextStep);
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { closeZoom(); return; }
+    if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === "ArrowLeft") { e.preventDefault(); prevStep(); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); nextStep(); }
+  });
+  var rt; window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(render, 120); });
+  setup(); frame();
+})();
+</script>
+</div>
+```
+
+## How the three play it
+
+- **BSH** *(Zhao et al., 2023)* — opens progressively larger **brackets** of arms and runs sequential halving inside each, repeatedly discarding the weaker half. Robust, but spends much of its budget re-confirming.
+- **OSE** — *Optimistic Scope Exploration*, the paper's main algorithm. It keeps a **growing scope** of arms; each step it pulls the most *optimistic* arm (highest upper bound) in the scope and recommends the *safest* (highest lower bound) seen so far. Distribution-free, with near-optimal guarantees and no knowledge of the reservoir.
+- **PROSE** — *Progressive Ranking for OSE*, the practical version: it keeps arms **ranked by their lower bound** so the scope always holds the current best candidates. Same idea, state-of-the-art empirically — and, unlike BSH, it matches the long-run behaviour of classical UCB.
+
+## References & links
+
+```{=html}
+<div class="aurora-card-grid">
+  <a class="aurora-card" href="https://www.arxiv.org/abs/2510.27319">
+    <span class="aurora-card__icon">📄</span>
+    <span class="aurora-card__title">arXiv : 2510.27319</span>
+    <span class="aurora-card__desc">Full paper — model, the OSE / PROSE algorithms, rank-corrected sample complexity, and transition regimes.</span>
+    <span class="aurora-card__more">Read on arXiv →</span>
+  </a>
+  <a class="aurora-card" href="../presentations/bandits_many_arms/presentation.qmd">
+    <span class="aurora-card__icon">🎞️</span>
+    <span class="aurora-card__title">Slides</span>
+    <span class="aurora-card__desc">Talk deck: the reservoir, the main question, OSE in action, and the theoretical results.</span>
+    <span class="aurora-card__more">Open the talk →</span>
+  </a>
+  <a class="aurora-card" href="https://arxiv.org/pdf/2510.27319">
+    <span class="aurora-card__icon">⬇️</span>
+    <span class="aurora-card__title">PDF</span>
+    <span class="aurora-card__desc">Download the manuscript.</span>
+    <span class="aurora-card__more">Download →</span>
+  </a>
+</div>
+```

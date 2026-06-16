@@ -145,6 +145,11 @@
 <li class="fragment">Unbounded set of options</li>
 <li class="fragment">Limited sampling budget</li>
 </ul>
+<div class="fragment">
+<div class="hl-legend">
+<p>Colour code: <span class="hl-key">key idea</span> · <span class="hl-def">definition</span> · <span class="hl-pos">positive result</span> · <span class="hl-neg">limitation</span></p>
+</div>
+</div>
 </section>
 <section id="classical-bandit-problems" class="slide level2">
 <h2>Classical Bandit Problems</h2>
@@ -165,7 +170,7 @@
 <h2>Active Learning Setting</h2>
 <p>At each timestep <span class="math inline">\(t\)</span></p>
 <ul>
-<li class="fragment">Based on past obsevation</li>
+<li class="fragment">Based on past observation</li>
 <li class="fragment">The learner pulls arm <span class="math inline">\(\hat a_t \in \{1, 2\}\)</span> and get reward <span class="math inline">\(X_{\hat a_t, s}\)</span></li>
 <li class="fragment"><span class="math inline">\(s = N_{\hat a_t,t}\)</span> is the number of times arm <span class="math inline">\(\hat a_t\)</span> has been pulled</li>
 </ul>
@@ -190,7 +195,7 @@
 <h2>UCB Algo</h2>
 <div class="fragment">
 <p>Optimism in face of uncertainty:</p>
-<p>Choose arms that <span style="background-color: yellow;">maximizes upper-confidence</span> bound</p>
+<p>Choose arms that <span class="hl-key">maximizes upper-confidence</span> bound</p>
 <div class="square-def">
 <p><span class="math inline">\(UCB_{a,t} \asymp \hat \mu_a + \frac{c}{\sqrt{N_{a,t}}}\)</span></p>
 </div>
@@ -198,8 +203,26 @@
 </section>
 <section id="illustration-of-ucb" class="slide level2">
 <h2>Illustration of UCB</h2>
+<div class="replay-hint">
+<p>← / → step · ↓ skip to next slide</p>
+</div>
+<div class="replay" data-algo="ucb">
 
-<img data-src="ucb.png" class="r-stretch"></section>
+</div>
+<aside class="notes">
+<p>Watch the confidence intervals shrink as arms are pulled; UCB keeps picking the highest upper bound.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</section>
 <section id="upper-bound-on-cumulative-regret" class="slide level2">
 <h2>Upper Bound on Cumulative Regret</h2>
 <div class="fragment">
@@ -240,7 +263,7 @@
 <p><span class="math inline">\(X_{a,s} = \mu_a + \varepsilon_{a,s}\)</span></p>
 </div>
 <ul>
-<li class="fragment"><span class="math inline">\(\mu_a\)</span> are drown independently from some distribution <span class="math inline">\(\mathcal D\)</span></li>
+<li class="fragment"><span class="math inline">\(\mu_a\)</span> are drawn independently from some distribution <span class="math inline">\(\mathcal D\)</span></li>
 <li class="fragment"><span class="math inline">\(\varepsilon_{a,s}\)</span> are independent <span class="math inline">\(\mathcal N(0,1)\)</span></li>
 </ul>
 </div>
@@ -257,14 +280,36 @@
 </ul>
 </div>
 <div class="fragment">
-<p><span class="math inline">\(\rightarrow\)</span> <span class="math inline">\(\gamma(a)\)</span> represents a <span style="background-color: yellow;">continuous rank</span> of arm <span class="math inline">\(a\)</span></p>
+<p><span class="math inline">\(\rightarrow\)</span> <span class="math inline">\(\gamma(a)\)</span> represents a <span class="hl-key">continuous rank</span> of arm <span class="math inline">\(a\)</span></p>
 </div>
 <div class="fragment">
-<p><span class="math inline">\(\rightarrow\)</span> “<span style="background-color: lightblue;">best arm</span>” corresponds to <span style="background-color: lightblue;"><span class="math inline">\(\gamma(a)=0\)</span></span></p>
+<p><span class="math inline">\(\rightarrow\)</span> “<span class="hl-def">best arm</span>” corresponds to <span class="hl-def"><span class="math inline">\(\gamma(a)=0\)</span></span></p>
 </div>
 <div class="fragment">
 <p><span class="math inline">\(\rightarrow\)</span> Unbounded distribution of arm means iff <span class="math inline">\(\lambda_0 = +\infty\)</span></p>
 </div>
+</section>
+<section id="seeing-the-reservoir" class="slide level2">
+<h2>Seeing the Reservoir</h2>
+<div class="replay-hint">
+<p>← / → step · ↓ skip · watch the <strong>right panel</strong>: arms appear on the curve <span class="math inline">\(\lambda_\eta = A(1-\eta^\alpha)\)</span> by their continuous rank</p>
+</div>
+<div class="replay" data-algo="ose">
+
+</div>
+<aside class="notes">
+<p>Each new arm lands on the reservoir curve at its rank x = γ(a). Low rank ≈ near-best arm.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </section>
 <section id="when-cumulative-regret-fails" class="slide level2">
 <h2>When Cumulative Regret Fails</h2>
@@ -281,10 +326,10 @@
 </div>
 </div>
 <div class="fragment">
-<p><span class="citation" data-cites="de2021bandits">De Heide et al. (2021)</span> established that it is <span style="background-color: orange;">impossible to adapt to <span class="math inline">\(\eta_0\)</span></span> to get a “good” <span style="background-color: orange;">cumulative regret</span></p>
+<p><span class="citation" data-cites="de2021bandits">De Heide et al. (2021)</span> established that it is <span class="hl-neg">impossible to adapt to <span class="math inline">\(\eta_0\)</span></span> to get a “good” <span class="hl-neg">cumulative regret</span></p>
 </div>
 <div class="fragment">
-<p>It is <span style="background-color: lightgreen;">possible to adapt to <span class="math inline">\(\eta_0\)</span></span> if we consider <span style="background-color: lightgreen;">simple regret</span></p>
+<p>It is <span class="hl-pos">possible to adapt to <span class="math inline">\(\eta_0\)</span></span> if we consider <span class="hl-pos">simple regret</span></p>
 </div>
 </section>
 <section id="simple-recommendation-reward" class="slide level2">
@@ -297,16 +342,16 @@
 </ul>
 </div>
 <div class="fragment">
-<p>The <span style="background-color: yellow;">simple expected reward</span> is <span class="math inline">\(\lambda_{\gamma(\hat r_t)}\)</span></p>
+<p>The <span class="hl-key">simple expected reward</span> is <span class="math inline">\(\lambda_{\gamma(\hat r_t)}\)</span></p>
 </div>
 </section>
 <section id="epsilon-good-arms-and-simple-regrets" class="slide level2">
 <h2><span class="math inline">\(\epsilon\)</span>-Good Arms and Simple Regrets</h2>
 <div class="fragment">
-<p>Two main criteria in the litterature:</p>
+<p>Two main criteria in the literature:</p>
 <ul>
-<li class="fragment"><span class="math inline">\(\epsilon\)</span>-good arm: <span style="background-color: lightblue;"><span class="math inline">\(\mathbb P(\lambda_{\gamma(\hat r_t)} \geq \lambda_0 - \epsilon) \geq 1-\delta\)</span></span></li>
-<li class="fragment">Simple regret: <span style="background-color: lightblue;"><span class="math inline">\(\lambda_0 - \lambda_{\hat r_t}\)</span></span></li>
+<li class="fragment"><span class="math inline">\(\epsilon\)</span>-good arm: <span class="hl-def"><span class="math inline">\(\mathbb P(\lambda_{\gamma(\hat r_t)} \geq \lambda_0 - \epsilon) \geq 1-\delta\)</span></span></li>
+<li class="fragment">Simple regret: <span class="hl-def"><span class="math inline">\(\lambda_0 - \lambda_{\hat r_t}\)</span></span></li>
 </ul>
 </div>
 <div class="fragment">
@@ -316,7 +361,7 @@
 <p><span class="math inline">\(\to\)</span> In fixed budget settings <span class="math inline">\(t \in \{1, \dots, T\}\)</span>, simple regret can be defined as <span class="math inline">\(\lambda_0 - \lambda_{\hat a_t}\)</span></p>
 </div>
 <div class="fragment">
-<p><span class="math inline">\(\to\)</span> we <span style="background-color: orange;">need boundedness</span> (<span class="math inline">\(\lambda_0 &lt; +\infty\)</span>)to define them!</p>
+<p><span class="math inline">\(\to\)</span> we <span class="hl-neg">need boundedness</span> (<span class="math inline">\(\lambda_0 &lt; +\infty\)</span>) to define them!</p>
 </div>
 </section>
 <section id="main-question" class="slide level2">
@@ -354,10 +399,32 @@
 <p><span class="math inline">\(G(\rho, \nu) = \frac{\nu}{\rho} \frac{1}{(\lambda_{\rho}- \lambda_{\nu})^2} \lor \frac{1}{\rho}\)</span></p>
 </div>
 <ul>
-<li class="fragment"><span class="math inline">\(\frac{1}{(\lambda_{\rho}- \lambda_{\nu})^2}\)</span> correspond to the <span style="background-color: yellow;">inverse squared gap</span> between ranks <span class="math inline">\(\nu\)</span> and <span class="math inline">\(\rho\)</span></li>
-<li class="fragment">It would correspond to the <span style="background-color: yellow;">sample complexity</span> if we had <span style="background-color: yellow;">only two arms</span> with mean <span class="math inline">\(\lambda_\nu\)</span> and <span class="math inline">\(\lambda_{\rho}\)</span></li>
-<li class="fragment">For one arm s.t. <span class="math inline">\(\gamma(a) \leq \rho\)</span>, there are <span style="background-color: lightblue;"><span class="math inline">\(\nu/\rho\)</span></span> arms s.t. <span class="math inline">\(\gamma(a) \leq \nu\)</span></li>
+<li class="fragment"><span class="math inline">\(\frac{1}{(\lambda_{\rho}- \lambda_{\nu})^2}\)</span> correspond to the <span class="hl-key">inverse squared gap</span> between ranks <span class="math inline">\(\nu\)</span> and <span class="math inline">\(\rho\)</span></li>
+<li class="fragment">It would correspond to the <span class="hl-key">sample complexity</span> if we had <span class="hl-key">only two arms</span> with mean <span class="math inline">\(\lambda_\nu\)</span> and <span class="math inline">\(\lambda_{\rho}\)</span></li>
+<li class="fragment">For one arm s.t. <span class="math inline">\(\gamma(a) \leq \rho\)</span>, there are <span class="hl-def"><span class="math inline">\(\nu/\rho\)</span></span> arms s.t. <span class="math inline">\(\gamma(a) \leq \nu\)</span></li>
 </ul>
+</div>
+</section>
+<section id="distinguishing-two-ranks" class="slide level2">
+<h2>Distinguishing two ranks</h2>
+<p>The two means differ by the gap <span class="math inline">\(\Delta=\lambda_\rho-\lambda_\nu\)</span> — separating them is a <span class="hl-key">two-armed problem</span>.</p>
+
+<img data-src="plots/g_gap.png" style="width:66.0%" class="r-stretch"></section>
+<section id="which-needs-sim-1delta2-pulls" class="slide level2">
+<h2>… which needs <span class="math inline">\(\sim 1/\Delta^2\)</span> pulls</h2>
+
+<img data-src="plots/g_gap_shrink.png" style="width:92.0%" class="r-stretch"></section>
+<section id="good-arms-are-rare" class="slide level2">
+<h2>Good arms are rare</h2>
+
+<img data-src="plots/g_rarity_strip.png" style="width:94.0%" class="r-stretch"></section>
+<section id="seen-on-the-reservoir" class="slide level2">
+<h2>… seen on the reservoir</h2>
+
+<img data-src="plots/g_rarity_reservoir.png" style="width:64.0%" class="r-stretch"><div class="fragment">
+<div class="square-def">
+<p><span class="math inline">\(G = \underbrace{\tfrac{\nu}{\rho}}_{\text{crowding}}\,\underbrace{\tfrac{1}{(\lambda_\rho-\lambda_\nu)^2}}_{\text{2-arm cost}}\ \lor\ \underbrace{\tfrac{1}{\rho}}_{\text{find a candidate}}\)</span></p>
+</div>
 </div>
 </section>
 <section id="main-result-1" class="slide level2">
@@ -366,7 +433,7 @@
 <div class="square-def">
 <p><span class="math inline">\(G(\rho, \nu) = \frac{\nu}{\rho} \frac{1}{(\lambda_{\rho}- \lambda_{\nu})^2} \lor \frac{1}{\rho}\)</span></p>
 </div>
-<p>We are able to <span style="background-color: yellow;">detect quantile <span class="math inline">\(\eta\)</span></span> at time <span class="math inline">\(t\)</span></p>
+<p>We are able to <span class="hl-key">detect quantile <span class="math inline">\(\eta\)</span></span> at time <span class="math inline">\(t\)</span></p>
 </div>
 <div class="fragment">
 <p><span class="math inline">\(\exists \rho &lt; \eta\)</span> s.t. <span class="math inline">\(\forall \nu \geq \eta\)</span>,</p>
@@ -380,16 +447,25 @@
 <p>(<span class="math inline">\(\ll\)</span> hides a polylog factor in <span class="math inline">\(t\)</span> and error probability <span class="math inline">\(\delta\)</span>)</p>
 </div>
 <div class="fragment">
-<p>This results is also valid for <span style="background-color: yellow;">unbounded distributions</span> !</p>
+<p>This result is also valid for <span class="hl-key">unbounded distributions</span> !</p>
 </div>
 </section>
-<section id="consequences" class="slide level2">
-<h2>Consequences</h2>
+<section id="distribution-families" class="slide level2">
+<h2>Distribution Families</h2>
+<div class="fragment">
+<p>Three classes instantiate the quantile function <span class="math inline">\(\lambda_\eta\)</span>:</p>
 <ul>
-<li class="fragment"><span class="math inline">\(\zeta\)</span>: noise level</li>
-<li class="fragment"><span class="math inline">\(\mathbf{t}=t \cdot (polylog)\)</span></li>
+<li class="fragment"><strong>Bernoulli</strong> (two-level), <strong>Beta</strong> (<span class="math inline">\(\lambda_\eta = 1-\eta^\alpha\)</span>, bounded), <strong>Pareto</strong> (<span class="math inline">\(\lambda_\eta = \eta^{-\alpha}\)</span>, unbounded)</li>
 </ul>
-<div style="font-size: 60%;">
+</div>
+<div class="fragment">
+<p><img data-src="plots/beta_pareto_pdfs_combined.png" style="width:85.0%"></p>
+</div>
+</section>
+<section id="consequences-bounded-mathcal-d" class="slide level2">
+<h2>Consequences — Bounded <span class="math inline">\(\mathcal D\)</span></h2>
+<p>Notation: <span class="math inline">\(\zeta\)</span> = noise level, <span class="math inline">\(\mathbf{t}=t \cdot (polylog)\)</span></p>
+<div style="font-size: 72%;">
 <table class="caption-top">
 <colgroup>
 <col style="width: 25%">
@@ -399,8 +475,8 @@
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: center;">Type of the distribution <span class="math inline">\(\mathcal{D}\)</span></th>
-<th style="text-align: center;">Quantile Function <span class="math inline">\(\lambda_{\eta}\)</span></th>
+<th style="text-align: center;">Type of <span class="math inline">\(\mathcal{D}\)</span></th>
+<th style="text-align: center;">Quantile <span class="math inline">\(\lambda_{\eta}\)</span></th>
 <th style="text-align: center;">Upper Bound on <span class="math inline">\(\gamma(\hat r_t)\)</span></th>
 <th style="text-align: center;">Lower Bound on <span class="math inline">\(\lambda_{\gamma(\hat r_t)}\)</span></th>
 </tr>
@@ -424,13 +500,37 @@
 <td style="text-align: center;"><span class="math inline">\(\frac{1}{\mathbf{t}} \lor \left(\frac{\zeta^2}{\mathbf{t}}\right)^{\frac{1}{2\alpha}}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(1-\frac{1}{\mathbf{t}^\alpha} \lor \sqrt{\frac{\zeta^2}{\mathbf{t}}}\)</span></td>
 </tr>
-<tr class="even">
+</tbody>
+</table>
+</div>
+</section>
+<section id="consequences-unbounded-mathcal-d-pareto" class="slide level2">
+<h2>Consequences — Unbounded <span class="math inline">\(\mathcal D\)</span> (Pareto)</h2>
+<p>Notation: <span class="math inline">\(\zeta\)</span> = noise level, <span class="math inline">\(\mathbf{t}=t \cdot (polylog)\)</span></p>
+<div style="font-size: 72%;">
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: center;">Type of <span class="math inline">\(\mathcal{D}\)</span></th>
+<th style="text-align: center;">Quantile <span class="math inline">\(\lambda_{\eta}\)</span></th>
+<th style="text-align: center;">Upper Bound on <span class="math inline">\(\gamma(\hat r_t)\)</span></th>
+<th style="text-align: center;">Lower Bound on <span class="math inline">\(\lambda_{\gamma(\hat r_t)}\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
 <td style="text-align: center;"><strong>Pareto</strong> (<span class="math inline">\(\alpha &lt; 1/2\)</span>)</td>
 <td style="text-align: center;"><span class="math inline">\(\eta^{-\alpha}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\frac{1}{\mathbf{t}} \lor \left( \frac{\zeta^2}{\alpha^2\mathbf{t}}\right)^{\frac{1}{1-2\alpha}}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\mathbf{t}^\alpha \land \left(\frac{\alpha^2\mathbf{t}}{\zeta^2}\right)^{\frac{\alpha}{1-2\alpha}}\)</span></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: center;"><strong>Pareto</strong> (<span class="math inline">\(\alpha \geq 1/2\)</span>)</td>
 <td style="text-align: center;"><span class="math inline">\(\eta^{-\alpha}\)</span></td>
 <td style="text-align: center;"><span class="math inline">\(\frac{1}{\mathbf{t}}\lor \mathbf{1}\{\mathbf{t} \geq \zeta^{1/\alpha}\}\)</span></td>
@@ -445,12 +545,12 @@
 <h1>Algorithms</h1>
 
 </section>
-<section id="litterature" class="slide level2">
-<h2>Litterature</h2>
+<section id="literature" class="slide level2">
+<h2>Literature</h2>
 <ul>
 <li class="fragment"><span class="citation" data-cites="carpentier2015simple">Carpentier &amp; Valko (2015)</span>: Assumes that <span class="math inline">\(\lambda_{\eta} = 1- \eta^{\alpha}\)</span> and estimate <span class="math inline">\(\alpha\)</span> to adapt</li>
-<li class="fragment"><span class="citation" data-cites="jamieson2013finding">Jamieson et al. (2013)</span>: <span style="background-color: lightgreen;">Bracketing trick</span> consisting in increasing disjoint sets of explored arms</li>
-<li class="fragment"><span class="citation" data-cites="zhao2023revisiting">Zhao et al. (2023)</span>: Sequential halving, <span style="background-color: orange;">doubling trick</span> and <span style="background-color: lightgreen;">bracketing trick</span></li>
+<li class="fragment"><span class="citation" data-cites="jamieson2013finding">Jamieson et al. (2013)</span>: <span class="hl-pos">Bracketing trick</span> consisting in increasing disjoint sets of explored arms</li>
+<li class="fragment"><span class="citation" data-cites="zhao2023revisiting">Zhao et al. (2023)</span>: Sequential halving, <span class="hl-neg">doubling trick</span> and <span class="hl-pos">bracketing trick</span></li>
 </ul>
 </section>
 <section id="ose-and-prose" class="slide level2">
@@ -471,12 +571,21 @@
 <p>At each time <span class="math inline">\(t\)</span>:</p>
 <ul>
 <li class="fragment"><strong>Draw</strong> an exploration scope <span class="math inline">\(Z \sim t^U\)</span>, where <span class="math inline">\(U \sim \mathcal U(0,1)\)</span></li>
-<li class="fragment"><strong>Pull</strong> UCB over <span class="math inline">\(\{1, \dots, Z\}\)</span>, <span style="background-color: lightblue;"><span class="math inline">\(\hat a_t = \mathrm{argmax}_{a \leq Z} UCB_{a,t}\)</span></span></li>
-<li class="fragment"><strong>Recommend</strong> LCB over all arms, <span style="background-color: lightblue;"><span class="math inline">\(\hat r_t = \mathrm{argmax}_{a \in \mathcal A} LCB_{a,t}\)</span></span></li>
+<li class="fragment"><strong>Pull</strong> UCB over <span class="math inline">\(\{1, \dots, Z\}\)</span>, <span class="hl-def"><span class="math inline">\(\hat a_t = \mathrm{argmax}_{a \leq Z} UCB_{a,t}\)</span></span></li>
+<li class="fragment"><strong>Recommend</strong> LCB over all arms, <span class="hl-def"><span class="math inline">\(\hat r_t = \mathrm{argmax}_{a \in \mathcal A} LCB_{a,t}\)</span></span></li>
 </ul>
 </div>
 <div class="fragment">
-<p>There is <span style="background-color: lightgreen;">also a deterministic version</span> (better in practice and computationally more efficient)</p>
+<p>There is <span class="hl-pos">also a deterministic version</span> (better in practice and computationally more efficient)</p>
+</div>
+</section>
+<section id="ose-in-action" class="slide level2">
+<h2>OSE in action</h2>
+<div class="replay-hint">
+<p>← / → step · ↓ skip · <strong>left panel</strong>: the shaded scope <span class="math inline">\(Z\)</span> and the argmax-UCB pull inside it</p>
+</div>
+<div class="replay" data-algo="ose">
+
 </div>
 </section>
 <section id="why-do-we-take-z-sim-tu" class="slide level2">
@@ -525,24 +634,33 @@
 <h2>Practical Limitations</h2>
 <ul>
 <li class="fragment"><span class="math inline">\(\mathbb P(Z=1) = 1/\log_2(t)\)</span></li>
-<li class="fragment">Even if we know <span style="background-color: orange;">first arms</span> are bad, we <span style="background-color: orange;">keep pulling them</span> a lot (<span class="math inline">\(t/\log_2(t)\)</span>)</li>
-<li class="fragment"><span style="background-color: lightgreen;">Idea: rank the arms</span> iteratively with a pessimistic metric</li>
+<li class="fragment">Even if we know <span class="hl-neg">first arms</span> are bad, we <span class="hl-neg">keep pulling them</span> a lot (<span class="math inline">\(t/\log_2(t)\)</span>)</li>
+<li class="fragment"><span class="hl-pos">Idea: rank the arms</span> iteratively with a pessimistic metric</li>
 </ul>
 </section>
 <section id="prose" class="slide level2">
 <h2>PROSE</h2>
 <div class="fragment">
-<p>Start from some <span style="background-color: yellow;">arbitrary ranking <span class="math inline">\(\pi\)</span></span>. For each <span class="math inline">\(t\)</span>:</p>
+<p>Start from some <span class="hl-key">arbitrary ranking <span class="math inline">\(\pi\)</span></span>. For each <span class="math inline">\(t\)</span>:</p>
 <ul>
 <li class="fragment"><strong>Draw</strong> an exploration scope <span class="math inline">\(Z \sim t^U\)</span>, where <span class="math inline">\(U \sim \mathcal U(0,1)\)</span></li>
-<li class="fragment"><strong>Pull</strong> UCB over <span class="math inline">\(\{1, \dots, Z\}\)</span>, <span style="background-color: lightblue;"><span class="math inline">\(\hat a_t = \mathrm{argmax}_{\pi(a) \leq Z} UCB_{a,t}\)</span></span></li>
-<li class="fragment"><span style="background-color: yellow;"><strong>Sort</strong> the arms</span> by LCB: <span class="math inline">\(LCB_{\pi^{-1}(1),t} \geq LCB_{\pi^{-1}(2),t}\dots\)</span></li>
-<li class="fragment"><strong>Recommend</strong> LCB over all arms, <span style="background-color: lightblue;"><span class="math inline">\(\hat r_t = LCB_{\pi^{-1}(1),t}\)</span></span></li>
+<li class="fragment"><strong>Pull</strong> UCB over <span class="math inline">\(\{1, \dots, Z\}\)</span>, <span class="hl-def"><span class="math inline">\(\hat a_t = \mathrm{argmax}_{\pi(a) \leq Z} UCB_{a,t}\)</span></span></li>
+<li class="fragment"><span class="hl-key"><strong>Sort</strong> the arms</span> by LCB: <span class="math inline">\(LCB_{\pi^{-1}(1),t} \geq LCB_{\pi^{-1}(2),t}\dots\)</span></li>
+<li class="fragment"><strong>Recommend</strong> LCB over all arms, <span class="hl-def"><span class="math inline">\(\hat r_t = LCB_{\pi^{-1}(1),t}\)</span></span></li>
 </ul>
 </div>
 <div class="fragment">
 <p>Naive implementation: time complexity <span class="math inline">\(\asymp \tilde O(t^2)\)</span></p>
 <p>Deterministic version + cascading trick for max: time complexity <span class="math inline">\(\asymp \tilde O(t)\)</span></p>
+</div>
+</section>
+<section id="prose-in-action" class="slide level2">
+<h2>PROSE in action</h2>
+<div class="replay-hint">
+<p>← / → step · ↓ skip · the arms get <strong>re-sorted by LCB</strong> so good arms drift left</p>
+</div>
+<div class="replay" data-algo="prose">
+
 </div>
 </section></section>
 <section>
@@ -556,7 +674,7 @@
 <li class="fragment"><span class="math inline">\(\lambda_{\eta} = 1-\eta^{\alpha}\)</span> with <span class="math inline">\(\alpha \in \{0.25, 0.5, 1, 2\}\)</span></li>
 <li class="fragment"><span class="math inline">\(K = 5000\)</span> arms</li>
 <li class="fragment"><span class="math inline">\(T_{\mathrm{max}}=50000\)</span></li>
-<li class="fragment">Mean of <span style="background-color: yellow;">simple regret trajectories</span> over <span class="math inline">\(N=2000\)</span> trials</li>
+<li class="fragment">Mean of <span class="hl-key">simple regret trajectories</span> over <span class="math inline">\(N=2000\)</span> trials</li>
 </ul>
 </section>
 <section id="main-result-2" class="slide level2">
@@ -580,11 +698,11 @@
 <section id="implementation-details" class="slide level2">
 <h2>Implementation Details</h2>
 <ul>
-<li class="fragment"><strong>PROSE</strong> (<span style="background-color: yellow;">optimized deterministic</span> version): <span style="background-color: lightgreen;"><span class="math inline">\(\sim\)</span> 76 ms/trial</span> <!-- (range: 30--184 ms)--></li>
-<li class="fragment"><strong>BSH</strong> (<span style="background-color: yellow;">home made</span> implementation): <span style="background-color: lightgreen;"><span class="math inline">\(\sim\)</span> 89 ms/trial</span> <!--(range: 33--439 ms) --></li>
-<li class="fragment"><strong>BSH</strong> (<span style="background-color: yellow;">original version</span> from ):
+<li class="fragment"><strong>PROSE</strong> (<span class="hl-key">optimized deterministic</span> version): <span class="hl-pos"><span class="math inline">\(\sim\)</span> 76 ms/trial</span> <!-- (range: 30--184 ms)--></li>
+<li class="fragment"><strong>BSH</strong> (<span class="hl-key">home made</span> implementation): <span class="hl-pos"><span class="math inline">\(\sim\)</span> 89 ms/trial</span> <!--(range: 33--439 ms) --></li>
+<li class="fragment"><strong>BSH</strong> (<span class="hl-key">original version</span> from <span class="citation" data-cites="zhao2023revisiting">Zhao et al. (2023)</span>):
 <ul>
-<li class="fragment"><span style="background-color: orange;"><span class="math inline">\(\sim  14s\)</span>/trial</span> (slow pace language Python or R).</li>
+<li class="fragment"><span class="hl-neg"><span class="math inline">\(\sim  14s\)</span>/trial</span> (slow pace language Python or R).</li>
 <li class="fragment">ignores the authors’ recommendation to carry over confidence bounds across doubling trick restarts</li>
 </ul></li>
 </ul>
@@ -973,6 +1091,7 @@
         }
       });
       </script>
+    <script src="replay.js"></script>
     
 
 </body></html>

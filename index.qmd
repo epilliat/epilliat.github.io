@@ -1,49 +1,127 @@
 ---
-title: "Home"
-sidebar: "home"
+pagetitle: "Emmanuel Pilliat"
+page-layout: full
+toc: false
+sidebar: false
 ---
 
-I am an assistant professor in statistics at ENSAI (Rennes) working on topics related to machine learning and high-dimensional statistics. My PhD centered on two areas in modern statistics: change-point detection and ranking problems.
+```{=html}
+<section class="hero-aurora">
+  <canvas class="hero-aurora__lines" id="biisoCanvas"></canvas>
+  <div class="hero-aurora__overlay"></div>
+  <div class="hero-aurora__inner">
+    <img class="hero-aurora__avatar" src="images/profile.jpg" alt="Emmanuel Pilliat">
+    <div class="hero-aurora__content">
+      <p class="hero-aurora__eyebrow">Statistics · Machine Learning · HPC</p>
+      <h1 class="hero-aurora__title">Emmanuel Pilliat</h1>
+      <p class="hero-aurora__subtitle">
+        Assistant professor in statistics at <strong>ENSAI</strong> (Rennes), working on
+        <strong>high-dimensional statistics</strong>, <strong>machine learning</strong>,
+        and <strong>high-performance computing</strong> with Julia.
+      </p>
+      <div class="hero-aurora__links">
+        <a class="hero-link" href="https://scholar.google.com/citations?user=H3gN1KgAAAAJ&amp;hl=fr"><i class="bi bi-mortarboard"></i> Google Scholar</a>
+        <a class="hero-link" href="https://arxiv.org/search/?searchtype=author&amp;query=Pilliat,+E"><i class="bi bi-file-earmark-text"></i> arXiv</a>
+        <a class="hero-link" href="https://hal.science/search/index/?q=*&amp;authFullName_s=Emmanuel+Pilliat"><i class="bi bi-archive"></i> HAL</a>
+        <a class="hero-link" href="https://github.com/epilliat"><i class="bi bi-github"></i> GitHub</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-I am interested in high-performance computing with Julia across both GPU and CPU architectures. I'm developing [KernelForge.jl](https://epilliat.github.io/KernelForge.jl/dev), a Julia package for portable, high-performance parallel primitives like `mapreduce` and `accumulate`. The goal is to match the performance of vendor-optimized libraries like NVIDIA's CUB while maintaining cross-platform compatibility through [KernelAbstractions.jl](https://juliagpu.github.io/KernelAbstractions.jl/stable/). KernelForge.jl builds on [KernelIntrinsics.jl](https://epilliat.github.io/KernelIntrinsics.jl), a lower-level package I'm developing that provides fine-grained control over memory ordering, warp-level operations, and vectorized memory transactions.
+<script>
+// Biisotonic matrix background — a JS port of biiso/isogen.py (dyadic generator).
+// Each matrix row is a non-decreasing line in [0,1]; we stack N of them as thin white curves.
+(function () {
+  const canvas = document.getElementById("biisoCanvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const N = 140, D = 150;           // stacked lines (rows) × discretisation (columns)
+  let M = null;
 
-**contact**: firstname.lastname@ensai.fr
+  function* dyadic(l, r) {
+    if (r - l <= 1) return;
+    if (r - l === 2) { yield [l, l + 1, r]; return; }
+    const med = (l + r) >> 1;
+    yield [l, med, r];
+    yield* dyadic(l, med);
+    yield* dyadic(med, r);
+  }
 
-## Preprints
+  function generate(n, d) {
+    const R = n + 2, C = d + 2;
+    const m = Array.from({ length: R }, () => new Float64Array(C).fill(0.5));
+    for (let j = 0; j < C; j++) { m[0][j] = 0; m[n + 1][j] = 1; }   // top row 0, bottom row 1
+    for (let i = 0; i < R; i++) { m[i][0] = 0; m[i][d + 1] = 1; }   // left col 0, right col 1
+    m[0][0] = 0; m[0][d + 1] = 0; m[n + 1][0] = 0; m[n + 1][d + 1] = 1;  // corners
+    const rows = [...dyadic(0, n + 1)], cols = [...dyadic(0, d + 1)];
+    for (const [down, em, up] of rows) {
+      for (const [left, qm, right] of cols) {
+        const upCtr = Math.min(m[up][qm], m[em][right]);     // monotone in rows & columns
+        const downCtr = Math.max(m[down][qm], m[em][left]);
+        m[em][qm] = downCtr + (upCtr - downCtr) * Math.random();
+      }
+    }
+    return m;
+  }
 
-- E. Pilliat *Adaptive Algorithms for Infinitely Many-Armed Bandits: A Unified Framework* (2025) [[presentation](research/presentations/bandits_many_arms/presentation.qmd)],[[arxiv](https://www.arxiv.org/abs/2510.27319)]
+  function draw() {
+    const dpr = window.devicePixelRatio || 1;
+    const w = canvas.offsetWidth, h = canvas.offsetHeight;
+    if (!w || !h) return;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    ctx.lineWidth = 1; ctx.lineJoin = "round"; ctx.lineCap = "round";
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    for (let i = 1; i <= N; i++) {
+      ctx.beginPath();
+      for (let j = 1; j <= D; j++) {
+        const x = ((j - 1) / (D - 1)) * w;
+        const y = h * (1 - M[i][j]);
+        j === 1 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+  }
 
-## Publications
+  M = generate(N, D);
+  draw();
+  let t;
+  window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(draw, 120); });
+})();
+</script>
+```
 
-- E. Pilliat, *Recovering Labels from Crowdsourced Data: An Optimal and Polynomial-Time Method* (2025) **COLT** [[presentation](research/presentations/crowdsourcing/presentation.qmd)]
-- A. Garivier, E. Pilliat, *On Sparsity and Sub-Gaussianity in the Johnson-Lindenstrauss Lemma* (2024) **TMLR** [[arxiv](https://arxiv.org/abs/2409.06275)] 
-- E. Pilliat, A. Carpentier, N. Verzelen, *Optimal rates for ranking a permuted isotonic matrix in polynomial time* (2024) **SODA** [[presentation](research/pdf/Presentation.pdf)]
-- E. Pilliat, A. Carpentier, N. Verzelen, *Optimal permutation estimation in crowd-sourcing problems* (2023) **Annals of Statistics**. [[arxiv](https://arxiv.org/abs/2211.04092)], [[presentation](research/pdf/presentation_experts.pdf)],[[poster](research/pdf/poster_experts.pdf)]
-- E. Pilliat, A. Carpentier, N. Verzelen, *Optimal multiple change-point detection for high-dimensional data* (2023) **EJS** [[arxiv](https://arxiv.org/abs/2011.07818)]
+::: {.aurora-wrap}
 
+I am an assistant professor in statistics at **ENSAI** (Rennes), working on topics related to machine learning and high-dimensional statistics. My PhD centered on two areas in modern statistics: **change-point detection** and **ranking problems**.
 
+I am also interested in **high-performance computing with Julia**, with a focus on GPU architectures. I'm developing [KernelForge.jl](https://epilliat.github.io/KernelForge.jl/dev), a Julia package for portable, high-performance parallel primitives like `mapreduce` and `accumulate`, building on [KernelIntrinsics.jl](https://epilliat.github.io/KernelIntrinsics.jl).
 
+**Contact:** firstname.lastname@ensai.fr
 
-## Vitae
+```{=html}
+<div class="aurora-card-grid">
+  <a class="aurora-card" href="research.html">
+    <span class="aurora-card__icon">📄</span>
+    <span class="aurora-card__title">Research</span>
+    <span class="aurora-card__desc">Preprints &amp; publications in COLT, Annals of Statistics, SODA, TMLR, EJS.</span>
+    <span class="aurora-card__more">View research →</span>
+  </a>
+  <a class="aurora-card" href="coding/coding.html">
+    <span class="aurora-card__icon">⚙️</span>
+    <span class="aurora-card__title">Software</span>
+    <span class="aurora-card__desc">KernelForge.jl &amp; KernelIntrinsics.jl — portable GPU/CPU primitives in Julia.</span>
+    <span class="aurora-card__more">View software →</span>
+  </a>
+  <a class="aurora-card" href="teaching/teaching.html">
+    <span class="aurora-card__icon">🎓</span>
+    <span class="aurora-card__title">Teaching</span>
+    <span class="aurora-card__desc">Hypothesis testing, (G)LM and parallel computing at ENSAI Rennes.</span>
+    <span class="aurora-card__more">View teaching →</span>
+  </a>
+</div>
+```
 
-- **Research**
-    - **Sep 2024 - Present**: assistant professor in statistics at ENSAI
-    - **2024**: Postdoctoral researcher at ENS Lyon
-    - **Feb 2020 - Apr 2022 and Oct 2022 - Dec 2023**: PhD Student at Université de Montpellier and INRAE
-    - **2019**: Research Project at Ecole Normale Supérieure Paris Saclay with Vianney Perchet on Optimal Order Selection for an Online Reward Maximization problem
-    - **Apr 2019**: Research Project at OVGU Magdeburg with Alexandra Carpentier on Signal Detection and Change-Point Detection
-    - **2018**: Research Internship at the University of Cambridge
-    on Gaussian Free Field 
-
-- **Experience**
-
-    - **Apr 2022 - Oct 2022**: Quantitative Intern at QRT
-
-- **Education**
-
-    - **2016-2020**: Student at Ecole Normale Supérieure de Lyon
-    - **2013-2016**: Preparatory School of Mathematics and Physics (CPGE MPSI/MP*) in Strasbourg
-
-- **Teaching**
-
-    - **2020-2022**: Teaching assistant at Université de Montpellier.
+:::
