@@ -877,7 +877,7 @@ M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
         respondToHashChanges: true,
 
         // Push each slide change to the browser history
-        history: true,
+        history: false,
 
         // Enable keyboard shortcuts for navigation
         keyboard: true,
@@ -1187,6 +1187,15 @@ M_{\pi^*(1), k}\geq \dots \geq M_{\pi^*(n),k}
         }
       });
       </script>
+    <script>
+    // Alt+Left = browser Back (Reveal otherwise binds Alt+arrow to slide nav)
+    window.addEventListener('keydown', function (e) {
+      if (e.altKey && !e.ctrlKey && !e.metaKey && (e.key === 'ArrowLeft' || e.keyCode === 37)) {
+        e.stopImmediatePropagation(); e.preventDefault();
+        if (history.length > 1) history.back();
+      }
+    }, true);
+    </script>
     
 
 </body></html>
