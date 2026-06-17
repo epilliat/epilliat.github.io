@@ -24,7 +24,7 @@ css: ../../../styles.css
 
 # Introduction of the Model
 
-## General Setting
+## General setting
 
 . . .
 
@@ -44,7 +44,7 @@ $X^{(2)} = (X^{(2)}_1, \dots, X^{(2)}_n) \in \mathbb R^n$\
 ...\
 $X^{(p)} = (X^{(p)}_1, \dots, X^{(p)}_n)\in \mathbb R^n$]{style="background-color: lightblue;"}
 
-## Non Parametric Model
+## Nonparametric model
 
 . . .
 
@@ -70,10 +70,10 @@ where $\varepsilon = (\varepsilon_1, \dots, \varepsilon_n) \in \mathbb R^n$ are 
 
 $F$ is **unknown**
 
---> Too ambitious, risk of overfitting
+→ **Too ambitious** — risk of overfitting
 
 
-## Linear Model
+## Linear model
 
 
 We observe $n$ individuals, and variables [$Y \in \mathbb R^n$]{style="background-color: lightgreen;"}  and [$(X^{(1)}, \dots, X^{(p)}) \in \mathbb R^{n \times p}$]{style="background-color: lightblue;"}.
@@ -90,7 +90,7 @@ $$Y = \beta_1 X^{(1)}+ \beta_2 X^{(2)}+ \dots+ \beta_p X^{(p)}+ \varepsilon$$
 
 That is, **we know** that $F$ is of the form $F(x_1, \dots, x_p, \varepsilon) = \beta_1 x_1+ \beta_2 x_2+ \dots+ \beta_p x_p+ \varepsilon$
 
-## Linear Model
+## Linear model, componentwise
 
 $Y$ and the $X^{(k)}$'s are **vectors** in $\mathbb R^n$.
 
@@ -107,7 +107,7 @@ We assume that
 - $X^{(k)}$ are **known** and deterministic (otherwise we condition on $X^{(k)}$'s)
 - $\mathbb E[\varepsilon_i] = 0$
 
-## Linear Model with Intercept
+## Linear model with intercept
 
 $Y$ and the $X^{(k)}$'s are **vectors** in $\mathbb R^n$.
 
@@ -126,7 +126,9 @@ $$Y_i = \beta_1+ \beta_2 X^{(2)}_i+ \dots+ \beta_p X^{(p)}_i+ \varepsilon_i$$
 - $\beta_1$ is then called the **intercept**
 
 
-## Notation
+# The Model in Matrix Form
+
+## Notation: columns
 
 We write $Y = (Y_1, \dots, Y_n)$ and $X^{(k)} = (X^{(k)}_1, \dots, X^{(k)}_n)$ as columns:
 
@@ -148,7 +150,7 @@ X^{(k)}_n
 \end{pmatrix}$$
 :::
 
-## Notation 
+## Notation: matrix entries
 
 . . .
 
@@ -165,13 +167,13 @@ Y_1 \\
 \vdots \\
 Y_n
 \end{pmatrix} \and X^{(k)}=\begin{pmatrix}
-X_{1k} \\
+X_{1,k} \\
 \vdots \\
 X_{n,k}
 \end{pmatrix}$$
 :::
 
-## Notation 
+## Notation: the design matrix $X$
 
 . . .
 
@@ -192,13 +194,13 @@ Y_1 \\
 \vdots \\
 Y_n
 \end{pmatrix} \and X=\begin{pmatrix}
-&X_{1,1} &\dots &X_{1,p} \\
-&\vdots &~ &\vdots \\
-&X_{n,1} &\dots &X_{n,p}
+X_{1,1} &\dots &X_{1,p} \\
+\vdots & &\vdots \\
+X_{n,1} &\dots &X_{n,p}
 \end{pmatrix}$$
 :::
 
-## Model, Matrix Form
+## Parameters $\beta$ and noise $\varepsilon$
 
 . . .
 
@@ -220,7 +222,7 @@ $$\beta = \begin{pmatrix}
 \end{pmatrix}$$
 :::
 
-## Linear Model, Matrix Form
+## Linear model in matrix form
 
 . . .
 
@@ -239,15 +241,138 @@ where
 
 - $X$ is **known**, 
 - $\beta \in \mathbb R^p$ is **unknown**
-- $\varepsilon \in \mathbb R^n$ is a vector of iid random noise with $\mathbb E[\varepsilon_i] = 0$ and $\mathbb V(\varepsilon_i) = \sigma^2$(**unknown**)
+- $\varepsilon \in \mathbb R^n$ is a vector of iid random noise with $\mathbb E[\varepsilon_i] = 0$ and $\mathbb V(\varepsilon_i) = \sigma^2$ (**unknown**)
 
-## Remarks
+## The fit is a hyperplane {.smaller}
+
+::: {style="font-size:88%"}
+Set the **true** (blue) plane $Y=c+a\,X^{(1)}+b\,X^{(2)}$ with $a,b,c$ — the data follow it (+ noise). **snap to OLS** computes the **estimated** (green) plane from the data; the gap blue↔green is the estimation error. **Drag to rotate**.
+:::
+
+```{=html}
+<style>
+.lm-btn{font-family:inherit;font-size:.85em;padding:.4em 1.1em;margin:.12em .22em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-row{font-size:.72em;line-height:2.2;margin:.12rem 0}
+.lm-wrap{text-align:center}
+.lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
+</style>
+<div class="lm-wrap">
+  <canvas id="plCanvas" width="560" height="320" style="background:#fff;border:1px solid #ddd;border-radius:8px;max-width:100%;touch-action:none;cursor:grab"></canvas>
+  <div class="lm-row">
+    <span class="lm-sw" style="background:#5b8cff"></span> true plane: &nbsp; a <input id="plA" type="range" autocomplete="off" min="-2" max="2" step="0.05" value="0.9" style="vertical-align:middle;width:100px"> <b id="plAv">0.90</b> ·
+    b <input id="plB" type="range" autocomplete="off" min="-2" max="2" step="0.05" value="0.7" style="vertical-align:middle;width:100px"> <b id="plBv">0.70</b> ·
+    c <input id="plC" type="range" autocomplete="off" min="-2" max="2" step="0.05" value="0.4" style="vertical-align:middle;width:100px"> <b id="plCv">0.40</b>
+  </div>
+  <div class="lm-row">
+    noise <input id="plNz" type="range" autocomplete="off" min="0.05" max="1.2" step="0.05" value="0.4" style="vertical-align:middle;width:100px"> <b id="plNzv">0.40</b> &nbsp;·&nbsp; SSR=<b id="plSSR">–</b> · R²=<b id="plR2">–</b> &nbsp; <button class="lm-btn" id="plFit">snap to OLS</button> <button class="lm-btn" id="plNew">↻ resample</button>
+  </div>
+  <div class="lm-row"><span class="lm-sw" style="background:#27ae60"></span> estimated (OLS): <b id="plEqFit">–</b></div>
+</div>
+<script>
+(function () {
+  var cv = document.getElementById('plCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, N = 42, SC = 64, az = 0.9, el = 0.5, drag = false, lx = 0, ly = 0;
+  var aEl = document.getElementById('plA'), bEl = document.getElementById('plB'), cEl = document.getElementById('plC'), nzEl = document.getElementById('plNz');
+  var X1 = [], X2 = [], Zb = [], GB = [0, 0, 0];   // GB = estimated (green) plane [intercept, slopeX1, slopeX2]
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function TB() { return [+cEl.value, +aEl.value, +bEl.value]; }   // true (blue) plane from the sliders
+  function regen() { X1 = []; X2 = []; Zb = []; for (var i = 0; i < N; i++) { X1.push(gauss() * 0.95); X2.push(gauss() * 0.95); Zb.push(gauss()); } }   // positions + noise pattern FIXED
+  function Yof(i) { var t = TB(); return t[0] + t[1] * X1[i] + t[2] * X2[i] + (+nzEl.value) * Zb[i]; }   // data follow the TRUE plane (+ scaled noise)
+  function solve3(M, v) { var a = [M[0].slice(), M[1].slice(), M[2].slice()], bb = v.slice(), i, r, k; for (i = 0; i < 3; i++) { var pv = i; for (r = i + 1; r < 3; r++) if (Math.abs(a[r][i]) > Math.abs(a[pv][i])) pv = r; var t = a[i]; a[i] = a[pv]; a[pv] = t; var tb = bb[i]; bb[i] = bb[pv]; bb[pv] = tb; for (r = i + 1; r < 3; r++) { var f = a[r][i] / (a[i][i] || 1e-12); for (k = i; k < 3; k++) a[r][k] -= f * a[i][k]; bb[r] -= f * bb[i]; } } var x = [0, 0, 0]; for (i = 2; i >= 0; i--) { var s = bb[i]; for (k = i + 1; k < 3; k++) s -= a[i][k] * x[k]; x[i] = s / (a[i][i] || 1e-12); } return x; }
+  function ols() { var M = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], v = [0, 0, 0]; for (var i = 0; i < N; i++) { var row = [1, X1[i], X2[i]], y = Yof(i); for (var r = 0; r < 3; r++) { for (var k = 0; k < 3; k++) M[r][k] += row[r] * row[k]; v[r] += row[r] * y; } } return solve3(M, v); }
+  function proj(x1, x2, y) { var gx = x1 * Math.cos(az) - x2 * Math.sin(az), gy = x1 * Math.sin(az) + x2 * Math.cos(az), up = y * Math.cos(el) + gy * Math.sin(el); return [W / 2 + gx * SC, H / 2 + 14 - up * SC]; }
+  function term(co, nm) { return (co >= 0 ? ' + ' : ' − ') + Math.abs(co).toFixed(2) + nm; }
+  function mesh(co, style) {
+    var rg = 2.0, ng = 8, gi, gj; c.strokeStyle = style; c.lineWidth = 1;
+    for (gi = 0; gi <= ng; gi++) {
+      c.beginPath(); for (gj = 0; gj <= ng; gj++) { var x1 = -rg + 2 * rg * gi / ng, x2 = -rg + 2 * rg * gj / ng, pp = proj(x1, x2, co[0] + co[1] * x1 + co[2] * x2); gj ? c.lineTo(pp[0], pp[1]) : c.moveTo(pp[0], pp[1]); } c.stroke();
+      c.beginPath(); for (gj = 0; gj <= ng; gj++) { var x2b = -rg + 2 * rg * gi / ng, x1b = -rg + 2 * rg * gj / ng, pp2 = proj(x1b, x2b, co[0] + co[1] * x1b + co[2] * x2b); gj ? c.lineTo(pp2[0], pp2[1]) : c.moveTo(pp2[0], pp2[1]); } c.stroke();
+    }
+  }
+  function draw() {
+    document.getElementById('plAv').textContent = (+aEl.value).toFixed(2); document.getElementById('plBv').textContent = (+bEl.value).toFixed(2); document.getElementById('plCv').textContent = (+cEl.value).toFixed(2); document.getElementById('plNzv').textContent = (+nzEl.value).toFixed(2);
+    var i; c.clearRect(0, 0, W, H);
+    mesh(TB(), 'rgba(91,140,255,0.5)');       // true (blue)
+    mesh(GB, 'rgba(39,174,96,0.85)');         // estimated (green)
+    var idx = X1.map(function (_, i) { return i; }); idx.sort(function (p, q) { return (X1[q] * Math.sin(az) + X2[q] * Math.cos(az)) - (X1[p] * Math.sin(az) + X2[p] * Math.cos(az)); });
+    var ssr = 0, sst = 0, my = 0; for (i = 0; i < N; i++) my += Yof(i); my /= N;
+    idx.forEach(function (i) { var x1 = X1[i], x2 = X2[i], y = Yof(i), yh = GB[0] + GB[1] * x1 + GB[2] * x2, p1 = proj(x1, x2, y), p2 = proj(x1, x2, yh);
+      c.strokeStyle = 'rgba(231,76,60,0.6)'; c.lineWidth = 1; c.beginPath(); c.moveTo(p1[0], p1[1]); c.lineTo(p2[0], p2[1]); c.stroke();
+      c.fillStyle = '#2c3e50'; c.beginPath(); c.arc(p1[0], p1[1], 3.2, 0, 6.2832); c.fill(); });
+    for (i = 0; i < N; i++) { var y = Yof(i), yh = GB[0] + GB[1] * X1[i] + GB[2] * X2[i]; ssr += (y - yh) * (y - yh); sst += (y - my) * (y - my); }
+    document.getElementById('plSSR').textContent = ssr.toFixed(1); document.getElementById('plR2').textContent = (1 - ssr / sst).toFixed(3);
+    document.getElementById('plEqFit').textContent = 'Ŷ = ' + GB[0].toFixed(2) + term(GB[1], '·X₁') + term(GB[2], '·X₂');
+  }
+  cv.addEventListener('pointerdown', function (e) { drag = true; lx = e.clientX; ly = e.clientY; cv.style.cursor = 'grabbing'; });
+  window.addEventListener('pointermove', function (e) { if (!drag) return; az -= (e.clientX - lx) * 0.01; el = Math.max(0.12, Math.min(1.4, el + (e.clientY - ly) * 0.008)); lx = e.clientX; ly = e.clientY; draw(); });
+  window.addEventListener('pointerup', function () { drag = false; cv.style.cursor = 'grab'; });
+  [aEl, bEl, cEl, nzEl].forEach(function (el) { el.addEventListener('input', draw); });   // move the TRUE plane / noise; the green estimate stays until you snap
+  document.getElementById('plFit').addEventListener('click', function () { GB = ols(); draw(); });   // (re)estimate the green plane
+  document.getElementById('plNew').addEventListener('click', function () { regen(); draw(); });   // new data; keep the old estimate (user re-snaps)
+  regen(); GB = ols(); draw();
+})();
+</script>
+```
+
+# Remarks and Identifiability
+
+## Remarks on the noise
 
 - $(\varepsilon_1, \dots, \varepsilon_n)$ **independent** implies no correlation between individuals
 - $\mathbb V(\varepsilon_i)= \sigma^2$ does not depend on $i$: this is called **homoscedasticity** assumption
 - We can write $\mathbb V(\varepsilon) = \sigma^2 I_n$ (covariance matrix of $\varepsilon$)
 
-## Identifiability Condition
+## Homoscedasticity {.smaller}
+
+::: {style="font-size:88%"}
+The model assumes $\mathbb V(\varepsilon_i)=\sigma^2$ for **every** $i$ (*homoscedastic* — the band keeps constant width). Slide to break it: the variance grows with $x$ (*heteroscedastic* — a funnel), and $\mathbb V(\varepsilon)=\sigma^2 I_n$ no longer holds.
+:::
+
+```{=html}
+<style>
+.lm-btn{font-family:inherit;font-size:.85em;padding:.4em 1.1em;margin:.12em .22em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-row{font-size:.72em;line-height:2.3;margin:.15rem 0}
+.lm-wrap{text-align:center}
+</style>
+<div class="lm-wrap">
+  <canvas id="hsCanvas" width="600" height="320" style="background:#fff;border:1px solid #ddd;border-radius:8px;max-width:100%"></canvas>
+  <div class="lm-row">heteroscedasticity <input id="hsH" type="range" autocomplete="off" min="0" max="1" step="0.02" value="0" style="vertical-align:middle;width:170px"> <b id="hsHv">0.00</b> &nbsp;·&nbsp; noise σ <input id="hsS" type="range" autocomplete="off" min="0.2" max="1.5" step="0.05" value="0.6" style="vertical-align:middle;width:120px"> <b id="hsSv">0.60</b> &nbsp; <button class="lm-btn" id="hsNew">↻ resample</button></div>
+  <div class="lm-row" id="hsMsg">–</div>
+</div>
+<script>
+(function () {
+  var cv = document.getElementById('hsCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, N = 80, XL = -1, XH = 1, YL = -5.2, YH = 5.6, slope = 1.4, intercept = 0.3;
+  var hEl = document.getElementById('hsH'), sEl = document.getElementById('hsS'), X = [], Z = [];
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function regen() { X = []; Z = []; for (var i = 0; i < N; i++) { X.push(XL + (XH - XL) * Math.random()); Z.push(gauss()); } }
+  function line(x) { return slope * x + intercept; }
+  function sig(x, h, s) { return s * (1 + h * (x - XL)); }   // x=-1 → s ; x=1 → s(1+2h)
+  function PX(x) { return 34 + (x - (XL - 0.15)) / ((XH + 0.15) - (XL - 0.15)) * (W - 46); }
+  function PY(y) { return H - 22 - (y - YL) / (YH - YL) * (H - 36); }
+  function draw() {
+    var h = +hEl.value, s = +sEl.value, i; hEl && (document.getElementById('hsHv').textContent = h.toFixed(2)); document.getElementById('hsSv').textContent = s.toFixed(2);
+    c.clearRect(0, 0, W, H);
+    c.strokeStyle = '#eee'; c.lineWidth = 1; c.beginPath(); c.moveTo(PX(XL - 0.15), PY(0)); c.lineTo(PX(XH + 0.15), PY(0)); c.stroke();
+    var np = 60; c.fillStyle = 'rgba(91,140,255,0.13)'; c.beginPath();
+    for (i = 0; i <= np; i++) { var x = XL + (XH - XL) * i / np; (i ? c.lineTo : c.moveTo).call(c, PX(x), PY(line(x) + 2 * sig(x, h, s))); }
+    for (i = np; i >= 0; i--) { var x2 = XL + (XH - XL) * i / np; c.lineTo(PX(x2), PY(line(x2) - 2 * sig(x2, h, s))); }
+    c.closePath(); c.fill();
+    c.strokeStyle = '#e74c3c'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(PX(XL), PY(line(XL))); c.lineTo(PX(XH), PY(line(XH))); c.stroke();
+    c.fillStyle = 'rgba(44,62,80,0.75)'; for (i = 0; i < N; i++) { c.beginPath(); c.arc(PX(X[i]), PY(line(X[i]) + sig(X[i], h, s) * Z[i]), 3, 0, 6.2832); c.fill(); }
+    c.fillStyle = '#555'; c.font = '12px sans-serif'; c.textAlign = 'center'; c.fillText('x', W - 16, PY(0) - 6);
+    document.getElementById('hsMsg').innerHTML = h < 0.02
+      ? '<span style="color:#1b7a3a">𝕍(εᵢ) = σ² — homoscedastic ✓ (linear-model assumption)</span>'
+      : '<span style="color:#e74c3c">𝕍(εᵢ) grows with xᵢ — heteroscedastic ✗</span>';
+  }
+  hEl.addEventListener('input', draw); sEl.addEventListener('input', draw);
+  document.getElementById('hsNew').addEventListener('click', function () { regen(); draw(); });
+  regen(); draw();
+})();
+</script>
+```
+
+## Identifiability condition
 
 . . .
 
@@ -281,6 +406,75 @@ $$
 X(\beta + t\alpha) = X\beta
 $$
 
+
+## Identifiability: the collinearity valley {.smaller}
+
+::: {style="font-size:88%"}
+Map of the least-squares cost $L(\beta)=\lVert Y-X\beta\rVert^2$ over $(\beta_1,\beta_2)$. With $\mathrm{rk}(X)=2$ it has a single minimum $\hat\beta$ (gold); as $X^{(2)}\to X^{(1)}$ the basin stretches into a flat **valley** — infinitely many $\beta$ with $X(\beta+t\alpha)=X\beta$ — and $\cos(X_1,X_2)\to 1$ (equality in Cauchy–Schwarz).
+:::
+
+```{=html}
+<style>
+.lm-btn{font-family:inherit;font-size:.85em;padding:.4em 1.1em;margin:.12em .22em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-row{font-size:.72em;line-height:2.3;margin:.15rem 0}
+.lm-wrap{text-align:center}
+</style>
+<div class="lm-wrap">
+  <canvas id="clCanvas" width="340" height="340" style="background:#fff;border:1px solid #ddd;border-radius:8px;max-width:100%"></canvas>
+  <div class="lm-row">collinearity <input id="clC" type="range" autocomplete="off" min="0" max="0.98" step="0.01" value="0.3" style="vertical-align:middle;width:180px"> <b id="clCv">0.30</b> &nbsp; <button class="lm-btn" id="clNew">↻ resample</button></div>
+  <div class="lm-row">\(\cos(X_1,X_2)\) = <b id="clCos">–</b> &nbsp;·&nbsp; <span id="clMsg">–</span></div>
+  <div class="lm-row">\(\langle X_1,X_2\rangle\) = <b id="clDot">–</b> &nbsp;≤&nbsp; \(\lVert X_1\rVert\,\lVert X_2\rVert\) = <b id="clPrd">–</b> &nbsp;<span style="color:#888">(Cauchy–Schwarz)</span></div>
+</div>
+<script>
+(function () {
+  var cv = document.getElementById('clCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, N = 40, VL = -1.3, VH = 3.3;
+  var cEl = document.getElementById('clC');
+  var z1 = [], z2 = [], z3 = [], A, B, Cc, D, E, S, det, bhat;
+  var off = document.createElement('canvas'), oc = off.getContext('2d'), G = 168; off.width = G; off.height = G;
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function regen() { z1 = []; z2 = []; z3 = []; for (var i = 0; i < N; i++) { z1.push(gauss()); z2.push(gauss()); z3.push(gauss()); } }
+  function build() {
+    var cc = +cEl.value, s = Math.sqrt(1 - cc * cc); A = B = Cc = D = E = S = 0;
+    for (var i = 0; i < N; i++) { var x1 = z1[i], x2 = cc * z1[i] + s * z2[i], y = 1.2 * x1 + 0.9 * x2 + 0.35 * z3[i]; A += x1 * x1; B += x2 * x2; Cc += x1 * x2; D += x1 * y; E += x2 * y; S += y * y; }
+    det = A * B - Cc * Cc; bhat = [(B * D - Cc * E) / det, (A * E - Cc * D) / det];
+  }
+  function L(b1, b2) { return S - 2 * b1 * D - 2 * b2 * E + b1 * b1 * A + b2 * b2 * B + 2 * b1 * b2 * Cc; }
+  function ramp(t) { t = Math.max(0, Math.min(1, t)); return [(27 + t * 211) | 0, (58 + t * 184) | 0, (107 + t * 143) | 0]; }
+  function hat(x, y, col) {   // draw 'β' with a hand-drawn caret (canvas can't use MathJax/combining accents)
+    c.fillStyle = col; c.textAlign = 'left'; c.font = '14px sans-serif'; c.fillText('β', x, y);
+    var w = c.measureText('β').width, cx = x + w / 2; c.strokeStyle = col; c.lineWidth = 1.4;
+    c.beginPath(); c.moveTo(cx - 3.5, y - 12); c.lineTo(cx, y - 16); c.lineTo(cx + 3.5, y - 12); c.stroke();
+  }
+  function draw() {
+    document.getElementById('clCv').textContent = (+cEl.value).toFixed(2); build();
+    var Lmin = L(bhat[0], bhat[1]), Lmax = Lmin, gx, gy;
+    for (gy = 0; gy < G; gy++) for (gx = 0; gx < G; gx++) { var l = L(VL + (VH - VL) * gx / (G - 1), VH - (VH - VL) * gy / (G - 1)); if (l > Lmax) Lmax = l; }
+    var img = oc.createImageData(G, G), dt = img.data, p = 0, nb = 9;
+    for (gy = 0; gy < G; gy++) for (gx = 0; gx < G; gx++) {
+      var t = (L(VL + (VH - VL) * gx / (G - 1), VH - (VH - VL) * gy / (G - 1)) - Lmin) / ((Lmax - Lmin) || 1);
+      var col = ramp(Math.floor(Math.sqrt(t) * nb) / nb); dt[p] = col[0]; dt[p + 1] = col[1]; dt[p + 2] = col[2]; dt[p + 3] = 255; p += 4;
+    }
+    oc.putImageData(img, 0, 0);
+    var pad = 28, X0 = pad, Y0 = 8, BW = W - pad - 8, BH = H - pad - 16;
+    c.clearRect(0, 0, W, H); c.imageSmoothingEnabled = true; c.drawImage(off, 0, 0, G, G, X0, Y0, BW, BH);
+    c.strokeStyle = 'rgba(0,0,0,0.15)'; c.lineWidth = 1; c.strokeRect(X0, Y0, BW, BH);
+    function PX(b1) { return X0 + (b1 - VL) / (VH - VL) * BW; } function PY(b2) { return Y0 + (VH - b2) / (VH - VL) * BH; }
+    if (bhat[0] > VL && bhat[0] < VH && bhat[1] > VL && bhat[1] < VH) { c.fillStyle = '#ffd23f'; c.strokeStyle = '#000'; c.lineWidth = 1.5; c.beginPath(); c.arc(PX(bhat[0]), PY(bhat[1]), 5, 0, 6.2832); c.fill(); c.stroke(); hat(PX(bhat[0]) + 9, PY(bhat[1]) + 5, '#000'); }
+    c.fillStyle = '#555'; c.font = '12px sans-serif'; c.textAlign = 'center'; c.fillText('β₁', X0 + BW / 2, H - 4);
+    c.save(); c.translate(11, Y0 + BH / 2); c.rotate(-Math.PI / 2); c.fillText('β₂', 0, 0); c.restore();
+    var dot = Cc, prod = Math.sqrt(A * B), cosv = dot / (prod || 1);
+    document.getElementById('clDot').textContent = dot.toFixed(1);
+    document.getElementById('clPrd').textContent = prod.toFixed(1);
+    document.getElementById('clCos').textContent = cosv.toFixed(3);
+    document.getElementById('clMsg').innerHTML = cosv > 0.97 ? '<span style="color:#e74c3c">equality ⇒ collinear ⇒ ill-identified</span>' : '<span style="color:#1b7a3a">unique least-squares solution</span>';
+  }
+  cEl.addEventListener('input', draw);
+  document.getElementById('clNew').addEventListener('click', function () { regen(); draw(); });
+  regen(); draw();
+})();
+</script>
+```
 
 ## Next Class
 
