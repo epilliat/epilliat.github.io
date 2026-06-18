@@ -214,7 +214,7 @@
     "href": "teaching/linear_model/slides/validation.html#pythagorean-decomposition",
     "title": "Validation",
     "section": "Pythagorean Decomposition",
-    "text": "Pythagorean Decomposition\n\nLet \\(\\mathbf{1}\\) be the constant column vector in \\(\\mathbb R^{n\\times 1}\\).\n\n\nIf \\(\\mathbf{1} \\in [X]\\) (eg if we consider an intercept) \\[ \\underbrace{\\|Y-\\overline Y \\1\\|^2}_{SST} = \\underbrace{\\|Y-\\widehat Y\\|^2}_{SSR}+\\underbrace{\\|\\widehat Y-\\overline Y \\1\\|^2}_{SSE}\\]\nIn the general case,\n\n\n\\[\\|Y\\|^2 = \\|Y-\\widehat Y\\|^2 + \\|\\widehat Y\\|^2\\]\nGood model if sum of squares of residuals \\(SSR \\ll 1\\)"
+    "text": "Pythagorean Decomposition\n\nLet \\(\\mathbf{1}\\) be the constant column vector in \\(\\mathbb R^{n\\times 1}\\).\n\n\nIf \\(\\mathbf{1} \\in [X]\\) (eg if we consider an intercept) \\[ \\underbrace{\\|Y-\\overline Y \\1\\|^2}_{SST} = \\underbrace{\\|Y-\\widehat Y\\|^2}_{SSR}+\\underbrace{\\|\\widehat Y-\\overline Y \\1\\|^2}_{SSE}\\]\nIn the general case,\n\n\n\\[\\|Y\\|^2 = \\|Y-\\widehat Y\\|^2 + \\|\\widehat Y\\|^2\\]\nGood model if sum of squares of residuals \\(SSR \\ll SST\\)"
   },
   {
     "objectID": "teaching/linear_model/slides/validation.html#r2",
@@ -228,7 +228,7 @@
     "href": "teaching/linear_model/slides/validation.html#adjusted-r2",
     "title": "Validation",
     "section": "Adjusted \\(R^2\\)",
-    "text": "Adjusted \\(R^2\\)\n\nMain flaw of \\(R^2\\): adding a new variables decreases \\(R^2\\) (because \\([X]\\) is a bigger projection space)\n\n\n\n\n\n\n\n\\(R_a^2\\) if \\(\\1 \\in [X]\\)\n\n\n\\[R^2_a = 1-\\frac{n-1}{n-p}\\frac{SSR}{SST}\\]\n\n\n\n\n\n\n\n\\(R_a^2\\) if \\(\\1 \\not \\in [X]\\)\n\n\n\\[R^2_a = 1 - \\frac{n}{n-p}\\frac{SSR}{\\|Y\\|^2}\\]\n\n\n\n\n\n\nWith a new variable, \\(SSR\\) decreases but \\(p \\to p+1\\)\n\n\n\\(R_a^2\\)​ only decreases when adding a new variable if that variable significantly reduces the residual sum of squares."
+    "text": "Adjusted \\(R^2\\)\n\nMain flaw of \\(R^2\\): adding a new variable increases \\(R^2\\) (because \\([X]\\) is a bigger projection space)\n\n\n\n\n\n\n\n\\(R_a^2\\) if \\(\\1 \\in [X]\\)\n\n\n\\[R^2_a = 1-\\frac{n-1}{n-p}\\frac{SSR}{SST}\\]\n\n\n\n\n\n\n\n\\(R_a^2\\) if \\(\\1 \\not \\in [X]\\)\n\n\n\\[R^2_a = 1 - \\frac{n}{n-p}\\frac{SSR}{\\|Y\\|^2}\\]\n\n\n\n\n\n\nWith a new variable, \\(SSR\\) decreases but \\(p \\to p+1\\)\n\n\n\\(R_a^2\\)​ only increases when adding a new variable if that variable significantly reduces the residual sum of squares."
   },
   {
     "objectID": "teaching/linear_model/slides/validation.html#r-output-interpretation",
@@ -270,7 +270,7 @@
     "href": "teaching/linear_model/slides/validation.html#rejection-region",
     "title": "Validation",
     "section": "Rejection Region",
-    "text": "Rejection Region\n\nKey argument: \\(SSR_c - SSR\\) is equal to \\(\\|(P_{V_0^\\perp}-P_{[X]^\\perp})Y\\|^2\\), where \\(V_0=X(Ker(R))\\) and \\(\\text{dim}(V_0)=q\\).\n\n\nTherefore, the critical region at significance level \\(\\alpha\\) for testing \\(H_0: R\\beta = 0\\) against \\(H_1: R\\beta \\neq 0\\) is:\n\n\\[RC_\\alpha = \\{F &gt; f_{q,n-p}(1-\\alpha)\\}\\]\n\nwhere \\(f_{q,n-p}(1-\\alpha)\\) denotes the \\((1-\\alpha)\\)-quantile of an \\(F(q, n-p)\\) distribution."
+    "text": "Rejection Region\n\nKey argument: \\(SSR_c - SSR\\) is equal to \\(\\|(P_{V_0^\\perp}-P_{[X]^\\perp})Y\\|^2\\), where \\(V_0=X(Ker(R))\\) and \\(\\dim(V_0)=p-q\\) (so \\([X]\\ominus V_0\\) has dimension \\(q\\)).\n\n\nTherefore, the critical region at significance level \\(\\alpha\\) for testing \\(H_0: R\\beta = 0\\) against \\(H_1: R\\beta \\neq 0\\) is:\n\n\\[RC_\\alpha = \\{F &gt; f_{q,n-p}(1-\\alpha)\\}\\]\n\nwhere \\(f_{q,n-p}(1-\\alpha)\\) denotes the \\((1-\\alpha)\\)-quantile of an \\(F(q, n-p)\\) distribution."
   },
   {
     "objectID": "teaching/linear_model/slides/validation.html#particular-case-1-student-test",
@@ -619,8 +619,8 @@
     "objectID": "teaching/linear_model/slides/inference.html#pythagorean-decomposition-of-y",
     "href": "teaching/linear_model/slides/inference.html#pythagorean-decomposition-of-y",
     "title": "Inference",
-    "section": "Pythagorean Decomposition of \\(Y\\)",
-    "text": "Pythagorean Decomposition of \\(Y\\)\n\nWe can decompose\n\n\\[Y = \\underbrace{P_{[X]}Y}_{\\widehat Y} + \\underbrace{(I-P_{[X]})Y}_{\"residuals\"}\\]\n\n\n\nNotice that \\(I-P_{[X]}= P_{[X]^{\\perp}}\\) is the orthogonal projection on \\([X]^{\\perp} = \\{\\alpha\\in \\mathbb R^n:~ X^T\\alpha =0\\}\\)"
+    "section": "Pythagorean Decomposition of Y",
+    "text": "Pythagorean Decomposition of Y\n\nWe can decompose\n\n\\[Y = \\underbrace{P_{[X]}Y}_{\\widehat Y} + \\underbrace{(I-P_{[X]})Y}_{\"residuals\"}\\]\n\n\n\nNotice that \\(I-P_{[X]}= P_{[X]^{\\perp}}\\) is the orthogonal projection on \\([X]^{\\perp} = \\{\\alpha\\in \\mathbb R^n:~ X^T\\alpha =0\\}\\)"
   },
   {
     "objectID": "teaching/linear_model/slides/inference.html#illustration",
@@ -662,7 +662,7 @@
     "href": "teaching/linear_model/slides/inference.html#properties-on-residuals",
     "title": "Inference",
     "section": "Properties on residuals",
-    "text": "Properties on residuals\n\n\n\n\nExpectation and Variance of \\(\\hat\\varepsilon\\)\n\n\nIf \\(\\mathrm{rk}(X)=p\\), \\(\\mathbb E[\\varepsilon] = 0\\) and \\(\\mathbb V(\\varepsilon)=\\sigma^2I_n\\), then\n\n\\(\\mathbb E[\\hat\\varepsilon]=0\\)\n\\(\\mathbb V(\\hat \\varepsilon) = \\sigma^2P_{[X]^\\perp} = \\sigma^2(I_n - X(X^TX)^{-1}X^T)\\)\n\n\n\n\n\n\nRemark: if a constant vector is in \\([X]\\), e.g. \\(\\forall i,X_i^{(1)}=1\\), then \\(\\hat \\varepsilon \\perp \\mathbf 1\\) and\n\\[\n\\overline{\\hat\\varepsilon} = \\frac{1}{n}\\sum_{i=1}^n \\hat\\varepsilon_i = 0 \\and \\overline{\\widehat Y} = \\overline Y\n\\]"
+    "text": "Properties on residuals\n\n\n\n\nExpectation and Variance of ε̂\n\n\nIf \\(\\mathrm{rk}(X)=p\\), \\(\\mathbb E[\\varepsilon] = 0\\) and \\(\\mathbb V(\\varepsilon)=\\sigma^2I_n\\), then\n\n\\(\\mathbb E[\\hat\\varepsilon]=0\\)\n\\(\\mathbb V(\\hat \\varepsilon) = \\sigma^2P_{[X]^\\perp} = \\sigma^2(I_n - X(X^TX)^{-1}X^T)\\)\n\n\n\n\n\n\nRemark: if a constant vector is in \\([X]\\), e.g. \\(\\forall i,X_i^{(1)}=1\\), then \\(\\hat \\varepsilon \\perp \\mathbf 1\\) and\n\\[\n\\overline{\\hat\\varepsilon} = \\frac{1}{n}\\sum_{i=1}^n \\hat\\varepsilon_i = 0 \\and \\overline{\\widehat Y} = \\overline Y\n\\]"
   },
   {
     "objectID": "teaching/linear_model/slides/inference.html#estimation-of-sigma2-1",
@@ -1102,8 +1102,8 @@
     "objectID": "teaching/hypothesis_testing/slides/testing_models_fr.html#dé-biaisé-vers-le-6",
     "href": "teaching/hypothesis_testing/slides/testing_models_fr.html#dé-biaisé-vers-le-6",
     "title": "Tests d’Hypothèses",
-    "section": "Dé Biaisé Vers le \\(6\\)",
-    "text": "Dé Biaisé Vers le \\(6\\)\n\nObjectif : tester si Bob triche avec un dé biaisé\nExpérience : Bob lance le dé \\(10\\) fois\nHypothèses :\n\n\\(H_0\\) : la probabilité d’obtenir \\(6\\) est \\(1/6\\)\n\\(H_1\\) : la probabilité d’obtenir \\(6\\) est supérieure à \\(1/6\\)\n\nRègle de décision : rejeter \\(H_0\\) si p-valeur \\(&lt; 0.05\\)\nDonnées : le dé tombe \\(10\\) fois sur \\(6\\)\nDécision : p-valeur \\(= (1/6)^{10} \\approx 10^{-8} &lt; 0.05\\) → rejet\nConclusion : forte preuve que Bob triche !"
+    "section": "Dé Biaisé Vers le 6",
+    "text": "Dé Biaisé Vers le 6\n\nObjectif : tester si Bob triche avec un dé biaisé\nExpérience : Bob lance le dé \\(10\\) fois\nHypothèses :\n\n\\(H_0\\) : la probabilité d’obtenir \\(6\\) est \\(1/6\\)\n\\(H_1\\) : la probabilité d’obtenir \\(6\\) est supérieure à \\(1/6\\)\n\nRègle de décision : rejeter \\(H_0\\) si p-valeur \\(&lt; 0.05\\)\nDonnées : le dé tombe \\(10\\) fois sur \\(6\\)\nDécision : p-valeur \\(= (1/6)^{10} \\approx 10^{-8} &lt; 0.05\\) → rejet\nConclusion : forte preuve que Bob triche !"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/testing_models_fr.html#équité-du-dé",
@@ -1361,8 +1361,8 @@
     "objectID": "teaching/hypothesis_testing/slides/testing_models_fr.html#exemple-gaussiennes-avec-n-observations",
     "href": "teaching/hypothesis_testing/slides/testing_models_fr.html#exemple-gaussiennes-avec-n-observations",
     "title": "Tests d’Hypothèses",
-    "section": "Exemple : Gaussiennes avec \\(n\\) Observations",
-    "text": "Exemple : Gaussiennes avec \\(n\\) Observations\nSoit \\(P_{\\theta} = \\mathcal N(\\theta,1)\\). On observe \\(n\\) données iid \\(X = (X_1, \\dots, X_n)\\).\n\n\\(H_0: X \\sim P^{\\otimes n}_{\\theta_0}\\) ou \\(H_1: X \\sim P^{\\otimes n}_{\\theta_1}\\)\nNote : \\(P^{\\otimes n}_{\\theta}= \\mathcal N((\\theta,\\dots, \\theta), I_n)\\)\n\n\n\nDensité de \\(P^{\\otimes n}_{\\theta}\\) : \\[\\frac{d P^{\\otimes n}_{\\theta}}{dx} = \\frac{1}{\\sqrt{2\\pi}^n}\\exp\\left(-\\frac{\\|x\\|^2}{2} + n\\theta \\overline x - \\frac{n\\theta^2}{2}\\right)\\]"
+    "section": "Exemple : Gaussiennes avec n Observations",
+    "text": "Exemple : Gaussiennes avec n Observations\nSoit \\(P_{\\theta} = \\mathcal N(\\theta,1)\\). On observe \\(n\\) données iid \\(X = (X_1, \\dots, X_n)\\).\n\n\\(H_0: X \\sim P^{\\otimes n}_{\\theta_0}\\) ou \\(H_1: X \\sim P^{\\otimes n}_{\\theta_1}\\)\nNote : \\(P^{\\otimes n}_{\\theta}= \\mathcal N((\\theta,\\dots, \\theta), I_n)\\)\n\n\n\nDensité de \\(P^{\\otimes n}_{\\theta}\\) : \\[\\frac{d P^{\\otimes n}_{\\theta}}{dx} = \\frac{1}{\\sqrt{2\\pi}^n}\\exp\\left(-\\frac{\\|x\\|^2}{2} + n\\theta \\overline x - \\frac{n\\theta^2}{2}\\right)\\]"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/testing_models_fr.html#exemple-gaussiennes-suite",
@@ -1634,8 +1634,8 @@
     "objectID": "teaching/hypothesis_testing/slides/multiple_minimax_fr.html#comportement-du-seuil-en-fonction-de-m",
     "href": "teaching/hypothesis_testing/slides/multiple_minimax_fr.html#comportement-du-seuil-en-fonction-de-m",
     "title": "Tests multiples et vitesses de détection",
-    "section": "Comportement du seuil en fonction de \\(m\\)",
-    "text": "Comportement du seuil en fonction de \\(m\\)\n\nPour \\(\\sigma = 1\\), \\(n = 100\\), \\(\\alpha = 5\\%\\) :\n\n\n\n\\(m\\)\n\\(\\alpha/(2m)\\)\n\\(z_{1-\\alpha/(2m)}\\)\nSeuil \\(t_m\\)\n\n\n\n\n\\(1\\)\n\\(0{,}025\\)\n\\(1{,}96\\)\n\\(0{,}196\\)\n\n\n\\(10\\)\n\\(0{,}0025\\)\n\\(2{,}81\\)\n\\(0{,}281\\)\n\n\n\\(100\\)\n\\(2{,}5 \\cdot 10^{-4}\\)\n\\(3{,}48\\)\n\\(0{,}348\\)\n\n\n\\(1\\,000\\)\n\\(2{,}5 \\cdot 10^{-5}\\)\n\\(4{,}06\\)\n\\(0{,}406\\)\n\n\n\\(10^6\\)\n\\(2{,}5 \\cdot 10^{-8}\\)\n\\(5{,}45\\)\n\\(0{,}545\\)"
+    "section": "Comportement du seuil en fonction de m",
+    "text": "Comportement du seuil en fonction de m\n\nPour \\(\\sigma = 1\\), \\(n = 100\\), \\(\\alpha = 5\\%\\) :\n\n\n\n\\(m\\)\n\\(\\alpha/(2m)\\)\n\\(z_{1-\\alpha/(2m)}\\)\nSeuil \\(t_m\\)\n\n\n\n\n\\(1\\)\n\\(0{,}025\\)\n\\(1{,}96\\)\n\\(0{,}196\\)\n\n\n\\(10\\)\n\\(0{,}0025\\)\n\\(2{,}81\\)\n\\(0{,}281\\)\n\n\n\\(100\\)\n\\(2{,}5 \\cdot 10^{-4}\\)\n\\(3{,}48\\)\n\\(0{,}348\\)\n\n\n\\(1\\,000\\)\n\\(2{,}5 \\cdot 10^{-5}\\)\n\\(4{,}06\\)\n\\(0{,}406\\)\n\n\n\\(10^6\\)\n\\(2{,}5 \\cdot 10^{-8}\\)\n\\(5{,}45\\)\n\\(0{,}545\\)"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/multiple_minimax_fr.html#pourquoi-ce-comportement-logarithmique",
@@ -1725,8 +1725,8 @@
     "objectID": "teaching/hypothesis_testing/slides/multiple_minimax_fr.html#traduction-pour-n-observations",
     "href": "teaching/hypothesis_testing/slides/multiple_minimax_fr.html#traduction-pour-n-observations",
     "title": "Tests multiples et vitesses de détection",
-    "section": "Traduction pour \\(n\\) observations",
-    "text": "Traduction pour \\(n\\) observations\n\nEn lisant \\(\\rho\\) comme \\(\\sqrt n\\,\\mu/\\sigma\\) (passage d’une seule gaussienne à la moyenne de \\(n\\) observations) :\n\n\n\n\n\nNote\n\n\nLe test de la moyenne peut détecter un signal \\(\\mu \\neq 0\\) dès que\n\\[|\\mu| \\gtrsim \\dfrac{\\sigma}{\\sqrt n}\\]\n\n\n\n\n\nEst-ce optimal ? Peut-on faire mieux avec un autre test ?"
+    "section": "Traduction pour n observations",
+    "text": "Traduction pour n observations\n\nEn lisant \\(\\rho\\) comme \\(\\sqrt n\\,\\mu/\\sigma\\) (passage d’une seule gaussienne à la moyenne de \\(n\\) observations) :\n\n\n\n\n\nNote\n\n\nLe test de la moyenne peut détecter un signal \\(\\mu \\neq 0\\) dès que\n\\[|\\mu| \\gtrsim \\dfrac{\\sigma}{\\sqrt n}\\]\n\n\n\n\n\nEst-ce optimal ? Peut-on faire mieux avec un autre test ?"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/multiple_minimax_fr.html#borne-inférieure",
@@ -2027,7 +2027,7 @@
     "href": "teaching/hypothesis_testing/slides/gaussian_populations.html#student-t-test",
     "title": "Gaussian Populations",
     "section": "Student T-Test",
-    "text": "Student T-Test\n\n\n\\[\nH_0: \\{\\mu_0,\\sigma &gt; 0\\} \\text{ or } H_1: \\{\\mu \\neq \\mu_0,\\sigma &gt; 0\\} \\;.\n\\]\n\n\n\n(Student) T-test statistic: \\[T(X) = \\frac{\\sqrt{n}(\\overline X-\\mu_0)}{\\hat \\sigma(X)}\\]\n\n\n\n\n\nProposition: distribution of T under \\(H_0\\)\n\n\n\\(T(X)\\) is a pivotal test statistic.\nUnder \\(H_0\\), \\(\\psi(X)\\sim \\mathcal T(n-1)\\)"
+    "text": "Student T-Test\n\n\n\\[\nH_0: \\{\\mu_0,\\sigma &gt; 0\\} \\text{ or } H_1: \\{\\mu \\neq \\mu_0,\\sigma &gt; 0\\} \\;.\n\\]\n\n\n\n(Student) T-test statistic: \\[T(X) = \\frac{\\sqrt{n}(\\overline X-\\mu_0)}{\\hat \\sigma(X)}\\]\n\n\n\n\n\nProposition: distribution of T under H₀\n\n\n\\(T(X)\\) is a pivotal test statistic.\nUnder \\(H_0\\), \\(\\psi(X)\\sim \\mathcal T(n-1)\\)"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/gaussian_populations.html#proof",
@@ -2292,8 +2292,8 @@
     "objectID": "teaching/hypothesis_testing/slides/dependency.html#monte-carlo-validation-n4",
     "href": "teaching/hypothesis_testing/slides/dependency.html#monte-carlo-validation-n4",
     "title": "Correlation, Homogeneity and Dependency",
-    "section": "Monte Carlo Validation (\\(n=4\\))",
-    "text": "Monte Carlo Validation (\\(n=4\\))"
+    "section": "Monte Carlo Validation (n=4)",
+    "text": "Monte Carlo Validation (n=4)"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/dependency.html#example",
@@ -2538,7 +2538,7 @@
     "href": "teaching/hypothesis_testing/slides/dependency.html#dependency-problem-for-paired-data",
     "title": "Correlation, Homogeneity and Dependency",
     "section": "Dependency Problem for Paired Data",
-    "text": "Dependency Problem for Paired Data\n\nWe observe iid pairs \\((X_1, Y_1), \\dots, (X_n, Y_n)\\) with unknown joint density \\(p_{XY}(x,y)\\).\n\n\n\n\\(H_0\\): \\(\\mathrm{median}(X_i - Y_i) = 0\\) for all \\(i\\)\n\\(H_1\\): \\(\\mathrm{median}(X_i - Y_i) \\neq 0\\) for some \\(i\\)\n\n\n\n[Wooclap]\n\n\n\n\n\nWhen is \\(H_0\\) satisfied?\n\n\n\nIf \\(X_i - Y_i\\) is symmetric for all \\(i\\), we are under \\(H_0\\).\nIf \\(X_i \\perp Y_i\\) for all \\(i\\), we are under \\(H_0\\)."
+    "text": "Dependency Problem for Paired Data\n\nWe observe iid pairs \\((X_1, Y_1), \\dots, (X_n, Y_n)\\) with unknown joint density \\(p_{XY}(x,y)\\).\n\n\n\n\\(H_0\\): \\(\\mathrm{median}(X_i - Y_i) = 0\\) for all \\(i\\)\n\\(H_1\\): \\(\\mathrm{median}(X_i - Y_i) \\neq 0\\) for some \\(i\\)\n\n\n\n[Wooclap]\n\n\n\n\n\nWhen is H₀ satisfied?\n\n\n\nIf \\(X_i - Y_i\\) is symmetric for all \\(i\\), we are under \\(H_0\\).\nIf \\(X_i \\perp Y_i\\) for all \\(i\\), we are under \\(H_0\\)."
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/dependency.html#more-formally",
@@ -3902,8 +3902,8 @@
     "objectID": "teaching/glm/slides/logistic_model.html#odds-given-xx",
     "href": "teaching/glm/slides/logistic_model.html#odds-given-xx",
     "title": "The Logistic Model",
-    "section": "Odds given \\(X=x\\)",
-    "text": "Odds given \\(X=x\\)\n\nSimilarly, the odds of obtaining \\(Y = 1\\) given \\(X = x\\) is:\n\n\\[\\text{odds}(x) = \\frac{p(x)}{1 - p(x)}\\]\n\n\n\nwhere \\(p(x) = P(Y = 1|X = x)\\)."
+    "section": "Odds given X=x",
+    "text": "Odds given X=x\n\nSimilarly, the odds of obtaining \\(Y = 1\\) given \\(X = x\\) is:\n\n\\[\\text{odds}(x) = \\frac{p(x)}{1 - p(x)}\\]\n\n\n\nwhere \\(p(x) = P(Y = 1|X = x)\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#odds-ratio",
@@ -4455,8 +4455,8 @@
     "objectID": "teaching/glm/slides/logistic_model.html#choice-of-threshold-s",
     "href": "teaching/glm/slides/logistic_model.html#choice-of-threshold-s",
     "title": "The Logistic Model",
-    "section": "Choice of Threshold \\(s\\)",
-    "text": "Choice of Threshold \\(s\\)\n\nFor each threshold \\(s\\), from a test sample:\n\nwe can form the confusion matrix\ncalculate scores (sensitivity, \\(F\\)-score, etc.)\n\n\n\nWe finally choose the optimal threshold \\(s\\), according to the chosen score."
+    "section": "Choice of Threshold s",
+    "text": "Choice of Threshold s\n\nFor each threshold \\(s\\), from a test sample:\n\nwe can form the confusion matrix\ncalculate scores (sensitivity, \\(F\\)-score, etc.)\n\n\n\nWe finally choose the optimal threshold \\(s\\), according to the chosen score."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.html#choosing-the-score",
@@ -4924,29 +4924,29 @@
     "objectID": "teaching/glm/slides/Introduction_glm.html#modelling-px",
     "href": "teaching/glm/slides/Introduction_glm.html#modelling-px",
     "title": "Introduction to the Generalized Linear Model",
-    "section": "Modelling \\(p(x)\\)",
-    "text": "Modelling \\(p(x)\\)\n\n\n\\[E(Y|X = x) = P(Y = 1|X = x) = p(x) \\in [0, 1]\\]\n\n\n\nWhat NOT to do: \\(p(x) = x^T\\beta\\) (for some \\(\\beta \\in \\mathbb{R}^p\\) to be estimated)\n\n\nProposed approach: We can propose a model of the type:\n\n\\[p(x) = f(x^T\\beta)\\]\n\nwhere \\(f\\) is a function from \\(\\mathbb{R}\\) to \\([0, 1]\\)\n\n\nBenefits: Coherent model that depends only on \\(\\beta\\)"
+    "section": "Modelling p(x)",
+    "text": "Modelling p(x)\n\n\n\\[E(Y|X = x) = P(Y = 1|X = x) = p(x) \\in [0, 1]\\]\n\n\n\nWhat NOT to do: \\(p(x) = x^T\\beta\\) (for some \\(\\beta \\in \\mathbb{R}^p\\) to be estimated)\n\n\nProposed approach: We can propose a model of the type:\n\n\\[p(x) = f(x^T\\beta)\\]\n\nwhere \\(f\\) is a function from \\(\\mathbb{R}\\) to \\([0, 1]\\)\n\n\nBenefits: Coherent model that depends only on \\(\\beta\\)"
   },
   {
     "objectID": "teaching/glm/slides/Introduction_glm.html#case-2-categorical-y",
     "href": "teaching/glm/slides/Introduction_glm.html#case-2-categorical-y",
     "title": "Introduction to the Generalized Linear Model",
-    "section": "Case 2: Categorical \\(Y\\)",
-    "text": "Case 2: Categorical \\(Y\\)\n\nIf \\(Y\\) represents membership in \\(k\\) different classes \\(A_1, \\ldots, A_k\\), its distribution is determined by the probabilities:\n\n\\[p_j(x) = P(Y \\in A_j|X = x), \\quad \\text{for } j = 1, \\ldots, k\\]\n\n\n\nConstraint: \\(\\sum_{j=1}^{k} p_j(x) = 1\\) (If \\(k = 2\\), this reduces to the previous case)"
+    "section": "Case 2: Categorical Y",
+    "text": "Case 2: Categorical Y\n\nIf \\(Y\\) represents membership in \\(k\\) different classes \\(A_1, \\ldots, A_k\\), its distribution is determined by the probabilities:\n\n\\[p_j(x) = P(Y \\in A_j|X = x), \\quad \\text{for } j = 1, \\ldots, k\\]\n\n\n\nConstraint: \\(\\sum_{j=1}^{k} p_j(x) = 1\\) (If \\(k = 2\\), this reduces to the previous case)"
   },
   {
     "objectID": "teaching/glm/slides/Introduction_glm.html#case-2-categorical-y-1",
     "href": "teaching/glm/slides/Introduction_glm.html#case-2-categorical-y-1",
     "title": "Introduction to the Generalized Linear Model",
-    "section": "Case 2: Categorical \\(Y\\)",
-    "text": "Case 2: Categorical \\(Y\\)\n\n\\(Y = (\\mathbf{1}_{A_1}, \\ldots, \\mathbf{1}_{A_k})\\) follows a multinomial distribution and:\n\n\\[\\E(Y|X = x) = \\begin{pmatrix} p_1(x) \\\\ \\vdots \\\\ p_k(x) \\end{pmatrix}\\]"
+    "section": "Case 2: Categorical Y",
+    "text": "Case 2: Categorical Y\n\n\\(Y = (\\mathbf{1}_{A_1}, \\ldots, \\mathbf{1}_{A_k})\\) follows a multinomial distribution and:\n\n\\[\\E(Y|X = x) = \\begin{pmatrix} p_1(x) \\\\ \\vdots \\\\ p_k(x) \\end{pmatrix}\\]"
   },
   {
     "objectID": "teaching/glm/slides/Introduction_glm.html#case-2-model-for-categorical-y",
     "href": "teaching/glm/slides/Introduction_glm.html#case-2-model-for-categorical-y",
     "title": "Introduction to the Generalized Linear Model",
-    "section": "Case 2: Model for Categorical \\(Y\\)",
-    "text": "Case 2: Model for Categorical \\(Y\\)\n\nTo model \\(\\E(Y|X = x)\\), it suffices to model \\(p_1(x), \\ldots, p_{k-1}(x)\\) since \\(p_k(x) = 1 - \\sum_{j=1}^{k-1} p_j(x)\\)\n\n\nProposed model: As in the binary case, we can propose:\n\n\\[p_j(x) = f(x^T\\beta_j), \\quad j = 1, \\ldots, k-1\\]\n\nwhere \\(f: \\mathbb{R} \\to [0,1]\\)\n\n\nParameters: There will be \\(k-1\\) unknown parameters to estimate, each in \\(\\mathbb{R}^p\\)"
+    "section": "Case 2: Model for Categorical Y",
+    "text": "Case 2: Model for Categorical Y\n\nTo model \\(\\E(Y|X = x)\\), it suffices to model \\(p_1(x), \\ldots, p_{k-1}(x)\\) since \\(p_k(x) = 1 - \\sum_{j=1}^{k-1} p_j(x)\\)\n\n\nProposed model: As in the binary case, we can propose:\n\n\\[p_j(x) = f(x^T\\beta_j), \\quad j = 1, \\ldots, k-1\\]\n\nwhere \\(f: \\mathbb{R} \\to [0,1]\\)\n\n\nParameters: There will be \\(k-1\\) unknown parameters to estimate, each in \\(\\mathbb{R}^p\\)"
   },
   {
     "objectID": "teaching/glm/slides/Introduction_glm.html#case-3-count-y---non-negative-integer-values",
@@ -5120,8 +5120,8 @@
     "objectID": "research/presentations/crowdsourcing/presentation_long.html#illustration-when-x-is-known",
     "href": "research/presentations/crowdsourcing/presentation_long.html#illustration-when-x-is-known",
     "title": "Recovering Labels from Crowdsourced Data",
-    "section": "Illustration when \\(x^*\\) is Known",
-    "text": "Illustration when \\(x^*\\) is Known\n\nLet me illustrate the isotonicity assumption with this picture. This is an isotonic matrix represented in a scale of grays. This is a permuted isotonic matrix, and this is what we might observe.\nNow I’m mostly interested in the statistical limit for finding labels, that is, where the noise is of the same scale as the coefficients of \\(M\\), and when the picture becomes more blurry."
+    "section": "Illustration when x^* is Known",
+    "text": "Illustration when x^* is Known\n\nLet me illustrate the isotonicity assumption with this picture. This is an isotonic matrix represented in a scale of grays. This is a permuted isotonic matrix, and this is what we might observe.\nNow I’m mostly interested in the statistical limit for finding labels, that is, where the noise is of the same scale as the coefficients of \\(M\\), and when the picture becomes more blurry."
   },
   {
     "objectID": "research/presentations/crowdsourcing/presentation_long.html#square-norm-loss-vs-hamming-loss",
@@ -5393,15 +5393,15 @@
     "objectID": "research/presentations/bandits_many_arms/presentation.html#consequences-bounded-mathcal-d",
     "href": "research/presentations/bandits_many_arms/presentation.html#consequences-bounded-mathcal-d",
     "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
-    "section": "Consequences — Bounded \\(\\mathcal D\\)",
-    "text": "Consequences — Bounded \\(\\mathcal D\\)\nNotation: \\(\\zeta\\) = noise level, \\(\\mathbf{t}=t \\cdot (polylog)\\)\n\n\n\n\n\n\n\n\n\n\nType of \\(\\mathcal{D}\\)\nQuantile \\(\\lambda_{\\eta}\\)\nUpper Bound on \\(\\gamma(\\hat r_t)\\)\nLower Bound on \\(\\lambda_{\\gamma(\\hat r_t)}\\)\n\n\n\n\nBernoulli\n\\(u\\mathbf{1}\\{\\eta \\leq \\eta_0\\}\\)\n\\(\\eta_0 \\mathbf{1}\\{\\mathbf{t} \\geq \\frac{\\zeta^2}{\\eta_0 u^2}\\}\\)\n\\(u \\mathbf{1}\\{\\mathbf{t} \\geq \\frac{\\zeta^2}{\\eta_0 u^2}\\}\\)\n\n\nBeta (\\(\\alpha &lt; 1/2\\))\n\\(1-\\eta^{\\alpha}\\)\n\\(\\frac{1 \\lor \\frac{\\zeta^2}{\\alpha^2}}{\\mathbf{t}}\\)\n\\(1-\\left(\\frac{1 \\lor \\frac{\\zeta^2}{\\alpha^2}}{\\mathbf{t}}\\right)^\\alpha\\)\n\n\nBeta (\\(\\alpha \\geq 1/2\\))\n\\(1-\\eta^{\\alpha}\\)\n\\(\\frac{1}{\\mathbf{t}} \\lor \\left(\\frac{\\zeta^2}{\\mathbf{t}}\\right)^{\\frac{1}{2\\alpha}}\\)\n\\(1-\\frac{1}{\\mathbf{t}^\\alpha} \\lor \\sqrt{\\frac{\\zeta^2}{\\mathbf{t}}}\\)"
+    "section": "Consequences — Bounded mathcal D",
+    "text": "Consequences — Bounded mathcal D\nNotation: \\(\\zeta\\) = noise level, \\(\\mathbf{t}=t \\cdot (polylog)\\)\n\n\n\n\n\n\n\n\n\n\nType of \\(\\mathcal{D}\\)\nQuantile \\(\\lambda_{\\eta}\\)\nUpper Bound on \\(\\gamma(\\hat r_t)\\)\nLower Bound on \\(\\lambda_{\\gamma(\\hat r_t)}\\)\n\n\n\n\nBernoulli\n\\(u\\mathbf{1}\\{\\eta \\leq \\eta_0\\}\\)\n\\(\\eta_0 \\mathbf{1}\\{\\mathbf{t} \\geq \\frac{\\zeta^2}{\\eta_0 u^2}\\}\\)\n\\(u \\mathbf{1}\\{\\mathbf{t} \\geq \\frac{\\zeta^2}{\\eta_0 u^2}\\}\\)\n\n\nBeta (\\(\\alpha &lt; 1/2\\))\n\\(1-\\eta^{\\alpha}\\)\n\\(\\frac{1 \\lor \\frac{\\zeta^2}{\\alpha^2}}{\\mathbf{t}}\\)\n\\(1-\\left(\\frac{1 \\lor \\frac{\\zeta^2}{\\alpha^2}}{\\mathbf{t}}\\right)^\\alpha\\)\n\n\nBeta (\\(\\alpha \\geq 1/2\\))\n\\(1-\\eta^{\\alpha}\\)\n\\(\\frac{1}{\\mathbf{t}} \\lor \\left(\\frac{\\zeta^2}{\\mathbf{t}}\\right)^{\\frac{1}{2\\alpha}}\\)\n\\(1-\\frac{1}{\\mathbf{t}^\\alpha} \\lor \\sqrt{\\frac{\\zeta^2}{\\mathbf{t}}}\\)"
   },
   {
     "objectID": "research/presentations/bandits_many_arms/presentation.html#consequences-unbounded-mathcal-d-pareto",
     "href": "research/presentations/bandits_many_arms/presentation.html#consequences-unbounded-mathcal-d-pareto",
     "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
-    "section": "Consequences — Unbounded \\(\\mathcal D\\) (Pareto)",
-    "text": "Consequences — Unbounded \\(\\mathcal D\\) (Pareto)\nNotation: \\(\\zeta\\) = noise level, \\(\\mathbf{t}=t \\cdot (polylog)\\)\n\n\n\n\n\n\n\n\n\n\nType of \\(\\mathcal{D}\\)\nQuantile \\(\\lambda_{\\eta}\\)\nUpper Bound on \\(\\gamma(\\hat r_t)\\)\nLower Bound on \\(\\lambda_{\\gamma(\\hat r_t)}\\)\n\n\n\n\nPareto (\\(\\alpha &lt; 1/2\\))\n\\(\\eta^{-\\alpha}\\)\n\\(\\frac{1}{\\mathbf{t}} \\lor \\left( \\frac{\\zeta^2}{\\alpha^2\\mathbf{t}}\\right)^{\\frac{1}{1-2\\alpha}}\\)\n\\(\\mathbf{t}^\\alpha \\land \\left(\\frac{\\alpha^2\\mathbf{t}}{\\zeta^2}\\right)^{\\frac{\\alpha}{1-2\\alpha}}\\)\n\n\nPareto (\\(\\alpha \\geq 1/2\\))\n\\(\\eta^{-\\alpha}\\)\n\\(\\frac{1}{\\mathbf{t}}\\lor \\mathbf{1}\\{\\mathbf{t} \\geq \\zeta^{1/\\alpha}\\}\\)\n\\(\\mathbf{t}^\\alpha \\mathbf{1}\\{\\mathbf{t} \\geq \\zeta^{1/\\alpha}\\}\\)"
+    "section": "Consequences — Unbounded mathcal D (Pareto)",
+    "text": "Consequences — Unbounded mathcal D (Pareto)\nNotation: \\(\\zeta\\) = noise level, \\(\\mathbf{t}=t \\cdot (polylog)\\)\n\n\n\n\n\n\n\n\n\n\nType of \\(\\mathcal{D}\\)\nQuantile \\(\\lambda_{\\eta}\\)\nUpper Bound on \\(\\gamma(\\hat r_t)\\)\nLower Bound on \\(\\lambda_{\\gamma(\\hat r_t)}\\)\n\n\n\n\nPareto (\\(\\alpha &lt; 1/2\\))\n\\(\\eta^{-\\alpha}\\)\n\\(\\frac{1}{\\mathbf{t}} \\lor \\left( \\frac{\\zeta^2}{\\alpha^2\\mathbf{t}}\\right)^{\\frac{1}{1-2\\alpha}}\\)\n\\(\\mathbf{t}^\\alpha \\land \\left(\\frac{\\alpha^2\\mathbf{t}}{\\zeta^2}\\right)^{\\frac{\\alpha}{1-2\\alpha}}\\)\n\n\nPareto (\\(\\alpha \\geq 1/2\\))\n\\(\\eta^{-\\alpha}\\)\n\\(\\frac{1}{\\mathbf{t}}\\lor \\mathbf{1}\\{\\mathbf{t} \\geq \\zeta^{1/\\alpha}\\}\\)\n\\(\\mathbf{t}^\\alpha \\mathbf{1}\\{\\mathbf{t} \\geq \\zeta^{1/\\alpha}\\}\\)"
   },
   {
     "objectID": "research/presentations/bandits_many_arms/presentation.html#literature",
@@ -6093,29 +6093,29 @@
     "objectID": "teaching/glm/slides/Introduction_glm.draft.html#modelling-px",
     "href": "teaching/glm/slides/Introduction_glm.draft.html#modelling-px",
     "title": "Introduction to the Generalized Linear Model",
-    "section": "Modelling \\(p(x)\\)",
-    "text": "Modelling \\(p(x)\\)\n\nSo how do we model p(x)?\nRemember, E(Y|X = x) equals P(Y = 1|X = x) equals p(x), and this must lie in the interval 0 to 1.\nThe naive approach would be to set p(x) equals x-transpose-beta, just like in linear regression. But this doesn’t work! Nothing guarantees that x-transpose-beta stays between 0 and 1.\nInstead, we propose a model of the form: p(x) equals f of x-transpose-beta.\nHere, f is a function that maps from the real line to the interval 0 to 1. Think of it as a transformation that takes any real number—which could be x-transpose-beta—and squashes it into a probability.\nThis gives us a coherent model. The linear combination x-transpose-beta can be any real number, but f transforms it to stay between 0 and 1. And we still only need to estimate beta—the same number of parameters as linear regression.\nThe question is: what function f should we use? We’ll explore specific choices like the logistic function next.\n\n\n\n\\[E(Y|X = x) = P(Y = 1|X = x) = p(x) \\in [0, 1]\\]\n\n\n\nWhat NOT to do: \\(p(x) = x^T\\beta\\) (for some \\(\\beta \\in \\mathbb{R}^p\\) to be estimated)\n\n\nProposed approach: We can propose a model of the type:\n\n\\[p(x) = f(x^T\\beta)\\]\n\nwhere \\(f\\) is a function from \\(\\mathbb{R}\\) to \\([0, 1]\\)\n\n\nBenefits: Coherent model that depends only on \\(\\beta\\)"
+    "section": "Modelling p(x)",
+    "text": "Modelling p(x)\n\nSo how do we model p(x)?\nRemember, E(Y|X = x) equals P(Y = 1|X = x) equals p(x), and this must lie in the interval 0 to 1.\nThe naive approach would be to set p(x) equals x-transpose-beta, just like in linear regression. But this doesn’t work! Nothing guarantees that x-transpose-beta stays between 0 and 1.\nInstead, we propose a model of the form: p(x) equals f of x-transpose-beta.\nHere, f is a function that maps from the real line to the interval 0 to 1. Think of it as a transformation that takes any real number—which could be x-transpose-beta—and squashes it into a probability.\nThis gives us a coherent model. The linear combination x-transpose-beta can be any real number, but f transforms it to stay between 0 and 1. And we still only need to estimate beta—the same number of parameters as linear regression.\nThe question is: what function f should we use? We’ll explore specific choices like the logistic function next.\n\n\n\n\\[E(Y|X = x) = P(Y = 1|X = x) = p(x) \\in [0, 1]\\]\n\n\n\nWhat NOT to do: \\(p(x) = x^T\\beta\\) (for some \\(\\beta \\in \\mathbb{R}^p\\) to be estimated)\n\n\nProposed approach: We can propose a model of the type:\n\n\\[p(x) = f(x^T\\beta)\\]\n\nwhere \\(f\\) is a function from \\(\\mathbb{R}\\) to \\([0, 1]\\)\n\n\nBenefits: Coherent model that depends only on \\(\\beta\\)"
   },
   {
     "objectID": "teaching/glm/slides/Introduction_glm.draft.html#case-2-categorical-y",
     "href": "teaching/glm/slides/Introduction_glm.draft.html#case-2-categorical-y",
     "title": "Introduction to the Generalized Linear Model",
-    "section": "Case 2: Categorical \\(Y\\)",
-    "text": "Case 2: Categorical \\(Y\\)\n\nNow let’s move to the second case: categorical responses with more than two categories.\nIf Y represents membership in k different classes—A1 through Ak—its distribution is determined by k probabilities: p_j(x) equals the probability that Y is in class Aj given X equals x, for j equals 1 through k.\nFor instance, if Y is transportation choice—car, bus, or bike—we have three probabilities that sum to one.\nThe key constraint is that these probabilities must sum to 1. And notice: if k equals 2, we have only two categories, which reduces to the binary case.\n\n\nIf \\(Y\\) represents membership in \\(k\\) different classes \\(A_1, \\ldots, A_k\\), its distribution is determined by the probabilities:\n\n\\[p_j(x) = P(Y \\in A_j|X = x), \\quad \\text{for } j = 1, \\ldots, k\\]\n\n\n\nConstraint: \\(\\sum_{j=1}^{k} p_j(x) = 1\\) (If \\(k = 2\\), this reduces to the previous case)"
+    "section": "Case 2: Categorical Y",
+    "text": "Case 2: Categorical Y\n\nNow let’s move to the second case: categorical responses with more than two categories.\nIf Y represents membership in k different classes—A1 through Ak—its distribution is determined by k probabilities: p_j(x) equals the probability that Y is in class Aj given X equals x, for j equals 1 through k.\nFor instance, if Y is transportation choice—car, bus, or bike—we have three probabilities that sum to one.\nThe key constraint is that these probabilities must sum to 1. And notice: if k equals 2, we have only two categories, which reduces to the binary case.\n\n\nIf \\(Y\\) represents membership in \\(k\\) different classes \\(A_1, \\ldots, A_k\\), its distribution is determined by the probabilities:\n\n\\[p_j(x) = P(Y \\in A_j|X = x), \\quad \\text{for } j = 1, \\ldots, k\\]\n\n\n\nConstraint: \\(\\sum_{j=1}^{k} p_j(x) = 1\\) (If \\(k = 2\\), this reduces to the previous case)"
   },
   {
     "objectID": "teaching/glm/slides/Introduction_glm.draft.html#case-2-categorical-y-1",
     "href": "teaching/glm/slides/Introduction_glm.draft.html#case-2-categorical-y-1",
     "title": "Introduction to the Generalized Linear Model",
-    "section": "Case 2: Categorical \\(Y\\)",
-    "text": "Case 2: Categorical \\(Y\\)\n\nWe can represent Y as a vector of indicators: Y equals (indicator of A1, through indicator of Ak). This follows a multinomial distribution.\nThe conditional expectation E(Y|X = x) is then a vector with components p_1(x) through p_k(x)—each representing the probability of being in that category.\n\n\n\\(Y = (\\mathbf{1}_{A_1}, \\ldots, \\mathbf{1}_{A_k})\\) follows a multinomial distribution and:\n\n\\[\\E(Y|X = x) = \\begin{pmatrix} p_1(x) \\\\ \\vdots \\\\ p_k(x) \\end{pmatrix}\\]"
+    "section": "Case 2: Categorical Y",
+    "text": "Case 2: Categorical Y\n\nWe can represent Y as a vector of indicators: Y equals (indicator of A1, through indicator of Ak). This follows a multinomial distribution.\nThe conditional expectation E(Y|X = x) is then a vector with components p_1(x) through p_k(x)—each representing the probability of being in that category.\n\n\n\\(Y = (\\mathbf{1}_{A_1}, \\ldots, \\mathbf{1}_{A_k})\\) follows a multinomial distribution and:\n\n\\[\\E(Y|X = x) = \\begin{pmatrix} p_1(x) \\\\ \\vdots \\\\ p_k(x) \\end{pmatrix}\\]"
   },
   {
     "objectID": "teaching/glm/slides/Introduction_glm.draft.html#case-2-model-for-categorical-y",
     "href": "teaching/glm/slides/Introduction_glm.draft.html#case-2-model-for-categorical-y",
     "title": "Introduction to the Generalized Linear Model",
-    "section": "Case 2: Model for Categorical \\(Y\\)",
-    "text": "Case 2: Model for Categorical \\(Y\\)\n\nHow do we model this?\nHere’s a key simplification: to model E(Y|X = x), we only need to model k minus 1 probabilities—p_1(x) through p_(k-1)(x)—because the last probability p_k(x) is just 1 minus the sum of all the others.\nJust like in the binary case, we can propose: p_j(x) equals f of x-transpose-beta_j, for j equals 1 through k minus 1.\nWhat is the number of parameter in this model ? \\((k-1)p\\)\nThis is more complex than the binary case, but the principle is the same: use a transformation function to keep probabilities between 0 and 1.\n\n\nTo model \\(\\E(Y|X = x)\\), it suffices to model \\(p_1(x), \\ldots, p_{k-1}(x)\\) since \\(p_k(x) = 1 - \\sum_{j=1}^{k-1} p_j(x)\\)\n\n\nProposed model: As in the binary case, we can propose:\n\n\\[p_j(x) = f(x^T\\beta_j), \\quad j = 1, \\ldots, k-1\\]\n\nwhere \\(f: \\mathbb{R} \\to [0,1]\\)\n\n\nParameters: There will be \\(k-1\\) unknown parameters to estimate, each in \\(\\mathbb{R}^p\\)"
+    "section": "Case 2: Model for Categorical Y",
+    "text": "Case 2: Model for Categorical Y\n\nHow do we model this?\nHere’s a key simplification: to model E(Y|X = x), we only need to model k minus 1 probabilities—p_1(x) through p_(k-1)(x)—because the last probability p_k(x) is just 1 minus the sum of all the others.\nJust like in the binary case, we can propose: p_j(x) equals f of x-transpose-beta_j, for j equals 1 through k minus 1.\nWhat is the number of parameter in this model ? \\((k-1)p\\)\nThis is more complex than the binary case, but the principle is the same: use a transformation function to keep probabilities between 0 and 1.\n\n\nTo model \\(\\E(Y|X = x)\\), it suffices to model \\(p_1(x), \\ldots, p_{k-1}(x)\\) since \\(p_k(x) = 1 - \\sum_{j=1}^{k-1} p_j(x)\\)\n\n\nProposed model: As in the binary case, we can propose:\n\n\\[p_j(x) = f(x^T\\beta_j), \\quad j = 1, \\ldots, k-1\\]\n\nwhere \\(f: \\mathbb{R} \\to [0,1]\\)\n\n\nParameters: There will be \\(k-1\\) unknown parameters to estimate, each in \\(\\mathbb{R}^p\\)"
   },
   {
     "objectID": "teaching/glm/slides/Introduction_glm.draft.html#case-3-count-y---non-negative-integer-values",
@@ -6233,8 +6233,8 @@
     "objectID": "teaching/glm/slides/categorical_data.html#odd-ratio-of-yk",
     "href": "teaching/glm/slides/categorical_data.html#odd-ratio-of-yk",
     "title": "Models for Categorical Data",
-    "section": "Odd Ratio of \\(Y=k\\)",
-    "text": "Odd Ratio of \\(Y=k\\)\n\n\\(\\beta^{(k)} \\in \\mathbb R^p\\) depends on the reference category.\n\n\nWe call “odds” of event \\(Y = k\\), the ratio \\(p_\\beta^{(k)}(x)/p_\\beta^{(0)}(x)\\).\nThe OR of \\(Y = k\\) for two characteristics \\(x_1\\) and \\(x_2\\) is therefore\n\n\\[OR^{(k)}(x_1, x_2) = \\frac{p_\\beta^{(k)}(x_1)/p_\\beta^{(0)}(x_1)}{p_\\beta^{(k)}(x_2)/p_\\beta^{(0)}(x_2)} = e^{(x_1 - x_2)^T \\beta^{(k)}}\\]"
+    "section": "Odd Ratio of Y=k",
+    "text": "Odd Ratio of Y=k\n\n\\(\\beta^{(k)} \\in \\mathbb R^p\\) depends on the reference category.\n\n\nWe call “odds” of event \\(Y = k\\), the ratio \\(p_\\beta^{(k)}(x)/p_\\beta^{(0)}(x)\\).\nThe OR of \\(Y = k\\) for two characteristics \\(x_1\\) and \\(x_2\\) is therefore\n\n\\[OR^{(k)}(x_1, x_2) = \\frac{p_\\beta^{(k)}(x_1)/p_\\beta^{(0)}(x_1)}{p_\\beta^{(k)}(x_2)/p_\\beta^{(0)}(x_2)} = e^{(x_1 - x_2)^T \\beta^{(k)}}\\]"
   },
   {
     "objectID": "teaching/glm/slides/categorical_data.html#interpretation-of-odds-ratio",
@@ -6709,8 +6709,8 @@
     "objectID": "teaching/glm/slides/logistic_model.draft.html#odds-given-xx",
     "href": "teaching/glm/slides/logistic_model.draft.html#odds-given-xx",
     "title": "The Logistic Model",
-    "section": "Odds given \\(X=x\\)",
-    "text": "Odds given \\(X=x\\)\n\n​\nJust like before, if we consider the probability of an event given some condition—say, the odds of Y=1Y=1 given X=xX=x—we use p(x)p(x) to denote the probability. The odds in this case are odds(x)=p(x)1−p(x)odds(x)=1−p(x)p(x), where p(x)=P(Y=1∣X=x)p(x)=P(Y=1∣X=x) If \\(p\\) is the probability of an event \\(A\\), then its odds are:\n\n\nSimilarly, the odds of obtaining \\(Y = 1\\) given \\(X = x\\) is:\n\n\\[\\text{odds}(x) = \\frac{p(x)}{1 - p(x)}\\]\n\n\n\nwhere \\(p(x) = P(Y = 1|X = x)\\)."
+    "section": "Odds given X=x",
+    "text": "Odds given X=x\n\n​\nJust like before, if we consider the probability of an event given some condition—say, the odds of Y=1Y=1 given X=xX=x—we use p(x)p(x) to denote the probability. The odds in this case are odds(x)=p(x)1−p(x)odds(x)=1−p(x)p(x), where p(x)=P(Y=1∣X=x)p(x)=P(Y=1∣X=x) If \\(p\\) is the probability of an event \\(A\\), then its odds are:\n\n\nSimilarly, the odds of obtaining \\(Y = 1\\) given \\(X = x\\) is:\n\n\\[\\text{odds}(x) = \\frac{p(x)}{1 - p(x)}\\]\n\n\n\nwhere \\(p(x) = P(Y = 1|X = x)\\)."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.draft.html#odds-ratio",
@@ -7262,8 +7262,8 @@
     "objectID": "teaching/glm/slides/logistic_model.draft.html#choice-of-threshold-s",
     "href": "teaching/glm/slides/logistic_model.draft.html#choice-of-threshold-s",
     "title": "The Logistic Model",
-    "section": "Choice of Threshold \\(s\\)",
-    "text": "Choice of Threshold \\(s\\)\n\nFor each threshold \\(s\\), from a test sample:\n\nwe can form the confusion matrix\ncalculate scores (sensitivity, \\(F\\)-score, etc.)\n\n\n\nWe finally choose the optimal threshold \\(s\\), according to the chosen score."
+    "section": "Choice of Threshold s",
+    "text": "Choice of Threshold s\n\nFor each threshold \\(s\\), from a test sample:\n\nwe can form the confusion matrix\ncalculate scores (sensitivity, \\(F\\)-score, etc.)\n\n\n\nWe finally choose the optimal threshold \\(s\\), according to the chosen score."
   },
   {
     "objectID": "teaching/glm/slides/logistic_model.draft.html#choosing-the-score",
@@ -8172,8 +8172,8 @@
     "objectID": "teaching/hypothesis_testing/slides/concentration_minimax_fr.html#comportement-du-seuil-en-fonction-de-m",
     "href": "teaching/hypothesis_testing/slides/concentration_minimax_fr.html#comportement-du-seuil-en-fonction-de-m",
     "title": "Tests multiples et vitesses de détection",
-    "section": "Comportement du seuil en fonction de \\(m\\)",
-    "text": "Comportement du seuil en fonction de \\(m\\)\n\nPour \\(\\sigma = 1\\), \\(n = 100\\), \\(\\alpha = 5\\%\\) :\n\n\n\n\\(m\\)\n\\(\\alpha/(2m)\\)\n\\(z_{1-\\alpha/(2m)}\\)\nSeuil \\(t_m\\)\n\n\n\n\n\\(1\\)\n\\(0{,}025\\)\n\\(1{,}96\\)\n\\(0{,}196\\)\n\n\n\\(10\\)\n\\(0{,}0025\\)\n\\(2{,}81\\)\n\\(0{,}281\\)\n\n\n\\(100\\)\n\\(2{,}5 \\cdot 10^{-4}\\)\n\\(3{,}48\\)\n\\(0{,}348\\)\n\n\n\\(1\\,000\\)\n\\(2{,}5 \\cdot 10^{-5}\\)\n\\(4{,}06\\)\n\\(0{,}406\\)\n\n\n\\(10^6\\)\n\\(2{,}5 \\cdot 10^{-8}\\)\n\\(5{,}45\\)\n\\(0{,}545\\)"
+    "section": "Comportement du seuil en fonction de m",
+    "text": "Comportement du seuil en fonction de m\n\nPour \\(\\sigma = 1\\), \\(n = 100\\), \\(\\alpha = 5\\%\\) :\n\n\n\n\\(m\\)\n\\(\\alpha/(2m)\\)\n\\(z_{1-\\alpha/(2m)}\\)\nSeuil \\(t_m\\)\n\n\n\n\n\\(1\\)\n\\(0{,}025\\)\n\\(1{,}96\\)\n\\(0{,}196\\)\n\n\n\\(10\\)\n\\(0{,}0025\\)\n\\(2{,}81\\)\n\\(0{,}281\\)\n\n\n\\(100\\)\n\\(2{,}5 \\cdot 10^{-4}\\)\n\\(3{,}48\\)\n\\(0{,}348\\)\n\n\n\\(1\\,000\\)\n\\(2{,}5 \\cdot 10^{-5}\\)\n\\(4{,}06\\)\n\\(0{,}406\\)\n\n\n\\(10^6\\)\n\\(2{,}5 \\cdot 10^{-8}\\)\n\\(5{,}45\\)\n\\(0{,}545\\)"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/concentration_minimax_fr.html#pourquoi-ce-comportement-logarithmique",
@@ -8263,8 +8263,8 @@
     "objectID": "teaching/hypothesis_testing/slides/concentration_minimax_fr.html#traduction-pour-n-observations",
     "href": "teaching/hypothesis_testing/slides/concentration_minimax_fr.html#traduction-pour-n-observations",
     "title": "Tests multiples et vitesses de détection",
-    "section": "Traduction pour \\(n\\) observations",
-    "text": "Traduction pour \\(n\\) observations\n\nEn lisant \\(\\rho\\) comme \\(\\sqrt n\\,\\mu/\\sigma\\) (passage d’une seule gaussienne à la moyenne de \\(n\\) observations) :\n\n\n\n\n\nNote\n\n\nLe test de la moyenne peut détecter un signal \\(\\mu \\neq 0\\) dès que\n\\[|\\mu| \\gtrsim \\dfrac{\\sigma}{\\sqrt n}\\]\n\n\n\n\n\nEst-ce optimal ? Peut-on faire mieux avec un autre test ?"
+    "section": "Traduction pour n observations",
+    "text": "Traduction pour n observations\n\nEn lisant \\(\\rho\\) comme \\(\\sqrt n\\,\\mu/\\sigma\\) (passage d’une seule gaussienne à la moyenne de \\(n\\) observations) :\n\n\n\n\n\nNote\n\n\nLe test de la moyenne peut détecter un signal \\(\\mu \\neq 0\\) dès que\n\\[|\\mu| \\gtrsim \\dfrac{\\sigma}{\\sqrt n}\\]\n\n\n\n\n\nEst-ce optimal ? Peut-on faire mieux avec un autre test ?"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/concentration_minimax_fr.html#borne-inférieure",
@@ -8347,8 +8347,8 @@
     "objectID": "teaching/hypothesis_testing/slides/dependency_fr.html#validation-par-monte-carlo-n4",
     "href": "teaching/hypothesis_testing/slides/dependency_fr.html#validation-par-monte-carlo-n4",
     "title": "Corrélation, Homogénéité et Dépendance",
-    "section": "Validation par Monte Carlo (\\(n=4\\))",
-    "text": "Validation par Monte Carlo (\\(n=4\\))"
+    "section": "Validation par Monte Carlo (n=4)",
+    "text": "Validation par Monte Carlo (n=4)"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/dependency_fr.html#exemple",
@@ -8592,8 +8592,8 @@
     "objectID": "teaching/hypothesis_testing/slides/dependency_fr.html#idée-de-preuve-1-rightarrow-2",
     "href": "teaching/hypothesis_testing/slides/dependency_fr.html#idée-de-preuve-1-rightarrow-2",
     "title": "Corrélation, Homogénéité et Dépendance",
-    "section": "Idée de preuve (\\(1 \\Rightarrow 2\\))",
-    "text": "Idée de preuve (\\(1 \\Rightarrow 2\\))\n\nIl suffit de montrer que \\(\\mathrm{sgn}(X) \\perp |X|\\) avec \\(\\mathrm{sgn}(X)\\) uniforme sur \\(\\{-1, +1\\}\\). Pour cela, on vérifie que pour tout \\(t &gt; 0\\) :\n\n\\(\\mathbb P\\bigl(\\mathrm{sgn}(X) = +1,\\; |X| \\geq t\\bigr) = \\mathbb P\\bigl(\\mathrm{sgn}(X) = +1\\bigr)\\,\\cdot\\,\\mathbb P\\bigl(|X| \\geq t\\bigr).\\)\n\n\n\nMembre de gauche. L’événement \\(\\{\\mathrm{sgn}(X) = +1\\} \\cap \\{|X| \\geq t\\}\\) est exactement \\(\\{X \\geq t\\}\\), donc \\[\n\\mathbb P\\bigl(\\mathrm{sgn}(X) = +1,\\; |X| \\geq t\\bigr) = \\mathbb P(X \\geq t).\n\\]"
+    "section": "Idée de preuve (1 Rightarrow 2)",
+    "text": "Idée de preuve (1 Rightarrow 2)\n\nIl suffit de montrer que \\(\\mathrm{sgn}(X) \\perp |X|\\) avec \\(\\mathrm{sgn}(X)\\) uniforme sur \\(\\{-1, +1\\}\\). Pour cela, on vérifie que pour tout \\(t &gt; 0\\) :\n\n\\(\\mathbb P\\bigl(\\mathrm{sgn}(X) = +1,\\; |X| \\geq t\\bigr) = \\mathbb P\\bigl(\\mathrm{sgn}(X) = +1\\bigr)\\,\\cdot\\,\\mathbb P\\bigl(|X| \\geq t\\bigr).\\)\n\n\n\nMembre de gauche. L’événement \\(\\{\\mathrm{sgn}(X) = +1\\} \\cap \\{|X| \\geq t\\}\\) est exactement \\(\\{X \\geq t\\}\\), donc \\[\n\\mathbb P\\bigl(\\mathrm{sgn}(X) = +1,\\; |X| \\geq t\\bigr) = \\mathbb P(X \\geq t).\n\\]"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/dependency_fr.html#section-3",
@@ -8614,7 +8614,7 @@
     "href": "teaching/hypothesis_testing/slides/dependency_fr.html#problème-de-dépendance-pour-données-appariées",
     "title": "Corrélation, Homogénéité et Dépendance",
     "section": "Problème de Dépendance pour Données Appariées",
-    "text": "Problème de Dépendance pour Données Appariées\n\nOn observe des paires i.i.d. \\((X_1, Y_1), \\dots, (X_n, Y_n)\\) de densité jointe inconnue \\(p_{XY}(x,y)\\).\n\n\n\n\\(H_0\\) : \\(\\mathrm{médiane}(X_i - Y_i) = 0\\) pour tout \\(i\\)\n\\(H_1\\) : \\(\\mathrm{médiane}(X_i - Y_i) \\neq 0\\) pour un certain \\(i\\)\n\n\n\n[Wooclap]\n\n\n\n\n\nQuand \\(H_0\\) est-elle vérifiée ?\n\n\n\nSi \\(X_i - Y_i\\) est symétrique pour tout \\(i\\), on est sous \\(H_0\\).\nSi \\(X_i \\perp Y_i\\) pour tout \\(i\\), on est sous \\(H_0\\)."
+    "text": "Problème de Dépendance pour Données Appariées\n\nOn observe des paires i.i.d. \\((X_1, Y_1), \\dots, (X_n, Y_n)\\) de densité jointe inconnue \\(p_{XY}(x,y)\\).\n\n\n\n\\(H_0\\) : \\(\\mathrm{médiane}(X_i - Y_i) = 0\\) pour tout \\(i\\)\n\\(H_1\\) : \\(\\mathrm{médiane}(X_i - Y_i) \\neq 0\\) pour un certain \\(i\\)\n\n\n\n[Wooclap]\n\n\n\n\n\nQuand H₀ est-elle vérifiée ?\n\n\n\nSi \\(X_i - Y_i\\) est symétrique pour tout \\(i\\), on est sous \\(H_0\\).\nSi \\(X_i \\perp Y_i\\) pour tout \\(i\\), on est sous \\(H_0\\)."
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/dependency_fr.html#plus-formellement",
@@ -8768,7 +8768,7 @@
     "href": "teaching/hypothesis_testing/slides/gaussian_populations_fr.html#test-t-de-student",
     "title": "Populations Gaussiennes",
     "section": "Test T de Student",
-    "text": "Test T de Student\n\n\n\\[\nH_0: \\{\\mu_0,\\sigma &gt; 0\\} \\text{ ou } H_1: \\{\\mu \\neq \\mu_0,\\sigma &gt; 0\\} \\;.\n\\]\n\n\n\nStatistique du test T (de Student) : \\[\\psi(X) = \\frac{\\sqrt{n}(\\overline X-\\mu_0)}{\\hat \\sigma(X)}\\]\n\n\n\n\n\nProposition : loi de T sous \\(H_0\\)\n\n\n\\(\\psi(X)\\) est une statistique de test pivotale (souvent notée \\(T(X)\\)). Sous \\(H_0\\), \\(\\psi(X)\\sim \\mathcal T(n-1)\\)"
+    "text": "Test T de Student\n\n\n\\[\nH_0: \\{\\mu_0,\\sigma &gt; 0\\} \\text{ ou } H_1: \\{\\mu \\neq \\mu_0,\\sigma &gt; 0\\} \\;.\n\\]\n\n\n\nStatistique du test T (de Student) : \\[\\psi(X) = \\frac{\\sqrt{n}(\\overline X-\\mu_0)}{\\hat \\sigma(X)}\\]\n\n\n\n\n\nProposition : loi de T sous H₀\n\n\n\\(\\psi(X)\\) est une statistique de test pivotale (souvent notée \\(T(X)\\)). Sous \\(H_0\\), \\(\\psi(X)\\sim \\mathcal T(n-1)\\)"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/gaussian_populations_fr.html#preuve",
@@ -9369,8 +9369,8 @@
     "objectID": "teaching/hypothesis_testing/slides/testing_models.html#dice-biased-toward-6",
     "href": "teaching/hypothesis_testing/slides/testing_models.html#dice-biased-toward-6",
     "title": "Hypothesis Testing",
-    "section": "Dice Biased Toward \\(6\\)",
-    "text": "Dice Biased Toward \\(6\\)\n\nObjective: test if Bob is cheating with a biased dice\nExperiment: Bob rolls the dice \\(10\\) times\nHypotheses:\n\n\\(H_0\\): the probability of getting \\(6\\) is \\(1/6\\)\n\\(H_1\\): the probability of getting \\(6\\) is larger than \\(1/6\\)\n\nDecision rule: reject \\(H_0\\) if p-value \\(&lt; 0.05\\)\nData: the dice falls \\(10\\) times on \\(6\\)\nDecision: p-value \\(= (1/6)^{10} \\approx 10^{-8} &lt; 0.05\\) → reject \\(H_0\\)\nConclusion: strong evidence Bob is cheating!"
+    "section": "Dice Biased Toward 6",
+    "text": "Dice Biased Toward 6\n\nObjective: test if Bob is cheating with a biased dice\nExperiment: Bob rolls the dice \\(10\\) times\nHypotheses:\n\n\\(H_0\\): the probability of getting \\(6\\) is \\(1/6\\)\n\\(H_1\\): the probability of getting \\(6\\) is larger than \\(1/6\\)\n\nDecision rule: reject \\(H_0\\) if p-value \\(&lt; 0.05\\)\nData: the dice falls \\(10\\) times on \\(6\\)\nDecision: p-value \\(= (1/6)^{10} \\approx 10^{-8} &lt; 0.05\\) → reject \\(H_0\\)\nConclusion: strong evidence Bob is cheating!"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/testing_models.html#fairness-of-dice",
@@ -9614,8 +9614,8 @@
     "objectID": "teaching/hypothesis_testing/slides/testing_models.html#example-gaussians-with-n-observations",
     "href": "teaching/hypothesis_testing/slides/testing_models.html#example-gaussians-with-n-observations",
     "title": "Hypothesis Testing",
-    "section": "Example: Gaussians with \\(n\\) Observations",
-    "text": "Example: Gaussians with \\(n\\) Observations\nLet \\(P_{\\theta} = \\mathcal N(\\theta,1)\\). Observe \\(n\\) iid data \\(X = (X_1, \\dots, X_n)\\).\n\n\\(H_0: X \\sim P^{\\otimes n}_{\\theta_0}\\) or \\(H_1: X \\sim P^{\\otimes n}_{\\theta_1}\\)\nNote: \\(P^{\\otimes n}_{\\theta}= \\mathcal N((\\theta,\\dots, \\theta), I_n)\\)\n\n\n\nDensity of \\(P^{\\otimes n}_{\\theta}\\): \\[\\frac{d P^{\\otimes n}_{\\theta}}{dx} = \\frac{1}{\\sqrt{2\\pi}^n}\\exp\\left(-\\frac{\\|x\\|^2}{2} + n\\theta \\overline x - \\frac{n\\theta^2}{2}\\right)\\]"
+    "section": "Example: Gaussians with n Observations",
+    "text": "Example: Gaussians with n Observations\nLet \\(P_{\\theta} = \\mathcal N(\\theta,1)\\). Observe \\(n\\) iid data \\(X = (X_1, \\dots, X_n)\\).\n\n\\(H_0: X \\sim P^{\\otimes n}_{\\theta_0}\\) or \\(H_1: X \\sim P^{\\otimes n}_{\\theta_1}\\)\nNote: \\(P^{\\otimes n}_{\\theta}= \\mathcal N((\\theta,\\dots, \\theta), I_n)\\)\n\n\n\nDensity of \\(P^{\\otimes n}_{\\theta}\\): \\[\\frac{d P^{\\otimes n}_{\\theta}}{dx} = \\frac{1}{\\sqrt{2\\pi}^n}\\exp\\left(-\\frac{\\|x\\|^2}{2} + n\\theta \\overline x - \\frac{n\\theta^2}{2}\\right)\\]"
   },
   {
     "objectID": "teaching/hypothesis_testing/slides/testing_models.html#example-gaussians-continued",
@@ -10496,15 +10496,15 @@
     "objectID": "teaching/linear_model/slides/anova_ancova.html#testing-the-effect-of-a",
     "href": "teaching/linear_model/slides/anova_ancova.html#testing-the-effect-of-a",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
-    "section": "Testing the Effect of \\(A\\)",
-    "text": "Testing the Effect of \\(A\\)\n\nFor testing the main effect of \\(A\\), \\(H_0^{(A)}: \\alpha_i = 0\\) for all \\(i\\):\nWe use \\(F = \\frac{n-p}{q} \\frac{(SSR_c - SSR)}{SSR}\\)\nwhere \\(SSR_c\\) corresponds to the sum of squares of the residuals in the space \\(\\alpha_i=0\\) for all \\(i\\).\n\n\n\n\\[F^{(A)} = \\frac{S_A^2/(I-1)}{S_R^2/(n-IJ)}\\]\n\nWhen \\(\\varepsilon \\sim \\mathcal{N}(0, \\sigma^2 I_n)\\), \\(F^{(A)} \\sim \\mathcal{F}(I-1, n-IJ)\\)"
+    "section": "Testing the Effect of A",
+    "text": "Testing the Effect of A\n\nFor testing the main effect of \\(A\\), \\(H_0^{(A)}: \\alpha_i = 0\\) for all \\(i\\):\nWe use \\(F = \\frac{n-p}{q} \\frac{(SSR_c - SSR)}{SSR}\\)\nwhere \\(SSR_c\\) corresponds to the sum of squares of the residuals in the space \\(\\alpha_i=0\\) for all \\(i\\).\n\n\n\n\\[F^{(A)} = \\frac{S_A^2/(I-1)}{S_R^2/(n-IJ)}\\]\n\nWhen \\(\\varepsilon \\sim \\mathcal{N}(0, \\sigma^2 I_n)\\), \\(F^{(A)} \\sim \\mathcal{F}(I-1, n-IJ)\\)"
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#testing-the-effect-of-b",
     "href": "teaching/linear_model/slides/anova_ancova.html#testing-the-effect-of-b",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
-    "section": "Testing the Effect of \\(B\\)",
-    "text": "Testing the Effect of \\(B\\)\n\nFor testing the main effect of \\(B\\), \\(H_0^{(B)}: \\beta_j = 0\\) for all \\(j\\):\nWe use \\(F = \\frac{n-p}{q} \\frac{(SSR_c - SSR)}{SSR}\\)\nwhere \\(SSR_c\\) corresponds to the sum of squares of the residuals in the space \\(\\beta_j=0\\) for all \\(j\\).\n\n\n\n\\[F^{(B)} = \\frac{S_B^2/(J-1)}{S_R^2/(n-IJ)}\\]\n\nWhen \\(\\varepsilon \\sim \\mathcal{N}(0, \\sigma^2 I_n)\\), \\(F^{(B)} \\sim \\mathcal{F}(J-1, n-IJ)\\)"
+    "section": "Testing the Effect of B",
+    "text": "Testing the Effect of B\n\nFor testing the main effect of \\(B\\), \\(H_0^{(B)}: \\beta_j = 0\\) for all \\(j\\):\nWe use \\(F = \\frac{n-p}{q} \\frac{(SSR_c - SSR)}{SSR}\\)\nwhere \\(SSR_c\\) corresponds to the sum of squares of the residuals in the space \\(\\beta_j=0\\) for all \\(j\\).\n\n\n\n\\[F^{(B)} = \\frac{S_B^2/(J-1)}{S_R^2/(n-IJ)}\\]\n\nWhen \\(\\varepsilon \\sim \\mathcal{N}(0, \\sigma^2 I_n)\\), \\(F^{(B)} \\sim \\mathcal{F}(J-1, n-IJ)\\)"
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#r-outputs",
@@ -10741,8 +10741,8 @@
     "objectID": "teaching/linear_model/slides/introduction.html#least-square-p1",
     "href": "teaching/linear_model/slides/introduction.html#least-square-p1",
     "title": "Introduction",
-    "section": "Least Square \\((p=1)\\)",
-    "text": "Least Square \\((p=1)\\)\n\nGiven observations \\((X_i, Y_i)\\), we consider \\(\\hat \\alpha\\), \\(\\hat \\mu\\) that minimize, over all \\((\\alpha, \\mu) \\in \\mathbb R^2\\):\n\n\\[\nL(\\alpha, \\mu) = \\sum_{i=1}^n (Y_i - \\alpha X_i - \\mu)^2\n\\]\n\n\n\nSolution: (check homogeneity!)\n\n\n\\[\\hat \\alpha = \\frac{\\hat \\cov(X,Y)}{\\hat \\var(X)}  \\quad \\text{and} \\quad \\hat \\mu = \\overline Y - \\hat \\alpha \\overline X\\]"
+    "section": "Least Square (p=1)",
+    "text": "Least Square (p=1)\n\nGiven observations \\((X_i, Y_i)\\), we consider \\(\\hat \\alpha\\), \\(\\hat \\mu\\) that minimize, over all \\((\\alpha, \\mu) \\in \\mathbb R^2\\):\n\n\\[\nL(\\alpha, \\mu) = \\sum_{i=1}^n (Y_i - \\alpha X_i - \\mu)^2\n\\]\n\n\n\nSolution: (check homogeneity!)\n\n\n\\[\\hat \\alpha = \\frac{\\hat \\cov(X,Y)}{\\hat \\var(X)}  \\quad \\text{and} \\quad \\hat \\mu = \\overline Y - \\hat \\alpha \\overline X\\]"
   },
   {
     "objectID": "teaching/linear_model/slides/introduction.html#contingency-table-and-notation",
@@ -10881,8 +10881,8 @@
     "objectID": "teaching/linear_model/slides/introduction.html#from-random-to-deterministic-x",
     "href": "teaching/linear_model/slides/introduction.html#from-random-to-deterministic-x",
     "title": "Introduction",
-    "section": "From random to deterministic \\(X\\)",
-    "text": "From random to deterministic \\(X\\)\n\nIf \\(X^{(1)}, \\ldots, X^{(p)}\\) are random,\n\n\nThen for all deterministic \\(x^{(1)}, \\dots, x^{(p)}\\)\n\n\nConditionally to \\((X^{(1)}=x^{(1)}, \\dots, X^{(p)} =x^{(p)})\\), we have the general model\n\\[Y = F(x^{(1)},\\dots, x^{(p)}, \\varepsilon)\\]\n\nBecause \\(\\varepsilon\\) is independent of \\(X\\)\nReplace \\(X^{(k)}\\) by their observations \\(x^{(k)}\\).\nThe only randomness is now in \\(\\varepsilon\\)!"
+    "section": "From random to deterministic X",
+    "text": "From random to deterministic X\n\nIf \\(X^{(1)}, \\ldots, X^{(p)}\\) are random,\n\n\nThen for all deterministic \\(x^{(1)}, \\dots, x^{(p)}\\)\n\n\nConditionally to \\((X^{(1)}=x^{(1)}, \\dots, X^{(p)} =x^{(p)})\\), we have the general model\n\\[Y = F(x^{(1)},\\dots, x^{(p)}, \\varepsilon)\\]\n\nBecause \\(\\varepsilon\\) is independent of \\(X\\)\nReplace \\(X^{(k)}\\) by their observations \\(x^{(k)}\\).\nThe only randomness is now in \\(\\varepsilon\\)!"
   },
   {
     "objectID": "teaching/linear_model/slides/introduction.html#next-class",
@@ -10993,8 +10993,8 @@
     "objectID": "teaching/linear_model/slides/selection.html#exhaustive-search",
     "href": "teaching/linear_model/slides/selection.html#exhaustive-search",
     "title": "Selection",
-    "section": "Exhaustive Search",
-    "text": "Exhaustive Search\n\nGiven \\(p_{\\max}\\) available explanatory variables:\n\nTempting approach: Test all possible sub-models\nSelection: Keep the one with lowest BIC (or other criterion)\nComputational cost: \\(2^{p_{\\max}}\\) models to test (that’s a lot!)\n\n\n\nIf \\(p_{\\max}\\) is not too large, this remains feasible.\nR function: regsubsets from leaps library"
+    "section": "Exhaustive search",
+    "text": "Exhaustive search\n\nGiven \\(p_{\\max}\\) available explanatory variables:\n\nTempting approach: Test all possible sub-models\nSelection: Keep the one with lowest BIC (or other criterion)\nComputational cost: \\(2^{p_{\\max}}\\) models to test (that’s a lot!)\n\n\n\nIf \\(p_{\\max}\\) is not too large, this remains feasible.\nR function: regsubsets from leaps library"
   },
   {
     "objectID": "teaching/linear_model/slides/selection.html#exhaustive-search-1",
@@ -11329,8 +11329,8 @@
     "objectID": "teaching/linear_model/slides/linear_model.html#notation-the-design-matrix-x",
     "href": "teaching/linear_model/slides/linear_model.html#notation-the-design-matrix-x",
     "title": "Definition of the Linear Model",
-    "section": "Notation: the design matrix \\(X\\)",
-    "text": "Notation: the design matrix \\(X\\)\n\nTo get a matrix form, we write \\(X\\) for the matrix \\((X_{ik}) \\in \\mathbb R^{n \\times p}\\)\n\n\nThat is, \\(X = (X^{(1)}, \\dots, X^{(p)})\\)\n\n\nAnd:\n\n\\[Y = \\begin{pmatrix}\nY_1 \\\\\n\\vdots \\\\\nY_n\n\\end{pmatrix} \\and X=\\begin{pmatrix}\nX_{1,1} &\\dots &X_{1,p} \\\\\n\\vdots & &\\vdots \\\\\nX_{n,1} &\\dots &X_{n,p}\n\\end{pmatrix}\\]"
+    "section": "Notation: the design matrix X",
+    "text": "Notation: the design matrix X\n\nTo get a matrix form, we write \\(X\\) for the matrix \\((X_{ik}) \\in \\mathbb R^{n \\times p}\\)\n\n\nThat is, \\(X = (X^{(1)}, \\dots, X^{(p)})\\)\n\n\nAnd:\n\n\\[Y = \\begin{pmatrix}\nY_1 \\\\\n\\vdots \\\\\nY_n\n\\end{pmatrix} \\and X=\\begin{pmatrix}\nX_{1,1} &\\dots &X_{1,p} \\\\\n\\vdots & &\\vdots \\\\\nX_{n,1} &\\dots &X_{n,p}\n\\end{pmatrix}\\]"
   },
   {
     "objectID": "teaching/linear_model/slides/linear_model.html#parameters-beta-and-noise-varepsilon",
@@ -11443,5 +11443,621 @@
     "title": "Inference",
     "section": "Projection: \\(Y=\\hat Y+\\hat\\varepsilon\\)",
     "text": "Projection: \\(Y=\\hat Y+\\hat\\varepsilon\\)\n\nLeast squares projects \\(Y\\) orthogonally onto the column space \\([X]\\): \\(\\hat Y=P_{[X]}Y\\), and the residual \\(\\hat\\varepsilon=Y-\\hat Y\\perp[X]\\). Hence Pythagoras \\(\\lVert Y\\rVert^2=\\lVert\\hat Y\\rVert^2+\\lVert\\hat\\varepsilon\\rVert^2\\). Drag to rotate; slide the residual.\n\n\n\n  \n  residual ‖ε̂‖  1.00   ↻ new Y\n  –"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#linearity-diagnostic-tools",
+    "href": "teaching/linear_model/slides/validation.html#linearity-diagnostic-tools",
+    "title": "Validation",
+    "section": "Linearity: diagnostic tools",
+    "text": "Linearity: diagnostic tools\nThe linearity assumption \\(\\mathbb{E}(Y) = X\\beta\\) is the fundamental hypothesis of linear regression.\nDiagnostic Tools:\n\nPre-modeling: Scatter plots \\((X^{(j)}, Y)\\) and empirical correlations for each predictor\nPost-modeling: Residual analysis - non-linearity manifests as patterns in \\(\\hat{\\varepsilon}\\)\nAdvanced: Partial residual plots (not covered here)"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#linearity-remedies",
+    "href": "teaching/linear_model/slides/validation.html#linearity-remedies",
+    "title": "Validation",
+    "section": "Linearity: remedies",
+    "text": "Linearity: remedies\nThe linearity assumption \\(\\mathbb{E}(Y) = X\\beta\\) is the fundamental hypothesis of linear regression.\nRemedial Strategies:\n\nTransformations: Apply transformations to \\(Y\\) and/or predictors \\(X^{(j)}\\) to achieve linearity\nAlternative models: If transformations fail, consider nonlinear regression models"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#full-rank-why-it-matters",
+    "href": "teaching/linear_model/slides/validation.html#full-rank-why-it-matters",
+    "title": "Validation",
+    "section": "Full rank: why it matters",
+    "text": "Full rank: why it matters\nThe condition \\(\\text{rank}(X) = p\\) ensures no predictor \\(X^{(j)}\\) is a linear combination of others.\n\nWhy it matters:\n\nIdentifiability: Without full rank, \\(\\beta\\) is not uniquely defined\nEstimation: \\((X^TX)\\) becomes non-invertible, making \\(\\hat{\\beta} = (X^TX)^{-1}X^TY\\) undefined\nInfinitely many solutions satisfy \\(X^TX\\hat{\\beta} = X^TY\\)"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#full-rank-in-practice",
+    "href": "teaching/linear_model/slides/validation.html#full-rank-in-practice",
+    "title": "Validation",
+    "section": "Full rank: in practice",
+    "text": "Full rank: in practice\nThe condition \\(\\text{rank}(X) = p\\) ensures no predictor \\(X^{(j)}\\) is a linear combination of others.\nIn practice:\n\nPerfect collinearity is rare, so \\(\\text{rank}(X) = p\\) usually holds\nNear-collinearity is the real concern - when predictors are “almost” linearly dependent"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#near-collinearity-consequences",
+    "href": "teaching/linear_model/slides/validation.html#near-collinearity-consequences",
+    "title": "Validation",
+    "section": "Near-collinearity: consequences",
+    "text": "Near-collinearity: consequences\nWhen a variable is highly correlated with others (correlation close to but not exactly \\(\\pm 1\\)):\n\nMathematical consequences:\n\n\\(X^TX\\) remains invertible, but its smallest eigenvalue approaches zero\n\\((X^TX)^{-1}\\) becomes numerically unstable"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#near-collinearity-instability",
+    "href": "teaching/linear_model/slides/validation.html#near-collinearity-instability",
+    "title": "Validation",
+    "section": "Near-collinearity: instability",
+    "text": "Near-collinearity: instability\n\nStatistical implications:\n\nInstability: Adding/removing a single observation can drastically change \\((X^TX)^{-1}\\)\nUnreliable estimates: \\(\\hat{\\beta} = (X^TX)^{-1}X^TY\\) becomes highly unstable\nInflated variance: \\(\\text{Var}(\\hat{\\beta}) = \\sigma^2(X^TX)^{-1}\\) becomes very large\n\n\n\nThis is undesirable from a statistical point of view"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#homoscedasticity-test-breuschpagan",
+    "href": "teaching/linear_model/slides/validation.html#homoscedasticity-test-breuschpagan",
+    "title": "Validation",
+    "section": "Homoscedasticity test (Breusch–Pagan)",
+    "text": "Homoscedasticity test (Breusch–Pagan)\n\nWe want to test whether \\(\\Var(\\varepsilon_i)=\\sigma^2, ~~\\forall i\\)\n\n\nPrinciple: Assume \\(\\varepsilon_i\\) has variance \\(\\sigma_i^2 = \\sigma^2 + z_i^T\\gamma\\) where:\n\n\\(z_i\\) is a \\(k\\)-vector of variables that might explain heteroscedasticity (known)\nDefault in R: \\(z_i = (X_i^{(1)}, \\ldots, X_i^{(p)})\\), so \\(k = p\\)\n\\(\\gamma\\) is an unknown \\(k\\)-dimensional parameter\n\n\n\n\\(H_0: \\gamma = 0\\) (homosced.) VS \\(H_1: \\gamma \\neq 0\\) (heterosced.)\n\n\nR function: bptest from lmtest library"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#non-correlation-of-errors",
+    "href": "teaching/linear_model/slides/validation.html#non-correlation-of-errors",
+    "title": "Validation",
+    "section": "Non-correlation of errors",
+    "text": "Non-correlation of errors\n\nPurpose: Test if \\(\\Var(\\varepsilon)\\) is diagonal (uncorrelated errors)\n\n\nCorrelation between \\(\\varepsilon_i\\) often occurs with temporal data (index \\(i\\) represents time)\n\n\nAuto-correlation Model of order \\(r\\):\n\n\\[\\varepsilon_i = \\rho_1 \\varepsilon_{i-1} + \\dots + \\rho_r \\varepsilon_{i-r} + \\eta_i\\] where \\(\\eta_i \\sim \\text{iid } N(0, \\sigma^2)\\)"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#normality-of-residuals",
+    "href": "teaching/linear_model/slides/validation.html#normality-of-residuals",
+    "title": "Validation",
+    "section": "Normality of residuals",
+    "text": "Normality of residuals\n\nPurpose: Examine normality of residuals \\(\\hat \\varepsilon\\)\nReminder on Normality Assumption\n\nNot essential when \\(n\\) is large\nAll tests remain asymptotically valid\nOnly prediction intervals truly require normality\n\n\n\nPerhaps the least important assumption, but we can still examine it since\nIf \\(\\varepsilon \\sim N(0, \\sigma^2 I_n)\\) then \\(\\hat{\\varepsilon} \\sim N(0, \\sigma^2 P_{[X]}^{\\perp})\\)"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#poorly-explained-standardized-residuals",
+    "href": "teaching/linear_model/slides/validation.html#poorly-explained-standardized-residuals",
+    "title": "Validation",
+    "section": "Poorly explained: standardized residuals",
+    "text": "Poorly explained: standardized residuals\n\nIndividual \\(i\\) is poorly explained if its residual \\(\\hat{\\varepsilon}_i\\) is “abnormally” large.\n\n\nHow to quantify “abnormally”?\nLet \\(h_{ij}\\) be elements of matrix \\(P_{[X]}\\) (hat matrix).\nFor a Gaussian model: \\(\\hat{\\varepsilon}_i \\sim N(0, (1-h_{ii})\\sigma^2)\\)\n\n\nStandardized Residuals\n\n\\[t_i = \\frac{\\hat{\\varepsilon}_i}{\\hat{\\sigma}\\sqrt{1-h_{ii}}}\\]"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#poorly-explained-the-test",
+    "href": "teaching/linear_model/slides/validation.html#poorly-explained-the-test",
+    "title": "Validation",
+    "section": "Poorly explained: the test",
+    "text": "Poorly explained: the test\n\n\n\\[h_{ij} = (P_{[X]})_{ij} \\and t_i = \\frac{\\hat{\\varepsilon}_i}{\\hat{\\sigma}\\sqrt{1-h_{ii}}}\\]\n\n\n\nWe expect \\(t_i \\sim St(n-p)\\) (not strictly true since \\(\\hat{\\varepsilon}_i \\not\\perp \\hat{\\sigma}^2\\))\n\n\n\nDefinition\n\n\nIndividual \\(i\\) is considered poorly explained by the model if: \\[|t_i| &gt; t_{n-p}(1-\\alpha/2)\\] for predetermined \\(\\alpha\\), typically \\(\\alpha = 0.05\\), giving \\(t_{n-p}(1-\\alpha/2) \\approx 2\\)."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#r2-always-rises-r2_a-does-not",
+    "href": "teaching/linear_model/slides/validation.html#r2-always-rises-r2_a-does-not",
+    "title": "Validation",
+    "section": "\\(R^2\\) always rises, \\(R^2_a\\) does not",
+    "text": "\\(R^2\\) always rises, \\(R^2_a\\) does not\n\nStart from one real predictor, then add pure-noise columns. \\(R^2\\) (blue) keeps rising toward 1 — that’s its flaw; the adjusted \\(R^2_a\\) (green) peaks and then falls, penalising useless variables.\n\n\n\n  \n  junk predictors added k  6  ·  noise  0.80   ↻ resample\n   R² –    R²ₐ –  ·  p = 2+k = –"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#vif-explodes-near-collinearity",
+    "href": "teaching/linear_model/slides/validation.html#vif-explodes-near-collinearity",
+    "title": "Validation",
+    "section": "VIF explodes near collinearity",
+    "text": "VIF explodes near collinearity\n\nRegress \\(X^{(2)}\\) on \\(X^{(1)}\\) (left): its \\(R_2^2\\) rises with the correlation, and \\(\\mathrm{VIF}_2=\\dfrac{1}{1-R_2^2}\\) (right) blows up — inflating \\(\\mathrm{Var}(\\hat\\beta_2)\\) by the same factor.\n\n\n\n  \n  correlation r (X₁,X₂)  0.50   ↻ resample\n  R₂² = –  ·  VIF₂ = 1/(1−R₂²) = –  ·  –"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#residual-vs-fitted-read-the-pattern",
+    "href": "teaching/linear_model/slides/validation.html#residual-vs-fitted-read-the-pattern",
+    "title": "Validation",
+    "section": "Residual vs fitted: read the pattern",
+    "text": "Residual vs fitted: read the pattern\n\nLeft: data \\((x,Y)\\) with the linear fit. Right: the residuals vs fitted plot. When the model is right it’s a structureless cloud; a curve signals non-linearity, a funnel signals heteroscedasticity.\n\n\n\n  \n  \n    well specified\n    non-linear\n    heteroscedastic\n      noise  0.35   ↻ resample"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#qq-plot-of-the-residuals",
+    "href": "teaching/linear_model/slides/validation.html#qq-plot-of-the-residuals",
+    "title": "Validation",
+    "section": "Q–Q plot of the residuals",
+    "text": "Q–Q plot of the residuals\n\nSorted standardized residuals vs theoretical normal quantiles. On the line ⇒ normal; an S-shape ⇒ skew, steep tails ⇒ heavy tails. Pick the error distribution.\n\n\n\n  \n  \n    normal\n    right-skewed\n    heavy-tailed\n      N  60   ↻ resample"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#leverage-residual-influence",
+    "href": "teaching/linear_model/slides/validation.html#leverage-residual-influence",
+    "title": "Validation",
+    "section": "Leverage, residual, influence",
+    "text": "Leverage, residual, influence\n\nDrag the gold point. The OLS line (solid) swings; the dashed line is the fit without it. Watch the leverage \\(h_{ii}\\) (grows at extreme \\(x\\)), the standardized residual \\(t_i\\), and Cook’s distance \\(C_i=\\frac1p\\frac{h_{ii}}{1-h_{ii}}t_i^2\\) (the point turns red when influential).\n\n\n\n  \n  leverage h=–  ·  standardized residual t=–  ·  Cook's D=–  ·  –   ↻ new data"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#outlier-leverage-influence",
+    "href": "teaching/linear_model/slides/validation.html#outlier-leverage-influence",
+    "title": "Validation",
+    "section": "Outlier, leverage, influence",
+    "text": "Outlier, leverage, influence\n\nDrag the gold point. OLS line (solid) vs the fit without it (dashed). Outlier = large residual \\(|t_i|&gt;2\\) (aberrant in \\(Y\\)). Leverage = extreme in \\(x\\), \\(h_{ii}&gt;2p/n\\). Influential = it moves the fit: Cook’s \\(C_i=\\frac1p\\frac{h_{ii}}{1-h_{ii}}t_i^2&gt;4/n\\) — a mixture of the two.\n\n\n\n  \n  \\(h_{ii}\\)=– (leverage if &gt; 2p/n=–)  ·  \\(|t_i|\\)=– (outlier if &gt; 2)  ·  \\(C_i\\)=– (infl. if &gt; 4/n=–)\n  status: –   ↻ new data"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/selection.html#the-fitcomplexity-trade-off",
+    "href": "teaching/linear_model/slides/selection.html#the-fitcomplexity-trade-off",
+    "title": "Selection",
+    "section": "The fit–complexity trade-off",
+    "text": "The fit–complexity trade-off\n\n“Large” model: low \\(SSR\\), but high number of variables \\(p\\)\n(if too large: overfitting)\n“Small” model: high \\(SSR\\), but low number of variables \\(p\\)   (if too small: underfitting)\n\n\nAll previous criteria try to find a compromise between:\n\nGood fit to data (low \\(SSR\\))\nSmall model size (low \\(p\\))\n\n\n\nThis is a permanent trade-off in statistics (not just in regression)."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/selection.html#ordering-the-criteria",
+    "href": "teaching/linear_model/slides/selection.html#ordering-the-criteria",
+    "title": "Selection",
+    "section": "Ordering the criteria",
+    "text": "Ordering the criteria\n\n\\[f(SSR) + c(n) \\cdot p\\]\n\n\nWhen \\(\\ln n &gt; 2\\), BIC penalizes large models more than AIC.\n\n\nOrdering criteria by the size of the model they select (sparsest on the left):\n\\[BIC \\leq F\\text{ test} \\leq C_p \\approx AIC \\leq R_a^2\\]\n\nBIC will favor a smaller model than \\(C_p\\) or AIC\n\\(R_a^2\\) will tend to favor an even larger model"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/selection.html#exhaustive-search-a-warning",
+    "href": "teaching/linear_model/slides/selection.html#exhaustive-search-a-warning",
+    "title": "Selection",
+    "section": "Exhaustive search: a warning",
+    "text": "Exhaustive search: a warning\n\n\n\n\nImportant Warning\n\n\nAutomatic selection does not guarantee that the selected model is good.\nIt’s simply the best model according to the chosen criterion.\nThe selected model may be bad in terms of:\n\nExplanatory power\nMulticollinearity problems\n\nHeteroscedasticity issues\nAuto-correlation problems"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/selection.html#stepwise-backward",
+    "href": "teaching/linear_model/slides/selection.html#stepwise-backward",
+    "title": "Selection",
+    "section": "Stepwise: backward",
+    "text": "Stepwise: backward\n\nIf \\(p_{\\max}\\) is too large for exhaustive search:\n\n\nStepwise Backward (according to chosen criterion, e.g., BIC):\n\nStart with largest model (\\(p_{\\max}\\) variables)\nRemove least significant variable\nRepeat: remove remaining least significant variable\nStop when no removal improves the model"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/selection.html#stepwise-forward-hybrid",
+    "href": "teaching/linear_model/slides/selection.html#stepwise-forward-hybrid",
+    "title": "Selection",
+    "section": "Stepwise: forward & hybrid",
+    "text": "Stepwise: forward & hybrid\nIf \\(p_{\\max}\\) is too large for exhaustive search:\n\nStepwise Forward:\n\nStart with smallest model (constant only)\nAdd most significant variable at each step\n\n\n\nStepwise Backward (or Forward) Hybrid:\n\nLike backward (or forward), but also try adding (or removing) a variable at each step"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/introduction.html#correlation--1-ρ-1",
+    "href": "teaching/linear_model/slides/introduction.html#correlation--1-ρ-1",
+    "title": "Introduction",
+    "section": "Correlation: -1 ≤ ρ̂ ≤ 1",
+    "text": "Correlation: -1 ≤ ρ̂ ≤ 1\n\nFrom the Cauchy-Schwarz inequality, we deduce that:\n\n\nThe correlation \\(\\hat \\rho\\) is always between \\(-1\\) and \\(1\\):\n\nIf \\(\\hat \\rho = 1\\): for all \\(i\\), \\(Y_i = aX_i + b\\) for some \\(a &gt; 0\\)\nIf \\(\\hat \\rho = -1\\): for all \\(i\\), \\(Y_i = aX_i + b\\) for some \\(a &lt; 0\\)\nIf \\(\\hat \\rho = 0\\): no linear relationship. notebook"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/linear_model.html#parameters-β-and-noise-ε",
+    "href": "teaching/linear_model/slides/linear_model.html#parameters-β-and-noise-ε",
+    "title": "Definition of the Linear Model",
+    "section": "Parameters β and noise ε",
+    "text": "Parameters β and noise ε\n\nLet \\(\\beta = (\\beta_1, \\dots, \\beta_p) \\in \\mathbb R^p\\) be unknown parameters, and \\(\\varepsilon = (\\varepsilon_1, \\dots, \\varepsilon_n)\\) be iid noise.\n\n\nIn column notation:\n\n\\[\\beta = \\begin{pmatrix}\n\\beta_1 \\\\\n\\vdots \\\\\n\\beta_p\n\\end{pmatrix} \\and \\varepsilon=\\begin{pmatrix}\n\\varepsilon_{1} \\\\\n\\vdots \\\\\n\\varepsilon_{n}\n\\end{pmatrix}\\]"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/inference.html#formula-for-β",
+    "href": "teaching/linear_model/slides/inference.html#formula-for-β",
+    "title": "Inference",
+    "section": "Formula for β̂",
+    "text": "Formula for β̂\n\nIf \\(\\mathrm{rk}(X) = p\\), it holds that\n\n\\[\\hat \\beta = (X^TX)^{-1}X^TY\\]\n\n\n\nproof"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/inference.html#the-projection-matrix-px",
+    "href": "teaching/linear_model/slides/inference.html#the-projection-matrix-px",
+    "title": "Inference",
+    "section": "The projection matrix P[X]",
+    "text": "The projection matrix P[X]\n\n\n\\[P_{[X]} = X(X^TX)^{-1}X^T \\and \\widehat{Y} = P_{[X]}Y = X\\hat \\beta\\]\n\n\n\nCheck that \\(P_{[X]}\\) is the orthogonal projector on \\([X]\\)\n\n\nThat is \\(P_{[X]}^2 = P_{[X]}\\), \\(P_{[X]}=P_{[X]}^T\\) and \\(\\mathrm{Im} (P_{[X]}) = [X]\\)"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/inference.html#projection-yŷε",
+    "href": "teaching/linear_model/slides/inference.html#projection-yŷε",
+    "title": "Inference",
+    "section": "Projection: Y=Ŷ+ε̂",
+    "text": "Projection: Y=Ŷ+ε̂\n\nLeast squares projects \\(Y\\) orthogonally onto the column space \\([X]\\): \\(\\hat Y=P_{[X]}Y\\), and the residual \\(\\hat\\varepsilon=Y-\\hat Y\\perp[X]\\). Hence Pythagoras \\(\\lVert Y\\rVert^2=\\lVert\\hat Y\\rVert^2+\\lVert\\hat\\varepsilon\\rVert^2\\). Drag to rotate; slide the residual.\n\n\n\n  \n  residual ‖ε̂‖  1.00   ↻ new Y\n  –"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/inference.html#properties-on-β",
+    "href": "teaching/linear_model/slides/inference.html#properties-on-β",
+    "title": "Inference",
+    "section": "Properties on β̂",
+    "text": "Properties on β̂\n\n\n\n\nExpectation and variance\n\n\nAssume that \\(\\mathrm{rk}(X)=p\\), \\(\\mathbb E[\\varepsilon] = 0\\) and \\(\\mathbb V(\\varepsilon) = \\sigma^2I_n\\). Then,\n\n\\(\\hat \\beta = (X^TX)^{-1}X^T Y\\) is a linear estimator\n\\(\\mathbb E[\\hat \\beta] = \\beta\\) unbiased estimator\n\\(\\mathbb V(\\hat \\beta) = \\sigma^2(X^TX)^{-1}\\)\n\n\n\n\n\n\nProof"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/inference.html#estimation-of-σ²-1",
+    "href": "teaching/linear_model/slides/inference.html#estimation-of-σ²-1",
+    "title": "Inference",
+    "section": "Estimation of σ²",
+    "text": "Estimation of σ²\n\nRecall that in the model \\(Y=X\\beta + \\varepsilon\\), both \\(\\beta\\) and \\(\\sigma^2=\\mathbb E[\\varepsilon_i^2]\\) are unknown (\\(p+1\\) parameters)\n\n\n\n\\[\n\\hat\\varepsilon = Y- \\hat Y = P_{[X]^\\perp}\\varepsilon \\and dim([X]^{\\perp}) = n-p\n\\]\n\n\n\nWe estimate \\(\\sigma^2\\) with\n\n\\[\\hat \\sigma^2 = \\frac{1}{n-p}\\sum_{i=1}^n \\hat \\varepsilon_i^2\\]"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/inference.html#properties-of-σ²",
+    "href": "teaching/linear_model/slides/inference.html#properties-of-σ²",
+    "title": "Inference",
+    "section": "Properties of σ̂²",
+    "text": "Properties of σ̂²\n\n\n\n\nProposition\n\n\nIf \\(\\mathrm{rk}(X)=p\\), \\(\\E[\\varepsilon]=0\\) and \\(\\Var(\\varepsilon)= \\sigma^2I_n\\), then\n\\[\\hat \\sigma^2 = \\frac{1}{n-p}\\sum_{i=1}^n \\hat \\varepsilon_i^2=\\frac{\\mathrm{SSR}}{n-p}\\]\nis an unbiased estimator of \\(\\sigma^2\\). If moreover the \\(\\varepsilon_i\\)’s are iid, then \\(\\hat \\sigma^2\\) is a consistent estimator. Proof\n\n\n\n\nunbiased: \\(\\E[\\hat \\sigma^2]= \\sigma^2\\)\nconsistent: \\(\\hat \\sigma^2 \\to \\sigma^2\\) in \\(L^2\\) as \\(n\\to +\\infty\\)\nSSR: Sum of squared residuals"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#r²",
+    "href": "teaching/linear_model/slides/validation.html#r²",
+    "title": "Validation",
+    "section": "R²",
+    "text": "R²\n\n\n\n\n\n\nR² if 1 ∈ [X]\n\n\n\\[R^2 = \\frac{SSE}{SST} = 1-\\frac{SSR}{SST}\\]\n\n\n\n\n\n\n\nR² if 1 ∉ [X]\n\n\n\\[R^2 = \\frac{\\|\\widehat Y\\|^2}{\\|Y\\|^2} = 1 - \\frac{SSR}{\\|Y\\|^2}\\]\n\n\n\n\n\n\\(0 \\leq R^2 \\leq 1\\). Better model if \\(R^2\\) close to \\(1\\)\nTwo definitions of \\(R^2\\) when \\(\\1 \\in [X]\\) or not\nIn simple linear regression \\((Y_i = \\beta_1+\\beta_2X_i+\\varepsilon_i)\\): \\(R^2 = \\hat \\rho^2\\) is the square empirical correlation between \\(Y\\) and \\(X\\)"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#adjusted-r²",
+    "href": "teaching/linear_model/slides/validation.html#adjusted-r²",
+    "title": "Validation",
+    "section": "Adjusted R²",
+    "text": "Adjusted R²\n\nMain flaw of \\(R^2\\): adding a new variable increases \\(R^2\\) (because \\([X]\\) is a bigger projection space)\n\n\n\n\n\n\n\nRₐ² if 1 ∈ [X]\n\n\n\\[R^2_a = 1-\\frac{n-1}{n-p}\\frac{SSR}{SST}\\]\n\n\n\n\n\n\n\nRₐ² if 1 ∉ [X]\n\n\n\\[R^2_a = 1 - \\frac{n}{n-p}\\frac{SSR}{\\|Y\\|^2}\\]\n\n\n\n\n\n\nWith a new variable, \\(SSR\\) decreases but \\(p \\to p+1\\)\n\n\n\\(R_a^2\\)​ only increases when adding a new variable if that variable significantly reduces the residual sum of squares."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#r²-always-rises-r²ₐ-does-not",
+    "href": "teaching/linear_model/slides/validation.html#r²-always-rises-r²ₐ-does-not",
+    "title": "Validation",
+    "section": "R² always rises, R²ₐ does not",
+    "text": "R² always rises, R²ₐ does not\n\nStart from one real predictor, then add pure-noise columns. \\(R^2\\) (blue) keeps rising toward 1 — that’s its flaw; the adjusted \\(R^2_a\\) (green) peaks and then falls, penalising useless variables.\n\n\n\n  \n  junk predictors added k  6  ·  noise  0.80   ↻ resample\n   R² –    R²ₐ –  ·  p = 2+k = –"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#diagnostic-tools-for-normality-of-ε",
+    "href": "teaching/linear_model/slides/validation.html#diagnostic-tools-for-normality-of-ε",
+    "title": "Validation",
+    "section": "Diagnostic Tools for Normality of ε̂",
+    "text": "Diagnostic Tools for Normality of ε̂\n\nQ-Q Plot (Henry’s line):\n\nPlot theoretical vs. sample quantiles of \\(\\hat{\\varepsilon}\\)\nR function: qqnorm\n\n\n\nShapiro-Wilk, \\(\\chi^2\\) or KS Tests:\n\nFormal test of normality for \\(\\hat{\\varepsilon}\\)\n\\(H_0\\): residuals are normally distributed\n\\(H_1\\): residuals are not normally distributed\nR function: shapiro.test"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/selection.html#adjusted-r²---reminder",
+    "href": "teaching/linear_model/slides/selection.html#adjusted-r²---reminder",
+    "title": "Selection",
+    "section": "Adjusted R² - Reminder",
+    "text": "Adjusted R² - Reminder\n\nFor a model with constant:\n\n\\[R_a^2 = 1 - \\frac{n-1}{n-p} \\cdot \\frac{SSR}{SST}\\]\n\n\n\\(SST = \\sum_{i=1}^n (Y_i - \\bar{Y})^2\\) (independent of chosen model)\n\\(SSR = \\sum_{i=1}^n (Y_i - \\hat{Y}_i)^2\\) (specific to considered model)\n\n\n\nSelection rule: Between two models, prefer highest \\(R_a^2\\)."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/selection.html#mallows-cₚ",
+    "href": "teaching/linear_model/slides/selection.html#mallows-cₚ",
+    "title": "Selection",
+    "section": "Mallows’ Cₚ",
+    "text": "Mallows’ Cₚ\n\nTrue model (unknown): \\(Y = X^*\\beta^* + \\varepsilon\\)\n\nTested model (possibly wrong): \\(Y = X\\beta + \\varepsilon\\) with OLS estimate \\(\\hat{\\beta}\\)\n\n\nMallows’ \\(C_p\\) aims to estimate the prediction risk: \\[\\E(\\|\\tilde{Y} - X\\hat{\\beta}\\|^2)\\]\nwhere \\(\\tilde{Y}\\) follows the same distribution as \\(Y\\) but is independent."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/selection.html#formula-for-mallows-cₚ",
+    "href": "teaching/linear_model/slides/selection.html#formula-for-mallows-cₚ",
+    "title": "Selection",
+    "section": "Formula for Mallows’ Cₚ",
+    "text": "Formula for Mallows’ Cₚ\n\n\n\\(C_p = \\frac{SSR}{\\hat{\\sigma}^2} - n + 2p\\)\n\n\n\\(p\\): number of variables in the considered model\n\\(SSR\\): residual sum of squares of the considered model\n\n\\(\\hat{\\sigma}^2\\): estimation of \\(\\sigma^2\\) in the largest model\nSame for all tested models\n\n\n\nSelection rule: Among all tested models, choose the one with lowest \\(C_p\\)."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/anova_ancova.html#estimation-of-μ",
+    "href": "teaching/linear_model/slides/anova_ancova.html#estimation-of-μ",
+    "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
+    "section": "Estimation of μ",
+    "text": "Estimation of μ\n\nWhichever the model we choose (with constant or not), estimation of \\(\\mu_i=\\E[Y_k|X_k=A_i]\\) is the same. Same for \\(\\Var(\\varepsilon_k)=\\sigma^2\\).\n\n\n\n\n\nProposition\n\n\nIn category \\(i\\), OLS estimation of \\(\\mu_i\\) leads to:\n\n\\(\\hat{\\mu}_i = \\frac{1}{N_i}\\sum_{k=1}^n Y_k \\1\\{X_k=A_i\\} = \\overline{Y}_i\\)\n\nAn unbiased estimator of \\(\\sigma^2\\) is\n\n\\(\\hat{\\sigma}^2 = \\frac{1}{n-I} \\sum_{k=1}^{n}\\sum_{i=1}^I (Y_{k} - \\overline{Y}_i)^2\\1\\{X_k=A_i\\}\\)"
+  },
+  {
+    "objectID": "teaching/glm/slides/Introduction_glm.html#example-2-binary-case-y-0-1",
+    "href": "teaching/glm/slides/Introduction_glm.html#example-2-binary-case-y-0-1",
+    "title": "Introduction to the Generalized Linear Model",
+    "section": "Example 2: Binary Case Y ∈ 0, 1",
+    "text": "Example 2: Binary Case Y ∈ 0, 1\n\nLink function requirement: The link function \\(g\\) must satisfy:\n\n\\[E(Y|X = x) = g^{-1}(x^T\\beta) \\in [0, 1]\\]\n\n\n\nSince \\(Y\\in \\{0,1\\}\\), \\(Y|X\\) follows a Bernoulli distribution\n\n\\[Y|X \\sim \\mathcal{B}(g^{-1}(X^T\\beta))\\]"
+  },
+  {
+    "objectID": "teaching/glm/slides/Introduction_glm.html#example-2-binary-case-y-0-1-1",
+    "href": "teaching/glm/slides/Introduction_glm.html#example-2-binary-case-y-0-1-1",
+    "title": "Introduction to the Generalized Linear Model",
+    "section": "Example 2: Binary Case Y ∈ 0, 1",
+    "text": "Example 2: Binary Case Y ∈ 0, 1\n\n\n\\[Y|X \\sim \\mathcal{B}(g^{-1}(X^T\\beta))\\]\n\nPossible choices for \\(g^{-1}\\): A CDF of a continuous distrib. on \\(\\mathbb{R}\\)\n\n\nStandard choice for \\(g^{-1}\\): The CDF of a logistic distribution:\n\n\\[g^{-1}(t) = \\frac{e^t}{1 + e^t} \\quad \\text{i.e.} \\quad g(t) = \\ln\\left(\\frac{t}{1-t}\\right) = \\text{logit}(t)\\]\n\n\n\nThis leads to the logistic model, the most important model in this chapter"
+  },
+  {
+    "objectID": "teaching/glm/slides/Introduction_glm.html#example-3-count-data-y-ℕ",
+    "href": "teaching/glm/slides/Introduction_glm.html#example-3-count-data-y-ℕ",
+    "title": "Introduction to the Generalized Linear Model",
+    "section": "Example 3: Count Data Y∈ ℕ",
+    "text": "Example 3: Count Data Y∈ ℕ\n\nLink function: \\(g(t) = \\ln(t)\\), \\(g^{-1}(t) = e^t\\) gives:\n\n\\[E(Y|X = x) = g^{-1}(x^T\\beta) = e^{x^T\\beta}\\]\n\n\n\nFor the distribution of \\(Y|X\\), defined on \\(\\mathbb{N}\\), we often assume it follows a Poisson distribution (exp. familily)\n\n\nIn this context:\n\n\\[Y|X \\sim \\mathcal{P}(e^{X^T\\beta})\\]"
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.html#model-results-with-age²",
+    "href": "teaching/glm/slides/logistic_model.html#model-results-with-age²",
+    "title": "The Logistic Model",
+    "section": "Model Results with AGE²",
+    "text": "Model Results with AGE²\n\nglm(Y ~ AGE + I(AGE^2) + DBP + SEXE + WALK + ACTIV, family=binomial)\nGives\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-3.9564361\n0.3155529\n-12.538\n&lt; 2e-16\n***\n\n\nAGE\n0.0640837\n0.0123960\n5.170\n2.34e-07\n***\n\n\nI(AGE^2)\n-0.0006758\n0.0001260\n-5.364\n8.14e-08\n***\n\n\nDBP\n0.0121546\n0.0033775\n3.599\n0.00032\n***\n\n\nSEXEFEMME\n0.5155651\n0.0776229\n6.642\n3.10e-11\n***\n\n\nWALK1\n-0.4042257\n0.0913195\n-4.426\n9.58e-06\n***\n\n\nACTIV1\n-0.6573558\n0.1150226\n-5.715\n1.10e-08\n***\n\n\n\n\nFor someone for which WALK1=0 and ACTIV1=0:\n\n\\(P(Y = 1|\\text{AGE}, \\text{DBP}) = \\text{logit}^{-1}(-3.95 + 0.064 \\times \\text{AGE} - 0.00068 \\times \\text{AGE}^2 + 0.0122 \\times \\text{DBP})\\)\n\n\n\nFor someone for which WALK1=0 and ACTIV1=1:\n\n\\(P(Y = 1|\\text{AGE}, \\text{DBP}) = \\text{logit}^{-1}(-3.95 + 0.064 \\times \\text{AGE} - 0.00068 \\times \\text{AGE}^2 + 0.0122 \\times \\text{DBP} \\color{red}{ - 0.657})\\)"
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.html#computation-of-jₙβ",
+    "href": "teaching/glm/slides/logistic_model.html#computation-of-jₙβ",
+    "title": "The Logistic Model",
+    "section": "Computation of Jₙ(β)",
+    "text": "Computation of Jₙ(β)\n\n\n\\[J_n(\\beta) = -E\\left[\\frac{\\partial^2 L}{\\partial \\beta^2}(\\beta) \\bigg| X\\right]\\]\n\nwhere \\(L\\) is the log-likelihood of the model.\n\n\nFrom the proof of existence of MLE,\n\n\\[J_n(\\beta) = \\sum_{i=1}^n p_\\beta(x_i)(1 - p_\\beta(x_i)) x_i x_i^T\\]"
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.html#estimated-variance-of-βⱼ",
+    "href": "teaching/glm/slides/logistic_model.html#estimated-variance-of-βⱼ",
+    "title": "The Logistic Model",
+    "section": "Estimated Variance of β̂ⱼ",
+    "text": "Estimated Variance of β̂ⱼ\n\n\n\\[J_n(\\hat{\\beta})^{1/2}(\\hat{\\beta} - \\beta) \\xrightarrow{L} N(0, I_p)\\]\n\n\n\nDenoting \\(\\hat{\\sigma}_j^2\\) the \\(j\\)-th diagonal element of \\(J_n(\\hat{\\beta})^{-1}\\), we obtain (admitted):\n\n\\[\\frac{\\hat{\\beta}_j - \\beta_j}{\\hat{\\sigma}_j} \\xrightarrow{L} N(0, 1)\\]"
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.html#example-significance-test-of-age²",
+    "href": "teaching/glm/slides/logistic_model.html#example-significance-test-of-age²",
+    "title": "The Logistic Model",
+    "section": "Example: Significance Test of AGE²",
+    "text": "Example: Significance Test of AGE²\n\nmodel=glm(Y∼AGE+I(AGE2 )+DBP+SEXE+WALK+ACTIV, family=binomial) # We add AGE^2\nsummary(model)\n\n\n\n\nStatistic\nValue\nDegrees of Freedom\n\n\n\n\nNull deviance\n\\(4610.8\\)\non \\(5300\\)\n\n\nResidual deviance\n\\(4439.5\\)\non \\(5294\\)\n\n\nAIC\n\\(4453.5\\)\n\n\n\n\n\n\n\nThe deviance test with the previous model has p-value \\(1 - F_1(4462.7 - 4439.5) = 1 - F_1(23.2) \\approx 10^{-6}\\)\n\n\nThis model is therefore preferable, (confirmed with AIC).\n\n\nHowever, we cannot compare this model with the first one by deviance test because they are not nested.\n\n\nWe can however compare their AIC: this model is preferable."
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.html#ci-asymptotic-distribution-of-p_βx",
+    "href": "teaching/glm/slides/logistic_model.html#ci-asymptotic-distribution-of-p_βx",
+    "title": "The Logistic Model",
+    "section": "CI: Asymptotic Distribution of p_β(x)",
+    "text": "CI: Asymptotic Distribution of p_β(x)\n\nWe know that when \\(n \\to \\infty\\):\n\n\\[\\hat{\\beta} \\sim N(\\beta, (X^T W_{\\hat{\\beta}} X)^{-1})\\]\n\n\n\\(X=(X^{(1)}, \\dots, X^{(p)})\\) is the \\(n \\times p\\) design matrix\n\\(W_{\\hat{\\beta}}\\) is the \\(n \\times n\\) diagonal matrix with coefs \\(p_{\\hat \\beta}(x_i)(1-p_{\\hat \\beta}(x_i))\\)"
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.html#ci-for-probability-pβx",
+    "href": "teaching/glm/slides/logistic_model.html#ci-for-probability-pβx",
+    "title": "The Logistic Model",
+    "section": "CI for Probability pβ(x)",
+    "text": "CI for Probability pβ(x)\n\nSince \\(p_{\\hat{\\beta}}(x) = \\text{logit}^{-1}(x^T \\hat{\\beta})\\), we have therefore by application of the increasing function \\(\\text{logit}^{-1}\\), the CI at asymptotic level \\(1 - \\alpha\\):\n\n\n\n\n\\[\\text{CI}_{1-\\alpha}(p_\\beta(x)) = \\left[\\text{logit}^{-1}\\left(x^T \\hat{\\beta} \\pm q_{1-\\alpha/2} \\sqrt{x^T (X^T W_{\\hat{\\beta}} X)^{-1} x}\\right)\\right]\\]"
+  },
+  {
+    "objectID": "teaching/glm/slides/categorical_data.html#maximum-likelihood-estimator-of-β",
+    "href": "teaching/glm/slides/categorical_data.html#maximum-likelihood-estimator-of-β",
+    "title": "Models for Categorical Data",
+    "section": "Maximum Likelihood Estimator of β",
+    "text": "Maximum Likelihood Estimator of β\n\nBy setting the gradient of \\(L\\) to zero, we obtain that \\(\\hat{\\beta} = (\\hat{\\beta}^{(1)}, \\ldots, \\hat{\\beta}^{(K-1)})\\) must verify, for all \\(k \\in \\{1, \\ldots, K-1\\}\\):\n\n\\[\\sum_{i=1}^n x_i \\mathbf{1}_{y_i = k} = \\sum_{i=1}^n x_i p_{\\hat{\\beta}}^{(k)}(x_i)\\]\n\n\n\\(K-1\\) equations, each with \\(p\\) parameters, i.e. \\((K-1) \\times p\\) equations.\nWe solve it numerically to find \\(\\hat{\\beta}\\) of size \\((K-1) \\times p\\)."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#estimation-of-β-by-mle",
+    "href": "teaching/glm/slides/counting_models.html#estimation-of-β-by-mle",
+    "title": "Counting Models",
+    "section": "Estimation of β by MLE",
+    "text": "Estimation of β by MLE\n\nBy setting the gradient with respect to \\(\\beta\\) to zero, we find that the MLE \\(\\hat{\\beta}\\) must verify:\n\n\\[\\sum_{i=1}^n y_i x_i = \\sum_{i=1}^n \\lambda_{\\hat{\\beta}}(x_i) x_i\\]\n\n\n\nThis is a system with \\(p\\) unknowns (recall that \\(x_i \\in \\mathbb R^p\\)) that we solve numerically."
+  },
+  {
+    "objectID": "teaching/glm/slides/counting_models.html#properties-of-β",
+    "href": "teaching/glm/slides/counting_models.html#properties-of-β",
+    "title": "Counting Models",
+    "section": "Properties of β̂",
+    "text": "Properties of β̂\n\nUnder regularity conditions, when \\(n \\to \\infty\\):\n\n\\[\\hat{\\beta} \\sim N(\\beta, (X^T W_{\\hat{\\beta}} X)^{-1})\\]\n\nwhere \\(W_{\\hat{\\beta}} = \\text{diag}(\\lambda_{\\hat{\\beta}}(x_1), \\ldots, \\lambda_{\\hat{\\beta}}(x_n))\\).\n\n\nWe can therefore perform Wald significance tests."
+  },
+  {
+    "objectID": "teaching/glm/slides/Introduction_glm.draft.html#example-2-binary-case-y-0-1",
+    "href": "teaching/glm/slides/Introduction_glm.draft.html#example-2-binary-case-y-0-1",
+    "title": "Introduction to the Generalized Linear Model",
+    "section": "Example 2: Binary Case Y ∈ 0, 1",
+    "text": "Example 2: Binary Case Y ∈ 0, 1\n\nNow let’s look at the binary case, which is more interesting.\nThe link function g-inverse of x-transpose-beta stays in the interval 0 to 1.\nSo we have Y given X following a Bernoulli distribution with parameter g-inverse of X-transpose-beta. What should we choose for g-inverse?\n\n\nLink function requirement: The link function \\(g\\) must satisfy:\n\n\\[E(Y|X = x) = g^{-1}(x^T\\beta) \\in [0, 1]\\]\n\n\n\nSince \\(Y\\in \\{0,1\\}\\), \\(Y|X\\) follows a Bernoulli distribution\n\n\\[Y|X \\sim \\mathcal{B}(g^{-1}(X^T\\beta))\\]"
+  },
+  {
+    "objectID": "teaching/glm/slides/Introduction_glm.draft.html#example-2-binary-case-y-0-1-1",
+    "href": "teaching/glm/slides/Introduction_glm.draft.html#example-2-binary-case-y-0-1-1",
+    "title": "Introduction to the Generalized Linear Model",
+    "section": "Example 2: Binary Case Y ∈ 0, 1",
+    "text": "Example 2: Binary Case Y ∈ 0, 1\n\nAny CDF of a continuous distribution on the real line works! A CDF maps the real line to [0,1], which is exactly what we need.\nThe standard choice for g-inverse is the CDF of a logistic distribution: g-inverse(t) equals e^t over (1 plus e^t).\nThis means g(t) equals the natural log of t over (1 minus t)—this is called the logit function.\nThis leads to the logistic model, which is the most important model in this chapter. We’ll spend some time on it.\n\n\n\n\\[Y|X \\sim \\mathcal{B}(g^{-1}(X^T\\beta))\\]\n\nPossible choices for \\(g^{-1}\\): A CDF of a continuous distrib. on \\(\\mathbb{R}\\)\n\n\nStandard choice for \\(g^{-1}\\): The CDF of a logistic distribution:\n\n\\[g^{-1}(t) = \\frac{e^t}{1 + e^t} \\quad \\text{i.e.} \\quad g(t) = \\ln\\left(\\frac{t}{1-t}\\right) = \\text{logit}(t)\\]\n\n\n\nThis leads to the logistic model, the most important model in this chapter"
+  },
+  {
+    "objectID": "teaching/glm/slides/Introduction_glm.draft.html#example-3-count-data-y-ℕ",
+    "href": "teaching/glm/slides/Introduction_glm.draft.html#example-3-count-data-y-ℕ",
+    "title": "Introduction to the Generalized Linear Model",
+    "section": "Example 3: Count Data Y∈ ℕ",
+    "text": "Example 3: Count Data Y∈ ℕ\n\nFinally, let’s look at count data.\nFor count data, we use the link function g(t) equals natural log of t, so g-inverse(t) equals e^t.\nThis gives E(Y|X) = exponential x-transpose-beta. This ensures the expected value is always positive, which makes sense for counts.\nSecond point - Highlight yellow: For the distribution of Y given X, defined on the natural numbers, we often assume a Poisson distribution—which is in the exponential family.\nThird point - Full specification: In this context, Y given X follows a Poisson distribution with parameter exponential X-transpose-beta.\n\n\nLink function: \\(g(t) = \\ln(t)\\), \\(g^{-1}(t) = e^t\\) gives:\n\n\\[E(Y|X = x) = g^{-1}(x^T\\beta) = e^{x^T\\beta}\\]\n\n\n\nFor the distribution of \\(Y|X\\), defined on \\(\\mathbb{N}\\), we often assume it follows a Poisson distribution (exp. familily)\n\n\nIn this context:\n\n\\[Y|X \\sim \\mathcal{P}(e^{X^T\\beta})\\]"
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.draft.html#model-results-with-age²",
+    "href": "teaching/glm/slides/logistic_model.draft.html#model-results-with-age²",
+    "title": "The Logistic Model",
+    "section": "Model Results with AGE²",
+    "text": "Model Results with AGE²\n\nPerhaps AGE has a non-linear effect. Let’s try adding AGE squared to the model.\nIn R, we write: glm of Y tilde AGE plus I of AGE squared\nNow look at what happens.\nBoth AGE and AGE squared are now highly significant! The positive coefficient on AGE and negative coefficient on AGE squared suggests an inverted U-shape relationship: the probability of high BMI increases with age initially, then decreases at older ages.\nAll our other key variables remain significant with similar interpretations.\nFor someone for which WALK1 equals 0 and ACTIV1 equals 0 - so they don’t walk to work and don’t do intense sports - the probability that Y equals 1 given their age and blood pressure is: logit inverse of negative 3.95 plus 0.064 times AGE minus 0.00068 times AGE squared plus 0.0122 times DBP.\nNow, for someone for which WALK1 equals 0 and ACTIV1 equals 1 - they do engage in intense sports activity - we get the same formula but we subtract 0.657. That’s the coefficient of ACTIV1 in red. This person has a lower probability of high BMI, all else being equal, and we can quantify exactly how much lower.\nThis demonstrates how we can use the fitted model to compute predicted probabilities for individuals with different covariate profiles.\n\n\nglm(Y ~ AGE + I(AGE^2) + DBP + SEXE + WALK + ACTIV, family=binomial)\nGives\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVariable\nEstimate\nStd. Error\nz value\nPr(&gt;\nz\n\n\n\n\n(Intercept)\n-3.9564361\n0.3155529\n-12.538\n&lt; 2e-16\n***\n\n\nAGE\n0.0640837\n0.0123960\n5.170\n2.34e-07\n***\n\n\nI(AGE^2)\n-0.0006758\n0.0001260\n-5.364\n8.14e-08\n***\n\n\nDBP\n0.0121546\n0.0033775\n3.599\n0.00032\n***\n\n\nSEXEFEMME\n0.5155651\n0.0776229\n6.642\n3.10e-11\n***\n\n\nWALK1\n-0.4042257\n0.0913195\n-4.426\n9.58e-06\n***\n\n\nACTIV1\n-0.6573558\n0.1150226\n-5.715\n1.10e-08\n***\n\n\n\n\nFor someone for which WALK1=0 and ACTIV1=0:\n\n\\(P(Y = 1|\\text{AGE}, \\text{DBP}) = \\text{logit}^{-1}(-3.95 + 0.064 \\times \\text{AGE} - 0.00068 \\times \\text{AGE}^2 + 0.0122 \\times \\text{DBP})\\)\n\n\n\nFor someone for which WALK1=0 and ACTIV1=1:\n\n\\(P(Y = 1|\\text{AGE}, \\text{DBP}) = \\text{logit}^{-1}(-3.95 + 0.064 \\times \\text{AGE} - 0.00068 \\times \\text{AGE}^2 + 0.0122 \\times \\text{DBP} \\color{red}{ - 0.657})\\)"
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.draft.html#computation-of-jₙβ",
+    "href": "teaching/glm/slides/logistic_model.draft.html#computation-of-jₙβ",
+    "title": "The Logistic Model",
+    "section": "Computation of Jₙ(β)",
+    "text": "Computation of Jₙ(β)\n\n\n\\[J_n(\\beta) = -E\\left[\\frac{\\partial^2 L}{\\partial \\beta^2}(\\beta) \\bigg| X\\right]\\]\n\nwhere \\(L\\) is the log-likelihood of the model.\n\n\nFrom the proof of existence of MLE,\n\n\\[J_n(\\beta) = \\sum_{i=1}^n p_\\beta(x_i)(1 - p_\\beta(x_i)) x_i x_i^T\\]"
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.draft.html#estimated-variance-of-βⱼ",
+    "href": "teaching/glm/slides/logistic_model.draft.html#estimated-variance-of-βⱼ",
+    "title": "The Logistic Model",
+    "section": "Estimated Variance of β̂ⱼ",
+    "text": "Estimated Variance of β̂ⱼ\n\n\n\\[J_n(\\hat{\\beta})^{1/2}(\\hat{\\beta} - \\beta) \\xrightarrow{L} N(0, I_p)\\]\n\n\n\nDenoting \\(\\hat{\\sigma}_j^2\\) the \\(j\\)-th diagonal element of \\(J_n(\\hat{\\beta})^{-1}\\), we obtain (admitted):\n\n\\[\\frac{\\hat{\\beta}_j - \\beta_j}{\\hat{\\sigma}_j} \\xrightarrow{L} N(0, 1)\\]"
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.draft.html#example-significance-test-of-age²",
+    "href": "teaching/glm/slides/logistic_model.draft.html#example-significance-test-of-age²",
+    "title": "The Logistic Model",
+    "section": "Example: Significance Test of AGE²",
+    "text": "Example: Significance Test of AGE²\n\nmodel=glm(Y∼AGE+I(AGE2 )+DBP+SEXE+WALK+ACTIV, family=binomial) # We add AGE^2\nsummary(model)\n\n\n\n\nStatistic\nValue\nDegrees of Freedom\n\n\n\n\nNull deviance\n\\(4610.8\\)\non \\(5300\\)\n\n\nResidual deviance\n\\(4439.5\\)\non \\(5294\\)\n\n\nAIC\n\\(4453.5\\)\n\n\n\n\n\n\n\nThe deviance test with the previous model has p-value \\(1 - F_1(4462.7 - 4439.5) = 1 - F_1(23.2) \\approx 10^{-6}\\)\n\n\nThis model is therefore preferable, (confirmed with AIC).\n\n\nHowever, we cannot compare this model with the first one by deviance test because they are not nested.\n\n\nWe can however compare their AIC: this model is preferable."
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.draft.html#ci-asymptotic-distribution-of-p_βx",
+    "href": "teaching/glm/slides/logistic_model.draft.html#ci-asymptotic-distribution-of-p_βx",
+    "title": "The Logistic Model",
+    "section": "CI: Asymptotic Distribution of p_β(x)",
+    "text": "CI: Asymptotic Distribution of p_β(x)\n\nWe know that when \\(n \\to \\infty\\):\n\n\\[\\hat{\\beta} \\sim N(\\beta, (X^T W_{\\hat{\\beta}} X)^{-1})\\]\n\n\n\\(X=(X^{(1)}, \\dots, X^{(p)})\\) is the \\(n \\times p\\) design matrix\n\\(W_{\\hat{\\beta}}\\) is the \\(n \\times n\\) diagonal matrix with coefs \\(p_{\\hat \\beta}(x_i)(1-p_{\\hat \\beta}(x_i))\\)"
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.draft.html#ci-for-probability-pβx",
+    "href": "teaching/glm/slides/logistic_model.draft.html#ci-for-probability-pβx",
+    "title": "The Logistic Model",
+    "section": "CI for Probability pβ(x)",
+    "text": "CI for Probability pβ(x)\n\nSince \\(p_{\\hat{\\beta}}(x) = \\text{logit}^{-1}(x^T \\hat{\\beta})\\), we have therefore by application of the increasing function \\(\\text{logit}^{-1}\\), the CI at asymptotic level \\(1 - \\alpha\\):\n\n\n\n\n\\[\\text{CI}_{1-\\alpha}(p_\\beta(x)) = \\left[\\text{logit}^{-1}\\left(x^T \\hat{\\beta} \\pm q_{1-\\alpha/2} \\sqrt{x^T (X^T W_{\\hat{\\beta}} X)^{-1} x}\\right)\\right]\\]"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/testing_models.html#illustration-if-ψx-𝒩01",
+    "href": "teaching/hypothesis_testing/slides/testing_models.html#illustration-if-ψx-𝒩01",
+    "title": "Hypothesis Testing",
+    "section": "Illustration if ψ(X) ∼ 𝒩(0,1):",
+    "text": "Illustration if ψ(X) ∼ 𝒩(0,1):"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/testing_models_fr.html#illustration-si-ψx-𝒩01",
+    "href": "teaching/hypothesis_testing/slides/testing_models_fr.html#illustration-si-ψx-𝒩01",
+    "title": "Tests d’Hypothèses",
+    "section": "Illustration si ψ(X) ∼ 𝒩(0,1) :",
+    "text": "Illustration si ψ(X) ∼ 𝒩(0,1) :"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html#χ²-goodness-of-fit-problem",
+    "href": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html#χ²-goodness-of-fit-problem",
+    "title": "Goodness of Fit and Homogeneity Tests",
+    "section": "χ² Goodness of Fit Problem",
+    "text": "χ² Goodness of Fit Problem\n\nWe observe \\((X_1, \\dots, X_m) \\sim \\mathrm{Mult}(n, q)\\).\n\n\nThis corresponds to \\(n\\) counts: \\(X_1 + \\dots + X_m = n\\)\n\n\n\\(q = (q_1, \\dots, q_m)\\) corresponds to probabilities of getting color \\(1, \\dots, m\\)\n\n\nLet \\(p = (p_1, \\dots, p_m)\\) be a known vector s.t. \\(p_1 + \\dots + p_m = 1\\).\n\n\\(H_0:~ q = p ~~~\\text{or}~~~ H_1: q \\neq p \\; .\\)"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html#χ²-goodness-of-fit-test-adéquation",
+    "href": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html#χ²-goodness-of-fit-test-adéquation",
+    "title": "Goodness of Fit and Homogeneity Tests",
+    "section": "χ² Goodness of Fit Test (Adéquation)",
+    "text": "χ² Goodness of Fit Test (Adéquation)\n\nChi-squared test statistic:\n\n\\[\\psi(X) = \\sum_{i=1}^m\\frac{(X_i-n_i)^2}{n_i} \\; .\\]\n\nwhere \\(n_i = np_i = \\mathbb E[X_i]\\) is the expected number of counts for color \\(i\\).\n\n\nSometimes written as:\n\\(\\psi(X) = \\sum_{i=1}^m\\frac{(O_i-E_i)^2}{E_i} \\; ,\\)\nwhere \\(O_i\\) stands for “observed count of \\(i\\)” and \\(E_i\\) stands for “expected count”"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html#χ²-goodness-of-fit-to-a-given-distribution",
+    "href": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html#χ²-goodness-of-fit-to-a-given-distribution",
+    "title": "Goodness of Fit and Homogeneity Tests",
+    "section": "χ² Goodness of Fit to a given distribution",
+    "text": "χ² Goodness of Fit to a given distribution\n\nWe observe \\((X_1, \\dots, X_n) \\in \\mathbb R^n\\), iid with unknown distrib \\(P\\).\n\n\nWe want to test whether \\(P\\) is equal to a known distribution \\(P_0\\)\n\n\\(H_0\\): \\(P = P_0\\) VS \\(H_1\\): \\(P \\neq P_0\\)\n\n[Wooclap]\n\n\nIdea: partition \\(\\mathbb R\\) and compare empirical VS theoretical histograms."
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html#corrected-χ²-test",
+    "href": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html#corrected-χ²-test",
+    "title": "Goodness of Fit and Homogeneity Tests",
+    "section": "Corrected χ² Test",
+    "text": "Corrected χ² Test\n\nIf \\(P_0\\) is unknown, lying in a parametric family \\(\\mathcal{P} = \\{P_\\theta : \\theta \\in \\Theta \\subset \\mathbb{R}^\\ell\\}\\)\n\n\nEstimate \\(\\theta\\) by MLE \\(\\hat\\theta\\) from the data \\(X_1,\\dots,X_n\\)\n\n\nReplace theoretical probabilities by \\(\\hat p_j = P_{\\hat\\theta}(I_j)\\)\n\n\nCompute the corrected statistic:\n\n\\[\\psi(X) = \\sum_{j=1}^m \\frac{(C_j - n\\hat{p}_j)^2}{n\\hat{p}_j}\\]"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html#distribution-of-the-corrected-χ²",
+    "href": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2.html#distribution-of-the-corrected-χ²",
+    "title": "Goodness of Fit and Homogeneity Tests",
+    "section": "Distribution of the Corrected χ²",
+    "text": "Distribution of the Corrected χ²\n\nUnder \\(H_0\\), each estimated parameter costs one degree of freedom:\n\n\n\n\\(\\psi(X) \\asymp \\chi^2(m - 1 - \\ell)\\)\n\nIntuition: estimating \\(\\ell\\) parameters from the data imposes \\(\\ell\\) additional constraints on the counts \\(C_j\\),\n\n\nReducing the effective degrees of freedom from \\(m-1\\) to \\(m-1-\\ell\\)."
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2_fr.html#problème-dadéquation-du-χ²",
+    "href": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2_fr.html#problème-dadéquation-du-χ²",
+    "title": "Tests d’adéquation et d’homogénéité",
+    "section": "Problème d’adéquation du χ²",
+    "text": "Problème d’adéquation du χ²\n\nOn observe \\((X_1, \\dots, X_m) \\sim \\mathrm{Mult}(n, q)\\).\n\n\nCela correspond à \\(n\\) tirages : \\(X_1 + \\dots + X_m = n\\)\n\n\n\\(q = (q_1, \\dots, q_m)\\) correspond aux probabilités d’obtenir la couleur \\(1, \\dots, m\\)\n\n\nSoit \\(p = (p_1, \\dots, p_m)\\) un vecteur connu tel que \\(p_1 + \\dots + p_m = 1\\).\n\n\\(H_0:~ q = p ~~~\\text{ou}~~~ H_1: q \\neq p \\; .\\)"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2_fr.html#test-dadéquation-du-χ²-1",
+    "href": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2_fr.html#test-dadéquation-du-χ²-1",
+    "title": "Tests d’adéquation et d’homogénéité",
+    "section": "Test d’adéquation du χ²",
+    "text": "Test d’adéquation du χ²\n\nStatistique du test du chi-deux :\n\n\\[\\psi(X) = \\sum_{i=1}^m\\frac{(X_i-n_i)^2}{n_i} \\; .\\]\n\noù \\(n_i = np_i = \\mathbb E[X_i]\\) est l’effectif théorique attendu pour la couleur \\(i\\). Parfois écrit:\n\\(\\psi(X) = \\sum_{i=1}^m\\frac{(O_i-E_i)^2}{E_i} \\; ,\\)\noù \\(O_i\\) désigne l’effectif « observé » et \\(E_i\\) l’effectif « attendu »"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2_fr.html#test-dadéquation-du-χ²-à-une-distribution-donnée",
+    "href": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2_fr.html#test-dadéquation-du-χ²-à-une-distribution-donnée",
+    "title": "Tests d’adéquation et d’homogénéité",
+    "section": "Test d’adéquation du χ² à une distribution donnée",
+    "text": "Test d’adéquation du χ² à une distribution donnée\n\nOn observe \\((X_1, \\dots, X_n) \\in \\mathbb R^n\\), iid de distribution inconnue \\(P\\).\n\n\nOn veut tester si \\(P\\) est égale à une distribution connue \\(P_0\\)\n\n\\(H_0\\) : \\(P = P_0\\) contre \\(H_1\\) : \\(P \\neq P_0\\)\n\n[Wooclap]\n\n\nIdée : partitionner \\(\\mathbb R\\) et comparer les histogrammes empiriques et théoriques."
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2_fr.html#test-du-χ²-corrigé",
+    "href": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2_fr.html#test-du-χ²-corrigé",
+    "title": "Tests d’adéquation et d’homogénéité",
+    "section": "Test du χ² corrigé",
+    "text": "Test du χ² corrigé\n\nSi \\(P_0\\) est inconnue, appartenant à une famille paramétrique \\(\\mathcal{P} = \\{P_\\theta : \\theta \\in \\Theta \\subset \\mathbb{R}^\\ell\\}\\)\n\n\nEstimer \\(\\theta\\) par le MLE \\(\\hat\\theta\\) à partir des données \\(X_1,\\dots,X_n\\)\n\n\nRemplacer les probabilités théoriques par \\(\\hat p_j = P_{\\hat\\theta}(I_j)\\)\n\n\nCalculer la statistique corrigée :\n\n\\[\\psi(X) = \\sum_{j=1}^m \\frac{(C_j - n\\hat{p}_j)^2}{n\\hat{p}_j}\\]"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2_fr.html#distribution-du-χ²-corrigé",
+    "href": "teaching/hypothesis_testing/slides/goodness_of_fit_chi2_fr.html#distribution-du-χ²-corrigé",
+    "title": "Tests d’adéquation et d’homogénéité",
+    "section": "Distribution du χ² corrigé",
+    "text": "Distribution du χ² corrigé\n\nSous \\(H_0\\), chaque paramètre estimé coûte un degré de liberté :\n\n\n\n\\(\\psi(X) \\asymp \\chi^2(m - 1 - \\ell)\\)\n\nIntuition : l’estimation de \\(\\ell\\) paramètres à partir des données impose \\(\\ell\\) contraintes supplémentaires sur les effectifs \\(C_j\\),\n\n\nréduisant les degrés de liberté effectifs de \\(m-1\\) à \\(m-1-\\ell\\)."
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency.html#distribution-under-h₀",
+    "href": "teaching/hypothesis_testing/slides/dependency.html#distribution-under-h₀",
+    "title": "Correlation, Homogeneity and Dependency",
+    "section": "Distribution under H₀",
+    "text": "Distribution under H₀\n\nModel: \\(Y_k = \\mu + \\varepsilon_k\\), \\(\\varepsilon_k \\overset{iid}{\\sim} \\mathcal{N}(0, \\sigma^2)\\), i.e. \\(\\mu_1 = \\cdots = \\mu_I = \\mu\\) (unknown).\n\n\n\n\n\nProposition\n\n\nUnder \\(H_0\\), assuming \\(\\varepsilon_k \\overset{iid}{\\sim} \\mathcal{N}(0,\\sigma^2)\\):\n\\[\\frac{SSB}{\\sigma^2} \\sim \\chi^2(I-1), \\qquad \\frac{SSW}{\\sigma^2} \\sim \\chi^2(n-I)\\]\nand \\(SSB \\perp SSW\\). Consequently,\n\\[F = \\frac{SSB/(I-1)}{SSW/(n-I)} \\sim \\mathcal{F}(I-1,\\, n-I)\\]\nproof"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency.html#χ²-homogeneity-test",
+    "href": "teaching/hypothesis_testing/slides/dependency.html#χ²-homogeneity-test",
+    "title": "Correlation, Homogeneity and Dependency",
+    "section": "χ² Homogeneity Test",
+    "text": "χ² Homogeneity Test\n\n\\(d\\) different groups (bags), each containing balls of \\(m\\) potential colors.\n\n\nIf \\(d = 3\\) and \\(m = 2\\), we observe the following \\(2\\times 3\\) table of counts:\n\n\n\n\n\n\nbag 1\nbag 2\nbag 3\nTotal\n\n\n\n\ncolor 1\n\\(n_{11}\\)\n\\(n_{12}\\)\n\\(n_{13}\\)\n\\(R_1\\)\n\n\ncolor 2\n\\(n_{21}\\)\n\\(n_{22}\\)\n\\(n_{23}\\)\n\\(R_2\\)\n\n\nTotal\n\\(N_1\\)\n\\(N_2\\)\n\\(N_3\\)\n\\(N\\)"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency.html#computation-of-χ²-statistic",
+    "href": "teaching/hypothesis_testing/slides/dependency.html#computation-of-χ²-statistic",
+    "title": "Correlation, Homogeneity and Dependency",
+    "section": "Computation of χ² Statistic",
+    "text": "Computation of χ² Statistic\n\\[\n\\begin{aligned}\n\\psi(X) &= \\frac{(60-46.7)^2}{46.7} + \\frac{(40-46.7)^2}{46.7} + \\frac{(30-36.7)^2}{36.7} \\\\\n        &+ \\frac{(50-46.7)^2}{46.7} + \\frac{(55-46.7)^2}{46.7} + \\frac{(25-36.7)^2}{36.7} \\\\\n        &+ \\frac{(30-46.7)^2}{46.7} + \\frac{(45-46.7)^2}{46.7} + \\frac{(55-36.7)^2}{36.7} \\\\\n        &\\approx 26.57\n\\end{aligned}\n\\]\n\n1 - cdf(Chisq(4), 26.57)  # ≈ 2.4e-5  →  reject H₀"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency.html#χ²-dependency-test-problem",
+    "href": "teaching/hypothesis_testing/slides/dependency.html#χ²-dependency-test-problem",
+    "title": "Correlation, Homogeneity and Dependency",
+    "section": "χ² Dependency Test Problem",
+    "text": "χ² Dependency Test Problem\n\\(\\newcommand{\\VS}{\\quad \\mathrm{VS} \\quad}\\) \\(\\newcommand{\\and}{\\quad \\mathrm{and} \\quad}\\)\n\nWe observe\n\\(X=(X_1, \\dots, X_n) \\in \\{1, \\dots, I\\}^n\\) and \\(Y=(Y_1, \\dots, Y_n) \\in \\{1, \\dots, J\\}^n\\)\n\n\nAssumptions: \\((X_k,Y_k)\\) are independent, each pair has unknown distribution \\(P_{XY}\\)\n\n\ndependency test problem:\n\n\\[H_0: P_{XY}=P_{X}P_Y \\VS H_1: P_{XY} \\neq P_{X}P_{Y}\\]"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency.html#χ²-dependency-test",
+    "href": "teaching/hypothesis_testing/slides/dependency.html#χ²-dependency-test",
+    "title": "Correlation, Homogeneity and Dependency",
+    "section": "χ² Dependency Test",
+    "text": "χ² Dependency Test\n\nChi-squared statistic, or chi-squared distance:\n\n\\[\\psi(X,Y) = \\sum_{i=1}^I\\sum_{j=1}^J \\frac{(n_{ij}- N_j\\hat p_{i})^2}{N_j\\hat p_{i}}\\]\n\n\nApproximation: \\(\\psi(X,Y) \\sim \\chi^2((I-1)(J-1))\\) when \\(n \\to \\infty\\)\nTest: \\(T=\\mathbf 1\\{\\psi(X,Y) \\geq t_{1-\\alpha/2}\\}\\), where\n\\(t_{0.975}\\) = quantile(Chisq(I-1,J-1), 0.975)"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency.html#χ²-independence-test",
+    "href": "teaching/hypothesis_testing/slides/dependency.html#χ²-independence-test",
+    "title": "Correlation, Homogeneity and Dependency",
+    "section": "χ² Independence Test",
+    "text": "χ² Independence Test\n\n\n\n\nSetup\n\n\n\nObservations: paired categorical variables \\((X_1, Y_1), \\dots, (X_n, Y_n)\\)\ne.g., \\(X_i \\in \\{\\mathrm{male}, \\mathrm{female}\\}\\), \\(Y_i \\in \\{\\mathrm{coffee}, \\mathrm{tea}\\}\\) [Wooclap]\nIdea: regroup data by one variable to form bags, then apply the homogeneity test\n\n\n\n\n\n\n\n\n\nContingency table:\n\n\n\nGender\nMale\nFemale\nTotal\n\n\n\n\nCoffee\n30\n20\n50\n\n\nTea\n28\n22\n50\n\n\nTotal\n58\n42\n100\n\n\n\n\nExpected counts:\n\n\n\nGender\nMale\nFemale\nTotal\n\n\n\n\nCoffee\n29\n21\n50\n\n\nTea\n29\n21\n50\n\n\nTotal\n58\n42\n100\n\n\n\n\n\n\n\n\\(N_1 \\hat{p}_1 = 58 \\cdot 50/100 = 29\\), degrees of freedom \\(= (2-1)(2-1) = 1\\)"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency.html#properties-under-h₀",
+    "href": "teaching/hypothesis_testing/slides/dependency.html#properties-under-h₀",
+    "title": "Correlation, Homogeneity and Dependency",
+    "section": "Properties Under H₀",
+    "text": "Properties Under H₀\n\n\n\n\nNote\n\n\n\nThe signs \\(\\mathrm{sgn}(D_i)\\) are independent and uniformly distributed in \\(\\{-1, +1\\}\\).\nIn particular, the number of positive signs \\(\\sum \\mathbf{1} \\{D_i &gt; 0\\}\\sim \\mathcal{B}(n, 0.5)\\).\nThe ranks \\((R_1, \\dots, R_n)\\) form a random permutation, independent of the unknown density.\n\n\n\n\n\n\n\n\n\nImportant\n\n\nAny deterministic function of the ranks and signs is a pivotal test statistic: its distribution under \\(H_0\\) does not depend on the unknown distribution of the data."
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency_fr.html#distribution-sous-h₀",
+    "href": "teaching/hypothesis_testing/slides/dependency_fr.html#distribution-sous-h₀",
+    "title": "Corrélation, Homogénéité et Dépendance",
+    "section": "Distribution sous H₀",
+    "text": "Distribution sous H₀\n\nModèle : \\(Y_k = \\mu + \\varepsilon_k\\), \\(\\varepsilon_k \\overset{iid}{\\sim} \\mathcal{N}(0, \\sigma^2)\\), c’est-à-dire \\(\\mu_1 = \\cdots = \\mu_I = \\mu\\) (inconnu).\n\n\n\n\n\nProposition\n\n\nSous \\(H_0\\), en supposant \\(\\varepsilon_k \\overset{iid}{\\sim} \\mathcal{N}(0,\\sigma^2)\\) :\n\\[\\frac{S_{\\text{inter}}}{\\sigma^2} \\sim \\chi^2(I-1), \\qquad \\frac{S_{\\text{intra}}}{\\sigma^2} \\sim \\chi^2(n-I)\\]\net \\(S_{\\text{inter}} \\perp S_{\\text{intra}}\\). Par conséquent,\n\\[F = \\frac{S_{\\text{inter}}/(I-1)}{S_{\\text{intra}}/(n-I)} \\sim \\mathcal{F}(I-1,\\, n-I)\\]\npreuve"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency_fr.html#test-dhomogénéité-du-χ²",
+    "href": "teaching/hypothesis_testing/slides/dependency_fr.html#test-dhomogénéité-du-χ²",
+    "title": "Corrélation, Homogénéité et Dépendance",
+    "section": "Test d’Homogénéité du χ²",
+    "text": "Test d’Homogénéité du χ²\n\n\\(d\\) groupes différents (sacs), chacun contenant des boules de \\(m\\) couleurs possibles.\n\n\nSi \\(d = 3\\) et \\(m = 2\\), on observe le tableau \\(2\\times 3\\) d’effectifs suivant :\n\n\n\n\n\n\nsac 1\nsac 2\nsac 3\nTotal\n\n\n\n\ncouleur 1\n\\(n_{11}\\)\n\\(n_{12}\\)\n\\(n_{13}\\)\n\\(R_1\\)\n\n\ncouleur 2\n\\(n_{21}\\)\n\\(n_{22}\\)\n\\(n_{23}\\)\n\\(R_2\\)\n\n\nTotal\n\\(N_1\\)\n\\(N_2\\)\n\\(N_3\\)\n\\(N\\)"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency_fr.html#calcul-de-la-statistique-du-χ²",
+    "href": "teaching/hypothesis_testing/slides/dependency_fr.html#calcul-de-la-statistique-du-χ²",
+    "title": "Corrélation, Homogénéité et Dépendance",
+    "section": "Calcul de la Statistique du χ²",
+    "text": "Calcul de la Statistique du χ²\n\n\\[\n\\begin{aligned}\n\\psi(X) &= \\frac{(60-46{,}7)^2}{46{,}7} + \\frac{(40-46{,}7)^2}{46{,}7} + \\frac{(30-36{,}7)^2}{36{,}7} \\\\\n        &+ \\frac{(50-46{,}7)^2}{46{,}7} + \\frac{(55-46{,}7)^2}{46{,}7} + \\frac{(25-36{,}7)^2}{36{,}7} \\\\\n        &+ \\frac{(30-46{,}7)^2}{46{,}7} + \\frac{(45-46{,}7)^2}{46{,}7} + \\frac{(55-36{,}7)^2}{36{,}7} \\\\\n        &\\approx 26{,}57\n\\end{aligned}\n\\]\n\n\n1 - cdf(Chisq(4), 26.57)  # ≈ 2.4e-5  →  rejeter H₀"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency_fr.html#test-dindépendance-du-χ²",
+    "href": "teaching/hypothesis_testing/slides/dependency_fr.html#test-dindépendance-du-χ²",
+    "title": "Corrélation, Homogénéité et Dépendance",
+    "section": "Test d’Indépendance du χ²",
+    "text": "Test d’Indépendance du χ²\n\\(\\newcommand{\\VS}{\\quad \\mathrm{contre} \\quad}\\) \\(\\newcommand{\\and}{\\quad \\mathrm{et} \\quad}\\)\n\nOn observe\n\\(X=(X_1, \\dots, X_n) \\in \\{1, \\dots, I\\}^n\\) et \\(Y=(Y_1, \\dots, Y_n) \\in \\{1, \\dots, J\\}^n\\)\n\n\nHypothèses : \\((X_k,Y_k)\\) sont indépendants, chaque paire a une distribution inconnue \\(P_{XY}\\)\n\n\nProblème de test de dépendance :\n\n\\[H_0: P_{XY}=P_{X}P_Y \\VS H_1: P_{XY} \\neq P_{X}P_{Y}\\]"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency_fr.html#test-dindépendance-du-χ²-1",
+    "href": "teaching/hypothesis_testing/slides/dependency_fr.html#test-dindépendance-du-χ²-1",
+    "title": "Corrélation, Homogénéité et Dépendance",
+    "section": "Test d’Indépendance du χ²",
+    "text": "Test d’Indépendance du χ²\n\nStatistique du chi-deux, ou distance du chi-deux :\n\n\\[\\psi(X,Y) = \\sum_{i=1}^I\\sum_{j=1}^J \\frac{(n_{ij}- N_j\\hat p_{i})^2}{N_j\\hat p_{i}}\\]\n\n\nApproximation : \\(\\psi(X,Y) \\sim \\chi^2((I-1)(J-1))\\) quand \\(n \\to \\infty\\)\nTest : \\(T=\\mathbf 1\\{\\psi(X,Y) \\geq t_{1-\\alpha/2}\\}\\), où\n\\(t_{0{,}975}\\) = quantile(Chisq(I-1,J-1), 0.975)"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency_fr.html#test-dindépendance-du-χ²-2",
+    "href": "teaching/hypothesis_testing/slides/dependency_fr.html#test-dindépendance-du-χ²-2",
+    "title": "Corrélation, Homogénéité et Dépendance",
+    "section": "Test d’Indépendance du χ²",
+    "text": "Test d’Indépendance du χ²\n\n\n\n\nCadre\n\n\n\nObservations : variables catégorielles appariées \\((X_1, Y_1), \\dots, (X_n, Y_n)\\)\nEx. : \\(X_i \\in \\{\\mathrm{homme}, \\mathrm{femme}\\}\\), \\(Y_i \\in \\{\\mathrm{café}, \\mathrm{thé}\\}\\) [Wooclap]\nIdée : regrouper les données selon une variable pour former des sacs, puis appliquer le test d’homogénéité\n\n\n\n\n\n\n\n\n\nTableau de contingence :\n\n\n\nSexe\nHomme\nFemme\nTotal\n\n\n\n\nCafé\n30\n20\n50\n\n\nThé\n28\n22\n50\n\n\nTotal\n58\n42\n100\n\n\n\n\nEffectifs théoriques :\n\n\n\nSexe\nHomme\nFemme\nTotal\n\n\n\n\nCafé\n29\n21\n50\n\n\nThé\n29\n21\n50\n\n\nTotal\n58\n42\n100\n\n\n\n\n\n\n\n\\(N_1 \\hat{p}_1 = 58 \\cdot 50/100 = 29\\), degrés de liberté \\(= (2-1)(2-1) = 1\\)"
+  },
+  {
+    "objectID": "teaching/hypothesis_testing/slides/dependency_fr.html#propriétés-sous-h₀",
+    "href": "teaching/hypothesis_testing/slides/dependency_fr.html#propriétés-sous-h₀",
+    "title": "Corrélation, Homogénéité et Dépendance",
+    "section": "Propriétés sous H₀",
+    "text": "Propriétés sous H₀\n\n\n\n\nNote\n\n\n\nLes signes \\(\\mathrm{sgn}(D_i)\\) sont indépendants et uniformément distribués dans \\(\\{-1, +1\\}\\).\nEn particulier, le nombre de signes positifs \\(\\sum \\mathbf{1} \\{D_i &gt; 0\\}\\sim \\mathcal{B}(n, 0{,}5)\\).\nLes rangs \\((R_1, \\dots, R_n)\\) forment une permutation aléatoire, indépendante de la densité inconnue.\n\n\n\n\n\n\n\n\n\nImportant\n\n\nToute fonction déterministe des rangs et des signes est une statistique de test pivot : sa distribution sous \\(H_0\\) ne dépend pas de la distribution inconnue des données."
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#ε-good-arms-and-simple-regrets",
+    "href": "research/presentations/bandits_many_arms/presentation.html#ε-good-arms-and-simple-regrets",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "ε-Good Arms and Simple Regrets",
+    "text": "ε-Good Arms and Simple Regrets\n\nTwo main criteria in the literature:\n\n\\(\\epsilon\\)-good arm: \\(\\mathbb P(\\lambda_{\\gamma(\\hat r_t)} \\geq \\lambda_0 - \\epsilon) \\geq 1-\\delta\\)\nSimple regret: \\(\\lambda_0 - \\lambda_{\\hat r_t}\\)\n\n\n\n\\(\\to\\) These are anytime criteria.\n\n\n\\(\\to\\) In fixed budget settings \\(t \\in \\{1, \\dots, T\\}\\), simple regret can be defined as \\(\\lambda_0 - \\lambda_{\\hat a_t}\\)\n\n\n\\(\\to\\) we need boundedness (\\(\\lambda_0 &lt; +\\infty\\)) to define them!"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#which-needs-1δ²-pulls",
+    "href": "research/presentations/bandits_many_arms/presentation.html#which-needs-1δ²-pulls",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "… which needs ∼ 1/Δ² pulls",
+    "text": "… which needs ∼ 1/Δ² pulls"
+  },
+  {
+    "objectID": "research/presentations/bandits_many_arms/presentation.html#why-do-we-take-z-tu",
+    "href": "research/presentations/bandits_many_arms/presentation.html#why-do-we-take-z-tu",
+    "title": "Adaptive Algorithms for Infinitely Many-Armed Bandits",
+    "section": "Why do we take Z ∼ t^U ?",
+    "text": "Why do we take Z ∼ t^U ?\n\nAssume that for any \\(q \\in (0,1), \\lambda_{q} \\asymp \\lambda_{q/2}\\)\nIf \\(Z \\asymp t^{k/\\log_2(t)}=2^k\\),\n\n\n\n\\(\\exists a \\leq Z\\) s.t. \\(\\gamma(a) \\lesssim 2^{-k}\\)\n\n\nThis happens with non-negligible probability:\n\n\n\n\n\\(\\mathbb P(t^{k/\\log_2(t)} \\leq Z \\leq t^{k/\\log_2(t)}) = 1/\\log_2(t)\\)"
   }
 ]

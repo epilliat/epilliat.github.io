@@ -15,16 +15,20 @@ css: ../../../styles.css
   #- parse-latex
 ---
 
+
+
+
+# Model Selection
+
+::: {style="display:none"}
 $\newcommand{\VS}{\quad \mathrm{VS} \quad}$
 $\newcommand{\and}{\quad \mathrm{and} \quad}$
 $\newcommand{\E}{\mathbb E}$
 $\newcommand{\P}{\mathbb P}$
 $\newcommand{\Var}{\mathbb V}$
 $\newcommand{\1}{\mathbf 1}$
+:::
 
-
-
-# Model Selection
 
 ## Practical Question
 
@@ -89,7 +93,9 @@ This model is **potentially wrong** (bad choice of variables).
 **Objective**: Calculate a [quality score]{style="background-color: yellow;"} for this submodel.
 
 
-## Adjusted $R^2$ - Reminder
+# The selection criteria
+
+## Adjusted R² - Reminder
 
 . . .
 
@@ -125,7 +131,7 @@ $$F = \frac{n-p}{q} \cdot \frac{SSR_c - SSR}{SSR}$$
 If $F < f_{q,n-p}(1-\alpha)$: prefer **sub-model** ($H_0$ at level $\alpha$)
 
 
-## Mallows' $C_p$
+## Mallows' Cₚ
 
 - **True model** (unknown): $Y = X^*\beta^* + \varepsilon$  
 - **Tested model** (possibly wrong): $Y = X\beta + \varepsilon$ with OLS estimate $\hat{\beta}$
@@ -138,7 +144,7 @@ $$\E(\|\tilde{Y} - X\hat{\beta}\|^2)$$
 
 where $\tilde{Y}$ follows the same distribution as $Y$ but is independent.
 
-## Formula for Mallows' $C_p$
+## Formula for Mallows' Cₚ
 . . .
 
 ::: {.square-def}
@@ -195,12 +201,14 @@ $$BIC = n \ln\left(\frac{SSR}{n}\right) + (p+1) \ln n$$
 - **Key difference**: The "2" in front of $(p+1)$ is replaced by $\ln n$
 - This difference **frequently** leads to a [different model choice between AIC and BIC]{style="background-color: yellow;"}
 
-## Relationship Between Criteria
+# Comparing the criteria
+
+## The fit–complexity trade-off
 
 - **"Large" model**: low $SSR$, but high number of variables $p$ \
  (if too large: overfitting)
 - **"Small" model**: high $SSR$, but low number of variables $p$ \ 
-  (if two small: underfitting)
+  (if too small: underfitting)
 
 . . .
 
@@ -236,7 +244,7 @@ $$f(SSR) + c(n) \cdot p$$
 (Other criteria exist built on the same principle.)
 
 
-## Relationship Between Criteria
+## Ordering the criteria
 
 ::: {.square-def}
 $$f(SSR) + c(n) \cdot p$$
@@ -251,7 +259,7 @@ When $\ln n > 2$, **BIC penalizes large models more** than AIC.
 
 . . .
 
-Ordering criteria by their propensity to select the **most sparse model**:
+Ordering criteria by the **size of the model they select** (sparsest on the left):
 
 $$BIC \leq F\text{ test} \leq C_p \approx AIC \leq R_a^2$$
 
@@ -273,7 +281,7 @@ $$BIC \leq F\text{ test} \leq C_p \approx AIC \leq R_a^2$$
 
 # Automatic Selection
 
-## Exhaustive Search
+## Exhaustive search
 
 . . .
 
@@ -289,7 +297,7 @@ If $p_{\max}$ is not too large, this remains feasible.
 
 **R function**: `regsubsets` from `leaps` library
 
-## Exhaustive Search
+## Exhaustive search: a warning
 
 . . .
 
@@ -308,7 +316,7 @@ The selected model may be **bad** in terms of:
 :::
 
 
-## Stepwise Procedures
+## Stepwise: backward
 
 . . .
 
@@ -323,7 +331,7 @@ If $p_{\max}$ is too large for exhaustive search:
 - Repeat: remove remaining least significant variable
 - Stop when no removal improves the model
 
-## Stepwise Procedures
+## Stepwise: forward & hybrid
 
 If $p_{\max}$ is too large for exhaustive search:
 
