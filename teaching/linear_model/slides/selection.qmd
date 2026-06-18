@@ -113,7 +113,79 @@ $$R_a^2 = 1 - \frac{n-1}{n-p} \cdot \frac{SSR}{SST}$$
 
 **Selection rule**: Between two models, prefer **highest** $R_a^2$.
 
+## A submodel = a subset of columns {.smaller}
+
+. . .
+
+
+::: {style="font-size:86%"}
+A submodel keeps a **subset of the columns** of the maximal design $X_{\max}$ (blue = kept, magenta = dropped). Here the columns are powers $1,x,x^2,\dots$; slide $p$ to keep more (nested): $R^2$ can only rise, while $R^2_a$ improves **only if the added column is useful** — over-selecting at random doesn't pay off (motivating the criteria next).
+:::
+
+```{=html}
+<style>
+.lm-btn{font-family:inherit;font-size:.85em;padding:.4em 1.1em;margin:.12em .22em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-row{font-size:.72em;line-height:2.3;margin:.12rem 0}
+.lm-wrap{text-align:center}
+.lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
+</style>
+<div class="lm-wrap">
+  <canvas id="seCanvas" width="660" height="300" style="background:#fff;border:1px solid #ddd;border-radius:8px;max-width:100%"></canvas>
+  <div class="lm-row">kept columns p <input id="seP" type="range" autocomplete="off" min="1" max="8" step="1" value="4" style="vertical-align:middle;width:170px"> <b id="sePv">4</b> &nbsp;·&nbsp; noise <input id="seNz" type="range" autocomplete="off" min="0" max="0.5" step="0.01" value="0.15" style="vertical-align:middle;width:90px"> <b id="seNzv">0.15</b> &nbsp; <button class="lm-btn" id="seNew">↻ reshuffle</button></div>
+  <div class="lm-row"><span class="lm-sw" style="background:#3b6fb6"></span> kept &nbsp; <span class="lm-sw" style="background:#c0508f"></span> dropped &nbsp;·&nbsp; R²=<b id="seR2">–</b> &nbsp;·&nbsp; R²ₐ=<b id="seR2a">–</b> &nbsp;·&nbsp; <span style="color:#888">true size p*=3</span></div>
+</div>
+<script>
+(function () {
+  var cv = document.getElementById('seCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, PMAX = 8, N = 30, Xp = [], Zp = [], order = [];
+  var LBL = ['1', 'x', 'x²', 'x³', 'x⁴', 'x⁵', 'x⁶', 'x⁷'], TRUE = [0.3, 1.0, 0.7];   // true model: powers 0..2 (degree 2)
+  var pEl = document.getElementById('seP'), nzEl = document.getElementById('seNz');
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function vdc(n) { var r = 0, d = 1; while (n > 0) { d *= 2; r += (n % 2) / d; n = Math.floor(n / 2); } return r; }
+  function regen() { Xp = []; Zp = []; for (var i = 0; i < N; i++) { Xp.push(-1 + 2 * vdc(i)); Zp.push(gauss()); } order = [1, 2, 3, 4, 5, 6, 7]; for (var j = order.length - 1; j > 0; j--) { var k = (Math.random() * (j + 1)) | 0, t = order[j]; order[j] = order[k]; order[k] = t; } }
+  function trueY(x) { var s = 0; for (var k = 0; k < TRUE.length; k++) s += TRUE[k] * Math.pow(x, k); return s; }
+  function solve(M, b) { var n = b.length, a = M.map(function (r) { return r.slice(); }), bb = b.slice(), i, r, k; for (i = 0; i < n; i++) { var pv = i; for (r = i + 1; r < n; r++) if (Math.abs(a[r][i]) > Math.abs(a[pv][i])) pv = r; var t = a[i]; a[i] = a[pv]; a[pv] = t; var tb = bb[i]; bb[i] = bb[pv]; bb[pv] = tb; for (r = i + 1; r < n; r++) { var f = a[r][i] / (a[i][i] || 1e-12); for (k = i; k < n; k++) a[r][k] -= f * a[i][k]; bb[r] -= f * bb[i]; } } var x = new Array(n).fill(0); for (i = n - 1; i >= 0; i--) { var s = bb[i]; for (k = i + 1; k < n; k++) s -= a[i][k] * x[k]; x[i] = s / (a[i][i] || 1e-12); } return x; }
+  function selectedPowers(p) { var sel = [0]; for (var j = 0; j < p - 1; j++) sel.push(order[j]); return sel.sort(function (a, b) { return a - b; }); }   // intercept + (p-1) random columns
+  function fit(pows, Y) { var m = pows.length, M = [], v = [], i, r, k; for (r = 0; r < m; r++) { M.push(new Array(m).fill(0)); v.push(0); } for (i = 0; i < N; i++) { var row = pows.map(function (pw) { return Math.pow(Xp[i], pw); }); for (r = 0; r < m; r++) { for (k = 0; k < m; k++) M[r][k] += row[r] * row[k]; v[r] += row[r] * Y[i]; } } for (r = 0; r < m; r++) M[r][r] += 1e-7; return solve(M, v); }
+  function evalFit(pows, beta, x) { var s = 0; for (var j = 0; j < pows.length; j++) s += beta[j] * Math.pow(x, pows[j]); return s; }
+  function draw() {
+    var p = +pEl.value, nz = +nzEl.value; document.getElementById('sePv').textContent = p; document.getElementById('seNzv').textContent = nz.toFixed(2);
+    var sel = selectedPowers(p), selSet = {}; sel.forEach(function (k) { selSet[k] = 1; });
+    var Y = Xp.map(function (x, i) { return trueY(x) + nz * Zp[i]; });
+    var beta = fit(sel, Y);
+    c.clearRect(0, 0, W, H);
+    // LEFT: design matrix schematic
+    var mx0 = 16, mtop = 16, mh = 210, cw = (236 - mx0) / PMAX;
+    c.font = '11px sans-serif'; c.textAlign = 'center'; c.fillStyle = '#777'; c.fillText('columns of X (powers)', mx0 + PMAX * cw / 2 - 4, mtop - 4);
+    for (var k = 0; k < PMAX; k++) {
+      c.fillStyle = selSet[k] ? '#3b6fb6' : '#c0508f'; c.globalAlpha = selSet[k] ? 0.9 : 0.5;
+      c.fillRect(mx0 + k * cw + 1, mtop, cw - 3, mh); c.globalAlpha = 1;
+      c.fillStyle = '#333'; c.fillText(LBL[k], mx0 + k * cw + cw / 2, mtop + mh + 14);
+    }
+    // RIGHT: data + true (dashed) + fit
+    var rx0 = 300, rx1 = W - 12, XL = -1.12, XH = 1.12, YL = -1.9, YH = 1.9, i;
+    function PX(x) { return rx0 + (x - XL) / (XH - XL) * (rx1 - rx0); } function PY(y) { return H - 24 - (y - YL) / (YH - YL) * (H - 38); }
+    c.strokeStyle = '#ddd'; c.strokeRect(rx0, 12, rx1 - rx0, H - 36); c.fillStyle = '#777'; c.textAlign = 'center'; c.fillText('fit with the kept columns', (rx0 + rx1) / 2, H - 8);
+    c.strokeStyle = '#bbb'; c.lineWidth = 1.5; c.setLineDash([5, 4]); c.beginPath(); for (i = 0; i <= 200; i++) { var x = XL + (XH - XL) * i / 200; i ? c.lineTo(PX(x), PY(trueY(x))) : c.moveTo(PX(x), PY(trueY(x))); } c.stroke(); c.setLineDash([]);
+    c.save(); c.beginPath(); c.rect(rx0, 12, rx1 - rx0, H - 36); c.clip();
+    c.strokeStyle = '#e74c3c'; c.lineWidth = 2.5; c.beginPath(); for (i = 0; i <= 220; i++) { var xx = XL + (XH - XL) * i / 220; i ? c.lineTo(PX(xx), PY(evalFit(sel, beta, xx))) : c.moveTo(PX(xx), PY(evalFit(sel, beta, xx))); } c.stroke();
+    c.fillStyle = 'rgba(44,62,80,0.7)'; for (i = 0; i < N; i++) { c.beginPath(); c.arc(PX(Xp[i]), PY(Y[i]), 2.8, 0, 6.2832); c.fill(); }
+    c.restore();
+    var my = 0; Y.forEach(function (y) { my += y; }); my /= N; var ssr = 0, sst = 0;
+    Y.forEach(function (y, i) { var yh = evalFit(sel, beta, Xp[i]); ssr += (y - yh) * (y - yh); sst += (y - my) * (y - my); });
+    document.getElementById('seR2').textContent = (1 - ssr / sst).toFixed(3); document.getElementById('seR2a').textContent = (1 - (N - 1) / (N - p) * ssr / sst).toFixed(3);
+  }
+  pEl.addEventListener('input', draw); nzEl.addEventListener('input', draw);
+  document.getElementById('seNew').addEventListener('click', function () { regen(); draw(); });
+  regen(); draw();
+})();
+</script>
+```
+
 ## Fisher Test for Nested Models
+
+. . .
+
 
 ::: {.square-def}
 $$F = \frac{n-p}{q} \cdot \frac{SSR_c - SSR}{SSR}$$
@@ -221,6 +293,65 @@ All previous criteria try to find a **compromise** between:
 
 This is a **permanent trade-off** in statistics (not just in regression).
 
+## The trade-off, term by term {.smaller}
+
+. . .
+
+
+::: {style="font-size:84%"}
+A criterion is $f(\mathrm{SSR}) + c(n)\,p$: the **fit term** $n\ln(\mathrm{SSR}/n)$ falls as the model grows, the **penalty** $c(n)\,p$ rises. Their **sum** is U-shaped — its minimum is the selected size. Bigger $c(n)$ (BIC vs AIC) ⇒ smaller model.
+:::
+
+```{=html}
+<style>
+.lm-btn{font-family:inherit;font-size:.82em;padding:.35em 1em;margin:.1em .18em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-btn.on{background:#3b6fb6;color:#fff;border-color:#3b6fb6}
+.lm-row{font-size:.72em;line-height:2.3;margin:.12rem 0}
+.lm-wrap{text-align:center}
+.lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
+</style>
+<div class="lm-wrap" id="toWrap">
+  <canvas id="toCanvas" width="620" height="300" style="background:#fff;border:1px solid #ddd;border-radius:8px;max-width:100%"></canvas>
+  <div class="lm-row">criterion: <button class="lm-btn on" data-c="bic">BIC (c=ln n)</button><button class="lm-btn" data-c="aic">AIC (c=2)</button> &nbsp; noise <input id="toNz" type="range" autocomplete="off" min="0.05" max="0.6" step="0.01" value="0.2" style="vertical-align:middle;width:100px"> <b id="toNzv">0.20</b> &nbsp; <button class="lm-btn" id="toNew">↻ resample</button></div>
+  <div class="lm-row"><span class="lm-sw" style="background:#3b6fb6"></span> fit term &nbsp; <span class="lm-sw" style="background:#e67e22"></span> penalty &nbsp; <span class="lm-sw" style="background:#222"></span> total &nbsp;·&nbsp; selected p = <b id="toP">–</b> &nbsp;<span style="color:#888">(true p*=3)</span></div>
+</div>
+<script>
+(function () {
+  var cv = document.getElementById('toCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, PMAX = 8, N = 30, Xp = [], Zp = [], crit = 'bic';
+  var TRUE = [0.3, 1.0, 0.7], nzEl = document.getElementById('toNz');
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function vdc(n) { var r = 0, d = 1; while (n > 0) { d *= 2; r += (n % 2) / d; n = Math.floor(n / 2); } return r; }
+  function regen() { Xp = []; Zp = []; for (var i = 0; i < N; i++) { Xp.push(-1 + 2 * vdc(i)); Zp.push(gauss()); } }
+  function trueY(x) { var s = 0; for (var k = 0; k < TRUE.length; k++) s += TRUE[k] * Math.pow(x, k); return s; }
+  function solve(M, b) { var n = b.length, a = M.map(function (r) { return r.slice(); }), bb = b.slice(), i, r, k; for (i = 0; i < n; i++) { var pv = i; for (r = i + 1; r < n; r++) if (Math.abs(a[r][i]) > Math.abs(a[pv][i])) pv = r; var t = a[i]; a[i] = a[pv]; a[pv] = t; var tb = bb[i]; bb[i] = bb[pv]; bb[pv] = tb; for (r = i + 1; r < n; r++) { var f = a[r][i] / (a[i][i] || 1e-12); for (k = i; k < n; k++) a[r][k] -= f * a[i][k]; bb[r] -= f * bb[i]; } } var x = new Array(n).fill(0); for (i = n - 1; i >= 0; i--) { var s = bb[i]; for (k = i + 1; k < n; k++) s -= a[i][k] * x[k]; x[i] = s / (a[i][i] || 1e-12); } return x; }
+  function ssrDeg(d, Y) { var pows = []; for (var k = 0; k <= d; k++) pows.push(k); var m = pows.length, M = [], v = [], i, r, kk; for (r = 0; r < m; r++) { M.push(new Array(m).fill(0)); v.push(0); } for (i = 0; i < N; i++) { var row = pows.map(function (pw) { return Math.pow(Xp[i], pw); }); for (r = 0; r < m; r++) { for (kk = 0; kk < m; kk++) M[r][kk] += row[r] * row[kk]; v[r] += row[r] * Y[i]; } } for (r = 0; r < m; r++) M[r][r] += 1e-8; var b = solve(M, v), s = 0; for (i = 0; i < N; i++) { var yh = 0; for (kk = 0; kk < m; kk++) yh += b[kk] * Math.pow(Xp[i], pows[kk]); s += (Y[i] - yh) * (Y[i] - yh); } return s; }
+  function draw() {
+    document.getElementById('toNzv').textContent = (+nzEl.value).toFixed(2);
+    var Y = Xp.map(function (x, i) { return trueY(x) + (+nzEl.value) * Zp[i]; });
+    var cn = crit === 'bic' ? Math.log(N) : 2, fitT = [], pen = [], tot = [], p;
+    for (p = 1; p <= PMAX; p++) { var ssr = Math.max(ssrDeg(p - 1, Y), 1e-9); var ft = N * Math.log(ssr / N), pe = cn * (p + 1); fitT.push(ft); pen.push(pe); tot.push(ft + pe); }
+    var lo = Math.min.apply(0, fitT.concat(pen).concat(tot)), hi = Math.max.apply(0, fitT.concat(pen).concat(tot)), pad = (hi - lo) * 0.08; lo -= pad; hi += pad;
+    var bp = 0; for (p = 1; p < PMAX; p++) if (tot[p] < tot[bp]) bp = p;
+    var X0 = 40, Y0 = 12, BW = W - 52, BH = H - 46;
+    function PX(pp) { return X0 + (pp - 1) / (PMAX - 1) * BW; } function PY(y) { return Y0 + (hi - y) / (hi - lo) * BH; }
+    c.clearRect(0, 0, W, H); c.strokeStyle = '#eee'; c.strokeRect(X0, Y0, BW, BH);
+    c.fillStyle = '#999'; c.font = '10px sans-serif'; c.textAlign = 'center'; for (p = 1; p <= PMAX; p++) c.fillText(p, PX(p), H - 18);
+    c.fillText('model size p', X0 + BW / 2, H - 4);
+    function curve(arr, col, w) { c.strokeStyle = col; c.lineWidth = w; c.beginPath(); for (var p = 1; p <= PMAX; p++) { var x = PX(p), y = PY(arr[p - 1]); p > 1 ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke(); for (p = 1; p <= PMAX; p++) { c.fillStyle = col; c.beginPath(); c.arc(PX(p), PY(arr[p - 1]), 2.5, 0, 6.2832); c.fill(); } }
+    curve(fitT, '#3b6fb6', 2); curve(pen, '#e67e22', 2); curve(tot, '#222', 2.6);
+    c.strokeStyle = '#aaa'; c.setLineDash([3, 3]); c.beginPath(); c.moveTo(PX(3), Y0); c.lineTo(PX(3), Y0 + BH); c.stroke(); c.setLineDash([]);
+    c.fillStyle = '#222'; c.beginPath(); c.arc(PX(bp + 1), PY(tot[bp]), 5, 0, 6.2832); c.fill();
+    document.getElementById('toP').textContent = bp + 1;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#toWrap .lm-btn[data-c]'), function (b) { b.addEventListener('click', function () { crit = b.dataset.c; Array.prototype.forEach.call(document.querySelectorAll('#toWrap .lm-btn[data-c]'), function (x) { x.classList.toggle('on', x === b); }); draw(); }); });
+  nzEl.addEventListener('input', draw);
+  document.getElementById('toNew').addEventListener('click', function () { regen(); draw(); });
+  regen(); draw();
+})();
+</script>
+```
+
 ## General Form
 
 . . .
@@ -246,6 +377,9 @@ $$f(SSR) + c(n) \cdot p$$
 
 ## Ordering the criteria
 
+. . .
+
+
 ::: {.square-def}
 $$f(SSR) + c(n) \cdot p$$
 :::
@@ -266,7 +400,72 @@ $$BIC \leq F\text{ test} \leq C_p \approx AIC \leq R_a^2$$
 - **BIC** will favor a **smaller model** than $C_p$ or AIC
 - **$R_a^2$** will tend to favor an **even larger model**
 
+## Each criterion's best model size {.smaller}
+
+. . .
+
+
+::: {style="font-size:84%"}
+One **lane per criterion** (each curve normalised separately — compare the **dot positions**, not heights). The optimum moves **right** as the penalty weakens: **BIC** picks the smallest model, **R²ₐ** the largest. Dashed line = true size $p^*=3$.
+:::
+
+```{=html}
+<style>
+.lm-btn{font-family:inherit;font-size:.82em;padding:.35em 1em;margin:.1em .18em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-row{font-size:.72em;line-height:2.3;margin:.12rem 0}
+.lm-wrap{text-align:center}
+</style>
+<div class="lm-wrap">
+  <canvas id="cuCanvas" width="620" height="300" style="background:#fff;border:1px solid #ddd;border-radius:8px;max-width:100%"></canvas>
+  <div class="lm-row">noise <input id="cuNz" type="range" autocomplete="off" min="0.05" max="0.6" step="0.01" value="0.2" style="vertical-align:middle;width:140px"> <b id="cuNzv">0.20</b> &nbsp; <button class="lm-btn" id="cuNew">↻ resample</button> &nbsp;·&nbsp; optimal p: <span style="color:#7c5cff">BIC <b id="cuB">–</b></span> · <span style="color:#e67e22">AIC <b id="cuA">–</b></span> · <span style="color:#27ae60">Cₚ <b id="cuC">–</b></span> · <span style="color:#3b6fb6">R²ₐ <b id="cuR">–</b></span></div>
+</div>
+<script>
+(function () {
+  var cv = document.getElementById('cuCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, PMAX = 8, N = 30, Xp = [], Zp = [];
+  var TRUE = [0.3, 1.0, 0.7], nzEl = document.getElementById('cuNz');
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function vdc(n) { var r = 0, d = 1; while (n > 0) { d *= 2; r += (n % 2) / d; n = Math.floor(n / 2); } return r; }
+  function regen() { Xp = []; Zp = []; for (var i = 0; i < N; i++) { Xp.push(-1 + 2 * vdc(i)); Zp.push(gauss()); } }
+  function trueY(x) { var s = 0; for (var k = 0; k < TRUE.length; k++) s += TRUE[k] * Math.pow(x, k); return s; }
+  function solve(M, b) { var n = b.length, a = M.map(function (r) { return r.slice(); }), bb = b.slice(), i, r, k; for (i = 0; i < n; i++) { var pv = i; for (r = i + 1; r < n; r++) if (Math.abs(a[r][i]) > Math.abs(a[pv][i])) pv = r; var t = a[i]; a[i] = a[pv]; a[pv] = t; var tb = bb[i]; bb[i] = bb[pv]; bb[pv] = tb; for (r = i + 1; r < n; r++) { var f = a[r][i] / (a[i][i] || 1e-12); for (k = i; k < n; k++) a[r][k] -= f * a[i][k]; bb[r] -= f * bb[i]; } } var x = new Array(n).fill(0); for (i = n - 1; i >= 0; i--) { var s = bb[i]; for (k = i + 1; k < n; k++) s -= a[i][k] * x[k]; x[i] = s / (a[i][i] || 1e-12); } return x; }
+  function ssrDeg(d, Y) { var m = d + 1, M = [], v = [], i, r, kk; for (r = 0; r < m; r++) { M.push(new Array(m).fill(0)); v.push(0); } for (i = 0; i < N; i++) { var row = []; for (kk = 0; kk < m; kk++) row.push(Math.pow(Xp[i], kk)); for (r = 0; r < m; r++) { for (kk = 0; kk < m; kk++) M[r][kk] += row[r] * row[kk]; v[r] += row[r] * Y[i]; } } for (r = 0; r < m; r++) M[r][r] += 1e-8; var b = solve(M, v), s = 0; for (i = 0; i < N; i++) { var yh = 0; for (kk = 0; kk < m; kk++) yh += b[kk] * Math.pow(Xp[i], kk); s += (Y[i] - yh) * (Y[i] - yh); } return s; }
+  function argmin(a) { var b = 0; for (var i = 1; i < a.length; i++) if (a[i] < a[b]) b = i; return b; }
+  function argmax(a) { var b = 0; for (var i = 1; i < a.length; i++) if (a[i] > a[b]) b = i; return b; }
+  function nrm(a) { var lo = Math.min.apply(0, a), hi = Math.max.apply(0, a); return a.map(function (v) { return (v - lo) / ((hi - lo) || 1); }); }
+  function draw() {
+    document.getElementById('cuNzv').textContent = (+nzEl.value).toFixed(2);
+    var Y = Xp.map(function (x, i) { return trueY(x) + (+nzEl.value) * Zp[i]; });
+    var ssr = [], p, my = 0; Y.forEach(function (y) { my += y; }); my /= N; var SST = 0; Y.forEach(function (y) { SST += (y - my) * (y - my); });
+    for (p = 1; p <= PMAX; p++) ssr.push(Math.max(ssrDeg(p - 1, Y), 1e-9));
+    var sig2 = ssr[PMAX - 1] / (N - PMAX), aic = [], bic = [], cp = [], r2a = [];
+    for (p = 1; p <= PMAX; p++) { var s = ssr[p - 1]; aic.push(N * Math.log(s / N) + 2 * (p + 1)); bic.push(N * Math.log(s / N) + (p + 1) * Math.log(N)); cp.push(s / sig2 - N + 2 * p); r2a.push(1 - (N - 1) / (N - p) * s / SST); }
+    var lanes = [['BIC', bic, '#7c5cff', argmin(bic)], ['AIC', aic, '#e67e22', argmin(aic)], ['Cₚ', cp, '#27ae60', argmin(cp)], ['R²ₐ', r2a, '#3b6fb6', argmax(r2a)]];
+    var X0 = 52, Y0 = 10, BW = W - X0 - 14, BH = H - 30, laneH = BH / 4, pad = 8;
+    function PX(p) { return X0 + (p - 1) / (PMAX - 1) * BW; }
+    c.clearRect(0, 0, W, H);
+    c.strokeStyle = '#cfc7ef'; c.setLineDash([4, 3]); c.lineWidth = 1.5; c.beginPath(); c.moveTo(PX(3), Y0); c.lineTo(PX(3), Y0 + BH); c.stroke(); c.setLineDash([]);
+    lanes.forEach(function (L, li) {
+      var lt = Y0 + li * laneH, nv = nrm(L[1]);
+      c.strokeStyle = '#eee'; c.lineWidth = 1; c.strokeRect(X0, lt + 2, BW, laneH - 4);
+      c.fillStyle = L[2]; c.font = 'bold 12px sans-serif'; c.textAlign = 'right'; c.fillText(L[0], X0 - 6, lt + laneH / 2 + 4);
+      c.strokeStyle = L[2]; c.lineWidth = 2; c.beginPath(); for (var p = 1; p <= PMAX; p++) { var x = PX(p), y = lt + laneH - pad - nv[p - 1] * (laneH - 2 * pad); p > 1 ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke();
+      var op = L[3]; c.fillStyle = L[2]; c.beginPath(); c.arc(PX(op + 1), lt + laneH - pad - nv[op] * (laneH - 2 * pad), 5.5, 0, 6.2832); c.fill(); c.strokeStyle = '#fff'; c.lineWidth = 1.5; c.stroke();
+    });
+    c.fillStyle = '#999'; c.font = '10px sans-serif'; c.textAlign = 'center'; for (p = 1; p <= PMAX; p++) c.fillText(p, PX(p), H - 6); c.fillText('model size p', X0 + BW / 2, H - 18);
+    document.getElementById('cuB').textContent = lanes[0][3] + 1; document.getElementById('cuA').textContent = lanes[1][3] + 1; document.getElementById('cuC').textContent = lanes[2][3] + 1; document.getElementById('cuR').textContent = lanes[3][3] + 1;
+  }
+  nzEl.addEventListener('input', draw);
+  document.getElementById('cuNew').addEventListener('click', function () { regen(); draw(); });
+  regen(); draw();
+})();
+</script>
+```
+
 ## Theoretical Aspects
+
+. . .
+
 
 | Probability as $n \to \infty$ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | BIC | $C_p$, AIC, $R_a^2$ |
 |---|-----|------|
@@ -278,6 +477,68 @@ $$BIC \leq F\text{ test} \leq C_p \approx AIC \leq R_a^2$$
 
 **BIC is asymptotically consistent**, while other criteria tend to overfit.
 
+
+## AIC vs BIC: consistency as n grows {.smaller}
+
+. . .
+
+
+::: {style="font-size:84%"}
+Repeat the experiment (best-subset over $1,x,\dots,x^4$, truth $=\{1,x,x^2\}$) and record how often each criterion **misses a term**, **recovers exactly**, or **over-selects**. As $n$ grows, **BIC → exact**, while **AIC keeps over-selecting**.
+:::
+
+```{=html}
+<style>
+.lm-btn{font-family:inherit;font-size:.82em;padding:.35em 1em;margin:.1em .18em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-row{font-size:.72em;line-height:2.3;margin:.12rem 0}
+.lm-wrap{text-align:center}
+.lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
+</style>
+<div class="lm-wrap">
+  <canvas id="csCanvas" width="560" height="290" style="background:#fff;border:1px solid #ddd;border-radius:8px;max-width:100%"></canvas>
+  <div class="lm-row">sample size n <input id="csN" type="range" autocomplete="off" min="20" max="150" step="2" value="30" style="vertical-align:middle;width:170px"> <b id="csNv">30</b> &nbsp;·&nbsp; noise <input id="csS" type="range" autocomplete="off" min="0.1" max="0.6" step="0.02" value="0.3" style="vertical-align:middle;width:90px"> <b id="csSv">0.30</b></div>
+  <div class="lm-row"><span class="lm-sw" style="background:#e74c3c"></span> missed &nbsp; <span class="lm-sw" style="background:#27ae60"></span> exact &nbsp; <span class="lm-sw" style="background:#e67e22"></span> over-selected &nbsp;·&nbsp; <span style="color:#888">300 repetitions</span></div>
+</div>
+<script>
+(function () {
+  var cv = document.getElementById('csCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, PMAX = 5, M = 300, TRUE = [0.3, 1.0, 0.7], TRUESET = [0, 1, 2];
+  var nEl = document.getElementById('csN'), sEl = document.getElementById('csS');
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function vdc(k) { var r = 0, d = 1; while (k > 0) { d *= 2; r += (k % 2) / d; k = Math.floor(k / 2); } return r; }
+  function trueY(x) { var s = 0; for (var k = 0; k < TRUE.length; k++) s += TRUE[k] * Math.pow(x, k); return s; }
+  function solve(Mx, b) { var n = b.length, a = Mx.map(function (r) { return r.slice(); }), bb = b.slice(), i, r, k; for (i = 0; i < n; i++) { var pv = i; for (r = i + 1; r < n; r++) if (Math.abs(a[r][i]) > Math.abs(a[pv][i])) pv = r; var t = a[i]; a[i] = a[pv]; a[pv] = t; var tb = bb[i]; bb[i] = bb[pv]; bb[pv] = tb; for (r = i + 1; r < n; r++) { var f = a[r][i] / (a[i][i] || 1e-12); for (k = i; k < n; k++) a[r][k] -= f * a[i][k]; bb[r] -= f * bb[i]; } } var x = new Array(n).fill(0); for (i = n - 1; i >= 0; i--) { var s = bb[i]; for (k = i + 1; k < n; k++) s -= a[i][k] * x[k]; x[i] = s / (a[i][i] || 1e-12); } return x; }
+  function ssr(pows, X, Y, n) { var m = pows.length, M2 = [], v = [], i, r, k; for (r = 0; r < m; r++) { M2.push(new Array(m).fill(0)); v.push(0); } for (i = 0; i < n; i++) { var row = pows.map(function (pw) { return Math.pow(X[i], pw); }); for (r = 0; r < m; r++) { for (k = 0; k < m; k++) M2[r][k] += row[r] * row[k]; v[r] += row[r] * Y[i]; } } for (r = 0; r < m; r++) M2[r][r] += 1e-8; var b = solve(M2, v), s = 0; for (i = 0; i < n; i++) { var yh = 0; for (k = 0; k < m; k++) yh += b[k] * Math.pow(X[i], pows[k]); s += (Y[i] - yh) * (Y[i] - yh); } return s; }
+  var SUBS = []; for (var mk = 0; mk < (1 << (PMAX - 1)); mk++) { var s = [0]; for (var i = 0; i < PMAX - 1; i++) if (mk & (1 << i)) s.push(i + 1); SUBS.push(s); }
+  function classify(sel) { var set = {}; sel.forEach(function (k) { set[k] = 1; }); for (var i = 0; i < TRUESET.length; i++) if (!set[TRUESET[i]]) return 0; return sel.length > TRUESET.length ? 2 : 1; }   // 0 missed, 1 exact, 2 over
+  function run(n, sig) {
+    var X = []; for (var i = 0; i < n; i++) X.push(-1 + 2 * vdc(i));
+    var aic = [0, 0, 0], bic = [0, 0, 0], rep;
+    for (rep = 0; rep < M; rep++) {
+      var Y = X.map(function (x) { return trueY(x) + sig * gauss(); });
+      var aB = null, aV = Infinity, bB = null, bV = Infinity;
+      for (var j = 0; j < SUBS.length; j++) { var p = SUBS[j].length, s = Math.max(ssr(SUBS[j], X, Y, n), 1e-12), ln = n * Math.log(s / n); var av = ln + 2 * (p + 1), bv = ln + (p + 1) * Math.log(n); if (av < aV) { aV = av; aB = SUBS[j]; } if (bv < bV) { bV = bv; bB = SUBS[j]; } }
+      aic[classify(aB)]++; bic[classify(bB)]++;
+    }
+    return { aic: aic.map(function (x) { return x / M; }), bic: bic.map(function (x) { return x / M; }) };
+  }
+  function draw() {
+    var n = +nEl.value, sig = +sEl.value; document.getElementById('csNv').textContent = n; document.getElementById('csSv').textContent = sig.toFixed(2);
+    var R = run(n, sig), cols = ['#e74c3c', '#27ae60', '#e67e22'], top = 16, bh = H - 54, bw = 90;
+    c.clearRect(0, 0, W, H);
+    [['AIC', R.aic, W * 0.32], ['BIC', R.bic, W * 0.68]].forEach(function (g) {
+      var name = g[0], pr = g[1], cx = g[2], y = top;
+      for (var s = 0; s < 3; s++) { var seg = pr[s] * bh; c.fillStyle = cols[s]; c.fillRect(cx - bw / 2, y, bw, seg); if (pr[s] > 0.06) { c.fillStyle = '#fff'; c.font = 'bold 12px sans-serif'; c.textAlign = 'center'; c.fillText(Math.round(pr[s] * 100) + '%', cx, y + seg / 2 + 4); } y += seg; }
+      c.fillStyle = '#222'; c.font = 'bold 14px sans-serif'; c.textAlign = 'center'; c.fillText(name, cx, top + bh + 20);
+    });
+    c.strokeStyle = '#eee'; c.strokeRect(8, top, W - 16, bh);
+  }
+  var pend = false; function sched() { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; draw(); }); }
+  nEl.addEventListener('input', sched); sEl.addEventListener('input', sched);
+  draw();
+})();
+</script>
+```
 
 # Automatic Selection
 
@@ -333,6 +594,9 @@ If $p_{\max}$ is too large for exhaustive search:
 
 ## Stepwise: forward & hybrid
 
+. . .
+
+
 If $p_{\max}$ is too large for exhaustive search:
 
 . . .
@@ -348,6 +612,107 @@ If $p_{\max}$ is too large for exhaustive search:
 
 - Like backward (or forward), but also try **adding** (or **removing**) a variable at each step
 
+
+## Automatic selection in action {.smaller}
+
+. . .
+
+
+::: {style="font-size:84%"}
+Pick an **algorithm** and a **criterion**. For *forward*/*backward*, step through the greedy path with **◀ / ▶**; the criterion's best step (★) is the selected model. Truth $=\{1,x,x^2\}$ (★ under columns). BIC stays parsimonious; $R^2_a$ tends to over-select.
+:::
+
+```{=html}
+<style>
+.lm-btn{font-family:inherit;font-size:.8em;padding:.32em .9em;margin:.1em .15em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-btn.on{background:#3b6fb6;color:#fff;border-color:#3b6fb6}
+.lm-btn:disabled{opacity:.4;cursor:default}
+.lm-row{font-size:.68em;line-height:2.1;margin:.08rem 0}
+.lm-wrap{text-align:center}
+</style>
+<div class="lm-wrap" id="saWrap">
+  <canvas id="saCanvas" width="660" height="280" style="background:#fff;border:1px solid #ddd;border-radius:8px;max-width:100%"></canvas>
+  <div class="lm-row">
+    algo: <button class="lm-btn" data-algo="best">best subset</button><button class="lm-btn on" data-algo="fwd">forward</button><button class="lm-btn" data-algo="bwd">backward</button>
+    &nbsp; criterion: <button class="lm-btn on" data-crit="bic">BIC</button><button class="lm-btn" data-crit="aic">AIC</button><button class="lm-btn" data-crit="cp">Cₚ</button><button class="lm-btn" data-crit="r2a">R²ₐ</button>
+  </div>
+  <div class="lm-row">
+    <button class="lm-btn" id="saPrev">◀ prev</button><button class="lm-btn" id="saNext">next ▶</button><button class="lm-btn" id="saOpt">optimal ★</button>
+    &nbsp; noise <input id="saNz" type="range" autocomplete="off" min="0" max="0.6" step="0.01" value="0.2" style="vertical-align:middle;width:90px"> <b id="saNzv">0.20</b> &nbsp; <button class="lm-btn" id="saNew">↻ resample</button>
+  </div>
+  <div class="lm-row">
+    <b id="saStep">–</b> &nbsp;·&nbsp; selected: <b id="saSel">–</b> &nbsp;·&nbsp; <b id="saCritv">–</b> &nbsp;·&nbsp; <span id="saRec">–</span>
+  </div>
+</div>
+<script>
+(function () {
+  var cv = document.getElementById('saCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, PMAX = 8, N = 30, Xp = [], Zp = [];
+  var LBL = ['1', 'x', 'x²', 'x³', 'x⁴', 'x⁵', 'x⁶', 'x⁷'], TRUE = [0.3, 1.0, 0.7], TRUESET = [0, 1, 2];
+  var algo = 'fwd', crit = 'bic', path = [], selIdx = 0, step = 0, Yc, SST, sig2, nzEl = document.getElementById('saNz');
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function vdc(n) { var r = 0, d = 1; while (n > 0) { d *= 2; r += (n % 2) / d; n = Math.floor(n / 2); } return r; }
+  function regen() { Xp = []; Zp = []; for (var i = 0; i < N; i++) { Xp.push(-1 + 2 * vdc(i)); Zp.push(gauss()); } }
+  function trueY(x) { var s = 0; for (var k = 0; k < TRUE.length; k++) s += TRUE[k] * Math.pow(x, k); return s; }
+  function solve(M, b) { var n = b.length, a = M.map(function (r) { return r.slice(); }), bb = b.slice(), i, r, k; for (i = 0; i < n; i++) { var pv = i; for (r = i + 1; r < n; r++) if (Math.abs(a[r][i]) > Math.abs(a[pv][i])) pv = r; var t = a[i]; a[i] = a[pv]; a[pv] = t; var tb = bb[i]; bb[i] = bb[pv]; bb[pv] = tb; for (r = i + 1; r < n; r++) { var f = a[r][i] / (a[i][i] || 1e-12); for (k = i; k < n; k++) a[r][k] -= f * a[i][k]; bb[r] -= f * bb[i]; } } var x = new Array(n).fill(0); for (i = n - 1; i >= 0; i--) { var s = bb[i]; for (k = i + 1; k < n; k++) s -= a[i][k] * x[k]; x[i] = s / (a[i][i] || 1e-12); } return x; }
+  function fit(pows) { var m = pows.length, M = [], v = [], i, r, k; for (r = 0; r < m; r++) { M.push(new Array(m).fill(0)); v.push(0); } for (i = 0; i < N; i++) { var row = pows.map(function (pw) { return Math.pow(Xp[i], pw); }); for (r = 0; r < m; r++) { for (k = 0; k < m; k++) M[r][k] += row[r] * row[k]; v[r] += row[r] * Yc[i]; } } for (r = 0; r < m; r++) M[r][r] += 1e-7; var beta = solve(M, v), ssr = 0; for (i = 0; i < N; i++) { var yh = 0; for (k = 0; k < m; k++) yh += beta[k] * Math.pow(Xp[i], pows[k]); ssr += (Yc[i] - yh) * (Yc[i] - yh); } return { beta: beta, ssr: ssr }; }
+  function prep() { Yc = Xp.map(function (x, i) { return trueY(x) + (+nzEl.value) * Zp[i]; }); var my = 0; Yc.forEach(function (y) { my += y; }); my /= N; SST = 0; Yc.forEach(function (y) { SST += (y - my) * (y - my); }); sig2 = fit([0, 1, 2, 3, 4, 5, 6, 7]).ssr / (N - PMAX); }
+  function critVal(pows) { var ssr = Math.max(fit(pows).ssr, 1e-12), p = pows.length; if (crit === 'aic') return N * Math.log(ssr / N) + 2 * (p + 1); if (crit === 'bic') return N * Math.log(ssr / N) + (p + 1) * Math.log(N); if (crit === 'cp') return ssr / sig2 - N + 2 * p; return -(1 - (N - 1) / (N - p) * ssr / SST); }
+  function build() {
+    prep();
+    if (algo === 'best') {
+      var opt = [1, 2, 3, 4, 5, 6, 7], best = [0], bv = Infinity, i;
+      for (var mk = 0; mk < (1 << 7); mk++) { var s = [0]; for (i = 0; i < 7; i++) if (mk & (1 << i)) s.push(opt[i]); var v = critVal(s); if (v < bv) { bv = v; best = s; } }
+      path = [best.sort(function (a, b) { return a - b; })]; selIdx = 0;
+    } else if (algo === 'fwd') {
+      var cur = [0], rem = [1, 2, 3, 4, 5, 6, 7]; path = [cur.slice()];
+      while (rem.length) { var bi = 0, bw = Infinity; for (i = 0; i < rem.length; i++) { var vv = critVal(cur.concat([rem[i]])); if (vv < bw) { bw = vv; bi = i; } } cur.push(rem[bi]); rem.splice(bi, 1); path.push(cur.slice().sort(function (a, b) { return a - b; })); }
+    } else {
+      var cb = [0, 1, 2, 3, 4, 5, 6, 7]; path = [cb.slice()];
+      while (cb.length > 1) { var ri = 1, rw = Infinity; for (i = 1; i < cb.length; i++) { var t = cb.slice(); t.splice(i, 1); var v2 = critVal(t); if (v2 < rw) { rw = v2; ri = i; } } cb.splice(ri, 1); path.push(cb.slice().sort(function (a, b) { return a - b; })); }
+    }
+    if (algo !== 'best') { selIdx = 0; var bestv = Infinity; for (var j = 0; j < path.length; j++) { var cvj = critVal(path[j]); if (cvj < bestv) { bestv = cvj; selIdx = j; } } }
+    step = selIdx;
+  }
+  function draw() {
+    document.getElementById('saNzv').textContent = (+nzEl.value).toFixed(2);
+    var sel = path[step], selSet = {}; sel.forEach(function (k) { selSet[k] = 1; });
+    var f = fit(sel), beta = f.beta, k;
+    c.clearRect(0, 0, W, H);
+    var mx0 = 16, mtop = 16, mh = 190, cw = (236 - mx0) / PMAX;
+    c.font = '11px sans-serif'; c.textAlign = 'center'; c.fillStyle = '#777'; c.fillText('columns of X (powers)', mx0 + PMAX * cw / 2 - 4, mtop - 5);
+    for (k = 0; k < PMAX; k++) { c.fillStyle = selSet[k] ? '#3b6fb6' : '#c0508f'; c.globalAlpha = selSet[k] ? 0.9 : 0.45; c.fillRect(mx0 + k * cw + 1, mtop, cw - 3, mh); c.globalAlpha = 1; c.fillStyle = '#333'; c.fillText(LBL[k], mx0 + k * cw + cw / 2, mtop + mh + 14); if (TRUESET.indexOf(k) >= 0) { c.fillStyle = '#e8a200'; c.fillText('★', mx0 + k * cw + cw / 2, mtop + mh + 27); } }
+    var rx0 = 300, rx1 = W - 12, XL = -1.12, XH = 1.12, YL = -1.9, YH = 1.9, i;
+    function PX(x) { return rx0 + (x - XL) / (XH - XL) * (rx1 - rx0); } function PY(y) { return H - 22 - (y - YL) / (YH - YL) * (H - 34); }
+    c.strokeStyle = '#ddd'; c.strokeRect(rx0, 12, rx1 - rx0, H - 34); c.fillStyle = '#777'; c.textAlign = 'center'; c.fillText('current-model fit', (rx0 + rx1) / 2, H - 6);
+    c.strokeStyle = '#bbb'; c.lineWidth = 1.5; c.setLineDash([5, 4]); c.beginPath(); for (i = 0; i <= 200; i++) { var x = XL + (XH - XL) * i / 200; i ? c.lineTo(PX(x), PY(trueY(x))) : c.moveTo(PX(x), PY(trueY(x))); } c.stroke(); c.setLineDash([]);
+    c.save(); c.beginPath(); c.rect(rx0, 12, rx1 - rx0, H - 34); c.clip();
+    c.strokeStyle = '#e74c3c'; c.lineWidth = 2.5; c.beginPath(); for (i = 0; i <= 220; i++) { var xx = XL + (XH - XL) * i / 220, yh = 0; for (var j = 0; j < sel.length; j++) yh += beta[j] * Math.pow(xx, sel[j]); i ? c.lineTo(PX(xx), PY(yh)) : c.moveTo(PX(xx), PY(yh)); } c.stroke();
+    c.fillStyle = 'rgba(44,62,80,0.7)'; for (i = 0; i < N; i++) { c.beginPath(); c.arc(PX(Xp[i]), PY(Yc[i]), 2.8, 0, 6.2832); c.fill(); }
+    c.restore();
+    // readouts
+    var isBest = algo === 'best';
+    document.getElementById('saPrev').disabled = isBest || step <= 0; document.getElementById('saNext').disabled = isBest || step >= path.length - 1; document.getElementById('saOpt').disabled = isBest || step === selIdx;
+    var stepTxt = isBest ? 'best subset' : ('step ' + (step + 1) + '/' + path.length + (step === selIdx ? ' ★ selected' : ''));
+    if (!isBest && step > 0) { var prev = path[step - 1], moved = (step > selIdx || sel.length > prev.length) ? sel.filter(function (x) { return prev.indexOf(x) < 0; }) : prev.filter(function (x) { return sel.indexOf(x) < 0; }); var sign = sel.length > prev.length ? '+' : '−'; if (moved.length) stepTxt += ' (' + sign + LBL[moved[0]] + ')'; }
+    document.getElementById('saStep').textContent = stepTxt;
+    document.getElementById('saSel').textContent = '{' + sel.map(function (k) { return LBL[k]; }).join(', ') + '}';
+    var cl = { aic: 'AIC', bic: 'BIC', cp: 'Cₚ', r2a: 'R²ₐ' }[crit], cvv = critVal(sel); document.getElementById('saCritv').textContent = cl + '=' + (crit === 'r2a' ? (-cvv).toFixed(3) : cvv.toFixed(1));
+    var exact = sel.length === TRUESET.length && TRUESET.every(function (k) { return selSet[k]; });
+    document.getElementById('saRec').innerHTML = exact ? '<span style="color:#1b7a3a">= true model ✓</span>' : (sel.length > TRUESET.length ? '<span style="color:#e67e22">over-selected</span>' : '<span style="color:#e74c3c">missing a term</span>');
+  }
+  function recompute() { build(); draw(); }
+  Array.prototype.forEach.call(document.querySelectorAll('#saWrap .lm-btn[data-algo]'), function (b) { b.addEventListener('click', function () { algo = b.dataset.algo; Array.prototype.forEach.call(document.querySelectorAll('#saWrap .lm-btn[data-algo]'), function (x) { x.classList.toggle('on', x === b); }); recompute(); }); });
+  Array.prototype.forEach.call(document.querySelectorAll('#saWrap .lm-btn[data-crit]'), function (b) { b.addEventListener('click', function () { crit = b.dataset.crit; Array.prototype.forEach.call(document.querySelectorAll('#saWrap .lm-btn[data-crit]'), function (x) { x.classList.toggle('on', x === b); }); recompute(); }); });
+  document.getElementById('saPrev').addEventListener('click', function () { if (step > 0) { step--; draw(); } });
+  document.getElementById('saNext').addEventListener('click', function () { if (step < path.length - 1) { step++; draw(); } });
+  document.getElementById('saOpt').addEventListener('click', function () { step = selIdx; draw(); });
+  nzEl.addEventListener('input', recompute);
+  document.getElementById('saNew').addEventListener('click', function () { regen(); recompute(); });
+  regen(); recompute();
+})();
+</script>
+```
 
 ## Limitations and Characteristics
 
@@ -377,3 +742,10 @@ If $p_{\max}$ is too large for exhaustive search:
 . . .
 
 The option `k` corresponds to the penalty $c(n)$ introduced earlier.
+
+## Next
+
+. . .
+
+
+[ANOVA / ANCOVA](anova_ancova.qmd)

@@ -200,8 +200,8 @@
 
 </section>
 <section>
-<section id="objective" class="title-slide slide level1 center">
-<h1>Objective</h1>
+<section id="overview" class="title-slide slide level1 center">
+<h1>Overview</h1>
 <div style="display:none">
 <p><span class="math inline">\(\newcommand{\VS}{\quad \mathrm{VS} \quad}\)</span> <span class="math inline">\(\newcommand{\and}{\quad \mathrm{and} \quad}\)</span> <span class="math inline">\(\newcommand{\E}{\mathbb E}\)</span> <span class="math inline">\(\newcommand{\P}{\mathbb P}\)</span> <span class="math inline">\(\newcommand{\Var}{\mathbb V}\)</span> <span class="math inline">\(\newcommand{\Cov}{\mathrm{Cov}}\)</span> <span class="math inline">\(\newcommand{\1}{\mathbf 1}\)</span></p>
 </div>
@@ -230,8 +230,8 @@
 </div>
 </section></section>
 <section>
-<section id="analysis-of-variance-with-1-factor" class="title-slide slide level1 center">
-<h1>Analysis of Variance with 1 Factor</h1>
+<section id="one-way-anova-one-factor" class="title-slide slide level1 center">
+<h1>One-Way ANOVA (One Factor)</h1>
 
 </section>
 <section id="context-notations" class="slide level2">
@@ -249,11 +249,11 @@
 </div>
 <div class="fragment">
 <p>Total mean:</p>
-<p><span class="math inline">\(\overline Y = \frac{1}{N}\sum_{k=1}^n Y_k = \frac{1}{N}\sum_{i=1}^I N_i \overline Y_i\)</span></p>
+<p><span class="math inline">\(\overline Y = \frac{1}{n}\sum_{k=1}^n Y_k = \frac{1}{n}\sum_{i=1}^I N_i \overline Y_i\)</span></p>
 </div>
 </section>
-<section id="setting" class="slide level2">
-<h2>Setting</h2>
+<section id="the-one-factor-model" class="slide level2">
+<h2>The One-Factor Model</h2>
 <div class="fragment">
 <p>For <span class="math inline">\(k = 1, \ldots, n\)</span></p>
 <div class="square-def">
@@ -266,11 +266,11 @@
 </ul>
 </div>
 </section>
-<section id="problem" class="slide level2">
-<h2>Problem</h2>
+<section id="questions-of-interest" class="slide level2">
+<h2>Questions of Interest</h2>
 <ul>
-<li class="fragment">Do we have <span class="math inline">\(\mu_1 = \mu_2 \ldots = \mu_I\)</span>? (Does factor <span class="math inline">\(A\)</span> influences <span class="math inline">\(Y\)</span>?)</li>
-<li class="fragment">Does a <span class="math inline">\(\mu_i\)</span> has more influence on <span class="math inline">\(Y\)</span>?</li>
+<li class="fragment">Do we have <span class="math inline">\(\mu_1 = \mu_2 = \ldots = \mu_I\)</span>? (Does factor <span class="math inline">\(A\)</span> influence <span class="math inline">\(Y\)</span>?)</li>
+<li class="fragment">Does some <span class="math inline">\(\mu_i\)</span> have more influence on <span class="math inline">\(Y\)</span>?</li>
 <li class="fragment">How do we estimate the <span class="math inline">\(\mu_i\)</span>’s?</li>
 </ul>
 </section>
@@ -341,10 +341,12 @@ X=\begin{pmatrix}
 </div>
 </div>
 </section>
-<section id="colinearity-issues-and-constraints" class="slide level2">
-<h2>Colinearity issues and constraints</h2>
+<section id="collinearity-issues-and-constraints" class="slide level2">
+<h2>Collinearity Issues and Constraints</h2>
+<div class="fragment">
 <div class="square-def">
 <p><span class="math inline">\(Y_k = m+\sum_{i=2}^I \alpha_i \mathbf{1}\{X_k=A_i\} + \varepsilon_k\)</span></p>
+</div>
 </div>
 <div class="fragment">
 <div class="square-def">
@@ -417,7 +419,7 @@ X=\begin{pmatrix}
 <p><span class="math inline">\(\hat \mu = \mathrm{argmin}_{\mu' \in E}\|Y - \mu'\|_2^2 = P_E Y\)</span></p>
 </div>
 <div class="fragment">
-<p>For <span class="math inline">\(\hat \sigma\)</span>, <span class="math inline">\(\mathbb E[((I-P_E)\varepsilon)^T(I-P_E)\varepsilon]= \sigma^2 (n-I)\)</span></p>
+<p>For <span class="math inline">\(\hat \sigma\)</span>, <span class="math inline">\(\mathbb E[((I_n-P_E)\varepsilon)^T(I_n-P_E)\varepsilon]= \sigma^2 (n-I)\)</span></p>
 </div>
 </section>
 <section id="testing-for-factor-effect-anova-test" class="slide level2">
@@ -445,16 +447,97 @@ X=\begin{pmatrix}
 </div>
 </div>
 </section>
+<section id="how-the-f-test-sees-the-data" class="slide level2 smaller">
+<h2>How the F-test sees the data</h2>
+<div style="font-size:88%">
+<p><strong>One-way ANOVA</strong> (a single factor <span class="math inline">\(A\)</span> with <span class="math inline">\(I\)</span> groups). Pull the group means apart (<strong>separation</strong>) or add within-group <strong>noise</strong>. The partition <span class="math inline">\(SST = SSB + SSW\)</span> shifts: <span class="math inline">\(F = \tfrac{SSB/(I-1)}{SSW/(n-I)}\)</span> is large exactly when the <strong>between</strong> share dominates the <strong>within</strong> share.</p>
+</div>
+<style>
+.lm-btn{font-family:inherit;font-size:.82em;padding:.35em 1em;margin:.1em .18em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-btn.on{background:#3b6fb6;color:#fff;border-color:#3b6fb6}
+.lm-row{font-size:.72em;line-height:2.3;margin:.12rem 0}
+.lm-wrap{text-align:center}
+.lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
+</style>
+<div class="lm-wrap">
+  <canvas id="awCanvas" width="720" height="338" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <div class="lm-row">separation <input id="awSep" type="range" autocomplete="off" min="0" max="3" step="0.05" value="1.2" style="vertical-align:middle;width:150px"> <b id="awSepv">1.20</b> &nbsp; noise <input id="awNz" type="range" autocomplete="off" min="0.2" max="2" step="0.05" value="0.8" style="vertical-align:middle;width:130px"> <b id="awNzv">0.80</b> &nbsp; <button class="lm-btn" id="awNew">↻ resample</button></div>
+  <div class="lm-row"><span class="lm-sw" style="background:#3b6fb6"></span> SSB (between) &nbsp; <span class="lm-sw" style="background:#bbb"></span> SSW (within) &nbsp;·&nbsp; F = <b id="awF">–</b> &nbsp; p = <b id="awP">–</b></div>
+</div>
+<script>
+(function () {
+  var cv = document.getElementById('awCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height;
+  var I = 4, NG = 10, N = I * NG, D = [-1.5, -0.5, 0.5, 1.5], COL = ['#3498db', '#e67e22', '#27ae60', '#9b59b6'];
+  var Z = [], sepEl = document.getElementById('awSep'), nzEl = document.getElementById('awNz'), KEY = 'lmAnovaDecomp';
+  function gauss(){var u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+  function vdcJit(n){var r=0,d=1;n=n+1;while(n>0){d*=2;r+=(n%2)/d;n=Math.floor(n/2);}return r;}
+  function regen(){ Z=[]; for(var i=0;i<I;i++){ var g=[]; for(var k=0;k<NG;k++) g.push(gauss()); Z.push(g); } }
+  function lgamma(z){var g=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];if(z<0.5)return Math.log(Math.PI/Math.sin(Math.PI*z))-lgamma(1-z);z-=1;var x=g[0];for(var i=1;i<9;i++)x+=g[i]/(z+i);var t=z+7.5;return 0.5*Math.log(2*Math.PI)+(z+0.5)*Math.log(t)-t+Math.log(x);}
+  function betacf(a,b,x){var F=1e-300,qab=a+b,qap=a+1,qam=a-1,cc=1,d=1-qab*x/qap;if(Math.abs(d)<F)d=F;d=1/d;var h=d;for(var m=1;m<=200;m++){var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;cc=1+aa/cc;if(Math.abs(cc)<F)cc=F;d=1/d;h*=d*cc;aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;cc=1+aa/cc;if(Math.abs(cc)<F)cc=F;d=1/d;var del=d*cc;h*=del;if(Math.abs(del-1)<3e-12)break;}return h;}
+  function betai(a,b,x){if(x<=0)return 0;if(x>=1)return 1;var bt=Math.exp(lgamma(a+b)-lgamma(a)-lgamma(b)+a*Math.log(x)+b*Math.log(1-x));return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b;}
+  function pf(Fv,d1,d2){return Fv<=0?1:betai(d2/2,d1/2,d2/(d2+d1*Fv));}
+  function draw(){
+    var sep=+sepEl.value, nz=+nzEl.value, i, k;
+    document.getElementById('awSepv').textContent=sep.toFixed(2);
+    document.getElementById('awNzv').textContent=nz.toFixed(2);
+    var ys=[], mu=[], all=[];
+    for(i=0;i<I;i++){ mu[i]=sep*D[i]; ys[i]=[]; for(k=0;k<NG;k++){ var y=mu[i]+nz*Z[i][k]; ys[i].push(y); all.push(y); } }
+    var gm=0; all.forEach(function(y){gm+=y;}); gm/=N;
+    var ybar=[], SSB=0, SSW=0;
+    for(i=0;i<I;i++){ var m=0; for(k=0;k<NG;k++) m+=ys[i][k]; m/=NG; ybar[i]=m; SSB+=NG*(m-gm)*(m-gm); for(k=0;k<NG;k++) SSW+=(ys[i][k]-m)*(ys[i][k]-m); }
+    var SST=SSB+SSW, F=(SSB/(I-1))/((SSW/(N-I))||1e-9), p=pf(F,I-1,N-I);
+    var lo=Math.min.apply(0,all), hi=Math.max.apply(0,all), pad=(hi-lo)*0.12||1; lo-=pad; hi+=pad;
+    var X0=46, top=18, plotW=420, plotH=H-50;
+    function PY(y){return top+(hi-y)/(hi-lo)*plotH;}
+    c.clearRect(0,0,W,H);
+    c.strokeStyle='#e6e6e6'; c.lineWidth=1; c.strokeRect(X0,top,plotW,plotH);
+    c.strokeStyle='#aaa'; c.setLineDash([4,3]); c.beginPath(); c.moveTo(X0,PY(gm)); c.lineTo(X0+plotW,PY(gm)); c.stroke(); c.setLineDash([]);
+    c.fillStyle='#999'; c.font='10px sans-serif'; c.textAlign='left'; c.fillText('grand mean',X0+4,PY(gm)-4);
+    for(i=0;i<I;i++){
+      var cx=X0+(i+0.5)/I*plotW;
+      for(k=0;k<NG;k++){ var jx=cx+(vdcJit(k)-0.5)*30; c.fillStyle=COL[i]; c.globalAlpha=0.75; c.beginPath(); c.arc(jx,PY(ys[i][k]),3.2,0,6.2832); c.fill(); }
+      c.globalAlpha=1;
+      c.strokeStyle=COL[i]; c.lineWidth=2.5; c.beginPath(); c.moveTo(cx-22,PY(ybar[i])); c.lineTo(cx+22,PY(ybar[i])); c.stroke();
+      c.fillStyle='#555'; c.font='11px sans-serif'; c.textAlign='center'; c.fillText('A'+(i+1),cx,H-30);
+    }
+    c.fillStyle='#777'; c.font='11px sans-serif'; c.textAlign='center'; c.fillText('groups',X0+plotW/2,H-12);
+    var bx=X0+plotW+44, bw=70, bTop=top, bH=plotH;
+    c.strokeStyle='#e6e6e6'; c.strokeRect(bx,bTop,bw,bH);
+    var fb=SSB/(SST||1), hB=fb*bH;
+    c.fillStyle='#3b6fb6'; c.fillRect(bx,bTop+bH-hB,bw,hB);
+    c.fillStyle='#bbb'; c.fillRect(bx,bTop,bw,bH-hB);
+    c.font='bold 12px sans-serif'; c.textAlign='center';
+    if(fb>0.08){ c.fillStyle='#fff'; c.fillText(Math.round(fb*100)+'%',bx+bw/2,bTop+bH-hB/2+4); }
+    if(1-fb>0.08){ c.fillStyle='#555'; c.fillText(Math.round((1-fb)*100)+'%',bx+bw/2,bTop+(bH-hB)/2+4); }
+    c.fillStyle='#777'; c.font='11px sans-serif'; c.fillText('SST',bx+bw/2,bTop+bH+16);
+    document.getElementById('awF').textContent=F.toFixed(2);
+    document.getElementById('awP').textContent=p<1e-4?p.toExponential(1):p.toFixed(3);
+    save();
+  }
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({s:+sepEl.value,n:+nzEl.value}));}catch(e){}}
+  var saved=null; try{saved=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+  if(saved){ sepEl.value=saved.s; nzEl.value=saved.n; }
+  sepEl.addEventListener('input',draw); nzEl.addEventListener('input',draw);
+  document.getElementById('awNew').addEventListener('click',function(){regen();draw();});
+  regen(); draw();
+})();
+</script>
+</section>
 <section id="idea-of-proof" class="slide level2">
 <h2>Idea of proof</h2>
+<div class="fragment">
 <p>Using the previous projection <span class="math inline">\(P_E = \sum_{i=1}^I \frac{1}{N_i}\mathbf{1}_i\mathbf{1}_i^T\)</span>, we have the decomposition</p>
 <div class="square-def">
 <p><span class="math display">\[Y - P_0Y = Y-P_E Y + P_E Y - P_0 Y\]</span></p>
 </div>
+</div>
 </section>
 <section id="link-with-previous-chapter" class="slide level2">
 <h2>Link with previous chapter</h2>
-<p>In <span class="math inline">\(\mu_1= \ldots = \mu_I\)</span>, there are <span class="math inline">\(I-1\)</span> constraints to test.</p>
+<div class="fragment">
+<p>Under <span class="math inline">\(H_0: \mu_1 = \cdots = \mu_I\)</span>, there are <span class="math inline">\(I-1\)</span> constraints to test.</p>
+</div>
 <div class="fragment">
 <p><span class="math display">\[F = \frac{n-I}{I-1} \cdot \frac{SSR_c - SSR}{SSR}\]</span></p>
 </div>
@@ -470,8 +553,8 @@ X=\begin{pmatrix}
 <p><strong>In R</strong>: <code>anova(lm(Y~A))</code></p>
 </div>
 </section>
-<section id="factor-significance-analysis-of-variance-test" class="slide level2">
-<h2>Factor Significance: Analysis of Variance Test</h2>
+<section id="what-the-anova-test-assumes" class="slide level2">
+<h2>What the ANOVA Test Assumes</h2>
 <div class="fragment">
 <div class="callout callout-warning no-icon callout-titled callout-style-default">
 <div class="callout-body">
@@ -509,7 +592,7 @@ X=\begin{pmatrix}
 <h2>Post-hoc Analysis: Multiple Testing Problem</h2>
 <div class="fragment">
 <p>If factor <span class="math inline">\(A\)</span> is significant, we want to know more:<br>
-<span style="background-color: yellow;">which modality(ies) differs from others?</span></p>
+<span style="background-color: yellow;">which modality(ies) differ from the others?</span></p>
 </div>
 <div class="fragment">
 <p>We want to perform <span style="background-color: orange;">all tests</span>:</p>
@@ -545,7 +628,7 @@ X=\begin{pmatrix}
 <h2>Multiple Testing: Tukey’s Test</h2>
 <div class="fragment">
 <div class="square-def">
-<p><span class="math display">\[Q = \max_{(i,j)} \frac{|\overline{Y}_i - \overline{Y}_j|}{\hat{\sigma}\sqrt{\frac{1}{N_i} + \frac{1}{N_j}}}\]</span></p>
+<p><span class="math display">\[Q = \max_{(i,j)} \frac{|\overline{Y}_i - \overline{Y}_j|}{\hat{\sigma}\sqrt{\tfrac{1}{2}\left(\frac{1}{N_i} + \frac{1}{N_j}\right)}}\]</span></p>
 </div>
 </div>
 <div class="fragment">
@@ -566,7 +649,9 @@ X=\begin{pmatrix}
 </section>
 <section id="individual-tests" class="slide level2">
 <h2>Individual Tests</h2>
+<div class="fragment">
 <p>To test each <span style="background-color: lightblue;"><span class="math inline">\(H_0^{i,j}: \mu_i = \mu_j\)</span></span>, we use the critical regions:</p>
+</div>
 <div class="fragment">
 <div style="font-size: 80%;">
 <div class="square-def">
@@ -578,8 +663,10 @@ X=\begin{pmatrix}
 </section>
 <section id="key-properties-of-tukeys-test" class="slide level2">
 <h2>Key Properties of Tukey’s Test</h2>
+<div class="fragment">
 <p>The form of the previous <span class="math inline">\(CR_\alpha^{i,j}\)</span> ensures that: <span class="math display">\[\mathbb{P}_{\mu_1 = \cdots = \mu_I}\left(\bigcup_{(i,j)} \{Y \in CR_\alpha^{i,j}\}\right) = \alpha\]</span></p>
 <p><strong>Interpretation</strong>: If all null hypotheses <span class="math inline">\(H_0^{i,j}\)</span> are true (<span class="math inline">\(\mu_1 = \cdots = \mu_I\)</span>), then the probability of concluding at least one <span class="math inline">\(H_1^{i,j}\)</span> equals <span class="math inline">\(\alpha\)</span>.</p>
+</div>
 <div class="fragment">
 <p>This is the <strong>simultaneous Type I error rate</strong>.</p>
 </div>
@@ -596,11 +683,122 @@ X=\begin{pmatrix}
 <p><strong>In R</strong>: <code>TukeyHSD</code></p>
 </div>
 </section>
+<section id="why-naive-pairwise-testing-fails" class="slide level2 smaller">
+<h2>Why naive pairwise testing fails</h2>
+<div style="font-size:84%">
+<p><strong>Left:</strong> the chance of flagging at least one false “significant” pair (FWER) vs the number of groups, by <strong>Monte-Carlo</strong> — <em>hover</em> to read the %. <strong>Right:</strong> <em>one</em> experiment as a circle of the <span class="math inline">\(I\)</span> groups. The true means are <strong>all equal</strong>, but sampled means wiggle: every pair is tested (grey), a chord turns <strong>red</strong> when the naive test calls it different, <strong>green</strong> when even <strong>Tukey</strong> does — every coloured chord is a <strong>false positive</strong>.</p>
+</div>
+<style>
+.lm-btn{font-family:inherit;font-size:.82em;padding:.35em 1em;margin:.1em .18em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-row{font-size:.72em;line-height:2.1;margin:.12rem 0}
+.lm-wrap{text-align:center}
+.lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
+</style>
+<div class="lm-wrap">
+  <canvas id="fwCanvas" width="760" height="338" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <div class="lm-row">data: \( Y_{g,k} = \mu + \varepsilon_{g,k},\ \ \varepsilon_{g,k}\sim\mathcal N(0,\sigma^2) \) — <b>same \(\mu\) for every group</b> (pure noise, no real differences)</div>
+  <div class="lm-row">groups I <input id="fwI" type="range" autocomplete="off" min="2" max="10" step="1" value="6" style="vertical-align:middle;width:150px"> <b id="fwIv">6</b> &nbsp; α <input id="fwA" type="range" autocomplete="off" min="0.01" max="0.1" step="0.01" value="0.05" style="vertical-align:middle;width:110px"> <b id="fwAv">0.05</b> &nbsp; <button class="lm-btn" id="fwNew">↻ new experiment</button></div>
+  <div class="lm-row"><span class="lm-sw" style="background:#c0392b"></span> naive false positive &nbsp; <span class="lm-sw" style="background:#27ae60"></span> Tukey false positive &nbsp;·&nbsp; this experiment: naive <b id="fwNa">–</b>, Tukey <b id="fwTu">–</b> &nbsp;<span style="color:#999">(true = 0)</span></div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('fwCanvas'); if(!cv||cv.dataset.init)return; cv.dataset.init=1;
+  var c=cv.getContext('2d'),W=cv.width,H=cv.height, NG=6, M=300, MQ=1200, IMAX=10;
+  var iEl=document.getElementById('fwI'), aEl=document.getElementById('fwA'), KEY='lmFwer';
+  var top=20, plotH=H-50, X0=52, plotW=300, bx0=X0+plotW+50, bpW=W-bx0-14, hoverI=null;
+  function gauss(){var u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+  function lgamma(z){var g=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];if(z<0.5)return Math.log(Math.PI/Math.sin(Math.PI*z))-lgamma(1-z);z-=1;var x=g[0];for(var i=1;i<9;i++)x+=g[i]/(z+i);var t=z+7.5;return 0.5*Math.log(2*Math.PI)+(z+0.5)*Math.log(t)-t+Math.log(x);}
+  function betacf(a,b,x){var F=1e-300,qab=a+b,qap=a+1,qam=a-1,cc=1,d=1-qab*x/qap;if(Math.abs(d)<F)d=F;d=1/d;var h=d;for(var m=1;m<=200;m++){var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;cc=1+aa/cc;if(Math.abs(cc)<F)cc=F;d=1/d;h*=d*cc;aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;cc=1+aa/cc;if(Math.abs(cc)<F)cc=F;d=1/d;var del=d*cc;h*=del;if(Math.abs(del-1)<3e-12)break;}return h;}
+  function betai(a,b,x){if(x<=0)return 0;if(x>=1)return 1;var bt=Math.exp(lgamma(a+b)-lgamma(a)-lgamma(b)+a*Math.log(x)+b*Math.log(1-x));return x<(a+1)/(a+b+2)?bt*betacf(a,b,x)/a:1-bt*betacf(b,a,1-x)/b;}
+  function tp(t,df){return betai(df/2,0.5,df/(df+t*t));}
+  function tcrit(df,alpha){var lo=0,hi=20,it,mid;for(it=0;it<60;it++){mid=(lo+hi)/2;if(tp(mid,df)>alpha)lo=mid;else hi=mid;}return (lo+hi)/2;}
+  function tukeyQ(I,df,alpha){ var qs=[],r,i,j; for(r=0;r<MQ;r++){ var U=[]; for(i=0;i<I;i++)U.push(gauss()); var lo=Math.min.apply(0,U),hi=Math.max.apply(0,U),w=0; for(j=0;j<df;j++){var x=gauss();w+=x*x;} qs.push((hi-lo)/Math.sqrt(w/df)); } qs.sort(function(a,b){return a-b;}); return qs[Math.floor((1-alpha)*MQ)]; }
+  var curveN=[], curveT=[], qByI=[], pool=[];
+  function genPool(){ pool=[]; for(var g=0;g<IMAX;g++){ var row=[]; for(var k=0;k<NG;k++) row.push(gauss()); pool.push(row); } }
+  function simulate(){
+    var alpha=+aEl.value, I, rep, a2, b2, gi, k; curveN=[]; curveT=[]; qByI=[];
+    for(I=2;I<=IMAX;I++){
+      var df=I*NG-I, q=tukeyQ(I,df,alpha), anyN=0, anyT=0; qByI[I]=q;
+      for(rep=0;rep<M;rep++){
+        var means=[], ssw=0, mn=Infinity, mx=-Infinity;
+        for(gi=0;gi<I;gi++){ var s=0, gv=[]; for(k=0;k<NG;k++){var x=gauss();gv.push(x);s+=x;} var m=s/NG; means.push(m); if(m<mn)mn=m; if(m>mx)mx=m; for(k=0;k<NG;k++) ssw+=(gv[k]-m)*(gv[k]-m); }
+        var sd=Math.sqrt(ssw/df), se=sd*Math.sqrt(2/NG), hitN=false;
+        for(a2=0;a2<I&&!hitN;a2++)for(b2=a2+1;b2<I;b2++){ if(tp(Math.abs(means[a2]-means[b2])/(se||1e-9),df)<alpha){hitN=true;break;} }
+        if(hitN)anyN++;
+        if((mx-mn)/((sd*Math.sqrt(1/NG))||1e-9) > q) anyT++;
+      }
+      curveN[I]=anyN/M; curveT[I]=anyT/M;
+    }
+  }
+  function mcol(t){ var a=[52,152,219], b=[231,76,60]; return 'rgb('+Math.round(a[0]+(b[0]-a[0])*t)+','+Math.round(a[1]+(b[1]-a[1])*t)+','+Math.round(a[2]+(b[2]-a[2])*t)+')'; }
+  function pos(e){var r=cv.getBoundingClientRect();return [(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height];}
+  function PX(i){return X0+(i-2)/(IMAX-2)*plotW;}
+  function PY(y){return top+(1-y)*plotH;}
+  function draw(){
+    var I=+iEl.value, alpha=+aEl.value, ii, yy;
+    document.getElementById('fwIv').textContent=I; document.getElementById('fwAv').textContent=alpha.toFixed(2);
+    c.clearRect(0,0,W,H);
+    // ===== LEFT: FWER curves =====
+    c.strokeStyle='#e6e6e6'; c.lineWidth=1; c.strokeRect(X0,top,plotW,plotH);
+    c.font='10px sans-serif';
+    for(yy=0;yy<=1.0001;yy+=0.25){ c.textAlign='right'; c.fillStyle='#999'; c.fillText(Math.round(yy*100)+'%',X0-6,PY(yy)+3); c.strokeStyle='#f2f2f2'; c.beginPath(); c.moveTo(X0,PY(yy)); c.lineTo(X0+plotW,PY(yy)); c.stroke(); }
+    c.save(); c.translate(13,top+plotH/2); c.rotate(-Math.PI/2); c.textAlign='center'; c.fillStyle='#888'; c.font='10px sans-serif'; c.fillText('chance of ≥1 false positive',0,0); c.restore();
+    c.textAlign='center'; c.fillStyle='#999'; c.font='10px sans-serif'; for(ii=2;ii<=IMAX;ii++) c.fillText(ii,PX(ii),top+plotH+15);
+    c.fillText('number of groups I',X0+plotW/2,H-6);
+    c.strokeStyle='#aaa'; c.setLineDash([4,3]); c.beginPath(); c.moveTo(X0,PY(alpha)); c.lineTo(X0+plotW,PY(alpha)); c.stroke(); c.setLineDash([]);
+    c.fillStyle='#999'; c.textAlign='left'; c.fillText('α',X0+plotW+2,PY(alpha)+3);
+    function line(cur,col){ var i; c.strokeStyle=col; c.lineWidth=2.2; c.beginPath(); for(i=2;i<=IMAX;i++){var x=PX(i),y=PY(cur[i]); i>2?c.lineTo(x,y):c.moveTo(x,y);} c.stroke(); for(i=2;i<=IMAX;i++){c.fillStyle=col;c.beginPath();c.arc(PX(i),PY(cur[i]),2.4,0,6.2832);c.fill();} }
+    if(curveN.length){ line(curveN,'#c0392b'); line(curveT,'#27ae60');
+      c.strokeStyle='#888'; c.setLineDash([2,2]); c.beginPath(); c.moveTo(PX(I),top); c.lineTo(PX(I),top+plotH); c.stroke(); c.setLineDash([]); }
+    // hover tooltip
+    if(hoverI!=null && curveN.length){
+      var hx=PX(hoverI);
+      c.strokeStyle='#bbb'; c.lineWidth=1; c.beginPath(); c.moveTo(hx,top); c.lineTo(hx,top+plotH); c.stroke();
+      c.fillStyle='#c0392b'; c.beginPath(); c.arc(hx,PY(curveN[hoverI]),4,0,6.2832); c.fill();
+      c.fillStyle='#27ae60'; c.beginPath(); c.arc(hx,PY(curveT[hoverI]),4,0,6.2832); c.fill();
+      var txt='I='+hoverI+'   naive '+Math.round(curveN[hoverI]*100)+'%   Tukey '+Math.round(curveT[hoverI]*100)+'%';
+      c.font='11px sans-serif'; var tw=c.measureText(txt).width+12, tx=Math.min(hx+8,X0+plotW-tw); if(tx<X0)tx=X0;
+      c.fillStyle='rgba(20,20,20,0.82)'; c.fillRect(tx,top+4,tw,19); c.fillStyle='#fff'; c.textAlign='left'; c.fillText(txt,tx+6,top+17);
+    }
+    // ===== RIGHT: one experiment as a circle =====
+    c.strokeStyle='#e6e6e6'; c.lineWidth=1; c.strokeRect(bx0,top,bpW,plotH);
+    var df=I*NG-I, means=[], ssw=0, gi, k;
+    for(gi=0;gi<I;gi++){ var s=0; for(k=0;k<NG;k++) s+=pool[gi][k]; var m=s/NG; means.push(m); for(k=0;k<NG;k++) ssw+=(pool[gi][k]-m)*(pool[gi][k]-m); }
+    var sd=Math.sqrt(ssw/df), LSD=tcrit(df,alpha)*sd*Math.sqrt(2/NG), HSD=(qByI[I]||0)*sd*Math.sqrt(1/NG);
+    var mmin=Math.min.apply(0,means), mmax=Math.max.apply(0,means), rng=(mmax-mmin)||1;
+    var cx=bx0+bpW/2, cy=top+plotH*0.46, R=Math.min(bpW,plotH)*0.31, px=[], py=[], i, j;
+    for(i=0;i<I;i++){ var ang=-Math.PI/2+i*2*Math.PI/I; px[i]=cx+R*Math.cos(ang); py[i]=cy+R*Math.sin(ang); }
+    var nC=0, tC=0;
+    for(i=0;i<I;i++)for(j=i+1;j<I;j++){ c.strokeStyle='rgba(0,0,0,0.09)'; c.lineWidth=1; c.beginPath(); c.moveTo(px[i],py[i]); c.lineTo(px[j],py[j]); c.stroke(); }
+    for(i=0;i<I;i++)for(j=i+1;j<I;j++){ if(Math.abs(means[i]-means[j])>LSD){ nC++; c.strokeStyle='#c0392b'; c.lineWidth=2; c.beginPath(); c.moveTo(px[i],py[i]); c.lineTo(px[j],py[j]); c.stroke(); } }
+    for(i=0;i<I;i++)for(j=i+1;j<I;j++){ if(Math.abs(means[i]-means[j])>HSD){ tC++; c.strokeStyle='#27ae60'; c.lineWidth=3.2; c.beginPath(); c.moveTo(px[i],py[i]); c.lineTo(px[j],py[j]); c.stroke(); } }
+    for(i=0;i<I;i++){ var t=(means[i]-mmin)/rng; c.fillStyle=mcol(t); c.beginPath(); c.arc(px[i],py[i],7,0,6.2832); c.fill(); c.strokeStyle='#fff'; c.lineWidth=2; c.stroke(); c.fillStyle='#555'; c.font='9px sans-serif'; c.textAlign='center'; var lr=R+13; c.fillText(i+1,cx+lr*Math.cos(-Math.PI/2+i*2*Math.PI/I),cy+lr*Math.sin(-Math.PI/2+i*2*Math.PI/I)+3); }
+    c.fillStyle='#444'; c.font='bold 11px sans-serif'; c.textAlign='center'; c.fillText('one experiment — I = '+I+'  ('+(I*(I-1)/2)+' pairs tested)',bx0+bpW/2,top+13);
+    c.fillStyle='#888'; c.font='10px sans-serif'; c.fillText('node colour = its sample mean (blue low → red high)',bx0+bpW/2,top+plotH-20);
+    if(nC===0){ c.fillStyle='#27ae60'; c.font='10px sans-serif'; c.fillText('no false positive this time — ↻ or raise I',bx0+bpW/2,top+plotH-6); }
+    else { c.fillStyle='#c0392b'; c.font='bold 11px sans-serif'; c.fillText(nC+' naive false positive'+(nC>1?'s':'')+(tC?'  ·  '+tC+' even with Tukey':'  ·  Tukey: 0'),bx0+bpW/2,top+plotH-6); }
+    document.getElementById('fwNa').textContent=nC;
+    document.getElementById('fwTu').textContent=tC;
+    save();
+  }
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({i:+iEl.value,a:+aEl.value}));}catch(e){}}
+  cv.addEventListener('pointermove',function(e){ var p=pos(e); if(curveN.length && p[0]>=X0 && p[0]<=X0+plotW && p[1]>=top && p[1]<=top+plotH){ var i=Math.round(2+(p[0]-X0)/plotW*(IMAX-2)); i=Math.max(2,Math.min(IMAX,i)); if(i!==hoverI){hoverI=i;draw();} } else if(hoverI!==null){hoverI=null;draw();} });
+  cv.addEventListener('pointerleave',function(){ if(hoverI!==null){hoverI=null;draw();} });
+  var saved=null;try{saved=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+  if(saved){iEl.value=saved.i;aEl.value=saved.a;}
+  iEl.addEventListener('input',draw);
+  aEl.addEventListener('input',function(){simulate();draw();});
+  document.getElementById('fwNew').addEventListener('click',function(){genPool();simulate();draw();});
+  function typesetEq(){ if(window.MathJax&&MathJax.Hub&&MathJax.Hub.Queue) MathJax.Hub.Queue(['Typeset',MathJax.Hub]); else setTimeout(typesetEq,200); }
+  genPool(); simulate(); draw(); typesetEq();
+})();
+</script>
+</section>
 <section id="example-of-r-output" class="slide level2">
 <h2>Example of R output</h2>
 <div class="fragment">
 <p>Homoscedasticity Test:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">leveneTest</span>(Loss∼Exercise)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">leveneTest</span>(Loss<span class="sc">~</span>Exercise)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>We get</p>
 <pre><code>Levene’s Test for Homogeneity of Variance (center = median)
       Df   F value  Pr(&gt;F)
@@ -609,7 +807,7 @@ group 3    0.6527   0.584
 </div>
 <div class="fragment">
 <p>Homoscedasticity is ok. ANOVA?</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>reg<span class="ot">=</span><span class="fu">lm</span>(Loss∼Exercise) <span class="co"># Exercise has 4 categories</span></span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>reg<span class="ot">=</span><span class="fu">lm</span>(Loss<span class="sc">~</span>Exercise) <span class="co"># Exercise has 4 categories</span></span>
 <span id="cb5-2"><a></a><span class="fu">anova</span>(reg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
@@ -654,12 +852,12 @@ Residuals 68 781.89   11.498</code></pre>
 </div>
 </section></section>
 <section>
-<section id="analysis-of-variance-with-2-factors" class="title-slide slide level1 center">
-<h1>Analysis of Variance with 2 Factors</h1>
+<section id="two-way-anova-two-factors" class="title-slide slide level1 center">
+<h1>Two-Way ANOVA (Two Factors)</h1>
 
 </section>
-<section id="setting-1" class="slide level2">
-<h2>Setting</h2>
+<section id="two-factor-setting" class="slide level2">
+<h2>Two-Factor Setting</h2>
 <div class="fragment">
 <p>We observe <span class="math inline">\(Y\)</span> and explanatory variables <span class="math inline">\(X^{(1)}, X^{(2)}\)</span></p>
 <ul>
@@ -675,8 +873,8 @@ Residuals 68 781.89   11.498</code></pre>
 <div style="font-size: 80%;">
 <div class="square-def">
 <p><span class="math display">\[\begin{aligned}
-Y_k &amp;= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\1\{X^{(2)}_k \in B_j\} \\
-&amp;+ \gamma_{ij}\sum_{i=1}^I\sum_{j=1}^J\1\{X^{(1)}_k \in A_i\}\1\{X^{(2)}_k \in B_i\} + \varepsilon_k
+Y_k &amp;= m + \sum_{i=1}^I \alpha_i\1\{X^{(1)}_k = A_i\} + \sum_{j=1}^J \beta_j\1\{X^{(2)}_k = B_j\} \\
+&amp;+ \sum_{i=1}^I\sum_{j=1}^J \gamma_{ij}\1\{X^{(1)}_k = A_i\}\1\{X^{(2)}_k = B_j\} + \varepsilon_k
 \end{aligned}\]</span></p>
 </div>
 </div>
@@ -832,22 +1030,20 @@ Y_k &amp;= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\
 </section>
 <section id="significance-tests-for-effects" class="slide level2">
 <h2>Significance Tests for Effects</h2>
-<div class="fragment">
 <ul>
 <li class="fragment">Is the effect due to the <span style="background-color: orange;">interaction between A and B</span> significant?</li>
 <li class="fragment">Is the marginal <span style="background-color: lightblue;">effect due to A</span> significant?</li>
 <li class="fragment">Is the marginal <span style="background-color: lightgreen;">effect due to B</span> significant?</li>
 </ul>
-</div>
 <div class="fragment">
-<p>First, in the additive model with interaction, <span style="background-color: lightblue;"><span class="math inline">\(Y_{ijk} = m + \alpha_i + \beta_j + \varepsilon_{ijk}\)</span></span></p>
+<p>We test for interaction first. Under <span class="math inline">\(H_0^{(AB)}\)</span>, the model reduces to the <strong>additive model</strong> <span style="background-color: lightblue;"><span class="math inline">\(Y_{ijk} = m + \alpha_i + \beta_j + \varepsilon_{ijk}\)</span></span></p>
 <p><br>
 </p>
 <p><strong>Do we have <span class="math inline">\(\gamma_{ij} = 0\)</span> for all <span class="math inline">\(i, j\)</span>?</strong></p>
 </div>
 </section>
-<section id="interpretation-on-plots" class="slide level2">
-<h2>Interpretation on Plots:</h2>
+<section id="reading-interaction-plots" class="slide level2">
+<h2>Reading Interaction Plots</h2>
 <div class="fragment">
 <p>Plot <span class="math inline">\(\overline Y_{ij}\)</span> in function of modalities <span class="math inline">\((i,j)\)</span><br>
 </p>
@@ -860,13 +1056,146 @@ Y_k &amp;= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\
 <div class="sourceCode" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="fu">interaction.plot</span>(A,B,Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="plot-presence-of-interaction" class="slide level2">
-<h2>Plot: Presence of Interaction</h2>
+<section id="interaction-plots-lines-cross" class="slide level2">
+<h2>Interaction Plots: Lines Cross</h2>
+<div class="fragment">
 <p>Lines cross in presence of interaction</p>
-
-<img data-src="images/captures/interaction_2.png" class="r-stretch"></section>
-<section id="significance-tests" class="slide level2">
-<h2>Significance Tests</h2>
+<p><img data-src="images/captures/interaction_2.png"></p>
+</div>
+</section>
+<section id="interaction-plot-drag-the-cell-means" class="slide level2 smaller">
+<h2>Interaction plot — drag the cell means</h2>
+<div style="font-size:82%">
+<p>Drag a cell mean (solid = <strong>theoretical</strong> <span class="math inline">\(\mu_{ij}\)</span>; light dashed = <strong>empirical</strong> <span class="math inline">\(\hat Y_{ij}\)</span>, with noise). Pick the active cell with the <strong>i / j</strong> buttons; <strong>hover a point</strong> to read its value. The interaction term <span class="math inline">\(\gamma_{ij}\)</span> turns green and <span class="math inline">\(\to 0\)</span> when the lines are parallel.</p>
+</div>
+<style>
+.lm-btn{font-family:inherit;font-size:.8em;padding:.3em .9em;margin:.08em .14em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-btn.on{background:#3b6fb6;color:#fff;border-color:#3b6fb6}
+.lm-row{font-size:.72em;line-height:2;margin:.08rem 0}
+.lm-wrap{text-align:center}
+#ipEq{display:inline-flex;align-items:flex-end;gap:.04rem;margin-top:.35rem}
+#ipEq .trm{display:inline-flex;flex-direction:column;align-items:center;min-width:60px}
+#ipEq .op{font-size:1.1em;padding:0 .08em .38em}
+#ipEq .sym{height:1.55em;line-height:1.55em}
+#ipEq .val{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.8em;width:56px;text-align:center;color:#444}
+</style>
+<div class="lm-wrap" id="ipWrap">
+  <canvas id="ipCanvas" width="680" height="248" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <div class="lm-row">noise σ <input id="ipS" type="range" autocomplete="off" min="0.2" max="4" step="0.05" value="2" style="vertical-align:middle;width:100px"> <b id="ipSv">2.00</b> &nbsp; n/cell <input id="ipN" type="range" autocomplete="off" min="2" max="100" step="1" value="6" style="vertical-align:middle;width:100px"> <b id="ipNv">6</b> &nbsp; <button class="lm-btn" id="ipNew">↻ resample</button> <button class="lm-btn" id="ipFlat">remove interaction</button> <button class="lm-btn" id="ipReset">↻ reset</button></div>
+  <div class="lm-row">cell &nbsp;i <button class="lm-btn ib" data-i="0">1</button><button class="lm-btn ib" data-i="1">2</button> &nbsp; j <button class="lm-btn jb" data-j="0">1</button><button class="lm-btn jb" data-j="1">2</button><button class="lm-btn jb" data-j="2">3</button></div>
+  <div id="ipEq">
+    <span class="trm"><span class="sym" id="ipSymMu"></span><span class="val" id="ipValMu">–</span></span>
+    <span class="op">=</span>
+    <span class="trm"><span class="sym" id="ipSymM"></span><span class="val" id="ipValM">–</span></span>
+    <span class="op">+</span>
+    <span class="trm"><span class="sym" id="ipSymA"></span><span class="val" id="ipValA">–</span></span>
+    <span class="op">+</span>
+    <span class="trm"><span class="sym" id="ipSymB"></span><span class="val" id="ipValB">–</span></span>
+    <span class="op">+</span>
+    <span class="trm"><span class="sym" id="ipSymG"></span><span class="val" id="ipValG">–</span></span>
+  </div>
+</div>
+<script>
+(function(){
+  var cv=document.getElementById('ipCanvas'); if(!cv||cv.dataset.init)return; cv.dataset.init=1;
+  var c=cv.getContext('2d'), W=cv.width, H=cv.height, I=2, J=3;
+  var INIT=[[2,5,8],[8,5,2]], mu=INIT.map(function(r){return r.slice();}), act=[0,0], Z=[], hover=null;
+  var TCOL=['#2c6fb5','#d2691e'], ECOL=['#6aa3e0','#ef9f55'], KEY='lmInteractionPlot7';
+  var sEl=document.getElementById('ipS'), nEl=document.getElementById('ipN');
+  var X0=54, top=16, plotW=W-86, plotH=H-44, ylo=0, yhi=10;
+  function gauss(){var u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+  function regen(){ Z=[]; for(var i=0;i<I;i++){ var r=[]; for(var j=0;j<J;j++) r.push(gauss()); Z.push(r); } }
+  function PX(j){return X0+j/(J-1)*plotW;}
+  function PY(y){return top+(yhi-y)/(yhi-ylo)*plotH;}
+  function IY(py){return yhi-(py-top)/plotH*(yhi-ylo);}
+  function pos(e){var r=cv.getBoundingClientRect();return [(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height];}
+  function sgn(v){return (v<0?'-':'+')+Math.abs(v).toFixed(2);}
+  function id(s){return document.getElementById(s);}
+  function decomp(){
+    var m=0,i,j,s; for(i=0;i<I;i++)for(j=0;j<J;j++)m+=mu[i][j]; m/=I*J;
+    var ai=[],bj=[],G=[];
+    for(i=0;i<I;i++){s=0;for(j=0;j<J;j++)s+=mu[i][j];ai[i]=s/J-m;}
+    for(j=0;j<J;j++){s=0;for(i=0;i<I;i++)s+=mu[i][j];bj[j]=s/I-m;}
+    for(i=0;i<I;i++){G[i]=[];for(j=0;j<J;j++)G[i][j]=mu[i][j]-m-ai[i]-bj[j];}
+    return {m:m,ai:ai,bj:bj,G:G};
+  }
+  function typeset(){ if(window.MathJax&&MathJax.Hub&&MathJax.Hub.Queue) MathJax.Hub.Queue(['Typeset',MathJax.Hub,id('ipEq')]); else setTimeout(typeset,200); }
+  function renderSymbols(){
+    var i=act[0]+1, j=act[1]+1;
+    id('ipSymMu').innerHTML='\\(\\mu_{'+i+','+j+'}\\)';
+    id('ipSymM').innerHTML='\\(m\\)';
+    id('ipSymA').innerHTML='\\(\\color{#2c6fb5}{\\alpha_'+i+'}\\)';
+    id('ipSymB').innerHTML='\\(\\color{#d2691e}{\\beta_'+j+'}\\)';
+    id('ipSymG').innerHTML='\\(\\color{#7c3aed}{\\gamma_{'+i+','+j+'}}\\)';
+    typeset();
+  }
+  function updateNumbers(d){
+    var i=act[0], j=act[1], gij=d.G[i][j];
+    id('ipValMu').textContent=mu[i][j].toFixed(2);
+    id('ipValM').textContent=d.m.toFixed(2);
+    id('ipValA').textContent=sgn(d.ai[i]);
+    id('ipValB').textContent=sgn(d.bj[j]);
+    var g=id('ipValG'); g.textContent=sgn(gij); g.style.color=Math.abs(gij)<0.1?'#27ae60':'#c0392b';
+  }
+  function setActive(i,j){ act=[i,j];
+    Array.prototype.forEach.call(document.querySelectorAll('#ipWrap .ib'),function(b){b.classList.toggle('on',+b.dataset.i===i);});
+    Array.prototype.forEach.call(document.querySelectorAll('#ipWrap .jb'),function(b){b.classList.toggle('on',+b.dataset.j===j);});
+    renderSymbols();
+  }
+  function draw(){
+    var i,j, sig=+sEl.value, nn=+nEl.value, SE=sig/Math.sqrt(nn);
+    id('ipSv').textContent=sig.toFixed(2); id('ipNv').textContent=nn;
+    c.clearRect(0,0,W,H);
+    c.strokeStyle='#e6e6e6'; c.lineWidth=1; c.strokeRect(X0,top,plotW,plotH);
+    c.font='11px sans-serif'; c.textAlign='center';
+    for(j=0;j<J;j++){ c.strokeStyle='#f1f1f1'; c.beginPath(); c.moveTo(PX(j),top); c.lineTo(PX(j),top+plotH); c.stroke(); c.fillStyle='#777'; c.fillText('B'+(j+1),PX(j),top+plotH+15); }
+    c.fillStyle='#777'; c.fillText('factor B',X0+plotW/2,H-4);
+    c.save(); c.translate(14,top+plotH/2); c.rotate(-Math.PI/2); c.fillStyle='#777'; c.fillText('cell mean',0,0); c.restore();
+    c.save(); c.beginPath(); c.rect(X0,top,plotW,plotH); c.clip();
+    for(i=0;i<I;i++){
+      c.strokeStyle=ECOL[i]; c.lineWidth=2.2; c.setLineDash([5,4]); c.beginPath();
+      for(j=0;j<J;j++){ var ye=mu[i][j]+SE*Z[i][j], x=PX(j), y=PY(ye); j?c.lineTo(x,y):c.moveTo(x,y); } c.stroke(); c.setLineDash([]);
+      for(j=0;j<J;j++){ var ye2=mu[i][j]+SE*Z[i][j]; c.fillStyle=ECOL[i]; c.beginPath(); c.arc(PX(j),PY(ye2),3.5,0,6.2832); c.fill(); }
+    }
+    c.restore();
+    for(i=0;i<I;i++){
+      c.strokeStyle=TCOL[i]; c.lineWidth=2.6; c.beginPath();
+      for(j=0;j<J;j++){ var x2=PX(j),y2=PY(mu[i][j]); j?c.lineTo(x2,y2):c.moveTo(x2,y2); } c.stroke();
+      for(j=0;j<J;j++){ var on=(act[0]===i&&act[1]===j); c.fillStyle=TCOL[i]; c.beginPath(); c.arc(PX(j),PY(mu[i][j]),on?7:6,0,6.2832); c.fill(); c.strokeStyle=on?'#000':'#fff'; c.lineWidth=on?2.5:2; c.stroke(); }
+    }
+    if(hover){ c.font='11px sans-serif'; var tw=c.measureText(hover.txt).width+10, tx=Math.min(Math.max(hover.x-tw/2,X0),X0+plotW-tw), ty=hover.y-24; if(ty<top)ty=hover.y+10;
+      c.fillStyle='rgba(20,20,20,0.82)'; c.fillRect(tx,ty,tw,18); c.fillStyle='#fff'; c.textAlign='left'; c.fillText(hover.txt,tx+5,ty+13); }
+    updateNumbers(decomp());
+    save();
+  }
+  var drag=-1;
+  cv.addEventListener('pointerdown',function(e){ var p=pos(e),best=1e9,bi=-1,bj=-1,i,j;
+    for(i=0;i<I;i++)for(j=0;j<J;j++){var dx=p[0]-PX(j),dy=p[1]-PY(mu[i][j]),dd=dx*dx+dy*dy; if(dd<best){best=dd;bi=i;bj=j;}}
+    if(best<500){ drag=bi*J+bj; setActive(bi,bj); hover=null; draw(); e.preventDefault(); } });
+  window.addEventListener('pointermove',function(e){ if(drag<0)return; var p=pos(e),i=Math.floor(drag/J),j=drag%J,y=IY(p[1]); y=Math.max(ylo+0.3,Math.min(yhi-0.3,y)); mu[i][j]=y; draw(); e.preventDefault(); });
+  window.addEventListener('pointerup',function(){drag=-1;});
+  cv.addEventListener('pointermove',function(e){ if(drag>=0)return; var p=pos(e),sig=+sEl.value,nn=+nEl.value,SE=sig/Math.sqrt(nn),best=170,hv=null,i,j;
+    for(i=0;i<I;i++)for(j=0;j<J;j++){
+      var tx=PX(j),ty=PY(mu[i][j]),dt=(p[0]-tx)*(p[0]-tx)+(p[1]-ty)*(p[1]-ty); if(dt<best){best=dt;hv={x:tx,y:ty,txt:'μ('+(i+1)+','+(j+1)+') = '+mu[i][j].toFixed(2)};}
+      var ee=mu[i][j]+SE*Z[i][j],ex=PX(j),ey=PY(ee),de=(p[0]-ex)*(p[0]-ex)+(p[1]-ey)*(p[1]-ey); if(de<best){best=de;hv={x:ex,y:ey,txt:'Ŷ('+(i+1)+','+(j+1)+') = '+ee.toFixed(2)};}
+    }
+    var changed=(hv&&!hover)||(!hv&&hover)||(hv&&hover&&hv.txt!==hover.txt); if(changed){hover=hv;draw();} });
+  cv.addEventListener('pointerleave',function(){ if(hover){hover=null;draw();} });
+  id('ipNew').addEventListener('click',function(){ regen(); draw(); });
+  id('ipFlat').addEventListener('click',function(){ var d=decomp(),i,j; for(i=0;i<I;i++)for(j=0;j<J;j++) mu[i][j]=d.m+d.ai[i]+d.bj[j]; draw(); });
+  id('ipReset').addEventListener('click',function(){ mu=INIT.map(function(r){return r.slice();}); draw(); });
+  Array.prototype.forEach.call(document.querySelectorAll('#ipWrap .ib'),function(b){b.addEventListener('click',function(){setActive(+b.dataset.i,act[1]);draw();});});
+  Array.prototype.forEach.call(document.querySelectorAll('#ipWrap .jb'),function(b){b.addEventListener('click',function(){setActive(act[0],+b.dataset.j);draw();});});
+  sEl.addEventListener('input',draw); nEl.addEventListener('input',draw);
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({mu:mu,s:+sEl.value,n:+nEl.value,a:act}));}catch(e){}}
+  var saved=null; try{saved=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+  if(saved&&saved.mu&&saved.mu.length===I){ mu=saved.mu.map(function(r){return r.slice();}); if(saved.a)act=saved.a; sEl.value=saved.s; nEl.value=saved.n; }
+  regen(); setActive(act[0],act[1]); draw();
+})();
+</script>
+</section>
+<section id="testing-strategy-interaction-first" class="slide level2">
+<h2>Testing Strategy: Interaction First</h2>
 <div class="fragment">
 <p>We want to test for the presence of an interaction:</p>
 <div class="square-def">
@@ -880,8 +1209,8 @@ Y_k &amp;= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\
 </div>
 </div>
 </section>
-<section id="presence-of-interaction" class="slide level2">
-<h2>Presence of Interaction</h2>
+<section id="when-the-interaction-is-significant" class="slide level2">
+<h2>When the Interaction Is Significant</h2>
 <div class="fragment">
 <div class="square-def">
 <p><span class="math display">\[H_0^{(AB)}: \gamma_{ij} = 0 \text{ for all } i, j\]</span></p>
@@ -929,21 +1258,21 @@ Y_k &amp;= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\
 </div>
 </div>
 </section>
-<section id="testing-the-interaction" class="slide level2">
-<h2>Testing the Interaction</h2>
+<section id="testing-the-interaction-constraint-test" class="slide level2">
+<h2>Testing the Interaction: Constraint Test</h2>
 <div class="fragment">
 <p>For testing the interaction, <span style="background-color: lightblue;"><span class="math inline">\(H_0^{(AB)}: \gamma_{ij} = 0\)</span> for all <span class="math inline">\(i, j\)</span></span></p>
 </div>
 <div class="fragment">
-<p>We the linear constraint test statistic <span class="math inline">\(F = \frac{n-p}{q} \frac{(SSR_c - SSR)}{SSR}\)</span></p>
+<p>We use the linear constraint test statistic <span class="math inline">\(F = \frac{n-p}{q} \frac{(SSR_c - SSR)}{SSR}\)</span></p>
 <p>where <span class="math inline">\(SSR_c\)</span> corresponds to the sum of squares of the residuals in <span style="background-color: yellow;">the space <span class="math inline">\(\gamma_{ij}=0\)</span> for all <span class="math inline">\((i,j)\)</span></span>.</p>
 </div>
 </section>
-<section id="testing-the-interaction-1" class="slide level2">
-<h2>Testing the Interaction</h2>
+<section id="testing-the-interaction-f-statistic" class="slide level2">
+<h2>Testing the Interaction: F Statistic</h2>
 <div class="fragment">
 <div class="square-def">
-<p><span class="math display">\[F^{(AB)} = \frac{S_{AB}^2/(I-1)(J-1)}{S_R^2/(n-IJ)}\]</span></p>
+<p><span class="math display">\[F^{(AB)} = \frac{S_{AB}^2/\big((I-1)(J-1)\big)}{S_R^2/(n-IJ)}\]</span></p>
 </div>
 <p>When <span class="math inline">\(\varepsilon \sim \mathcal N(0, \sigma^2 I_n)\)</span>, <span style="background-color: lightgreen;"><span class="math inline">\(F^{(AB)} \sim \mathcal F((I-1)(J-1), n-IJ)\)</span></span></p>
 </div>
@@ -1040,8 +1369,8 @@ Y_k &amp;= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\
 </div>
 </section></section>
 <section>
-<section id="two-factor-anova-practice" class="title-slide slide level1 center">
-<h1>Two-Factor ANOVA Practice</h1>
+<section id="two-way-anova-in-practice" class="title-slide slide level1 center">
+<h1>Two-Way ANOVA in Practice</h1>
 
 </section>
 <section id="assumptions" class="slide level2">
@@ -1070,11 +1399,13 @@ Y_k &amp;= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\
 </section>
 <section id="post-hoc-analysis" class="slide level2">
 <h2>Post-Hoc Analysis</h2>
+<div class="fragment">
 <p><strong>Once effects are identified</strong>: perform post-hoc analysis by <span style="background-color: yellow;">examining differences between (crossed) modalities more closely</span>, using <strong>Tukey’s test</strong> as in one-factor ANOVA</p>
+</div>
 </section></section>
 <section>
-<section id="multi-factor-analysis-with-qualitative-variables" class="title-slide slide level1 center">
-<h1>Multi-Factor Analysis with Qualitative Variables</h1>
+<section id="beyond-two-factors" class="title-slide slide level1 center">
+<h1>Beyond Two Factors</h1>
 
 </section>
 <section id="principle-and-limits" class="slide level2">
@@ -1117,8 +1448,8 @@ Y_k &amp;= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\
 </div>
 </section></section>
 <section>
-<section id="covariance-analysis---ancova" class="title-slide slide level1 center">
-<h1>Covariance Analysis - ANCOVA</h1>
+<section id="analysis-of-covariance-ancova" class="title-slide slide level1 center">
+<h1>Analysis of Covariance (ANCOVA)</h1>
 
 </section>
 <section id="model-components" class="slide level2">
@@ -1143,9 +1474,9 @@ Y_k &amp;= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\
 <section id="example-of-mixed-interaction" class="slide level2">
 <h2>Example of Mixed Interaction</h2>
 <ul>
-<li class="fragment"><span class="math inline">\(A \in \{\text{Labrador}, \text{Chihuaha}\}\)</span></li>
+<li class="fragment"><span class="math inline">\(A \in \{\text{Labrador}, \text{Chihuahua}\}\)</span></li>
 <li class="fragment"><span class="math inline">\(X^{(1)}\)</span>: size of the dog</li>
-<li class="fragment">There is <span style="background-color: yellow;">clearly a mixed interraction</span> between factor <span class="math inline">\(A\)</span> and <span class="math inline">\(X^{(1)}\)</span>!</li>
+<li class="fragment">There is <span style="background-color: yellow;">clearly a mixed interaction</span> between factor <span class="math inline">\(A\)</span> and <span class="math inline">\(X^{(1)}\)</span>!</li>
 </ul>
 </section>
 <section id="statistical-testing" class="slide level2">
@@ -1156,8 +1487,8 @@ Y_k &amp;= m + \alpha_i\sum_{i=1}^I\1\{X^{(1)}_k \in A_i\} +\beta_i\sum_{j=1}^J\
 </ul>
 </section></section>
 <section>
-<section id="linear-models-in-r-quantitative-and-qualitative-variables" class="title-slide slide level1 center">
-<h1>Linear Models in R: Quantitative and Qualitative Variables</h1>
+<section id="ancova-in-r-quantitative-qualitative-variables" class="title-slide slide level1 center">
+<h1>ANCOVA in R: Quantitative &amp; Qualitative Variables</h1>
 
 </section>
 <section id="model-without-interaction" class="slide level2">
@@ -1194,9 +1525,13 @@ Y_k &amp;= m + \beta X_k + \sum_{i=2}^{I} \beta_i X_k \mathbf{1}\{Z_k=A_i\} \\
 </div>
 <div class="fragment">
 <p><strong>Key Insight:</strong> In the interaction model, the coefficient <span class="math inline">\(\beta\)</span> associated with <span class="math inline">\(X\)</span> varies according to the modality <span class="math inline">\(A_i\)</span>.</p>
-
-
 </div>
+</section>
+<section id="next" class="slide level2">
+<h2>Next</h2>
+<p><a href="../../../teaching/glm/slides/Introduction_glm.html">Introduction to the Generalized Linear Model</a></p>
+
+
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">

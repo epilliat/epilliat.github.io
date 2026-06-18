@@ -84,6 +84,25 @@ One terse sentence — say what to look for, not how it's computed.
    - **Consistency**: after restoring, the active **button**, the slider positions, the **displayed
      numbers**, and the **equation** must all reflect the actual drawn state — achieve this by routing the
      restore through the same `setShape()` + `draw()` used at runtime (never set one without the other).
+7. **A live equation must not reflow while dragging.** Re-typesetting a whole `\(...\)` on every
+   `pointermove` makes the equation flicker and jump (async MathJax + changing token widths). Split it:
+   typeset the **symbols once** (MathJax), and put every changing **number in its own fixed-width box**
+   updated by `textContent` only — no MathJax during the drag. Re-typeset the symbols *only* on a discrete
+   structural change (e.g. the active subscript `i,j` changing on `pointerdown`).
+   ```html
+   <span class="trm"><span class="sym" id="symA"></span><span class="val" id="valA">+0.00</span></span>
+   ```
+   ```css
+   .trm{display:inline-flex;flex-direction:column;align-items:center;min-width:60px}
+   .val{font-family:ui-monospace,monospace;width:56px;text-align:center}   /* fixed width ⇒ no reflow */
+   ```
+   ```js
+   function renderSymbols(){ symA.innerHTML='\\(\\color{#2c6fb5}{\\alpha_'+(i+1)+'}\\)'; typeset(); } // on cell change only
+   function updateNumbers(){ valA.textContent=sgn(alpha); valG.style.color=Math.abs(g)<.1?'#27ae60':'#c0392b'; } // every draw
+   ```
+   Colour cues (a value turning green at 0) are CSS `style.color` changes — instant, no reflow. Stack
+   several boxed rows for a chained model (e.g. `Ŷ=μ+ε` above `μ=m+α+β+γ`). `\color{#RRGGBB}` works in
+   MathJax 2 (unknown colour names pass straight through as CSS colours).
 
 ## House style
 
