@@ -41,11 +41,9 @@ We assume that
 $$Y_i|X_i=x_i \sim P(\lambda_\beta(x_i))\quad \text{with} \quad \lambda_\beta(x) = \exp(x^T \beta)$$
 :::
 
-with $\lambda_\beta(x) = \exp(x^T \beta)$.
-
 . . .
 
-In particular, [$\mathbb E[Y_i|X_i=x_i] = \lambda_\beta(x)$]{style="background-color: lightblue;"}
+In particular, [$\mathbb E[Y_i|X_i=x_i] = \lambda_\beta(x_i)$]{style="background-color: lightblue;"}
 
 . . .
 
@@ -142,8 +140,6 @@ $$\sum_{i=1}^n y_i x_i = \sum_{i=1}^n \lambda_{\hat{\beta}}(x_i) x_i$$
 
 This is a system with $p$ unknowns (recall that [$x_i \in \mathbb R^p$]{style="background-color: orange;"}) that we [solve numerically]{style="background-color: yellow;"}.
 
-. . .
-
 ## Properties of β̂
 
 . . .
@@ -198,7 +194,7 @@ Thus the deviance equals
 
 :::{style="font-size: 80%;"}
 ::: {.square-def}
-$$D = 2(L_{\text{sat}} - L_{\text{mod}}) = 2\sum_x y_x \ln\left(\frac{y_x}{n_x \lambda_{\hat{\beta}}(x)}\right) - (y_x - n_x \lambda_{\hat{\beta}}(x))$$
+$$D = 2(L_{\text{sat}} - L_{\text{mod}}) = 2\sum_x \left[y_x \ln\left(\frac{y_x}{n_x \lambda_{\hat{\beta}}(x)}\right) - (y_x - n_x \lambda_{\hat{\beta}}(x))\right]$$
 :::
 :::
 
@@ -318,7 +314,7 @@ We want to model $Y =$ "Species" as a [function of pH and Biomass]{style="backgr
 . . .
 
 ```r
-glm(Species ∼ pH + Biomass, family=poisson)
+glm(Species ~ pH + Biomass, family=poisson)
 ```
 . . .
 
@@ -340,14 +336,14 @@ AIC: 526.43
 :::
 
 
-## Example: Number of Plant Species
+## Example: Interpreting the Fit
 
 . . .
 
 Thus, the average number of species, given pH and Biomass, is estimated as
 
 :::{style="font-size: 80%;"}
-[$\lambda_{\hat{\beta}}(\text{pH}, \text{Biomass}) = \exp(3.85 - 1.14 \mathbf{1}_{\text{pH=low}} - 0.46 \mathbf{1}_{\text{pH=mid}} - 0.13 \text{Biomass})$]{style="background-color: lightblue;"}
+[$\lambda_{\hat{\beta}}(\text{pH}, \text{Biomass}) = \exp(3.85 - 1.14 \mathbf{1}_{\text{pH=low}} - 0.45 \mathbf{1}_{\text{pH=mid}} - 0.13 \text{Biomass})$]{style="background-color: lightblue;"}
 :::
 
 . . .
@@ -363,7 +359,7 @@ Rate Ratio for low pH (acidic) compared to high pH (basic):
 On average, there are therefore about [3 times fewer]{style="background-color: yellow;"} species in acidic soil than in basic soil.
 
 
-## Example: Interraction Ph-Biomass
+## Example: Interaction pH-Biomass
 
 . . .
 
@@ -407,15 +403,15 @@ The average number of species, given pH and Biomass, is this time:
 :::{style="font-size: 80%;"}
 ::: {.square-def}
 $$\begin{aligned}
-\lambda_{\hat{\beta}}(\text{pH}, \text{Bm}) &= \exp(3.77 - 0.82 \mathbf{1}_{\text{pH=low}} - 0.33 \mathbf{1}_{\text{pH=mid}}) \\
-&- 0.11\text{Bm} - 0.16\text{Bm}\mathbf{1}_{\text{pH=low}} - 0.032\text{Bm}\mathbf{1}_{\text{pH=mid}}
+\lambda_{\hat{\beta}}(\text{pH}, \text{Bm}) &= \exp\big(3.77 - 0.82 \mathbf{1}_{\text{pH=low}} - 0.33 \mathbf{1}_{\text{pH=mid}} \\
+&\quad - 0.11\text{Bm} - 0.16\text{Bm}\mathbf{1}_{\text{pH=low}} - 0.032\text{Bm}\mathbf{1}_{\text{pH=mid}}\big)
 \end{aligned}$$
 :::
 :::
 
 
 
-## Example: Bm-dependent RR
+## Example: Biomass-Dependent RR
 
 . . .
 
@@ -498,7 +494,7 @@ $$\Var(Y|X = x) = \lambda(x)$$
 
 This constraint is a limitation of the Poisson model.
 
-## Overdispersion
+## Defining Overdispersion
 
 . . .
 
@@ -531,7 +527,7 @@ $$\hat{\phi} = \frac{1}{n-p} \sum_{i=1}^n \frac{(y_i - \hat{y}_i)^2}{\hat{y}_i}$
 
 
 
-and test if $\phi = 1$ or not (if $\phi = 1$, $\hat{\phi} \sim N(1, 1/n)$ when $n \to \infty$).
+and test if $\phi = 1$ or not (if $\phi = 1$, $\hat{\phi} \sim N(1, 2/(n-p))$ when $n \to \infty$).
 
 . . .
 
@@ -550,7 +546,7 @@ We can fit a [negative binomial model]{style="background-color: yellow;"} (cf th
 ## Quasi-Poisson VS Poisson Model
 
 - The estimated coefficients $\hat{\beta}$ are [identical]{style="background-color: lightgreen;"}.
-- The predictions $\hat{y}_i = \exp(\lambda_{\hat{\beta}}(x_i))$ are [identical]{style="background-color: lightgreen;"}.
+- The predictions $\hat{y}_i = \lambda_{\hat{\beta}}(x_i)$ are [identical]{style="background-color: lightgreen;"}.
 - Only the [estimation of standard errors differ]{style="background-color: orange;"}, and therefore possibly the significance of coefficients.
 
 . . .
@@ -563,7 +559,7 @@ The estimation procedure does not rely on the "true" likelihood (because of $\ph
 . . .
 
 ```r
-glm(Species∼ pH+ Biomass+ pH:Biomass, family=quasipoisson)
+glm(Species~ pH+ Biomass+ pH:Biomass, family=quasipoisson)
 ```
 
 . . .
@@ -655,7 +651,7 @@ $$Y|(X = x) \sim NB(\lambda(x), \theta)$$
 
 where as usual [$\lambda(x) = \exp(x^T \beta)$]{style="background-color: lightblue;"}.
 
-## Inference an other Tools in NB GLM model
+## Inference and Other Tools in the NB GLM
 
 . . .
 
@@ -682,7 +678,7 @@ We can test the interest of the  NB model [compared to the Poisson model]{style=
 . . .
 
 ```r
-glm.nb(Species∼ pH+ Biomass+ pH:Biomass)
+glm.nb(Species~ pH+ Biomass+ pH:Biomass)
 ```
 
 . . .
@@ -884,15 +880,12 @@ Number of male satellites on female horseshoe crabs.
 We want to model the number of satellites (`satell`) as a function of the weight of the horseshoe crab (`weight`) and its color (`color`, from 1 to 4, ≈ age).
 :::
 
-. . .
-
-
-## Example: Poisson log-linear Model :
+## Example: Poisson Log-Linear Model
 
 . . . 
 
 ```r
-glm(satell∼weight+color,family=’poisson’,data=crabs)
+glm(satell~weight+color,family='poisson',data=crabs)
 ```
 
 . . .
@@ -931,7 +924,7 @@ The model is significant but the fit is poor (the deviance is very high)
 . . .
 
 ```r
-glm.nb(satell∼weight+color,data=crabs)
+glm.nb(satell~weight+color,data=crabs)
 ```
 
 . . .
@@ -957,7 +950,7 @@ AIC: 754.45
 It's better... (by the way: color doesn't seem significant)
 
 
-## Example: NB Model
+## Example: NB Fit Plot
 
 ::: {style="text-align: center;"}
 ![](../images/zinb3.png){width=40%}
@@ -972,7 +965,7 @@ Still not very satisfactory.
 . . .
 
 ```r
-zeroinfl(satell∼weight | weight+color,dist="poisson",data=crabs)
+zeroinfl(satell~weight | weight+color,dist="poisson",data=crabs)
 ```
 
 . . .
@@ -1000,8 +993,7 @@ Log-likelihood: -360.8 on 5 Df
 :::
 
 
-## Example: ZIP Model
-
+## Example: ZIP Interpretation
 
 . . .
 
@@ -1019,7 +1011,7 @@ Second population is $0$. The probability $q$ of belonging to the second one is
 [$q(\text{wgt}, \text{col}) = \text{logit}^{-1}(1.96 - 1.66 \times \text{wgt} + 0.53 \times \text{col})$]{style="background-color: lightblue;"}
 
 
-## Example: ZIP Model
+## Example: ZIP Fit Plot
 
 ::: {style="text-align: center;"}
 ![](../images/zinb4.png){width=40%}
@@ -1034,7 +1026,7 @@ Much more convincing.
 . . .
 
 ```r
-zeroinfl(satell∼weight | weight+color,dist="negbin",data=crabs)
+zeroinfl(satell~weight | weight+color,dist="negbin",data=crabs)
 ```
 
 . . .
@@ -1064,7 +1056,7 @@ Number of iterations in BFGS optimization: 11
 Log-likelihood: -349.9 on 6 Df
 :::
 
-## Example: ZINB Model
+## Example: ZINB Fit Plot
 
 ::: {style="text-align: center;"}
 ![](../images/zinb5.png){width=40%}

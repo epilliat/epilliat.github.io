@@ -1,0 +1,216 @@
+---
+title: "2 — Multiple dispatch vs OOP"
+subtitle: "Where the verb lives: left vs right of the data"
+author: "Emmanuel Pilliat — ENSAI 3A"
+format:
+  revealjs:
+    incremental: true
+    callout-icon: false
+    slide-number: true
+    theme: [default, ../custom.scss]
+smaller: false
+css: ../../../styles.css
+---
+
+## Goals
+
+:::{.nonincremental}
+- Two ways to attach an **operation** to **data**: the verb **after** the object (OOP) vs the verb **before** it (dispatch).
+- See **multiple dispatch** — the method chosen from the types of **all** the arguments.
+- Understand why this is the **engine** of the type specialization from the compilation module.
+:::
+
+. . .
+
+> This is a **language point**, not parallelism yet — but it's what will later make threads and the GPU elegant.
+
+. . .
+
+> ▶ Notebook (demo + solution): [Multiple dispatch vs OOP](../pluto/2_dispatch_vs_oop.jl)
+
+. . .
+
+> ⬅ **Previous:** [1 — Interpreted vs compiled](1_compilation_and_types.qmd)  ·  **Next:** [3 — Threads & concurrency](3_threads_and_concurrency.qmd) ➡
+
+## Where does the verb go?
+
+The *same* idea — "the area of a shape" — written two ways:
+
+. . .
+
+| | call | the verb is… |
+|---|---|---|
+| **OOP** (Python) | `shape.area()` | **on the right**, after the dot |
+| **dispatch** (Julia) | `area(shape)` | **on the left**, prefix |
+
+. . .
+
+- OOP: the method is **owned by the object**. It lives *inside* the class.
+- Julia: `area` is a **generic function**, living **outside** the types.
+
+. . .
+
+> The receiver **left of the dot** decides the OOP method. The **verb on the left** decides the Julia method — from **all** its arguments.
+
+## OOP: the verb hangs on the right
+
+```python
+class Shape:
+    def area(self): ...
+
+class Circle(Shape):
+    def __init__(self, r): self.r = r
+    def area(self): return 3.14159 * self.r**2
+
+class Rectangle(Shape):
+    def __init__(self, L, w): self.L, self.w = L, w
+    def area(self): return self.L * self.w
+
+Circle(2.0).area()      # dispatch on the object (left of the dot)
+```
+
+. . .
+
+- The method is **locked inside** the class.
+- Selection looks at **one** object only: the receiver.
+- Adding an operation (say `perimeter`) means **editing every class**. → [invasive]{style="background-color: yellow;"}
+
+## Julia: the verb goes first, and sees the types
+
+Separate the **data** (types) from the **operations** (functions):
+
+. . .
+
+```julia
+abstract type Shape end
+struct Circle    <: Shape; r::Float64;             end
+struct Rectangle <: Shape; L::Float64; w::Float64; end
+```
+
+. . .
+
+```julia
+area(c::Circle)    = π * c.r^2      # one generic function `area`,
+area(r::Rectangle) = r.L * r.w      # one method per type
+
+area.([Circle(2.0), Rectangle(3.0, 4.0)])   # → [12.57, 12.0]
+```
+
+. . .
+
+> `area` is **external** to the types. The version that runs is picked from the **argument type**.
+
+## The difference that counts: all arguments, not just one {.smaller}
+
+The verb is on the left → it can look at **every** argument, not only the first.
+
+. . .
+
+```julia
+collide(a::Circle,    b::Circle)    = "two circles"
+collide(a::Circle,    b::Rectangle) = "circle and rectangle"
+collide(a::Rectangle, b::Rectangle) = "two rectangles"
+
+collide(Circle(1.0), Rectangle(2.0, 3.0))   # "circle and rectangle"
+```
+
+. . .
+
+- The method is chosen from the **pair of types** `(Circle, Rectangle)` — that's [multiple dispatch]{style="background-color: yellow;"}.
+- In OOP, `a.collide(b)` only ever looks at `a`. The second argument gets **no say**.
+
+## Extending without editing {.smaller}
+
+Add a **new operation** on existing types — without touching them:
+
+```julia
+perimeter(c::Circle)    = 2π * c.r
+perimeter(r::Rectangle) = 2 * (r.L + r.w)
+```
+
+. . .
+
+Add a **new type** — without touching existing code:
+
+```julia
+struct Triangle <: Shape; b::Float64; h::Float64; end
+area(t::Triangle) = t.b * t.h / 2
+```
+
+. . .
+
+| | add a **type** | add an **operation** |
+|---|---|---|
+| OOP | easy (new class) | **edit every class** |
+| dispatch | easy (new struct) | easy (new function) |
+
+. . .
+
+> The "**expression problem**": OOP makes new types cheap but new operations invasive. Dispatch makes **both** cheap — on the **extensibility** axis.
+
+::: {.notes}
+Don't over-claim. Wadler's expression problem also demands static type safety /
+exhaustiveness — Julia gives none: a missing method is a run-time MethodError
+(throw_methoderror is visible in the IR), plus ambiguities and type piracy.
+Say "it solves the extensibility half".
+:::
+
+## Why this matters for speed {.smaller}
+
+This isn't only elegant design — it's the **mechanism** behind the compilation module's specialization.
+
+. . .
+
+- `area(Circle(2.0))`: Julia sees a `Circle`, picks the method, **compiles a specialized native version**. Same story as `f(3.0)` vs `f(3)`.
+- The decisive question is **when the type is known**.
+
+. . .
+
+| | method resolved… |
+|---|---|
+| Python `obj.method()` | **at run time**, by lookup, every call — unspecialized |
+| Julia `area(x)` | **at compile time — *if the type is inferable*** — chosen, inlined, lookup gone |
+
+. . .
+
+::: {.callout-warning}
+**Not inferable → Julia dispatches at run time, exactly like Python.** Our own
+`area.([Circle, Rectangle, Circle])` builds a `Vector{Shape}`: measured **~10× slower**
+than `Vector{Circle}`. **Concrete types buy the speed.**
+:::
+
+. . .
+
+> Multiple dispatch **+** JIT **+ inferable types** = functions that are **generic** *and* **fast**.
+
+::: {.notes}
+Demo it live: the flagship area.([...]) array is a Vector{Shape}, isconcretetype = false,
+and @code_typed shows a dynamic Main.area call. ~1 µs vs ~100 ns, 0 allocs both sides.
+This is the module's one honest measurement — don't skip it.
+:::
+
+## Summary
+
+| Idea | Python (OOP) | Julia (dispatch) |
+|---|---|---|
+| Where the method lives | **inside** the object (`obj.method()`) | **outside** the types, generic function |
+| Chosen from | the type of `obj` (**one** — `singledispatch` too) | the types of **all** arguments |
+| Add a type | easy | easy |
+| Add an operation | edit every class (or monkey-patch) | add a function, types untouched |
+| Two-argument dispatch | `isinstance` ladder / Visitor | just another method |
+| Link to speed | — | **the engine** of specialization — *if types are inferable* |
+
+. . .
+
+> Later, the *same* `*` will pick the **GPU** version all by itself — just because its arguments are `CuArray`. Same code, different hardware (the memory/GPU module).
+
+## Going further
+
+:::{.nonincremental}
+- ▶ Notebook (demo + solution): [Multiple dispatch vs OOP](../pluto/2_dispatch_vs_oop.jl)
+- 🔎 `methods(area)` lists every method Julia knows for a generic function.
+:::
+
+. . .
+
+> ⬅ **Previous:** [1 — Interpreted vs compiled](1_compilation_and_types.qmd)  ·  **Next:** [3 — Threads & concurrency](3_threads_and_concurrency.qmd) ➡

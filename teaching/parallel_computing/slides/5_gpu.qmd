@@ -1,0 +1,251 @@
+---
+title: "5 — GPU"
+subtitle: "Thousands of threads — provided you feed them"
+author: "Emmanuel Pilliat — ENSAI 3A"
+format:
+  revealjs:
+    incremental: true
+    callout-icon: false
+    slide-number: true
+    theme: [default, ../custom.scss]
+smaller: false
+css: ../../../styles.css
+---
+
+## Goals
+
+:::{.nonincremental}
+- Why a GPU is **not just a faster CPU**: a different bet on caches and threads.
+- **When it pays off** — and when it *loses*.
+- **Coalescing**: locality, again, on the other side of the bus.
+:::
+
+. . .
+
+> The batching module ended on *"feed the hardware"*. This is the hardware that **starves** the fastest.
+
+. . .
+
+> ▶ Notebook (demo + solution): [Memory & GPU](../pluto/4_memory_and_gpu.jl) — the GPU sections
+
+. . .
+
+> ⬅ **Previous:** [4 — Memory & batching](4_memory_and_batching.qmd)  ·  **Next:** [Course home](../index.qmd) ➡
+
+## Two strategies for the same problem {.smaller}
+
+Both face the same wall: **memory is far away**. They bet in opposite directions.
+
+. . .
+
+| | **CPU** | **GPU** |
+|---|---|---|
+| threads | **few**, fast | **thousands**, slow |
+| caches | **big** (24 MiB L3), automatic | **small** per thread, + explicit *shared memory* |
+| hides latency by | **caching** the data | **switching** to another warp |
+| wants | one big job | **an ocean of identical jobs** |
+
+. . .
+
+> The CPU **avoids** the wait. The GPU **covers** it — with so many threads that someone is always ready to run.
+> Give it too little work and there is nobody to switch to: [the latency shows.]{style="background-color: yellow;"}
+
+## Same code, different hardware
+
+The dispatch module's promise, cashed in:
+
+. . .
+
+```julia
+Ag = cu(A)          # move it to the card -> a CuArray
+Bg = cu(B)
+
+Ag * Bg             # ...the SAME `*`
+```
+
+. . .
+
+- `*` is a **generic function**. Its arguments are now `CuArray`, so **multiple dispatch** picks the GPU method.
+- **Not one line of the algorithm changed.**
+
+. . .
+
+::: {.callout-note}
+This is the pay-off promised back in the dispatch module: *the same `*` picks the GPU
+version all by itself, because of the **types** of its arguments*.
+:::
+
+## Bet before you look 🎲 {style="text-align: center;"}
+
+. . .
+
+We multiply two **N × N** matrices, CPU vs GPU.
+
+. . .
+
+N runs from **64** to **4096**.
+
+. . .
+
+> ### Does the GPU always win?
+
+## When does the GPU start paying off? {.smaller}
+
+Square matmul, `Float32`, CPU measured **cold** — then the GPU:
+
+. . .
+
+| N | CPU | GPU | speedup | GPU GFLOP/s |
+|---|---|---|---|---|
+| 64 | 0.01 ms | 0.03 ms | [**0.25×**]{style="background-color: yellow;"} — it **loses** | 18 |
+| 128 | 0.03 ms | 0.03 ms | 1.2× — break-even | 153 |
+| 512 | 1.15 ms | 0.09 ms | 13.0× | 3035 |
+| 2048 | 69.8 ms | 3.02 ms | [**23.1×**]{style="background-color: yellow;"} | **5689** |
+| 4096 | 557 ms | 38.6 ms | 14.4× | 3558 |
+
+. . .
+
+- At **N = 64** a 5 GHz core simply wins: the GPU spends its time being *launched*.
+- The card only reaches its throughput once the work is **big enough to fill it**: **18 → 5689 GFLOP/s**.
+
+. . .
+
+> A GPU is not "faster". It is **wider**. Narrow work doesn't get faster on a wider machine.
+
+## Feeding it: the batch, measured {.smaller}
+
+One layer `W` (4096²), applied to `B` examples at once:
+
+. . .
+
+| B | GPU **total** | µs / example | GFLOP/s | % of the card |
+|---|---|---|---|---|
+| 1 | **0.41 ms** | 405.0 | 82.8 | [**1.7%**]{style="background-color: yellow;"} |
+| 8 | **0.42 ms** | 52.6 | 638 | 13% |
+| 64 | **0.45 ms** | [**7.05**]{style="background-color: yellow;"} | 4761 | **100%** |
+| 256 | 2.23 ms | 8.71 | 3853 | 81% |
+
+. . .
+
+- Read the **total** column: `0.41 → 0.45 ms` while B goes **1 → 64**.
+- [**64× the work for 10% more time.**]{style="background-color: yellow;"} At B=1 the card was **idle**, waiting.
+
+. . .
+
+> **57× better per example** — and nothing about the GPU changed. Only how much we asked of it.
+
+::: {.notes}
+Do NOT say "the GPU loses at B=1" here: measured, it still beats the CPU 6.3x at B=1.
+The honest line is "you are using 1.7% of what you paid for". Stronger anyway: "it
+loses" invites "so use a CPU"; "1.7%" invites "so batch".
+:::
+
+## Coalescing: what a warp wants {.smaller}
+
+32 threads move in lockstep (a **warp**). They issue their loads **together**.
+
+. . .
+
+- Neighbouring addresses → the hardware merges them into **a few 32-byte sectors**. [Coalesced.]{style="background-color: yellow;"}
+- Scattered addresses → **one transaction per thread**. Same number of reads, far more traffic.
+
+. . .
+
+> It is the **column-major lesson again**, one bus further out: *locality decides on both sides*.
+
+## Coalescing, measured {.smaller}
+
+Same 20 M reads, only the access **pattern** changes:
+
+. . .
+
+| access | time | |
+|---|---|---|
+| contiguous (`stride 1`) | 2.39 ms | coalesced |
+| `stride 33` | 6.53 ms | [**2.7× slower**]{style="background-color: yellow;"} |
+| `stride 1023` | 12.5 ms | 5.2× slower |
+
+. . .
+
+- *"Only 2.7×? I thought coalescing was decisive."* — **Do the traffic accounting.**
+- `out = a[idx]` also reads the **index** array (80 MB) and writes the **result** (80 MB) — both perfectly coalesced **whatever** the stride.
+
+. . .
+
+> **Two thirds of the traffic is coalesced by construction.** Only a third can be punished — so the ratio is *capped*, no matter how bad the gather gets. **Amdahl's law, on memory traffic.**
+
+::: {.notes}
+The stride must be COPRIME with N or it is not a permutation: gcd(32, 20_000_000)=32
+would reread only 625k slots — a cache demo, not a coalescing demo. That was a real
+bug here. 33 works; 65 and 1025 do NOT (they share the factor 5).
+:::
+
+## Testing that explanation 🔬 {.smaller}
+
+That argument makes a **prediction**. Remove the 80 MB index read — compute the index *inside* the kernel — and only **half** the traffic stays coalesced, so the ratio **must rise**.
+
+. . .
+
+```julia
+j = ((i - 1) * stride) % n + 1     # no index array to load
+out[i] = a[j]
+```
+
+. . .
+
+| `stride 33` | ratio |
+|---|---|
+| gather `a[idx]` (2/3 coalesced) | 2.74× |
+| kernel, index computed (1/2 coalesced) | [**4.18×**]{style="background-color: yellow;"} |
+
+. . .
+
+> The prediction **held**. That is the difference between an explanation and an excuse —
+> a story you can *test* and might have lost.
+
+## The red thread lands on the card {.smaller}
+
+Monte-Carlo π, 100 million points:
+
+. . .
+
+| | time | |
+|---|---|---|
+| CPU, scalar loop | 274.7 ms | |
+| GPU | **11.5 ms** | [**24×**]{style="background-color: yellow;"} |
+
+. . .
+
+- Same estimator we started with, from a plain loop → threads → the card.
+- Perfect GPU work: **100 M identical, independent** jobs. No sharing, nothing to wait for.
+
+. . .
+
+> Remember the race condition? There is **no shared counter** here either — `sum` reduces.
+> **Minimise sharing** scales from 22 threads to 100 million.
+
+## Synthesis {.smaller}
+
+:::{.nonincremental}
+1. **Compiling and specialising** removes the per-operation overhead. *(Julia ≈ C.)*
+2. **Multiple dispatch**: generic *and* fast — and it flips the same `*` onto the GPU.
+3. **Parallelising** demands *minimising sharing* — or the answer is silently wrong.
+4. **Feeding the hardware**: honour the cache, batch, saturate the card.
+:::
+
+. . .
+
+> Not one of these was a language trick. Every single one was **what the machine actually does**:
+> cost per operation, data movement, sharing.
+
+## Going further
+
+:::{.nonincremental}
+- ▶ Notebook (demo + solution): [Memory & GPU](../pluto/4_memory_and_gpu.jl) — the GPU sections
+- 🐍 Python track: [Memory & GPU (Colab)](../python/4_memory_and_gpu_python.ipynb) — PyTorch CPU vs CUDA
+- ⚠️ Measure the CPU **before** the GPU on a laptop: they share a power budget (measured: **75 ms vs 2.97 ms** for the *same* gemm, throttled).
+:::
+
+. . .
+
+> ⬅ **Previous:** [4 — Memory & batching](4_memory_and_batching.qmd)  ·  **Next:** [Course home](../index.qmd) ➡

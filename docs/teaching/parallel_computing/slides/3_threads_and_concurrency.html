@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-7b4406b7675125bc2ba204020e191172.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.22">
+
+  <meta name="author" content="Emmanuel Pilliat — ENSAI 3A">
+  <title>Emmanuel Pilliat – 3 — Threads &amp; concurrency</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../../site_libs/revealjs/dist/theme/quarto-8861debc0ea4df1cd525e94b7712d9b7.css">
+  <link rel="stylesheet" href="../../../styles.css">
+  <link href="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">3 — Threads &amp; concurrency</h1>
+  <p class="subtitle">Waiting is overlapped; computing must be split</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Emmanuel Pilliat — ENSAI 3A 
+</div>
+</div>
+</div>
+
+</section>
+<section id="goals" class="slide level2">
+<h2>Goals</h2>
+<ul>
+<li><strong>Concurrency ≠ parallelism</strong>: overlap the <strong>waiting</strong> (I/O) on a single core with <code>@async</code>/<code>@sync</code>.</li>
+<li>Then <strong>real parallelism</strong> on many cores with <code>Threads.@spawn</code>.</li>
+<li>The classic trap: the <strong>parallel sum that returns a wrong answer</strong> (<em>race condition</em>).</li>
+</ul>
+<div class="fragment">
+<blockquote>
+<p>Parallelism starts here. The compilation and dispatch modules made <strong>one</strong> core fast; now we use <strong>many</strong>.</p>
+</blockquote>
+</div>
+<div class="fragment">
+<blockquote>
+<p>▶ Notebook (demo + solution): <a href="../pluto/3_threads_and_concurrency.jl">Threads &amp; concurrency</a></p>
+</blockquote>
+</div>
+<div class="fragment">
+<blockquote>
+<p>⬅ <strong>Previous:</strong> <a href="../../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html">2 — Multiple dispatch vs OOP</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/4_memory_and_batching.html">4 — Memory &amp; batching</a> ➡</p>
+</blockquote>
+</div>
+</section>
+<section id="concurrency-parallelism" class="slide level2">
+<h2>Concurrency ≠ parallelism</h2>
+<p>Two different words because the <strong>enemy is not the same</strong>.</p>
+<div class="fragment">
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>the problem</th>
+<th>the fix</th>
+<th>cores needed</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Concurrency</strong></td>
+<td>you are <strong>waiting</strong> (network, disk)</td>
+<td><strong>overlap</strong> the waits</td>
+<td><strong>1</strong> is enough</td>
+</tr>
+<tr class="even">
+<td><strong>Parallelism</strong></td>
+<td>you are <strong>computing</strong></td>
+<td><strong>split</strong> the work</td>
+<td><strong>many</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<blockquote>
+<p><strong>Waiting is overlapped; computing must be split.</strong> Use the wrong one and you get all of the complexity and none of the speed — we’ll <em>measure</em> that.</p>
+</blockquote>
+</div>
+</section>
+<section>
+<section id="part-a-async-overlap-the-waiting" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Part A — async: overlap the waiting</h1>
+
+</section>
+<section id="fetching-15-prices" class="slide level2">
+<h2>Fetching 15 prices</h2>
+<ul>
+<li class="fragment">15 HTTP requests to Binance. Each one: send, then <strong>wait ~0.25 s</strong> for the network.</li>
+<li class="fragment">Done one by one = <strong>waiting 15 times in a row</strong>. The CPU does <em>nothing</em> the whole time.</li>
+</ul>
+<div class="fragment">
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="pp">@async</span> expr     <span class="co"># fire a task, return IMMEDIATELY (don't wait)</span></span>
+<span id="cb1-2"><a></a><span class="pp">@sync</span> <span class="cf">begin</span>     <span class="co"># ...wait for every @async inside this block</span></span>
+<span id="cb1-3"><a></a>    <span class="op">...</span></span>
+<span id="cb1-4"><a></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<blockquote>
+<p>One core is plenty: there is no computing to split — only <strong>waiting</strong> to overlap.</p>
+</blockquote>
+</div>
+</section>
+<section id="the-three-ways-to-fetch" class="slide level2 smaller">
+<h2>The three ways to fetch</h2>
+<div class="fragment">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>time</th>
+<th>what happened</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>sequential</td>
+<td><strong>~4 s</strong></td>
+<td>the sum of the 15 latencies</td>
+</tr>
+<tr class="even">
+<td><code>@async</code> <strong>without</strong> <code>@sync</code></td>
+<td><strong>~10 µs</strong></td>
+<td>⚠️ we timed only <strong>task creation</strong></td>
+</tr>
+<tr class="odd">
+<td><code>@sync</code> + <code>@async</code></td>
+<td><strong>~0.3 s</strong></td>
+<td>~one round-trip: all 15 waits overlapped</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment">The middle row is the trap: it looks <strong>400 000× faster</strong> and it is simply <strong>wrong</strong> — the data isn’t there yet.</li>
+<li class="fragment"><code>@sync</code> is what makes the measurement <em>honest</em> <strong>and</strong> the results <em>correct</em>.</li>
+</ul>
+</div>
+<div class="fragment">
+<blockquote>
+<p>Async overlaps <strong>waiting</strong>, not computing. ~4 s → ~0.3 s on <strong>one</strong> core.</p>
+</blockquote>
+<aside class="notes">
+<p>Network-dependent: your latency will differ. The shape (sum-of-latencies → one round-trip) is the lesson, not the exact seconds. Run it live if the wifi allows.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="julia-forgot-to-wait-python-forgot-to-start" class="slide level2 smaller">
+<h2>Julia forgot to wait; Python forgot to start</h2>
+<p>The <em>same</em> bug in both languages — from <strong>opposite</strong> causes.</p>
+<div class="fragment">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Julia <code>@async</code></th>
+<th>Python <code>async def</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>the task is…</td>
+<td><strong>eager</strong> — already running</td>
+<td><strong>lazy</strong> — a coroutine object</td>
+</tr>
+<tr class="even">
+<td>creating 5 costs</td>
+<td><strong>187 µs</strong></td>
+<td><strong>1.8 µs</strong></td>
+</tr>
+<tr class="odd">
+<td>ready immediately</td>
+<td><strong>0 / 5</strong></td>
+<td><strong>0 / 5</strong></td>
+</tr>
+<tr class="even">
+<td>1 s later</td>
+<td><strong>5 / 5 done</strong></td>
+<td><strong>still 0 / 5</strong> — never started</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment">Julia: the work <strong>is</strong> happening, you just didn’t <strong>wait</strong> for it → <code>@sync</code>.</li>
+<li class="fragment">Python: the work <strong>never began</strong>; a coroutine does nothing until awaited → <code>await</code> / <code>gather</code>.</li>
+</ul>
+</div>
+<div class="fragment">
+<blockquote>
+<p><span style="background-color: yellow;">Same symptom, opposite mechanism.</span> <code>asyncio.gather</code> = <code>@sync</code> + <code>@async</code> in one call.</p>
+</blockquote>
+</div>
+</section>
+<section id="the-gil-precisely" class="slide level2 smaller">
+<h2>The GIL, precisely</h2>
+<ul>
+<li class="fragment">Python’s GIL forbids running <strong>Python bytecode</strong> on two threads at once.</li>
+<li class="fragment">But it is <strong>released</strong> while a thread waits on the network.</li>
+</ul>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Python <code>ThreadPoolExecutor</code> on…</th>
+<th>speedup</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>I/O</strong> (waiting on 15 URLs)</td>
+<td><strong>~12×</strong></td>
+</tr>
+<tr class="even">
+<td><strong>CPU</strong> (a pure-Python loop)</td>
+<td><strong>~1×</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<blockquote>
+<p><em>“Threads are pointless in Python”</em> is <span style="background-color: yellow;"><strong>false</strong></span> — it is only true for <strong>CPU</strong> work. Same threads, same GIL: what changed is <em>waiting</em> vs <em>computing</em>. <strong>Julia has no GIL at all.</strong></p>
+</blockquote>
+<aside class="notes">
+<p>Ageing caveat: true for default CPython. Free-threaded builds (PEP 703) are officially supported since 3.13/3.14 and remove the GIL — say “default CPython”.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section></section>
+<section>
+<section id="part-b-spawn-real-parallelism" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Part B — <code>@spawn</code>: real parallelism</h1>
+
+</section>
+<section id="splitting-the-computing" class="slide level2">
+<h2>Splitting the computing</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a>t <span class="op">=</span> <span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="fu">f</span>()   <span class="co"># a task the scheduler may put on ANOTHER thread</span></span>
+<span id="cb2-2"><a></a><span class="fu">fetch</span>(t)                 <span class="co"># ...and its result</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="fragment">
+<ul>
+<li class="fragment">Needs <code>julia --threads=auto</code> (otherwise you have <strong>one</strong> thread and nothing to spawn onto).</li>
+<li class="fragment">Our machine: <code>nthreads() = 22</code>.</li>
+</ul>
+</div>
+<div class="fragment">
+<blockquote>
+<p><code>@async</code> = <em>concurrency</em> (one core). <code>@spawn</code> = <em>parallelism</em> (many cores). They look almost identical. <strong>Let’s measure the difference.</strong></p>
+</blockquote>
+</div>
+</section>
+<section id="the-quadrant-that-settles-it" class="slide level2 smaller">
+<h2>The quadrant that settles it</h2>
+<p>Monte-Carlo π, <code>n = 10⁸</code>, same code — only <code>@async</code> vs <code>@spawn</code> changes:</p>
+<div class="fragment">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>22 tasks</th>
+<th>time</th>
+<th>speedup</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>pi_seq</code> (one core)</td>
+<td>0.357 s</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td><code>@async</code> × 22</td>
+<td>0.332 s</td>
+<td><span style="background-color: yellow;"><strong>1.1×</strong></span></td>
+</tr>
+<tr class="odd">
+<td><code>@spawn</code> × 22</td>
+<td>0.057 s</td>
+<td><span style="background-color: yellow;"><strong>6.3×</strong></span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment"><code>@async</code> <strong>never</strong> passed ~1.3× at <strong>any</strong> task count we tried (1 → 22). One core, nothing to overlap — <strong>it was never waiting</strong>.</li>
+<li class="fragment"><code>@spawn</code> scales because the tasks land on <strong>different cores</strong>.</li>
+</ul>
+</div>
+<div class="fragment">
+<blockquote>
+<p>This is <em>concurrency ≠ parallelism</em> as a <strong>number</strong>, not a definition.</p>
+</blockquote>
+<aside class="notes">
+<p>Deliberately NOT showing a speedup-vs-ntasks curve here: with 22 Julia threads and few tasks, the OS may place them on 5 GHz P-cores or 2.5 GHz LP-E cores, so the curve is dominated by placement luck (measured 1.3x at 4 tasks but 4.7x at 6). The honest curve needs one process per point — that’s experiences/threads_scaling/.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="bet-before-you-look" class="slide level2" style="text-align: center;">
+<h2>Bet before you look 🎲</h2>
+<div class="fragment">
+<p>We now sum π in parallel with a <strong>shared counter</strong>.</p>
+</div>
+<div class="fragment">
+<p>22 threads, 20 million points.</p>
+</div>
+<div class="fragment">
+<blockquote>
+<h3 id="what-does-it-print">What does it print?</h3>
+</blockquote>
+</div>
+<div class="fragment">
+<blockquote>
+<p><em>(Almost nobody guesses.)</em></p>
+</blockquote>
+</div>
+</section>
+<section id="the-parallel-sum-that-lies" class="slide level2 smaller">
+<h2>The parallel sum that lies</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a></a>hits <span class="op">=</span> <span class="fl">0</span></span>
+<span id="cb3-2"><a></a><span class="pp">@sync</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>ntasks</span>
+<span id="cb3-3"><a></a>    <span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>per</span>
+<span id="cb3-4"><a></a>        x <span class="op">=</span> <span class="fu">rand</span>(); y <span class="op">=</span> <span class="fu">rand</span>()</span>
+<span id="cb3-5"><a></a>        hits <span class="op">+=</span> (x<span class="op">*</span>x <span class="op">+</span> y<span class="op">*</span>y <span class="op">&lt;=</span> <span class="fl">1.0</span>)    <span class="co"># ⚠ shared, mutated from 22 tasks</span></span>
+<span id="cb3-6"><a></a>    <span class="cf">end</span></span>
+<span id="cb3-7"><a></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>run 1</th>
+<th>run 2</th>
+<th>run 3</th>
+<th>run 4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>pi_race</code></td>
+<td><strong>0.219</strong></td>
+<td><strong>0.361</strong></td>
+<td><strong>0.354</strong></td>
+<td><strong>0.393</strong></td>
+</tr>
+<tr class="even">
+<td><code>pi_spawn</code></td>
+<td>3.14126</td>
+<td>3.14174</td>
+<td>3.14172</td>
+<td>3.14146</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment">Not “a bit off” — <strong>an order of magnitude wrong</strong>, and <strong>different every run</strong>.</li>
+<li class="fragment"><code>hits += 1</code> is <strong>read-add-write</strong>: three steps, not atomic. Increments are lost.</li>
+</ul>
+</div>
+<div class="fragment">
+<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>No error. No warning. Just a wrong number.</strong> Writing to one place from several threads without care = <strong>silent corruption</strong>.</p>
+</div>
+</div>
+</div>
+<aside class="notes">
+<p>Your values WILL differ — that is the point (non-determinism). Never quote a fixed number here; run it live and let the class watch it change.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="the-cure-is-less-sharing-not-a-bigger-lock" class="slide level2 smaller">
+<h2>The cure is <em>less sharing</em>, not a bigger lock</h2>
+<p>The fix: each task <strong>returns its own count</strong>; we reduce once at the end.</p>
+<div class="fragment">
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a></a>tasks <span class="op">=</span> [<span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="fu">pi_chunk</span>(per) for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>ntasks]</span>
+<span id="cb4-2"><a></a><span class="fl">4</span> <span class="op">*</span> <span class="fu">sum</span>(fetch, tasks) <span class="op">/</span> n            <span class="co"># correct AND fast</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<p>Why not just make the counter atomic? Because it is <strong>correct — and catastrophic</strong>:</p>
+</div>
+<div class="fragment">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>n = 40M</th>
+<th>time</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>pi_seq</code> (1 core)</td>
+<td>0.105 s</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>pi_spawn</code> (return + reduce)</td>
+<td><strong>0.013 s</strong></td>
+<td>7.9× faster</td>
+</tr>
+<tr class="odd">
+<td><code>pi_atomic</code> (<code>Threads.Atomic</code>)</td>
+<td><strong>0.720 s</strong></td>
+<td><span style="background-color: yellow;"><strong>54× slower</strong> than <code>@spawn</code></span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<blockquote>
+<p>The atomic is <strong>7× slower than not parallelizing at all</strong>: 22 cores fight over <strong>one cache line</strong>. Touch shared memory <strong>once per task</strong>, not once per draw.</p>
+</blockquote>
+</div>
+</section>
+<section id="amdahl-speedup-number-of-threads" class="slide level2 smaller">
+<h2>Amdahl: speedup ≠ number of threads</h2>
+<p>22 threads gave <strong>6.3×</strong>, not 22×. Three reasons, and the third is <em>this laptop</em>:</p>
+<div class="fragment">
+<ul>
+<li class="fragment"><strong>Amdahl</strong>: splitting, spawning and the final reduce stay <strong>sequential</strong>.</li>
+<li class="fragment"><strong>SMT</strong>: 22 <em>logical</em> threads, but only <strong>16 physical cores</strong>.</li>
+<li class="fragment"><strong>The cores are not equal.</strong> Intel Core Ultra 7 165H = 6 P-cores <span class="citation" data-cites="5.0">@5.0</span> GHz + 8 E-cores <span class="citation" data-cites="3.8">@3.8</span> GHz + 2 <strong>LP-E <span class="citation" data-cites="2.5">@2.5</span> GHz</strong>.</li>
+</ul>
+</div>
+<div class="fragment">
+<p>Time each task of a <strong>22-way equal split</strong>:</p>
+<pre><code>fastest task  0.022 s   |   slowest task  0.051 s   →  2.3×
+0.02 ×5    0.03 ×6    0.04 ×8    0.05 ×3      ← P / E / LP-E</code></pre>
+</div>
+<div class="fragment">
+<blockquote>
+<p>Equal work, <strong>unequal cores</strong> → the <strong>slowest task sets the wall clock</strong>. Same trap in BLAS on this box: <strong>8 threads → 2.7 ms, 22 threads → 39 ms</strong> (14× <em>slower</em>).</p>
+</blockquote>
+<aside class="notes">
+<p>This is why “speedup ≈ nthreads” must never be said. On a hybrid laptop CPU an equal split is the <em>wrong</em> split — the fix is more, smaller tasks (work stealing), which is exactly what <span class="citation" data-cites="spawn">@spawn</span>’s scheduler does if you give it enough of them.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="profiling-threads-a-different-question" class="slide level2 smaller">
+<h2>Profiling threads: a <em>different</em> question</h2>
+<p>Same tool as the compilation module, but it no longer answers <em>“where does the time go?”</em>:</p>
+<div class="fragment">
+<pre><code>Count  Overhead  Function
+  217       216  poptask
+  217         0  wait
+  208         0  task_done_hook
+                        ...and `pi_chunk` is nowhere near the top.
+
+Total snapshots: 528.  Utilization: 59% across all threads and tasks.</code></pre>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment">The top of the report is the <strong>scheduler</strong>, not your code.</li>
+<li class="fragment">The line that matters is the last one: <strong><code>Utilization: 59%</code></strong> — <em>are my threads actually working?</em></li>
+</ul>
+</div>
+<div class="fragment">
+<blockquote>
+<p>The compilation module asked <strong>where</strong> the time goes. Here we ask <strong>are they busy</strong> — and 59% is Amdahl, measured.</p>
+</blockquote>
+</div>
+</section>
+<section id="when-does-what-help" class="slide level2">
+<h2>When does what help?</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th><strong>I/O-bound</strong> (waiting)</th>
+<th><strong>CPU-bound</strong> (computing)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Python</strong></td>
+<td>threads <strong>work</strong> (GIL released), or <code>asyncio</code></td>
+<td>threads <strong>useless</strong> → <code>multiprocessing</code></td>
+</tr>
+<tr class="even">
+<td><strong>Julia</strong></td>
+<td><code>@async</code> / <code>@sync</code> (one core)</td>
+<td><code>@spawn</code> / <code>fetch</code> (many cores)</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<blockquote>
+<p><strong>Waiting is overlapped; computing must be split.</strong> Get the row wrong and you buy all the complexity for none of the speed.</p>
+</blockquote>
+</div>
+</section>
+<section id="going-further" class="slide level2">
+<h2>Going further</h2>
+<ul>
+<li>▶ Notebook (demo + solution): <a href="../pluto/3_threads_and_concurrency.jl">Threads &amp; concurrency</a></li>
+<li>🔬 The <code>@async</code> vs <code>@spawn</code> quadrant + the Amdahl curve: <a href="../experiences/threads_scaling/"><code>experiences/threads_scaling/</code></a></li>
+<li>🎯 The one to remember: a race condition <strong>does not crash</strong> — it just lies to you.</li>
+</ul>
+<div class="fragment">
+<blockquote>
+<p>⬅ <strong>Previous:</strong> <a href="../../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html">2 — Multiple dispatch vs OOP</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/4_memory_and_batching.html">4 — Memory &amp; batching</a> ➡</p>
+</blockquote>
+
+
+</div>
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: false,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    <script>
+    // Alt+Left = browser Back (Reveal otherwise binds Alt+arrow to slide nav)
+    window.addEventListener('keydown', function (e) {
+      if (e.altKey && !e.ctrlKey && !e.metaKey && (e.key === 'ArrowLeft' || e.keyCode === 37)) {
+        e.stopImmediatePropagation(); e.preventDefault();
+        if (history.length > 1) history.back();
+      }
+    }, true);
+    </script>
+    
+
+</body></html>

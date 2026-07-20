@@ -1,0 +1,289 @@
+---
+title: "Parallel Computing"
+subtitle: "Why the same computation can be 100× faster"
+author: "Emmanuel Pilliat — ENSAI 3A"
+format:
+  revealjs:
+    incremental: true
+    callout-icon: false
+    slide-number: true
+    theme: [default, ../custom.scss]
+smaller: false
+css: ../../../styles.css
+#filters:
+  #- parse-latex
+---
+
+## Course outline
+
+:::{.nonincremental}
+- [**0 — Julia for Python users**]{style="background-color: yellow;"}: a short syntax bridge —
+  1-based arrays, `end`, broadcasting, structs. No performance yet.
+- [**1 — Interpreted vs compiled**]{style="background-color: yellow;"}: why the same computation
+  can be 100× faster (type specialization, benchmarking, profiling).
+- [**2 — Multiple dispatch vs Python OOP**]{style="background-color: yellow;"}: how Julia picks the
+  method to run, against Python's object-oriented style.
+- [**3 — Threads & concurrency**]{style="background-color: yellow;"}: async I/O on one core, then
+  real multithreading — and the parallel sum that returns a wrong answer.
+- [**4 — Memory & GPU**]{style="background-color: yellow;"}: the memory hierarchy, batching, and
+  the GPU.
+:::
+
+. . .
+
+**The red thread of the course:** estimating $\pi$ by Monte-Carlo
+(sequential → multithreaded → GPU).
+
+. . .
+
+> Julia as the test bench, **Python as the point of comparison**.
+
+## How we work
+
+:::{.nonincremental}
+- These slides **frame** the course; the demos live in the **notebooks**.
+- Each module has an **activity**: a [Python track (for everyone)]{style="background-color: lightgreen;"}
+  and a [Julia track (deep dive)]{style="background-color: orange;"}.
+- We compare the **numbers** between the two languages — that's the whole point.
+:::
+
+# 0 — Julia for Python users {style="text-align: center;"}
+
+## Goals
+
+:::{.nonincremental}
+- You already program fluently in Python. Learn only what is **different**.
+- The four traps: **1-based** arrays, blocks close with **`end`**, element-wise math uses **the dot**,
+  behaviour lives in **functions**, not classes.
+:::
+
+. . .
+
+> ▶ Notebook: [Julia for Python users](../pluto/0_julia_basics.jl)
+
+# 1 — Interpreted vs compiled {style="text-align: center;"}
+
+## Goals
+
+:::{.nonincremental}
+- Understand what happens between source code and the processor.
+- See **type specialization** (why Julia ≈ C).
+- Learn to **measure properly** — and to find *where* the time goes.
+:::
+
+. . .
+
+> ▶ Notebook (demo + solution): [Interpreted vs compiled](../pluto/1_compilation_and_types.jl)
+
+## Gaps of several orders of magnitude
+
+- Summing a large vector: Python loop vs `numpy` vs Julia loop.
+- *Same computation* — wildly different times.
+- _(TODO: numbers from the demo)_
+
+## The stages of compilation
+
+- `@code_lowered` → `@code_typed` → `@code_native`.
+- Interpreted (CPython, bytecode) vs JIT-compiled (Julia).
+
+. . .
+
+> **Key distinction — when is the type known?**
+> **At run time** (Python): rediscovered at every operation → slow.
+> **At compile time** (Julia/JIT): known once, specialized code → fast.
+
+## The trap: type instability
+
+- An untyped global variable → dynamic code, comparable to Python.
+- The tool: `@code_warntype` (red = `Any`).
+- **Golden rule**: put the work in **functions** that receive their data as arguments.
+
+## Measuring properly
+
+- Pitfall A: timing the compilation instead of the computation.
+- Pitfall B: measuring only once → `@btime` / `@benchmark`.
+- Pitfall C: think in **throughput** (GB/s), not absolute seconds.
+
+## Profiling: from *how long* to *where*
+
+- `@btime` says **how long**; `Profile.@profile` says **where**.
+- On a layered pipeline, the hotspot is rarely the one you'd bet on.
+
+. . .
+
+> The surprise: a one-line `clean(v) = [x for x in v if x > 0.01]` can cost **more** than a loop full
+> of `sin`/`cos`/`exp` — because it **allocates** (the array grows). `filter` fixes it:
+> 36 allocations → **3**.
+
+. . .
+
+> **profile → diagnose → fix → re-measure.** That's the method — and what you're graded on.
+
+# 2 — Multiple dispatch vs Python OOP {style="text-align: center;"}
+
+## Goals
+
+:::{.nonincremental}
+- **Multiple dispatch**: the method is chosen from the types of **all** the arguments.
+- Contrast it with Python's **object-oriented** style (`obj.method()`).
+- See that it is **the engine** of specialization/speed.
+:::
+
+. . .
+
+> ▶ Notebook (demo + solution): [Multiple dispatch vs OOP](../pluto/2_dispatch_vs_oop.jl)
+
+## Python OOP vs Julia dispatch
+
+- Python: the method lives **inside** the object, dispatching on **one** argument.
+- Julia: a **generic** function outside the types, dispatching on **all** the arguments.
+- _(TODO: `area(Circle)` / `area(Rectangle)` example)_
+
+## What it changes
+
+- **Extensibility**: add a *type* or an *operation* without touching the rest.
+- **Multi-argument dispatch**: `collide(a, b)` depending on the pair of types.
+- That cannot be expressed cleanly with `a.method(b)`.
+
+## The link with compilation
+
+- Choosing the method from the types → **compile a specialized native version**.
+- Python: dispatch **at run time**, no specialization; Julia: types **known at compile time**.
+- Multiple dispatch + JIT = generic **and** fast.
+- We'll see it again: a `*` flips onto the **GPU** because its arguments are `CuArray`.
+
+# 3 — Threads & concurrency {style="text-align: center;"}
+
+## Goals
+
+:::{.nonincremental}
+- **Concurrency ≠ parallelism**: overlap the **waiting** (I/O) on one core with `@async`/`@sync`.
+- Then **real parallelism** on many cores with `Threads.@spawn`.
+- The classic case: the **parallel sum that returns a wrong answer** (*race condition*).
+:::
+
+. . .
+
+> ▶ Notebook (demo + solution): [Threads & concurrency](../pluto/3_threads_and_concurrency.jl)
+
+## Part A — async: overlap the waiting
+
+- Fetching 15 prices one by one = **waiting** 15 times. The CPU does nothing.
+- `@async` fires a task and returns; `@sync` waits for all of them.
+
+. . .
+
+| | time | |
+|---|---|---|
+| sequential | ~4 s | the sum of the latencies |
+| `@async` **without** `@sync` | ~10 µs | ⚠️ only **task creation** was timed! |
+| `@sync` + `@async` | ~0.3 s | ~one round-trip |
+
+. . .
+
+> Async overlaps **waiting**, not computing. `@sync` is what makes the measurement *real* **and** the
+> data *correct*.
+
+## The GIL, precisely
+
+- Python `threading` **does** overlap I/O: the GIL is **released** while waiting on the network.
+- It only forbids running Python **bytecode** simultaneously → it kills **CPU** parallelism.
+
+. . .
+
+> *"Threads are pointless in Python"* is **false** — it's only true for CPU work.
+> Julia has **no** GIL at all.
+
+## Part B — `@spawn`: real parallelism
+
+- `Threads.@spawn f()` → a task the scheduler may place on **another thread**; `fetch` gets the result.
+- Independent Markov chains: speedup ≈ the number of threads.
+- Needs `julia --threads=auto`.
+
+## The parallel sum that lies
+
+- A shared counter mutated from several `@spawn` tasks → **wrong** *and* **non-deterministic**.
+- Cause: *race condition* (read-add-write is not atomic).
+
+. . .
+
+::: {.callout-warning}
+In shared memory, writing to the same place from several threads without care = **silent
+corruption**. No error, just a wrong result.
+:::
+
+. . .
+
+> The fix: each task **returns** its own count, then `sum(fetch, tasks)`. **Minimize sharing** —
+> rather than `@atomic` everywhere, which just serializes.
+
+## When does what help?
+
+| | **I/O-bound** (waiting) | **CPU-bound** (computing) |
+|---|---|---|
+| **Python** | threads **work** (GIL released), or `asyncio` | threads **useless** → `multiprocessing` |
+| **Julia** | `@async` / `@sync` (one core) | `@spawn` / `fetch` (many cores) |
+
+. . .
+
+> Four cells, and the whole reason **concurrency** and **parallelism** are two different words:
+> **waiting is overlapped; computing must be split.**
+
+# 4 — Memory & GPU {style="text-align: center;"}
+
+## Goals
+
+:::{.nonincremental}
+- The **memory hierarchy**: the CPU spends its time *waiting* for memory.
+- **Locality** (Julia column-major vs numpy row-major).
+- **Batching** and the **GPU**.
+:::
+
+. . .
+
+> ▶ Notebook (demo + solution): [Memory & GPU](../pluto/4_memory_and_gpu.jl)
+
+## The memory hierarchy
+
+- Registers → L1 → L2 → L3 → RAM: the bigger it is, the further away, the slower.
+- The cache bets on **locality** (temporal and spatial).
+
+## Walking a matrix the right way
+
+- Summing column by column vs row by row: *same computation*, wildly different times.
+- **Julia is column-major**: inner loop on the 1st index (the opposite of numpy).
+- _("cache cliff" experiment: you see the L1/L2/L3/RAM steps)_
+
+## CPU caches vs GPU caches: two strategies
+
+- **Same principle**: registers → L1/scratchpad → L2 → far memory; **locality** decides.
+- **CPU**: big caches, few threads; caches are **automatic**.
+- **GPU**: small caches, **a huge number of threads** to hide latency (*occupancy*); *shared memory*
+  is **managed explicitly**.
+- GPU spatial locality = **coalescing** (a *warp* reads contiguous addresses) — measured in the notebook.
+
+## From batching to the GPU
+
+- Arithmetic intensity: *memory-bound* vs *compute-bound*.
+- Batching = matrix-vector → matrix-matrix: the **time per example** drops sharply.
+- GPU: thousands of threads, **only worth it at scale** (CPU vs GPU, measured).
+
+# Synthesis {style="text-align: center;"}
+
+## Synthesis
+
+:::{.nonincremental}
+1. **Compiling and specializing** removes the *per-operation* overhead.
+2. **Multiple dispatch**: generic *and* fast; it even flips a computation onto the GPU.
+3. **Parallelizing** demands *minimizing sharing*, otherwise the result is wrong.
+4. **Feeding the hardware**: honour the cache, batch, saturate the GPU.
+:::
+
+. . .
+
+> Performance doesn't come from a magic language, but from **understanding what the machine actually
+> does**: the cost of each operation, who shares what, and where the data travels.
+
+. . .
+
+> Running through the whole course: **type discovered at run time = slow; type known at compile time = fast**.

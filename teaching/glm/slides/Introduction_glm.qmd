@@ -62,7 +62,7 @@ The OLS estimator of $\beta$ is [$\hat \beta= (X^TX)^{-1}X^TY$]{style="backgroun
 
 . . .
 
-The hypothesis [$\E(Y|X) = X^T\beta$]{style="background-color: lightblue;"} in linear regression models implies that [$\E(Y|X)$ can take any real value]{style="background-color: orange;"}.
+The hypothesis [$\E(Y|X=x) = x^T\beta$]{style="background-color: lightblue;"} in linear regression models implies that [$\E(Y|X=x)$ can take any real value]{style="background-color: orange;"}.
 
 . . .
 
@@ -71,7 +71,7 @@ This is [not a restriction when]{style="background-color: lightgreen;"}:
 - $Y|X$ follows a Gaussian distribution
 - $Y|X$ follows any other "nice" continuous distribution on $\mathbb{R}$
 
-## When it is not
+## When it is Not
 
 
 
@@ -82,7 +82,7 @@ The linear assumption is **inappropriate** for certain variables $Y$, [particula
 
 
 
-## When it is not
+## When it is Not: Examples
 
 
 . . .
@@ -126,9 +126,9 @@ However, $\E(Y|X)$ has different interpretations depending on the situation:
 
 . . .
 
-In all these cases, the linear model $\E(Y|X) = X^T\beta$ is inappropriate.
+In all these cases, the linear model $\E(Y|X=x) = x^T\beta$ is inappropriate.
 
-## Objectives of the GLM
+## Goals: Effects, Explanation, Prediction
 
 
 
@@ -145,7 +145,7 @@ As in linear regression, we focus on:
 # Modeling E(Y|X): Three Fundamental Cases
 
 
-## Three Fundamental Cases
+## Overview of the Three Cases
 
 
 
@@ -192,7 +192,7 @@ $Y|X = x$ follows a Bernoulli distribution with parameter $p(x)$
 **key constraint**: $p(x) \in [0, 1]$
 
 
-## Modelling p(x)
+## Case 1: Modelling p(x)
 
 
 
@@ -244,9 +244,7 @@ $$p_j(x) = P(Y \in A_j|X = x), \quad \text{for } j = 1, \ldots, k$$
 
 **Constraint**: $\sum_{j=1}^{k} p_j(x) = 1$ (If $k = 2$, this reduces to the previous case)
 
-. . .
-
-## Case 2: Categorical Y
+## Case 2: The Expectation Vector
 
 
 
@@ -257,10 +255,6 @@ $Y = (\mathbf{1}_{A_1}, \ldots, \mathbf{1}_{A_k})$ follows a multinomial distrib
 ::: {.square-def}
 $$\E(Y|X = x) = \begin{pmatrix} p_1(x) \\ \vdots \\ p_k(x) \end{pmatrix}$$
 :::
-
-
-
-. . .
 
 ## Case 2: Model for Categorical Y
 
@@ -311,6 +305,8 @@ where $f$ is a function from $\mathbb{R}$ to $[0, +\infty)$
 **Example of possible choice for f**: The exponential function
 
 
+# The GLM Framework
+
 ## Model Formulation
 
 
@@ -334,9 +330,6 @@ $$\E(Y|X = x) = g^{-1}(x^T\beta)$$
 :::
 
 
-. . .
-
-
 ## Remarks on Model
 
 
@@ -346,13 +339,13 @@ $$\E(Y|X = x) = g^{-1}(x^T\beta)$$
 - This allows us to compute the likelihood and facilitates inference
 
 
-# General Objectives
+# Estimation
 
-
+## Maximum Likelihood Estimation
 
 . . .
 
-In a GLM model, the goal is [to estimate $\beta \in \mathbb{R}^p$]{style="background-color: yellow;"}
+In a GLM, the goal is [to estimate $\beta \in \mathbb{R}^p$]{style="background-color: yellow;"}
 
 . . .
 
@@ -380,6 +373,8 @@ $$X\beta = \beta_1 X^{(1)} + \cdots + \beta_p X^{(p)}$$
 **Alternative notation**: Sometimes indexed differently to write $\beta_0 + \beta_1 X^{(1)} + \cdots + \beta_p X^{(p)}$
 
 
+# Worked Examples
+
 ## Example 1: Linear Regression Model
 
 
@@ -402,7 +397,7 @@ $$E(Y|X = x) = g^{-1}(x^T\beta) = x^T\beta$$
 **In the Gaussian linear model**: 
 
 ::: {.square-def}
-$$Y|X \sim \mathcal{N}(X\beta, \sigma^2)$$
+$$Y|X=x \sim \mathcal{N}(x^T\beta, \sigma^2)$$
 :::
 
 
@@ -412,7 +407,7 @@ $$Y|X \sim \mathcal{N}(X\beta, \sigma^2)$$
 Linear regression is therefore a **special case** of GLM models!
 
 
-## Example 2: Binary Case Y ∈ 0, 1
+## Example 2: Binary Case (Y ∈ {0,1})
 
 
 
@@ -430,18 +425,18 @@ $$E(Y|X = x) = g^{-1}(x^T\beta) \in [0, 1]$$
 Since $Y\in \{0,1\}$, $Y|X$ follows a [Bernoulli distribution]{style="background-color: yellow;"}
 
 ::: {.square-def}
-$$Y|X \sim \mathcal{B}(g^{-1}(X^T\beta))$$
+$$Y|X=x \sim \mathcal{B}(g^{-1}(x^T\beta))$$
 :::
 
 
-## Example 2: Binary Case Y ∈ 0, 1
+## Example 2: The Logistic Link
 
 
 
 . . .
 
 ::: {.square-def}
-$$Y|X \sim \mathcal{B}(g^{-1}(X^T\beta))$$
+$$Y|X=x \sim \mathcal{B}(g^{-1}(x^T\beta))$$
 :::
 
 
@@ -465,7 +460,7 @@ $$g^{-1}(t) = \frac{e^t}{1 + e^t} \quad \text{i.e.} \quad g(t) = \ln\left(\frac{
 This leads to the **logistic model**, the [most important model in this chapter]{style="background-color: orange;"}
 
 
-## Example 3: Count Data Y∈ ℕ
+## Example 3: Count Data (Y ∈ ℕ)
 
 
 
@@ -489,13 +484,15 @@ For the distribution of $Y|X$, defined on $\mathbb{N}$, we often assume it follo
 In this context:
 
 ::: {.square-def}
-$$Y|X \sim \mathcal{P}(e^{X^T\beta})$$
+$$Y|X=x \sim \mathcal{P}(e^{x^T\beta})$$
 :::
 
 
-## Summary
+# Summary
 
+## Two Choices in a GLM
 
+. . .
 
 There are **2 choices** to make when setting up a GLM model:
 

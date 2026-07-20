@@ -1,0 +1,185 @@
+---
+title: "0 — Julia for Python users"
+subtitle: "A syntax bridge before the performance story"
+author: "Emmanuel Pilliat — ENSAI 3A"
+format:
+  revealjs:
+    incremental: true
+    callout-icon: false
+    slide-number: true
+    theme: [default, ../custom.scss]
+smaller: false
+css: ../../../styles.css
+---
+
+## Goals
+
+:::{.nonincremental}
+- You already program fluently in **Python**. Julia is dynamic, high-level, REPL-driven — it will feel familiar.
+- Learn only the handful of things that are **different**, so the later modules read smoothly.
+- **No performance and no parallelism yet** — that starts next module. Here we just read and write Julia.
+:::
+
+. . .
+
+> The four differences that actually trip people up: **1-based** arrays, blocks close with **`end`**, element-wise math uses the **dot**, and behaviour lives in **functions**, not classes.
+
+. . .
+
+> ▶ Notebook (all of this, runnable): [Julia for Python users](../pluto/0_julia_basics.jl)
+
+. . .
+
+> ⬅ **Previous:** [Course home](../index.qmd)  ·  **Next:** [1 — Interpreted vs compiled](1_compilation_and_types.qmd) ➡
+
+## Blocks end with `end`, not indentation
+
+Julia does **not** use indentation to delimit blocks, and there is no `:` after the header.
+
+. . .
+
+```julia
+for i in 1:3
+    println(i)
+end            # ← end closes the loop
+```
+
+. . .
+
+- Every `for`, `while`, `if`, `function`, `struct` is closed by a matching **`end`**.
+- Indent for readability — it's ignored by the parser.
+- Else-if is one word: [`elseif`]{style="background-color: yellow;"}.
+
+## Arrays start at 1 {.smaller}
+
+The difference that bites hardest:
+
+. . .
+
+```julia
+v = [10, 20, 30, 40, 50]
+
+v[1]        # 10   — FIRST element (not v[0])
+v[end]      # 50   — last (end is a keyword inside [ ])
+v[end-1]    # 40   — second to last
+v[2:4]      # [20, 30, 40]   — slice, BOTH ends included
+```
+
+. . .
+
+| | Python | Julia |
+|---|---|---|
+| First element | `v[0]` | [`v[1]`]{style="background-color: yellow;"} |
+| Last element | `v[-1]` | `v[end]` |
+| Slice `2:4` | elements 2,3 | elements 2,3,**4** |
+
+. . .
+
+> Matrices are stored **column-major** (columns contiguous) — the opposite of NumPy. It won't matter until the memory module, but it's why the *first* index is the fast one.
+
+## Broadcasting: the dot `.` {.smaller}
+
+Julia's answer to NumPy vectorisation *and* element-wise comprehensions — put a **dot** on any function or operator:
+
+. . .
+
+```julia
+x = [1.0, 4.0, 9.0]
+
+sqrt.(x)        # element-wise sqrt → [1.0, 2.0, 3.0]
+x .+ 1          # add 1 to each
+x .* 2          # double each
+@. x^2 + 1      # @. puts a dot on EVERY operation
+```
+
+. . .
+
+- Where NumPy relies on `np.sqrt(x)` being vectorised, Julia makes the intent **explicit** with the dot.
+- Chained dotted operations are [**fused into one loop**]{style="background-color: yellow;"} — no temporary arrays.
+
+## Functions — three forms {.smaller}
+
+`return` is optional (the last expression is returned); keyword args come after a `;`.
+
+. . .
+
+```julia
+function area_rect(L, w)      # 1) long form
+    L * w
+end
+
+square(x) = x^2               # 2) short "assignment" form
+cube = x -> x^3               # 3) anonymous (lambda)
+
+greet(name; punct = "!") = "Hi $name$punct"   # keyword arg with default
+```
+
+. . .
+
+> A trailing **`!`** in a name (`push!`, `sort!`) is a **convention** meaning *"mutates its argument"* — a habit, not syntax.
+
+## Structs, not classes {.smaller}
+
+Julia has **no classes** and no `self`. Group data in a `struct`; the behaviour lives **outside**, in functions.
+
+. . .
+
+```julia
+struct Point            # immutable by default
+    x::Float64
+    y::Float64
+end
+
+p = Point(1.0, 2.0)     # default constructor — no __init__, no self
+p.x                     # 1.0
+# p.x = 5.0  → ERROR, Point is immutable  (use `mutable struct` to allow it)
+```
+
+. . .
+
+> Putting behaviour *outside* the type is the whole point of the **next language module** (multiple dispatch vs OOP). Here we just note: `struct`, immutable, no `self`.
+
+## A delight: Unicode & math {.smaller}
+
+Identifiers can be **Unicode**. Type a LaTeX name then **TAB** in the editor:
+
+. . .
+
+```julia
+α = 0.1              # \alpha then TAB
+radius = 2.0
+2π * radius          # π is built in; 2π means 2 * π  (juxtaposition)
+3 ≤ 4                # ≤ is \le then TAB
+2 ∈ [1, 2, 3]        # ∈ is \in then TAB
+```
+
+. . .
+
+> A number written right before a name **multiplies**: `2x` is `2 * x`. Great for maths, and it's how formulas on the slides map straight to code.
+
+## Cheat-sheet — Python → Julia {.smaller}
+
+| Topic | Python | Julia |
+|---|---|---|
+| First / last element | `v[0]` / `v[-1]` | `v[1]` / `v[end]` |
+| Slice (both ends) | `v[1:4]` excl. 4 | `v[2:4]` **incl.** 4 |
+| Block delimiter | indentation + `:` | keywords, closed by **`end`** |
+| Else-if | `elif` | `elseif` |
+| Power / int-div | `2**10` / `//` | `2^10` / `÷` |
+| String concat / f-string | `"a"+"b"` / `f"{x}"` | `"a"*"b"` / `"$x"` |
+| Object method | `obj.method()` | `method(obj)` |
+| Class | `class C` (has `self`) | `struct C` (immutable, no `self`) |
+| Element-wise | `np.f(x)` | `f.(x)` — the dot |
+| Copy vs alias | `b = a[:]` | `b = a` aliases; `copy(a)` |
+| Absent value | `None` | `nothing` |
+
+## Going further
+
+:::{.nonincremental}
+- ▶ Notebook (runnable, every example above): [Julia for Python users](../pluto/0_julia_basics.jl)
+- 🎯 The one to internalise: **arrays are 1-based**, blocks close with **`end`**, element-wise math is **the dot**.
+:::
+
+. . .
+
+> ⬅ **Previous:** [Course home](../index.qmd)  ·  **Next:** [1 — Interpreted vs compiled](1_compilation_and_types.qmd) ➡

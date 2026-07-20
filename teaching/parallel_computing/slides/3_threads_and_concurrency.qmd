@@ -1,0 +1,345 @@
+---
+title: "3 — Threads & concurrency"
+subtitle: "Waiting is overlapped; computing must be split"
+author: "Emmanuel Pilliat — ENSAI 3A"
+format:
+  revealjs:
+    incremental: true
+    callout-icon: false
+    slide-number: true
+    theme: [default, ../custom.scss]
+smaller: false
+css: ../../../styles.css
+---
+
+## Goals
+
+:::{.nonincremental}
+- **Concurrency ≠ parallelism**: overlap the **waiting** (I/O) on a single core with `@async`/`@sync`.
+- Then **real parallelism** on many cores with `Threads.@spawn`.
+- The classic trap: the **parallel sum that returns a wrong answer** (*race condition*).
+:::
+
+. . .
+
+> Parallelism starts here. The compilation and dispatch modules made **one** core fast; now we use **many**.
+
+. . .
+
+> ▶ Notebook (demo + solution): [Threads & concurrency](../pluto/3_threads_and_concurrency.jl)
+
+. . .
+
+> ⬅ **Previous:** [2 — Multiple dispatch vs OOP](2_dispatch_vs_oop.qmd)  ·  **Next:** [4 — Memory & batching](4_memory_and_batching.qmd) ➡
+
+## Concurrency ≠ parallelism
+
+Two different words because the **enemy is not the same**.
+
+. . .
+
+| | the problem | the fix | cores needed |
+|---|---|---|---|
+| **Concurrency** | you are **waiting** (network, disk) | **overlap** the waits | **1** is enough |
+| **Parallelism** | you are **computing** | **split** the work | **many** |
+
+. . .
+
+> **Waiting is overlapped; computing must be split.**
+> Use the wrong one and you get all of the complexity and none of the speed — we'll *measure* that.
+
+# Part A — async: overlap the waiting {style="text-align: center;"}
+
+## Fetching 15 prices
+
+- 15 HTTP requests to Binance. Each one: send, then **wait ~0.25 s** for the network.
+- Done one by one = **waiting 15 times in a row**. The CPU does *nothing* the whole time.
+
+. . .
+
+```julia
+@async expr     # fire a task, return IMMEDIATELY (don't wait)
+@sync begin     # ...wait for every @async inside this block
+    ...
+end
+```
+
+. . .
+
+> One core is plenty: there is no computing to split — only **waiting** to overlap.
+
+## The three ways to fetch {.smaller}
+
+. . .
+
+| | time | what happened |
+|---|---|---|
+| sequential | **~4 s** | the sum of the 15 latencies |
+| `@async` **without** `@sync` | **~10 µs** | ⚠️ we timed only **task creation** |
+| `@sync` + `@async` | **~0.3 s** | ~one round-trip: all 15 waits overlapped |
+
+. . .
+
+- The middle row is the trap: it looks **400 000× faster** and it is simply **wrong** — the data isn't there yet.
+- `@sync` is what makes the measurement *honest* **and** the results *correct*.
+
+. . .
+
+> Async overlaps **waiting**, not computing. ~4 s → ~0.3 s on **one** core.
+
+::: {.notes}
+Network-dependent: your latency will differ. The shape (sum-of-latencies → one
+round-trip) is the lesson, not the exact seconds. Run it live if the wifi allows.
+:::
+
+## Julia forgot to wait; Python forgot to start {.smaller}
+
+The *same* bug in both languages — from **opposite** causes.
+
+. . .
+
+| | Julia `@async` | Python `async def` |
+|---|---|---|
+| the task is… | **eager** — already running | **lazy** — a coroutine object |
+| creating 5 costs | **187 µs** | **1.8 µs** |
+| ready immediately | **0 / 5** | **0 / 5** |
+| 1 s later | **5 / 5 done** | **still 0 / 5** — never started |
+
+. . .
+
+- Julia: the work **is** happening, you just didn't **wait** for it → `@sync`.
+- Python: the work **never began**; a coroutine does nothing until awaited → `await` / `gather`.
+
+. . .
+
+> [Same symptom, opposite mechanism.]{style="background-color: yellow;"} `asyncio.gather` = `@sync` + `@async` in one call.
+
+## The GIL, precisely {.smaller}
+
+- Python's GIL forbids running **Python bytecode** on two threads at once.
+- But it is **released** while a thread waits on the network.
+
+. . .
+
+| Python `ThreadPoolExecutor` on… | speedup |
+|---|---|
+| **I/O** (waiting on 15 URLs) | **~12×** |
+| **CPU** (a pure-Python loop) | **~1×** |
+
+. . .
+
+> *"Threads are pointless in Python"* is [**false**]{style="background-color: yellow;"} — it is only true for **CPU** work.
+> Same threads, same GIL: what changed is *waiting* vs *computing*. **Julia has no GIL at all.**
+
+::: {.notes}
+Ageing caveat: true for default CPython. Free-threaded builds (PEP 703) are
+officially supported since 3.13/3.14 and remove the GIL — say "default CPython".
+:::
+
+# Part B — `@spawn`: real parallelism {style="text-align: center;"}
+
+## Splitting the computing
+
+```julia
+t = Threads.@spawn f()   # a task the scheduler may put on ANOTHER thread
+fetch(t)                 # ...and its result
+```
+
+. . .
+
+- Needs `julia --threads=auto` (otherwise you have **one** thread and nothing to spawn onto).
+- Our machine: `nthreads() = 22`.
+
+. . .
+
+> `@async` = *concurrency* (one core). `@spawn` = *parallelism* (many cores).
+> They look almost identical. **Let's measure the difference.**
+
+## The quadrant that settles it {.smaller}
+
+Monte-Carlo π, `n = 10⁸`, same code — only `@async` vs `@spawn` changes:
+
+. . .
+
+| 22 tasks | time | speedup |
+|---|---|---|
+| `pi_seq` (one core) | 0.357 s | — |
+| `@async` × 22 | 0.332 s | [**1.1×**]{style="background-color: yellow;"} |
+| `@spawn` × 22 | 0.057 s | [**6.3×**]{style="background-color: yellow;"} |
+
+. . .
+
+- `@async` **never** passed ~1.3× at **any** task count we tried (1 → 22). One core, nothing to overlap — **it was never waiting**.
+- `@spawn` scales because the tasks land on **different cores**.
+
+. . .
+
+> This is *concurrency ≠ parallelism* as a **number**, not a definition.
+
+::: {.notes}
+Deliberately NOT showing a speedup-vs-ntasks curve here: with 22 Julia threads and
+few tasks, the OS may place them on 5 GHz P-cores or 2.5 GHz LP-E cores, so the
+curve is dominated by placement luck (measured 1.3x at 4 tasks but 4.7x at 6).
+The honest curve needs one process per point — that's experiences/threads_scaling/.
+:::
+
+## Bet before you look 🎲 {style="text-align: center;"}
+
+. . .
+
+We now sum π in parallel with a **shared counter**.
+
+. . .
+
+22 threads, 20 million points.
+
+. . .
+
+> ### What does it print?
+
+. . .
+
+> *(Almost nobody guesses.)*
+
+## The parallel sum that lies {.smaller}
+
+```julia
+hits = 0
+@sync for _ in 1:ntasks
+    Threads.@spawn for _ in 1:per
+        x = rand(); y = rand()
+        hits += (x*x + y*y <= 1.0)    # ⚠ shared, mutated from 22 tasks
+    end
+end
+```
+
+. . .
+
+| | run 1 | run 2 | run 3 | run 4 |
+|---|---|---|---|---|
+| `pi_race` | **0.219** | **0.361** | **0.354** | **0.393** |
+| `pi_spawn` | 3.14126 | 3.14174 | 3.14172 | 3.14146 |
+
+. . .
+
+- Not "a bit off" — **an order of magnitude wrong**, and **different every run**.
+- `hits += 1` is **read-add-write**: three steps, not atomic. Increments are lost.
+
+. . .
+
+::: {.callout-warning}
+**No error. No warning. Just a wrong number.** Writing to one place from several
+threads without care = **silent corruption**.
+:::
+
+::: {.notes}
+Your values WILL differ — that is the point (non-determinism). Never quote a fixed
+number here; run it live and let the class watch it change.
+:::
+
+## The cure is *less sharing*, not a bigger lock {.smaller}
+
+The fix: each task **returns its own count**; we reduce once at the end.
+
+. . .
+
+```julia
+tasks = [Threads.@spawn pi_chunk(per) for _ in 1:ntasks]
+4 * sum(fetch, tasks) / n            # correct AND fast
+```
+
+. . .
+
+Why not just make the counter atomic? Because it is **correct — and catastrophic**:
+
+. . .
+
+| n = 40M | time | |
+|---|---|---|
+| `pi_seq` (1 core) | 0.105 s | |
+| `pi_spawn` (return + reduce) | **0.013 s** | 7.9× faster |
+| `pi_atomic` (`Threads.Atomic`) | **0.720 s** | [**54× slower** than `@spawn`]{style="background-color: yellow;"} |
+
+. . .
+
+> The atomic is **7× slower than not parallelizing at all**: 22 cores fight over **one cache line**.
+> Touch shared memory **once per task**, not once per draw.
+
+## Amdahl: speedup ≠ number of threads {.smaller}
+
+22 threads gave **6.3×**, not 22×. Three reasons, and the third is *this laptop*:
+
+. . .
+
+- **Amdahl**: splitting, spawning and the final reduce stay **sequential**.
+- **SMT**: 22 *logical* threads, but only **16 physical cores**.
+- **The cores are not equal.** Intel Core Ultra 7 165H = 6 P-cores @5.0 GHz + 8 E-cores @3.8 GHz + 2 **LP-E @2.5 GHz**.
+
+. . .
+
+Time each task of a **22-way equal split**:
+
+```
+fastest task  0.022 s   |   slowest task  0.051 s   →  2.3×
+0.02 ×5    0.03 ×6    0.04 ×8    0.05 ×3      ← P / E / LP-E
+```
+
+. . .
+
+> Equal work, **unequal cores** → the **slowest task sets the wall clock**.
+> Same trap in BLAS on this box: **8 threads → 2.7 ms, 22 threads → 39 ms** (14× *slower*).
+
+::: {.notes}
+This is why "speedup ≈ nthreads" must never be said. On a hybrid laptop CPU an
+equal split is the *wrong* split — the fix is more, smaller tasks (work stealing),
+which is exactly what @spawn's scheduler does if you give it enough of them.
+:::
+
+## Profiling threads: a *different* question {.smaller}
+
+Same tool as the compilation module, but it no longer answers *"where does the time go?"*:
+
+. . .
+
+```
+Count  Overhead  Function
+  217       216  poptask
+  217         0  wait
+  208         0  task_done_hook
+                        ...and `pi_chunk` is nowhere near the top.
+
+Total snapshots: 528.  Utilization: 59% across all threads and tasks.
+```
+
+. . .
+
+- The top of the report is the **scheduler**, not your code.
+- The line that matters is the last one: **`Utilization: 59%`** — *are my threads actually working?*
+
+. . .
+
+> The compilation module asked **where** the time goes. Here we ask **are they busy** — and 59% is Amdahl, measured.
+
+## When does what help?
+
+| | **I/O-bound** (waiting) | **CPU-bound** (computing) |
+|---|---|---|
+| **Python** | threads **work** (GIL released), or `asyncio` | threads **useless** → `multiprocessing` |
+| **Julia** | `@async` / `@sync` (one core) | `@spawn` / `fetch` (many cores) |
+
+. . .
+
+> **Waiting is overlapped; computing must be split.** Get the row wrong and you buy
+> all the complexity for none of the speed.
+
+## Going further
+
+:::{.nonincremental}
+- ▶ Notebook (demo + solution): [Threads & concurrency](../pluto/3_threads_and_concurrency.jl)
+- 🔬 The `@async` vs `@spawn` quadrant + the Amdahl curve: [`experiences/threads_scaling/`](../experiences/threads_scaling/)
+- 🎯 The one to remember: a race condition **does not crash** — it just lies to you.
+:::
+
+. . .
+
+> ⬅ **Previous:** [2 — Multiple dispatch vs OOP](2_dispatch_vs_oop.qmd)  ·  **Next:** [4 — Memory & batching](4_memory_and_batching.qmd) ➡

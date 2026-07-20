@@ -213,10 +213,9 @@
 <div class="square-def">
 <p><span class="math display">\[Y_i|X_i=x_i \sim P(\lambda_\beta(x_i))\quad \text{with} \quad \lambda_\beta(x) = \exp(x^T \beta)\]</span></p>
 </div>
-<p>with <span class="math inline">\(\lambda_\beta(x) = \exp(x^T \beta)\)</span>.</p>
 </div>
 <div class="fragment">
-<p>In particular, <span style="background-color: lightblue;"><span class="math inline">\(\mathbb E[Y_i|X_i=x_i] = \lambda_\beta(x)\)</span></span></p>
+<p>In particular, <span style="background-color: lightblue;"><span class="math inline">\(\mathbb E[Y_i|X_i=x_i] = \lambda_\beta(x_i)\)</span></span></p>
 </div>
 <div class="fragment">
 <div class="callout callout-warning no-icon callout-titled callout-style-default">
@@ -340,7 +339,7 @@
 <p>Thus the deviance equals</p>
 <div style="font-size: 80%;">
 <div class="square-def">
-<p><span class="math display">\[D = 2(L_{\text{sat}} - L_{\text{mod}}) = 2\sum_x y_x \ln\left(\frac{y_x}{n_x \lambda_{\hat{\beta}}(x)}\right) - (y_x - n_x \lambda_{\hat{\beta}}(x))\]</span></p>
+<p><span class="math display">\[D = 2(L_{\text{sat}} - L_{\text{mod}}) = 2\sum_x \left[y_x \ln\left(\frac{y_x}{n_x \lambda_{\hat{\beta}}(x)}\right) - (y_x - n_x \lambda_{\hat{\beta}}(x))\right]\]</span></p>
 </div>
 </div>
 </div>
@@ -470,7 +469,7 @@
 <section id="example-r-output" class="slide level2">
 <h2>Example: R output</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">glm</span>(Species ∼ pH <span class="sc">+</span> Biomass, <span class="at">family=</span>poisson)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">glm</span>(Species <span class="sc">~</span> pH <span class="sc">+</span> Biomass, <span class="at">family=</span>poisson)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <div style="font-size: 60%;">
@@ -536,12 +535,12 @@ AIC: 526.43</p>
 </div>
 </div>
 </section>
-<section id="example-number-of-plant-species-1" class="slide level2">
-<h2>Example: Number of Plant Species</h2>
+<section id="example-interpreting-the-fit" class="slide level2">
+<h2>Example: Interpreting the Fit</h2>
 <div class="fragment">
 <p>Thus, the average number of species, given pH and Biomass, is estimated as</p>
 <div style="font-size: 80%;">
-<p><span style="background-color: lightblue;"><span class="math inline">\(\lambda_{\hat{\beta}}(\text{pH}, \text{Biomass}) = \exp(3.85 - 1.14 \mathbf{1}_{\text{pH=low}} - 0.46 \mathbf{1}_{\text{pH=mid}} - 0.13 \text{Biomass})\)</span></span></p>
+<p><span style="background-color: lightblue;"><span class="math inline">\(\lambda_{\hat{\beta}}(\text{pH}, \text{Biomass}) = \exp(3.85 - 1.14 \mathbf{1}_{\text{pH=low}} - 0.45 \mathbf{1}_{\text{pH=mid}} - 0.13 \text{Biomass})\)</span></span></p>
 </div>
 </div>
 <div class="fragment">
@@ -554,8 +553,8 @@ AIC: 526.43</p>
 <p>On average, there are therefore about <span style="background-color: yellow;">3 times fewer</span> species in acidic soil than in basic soil.</p>
 </div>
 </section>
-<section id="example-interraction-ph-biomass" class="slide level2">
-<h2>Example: Interraction Ph-Biomass</h2>
+<section id="example-interaction-ph-biomass" class="slide level2">
+<h2>Example: Interaction pH-Biomass</h2>
 <div class="fragment">
 <p>We can try to introduce an interaction between pH and Biomass</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">glm</span>(Species <span class="sc">~</span> pH <span class="sc">+</span> Biomass <span class="sc">+</span> pH<span class="sc">:</span>Biomass, <span class="at">family=</span>poisson)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -648,15 +647,15 @@ AIC: 514.39</p>
 <div style="font-size: 80%;">
 <div class="square-def">
 <p><span class="math display">\[\begin{aligned}
-\lambda_{\hat{\beta}}(\text{pH}, \text{Bm}) &amp;= \exp(3.77 - 0.82 \mathbf{1}_{\text{pH=low}} - 0.33 \mathbf{1}_{\text{pH=mid}}) \\
-&amp;- 0.11\text{Bm} - 0.16\text{Bm}\mathbf{1}_{\text{pH=low}} - 0.032\text{Bm}\mathbf{1}_{\text{pH=mid}}
+\lambda_{\hat{\beta}}(\text{pH}, \text{Bm}) &amp;= \exp\big(3.77 - 0.82 \mathbf{1}_{\text{pH=low}} - 0.33 \mathbf{1}_{\text{pH=mid}} \\
+&amp;\quad - 0.11\text{Bm} - 0.16\text{Bm}\mathbf{1}_{\text{pH=low}} - 0.032\text{Bm}\mathbf{1}_{\text{pH=mid}}\big)
 \end{aligned}\]</span></p>
 </div>
 </div>
 </div>
 </section>
-<section id="example-bm-dependent-rr" class="slide level2">
-<h2>Example: Bm-dependent RR</h2>
+<section id="example-biomass-dependent-rr" class="slide level2">
+<h2>Example: Biomass-Dependent RR</h2>
 <div class="fragment">
 <p>The Rate Ratio for low pH (acidic) compared to high pH (basic) depends on Biomass and equals:</p>
 <div style="font-size: 80%;">
@@ -722,8 +721,8 @@ Points: predicted distribution</p>
 <p>This constraint is a limitation of the Poisson model.</p>
 </div>
 </section>
-<section id="overdispersion-1" class="slide level2">
-<h2>Overdispersion</h2>
+<section id="defining-overdispersion" class="slide level2">
+<h2>Defining Overdispersion</h2>
 <div class="fragment">
 <p>Some data are <span style="background-color: lightblue;">overdispersed</span>, in the sense that</p>
 <div class="square-def">
@@ -744,7 +743,7 @@ Points: predicted distribution</p>
 <div class="square-def">
 <p><span class="math display">\[\hat{\phi} = \frac{1}{n-p} \sum_{i=1}^n \frac{(y_i - \hat{y}_i)^2}{\hat{y}_i}\]</span></p>
 </div>
-<p>and test if <span class="math inline">\(\phi = 1\)</span> or not (if <span class="math inline">\(\phi = 1\)</span>, <span class="math inline">\(\hat{\phi} \sim N(1, 1/n)\)</span> when <span class="math inline">\(n \to \infty\)</span>).</p>
+<p>and test if <span class="math inline">\(\phi = 1\)</span> or not (if <span class="math inline">\(\phi = 1\)</span>, <span class="math inline">\(\hat{\phi} \sim N(1, 2/(n-p))\)</span> when <span class="math inline">\(n \to \infty\)</span>).</p>
 </div>
 <div class="fragment">
 <p>We can fit a <span style="background-color: yellow;">negative binomial model</span> (cf the following), and test if it is better than the Poisson model.</p>
@@ -762,7 +761,7 @@ Points: predicted distribution</p>
 <h2>Quasi-Poisson VS Poisson Model</h2>
 <ul>
 <li class="fragment">The estimated coefficients <span class="math inline">\(\hat{\beta}\)</span> are <span style="background-color: lightgreen;">identical</span>.</li>
-<li class="fragment">The predictions <span class="math inline">\(\hat{y}_i = \exp(\lambda_{\hat{\beta}}(x_i))\)</span> are <span style="background-color: lightgreen;">identical</span>.</li>
+<li class="fragment">The predictions <span class="math inline">\(\hat{y}_i = \lambda_{\hat{\beta}}(x_i)\)</span> are <span style="background-color: lightgreen;">identical</span>.</li>
 <li class="fragment">Only the <span style="background-color: orange;">estimation of standard errors differ</span>, and therefore possibly the significance of coefficients.</li>
 </ul>
 <div class="fragment">
@@ -772,7 +771,7 @@ Points: predicted distribution</p>
 <section id="example-plant-species-with-quasi-poisson" class="slide level2">
 <h2>Example: Plant Species with Quasi Poisson</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">glm</span>(Species∼ pH<span class="sc">+</span> Biomass<span class="sc">+</span> pH<span class="sc">:</span>Biomass, <span class="at">family=</span>quasipoisson)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">glm</span>(Species<span class="sc">~</span> pH<span class="sc">+</span> Biomass<span class="sc">+</span> pH<span class="sc">:</span>Biomass, <span class="at">family=</span>quasipoisson)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <div style="font-size: 60%;">
@@ -909,8 +908,8 @@ AIC: NA</p>
 <p>where as usual <span style="background-color: lightblue;"><span class="math inline">\(\lambda(x) = \exp(x^T \beta)\)</span></span>.</p>
 </div>
 </section>
-<section id="inference-an-other-tools-in-nb-glm-model" class="slide level2">
-<h2>Inference an other Tools in NB GLM model</h2>
+<section id="inference-and-other-tools-in-the-nb-glm" class="slide level2">
+<h2>Inference and Other Tools in the NB GLM</h2>
 <div class="fragment">
 <p>The estimation of <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\theta\)</span> is done by <span style="background-color: yellow;">maximum likelihood</span></p>
 </div>
@@ -930,7 +929,7 @@ AIC: NA</p>
 <section id="example-plant-species-and-nb-model" class="slide level2">
 <h2>Example: Plant Species and NB Model</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="fu">glm.nb</span>(Species∼ pH<span class="sc">+</span> Biomass<span class="sc">+</span> pH<span class="sc">:</span>Biomass)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="fu">glm.nb</span>(Species<span class="sc">~</span> pH<span class="sc">+</span> Biomass<span class="sc">+</span> pH<span class="sc">:</span>Biomass)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <div style="font-size: 50%;">
@@ -1159,9 +1158,9 @@ NB(\lambda(x), \theta) &amp; \text{with probability } 1 - q(x)
 </div>
 </section>
 <section id="example-poisson-log-linear-model" class="slide level2">
-<h2>Example: Poisson log-linear Model :</h2>
+<h2>Example: Poisson Log-Linear Model</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="fu">glm</span>(satell∼weight<span class="sc">+</span>color,<span class="at">family=</span>’poisson’,<span class="at">data=</span>crabs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="fu">glm</span>(satell<span class="sc">~</span>weight<span class="sc">+</span>color,<span class="at">family=</span><span class="st">'poisson'</span>,<span class="at">data=</span>crabs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <div style="font-size: 50%;">
@@ -1233,7 +1232,7 @@ AIC: 914.09</p>
 <section id="example-nb-model" class="slide level2">
 <h2>Example: NB Model</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="fu">glm.nb</span>(satell∼weight<span class="sc">+</span>color,<span class="at">data=</span>crabs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a><span class="fu">glm.nb</span>(satell<span class="sc">~</span>weight<span class="sc">+</span>color,<span class="at">data=</span>crabs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <div style="font-size: 60%;">
@@ -1294,8 +1293,8 @@ AIC: 754.45</p>
 <p>It’s better… (by the way: color doesn’t seem significant)</p>
 </div>
 </section>
-<section id="example-nb-model-1" class="slide level2">
-<h2>Example: NB Model</h2>
+<section id="example-nb-fit-plot" class="slide level2">
+<h2>Example: NB Fit Plot</h2>
 <div style="text-align: center;">
 <p><img data-src="../images/zinb3.png" style="width:40.0%"></p>
 </div>
@@ -1306,7 +1305,7 @@ AIC: 754.45</p>
 <section id="example-zip-model" class="slide level2">
 <h2>Example: ZIP Model</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="fu">zeroinfl</span>(satell∼weight <span class="sc">|</span> weight<span class="sc">+</span>color,<span class="at">dist=</span><span class="st">"poisson"</span>,<span class="at">data=</span>crabs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="fu">zeroinfl</span>(satell<span class="sc">~</span>weight <span class="sc">|</span> weight<span class="sc">+</span>color,<span class="at">dist=</span><span class="st">"poisson"</span>,<span class="at">data=</span>crabs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <div style="font-size: 50%;">
@@ -1402,8 +1401,8 @@ Log-likelihood: -360.8 on 5 Df</p>
 </div>
 </div>
 </section>
-<section id="example-zip-model-1" class="slide level2">
-<h2>Example: ZIP Model</h2>
+<section id="example-zip-interpretation" class="slide level2">
+<h2>Example: ZIP Interpretation</h2>
 <div class="fragment">
 <p>We see the estimation result <span style="background-color: yellow;">explaining the mixture</span> of the two “populations” forming the model.</p>
 </div>
@@ -1415,8 +1414,8 @@ Log-likelihood: -360.8 on 5 Df</p>
 <p><span style="background-color: lightblue;"><span class="math inline">\(q(\text{wgt}, \text{col}) = \text{logit}^{-1}(1.96 - 1.66 \times \text{wgt} + 0.53 \times \text{col})\)</span></span></p>
 </div>
 </section>
-<section id="example-zip-model-2" class="slide level2">
-<h2>Example: ZIP Model</h2>
+<section id="example-zip-fit-plot" class="slide level2">
+<h2>Example: ZIP Fit Plot</h2>
 <div style="text-align: center;">
 <p><img data-src="../images/zinb4.png" style="width:40.0%"></p>
 </div>
@@ -1427,7 +1426,7 @@ Log-likelihood: -360.8 on 5 Df</p>
 <section id="example-zinb-model" class="slide level2">
 <h2>Example: ZINB Model</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="fu">zeroinfl</span>(satell∼weight <span class="sc">|</span> weight<span class="sc">+</span>color,<span class="at">dist=</span><span class="st">"negbin"</span>,<span class="at">data=</span>crabs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="fu">zeroinfl</span>(satell<span class="sc">~</span>weight <span class="sc">|</span> weight<span class="sc">+</span>color,<span class="at">dist=</span><span class="st">"negbin"</span>,<span class="at">data=</span>crabs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <div style="font-size: 60%;">
@@ -1532,8 +1531,8 @@ Log-likelihood: -349.9 on 6 Df</p>
 </div>
 </div>
 </section>
-<section id="example-zinb-model-1" class="slide level2">
-<h2>Example: ZINB Model</h2>
+<section id="example-zinb-fit-plot" class="slide level2">
+<h2>Example: ZINB Fit Plot</h2>
 <div style="text-align: center;">
 <p><img data-src="../images/zinb5.png" style="width:40.0%"></p>
 </div>

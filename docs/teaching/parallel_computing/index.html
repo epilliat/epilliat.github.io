@@ -39,7 +39,7 @@ ul.task-list li input[type="checkbox"] {
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-a5cd134f9b40a21b85be3e62cd27a8fe.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-74b5854e7526c26ebeb221b4ddbb33ba.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/bootstrap/bootstrap-675268e6d71cd97e11f6b9c47129a6a9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -178,6 +178,11 @@ In preparation
 <h2 class="anchored" data-anchor-id="modules">Modules</h2>
 <div class="aurora-card-grid">
   <div class="aurora-card">
+    <span class="aurora-card__icon">🔰</span>
+    <span class="aurora-card__title">0 · Julia for Python users</span>
+    <span class="aurora-card__desc">A short syntax bridge for Python programmers new to Julia: 1-based arrays, the <code>end</code> keyword, broadcasting with the dot, functions and structs, Unicode math. The onboarding before module 1 — no performance, no parallelism yet.</span>
+  </div>
+  <div class="aurora-card">
     <span class="aurora-card__icon">🧩</span>
     <span class="aurora-card__title">1 · Compilation &amp; Types</span>
     <span class="aurora-card__desc">How Julia specialises code on types — why a pure Python loop takes ~1&nbsp;s where Julia runs in milliseconds. Tools: <code>@code_warntype</code>, <code>@btime</code>; Python bytecode via <code>dis</code>.</span>
@@ -190,35 +195,53 @@ In preparation
   <div class="aurora-card">
     <span class="aurora-card__icon">🧵</span>
     <span class="aurora-card__title">3 · Threads &amp; Concurrency</span>
-    <span class="aurora-card__desc"><code>@threads</code>, race conditions, and Python's GIL (threads vs processes). Monte-Carlo π, multithreaded.</span>
+    <span class="aurora-card__desc">Concurrency first — <code>@async</code>/<code>@sync</code> to overlap I/O (fetching live market data on one core), then real multithreading with <code>Threads.@spawn</code>: Markov chains and a parallel Monte-Carlo π — including the race condition that silently corrupts a shared counter.</span>
+  </div>
+  <div class="aurora-card">
+    <span class="aurora-card__icon">🧠</span>
+    <span class="aurora-card__title">4 · Memory &amp; Batching</span>
+    <span class="aurora-card__desc">The processor spends its time <em>waiting</em> for memory. The cache cliff, locality (Julia is column-major — the opposite of numpy), and why <strong>batching</strong> is really a conversion of a memory-bound problem into a compute-bound one — measured on the CPU, before any GPU.</span>
   </div>
   <div class="aurora-card">
     <span class="aurora-card__icon">⚡</span>
-    <span class="aurora-card__title">4 · Memory &amp; GPU</span>
-    <span class="aurora-card__desc">The memory hierarchy and locality, batching, and the GPU (CUDA; PyTorch CPU vs CUDA). Estimating π on the GPU.</span>
+    <span class="aurora-card__title">5 · GPU</span>
+    <span class="aurora-card__desc">Thousands of threads — provided you feed them. Coalescing, CPU vs GPU matmul, when the GPU starts paying off, and estimating π on the card (CUDA.jl; PyTorch CPU vs CUDA).</span>
   </div>
 </div>
 </section>
 <section id="approach" class="level2">
 <h2 class="anchored" data-anchor-id="approach">Approach</h2>
-<p>Each module pairs a <strong>common Python track</strong> (zero-install, in Jupyter/Colab — so nobody falls behind) with an optional <strong>Julia deep-dive</strong> (<code>@btime</code>, <code>@threads</code>, the GPU). The teaching engine is comparing the <em>numbers</em> between the two: a Python loop at ~1&nbsp;s next to a Julia loop in milliseconds makes the cost of abstraction concrete. Slides frame each session; the Pluto notebooks are live, executable demos.</p>
+<p>Each module pairs a <strong>common Python track</strong> (zero-install, in Jupyter/Colab — so nobody falls behind) with an optional <strong>Julia deep-dive</strong> (<code>@btime</code>, <code>Threads.@spawn</code>, the GPU). The teaching engine is comparing the <em>numbers</em> between the two: a Python loop at ~1&nbsp;s next to a Julia loop in milliseconds makes the cost of abstraction concrete. Slides frame each session; the Pluto notebooks are live, executable demos.</p>
 </section>
 <section id="materials" class="level2">
 <h2 class="anchored" data-anchor-id="materials">Materials</h2>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
-<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Slides</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Pluto Notebooks</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Related</a></li></ul>
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Slides</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Python track (Colab)</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Pluto Notebooks</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-4" role="tab" aria-controls="tabset-1-4" aria-selected="false">Scripts</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-5" role="tab" aria-controls="tabset-1-5" aria-selected="false">Related</a></li></ul>
 <div class="tab-content">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="resource-grid">
-<p><a href="../../teaching/parallel_computing/slides/cours.html" class="resource-chip">Course Slides (draft)</a></p>
+<p><a href="../../teaching/parallel_computing/slides/0_julia_basics.html" class="resource-chip">0 — Julia for Python users</a> <a href="../../teaching/parallel_computing/slides/1_compilation_and_types.html" class="resource-chip">1 — Interpreted vs compiled</a> <a href="../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html" class="resource-chip">2 — Multiple dispatch vs OOP</a> <a href="../../teaching/parallel_computing/slides/3_threads_and_concurrency.html" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="../../teaching/parallel_computing/slides/4_memory_and_batching.html" class="resource-chip">4 — Memory &amp; Batching</a> <a href="../../teaching/parallel_computing/slides/5_gpu.html" class="resource-chip">5 — GPU</a></p>
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<p>The <strong>common track</strong> — zero install, runs in Colab. Every module’s benchmarks, in the language you already know.</p>
 <div class="resource-grid">
-<p><a href="pluto/1_compilation_et_types.jl" class="resource-chip">1 — Compilation &amp; Types</a> <a href="pluto/2_dispatch_vs_poo.jl" class="resource-chip">2 — Dispatch vs OOP</a> <a href="pluto/3_threads_et_concurrence.jl" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="pluto/4_memoire_et_gpu.jl" class="resource-chip">4 — Memory &amp; GPU</a></p>
+<p><a href="python/1_compilation_and_types_python.ipynb" class="resource-chip">1 — Compilation &amp; Types</a> <a href="python/2_dispatch_vs_oop_python.ipynb" class="resource-chip">2 — Dispatch vs OOP</a> <a href="python/3_threads_and_concurrency_python.ipynb" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="python/4_memory_and_gpu_python.ipynb" class="resource-chip">4 — Memory &amp; GPU</a></p>
 </div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<p>Live, executable Julia demos — the reference solutions.</p>
+<div class="resource-grid">
+<p><a href="pluto/0_julia_basics.jl" class="resource-chip">0 — Julia for Python users</a> <a href="pluto/1_compilation_and_types.jl" class="resource-chip">1 — Compilation &amp; Types</a> <a href="pluto/2_dispatch_vs_oop.jl" class="resource-chip">2 — Dispatch vs OOP</a> <a href="pluto/3_threads_and_concurrency.jl" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="pluto/4_memory_and_gpu.jl" class="resource-chip">4 — Memory &amp; GPU</a></p>
+</div>
+</div>
+<div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
+<p>The same lessons as plain <code>.jl</code> files with <code>#%%</code> cells — for the VS Code Julia extension or the REPL, if you prefer that to Pluto.</p>
+<div class="resource-grid">
+<p><a href="scripts/0_julia_basics.jl" class="resource-chip">0 — Julia for Python users</a> <a href="scripts/1_compilation_and_types.jl" class="resource-chip">1 — Compilation &amp; Types</a> <a href="scripts/2_dispatch_vs_oop.jl" class="resource-chip">2 — Dispatch vs OOP</a> <a href="scripts/3_threads_and_concurrency.jl" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="scripts/4_memory_and_gpu.jl" class="resource-chip">4 — Memory &amp; GPU</a></p>
+</div>
+</div>
+<div id="tabset-1-5" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-5-tab">
 <div class="resource-grid">
 <p><a href="../../software/parallel_computing_lectures/gpu_lecture.html" class="resource-chip">Introduction to GPU Architecture</a></p>
 </div>
