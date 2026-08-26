@@ -16,6 +16,7 @@ css: ../../../styles.css
 
 :::{.nonincremental}
 - Why a GPU is **not just a faster CPU**: a different bet on caches and threads.
+- A `CuArray` is **not** an `Array` — and the **bus** between them can cost more than the maths.
 - **When it pays off** — and when it *loses*.
 - **Coalescing**: locality, again, on the other side of the bus.
 :::
@@ -73,6 +74,83 @@ Ag * Bg             # ...the SAME `*`
 ::: {.callout-note}
 This is the pay-off promised back in the dispatch module: *the same `*` picks the GPU
 version all by itself, because of the **types** of its arguments*.
+:::
+
+## The array changed, even if the code didn't {.smaller}
+
+. . .
+
+```julia
+A  = rand(3, 3)     # Matrix{Float64}          — lives in RAM
+Ag = cu(A)          # CuArray{Float32, 2, ...} — lives in VRAM
+```
+
+. . .
+
+- `cu` **copies** the data across the bus. Two objects, two memories, two types — the CPU cannot read `Ag`.
+- It also **silently narrows Float64 → Float32**, the card's native precision. `CuArray(A)` keeps the eltype.
+- `Ag[1]` is an **error**, not a slow read: one element would mean a whole round trip.
+
+. . .
+
+> Dispatch picked the GPU method *because the type changed*. [That type change is the mechanism]{style="background-color: yellow;"}, not a formality — and it is also a **copy you paid for**.
+
+::: {.notes}
+Measured live: typeof(Ag) prints CuArray{Float32, 2, CUDACore.DeviceMemory}. The
+Float64 -> Float32 narrowing surprises everyone; it is the single most common
+"why are my results different on GPU" question. Scalar indexing throws by design
+(CUDA.@allowscalar overrides it — mention only if asked).
+:::
+
+## What the copy costs {.smaller}
+
+. . .
+
+Two 4096² Float32 matrices (64 MiB each), this machine:
+
+. . .
+
+| step | time |
+|---|---|
+| host → device, `cu(A)` | 8.5 ms |
+| the work itself, `Ag * Bg` | **35 ms** |
+| device → host, `Array(Ag)` | [**52 ms**]{style="background-color: yellow;"} |
+
+. . .
+
+- The round trip costs **1.7× the computation it feeds** — and **coming back is the expensive direction**.
+- So: **upload once**, do many operations on the card, return only what you need — ideally a **scalar**.
+
+. . .
+
+> A pipeline that copies back after every step spends its life on the bus, not on the GPU.
+> That is why `pi_gpu` draws its random numbers **on the card**.
+
+## Stop making new arrays {.smaller}
+
+- `z = 2 .* x .+ y` allocates a fresh 76 MB output **on every call**.
+- `z .= 2 .* x .+ y` writes into memory you already own. One dot, on the `=`.
+
+. . .
+
+| n = 10⁷ | time | allocated |
+|---|---|---|
+| `2 .* x .+ y` | 54 ms | 76 MiB |
+| `z .= 2 .* x .+ y` | **17 ms** | [**0 bytes**]{style="background-color: yellow;"} |
+
+. . .
+
+Same for BLAS: `A * B` allocates the result, `mul!(C, A, B)` reuses `C` — **195 → 79 ms** at n = 2000.
+
+. . .
+
+> ⚠ But **measure**. For matrix-**vector** the gain vanishes (the output is tiny), and on the GPU it vanishes too — CUDA.jl allocates from a pool, so there is no RAM to stream. On the card, the cost that matters is the **transfer** above.
+
+::: {.notes}
+Honest measurement, run at rest: mul!(y, W, x) on matrix-VECTOR was actually
+SLOWER than W * x (760 vs 468 us), and GPU in-place was 2.10 vs 1.82 ms. The
+warning box is not hedging — those are the numbers. "In place is faster" is a
+heuristic, not a law; the law is "allocation = memory traffic".
 :::
 
 ## Bet before you look 🎲 {style="text-align: center;"}

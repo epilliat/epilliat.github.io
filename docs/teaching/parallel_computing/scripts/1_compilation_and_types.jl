@@ -40,18 +40,18 @@ const v = rand(N)
 summary(v)
 
 #%% A hand-written Julia loop
-function sum_loop(x)
+function mysum(x)
     s = zero(eltype(x))
     for i in eachindex(x)
         s += x[i]
     end
     return s
 end
-sum_loop(v)   # check it works
+mysum(v)   # check it works
 
 #%% The Python point of comparison
 # In pure Python the same reads:
-#     def sum_loop(x):
+#     def mysum(x):
 #         s = 0.0
 #         for xi in x:
 #             s += xi
@@ -151,10 +151,10 @@ f(x) = 2x + 1
 # This compile-time vs run-time opposition returns for dispatch, threads and GPU.
 
 #%% Going further: why Base `sum` beats our loop
-# sum_loop is already native. Yet Base `sum` is faster — same computation. To
+# mysum is already native. Yet Base `sum` is faster — same computation. To
 # isolate the COMPUTATION (not memory), take a vector that fits in cache:
 const vc = rand(100_000)   # ~800 KB: fits in cache
-@btime sum_loop($vc)
+@btime mysum($vc)
 
 #%% ...and Base sum on the same data
 @btime sum($vc)
@@ -163,7 +163,7 @@ const vc = rand(100_000)   # ~800 KB: fits in cache
 # Base `sum` is ~5× faster; the reason is in the assembly. Ours shows `vaddsd`:
 # Scalar Double = ONE float at a time, in a SINGLE accumulator (xmm0). Each `+`
 # waits for the previous → one dependency chain (latency-bound).
-@code_native debuginfo=:none sum_loop(vc)
+@code_native debuginfo=:none mysum(vc)
 
 #%% Now `sum`'s assembly — and the step everyone skips
 # ⚠ Look closely: NO vaddpd, NO ymm here either — just a handful of vaddsd. If you
@@ -194,14 +194,14 @@ const vc = rand(100_000)   # ~800 KB: fits in cache
 # @simd:
 
 #%% The same loop, with @simd
-function sum_loop_simd(x)
+function mysum_simd(x)
     s = zero(eltype(x))
     @inbounds @simd for i in eachindex(x)   # @simd: allows reassociation
         s += x[i]
     end
     return s
 end
-@btime sum_loop_simd($vc)
+@btime mysum_simd($vc)
 # One word (@simd) and the loop vectorizes: it catches up with (or beats) `sum`.
 # Speed isn't a "magic" language but WHAT THE COMPILER IS ALLOWED TO DO — here,
 # reassociate to exploit SIMD + instruction-level parallelism.
@@ -266,7 +266,7 @@ end
 #       BenchmarkTools. @btime shows the MINIMUM + allocations; @benchmark the full
 #       distribution. Always interpolate variables with $ ( @btime f($x) ) so they
 #       aren't treated as globals — else you measure the section-4 pitfall.
-@benchmark sum_loop($v)
+@benchmark mysum($v)
 
 #%% 7. Profiling — WHERE does the time actually go?
 # @btime answers "how long?". On a real script with several functions the question is

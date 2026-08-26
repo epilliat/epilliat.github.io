@@ -210,6 +210,7 @@ Emmanuel Pilliat — ENSAI 3A
 <h2>Goals</h2>
 <ul>
 <li>Why a GPU is <strong>not just a faster CPU</strong>: a different bet on caches and threads.</li>
+<li>A <code>CuArray</code> is <strong>not</strong> an <code>Array</code> — and the <strong>bus</strong> between them can cost more than the maths.</li>
 <li><strong>When it pays off</strong> — and when it <em>loses</em>.</li>
 <li><strong>Coalescing</strong>: locality, again, on the other side of the bus.</li>
 </ul>
@@ -302,6 +303,139 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </div>
 </div>
+</div>
+</section>
+<section id="the-array-changed-even-if-the-code-didnt" class="slide level2 smaller">
+<h2>The array changed, even if the code didn’t</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a>A  <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">3</span>, <span class="fl">3</span>)     <span class="co"># Matrix{Float64}          — lives in RAM</span></span>
+<span id="cb2-2"><a></a>Ag <span class="op">=</span> <span class="fu">cu</span>(A)          <span class="co"># CuArray{Float32, 2, ...} — lives in VRAM</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment"><code>cu</code> <strong>copies</strong> the data across the bus. Two objects, two memories, two types — the CPU cannot read <code>Ag</code>.</li>
+<li class="fragment">It also <strong>silently narrows Float64 → Float32</strong>, the card’s native precision. <code>CuArray(A)</code> keeps the eltype.</li>
+<li class="fragment"><code>Ag[1]</code> is an <strong>error</strong>, not a slow read: one element would mean a whole round trip.</li>
+</ul>
+</div>
+<div class="fragment">
+<blockquote>
+<p>Dispatch picked the GPU method <em>because the type changed</em>. <span style="background-color: yellow;">That type change is the mechanism</span>, not a formality — and it is also a <strong>copy you paid for</strong>.</p>
+</blockquote>
+<aside class="notes">
+<p>Measured live: typeof(Ag) prints CuArray{Float32, 2, CUDACore.DeviceMemory}. The Float64 -&gt; Float32 narrowing surprises everyone; it is the single most common “why are my results different on GPU” question. Scalar indexing throws by design (CUDA.@allowscalar overrides it — mention only if asked).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="what-the-copy-costs" class="slide level2 smaller">
+<h2>What the copy costs</h2>
+<div class="fragment">
+<p>Two 4096² Float32 matrices (64 MiB each), this machine:</p>
+</div>
+<div class="fragment">
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>step</th>
+<th>time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>host → device, <code>cu(A)</code></td>
+<td>8.5 ms</td>
+</tr>
+<tr class="even">
+<td>the work itself, <code>Ag * Bg</code></td>
+<td><strong>35 ms</strong></td>
+</tr>
+<tr class="odd">
+<td>device → host, <code>Array(Ag)</code></td>
+<td><span style="background-color: yellow;"><strong>52 ms</strong></span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<ul>
+<li class="fragment">The round trip costs <strong>1.7× the computation it feeds</strong> — and <strong>coming back is the expensive direction</strong>.</li>
+<li class="fragment">So: <strong>upload once</strong>, do many operations on the card, return only what you need — ideally a <strong>scalar</strong>.</li>
+</ul>
+</div>
+<div class="fragment">
+<blockquote>
+<p>A pipeline that copies back after every step spends its life on the bus, not on the GPU. That is why <code>pi_gpu</code> draws its random numbers <strong>on the card</strong>.</p>
+</blockquote>
+</div>
+</section>
+<section id="stop-making-new-arrays" class="slide level2 smaller">
+<h2>Stop making new arrays</h2>
+<ul>
+<li class="fragment"><code>z = 2 .* x .+ y</code> allocates a fresh 76 MB output <strong>on every call</strong>.</li>
+<li class="fragment"><code>z .= 2 .* x .+ y</code> writes into memory you already own. One dot, on the <code>=</code>.</li>
+</ul>
+<div class="fragment">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>n = 10⁷</th>
+<th>time</th>
+<th>allocated</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>2 .* x .+ y</code></td>
+<td>54 ms</td>
+<td>76 MiB</td>
+</tr>
+<tr class="even">
+<td><code>z .= 2 .* x .+ y</code></td>
+<td><strong>17 ms</strong></td>
+<td><span style="background-color: yellow;"><strong>0 bytes</strong></span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<p>Same for BLAS: <code>A * B</code> allocates the result, <code>mul!(C, A, B)</code> reuses <code>C</code> — <strong>195 → 79 ms</strong> at n = 2000.</p>
+</div>
+<div class="fragment">
+<blockquote>
+<p>⚠ But <strong>measure</strong>. For matrix-<strong>vector</strong> the gain vanishes (the output is tiny), and on the GPU it vanishes too — CUDA.jl allocates from a pool, so there is no RAM to stream. On the card, the cost that matters is the <strong>transfer</strong> above.</p>
+</blockquote>
+<aside class="notes">
+<p>Honest measurement, run at rest: mul!(y, W, x) on matrix-VECTOR was actually SLOWER than W * x (760 vs 468 us), and GPU in-place was 2.10 vs 1.82 ms. The warning box is not hedging — those are the numbers. “In place is faster” is a heuristic, not a law; the law is “allocation = memory traffic”.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
 </section>
 <section id="bet-before-you-look" class="slide level2" style="text-align: center;">
@@ -548,8 +682,8 @@ Emmanuel Pilliat — ENSAI 3A
 <h2>Testing that explanation 🔬</h2>
 <p>That argument makes a <strong>prediction</strong>. Remove the 80 MB index read — compute the index <em>inside</em> the kernel — and only <strong>half</strong> the traffic stays coalesced, so the ratio <strong>must rise</strong>.</p>
 <div class="fragment">
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a>j <span class="op">=</span> ((i <span class="op">-</span> <span class="fl">1</span>) <span class="op">*</span> stride) <span class="op">%</span> n <span class="op">+</span> <span class="fl">1</span>     <span class="co"># no index array to load</span></span>
-<span id="cb2-2"><a></a>out[i] <span class="op">=</span> a[j]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a></a>j <span class="op">=</span> ((i <span class="op">-</span> <span class="fl">1</span>) <span class="op">*</span> stride) <span class="op">%</span> n <span class="op">+</span> <span class="fl">1</span>     <span class="co"># no index array to load</span></span>
+<span id="cb3-2"><a></a>out[i] <span class="op">=</span> a[j]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <table class="caption-top">

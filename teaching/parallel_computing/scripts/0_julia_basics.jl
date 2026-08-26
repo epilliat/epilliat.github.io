@@ -2,17 +2,9 @@
 # Julia for Python users — a short syntax bridge (before the performance story)
 # ENSAI 3A — Julia as the test bench, Python as the point of comparison
 # -----------------------------------------------------------------------------
-# ⚠ KEEP IN SYNC: this is the plain-script twin of `pluto/0_julia_basics.jl`.
-#   The Pluto notebook and this script hold the SAME lesson in two formats — edit
-#   BOTH together whenever the content changes, so they never drift apart.
-# -----------------------------------------------------------------------------
-# Cells are delimited by `#%%`. In VS Code (Julia extension) run a cell with
-# Alt+Enter / Ctrl+Enter — the value of the last expression shows inline, and the
-# variables stay in the REPL so you can poke at them afterwards.
-#
-# No performance and no parallelism here — that starts in the next module
-# (compilation & types). This is only about reading and writing Julia. Pure
-# Julia, nothing to install.
+# ⚠ KEEP IN SYNC with `pluto/0_julia_basics.jl` — same lesson, two formats.
+# Cells are delimited by `#%%` (Alt+Enter in VS Code). Pure Julia, nothing to install.
+# No performance and no parallelism here — that starts in the next module.
 #
 # The four things that actually trip Python programmers up:
 #   1. arrays are 1-based and stored column-major;
@@ -44,8 +36,6 @@ a, b = 3, 4
 greeting = "Hello, $name"           # $name interpolates the variable
 sum_str  = "$a + $b = $(a + b)"     # $(...) interpolates an expression
 joined   = "foo" * "bar"            # * concatenates (NOT +)
-# Gotcha: "$name!" would interpolate the variable `name!` (‘!’ is a valid name
-# char). Write "$(name)!" when a letter/‘!’ follows.
 (greeting, sum_str, joined, 'a', typeof('a'))
 
 #%% Blocks end with `end`, not indentation
@@ -54,6 +44,19 @@ joined   = "foo" * "bar"            # * concatenates (NOT +)
 for i in 1:3
     println(i)
 end            # ← this closes the loop
+
+
+#%% Functions — three ways to write them
+# `return` is optional (the last expression is returned); keyword args come after `;`.
+# A trailing `!` (push!, sort!) is a CONVENTION for "mutates its argument".
+function area_rect(L, w)      # 1) long form
+    return L * w
+end
+square(x) = x^2               # 2) short "assignment" form — great for one-liners
+cube = x -> x^3               # 3) anonymous (lambda):  x -> ...
+greet(who; punct = "!") = "Hi $who$punct"   # keyword arg with a default
+(area_rect(3, 4), square(5), cube(2), greet("Ada"), greet("Bob"; punct = "?"))
+
 
 #%% Conditionals
 # if / elseif / else / end  (note: `elseif`, one word). Ternary: cond ? a : b
@@ -68,23 +71,11 @@ grade(x) =
 sign_word(x) = x ≥ 0 ? "non-negative" : "negative"   # ternary  cond ? a : b
 (grade(17), grade(11), grade(4), sign_word(-2))
 
-#%% Functions — three ways to write them
-# `return` is optional (the last expression is returned). Keyword args come
-# after `;`. A trailing `!` (push!, sort!) is a *convention* for "mutates its
-# argument" — a naming habit, not syntax.
-function area_rect(L, w)      # 1) long form
-    return L * w
-end
-square(x) = x^2               # 2) short "assignment" form — great for one-liners
-cube = x -> x^3               # 3) anonymous (lambda):  x -> ...
-greet(who; punct = "!") = "Hi $who$punct"   # keyword arg with a default
-(area_rect(3, 4), square(5), cube(2), greet("Ada"), greet("Bob"; punct = "?"))
+
 
 #%% Loops
-# `for x in collection … end`. A range like 1:5 is the counter. Helpers:
-# enumerate (index + value, starting at 1), zip, eachindex.
-# Unlike Python, an explicit loop here is NOT a sin — it runs at C speed. Why is
-# the subject of the next module. For now, just write loops.
+# `for x in collection … end`; helpers: enumerate (from 1), zip, eachindex.
+# Unlike Python, an explicit loop is NOT a sin here — it runs at C speed (next module).
 total = 0
 for i in 1:5              # range 1,2,3,4,5 — BOTH ends included
     global total += i    # `global` needed to touch a global from a loop in a script
@@ -93,7 +84,7 @@ words = ["a", "b", "c"]
 labelled = [(i, w) for (i, w) in enumerate(words)]   # enumerate starts at 1
 (total, labelled)
 
-#%% Arrays — the big one
+#%% Arrays
 # - Indexing starts at 1 (v[1] is the first element).
 # - `end` inside [ ] is the last index: v[end], v[end-1].
 # - Slices/ranges INCLUDE both ends: v[2:4] is elements 2,3,4.
@@ -115,9 +106,9 @@ M  = [1 2 3; 4 5 6]                   # 2×3 matrix
 (collect(r), sq, ev, size(M), M[2, 3])   # M[row, col] → 6
 
 #%% Broadcasting — the dot `.`
-# Replaces both NumPy's vectorised operators AND element-wise comprehensions.
-# Put a dot on any function/operator to apply it element by element. `@.` puts a
-# dot on EVERY operation. Chained dotted ops are fused into one loop (no temporaries).
+# Replaces NumPy's vectorised operators. A dot on any function/operator applies it
+# element-wise; `@.` dots EVERY operation. Chained dots fuse into ONE loop — no
+# temporary arrays (that matters in the memory module).
 xs = [1.0, 4.0, 9.0]
 z = @. xs^2 + 1        # broadcasts (x^2 + 1) element-wise
 (sqrt.(xs),            # element-wise sqrt
@@ -135,9 +126,8 @@ d  = Dict("apple" => 3, "pear" => 5)    # dict with => pairs
 (t[1], q, nt.x, d["apple"], haskey(d, "pear"))
 
 #%% Structs instead of classes
-# No classes, no `self`. Group data in a `struct`; behaviour lives OUTSIDE in
-# functions (the subject of the next language module). Immutable by default;
-# use `mutable struct` to allow reassignment. Default constructor = fields in order.
+# No classes, no `self`. Data in a `struct`, behaviour OUTSIDE in functions (the next
+# language module). Immutable by default; `mutable struct` allows reassignment.
 struct Point            # immutable by default
     x::Float64
     y::Float64
@@ -183,10 +173,9 @@ circumference = 2π * radius      # π built in; 2π = 2 * π (juxtaposition)
 # Copy vs alias            b = a[:]          →  b = a aliases; use copy(a)
 # Absent value             None              →  nothing (and `missing` for data)
 
-#%% Putting it together — a preview of the course red thread (Monte-Carlo π)
-# Uses a loop, rand, a condition, ≤ and juxtaposition. Throw n random points into
-# the unit square; the fraction inside the quarter disk is ≈ π/4. (No timing —
-# that's the next module. Just read the syntax.)
+#%% Putting it together — the course red thread (Monte-Carlo π)
+# Throw n random points into the unit square: the fraction inside the quarter disk
+# is ≈ π/4. No timing yet — just read the syntax.
 "Count how many of `n` random points land inside the unit quarter-disk."
 function count_in_disk(n)
     inside = 0
@@ -205,5 +194,5 @@ pi_estimate = 4 * hits / n         # fraction inside ≈ π/4, so ×4
 
 #%% What's next
 # You can now read and write Julia. Next: WHY the same computation can be tens or
-# hundreds of times faster depending on how it's written — the module on
-# compilation & types, where those "ordinary" loops turn out to run at C speed.
+# hundreds of times faster depending on how it is written — compilation & types,
+# where those "ordinary" loops turn out to run at C speed.

@@ -76,7 +76,7 @@ summary(v)
 
 # ╔═╡ 26289681-0477-4670-950f-8351be0fdd5a
 # Sum via a hand-written Julia loop
-function sum_loop(x)
+function mysum(x)
     s = zero(eltype(x))
     for i in eachindex(x)
         s += x[i]
@@ -85,7 +85,7 @@ function sum_loop(x)
 end
 
 # ╔═╡ da96898d-efc5-4e47-a73e-8e0a991bc0f8
-sum_loop(v)   # check it works
+mysum(v)   # check it works
 
 # ╔═╡ bb0ace77-07a4-4504-80c1-edc793f3f899
 md"""
@@ -94,7 +94,7 @@ md"""
 In pure Python, the same computation would read:
 
 ```python
-def sum_loop(x):
+def mysum(x):
     s = 0.0
     for xi in x:
         s += xi
@@ -241,14 +241,14 @@ That's the meaning of "Julia is compiled": not a compiler run by hand before exe
 md"""
 ### Going further: why Base `sum` beats our loop
 
-`sum_loop` is already compiled native code. Yet Base `sum` is **faster** — *exactly the same computation*. To isolate the **computation** (not the memory), let's take a vector that **fits in cache**:
+`mysum` is already compiled native code. Yet Base `sum` is **faster** — *exactly the same computation*. To isolate the **computation** (not the memory), let's take a vector that **fits in cache**:
 """
 
 # ╔═╡ 6f3bc084-05bc-4b17-98f6-5d306b03740e
 const vc = rand(100_000)   # ~800 KB: fits in cache
 
 # ╔═╡ c3c32bc0-9d67-46e2-bdbe-c7d3f84ee2f8
-@btime sum_loop($vc)
+@btime mysum($vc)
 
 # ╔═╡ 42fbb9f9-240e-487c-8f3d-ad839115f426
 @btime sum($vc)
@@ -259,7 +259,7 @@ md"""
 """
 
 # ╔═╡ 9301ea0f-f270-4015-8acd-f23507b82804
-@code_native debuginfo=:none sum_loop(vc)
+@code_native debuginfo=:none mysum(vc)
 
 # ╔═╡ ba010064-49f9-4872-a4fe-a42d2e754d75
 md"""
@@ -302,7 +302,7 @@ Why isn't our loop allowed to do that? Floating-point addition is **not associat
 """
 
 # ╔═╡ 8e0cdaff-257b-4836-8998-2cd5f0ef8044
-function sum_loop_simd(x)
+function mysum_simd(x)
     s = zero(eltype(x))
     @inbounds @simd for i in eachindex(x)   # @simd: allows reassociation
         s += x[i]
@@ -311,7 +311,7 @@ function sum_loop_simd(x)
 end
 
 # ╔═╡ 0662912c-e7ab-4223-82d2-e2683543f99b
-@btime sum_loop_simd($vc)
+@btime mysum_simd($vc)
 
 # ╔═╡ c62ea649-7bc8-4b64-b662-b874c41547f5
 md"""
@@ -430,7 +430,7 @@ A single measurement is polluted by noise (OS, CPU frequency, cache). You must *
 """
 
 # ╔═╡ ca49af93-0baa-47ee-a4ec-3849a1cacffb
-@benchmark sum_loop($v)
+@benchmark mysum($v)
 
 # ╔═╡ d1000000-0000-4a00-8000-000000000001
 md"""

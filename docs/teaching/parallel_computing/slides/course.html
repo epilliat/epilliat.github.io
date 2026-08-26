@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.7.22">
 
   <meta name="author" content="Emmanuel Pilliat — ENSAI 3A">
-  <title>Emmanuel Pilliat – Parallel Computing</title>
+  <title>Emmanuel Pilliat – Parallel Computing — Overview</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -128,7 +128,7 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Parallel Computing</h1>
+  <h1 class="title">Parallel Computing — Overview</h1>
   <p class="subtitle">Why the same computation can be 100× faster</p>
 
 <div class="quarto-title-authors">
@@ -140,17 +140,18 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 
 </section>
-<section id="course-outline" class="slide level2">
+<section id="course-outline" class="slide level2 smaller">
 <h2>Course outline</h2>
 <ul>
-<li><span style="background-color: yellow;"><strong>0 — Julia for Python users</strong></span>: a short syntax bridge — 1-based arrays, <code>end</code>, broadcasting, structs. No performance yet.</li>
-<li><span style="background-color: yellow;"><strong>1 — Interpreted vs compiled</strong></span>: why the same computation can be 100× faster (type specialization, benchmarking, profiling).</li>
-<li><span style="background-color: yellow;"><strong>2 — Multiple dispatch vs Python OOP</strong></span>: how Julia picks the method to run, against Python’s object-oriented style.</li>
-<li><span style="background-color: yellow;"><strong>3 — Threads &amp; concurrency</strong></span>: async I/O on one core, then real multithreading — and the parallel sum that returns a wrong answer.</li>
-<li><span style="background-color: yellow;"><strong>4 — Memory &amp; GPU</strong></span>: the memory hierarchy, batching, and the GPU.</li>
+<li><a href="../../../teaching/parallel_computing/slides/0_julia_basics.html"><strong>0 — Julia for Python users</strong></a>: a short syntax bridge — 1-based arrays, <code>end</code>, broadcasting, structs. No performance yet.</li>
+<li><a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html"><strong>1 — Interpreted vs compiled</strong></a>: why the same computation can be 100× faster — type specialization, benchmarking, <strong>profiling</strong>.</li>
+<li><a href="../../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html"><strong>2 — Multiple dispatch vs OOP</strong></a>: how Julia picks the method to run, against Python’s object-oriented style — and what it costs when types aren’t concrete.</li>
+<li><a href="../../../teaching/parallel_computing/slides/3_threads_and_concurrency.html"><strong>3 — Threads &amp; concurrency</strong></a>: async I/O on one core, then real multithreading — and the parallel sum that returns a wrong answer.</li>
+<li><a href="../../../teaching/parallel_computing/slides/4_memory_and_batching.html"><strong>4 — Memory &amp; batching</strong></a>: the memory hierarchy, locality, and how batching turns memory-bound into compute-bound.</li>
+<li><a href="../../../teaching/parallel_computing/slides/5_gpu.html"><strong>5 — GPU</strong></a>: thousands of threads — provided you feed them.</li>
 </ul>
 <div class="fragment">
-<p><strong>The red thread of the course:</strong> estimating <span class="math inline">\(\pi\)</span> by Monte-Carlo (sequential → multithreaded → GPU).</p>
+<p><strong>The red thread:</strong> estimating π by Monte-Carlo — carried from a sequential loop, to multithreading, to the GPU.</p>
 </div>
 <div class="fragment">
 <blockquote>
@@ -161,333 +162,23 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="how-we-work" class="slide level2">
 <h2>How we work</h2>
 <ul>
-<li>These slides <strong>frame</strong> the course; the demos live in the <strong>notebooks</strong>.</li>
-<li>Each module has an <strong>activity</strong>: a <span style="background-color: lightgreen;">Python track (for everyone)</span> and a <span style="background-color: orange;">Julia track (deep dive)</span>.</li>
-<li>We compare the <strong>numbers</strong> between the two languages — that’s the whole point.</li>
-</ul>
-</section>
-<section>
-<section id="julia-for-python-users" class="title-slide slide level1 center" style="text-align: center;">
-<h1>0 — Julia for Python users</h1>
-
-</section>
-<section id="goals" class="slide level2">
-<h2>Goals</h2>
-<ul>
-<li>You already program fluently in Python. Learn only what is <strong>different</strong>.</li>
-<li>The four traps: <strong>1-based</strong> arrays, blocks close with <strong><code>end</code></strong>, element-wise math uses <strong>the dot</strong>, behaviour lives in <strong>functions</strong>, not classes.</li>
+<li>These slides <strong>frame</strong> each session; the demos live in the <strong>notebooks</strong>.</li>
+<li>Every module ships three ways to run it: a <strong>Pluto notebook</strong> (live, reactive), a <strong>plain-script twin</strong> for VS Code, and a <strong>Python notebook</strong> for Colab — zero install.</li>
+<li>We compare the <strong>numbers</strong> between the two languages. That’s the whole point.</li>
 </ul>
 <div class="fragment">
-<blockquote>
-<p>▶ Notebook: <a href="../pluto/0_julia_basics.jl">Julia for Python users</a></p>
-</blockquote>
-</div>
-</section></section>
-<section>
-<section id="interpreted-vs-compiled" class="title-slide slide level1 center" style="text-align: center;">
-<h1>1 — Interpreted vs compiled</h1>
-
-</section>
-<section id="goals-1" class="slide level2">
-<h2>Goals</h2>
-<ul>
-<li>Understand what happens between source code and the processor.</li>
-<li>See <strong>type specialization</strong> (why Julia ≈ C).</li>
-<li>Learn to <strong>measure properly</strong> — and to find <em>where</em> the time goes.</li>
-</ul>
-<div class="fragment">
-<blockquote>
-<p>▶ Notebook (demo + solution): <a href="../pluto/1_compilation_and_types.jl">Interpreted vs compiled</a></p>
-</blockquote>
-</div>
-</section>
-<section id="gaps-of-several-orders-of-magnitude" class="slide level2">
-<h2>Gaps of several orders of magnitude</h2>
-<ul>
-<li class="fragment">Summing a large vector: Python loop vs <code>numpy</code> vs Julia loop.</li>
-<li class="fragment"><em>Same computation</em> — wildly different times.</li>
-<li class="fragment"><em>(TODO: numbers from the demo)</em></li>
-</ul>
-</section>
-<section id="the-stages-of-compilation" class="slide level2">
-<h2>The stages of compilation</h2>
-<ul>
-<li class="fragment"><code>@code_lowered</code> → <code>@code_typed</code> → <code>@code_native</code>.</li>
-<li class="fragment">Interpreted (CPython, bytecode) vs JIT-compiled (Julia).</li>
-</ul>
-<div class="fragment">
-<blockquote>
-<p><strong>Key distinction — when is the type known?</strong> <strong>At run time</strong> (Python): rediscovered at every operation → slow. <strong>At compile time</strong> (Julia/JIT): known once, specialized code → fast.</p>
-</blockquote>
-</div>
-</section>
-<section id="the-trap-type-instability" class="slide level2">
-<h2>The trap: type instability</h2>
-<ul>
-<li class="fragment">An untyped global variable → dynamic code, comparable to Python.</li>
-<li class="fragment">The tool: <code>@code_warntype</code> (red = <code>Any</code>).</li>
-<li class="fragment"><strong>Golden rule</strong>: put the work in <strong>functions</strong> that receive their data as arguments.</li>
-</ul>
-</section>
-<section id="measuring-properly" class="slide level2">
-<h2>Measuring properly</h2>
-<ul>
-<li class="fragment">Pitfall A: timing the compilation instead of the computation.</li>
-<li class="fragment">Pitfall B: measuring only once → <code>@btime</code> / <code>@benchmark</code>.</li>
-<li class="fragment">Pitfall C: think in <strong>throughput</strong> (GB/s), not absolute seconds.</li>
-</ul>
-</section>
-<section id="profiling-from-how-long-to-where" class="slide level2">
-<h2>Profiling: from <em>how long</em> to <em>where</em></h2>
-<ul>
-<li class="fragment"><code>@btime</code> says <strong>how long</strong>; <code>Profile.@profile</code> says <strong>where</strong>.</li>
-<li class="fragment">On a layered pipeline, the hotspot is rarely the one you’d bet on.</li>
-</ul>
-<div class="fragment">
-<blockquote>
-<p>The surprise: a one-line <code>clean(v) = [x for x in v if x &gt; 0.01]</code> can cost <strong>more</strong> than a loop full of <code>sin</code>/<code>cos</code>/<code>exp</code> — because it <strong>allocates</strong> (the array grows). <code>filter</code> fixes it: 36 allocations → <strong>3</strong>.</p>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p><strong>profile → diagnose → fix → re-measure.</strong> That’s the method — and what you’re graded on.</p>
-</blockquote>
-</div>
-</section></section>
-<section>
-<section id="multiple-dispatch-vs-python-oop" class="title-slide slide level1 center" style="text-align: center;">
-<h1>2 — Multiple dispatch vs Python OOP</h1>
-
-</section>
-<section id="goals-2" class="slide level2">
-<h2>Goals</h2>
-<ul>
-<li><strong>Multiple dispatch</strong>: the method is chosen from the types of <strong>all</strong> the arguments.</li>
-<li>Contrast it with Python’s <strong>object-oriented</strong> style (<code>obj.method()</code>).</li>
-<li>See that it is <strong>the engine</strong> of specialization/speed.</li>
-</ul>
-<div class="fragment">
-<blockquote>
-<p>▶ Notebook (demo + solution): <a href="../pluto/2_dispatch_vs_oop.jl">Multiple dispatch vs OOP</a></p>
-</blockquote>
-</div>
-</section>
-<section id="python-oop-vs-julia-dispatch" class="slide level2">
-<h2>Python OOP vs Julia dispatch</h2>
-<ul>
-<li class="fragment">Python: the method lives <strong>inside</strong> the object, dispatching on <strong>one</strong> argument.</li>
-<li class="fragment">Julia: a <strong>generic</strong> function outside the types, dispatching on <strong>all</strong> the arguments.</li>
-<li class="fragment"><em>(TODO: <code>area(Circle)</code> / <code>area(Rectangle)</code> example)</em></li>
-</ul>
-</section>
-<section id="what-it-changes" class="slide level2">
-<h2>What it changes</h2>
-<ul>
-<li class="fragment"><strong>Extensibility</strong>: add a <em>type</em> or an <em>operation</em> without touching the rest.</li>
-<li class="fragment"><strong>Multi-argument dispatch</strong>: <code>collide(a, b)</code> depending on the pair of types.</li>
-<li class="fragment">That cannot be expressed cleanly with <code>a.method(b)</code>.</li>
-</ul>
-</section>
-<section id="the-link-with-compilation" class="slide level2">
-<h2>The link with compilation</h2>
-<ul>
-<li class="fragment">Choosing the method from the types → <strong>compile a specialized native version</strong>.</li>
-<li class="fragment">Python: dispatch <strong>at run time</strong>, no specialization; Julia: types <strong>known at compile time</strong>.</li>
-<li class="fragment">Multiple dispatch + JIT = generic <strong>and</strong> fast.</li>
-<li class="fragment">We’ll see it again: a <code>*</code> flips onto the <strong>GPU</strong> because its arguments are <code>CuArray</code>.</li>
-</ul>
-</section></section>
-<section>
-<section id="threads-concurrency" class="title-slide slide level1 center" style="text-align: center;">
-<h1>3 — Threads &amp; concurrency</h1>
-
-</section>
-<section id="goals-3" class="slide level2">
-<h2>Goals</h2>
-<ul>
-<li><strong>Concurrency ≠ parallelism</strong>: overlap the <strong>waiting</strong> (I/O) on one core with <code>@async</code>/<code>@sync</code>.</li>
-<li>Then <strong>real parallelism</strong> on many cores with <code>Threads.@spawn</code>.</li>
-<li>The classic case: the <strong>parallel sum that returns a wrong answer</strong> (<em>race condition</em>).</li>
-</ul>
-<div class="fragment">
-<blockquote>
-<p>▶ Notebook (demo + solution): <a href="../pluto/3_threads_and_concurrency.jl">Threads &amp; concurrency</a></p>
-</blockquote>
-</div>
-</section>
-<section id="part-a-async-overlap-the-waiting" class="slide level2">
-<h2>Part A — async: overlap the waiting</h2>
-<ul>
-<li class="fragment">Fetching 15 prices one by one = <strong>waiting</strong> 15 times. The CPU does nothing.</li>
-<li class="fragment"><code>@async</code> fires a task and returns; <code>@sync</code> waits for all of them.</li>
-</ul>
-<div class="fragment">
-<table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th></th>
-<th>time</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>sequential</td>
-<td>~4 s</td>
-<td>the sum of the latencies</td>
-</tr>
-<tr class="even">
-<td><code>@async</code> <strong>without</strong> <code>@sync</code></td>
-<td>~10 µs</td>
-<td>⚠️ only <strong>task creation</strong> was timed!</td>
-</tr>
-<tr class="odd">
-<td><code>@sync</code> + <code>@async</code></td>
-<td>~0.3 s</td>
-<td>~one round-trip</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="fragment">
-<blockquote>
-<p>Async overlaps <strong>waiting</strong>, not computing. <code>@sync</code> is what makes the measurement <em>real</em> <strong>and</strong> the data <em>correct</em>.</p>
-</blockquote>
-</div>
-</section>
-<section id="the-gil-precisely" class="slide level2">
-<h2>The GIL, precisely</h2>
-<ul>
-<li class="fragment">Python <code>threading</code> <strong>does</strong> overlap I/O: the GIL is <strong>released</strong> while waiting on the network.</li>
-<li class="fragment">It only forbids running Python <strong>bytecode</strong> simultaneously → it kills <strong>CPU</strong> parallelism.</li>
-</ul>
-<div class="fragment">
-<blockquote>
-<p><em>“Threads are pointless in Python”</em> is <strong>false</strong> — it’s only true for CPU work. Julia has <strong>no</strong> GIL at all.</p>
-</blockquote>
-</div>
-</section>
-<section id="part-b-spawn-real-parallelism" class="slide level2">
-<h2>Part B — <code>@spawn</code>: real parallelism</h2>
-<ul>
-<li class="fragment"><code>Threads.@spawn f()</code> → a task the scheduler may place on <strong>another thread</strong>; <code>fetch</code> gets the result.</li>
-<li class="fragment">Independent Markov chains: speedup ≈ the number of threads.</li>
-<li class="fragment">Needs <code>julia --threads=auto</code>.</li>
-</ul>
-</section>
-<section id="the-parallel-sum-that-lies" class="slide level2">
-<h2>The parallel sum that lies</h2>
-<ul>
-<li class="fragment">A shared counter mutated from several <code>@spawn</code> tasks → <strong>wrong</strong> <em>and</em> <strong>non-deterministic</strong>.</li>
-<li class="fragment">Cause: <em>race condition</em> (read-add-write is not atomic).</li>
-</ul>
-<div class="fragment">
-<div class="callout callout-warning no-icon callout-titled callout-style-default">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong>Warning</strong></p>
+<p><strong>Note</strong></p>
 </div>
 <div class="callout-content">
-<p>In shared memory, writing to the same place from several threads without care = <strong>silent corruption</strong>. No error, just a wrong result.</p>
+<p>The Python track is the <strong>common</strong> one — nobody falls behind. The Julia track is the deep dive (<code>@btime</code>, <code>@code_native</code>, <code>@spawn</code>, the GPU).</p>
 </div>
 </div>
 </div>
-</div>
-<div class="fragment">
-<blockquote>
-<p>The fix: each task <strong>returns</strong> its own count, then <code>sum(fetch, tasks)</code>. <strong>Minimize sharing</strong> — rather than <code>@atomic</code> everywhere, which just serializes.</p>
-</blockquote>
 </div>
 </section>
-<section id="when-does-what-help" class="slide level2">
-<h2>When does what help?</h2>
-<table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th></th>
-<th><strong>I/O-bound</strong> (waiting)</th>
-<th><strong>CPU-bound</strong> (computing)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Python</strong></td>
-<td>threads <strong>work</strong> (GIL released), or <code>asyncio</code></td>
-<td>threads <strong>useless</strong> → <code>multiprocessing</code></td>
-</tr>
-<tr class="even">
-<td><strong>Julia</strong></td>
-<td><code>@async</code> / <code>@sync</code> (one core)</td>
-<td><code>@spawn</code> / <code>fetch</code> (many cores)</td>
-</tr>
-</tbody>
-</table>
-<div class="fragment">
-<blockquote>
-<p>Four cells, and the whole reason <strong>concurrency</strong> and <strong>parallelism</strong> are two different words: <strong>waiting is overlapped; computing must be split.</strong></p>
-</blockquote>
-</div>
-</section></section>
-<section>
-<section id="memory-gpu" class="title-slide slide level1 center" style="text-align: center;">
-<h1>4 — Memory &amp; GPU</h1>
-
-</section>
-<section id="goals-4" class="slide level2">
-<h2>Goals</h2>
-<ul>
-<li>The <strong>memory hierarchy</strong>: the CPU spends its time <em>waiting</em> for memory.</li>
-<li><strong>Locality</strong> (Julia column-major vs numpy row-major).</li>
-<li><strong>Batching</strong> and the <strong>GPU</strong>.</li>
-</ul>
-<div class="fragment">
-<blockquote>
-<p>▶ Notebook (demo + solution): <a href="../pluto/4_memory_and_gpu.jl">Memory &amp; GPU</a></p>
-</blockquote>
-</div>
-</section>
-<section id="the-memory-hierarchy" class="slide level2">
-<h2>The memory hierarchy</h2>
-<ul>
-<li class="fragment">Registers → L1 → L2 → L3 → RAM: the bigger it is, the further away, the slower.</li>
-<li class="fragment">The cache bets on <strong>locality</strong> (temporal and spatial).</li>
-</ul>
-</section>
-<section id="walking-a-matrix-the-right-way" class="slide level2">
-<h2>Walking a matrix the right way</h2>
-<ul>
-<li class="fragment">Summing column by column vs row by row: <em>same computation</em>, wildly different times.</li>
-<li class="fragment"><strong>Julia is column-major</strong>: inner loop on the 1st index (the opposite of numpy).</li>
-<li class="fragment"><em>(“cache cliff” experiment: you see the L1/L2/L3/RAM steps)</em></li>
-</ul>
-</section>
-<section id="cpu-caches-vs-gpu-caches-two-strategies" class="slide level2">
-<h2>CPU caches vs GPU caches: two strategies</h2>
-<ul>
-<li class="fragment"><strong>Same principle</strong>: registers → L1/scratchpad → L2 → far memory; <strong>locality</strong> decides.</li>
-<li class="fragment"><strong>CPU</strong>: big caches, few threads; caches are <strong>automatic</strong>.</li>
-<li class="fragment"><strong>GPU</strong>: small caches, <strong>a huge number of threads</strong> to hide latency (<em>occupancy</em>); <em>shared memory</em> is <strong>managed explicitly</strong>.</li>
-<li class="fragment">GPU spatial locality = <strong>coalescing</strong> (a <em>warp</em> reads contiguous addresses) — measured in the notebook.</li>
-</ul>
-</section>
-<section id="from-batching-to-the-gpu" class="slide level2">
-<h2>From batching to the GPU</h2>
-<ul>
-<li class="fragment">Arithmetic intensity: <em>memory-bound</em> vs <em>compute-bound</em>.</li>
-<li class="fragment">Batching = matrix-vector → matrix-matrix: the <strong>time per example</strong> drops sharply.</li>
-<li class="fragment">GPU: thousands of threads, <strong>only worth it at scale</strong> (CPU vs GPU, measured).</li>
-</ul>
-</section></section>
 <section>
 <section id="synthesis" class="title-slide slide level1 center" style="text-align: center;">
 <h1>Synthesis</h1>
@@ -497,7 +188,7 @@ Emmanuel Pilliat — ENSAI 3A
 <h2>Synthesis</h2>
 <ol type="1">
 <li><strong>Compiling and specializing</strong> removes the <em>per-operation</em> overhead.</li>
-<li><strong>Multiple dispatch</strong>: generic <em>and</em> fast; it even flips a computation onto the GPU.</li>
+<li><strong>Multiple dispatch</strong>: generic <em>and</em> fast — provided the types are <strong>concrete</strong>; it even flips a computation onto the GPU.</li>
 <li><strong>Parallelizing</strong> demands <em>minimizing sharing</em>, otherwise the result is wrong.</li>
 <li><strong>Feeding the hardware</strong>: honour the cache, batch, saturate the GPU.</li>
 </ol>
@@ -510,9 +201,16 @@ Emmanuel Pilliat — ENSAI 3A
 <blockquote>
 <p>Running through the whole course: <strong>type discovered at run time = slow; type known at compile time = fast</strong>.</p>
 </blockquote>
-
-
 </div>
+</section>
+<section id="start-here" class="slide level2">
+<h2>Start here</h2>
+<ul>
+<li>▶ <a href="../../../teaching/parallel_computing/slides/0_julia_basics.html">0 — Julia for Python users</a> — the onboarding deck.</li>
+<li>📓 All notebooks and scripts: <a href="../../../teaching/parallel_computing/index.html">course page</a>.</li>
+</ul>
+
+
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
