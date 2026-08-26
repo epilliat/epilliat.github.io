@@ -47,7 +47,7 @@ css: ../../../styles.css
 
 :::{.nonincremental}
 - I arrived at ENSAI in Sep. 2024
-- I give also lectures on [hypothesis testing]{style="background-color: yellow;"}
+- I give also lectures on [hypothesis testing]{style="background-color: yellow;"} and [parallel computing]{style="background-color: yellow;"}
 - Before: PhD in Montpellier
 - [Research fields]{style="background-color: yellow;"}: crowdsourcing, active learning and parallel computing
 :::
@@ -187,6 +187,127 @@ A variable whose observation is a [measured quantity]{style="background-color: y
  (Examples: number of children, number of infractions, etc.)
 - **Continuous quantitative variables** which can take any value within an interval
  (Examples: height, salary, etc.)
+
+## From discrete to continuous {.smaller}
+
+. . .
+
+
+::: {style="font-size:90%"}
+The **same** variable on a finer and finer grid. Zoom out: the bars thin down and the discrete distribution becomes a **curve**.
+:::
+
+```{=html}
+<style>
+.lm-btn{font-family:inherit;font-size:.85em;padding:.4em 1.1em;margin:.12em .22em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-btn.on{background:#3b6fb6;color:#fff;border-color:#3b6fb6}
+.lm-row{font-size:.72em;line-height:2.3;margin:.15rem 0}
+</style>
+<div id="dcWrap" style="text-align:center">
+  <canvas id="dcCanvas" width="700" height="330" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px"></canvas>
+  <div class="lm-row">
+    zoom out <input id="dcK" type="range" autocomplete="off" min="0" max="1" step="0.004" value="0" style="vertical-align:middle;width:230px">
+    &nbsp;·&nbsp; values \(K\)=<b id="dcKv">10</b> &nbsp;·&nbsp; observations \(n\)=<b id="dcNv">550</b> &nbsp;·&nbsp; one bar = <b id="dcBw">–</b> px
+  </div>
+  <div class="lm-row">
+    <button class="lm-btn on" id="dcCurve">density</button>
+    <button class="lm-btn" id="dcNew">↻ resample</button>
+    &nbsp;&nbsp;<span id="dcMsg">–</span>
+  </div>
+</div>
+<script>
+(function () {
+  var cv = document.getElementById('dcCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, MAXK = 1000, PER = 55, KEY = 'lmDiscToCont';
+  var kEl = document.getElementById('dcK'), curveBtn = document.getElementById('dcCurve');
+  var z = [], showCurve = true, PADL = 68, PADR = 16, PADT = 18, PADB = 48;
+  var FTICK = '14px sans-serif', FAXIS = '600 15px sans-serif';
+  function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function regen() { z = []; for (var i = 0; i <= MAXK; i++) z.push(gauss()); }
+  function f(t) {   // fixed bimodal shape on [0,1] — the "true" distribution of the quantity
+    var a = Math.exp(-0.5 * Math.pow((t - 0.30) / 0.105, 2)) / 0.105,
+        b = Math.exp(-0.5 * Math.pow((t - 0.68) / 0.075, 2)) / 0.075;
+    return 0.62 * a + 0.38 * b;
+  }
+  var FMEAN = 0, FMAX = 0;
+  (function () { var s = 0, m = 0; for (var i = 0; i < 2000; i++) { var v = f((i + 0.5) / 2000); s += v; if (v > m) m = v; } FMEAN = s / 2000; FMAX = m; })();
+  var YMAX = 1.28 * PER * FMAX / FMEAN;                                  // fixed ⇒ the picture never jumps while sliding
+  function Kof() { return Math.round(10 * Math.pow(100, +kEl.value)); }  // 10 → 1000, geometric
+  function yticks() {
+    var raw = YMAX / 4, p = Math.pow(10, Math.floor(Math.log(raw) / Math.LN10)), r = raw / p,
+        st = (r < 1.5 ? 1 : r < 3 ? 2 : r < 7 ? 5 : 10) * p, out = [];
+    for (var v = 0; v <= YMAX + 1e-9; v += st) out.push(v);
+    return out;
+  }
+  function PXu(u) { return PADL + u * (W - PADL - PADR); }
+  function PYv(v) { return H - PADB - v / YMAX * (H - PADT - PADB); }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify({ k: +kEl.value, c: showCurve })); } catch (e) {} }
+  function draw() {
+    var K = Kof(), n = PER * K, bw = (W - PADL - PADR) / K, i, S = 0, fv = [];
+    for (i = 0; i < K; i++) { var v = f((i + 0.5) / K); fv.push(v); S += v; }
+    document.getElementById('dcKv').textContent = K;
+    document.getElementById('dcNv').textContent = n;
+    document.getElementById('dcBw').textContent = bw.toFixed(bw < 10 ? 2 : 1);
+    c.clearRect(0, 0, W, H);
+    c.strokeStyle = '#e6e6e6'; c.lineWidth = 1; c.strokeRect(PADL, PADT, W - PADL - PADR, H - PADT - PADB);
+    var yt = yticks();
+    c.strokeStyle = '#f0f0f0'; c.beginPath();
+    yt.forEach(function (v) { if (v > 0) { c.moveTo(PADL, PYv(v)); c.lineTo(W - PADR, PYv(v)); } });
+    c.stroke();
+    var cnt = [];
+    for (i = 0; i < K; i++) { var m = n * fv[i] / S; cnt.push(Math.max(0, m + Math.sqrt(m) * z[i])); }
+    c.save(); c.beginPath(); c.rect(PADL, PADT, W - PADL - PADR, H - PADT - PADB); c.clip();
+    c.fillStyle = 'rgba(52,120,200,0.62)';
+    if (bw > 3) {                                                        // few values: real bars, with a gap
+      for (i = 0; i < K; i++) { var y = PYv(cnt[i]); c.fillRect(PXu(i / K) + 0.7, y, bw - 1.4, (H - PADB) - y); }
+    } else {                                                             // many values: bars are sub-pixel ⇒ one solid step area
+      c.beginPath(); c.moveTo(PXu(0), H - PADB);
+      for (i = 0; i < K; i++) { var x0 = PXu(i / K), x1 = PXu((i + 1) / K), yy = PYv(cnt[i]); c.lineTo(x0, yy); c.lineTo(x1, yy); }
+      c.lineTo(PXu(1), H - PADB); c.closePath(); c.fill();
+    }
+    if (showCurve) {                                                     // the continuous density the bars are converging to
+      c.strokeStyle = '#e74c3c'; c.lineWidth = 2.5; c.beginPath();
+      for (i = 0; i <= 320; i++) { var t = i / 320, py = PYv(n * f(t) / S); i ? c.lineTo(PXu(t), py) : c.moveTo(PXu(t), py); }
+      c.stroke();
+    }
+    c.restore();
+    c.strokeStyle = '#aaa'; c.lineWidth = 1.2; c.beginPath();
+    c.moveTo(PADL, PADT); c.lineTo(PADL, H - PADB); c.lineTo(W - PADR, H - PADB); c.stroke();
+    c.fillStyle = '#444'; c.font = FTICK;
+    c.textAlign = 'right'; c.textBaseline = 'middle';                      // y ticks
+    yt.forEach(function (v) {
+      var y = PYv(v);
+      c.strokeStyle = '#aaa'; c.beginPath(); c.moveTo(PADL - 5, y); c.lineTo(PADL, y); c.stroke();
+      c.fillText(v, PADL - 9, y);
+    });
+    c.textBaseline = 'alphabetic'; c.textAlign = 'center';                 // x ticks
+    var ticks = [], nt;
+    if (K <= 10) { for (i = 1; i <= K; i++) ticks.push(i); }
+    else { for (nt = 0; nt < 5; nt++) ticks.push(Math.max(1, Math.round(nt * K / 4))); }
+    ticks.forEach(function (v) {
+      var x = PXu((v - 0.5) / K);
+      c.strokeStyle = '#aaa'; c.beginPath(); c.moveTo(x, H - PADB); c.lineTo(x, H - PADB + 5); c.stroke();
+      c.fillText(v, Math.min(Math.max(x, 18), W - 20), H - PADB + 20);   // keep the end labels on the canvas
+    });
+    c.fillStyle = '#333'; c.font = FAXIS;
+    c.fillText('value of the variable  (an integer from 1 to ' + K + ')', (PADL + W - PADR) / 2, H - 8);
+    c.save(); c.translate(20, (PADT + H - PADB) / 2); c.rotate(-Math.PI / 2); c.fillText('how many observations', 0, 0); c.restore();
+    document.getElementById('dcMsg').innerHTML = K <= 24
+      ? '<span style="color:#b06a00">you can count the values one by one — <b>discrete</b></span>'
+      : (K <= 160 ? '<span style="color:#7a6a00">the steps are getting small…</span>'
+                  : '<span style="color:#1b7a3a">bars thinner than a pixel — indistinguishable from <b>continuous</b></span>');
+  }
+  kEl.addEventListener('input', function () { draw(); save(); });
+  curveBtn.addEventListener('click', function () { showCurve = !showCurve; curveBtn.classList.toggle('on', showCurve); draw(); save(); });
+  document.getElementById('dcNew').addEventListener('click', function () { regen(); draw(); });
+  var saved = null; try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  regen();
+  if (saved) { kEl.value = saved.k; showCurve = saved.c !== false; }
+  curveBtn.classList.toggle('on', showCurve);
+  draw(); save();
+})();
+</script>
+```
 
 ## Qualitative Variables (or Factors)
 

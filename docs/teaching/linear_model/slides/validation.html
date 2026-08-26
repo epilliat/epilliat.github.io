@@ -121,6 +121,14 @@
       margin-right: 0; 
     }
   </style>
+  <script>
+  (function () {
+    var dark = false;
+    try { dark = localStorage.getItem('lmSlideTheme') === 'dark'; } catch (e) {}
+    if (location.search.indexOf('print-pdf') > -1) dark = false;   // PDF export stays light
+    if (dark) document.documentElement.classList.add('lm-dark');
+  })();
+  </script>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -1480,6 +1488,31 @@ Test: <span class="math inline">\(\Var(\varepsilon)\)</span> is diagonal (uncorr
         if (history.length > 1) history.back();
       }
     }, true);
+    </script>
+    <script>
+    // Light/dark toggle: button (top-right) or the "d" key. Choice persists.
+    (function () {
+      if (window.lmThemeInit) return; window.lmThemeInit = 1;
+      var root = document.documentElement, KEY = 'lmSlideTheme';
+      var btn = document.createElement('button');
+      btn.className = 'lm-theme-toggle'; btn.type = 'button';
+      btn.setAttribute('aria-label', 'Toggle light/dark slides');
+      function paint() { btn.innerHTML = root.classList.contains('lm-dark') ? '&#9788;' : '&#9790;'; }
+      function toggle() {
+        var dark = root.classList.toggle('lm-dark');
+        try { localStorage.setItem(KEY, dark ? 'dark' : 'light'); } catch (e) {}
+        paint();
+      }
+      btn.addEventListener('click', function (e) { e.stopPropagation(); toggle(); });
+      paint();
+      document.body.appendChild(btn);
+      document.addEventListener('keydown', function (e) {
+        if (e.ctrlKey || e.altKey || e.metaKey) return;
+        var n = (e.target && e.target.nodeName) || '';
+        if (n === 'INPUT' || n === 'TEXTAREA' || n === 'SELECT') return;   // don't steal keys from the animations
+        if (e.key === 'd' || e.key === 'D') { e.stopImmediatePropagation(); e.preventDefault(); toggle(); }
+      }, true);
+    })();
     </script>
     
 

@@ -81,6 +81,163 @@ th {
 }
 
 /* ===========================================
+   REVEAL.JS DECKS — DARK MODE (toggle)
+   ===========================================
+   Off by default: light slides project better in a lit lecture hall.
+   The toggle (button top-right, or the "d" key) sets .lm-dark on <html>
+   and remembers the choice in localStorage; the script lives in the
+   slides' _metadata.yml. Printing to PDF always forces light.
+
+   Plots stay LIGHT on purpose: the 26 canvas animations draw with a
+   hard-coded light palette, so they are presented as light cards on the
+   dark slide rather than rewritten.
+   =========================================== */
+
+html.lm-dark {
+    --r-background-color: #0f1424;
+    --r-main-color: #e8ecf5;
+    --r-heading-color: #f2f6ff;
+    --r-link-color: #7aa2ff;
+    --r-link-color-hover: #a9c2ff;
+    --r-selection-background-color: #2c4a86;
+    --r-selection-color: #ffffff;
+}
+
+html.lm-dark body,
+html.lm-dark .reveal-viewport { background-color: #0f1424; }
+html.lm-dark .reveal .slides section { color: var(--r-main-color); }
+
+/* --- boxes: pale fills would be near-white text on near-white --- */
+html.lm-dark .reveal .square-def,
+html.lm-dark .reveal .square-tip,
+html.lm-dark .reveal .square-objective,
+html.lm-dark .reveal .square-solution {
+    color: #e8ecf5;
+    border-width: 2px;
+    border-style: solid;
+}
+html.lm-dark .reveal .square-def       { background-color: rgba(91, 140, 255, 0.13); border-color: rgba(91, 140, 255, 0.50); }
+html.lm-dark .reveal .square-tip       { background-color: rgba(63, 185, 132, 0.13); border-color: rgba(63, 185, 132, 0.50); }
+html.lm-dark .reveal .square-objective { background-color: rgba(163, 214, 88, 0.13); border-color: rgba(163, 214, 88, 0.50); }
+html.lm-dark .reveal .square-solution  { background-color: rgba(167, 123, 214, 0.15); border-color: rgba(167, 123, 214, 0.52); }
+
+/* --- inline highlights: keep the marker, darken the ink --- */
+html.lm-dark .reveal [style*="background-color: yellow"],
+html.lm-dark .reveal [style*="background-color: lightgreen"],
+html.lm-dark .reveal [style*="background-color: lightblue"],
+html.lm-dark .reveal [style*="background-color: orange"] {
+    color: #10131c !important;
+    border-radius: 3px;
+    padding: 0 0.18em;
+}
+
+/* --- status colours that are too dark on a dark slide (incl. ones the
+       animations inject at runtime — attribute selectors still match) --- */
+html.lm-dark .reveal [style*="color:#1b7a3a"] { color: #4ade80 !important; }
+html.lm-dark .reveal [style*="color:#b06a00"] { color: #fbbf24 !important; }
+html.lm-dark .reveal [style*="color:#7a6a00"] { color: #d8c85e !important; }
+
+/* --- code, callouts, tables --- */
+html.lm-dark .reveal pre,
+html.lm-dark .reveal code { background-color: #151b2e; color: #dbe3f4; }
+html.lm-dark .reveal pre code { background: transparent; }
+html.lm-dark .reveal .callout,
+html.lm-dark .reveal .callout .callout-body-container { background-color: #151b2e; color: #e8ecf5; }
+html.lm-dark .reveal .callout .callout-title { color: #f2f6ff; }
+html.lm-dark .reveal table th { background-color: #1a2138; color: #e8ecf5; }
+html.lm-dark .reveal table,
+html.lm-dark .reveal table td,
+html.lm-dark .reveal table th { border-color: #2a3550; color: #e8ecf5; }
+
+/* --- plots stay light: present them as cards --- */
+html.lm-dark .reveal canvas { box-shadow: 0 3px 18px rgba(0, 0, 0, 0.55); }
+html.lm-dark .reveal .slides img {
+    background: #ffffff;
+    padding: 0.45rem;
+    border-radius: 8px;
+    box-shadow: 0 3px 18px rgba(0, 0, 0, 0.55);
+}
+
+/* --- the animation control rows sit on the dark slide, not on the card --- */
+html.lm-dark .lm-row { color: #c9d3e8; }
+html.lm-dark .lm-btn { background: #1e2740; color: #dbe3f4; border-color: #36425f; }
+html.lm-dark .lm-btn.on { background: #3b6fb6; color: #ffffff; border-color: #3b6fb6; }
+
+/* --- reveal chrome --- */
+html.lm-dark .reveal .slide-menu-wrapper { background-color: #151b2e; color: #e8ecf5; }
+html.lm-dark .reveal .slide-menu-wrapper .slide-menu-item { color: #cdd8ef; }
+
+/* --- the toggle button itself --- */
+.lm-theme-toggle {
+    position: fixed; top: 12px; right: 14px; z-index: 60;
+    width: 34px; height: 34px; line-height: 1;
+    font-size: 16px; text-align: center;
+    border: 1px solid rgba(130, 145, 180, 0.45);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.72);
+    color: #33405e;
+    cursor: pointer; opacity: 0.45;
+    transition: opacity .15s ease;
+}
+.lm-theme-toggle:hover { opacity: 1; }
+html.lm-dark .lm-theme-toggle { background: rgba(21, 27, 46, 0.85); color: #dbe3f4; border-color: #3a4a6b; }
+
+/* --- PDF export is always light --- */
+@media print {
+    html.lm-dark { --r-background-color: #fff; --r-main-color: #222; --r-heading-color: #222; }
+    html.lm-dark body, html.lm-dark .reveal-viewport { background-color: #fff; }
+    html.lm-dark .reveal .slides section { color: #222; }
+    .lm-theme-toggle { display: none; }
+}
+
+/* ===========================================
+   DARK SITE OVERRIDES
+   ===========================================
+   The website theme is dark (theme-aurora.scss: body #0a0e1a, text #e8ecf5),
+   but the boxes and highlights above were designed for the light reveal.js
+   slides and never set a text colour — so on a website page they inherited
+   near-white text onto a near-white panel and became invisible.
+
+   Everything here is scoped to #quarto-content, which Quarto emits on website
+   pages and never on a reveal deck, so the slides keep the light styling.
+   =========================================== */
+
+#quarto-content .square-def,
+#quarto-content .square-tip,
+#quarto-content .square-objective,
+#quarto-content .square-solution {
+    color: #e8ecf5;
+    border-width: 2px;
+    border-style: solid;
+}
+
+#quarto-content .square-def       { background-color: rgba(91, 140, 255, 0.12); border-color: rgba(91, 140, 255, 0.45); }
+#quarto-content .square-tip       { background-color: rgba(63, 185, 132, 0.12); border-color: rgba(63, 185, 132, 0.45); }
+#quarto-content .square-objective { background-color: rgba(163, 214, 88, 0.12); border-color: rgba(163, 214, 88, 0.45); }
+#quarto-content .square-solution  { background-color: rgba(167, 123, 214, 0.14); border-color: rgba(167, 123, 214, 0.48); }
+
+/* Inline highlights written as [text]{style="background-color: yellow;"}.
+   The background is an inline style, so it can only be paired with dark ink
+   via !important; the highlight itself is kept. */
+#quarto-content [style*="background-color: yellow"],
+#quarto-content [style*="background-color: lightgreen"],
+#quarto-content [style*="background-color: lightblue"],
+#quarto-content [style*="background-color: orange"] {
+    color: #10131c !important;
+    border-radius: 3px;
+    padding: 0 0.18em;
+}
+
+/* Table headers: #f4f4f4 above, i.e. white-on-white here too. */
+#quarto-content th {
+    background-color: #1a2138;
+    color: #e8ecf5;
+}
+
+/* .example / .red-cell / .green-cell keep dark ink on their pale fills
+   (they set `color` explicitly), so they stay readable as-is. */
+
+/* ===========================================
    UTILITY CLASSES
    =========================================== */
 
