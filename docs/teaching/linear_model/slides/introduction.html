@@ -745,11 +745,167 @@ Do we have <span style="background-color: yellow;"><span class="math inline">\(p
 <p><img data-src="images/pottery_pairwise.svg" style="width:100.0%"></p>
 </div>
 </section>
-<section id="correlation-plot" class="slide level2">
-<h2>Correlation Plot</h2>
+<section id="correlation-matrix" class="slide level2 smaller">
+<h2>Correlation matrix</h2>
 <div class="fragment">
-<p><img data-src="../pluto/pottery.png"></p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a>plot_cor<span class="op">=</span><span class="pp">@df</span> pottery_num <span class="fu">corrplot</span>(<span class="fu">cols</span>(<span class="fl">1</span><span class="op">:</span><span class="fl">4</span>),grid<span class="op">=</span><span class="cn">false</span>, compact<span class="op">=</span><span class="cn">true</span>) <span class="co">#Julia</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div style="font-size:90%">
+<p>One cell = one <strong>pair</strong> of variables = one number <span class="math inline">\(\hat\rho\in[-1,1]\)</span> (red <span class="math inline">\(&lt;0\)</span>, blue <span class="math inline">\(&gt;0\)</span>). <strong>Click a cell</strong> to see the cloud it summarises; the diagonal is each variable alone.</p>
+</div>
+<style>
+#cmWrap{text-align:center}
+#cmWrap code{font-size:.8em;color:#777}
+#cmRho{font-family:ui-monospace,monospace;display:inline-block;width:3.4em;text-align:center}
+</style>
+<div id="cmWrap">
+  <canvas id="cmCanvas" width="900" height="400" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <div class="lm-row">
+    <button class="lm-btn" id="cmRegion">colour by region</button>
+    &nbsp;·&nbsp; <b>\(\hat\rho\)</b> = <span id="cmRho">–</span>
+    <span id="cmSub"></span>
+    &nbsp;·&nbsp; <code>cor(Matrix(pottery_num))</code>
+  </div>
+</div>
+<script>
+(function () {
+  var cv = document.getElementById('cmCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, KEY = 'lmCorrMatrix';
+  var V = ['Al', 'Fe', 'Mg', 'Ca'];
+  var GRP = [{ n: 'Gloucester', c: '#3498db' }, { n: 'Wales', c: '#e67e22' }, { n: 'New Forest', c: '#27ae60' }];
+  var D = [[18.8,9.52,2.0,0.79,0],[16.9,7.33,1.65,0.84,0],[18.2,7.64,1.82,0.77,0],[17.4,7.48,1.71,1.01,0],[16.9,7.29,1.56,0.76,0],[17.8,7.24,1.83,0.92,0],[18.8,7.45,2.06,0.87,0],[16.5,7.05,1.81,1.73,0],[18.0,7.42,2.06,1.0,0],[15.8,7.15,1.62,0.71,0],[14.6,6.87,1.67,0.76,0],[13.7,5.83,1.5,0.66,0],[14.6,6.76,1.63,1.48,0],[14.8,7.07,1.62,1.44,0],[17.1,7.79,1.99,0.83,0],[16.8,7.86,1.86,0.84,0],[15.8,7.65,1.94,0.81,0],[18.6,7.85,2.33,0.87,0],[16.9,7.87,1.83,1.31,0],[18.9,7.58,2.05,0.83,0],[18.0,7.5,1.94,0.69,0],[17.8,7.28,1.92,0.81,0],[14.4,7.0,4.3,0.15,1],[13.8,7.08,3.43,0.12,1],[14.6,7.09,3.88,0.13,1],[11.5,6.37,5.64,0.16,1],[13.8,7.06,5.34,0.2,1],[10.9,6.26,3.47,0.17,1],[10.1,4.26,4.26,0.2,1],[11.6,5.78,5.91,0.18,1],[11.1,5.49,4.52,0.29,1],[13.4,6.92,7.23,0.28,1],[12.4,6.13,5.69,0.22,1],[13.1,6.64,5.51,0.31,1],[12.7,6.69,4.45,0.2,1],[12.5,6.44,3.94,0.22,1],[11.6,5.39,3.77,0.29,1],[11.8,5.44,3.94,0.3,1],[18.3,1.28,0.67,0.03,2],[15.8,2.39,0.63,0.01,2],[18.0,1.5,0.67,0.01,2],[18.0,1.88,0.68,0.01,2],[20.8,1.51,0.72,0.07,2],[17.7,1.12,0.56,0.06,2],[18.3,1.14,0.67,0.06,2],[16.7,0.92,0.53,0.01,2],[14.8,2.74,0.67,0.03,2],[19.1,1.64,0.6,0.1,2]];                      // Al, Fe, Mg, Ca, region  (48 pots)
+  var MX = 72, MY = 62, CS = 66;               // correlation matrix
+  var PX = 448, PY = 62, PW = 412, PH = 264;   // scatter / histogram panel
+  var sel = [2, 0], region = false;        // row = Mg, col = Al
+  var rhoOut = document.getElementById('cmRho'), sub = document.getElementById('cmSub'), btn = document.getElementById('cmRegion');
+
+  function col(k, rows) { return (rows || D).map(function (r) { return r[k]; }); }
+  function stats(x, y) {
+    var n = x.length, mx = 0, my = 0, i;
+    for (i = 0; i < n; i++) { mx += x[i]; my += y[i]; }
+    mx /= n; my /= n;
+    var sxy = 0, sxx = 0, syy = 0;
+    for (i = 0; i < n; i++) { var u = x[i] - mx, v = y[i] - my; sxy += u * v; sxx += u * u; syy += v * v; }
+    return { mx: mx, my: my, r: sxy / Math.sqrt(sxx * syy || 1), a: sxy / (sxx || 1), n: n };
+  }
+  var M = [];                              // M[i][j] = rho-hat between V[i] and V[j]
+  for (var i = 0; i < 4; i++) { M.push([]); for (var j = 0; j < 4; j++) M[i].push(stats(col(j), col(i)).r); }
+  function fmt(r) { return (r < 0 ? '−' : '+') + Math.abs(r).toFixed(2); }
+  function fill(r) { var a = Math.min(Math.abs(r), 1) * 0.72; return (r < 0 ? 'rgba(231,76,60,' : 'rgba(52,152,219,') + a + ')'; }
+  function ext(a) { var lo = Math.min.apply(null, a), hi = Math.max.apply(null, a), p = (hi - lo) * 0.09 || 1; return [lo - p, hi + p]; }
+
+  function drawMatrix() {
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    for (var i = 0; i < 4; i++) for (var j = 0; j < 4; j++) {
+      var x = MX + j * CS, y = MY + i * CS;
+      if (i === j) { c.fillStyle = '#f2f2f2'; c.fillRect(x, y, CS, CS); c.fillStyle = '#555'; c.font = '600 18px system-ui,sans-serif'; c.fillText(V[i], x + CS / 2, y + CS / 2); }
+      else { c.fillStyle = fill(M[i][j]); c.fillRect(x, y, CS, CS); c.fillStyle = '#222'; c.font = '600 17px system-ui,sans-serif'; c.fillText(fmt(M[i][j]), x + CS / 2, y + CS / 2); }
+      c.strokeStyle = '#fff'; c.lineWidth = 1.5; c.strokeRect(x, y, CS, CS);
+    }
+    c.font = '600 17px system-ui,sans-serif'; c.fillStyle = '#333';
+    for (var k = 0; k < 4; k++) {
+      c.textAlign = 'center'; c.fillText(V[k], MX + k * CS + CS / 2, MY - 15);
+      c.textAlign = 'right'; c.fillText(V[k], MX - 11, MY + k * CS + CS / 2);
+    }
+    if (sel[0] !== sel[1]) {                       // the matrix is symmetric: show the mirror cell
+      c.strokeStyle = '#999'; c.lineWidth = 1.5; c.setLineDash([4, 3]);
+      c.strokeRect(MX + sel[0] * CS, MY + sel[1] * CS, CS, CS); c.setLineDash([]);
+    }
+    c.strokeStyle = '#222'; c.lineWidth = 2.5;
+    c.strokeRect(MX + sel[1] * CS, MY + sel[0] * CS, CS, CS);
+    c.textAlign = 'left'; c.font = '13px system-ui,sans-serif';
+    if (region) {
+      var x0 = 28;
+      for (var g = 0; g < 3; g++) {
+        c.fillStyle = GRP[g].c; c.beginPath(); c.arc(x0 + 5, 364, 5, 0, 6.2832); c.fill();
+        c.fillStyle = '#555'; c.fillText(GRP[g].n, x0 + 15, 364); x0 += 17 + c.measureText(GRP[g].n).width + 16;
+      }
+    } else { c.fillStyle = '#888'; c.fillText('symmetric matrix — dashed = the same pair, mirrored', 28, 364); }
+  }
+
+  function frame(xl, yl) {
+    c.strokeStyle = '#e6e6e6'; c.lineWidth = 1; c.strokeRect(PX, PY, PW, PH);
+    c.fillStyle = '#333'; c.font = '600 17px system-ui,sans-serif';
+    c.textAlign = 'center'; c.textBaseline = 'alphabetic'; c.fillText(xl, PX + PW / 2, PY + PH + 30);
+    c.save(); c.translate(PX - 36, PY + PH / 2); c.rotate(-Math.PI / 2); c.fillText(yl, 0, 0); c.restore();
+  }
+  function tk(v) { return Math.abs(v - Math.round(v)) < 1e-9 ? String(Math.round(v)) : v.toFixed(1); }
+  function ticks(x, y, fx, fy) {                  // label the actual data range, at its actual place
+    var xa = Math.min.apply(null, x), xb = Math.max.apply(null, x), ya = Math.min.apply(null, y), yb = Math.max.apply(null, y);
+    c.font = '12px system-ui,sans-serif'; c.fillStyle = '#999'; c.textBaseline = 'top'; c.textAlign = 'center';
+    c.fillText(tk(xa), fx(xa), PY + PH + 6); c.fillText(tk(xb), fx(xb), PY + PH + 6);
+    c.textAlign = 'right'; c.textBaseline = 'middle';
+    c.fillText(tk(ya), PX - 7, fy(ya)); c.fillText(tk(yb), PX - 7, fy(yb));
+  }
+
+  function drawScatter(i, j) {
+    var x = col(j), y = col(i), ex = ext(x), ey = ext(y);
+    function fx(v) { return PX + (v - ex[0]) / (ex[1] - ex[0]) * PW; }
+    function fy(v) { return PY + PH - (v - ey[0]) / (ey[1] - ey[0]) * PH; }
+    frame(V[j], V[i]); ticks(x, y, fx, fy);
+    c.save(); c.beginPath(); c.rect(PX, PY, PW, PH); c.clip();
+    var st = stats(x, y), k;
+    if (region) for (var g = 0; g < 3; g++) {
+      var rows = D.filter(function (r) { return r[4] === g; });
+      var gx = col(j, rows), gy = col(i, rows), gs = stats(gx, gy), gex = ext(gx);
+      c.strokeStyle = GRP[g].c; c.lineWidth = 2; c.beginPath();
+      c.moveTo(fx(gex[0]), fy(gs.my + gs.a * (gex[0] - gs.mx)));
+      c.lineTo(fx(gex[1]), fy(gs.my + gs.a * (gex[1] - gs.mx))); c.stroke();
+    }
+    c.strokeStyle = '#e74c3c'; c.lineWidth = 2.5; c.beginPath();
+    c.moveTo(fx(ex[0]), fy(st.my + st.a * (ex[0] - st.mx)));
+    c.lineTo(fx(ex[1]), fy(st.my + st.a * (ex[1] - st.mx))); c.stroke();
+    for (k = 0; k < D.length; k++) {
+      c.fillStyle = region ? GRP[D[k][4]].c : 'rgba(44,62,80,0.62)';
+      c.beginPath(); c.arc(fx(x[k]), fy(y[k]), 4.5, 0, 6.2832); c.fill();
+    }
+    c.restore();
+    rhoOut.textContent = fmt(st.r);
+    if (region) {
+      var parts = [];
+      for (var q = 0; q < 3; q++) {
+        var rw = D.filter(function (r) { return r[4] === q; });
+        parts.push('<span style="color:' + GRP[q].c + '">' + GRP[q].n + ' ' + fmt(stats(col(j, rw), col(i, rw)).r) + '</span>');
+      }
+      sub.innerHTML = '&nbsp;(' + parts.join(' &middot; ') + ')';
+    } else sub.innerHTML = '';
+  }
+
+  function drawHist(k) {
+    var a = col(k), e = ext(a), nb = 12, cnt = [], b;
+    for (b = 0; b < nb; b++) cnt.push(0);
+    for (b = 0; b < a.length; b++) cnt[Math.min(nb - 1, Math.floor((a[b] - e[0]) / (e[1] - e[0]) * nb))]++;
+    var mxc = Math.max.apply(null, cnt), bw = PW / nb;
+    frame(V[k], 'count');
+    ticks(a, [0, mxc], function (v) { return PX + (v - e[0]) / (e[1] - e[0]) * PW; },
+             function (v) { return PY + PH - v / mxc * (PH - 10); });
+    for (b = 0; b < nb; b++) {
+      var h = cnt[b] / mxc * (PH - 10);
+      c.fillStyle = 'rgba(44,62,80,0.7)'; c.fillRect(PX + b * bw + 1, PY + PH - h, bw - 2, h);
+    }
+    rhoOut.textContent = '–'; sub.innerHTML = '&nbsp;(one variable alone)';
+  }
+
+  function draw() {
+    c.clearRect(0, 0, W, H);
+    drawMatrix();
+    if (sel[0] === sel[1]) drawHist(sel[0]); else drawScatter(sel[0], sel[1]);
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify({ i: sel[0], j: sel[1], g: region })); } catch (e) { } }
+
+  function pos(e) { var r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; }
+  function cell(p) {
+    var j = Math.floor((p[0] - MX) / CS), i = Math.floor((p[1] - MY) / CS);
+    return (i >= 0 && i < 4 && j >= 0 && j < 4) ? [i, j] : null;
+  }
+  cv.addEventListener('pointerdown', function (e) { var s = cell(pos(e)); if (s) { sel = s; draw(); save(); } });
+  cv.addEventListener('pointermove', function (e) { cv.style.cursor = cell(pos(e)) ? 'pointer' : 'default'; });
+  btn.addEventListener('click', function () { region = !region; btn.classList.toggle('on', region); draw(); save(); });
+
+  var saved = null; try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) { }
+  if (saved && saved.i >= 0 && saved.i < 4 && saved.j >= 0 && saved.j < 4) { sel = [saved.i, saved.j]; region = !!saved.g; }
+  btn.classList.toggle('on', region);
+  draw(); save();
+})();
+</script>
 </div>
 </section>
 <section id="linear-empirical-covariance-and-variance" class="slide level2">
@@ -1193,45 +1349,45 @@ L(\alpha, \mu) = \sum_{i=1}^n (Y_i - \alpha X_i - \mu)^2
 <h2>In Julia</h2>
 <div class="fragment">
 <p><img data-src="images/bar_plot.svg"></p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a>fluidity_types <span class="op">=</span> [<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>]</span>
-<span id="cb2-2"><a></a>type_p <span class="op">=</span> [<span class="fl">21</span>, <span class="fl">20</span>, <span class="fl">17</span>, <span class="fl">20</span>]</span>
-<span id="cb2-3"><a></a>type_u <span class="op">=</span> [<span class="fl">21</span>, <span class="fl">17</span>, <span class="fl">17</span>, <span class="fl">20</span>]</span>
-<span id="cb2-4"><a></a>type_a <span class="op">=</span> [<span class="fl">19</span>, <span class="fl">16</span>, <span class="fl">16</span>, <span class="fl">18</span>]</span>
-<span id="cb2-5"><a></a>type_t <span class="op">=</span> [<span class="fl">9</span>, <span class="fl">8</span>, <span class="fl">8</span>, <span class="fl">8</span>]</span>
-<span id="cb2-6"><a></a>type_v <span class="op">=</span> [<span class="fl">9</span>, <span class="fl">7</span>, <span class="fl">7</span>, <span class="fl">8</span>]</span>
-<span id="cb2-7"><a></a></span>
-<span id="cb2-8"><a></a><span class="co"># Create a matrix for the grouped bar plot</span></span>
-<span id="cb2-9"><a></a><span class="co"># Each row represents a fluidity type, each column represents a measurement type</span></span>
-<span id="cb2-10"><a></a>data_matrix <span class="op">=</span> <span class="fu">hcat</span>(type_p, type_u, type_a, type_t, type_v)</span>
-<span id="cb2-11"><a></a></span>
-<span id="cb2-12"><a></a><span class="co"># Create a grouped bar plot</span></span>
-<span id="cb2-13"><a></a>p1 <span class="op">=</span> <span class="fu">groupedbar</span>(</span>
-<span id="cb2-14"><a></a>    fluidity_types,</span>
-<span id="cb2-15"><a></a>    data_matrix,</span>
-<span id="cb2-16"><a></a>    title<span class="op">=</span><span class="st">"Dodge (Beside)"</span>,</span>
-<span id="cb2-17"><a></a>    xlabel<span class="op">=</span><span class="st">"Fluidity"</span>,</span>
-<span id="cb2-18"><a></a>    ylabel<span class="op">=</span><span class="st">"Value"</span>,</span>
-<span id="cb2-19"><a></a>    label<span class="op">=</span>[<span class="st">"Type P"</span> <span class="st">"Type U"</span> <span class="st">"Type A"</span> <span class="st">"Type T"</span> <span class="st">"Type V"</span>],</span>
-<span id="cb2-20"><a></a>    legend<span class="op">=:</span>topleft,</span>
-<span id="cb2-21"><a></a>    bar_position<span class="op">=:</span>dodge,</span>
-<span id="cb2-22"><a></a>    color<span class="op">=</span>[<span class="op">:</span>steelblue <span class="op">:</span>orange <span class="op">:</span>green <span class="op">:</span>purple <span class="op">:</span>red],</span>
-<span id="cb2-23"><a></a>    alpha<span class="op">=</span><span class="fl">0.7</span>,</span>
-<span id="cb2-24"><a></a>    size<span class="op">=</span>(<span class="fl">800</span>, <span class="fl">500</span>)</span>
-<span id="cb2-25"><a></a>)</span>
-<span id="cb2-26"><a></a>p2 <span class="op">=</span> <span class="fu">groupedbar</span>(</span>
-<span id="cb2-27"><a></a>    fluidity_types,</span>
-<span id="cb2-28"><a></a>    data_matrix,</span>
-<span id="cb2-29"><a></a>    title<span class="op">=</span><span class="st">"Stack"</span>,</span>
-<span id="cb2-30"><a></a>    xlabel<span class="op">=</span><span class="st">"Fluidity"</span>,</span>
-<span id="cb2-31"><a></a>    ylabel<span class="op">=</span><span class="st">"Value"</span>,</span>
-<span id="cb2-32"><a></a>    label<span class="op">=</span>[<span class="st">"Type P"</span> <span class="st">"Type U"</span> <span class="st">"Type A"</span> <span class="st">"Type T"</span> <span class="st">"Type V"</span>],</span>
-<span id="cb2-33"><a></a>    legend<span class="op">=:</span>topleft,</span>
-<span id="cb2-34"><a></a>    bar_position<span class="op">=:</span>stack,</span>
-<span id="cb2-35"><a></a>    color<span class="op">=</span>[<span class="op">:</span>steelblue <span class="op">:</span>orange <span class="op">:</span>green <span class="op">:</span>purple <span class="op">:</span>red],</span>
-<span id="cb2-36"><a></a>    alpha<span class="op">=</span><span class="fl">0.7</span>,</span>
-<span id="cb2-37"><a></a>    size<span class="op">=</span>(<span class="fl">800</span>, <span class="fl">500</span>)</span>
-<span id="cb2-38"><a></a>)</span>
-<span id="cb2-39"><a></a><span class="fu">plot</span>(p1,p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a>fluidity_types <span class="op">=</span> [<span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"C"</span>, <span class="st">"D"</span>]</span>
+<span id="cb1-2"><a></a>type_p <span class="op">=</span> [<span class="fl">21</span>, <span class="fl">20</span>, <span class="fl">17</span>, <span class="fl">20</span>]</span>
+<span id="cb1-3"><a></a>type_u <span class="op">=</span> [<span class="fl">21</span>, <span class="fl">17</span>, <span class="fl">17</span>, <span class="fl">20</span>]</span>
+<span id="cb1-4"><a></a>type_a <span class="op">=</span> [<span class="fl">19</span>, <span class="fl">16</span>, <span class="fl">16</span>, <span class="fl">18</span>]</span>
+<span id="cb1-5"><a></a>type_t <span class="op">=</span> [<span class="fl">9</span>, <span class="fl">8</span>, <span class="fl">8</span>, <span class="fl">8</span>]</span>
+<span id="cb1-6"><a></a>type_v <span class="op">=</span> [<span class="fl">9</span>, <span class="fl">7</span>, <span class="fl">7</span>, <span class="fl">8</span>]</span>
+<span id="cb1-7"><a></a></span>
+<span id="cb1-8"><a></a><span class="co"># Create a matrix for the grouped bar plot</span></span>
+<span id="cb1-9"><a></a><span class="co"># Each row represents a fluidity type, each column represents a measurement type</span></span>
+<span id="cb1-10"><a></a>data_matrix <span class="op">=</span> <span class="fu">hcat</span>(type_p, type_u, type_a, type_t, type_v)</span>
+<span id="cb1-11"><a></a></span>
+<span id="cb1-12"><a></a><span class="co"># Create a grouped bar plot</span></span>
+<span id="cb1-13"><a></a>p1 <span class="op">=</span> <span class="fu">groupedbar</span>(</span>
+<span id="cb1-14"><a></a>    fluidity_types,</span>
+<span id="cb1-15"><a></a>    data_matrix,</span>
+<span id="cb1-16"><a></a>    title<span class="op">=</span><span class="st">"Dodge (Beside)"</span>,</span>
+<span id="cb1-17"><a></a>    xlabel<span class="op">=</span><span class="st">"Fluidity"</span>,</span>
+<span id="cb1-18"><a></a>    ylabel<span class="op">=</span><span class="st">"Value"</span>,</span>
+<span id="cb1-19"><a></a>    label<span class="op">=</span>[<span class="st">"Type P"</span> <span class="st">"Type U"</span> <span class="st">"Type A"</span> <span class="st">"Type T"</span> <span class="st">"Type V"</span>],</span>
+<span id="cb1-20"><a></a>    legend<span class="op">=:</span>topleft,</span>
+<span id="cb1-21"><a></a>    bar_position<span class="op">=:</span>dodge,</span>
+<span id="cb1-22"><a></a>    color<span class="op">=</span>[<span class="op">:</span>steelblue <span class="op">:</span>orange <span class="op">:</span>green <span class="op">:</span>purple <span class="op">:</span>red],</span>
+<span id="cb1-23"><a></a>    alpha<span class="op">=</span><span class="fl">0.7</span>,</span>
+<span id="cb1-24"><a></a>    size<span class="op">=</span>(<span class="fl">800</span>, <span class="fl">500</span>)</span>
+<span id="cb1-25"><a></a>)</span>
+<span id="cb1-26"><a></a>p2 <span class="op">=</span> <span class="fu">groupedbar</span>(</span>
+<span id="cb1-27"><a></a>    fluidity_types,</span>
+<span id="cb1-28"><a></a>    data_matrix,</span>
+<span id="cb1-29"><a></a>    title<span class="op">=</span><span class="st">"Stack"</span>,</span>
+<span id="cb1-30"><a></a>    xlabel<span class="op">=</span><span class="st">"Fluidity"</span>,</span>
+<span id="cb1-31"><a></a>    ylabel<span class="op">=</span><span class="st">"Value"</span>,</span>
+<span id="cb1-32"><a></a>    label<span class="op">=</span>[<span class="st">"Type P"</span> <span class="st">"Type U"</span> <span class="st">"Type A"</span> <span class="st">"Type T"</span> <span class="st">"Type V"</span>],</span>
+<span id="cb1-33"><a></a>    legend<span class="op">=:</span>topleft,</span>
+<span id="cb1-34"><a></a>    bar_position<span class="op">=:</span>stack,</span>
+<span id="cb1-35"><a></a>    color<span class="op">=</span>[<span class="op">:</span>steelblue <span class="op">:</span>orange <span class="op">:</span>green <span class="op">:</span>purple <span class="op">:</span>red],</span>
+<span id="cb1-36"><a></a>    alpha<span class="op">=</span><span class="fl">0.7</span>,</span>
+<span id="cb1-37"><a></a>    size<span class="op">=</span>(<span class="fl">800</span>, <span class="fl">500</span>)</span>
+<span id="cb1-38"><a></a>)</span>
+<span id="cb1-39"><a></a><span class="fu">plot</span>(p1,p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="χ²-test-hypotheses" class="slide level2">
@@ -1448,7 +1604,7 @@ L(\alpha, \mu) = \sum_{i=1}^n (Y_i - \alpha X_i - \mu)^2
 </div>
 <div class="fragment">
 <p>pvalue:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a></a><span class="fl">1</span><span class="fu">-cdf</span>(<span class="fu">FDist</span>(I<span class="op">-</span><span class="fl">1</span>, N<span class="op">-</span>I), psiobs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a><span class="fl">1</span><span class="fu">-cdf</span>(<span class="fu">FDist</span>(I<span class="op">-</span><span class="fl">1</span>, N<span class="op">-</span>I), psiobs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section></section>
 <section>
