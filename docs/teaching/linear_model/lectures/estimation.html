@@ -318,7 +318,7 @@ Note
 <p>First, let’s verify that <span class="math inline">\(\hat{\sigma}^2\)</span> is unbiased:</p>
 <p><span class="math display">\[\hat{\varepsilon} = P_{[X]^\perp}Y = P_{[X]^\perp}(X\beta + \varepsilon) = P_{[X]^\perp}\varepsilon\]</span></p>
 <p>since <span class="math inline">\(P_{[X]^\perp}X = 0\)</span>.</p>
-<p>Therefore: <span class="math display">\[\hat \sigma^2=\|\hat{\varepsilon}\|^2 = \varepsilon^T P_{[X]^\perp}\varepsilon\]</span></p>
+<p>Therefore: <span class="math display">\[\|\hat{\varepsilon}\|^2 = \varepsilon^T P_{[X]^\perp}\varepsilon\]</span></p>
 <p>Since <span class="math inline">\(P_{[X]^\perp}\)</span> is idempotent and symmetric with <span class="math inline">\(\text{tr}(P_{[X]^\perp}) = n - p\)</span>:</p>
 <p><span class="math display">\[\mathbb{E}[\|\hat{\varepsilon}\|^2] = \mathbb{E}[\varepsilon^T P_{[X]^\perp}\varepsilon] = \sigma^2 \text{tr}(P_{[X]^\perp}) = \sigma^2(n-p)\]</span></p>
 <p>Thus:</p>
@@ -408,16 +408,29 @@ MLE
 </section>
 <section id="MLE" class="level3">
 <h3 class="anchored" data-anchor-id="MLE">Existence and Uniqueness of Global Maximum</h3>
-<p>Let <span class="math inline">\(\beta^*\)</span> be the minimizer of <span class="math inline">\(\|Y-X\tilde \beta\|\)</span> over all <span class="math inline">\(\tilde \beta \in \mathbb R^p\)</span>. <span class="math inline">\(\beta^*\)</span> the OLS estimator by definition, and it satisfies <span class="math inline">\(\ell(\beta, \sigma^2) \leq -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \|Y - X\beta^*\|^2 = \ell(\beta^*, \sigma^2)\)</span>. Since <span class="math inline">\(p &lt; n\)</span>, we almost surely have that <span class="math inline">\(Y \not \in [X]\)</span>, so that <span class="math inline">\(\|Y - X\beta^*\|^2 &gt; 0\)</span>.</p>
-<p>Now that <span class="math inline">\(\beta^*\)</span> is fixed, the function <span class="math inline">\(\sigma^2 \to -\frac{n}{2} \log(2\pi\sigma^2  ) - \frac{1}{2\sigma^2} \|Y - X\beta^*\|^2\)</span> is concave on <span class="math inline">\((0, +\infty)\)</span>, and cancelling the gradient gives that it achieves its maximum at <span class="math inline">\((\sigma^*)^2 = \frac{1}{n}\|Y - X\beta^*\|^2\)</span>.</p>
-<p>Hence, we obtain that for any <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\sigma\)</span>, <span class="math inline">\(\ell(\beta, \sigma^2) \leq \ell(\beta^*, \sigma^2) \leq \ell(\beta^*, (\sigma^*)^2)\)</span>. We just proved that <span class="math inline">\((\beta^*, (\sigma^*))^2\)</span> is the unique global maximum, which implies that</p>
+<p><strong>Maximization in <span class="math inline">\(\beta\)</span>.</strong> Fix any <span class="math inline">\(\sigma^2 &gt; 0\)</span>. The term <span class="math inline">\(-\frac{n}{2}\log(2\pi\sigma^2)\)</span> does not depend on <span class="math inline">\(\beta\)</span>, and <span class="math inline">\(\frac{1}{2\sigma^2}\)</span> is a positive constant, so maximizing <span class="math inline">\(\beta \mapsto \ell(\beta, \sigma^2)\)</span> amounts to minimizing <span class="math inline">\(\beta \mapsto \|Y - X\beta\|^2\)</span>: the maximizer is the OLS estimator <span class="math inline">\(\hat \beta\)</span>, <span style="background-color: yellow;">and it is the same for every value of <span class="math inline">\(\sigma^2\)</span></span>. It is unique because <span class="math inline">\(\text{rg}(X) = p\)</span>, so <span class="math display">\[\ell(\beta, \sigma^2) \leq \ell(\hat \beta, \sigma^2) \quad \text{for all } \beta \in \mathbb R^p, \ \sigma^2 &gt; 0,\]</span> with equality only if <span class="math inline">\(\beta = \hat \beta\)</span>.</p>
+<p><strong>Maximization in <span class="math inline">\(\sigma^2\)</span>.</strong> Since <span class="math inline">\(p &lt; n\)</span>, we almost surely have that <span class="math inline">\(Y \not \in [X]\)</span>, so that <span class="math inline">\(S = \|Y - X\hat \beta\|^2 &gt; 0\)</span>. Study <span class="math inline">\(g(u) = \ell(\hat \beta, u) = -\frac{n}{2} \log(2\pi u) - \frac{S}{2u}\)</span> for <span class="math inline">\(u = \sigma^2 \in (0, +\infty)\)</span>. Its derivative is <span class="math display">\[g'(u) = -\frac{n}{2u} + \frac{S}{2u^2} = \frac{S - nu}{2u^2},\]</span> which is <span class="math inline">\(&gt;0\)</span> for <span class="math inline">\(u &lt; S/n\)</span> and <span class="math inline">\(&lt;0\)</span> for <span class="math inline">\(u &gt; S/n\)</span>: <span class="math inline">\(g\)</span> increases then decreases, so it attains its maximum at the unique point <span class="math inline">\((\sigma^*)^2 = \frac{1}{n}\|Y - X\hat \beta\|^2\)</span>, and <span class="math inline">\(g(u) &lt; g((\sigma^*)^2)\)</span> for every <span class="math inline">\(u \neq (\sigma^*)^2\)</span>.</p>
+<p>Combining the two steps, for any <span class="math inline">\(\beta\)</span> and any <span class="math inline">\(\sigma^2\)</span>, <span class="math display">\[\ell(\beta, \sigma^2) \leq \ell(\hat \beta, \sigma^2) \leq \ell(\hat \beta, (\sigma^*)^2),\]</span> with equality throughout only if <span class="math inline">\(\beta = \hat \beta\)</span> and <span class="math inline">\(\sigma^2 = (\sigma^*)^2\)</span>. We just proved that <span class="math inline">\((\hat \beta, (\sigma^*)^2)\)</span> is the unique global maximum, which implies that</p>
 <div class="square-def">
 <p><span class="math display">\[
 \begin{aligned}
-\hat \beta_{MLE}&amp;= \beta^* = \hat \beta \\
-\hat \sigma_{MLE}&amp;= \sigma^* = \frac{1}{n}\|Y-X\hat \beta\|^2
+\hat \beta_{MLE}&amp;= \hat \beta = (X^TX)^{-1}X^TY \\
+\hat \sigma^2_{MLE}&amp;= (\sigma^*)^2 = \frac{1}{n}\|Y-X\hat \beta\|^2
 \end{aligned}
 \]</span></p>
+</div>
+<div class="callout callout-style-default callout-note no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Beware that <span class="math inline">\(g\)</span> is <span style="background-color: yellow;">not concave</span> on <span class="math inline">\((0,+\infty)\)</span>: <span class="math inline">\(g''(u) = \frac{nu - 2S}{2u^3}\)</span> is negative only for <span class="math inline">\(u &lt; 2S/n\)</span>, and <span class="math inline">\(g\)</span> is convex in the tail. Unimodality is enough for the argument above. If one insists on concavity, reparametrize by the precision <span class="math inline">\(\tau = 1/\sigma^2\)</span>: then <span class="math display">\[\ell = \frac{n}{2}\log \tau - \frac{n}{2}\log(2\pi) - \frac{S\tau}{2}, \qquad \frac{\partial^2 \ell}{\partial \tau^2} = -\frac{n}{2\tau^2} &lt; 0,\]</span> which is strictly concave, with maximum at <span class="math inline">\(\tau^* = n/S\)</span>. Since <span class="math inline">\(\tau \mapsto 1/\tau\)</span> is a bijection of <span class="math inline">\((0,+\infty)\)</span>, we recover <span class="math inline">\((\sigma^*)^2 = S/n\)</span>.</p>
+</div>
 </div>
 </section>
 </section>
@@ -433,14 +446,14 @@ Theorem
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>In the Gaussian Model, <span class="math inline">\(\hat \beta\)</span> is an <span style="background-color: yellow;">efficient</span> estimator of <span class="math inline">\(\hat \beta\)</span>. This means that <span class="math display">\[
+<p>In the Gaussian Model, <span class="math inline">\(\hat \beta\)</span> is an <span style="background-color: yellow;">efficient</span> estimator of <span class="math inline">\(\beta\)</span>. This means that <span class="math display">\[
 \Var(\hat \beta) \preceq \Var(\tilde \beta)\; ,
 \]</span> for <span style="background-color: yellow;">any</span> estimator <span class="math inline">\(\tilde \beta\)</span></p>
 </div>
 </div>
 <section id="cramer-rao-lower-bound" class="level3">
 <h3 class="anchored" data-anchor-id="cramer-rao-lower-bound">Cramer-Rao Lower Bound</h3>
-<p>It holds that for any estimator <span class="math inline">\(\tilde \beta\)</span>, <span class="math display">\[\mathbb V(\tilde \beta) \succeq [I(\beta)]^{-1}\]</span> where <span class="math inline">\(I(\beta)\)</span> is the Fisher Information Matrix. This comes from the <a href="../../../teaching/linear_model/notes/cramer-rao.html">Cramér-Rao lower bound</a>. Hence, it is enough to prove that <span class="math inline">\(\mathbb V(\tilde \beta) = [I(\beta)]^{-1}\)</span>.</p>
+<p>It holds that for any estimator <span class="math inline">\(\tilde \beta\)</span>, <span class="math display">\[\mathbb V(\tilde \beta) \succeq [I(\beta)]^{-1}\]</span> where <span class="math inline">\(I(\beta)\)</span> is the Fisher Information Matrix. This comes from the <a href="../../../teaching/linear_model/notes/cramer-rao.html">Cramér-Rao lower bound</a>. Hence, it is enough to prove that <span class="math inline">\(\mathbb V(\hat \beta) = [I(\beta)]^{-1}\)</span>.</p>
 </section>
 <section id="fisher-information-matrix" class="level3">
 <h3 class="anchored" data-anchor-id="fisher-information-matrix">Fisher Information Matrix</h3>

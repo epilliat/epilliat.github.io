@@ -1,50 +1,32 @@
 # F-Test for Linear Constraints {#F-Test}
 
 ## Theorem
-If $\text{rank}(X) = p$, $\text{rank}(R) = q$, and $\varepsilon \sim N(0, \sigma^2 I_n)$, then under $H_0: R\beta = 0$:
+Let $R \in \mathbb R^{q \times p}$ be a constraint matrix, with $q \leq p$. If $\text{rank}(X) = p$ (with $p < n$), $\text{rank}(R) = q$, and $\varepsilon \sim N(0, \sigma^2 I_n)$, then under $H_0: R\beta = 0$:
 
 $$F = \frac{n-p}{q} \cdot \frac{SSR_c - SSR}{SSR} \sim F(q, n-p)$$
 
 where:
 
-- $SSR$: sum of squares of residuals in the unconstrained model
-- $SSR_c$: sum of squares of residuals in the constrained model satisfying $R\beta = 0$
+- $SSR = \|Y - X\hat\beta\|^2$: sum of squares of residuals in the unconstrained model
+- $SSR_c$: sum of squares of residuals in the constrained model, i.e., in the sub-model satisfying $R\beta = 0$
 
 ## Proof
 
-Define
+Define the constrained subspace
 
-- $V_0 = \{X\beta : R\beta = 0\} = X(\text{Ker}(R))$ (constrained subspace)
+- $V_0 = \{X\beta : \beta \in \mathbb R^p, \ R\beta = 0\} = X(\text{Ker}(R))$
 
-Since $\text{rank}(X) = p$ and $\text{rank}(R) = q$, it holds that $\dim(\text{Ker}(R)) = p - q$.
+**Dimension of $V_0$.** By the rank–nullity theorem applied to $R$, $\dim(\text{Ker}(R)) = p - \text{rank}(R) = p - q$.
 
-Since $X$ has full column rank, the $\beta \mapsto X\beta$ is injective
+Since $\text{rank}(X) = p$, the map $\beta \mapsto X\beta$ is injective.
 Therefore: $\dim(V_0) = \dim(X(\text{Ker}(R))) = \dim(\text{Ker}(R)) = p - q$.
 
+**The two $SSR$s are squared norms of projections.** Fitting a linear model by least squares amounts to projecting $Y$ orthogonally onto the corresponding subspace, so
 
-We have that 
+- $SSR = \|Y - P_{[X]}Y\|^2 = \|P_{[X]^\perp} Y\|^2$
+- $SSR_c = \|Y - P_{V_0}Y\|^2 = \|P_{V_0^\perp}Y\|^2$
 
-- $SSR = \|P_{[X]^\perp} Y\|^2$
-- $SSR_c = \|P_{V_0^\perp}Y\|^2$
-
-
-Let us now decompose
-
-$$
-Y = P_{[X]^\perp} Y + (P_{V_0^\perp} - P_{[X]^\perp})Y
-$$
-
-The first term correspond to the residuals, and let us now analyse the second term. For this we use the following useful Lemma.
-
-::: {.callout}
-## Useful Lemma
-
-If $E$ $F$ are two subspace of $\mathbb R^n$ such that $E \subset F$, and if $P_E$, $P_F$ are the orthogonal projectors on $E$ and $F$, then
-
-$P_EP_F = P_FP_E = P_E$.
-:::
-
-Hence, projecting the above decomposition on $V_0^\perp$, we get
+Let us now decompose the constrained residual vector as
 
 ::: {.square-def}
 $$
@@ -52,19 +34,41 @@ P_{V_0^\perp}Y = P_{[X]^\perp} Y + (P_{V_0^\perp} - P_{[X]^\perp})Y
 $$
 :::
 
+The first term is the vector of residuals of the unconstrained model; let us analyse the second term. For this we use the following useful Lemma.
 
+::: {.callout}
+## Useful Lemma
 
-Here, $V_0 \subset [X]$ so that $[X]^\perp \subset V_0^{\perp}$, and we check that
+If $E$, $F$ are two subspaces of $\mathbb R^n$ such that $E \subset F$, and if $P_E$, $P_F$ are the orthogonal projectors on $E$ and $F$, then
 
-$(P_{V_0^\perp} - P_{[X]^\perp})^2 = (P_{V_0^\perp} - P_{[X]^\perp})= (P_{V_0^\perp} - P_{[X]^\perp})^T$
+$P_EP_F = P_FP_E = P_E$.
+:::
 
-so that [$P_{V_0^\perp} - P_{[X]^\perp}$ is an orthogonal projector]{style="background-color: lightblue;"} on a subspace of dimension $tr(V_0^\perp) - tr(P_{[X]^\perp}) = n-(p-q)-(n-p) = q$
+Here, $V_0 \subset [X]$ so that $[X]^\perp \subset V_0^{\perp}$, and the Lemma gives $P_{[X]^\perp}P_{V_0^\perp} = P_{V_0^\perp}P_{[X]^\perp} = P_{[X]^\perp}$. Hence
 
-Since $P_{[X]^\perp}(P_{V_0^\perp} - P_{[X]^\perp}) = P_{[X]^\perp}P_{[X]^\perp}-P_{[X]^\perp}P_{[X]^\perp} = 0$, we also have that [$P_{[X]^\perp} Y$ and $(P_{V_0^\perp} - P_{[X]^\perp})Y$ are orthogonal]{style="background-color: lightblue;"}.
+$$(P_{V_0^\perp} - P_{[X]^\perp})^2 = P_{V_0^\perp} - P_{[X]^\perp} - P_{[X]^\perp} + P_{[X]^\perp} = P_{V_0^\perp} - P_{[X]^\perp} = (P_{V_0^\perp} - P_{[X]^\perp})^T$$
 
-Hence, by the Cochran Theorem, $P_{[X]^\perp} Y$ and $(P_{V_0^\perp} - P_{[X]^\perp})Y$ are indpendent and 
+so that [$P_{V_0^\perp} - P_{[X]^\perp}$ is an orthogonal projector]{style="background-color: lightblue;"} (it projects onto $[X] \cap V_0^\perp$) on a subspace of dimension $\text{tr}(P_{V_0^\perp}) - \text{tr}(P_{[X]^\perp}) = n-(p-q)-(n-p) = q$.
 
-- $SSR=\|P_{[X]^\perp} Y\|^2 = \|P_{[X]^\perp} \varepsilon\|^2$ has distribution $\chi^2(n-p)$
-- Under $H_0$, $X\beta \in V_0$ so that $SSR_c=\|P_{V_0^\perp}Y\|^2 = P_{V_0^\perp}(X\beta + \varepsilon) = P_{V_0^\perp}(\varepsilon)$
-- Hence, sill under $H_0$, $SSR_c -SSR = \|(P_{V_0^\perp} - P_{[X]^\perp}) \varepsilon\|^2$ has distribution $\chi^2(q)$
-- $SSR$ and $SSR_c - SSR$ are independent since they are projections on orthogonal subspaces of $\varepsilon \sim \mathcal N(0, \sigma^2I_n)$
+The same identity gives $P_{[X]^\perp}(P_{V_0^\perp} - P_{[X]^\perp}) = P_{[X]^\perp} - P_{[X]^\perp} = 0$, so the two projectors in the decomposition [project onto orthogonal subspaces]{style="background-color: lightblue;"}. By Pythagoras, $\|P_{V_0^\perp}Y\|^2 = \|P_{[X]^\perp}Y\|^2 + \|(P_{V_0^\perp} - P_{[X]^\perp})Y\|^2$, that is
+
+::: {.square-def}
+$$
+SSR_c - SSR = \|(P_{V_0^\perp} - P_{[X]^\perp})Y\|^2 \geq 0 \enspace .
+$$
+:::
+
+**Distributions.** Since $P_{[X]^\perp}X = 0$, we always have $P_{[X]^\perp}Y = P_{[X]^\perp}\varepsilon$. Under $H_0$, $X\beta \in V_0$, so $P_{V_0^\perp}X\beta = 0$ and also $(P_{V_0^\perp} - P_{[X]^\perp})Y = (P_{V_0^\perp} - P_{[X]^\perp})\varepsilon$.
+
+By the Cochran Theorem applied to $\varepsilon \sim \mathcal N(0, \sigma^2I_n)$ and to the two orthogonal projectors $P_{[X]^\perp}$ and $P_{V_0^\perp} - P_{[X]^\perp}$, whose product is $0$:
+
+- $P_{[X]^\perp} \varepsilon$ and $(P_{V_0^\perp} - P_{[X]^\perp})\varepsilon$ are [independent]{style="background-color: lightblue;"} — not merely uncorrelated: this step uses the Gaussianity of $\varepsilon$;
+- $SSR = \|P_{[X]^\perp} \varepsilon\|^2$ satisfies $SSR/\sigma^2 \sim \chi^2(n-p)$ (projector of rank $n-p$);
+- Under $H_0$, $SSR_c - SSR = \|(P_{V_0^\perp} - P_{[X]^\perp}) \varepsilon\|^2$ satisfies $(SSR_c - SSR)/\sigma^2 \sim \chi^2(q)$ (projector of rank $q$);
+- $SSR$ and $SSR_c - SSR$ are independent, as functions of the two independent vectors above.
+
+**Conclusion.** Under $H_0$,
+
+$$F = \frac{n-p}{q} \cdot \frac{SSR_c - SSR}{SSR} = \frac{\big[(SSR_c - SSR)/\sigma^2\big]/q}{\big[SSR/\sigma^2\big]/(n-p)}$$
+
+is the ratio of two independent $\chi^2$ random variables, each divided by its number of degrees of freedom: by definition, $F \sim F(q, n-p)$. $\square$

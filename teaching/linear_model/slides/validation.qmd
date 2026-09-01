@@ -17,6 +17,14 @@ css: ../../../styles.css
 
 
 
+## Outline
+
+- Goodness of fit: $R^2$ and adjusted $R^2$
+- Testing linear constraints on $\beta$: the Fisher test
+- Verification of the model hypotheses: residuals, homoscedasticity, correlation, normality
+- Outliers, leverage and influential points
+
+
 # Goodness of Fit (R²)
 
 ::: {style="display:none"}
@@ -73,7 +81,7 @@ $$R^2 = \frac{\|\widehat Y\|^2}{\|Y\|^2} = 1 - \frac{SSR}{\|Y\|^2}$$
 
 :::
 
-- $0 \leq R^2 \leq 1$. Better model if $R^2$ close to $1$
+- $0 \leq R^2 \leq 1$. "Better model" if $R^2$ close to $1$
 - Two definitions of $R^2$ when $\1 \in [X]$ or not
 - In simple linear regression $(Y_i = \beta_1+\beta_2X_i+\varepsilon_i)$: $R^2 = \hat \rho^2$ is the [square empirical correlation]{style="background-color: yellow;"} between $Y$ and $X$
 
@@ -108,7 +116,11 @@ With a [new variable]{style="background-color: yellow;"}, $SSR$ decreases but [$
 
 . . .
 
-[$R_a^2$​ only increases]{style="background-color: yellow;"} when adding a new variable [if that variable significantly]{style="background-color: yellow;"} reduces the residual sum of squares.
+[$R_a^2$​ only increases]{style="background-color: yellow;"} when adding a new variable [if that variable reduces $SSR$ enough]{style="background-color: yellow;"}.
+
+. . .
+
+Exactly: $R^2_a$ increases iff the [partial Fisher statistic of that variable exceeds $1$]{style="background-color: yellow;"} — a much weaker requirement than being significant, met by about one junk variable in three.
 
 
 ## R² always rises, R²ₐ does not {.smaller}
@@ -116,8 +128,8 @@ With a [new variable]{style="background-color: yellow;"}, $SSR$ decreases but [$
 . . .
 
 
-::: {style="font-size:86%"}
-Start from one real predictor, then add **pure-noise** columns. $R^2$ (blue) **keeps rising** toward 1 — that's its flaw; the **adjusted** $R^2_a$ (green) peaks and then falls, penalising useless variables.
+::: {style="font-size:84%"}
+The truth (red) is a **cosine-shaped polynomial of degree $d$**; we fit polynomials of degree $k$. $R^2$ (blue) **keeps rising** — that's its flaw. $R^2_a$ (green) **stops rising at $k=d$**: past the true degree, a new term no longer pays for the degree of freedom it costs. Move $d$: the elbow follows. But it *flattens* rather than plunges — $R^2_a$ stops rewarding useless terms without really punishing them, which is why selection needs $C_p$, AIC or BIC.
 :::
 
 ```{=html}
@@ -128,47 +140,102 @@ Start from one real predictor, then add **pure-noise** columns. $R^2$ (blue) **k
 .lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
 </style>
 <div class="lm-wrap">
-  <canvas id="raCanvas" width="600" height="300" style="background:#fff;border:1px solid #ddd;border-radius:8px;max-width:100%"></canvas>
-  <div class="lm-row">junk predictors added k <input id="raK" type="range" autocomplete="off" min="0" max="24" step="1" value="6" style="vertical-align:middle;width:180px"> <b id="raKv">6</b> &nbsp;·&nbsp; noise <input id="raNz" type="range" autocomplete="off" min="0.2" max="2" step="0.05" value="0.8" style="vertical-align:middle;width:90px"> <b id="raNzv">0.80</b> &nbsp; <button class="lm-btn" id="raNew">↻ resample</button></div>
-  <div class="lm-row"><span class="lm-sw" style="background:#5b8cff"></span> R² <b id="raR2">–</b> &nbsp; <span class="lm-sw" style="background:#27ae60"></span> R²ₐ <b id="raR2a">–</b> &nbsp;·&nbsp; p = 2+k = <b id="raP">–</b></div>
+  <canvas id="raCanvas" width="700" height="300" style="background:#fff;border:1px solid #ddd;border-radius:8px;max-width:100%"></canvas>
+  <div class="lm-row">true degree d <input id="raD" type="range" autocomplete="off" min="2" max="16" step="1" value="10" style="vertical-align:middle;width:130px"> <b id="raDv">10</b> &nbsp;·&nbsp; noise σ <input id="raNz" type="range" autocomplete="off" min="0.1" max="1" step="0.05" value="0.5" style="vertical-align:middle;width:90px"> <b id="raNzv">0.50</b> &nbsp; <button class="lm-btn" id="raNew">↻ resample</button></div>
+  <div class="lm-row">degree fitted k <input id="raK" type="range" autocomplete="off" min="1" max="24" step="1" value="10" style="vertical-align:middle;width:130px"> <b id="raKv">10</b> &nbsp;·&nbsp; <span class="lm-sw" style="background:#5b8cff"></span> R² <b id="raR2">–</b> &nbsp; <span class="lm-sw" style="background:#27ae60"></span> R²ₐ <b id="raR2a">–</b> &nbsp;·&nbsp; population R² = <b id="raPop">–</b></div>
 </div>
 <script>
 (function () {
   var cv = document.getElementById('raCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
-  var c = cv.getContext('2d'), W = cv.width, H = cv.height, N = 30, KM = 24, Xr = [], J = [], Z = [], r2 = [], r2a = [];
-  var kEl = document.getElementById('raK'), nzEl = document.getElementById('raNz');
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, N = 40, KM = 24, KEY = 'lmAdjR2';
+  var dEl = document.getElementById('raD'), kEl = document.getElementById('raK'), sEl = document.getElementById('raNz');
+  var xs = [], Z = [], Q = [], mu = [], Y = [], dd = [], r2 = [], r2a = [], pop = 0;
   function gauss() { var u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
-  function solve(Mx, b) { var n = b.length, a = Mx.map(function (r) { return r.slice(); }), bb = b.slice(), i, r, k; for (i = 0; i < n; i++) { var pv = i; for (r = i + 1; r < n; r++) if (Math.abs(a[r][i]) > Math.abs(a[pv][i])) pv = r; var t = a[i]; a[i] = a[pv]; a[pv] = t; var tb = bb[i]; bb[i] = bb[pv]; bb[pv] = tb; for (r = i + 1; r < n; r++) { var f = a[r][i] / (a[i][i] || 1e-12); for (k = i; k < n; k++) a[r][k] -= f * a[i][k]; bb[r] -= f * bb[i]; } } var x = new Array(n).fill(0); for (i = n - 1; i >= 0; i--) { var s = bb[i]; for (k = i + 1; k < n; k++) s -= a[i][k] * x[k]; x[i] = s / (a[i][i] || 1e-12); } return x; }
-  function regen() { Xr = []; Z = []; for (var i = 0; i < N; i++) { Xr.push(-1 + 2 * i / (N - 1)); Z.push(gauss()); } J = []; for (var k = 0; k < KM; k++) { var col = []; for (i = 0; i < N; i++) col.push(gauss()); J.push(col); } }
-  function compute() {
-    var nz = +nzEl.value, Y = [], yb = 0, i, k; for (i = 0; i < N; i++) { Y.push(1.5 * Xr[i] + nz * Z[i]); yb += Y[i]; } yb /= N;
-    var sst = 0; for (i = 0; i < N; i++) sst += (Y[i] - yb) * (Y[i] - yb);
-    r2 = []; r2a = [];
-    for (k = 0; k <= KM; k++) {
-      var p = 2 + k, cols = []; for (i = 0; i < N; i++) { var row = [1, Xr[i]]; for (var j = 0; j < k; j++) row.push(J[j][i]); cols.push(row); }
-      var M = [], v = []; for (var r = 0; r < p; r++) { M.push(new Array(p).fill(0)); v.push(0); }
-      for (i = 0; i < N; i++) for (r = 0; r < p; r++) { for (var cc = 0; cc < p; cc++) M[r][cc] += cols[i][r] * cols[i][cc]; v[r] += cols[i][r] * Y[i]; }
-      for (r = 0; r < p; r++) M[r][r] += 1e-8; var beta = solve(M, v), ssr = 0;
-      for (i = 0; i < N; i++) { var yh = 0; for (r = 0; r < p; r++) yh += beta[r] * cols[i][r]; ssr += (Y[i] - yh) * (Y[i] - yh); }
-      r2.push(1 - ssr / sst); r2a.push(1 - (N - 1) / (N - p) * ssr / sst);
+  // Orthonormal polynomials on the design points, by the three-term recurrence
+  // q_{j+1} ∝ (x - a_j) q_j - b_j q_{j-1}. Never form the Vandermonde: 1, x, ..., x^24
+  // is hopelessly ill-conditioned, this recurrence is not.
+  function basis() {
+    var i, j, v, s, a, bp = 0;
+    Q = [[]]; for (i = 0; i < N; i++) Q[0].push(1 / Math.sqrt(N));
+    for (j = 0; j < KM; j++) {
+      a = 0; for (i = 0; i < N; i++) a += xs[i] * Q[j][i] * Q[j][i];
+      v = []; s = 0;
+      for (i = 0; i < N; i++) { var t = (xs[i] - a) * Q[j][i] - (j ? bp * Q[j - 1][i] : 0); v.push(t); s += t * t; }
+      s = Math.sqrt(s); bp = s;
+      for (i = 0; i < N; i++) v[i] /= s;
+      Q.push(v);
     }
   }
-  function draw() {
-    var k = +kEl.value; document.getElementById('raKv').textContent = k; document.getElementById('raNzv').textContent = (+nzEl.value).toFixed(2);
-    var pad = 34, X0 = pad, Y0 = 12, BW = W - pad - 12, BH = H - pad - 18;
-    function PX(kk) { return X0 + kk / KM * BW; } function PY(y) { return Y0 + (1 - y) * BH; }
-    c.clearRect(0, 0, W, H);
-    c.strokeStyle = '#eee'; c.lineWidth = 1; c.fillStyle = '#999'; c.font = '10px sans-serif'; c.textAlign = 'right';
-    [0, 0.25, 0.5, 0.75, 1].forEach(function (g) { c.beginPath(); c.moveTo(X0, PY(g)); c.lineTo(X0 + BW, PY(g)); c.stroke(); c.fillText(g.toFixed(2), X0 - 4, PY(g) + 3); });
-    c.textAlign = 'center'; c.fillText('k (junk predictors)', X0 + BW / 2, H - 4);
-    function curve(arr, col) { c.strokeStyle = col; c.lineWidth = 2.5; c.beginPath(); for (var i = 0; i <= KM; i++) { var x = PX(i), y = PY(Math.max(0, arr[i])); i ? c.lineTo(x, y) : c.moveTo(x, y); } c.stroke(); }
-    curve(r2, '#5b8cff'); curve(r2a, '#27ae60');
-    c.strokeStyle = '#bbb'; c.setLineDash([4, 3]); c.beginPath(); c.moveTo(PX(k), Y0); c.lineTo(PX(k), Y0 + BH); c.stroke(); c.setLineDash([]);
-    [[r2, '#5b8cff'], [r2a, '#27ae60']].forEach(function (q) { c.fillStyle = q[1]; c.beginPath(); c.arc(PX(k), PY(Math.max(0, q[0][k])), 4, 0, 6.2832); c.fill(); });
-    document.getElementById('raR2').textContent = r2[k].toFixed(3); document.getElementById('raR2a').textContent = r2a[k].toFixed(3); document.getElementById('raP').textContent = 2 + k;
+  function regen() { xs = []; Z = []; for (var i = 0; i < N; i++) { xs.push(-1 + 2 * i / (N - 1)); Z.push(gauss()); } basis(); }
+  // true mean = degree-d projection of a cosine, rescaled to variance 1,
+  // so that the population R² is exactly 1/(1+σ²) whatever d.
+  function signal(d) {
+    var g = [], m = [], i, j, b, s = 0, mn = 0;
+    for (i = 0; i < N; i++) { g.push(Math.cos(d * xs[i] + 0.8)); m.push(0); }
+    for (j = 0; j <= d; j++) { b = 0; for (i = 0; i < N; i++) b += Q[j][i] * g[i]; for (i = 0; i < N; i++) m[i] += b * Q[j][i]; }
+    for (i = 0; i < N; i++) mn += m[i]; mn /= N;
+    for (i = 0; i < N; i++) s += (m[i] - mn) * (m[i] - mn);
+    s = Math.sqrt(s / (N - 1));
+    for (i = 0; i < N; i++) m[i] /= s;
+    return m;
   }
-  kEl.addEventListener('input', draw);
-  nzEl.addEventListener('input', function () { compute(); draw(); });
+  function compute() {
+    var d = +dEl.value, sg = +sEl.value, i, j, k, s;
+    mu = signal(d); Y = [];
+    for (i = 0; i < N; i++) Y.push(mu[i] + sg * Z[i]);
+    dd = []; for (j = 0; j <= KM; j++) { s = 0; for (i = 0; i < N; i++) s += Q[j][i] * Y[i]; dd.push(s); }
+    var yb = 0, sst = 0;
+    for (i = 0; i < N; i++) yb += Y[i]; yb /= N;
+    for (i = 0; i < N; i++) sst += (Y[i] - yb) * (Y[i] - yb);
+    r2 = []; r2a = [];
+    for (k = 1, s = 0; k <= KM; k++) { s += dd[k] * dd[k]; r2.push(s / sst); r2a.push(1 - (N - 1) / (N - k - 1) * (1 - s / sst)); }
+    pop = 1 / (1 + sg * sg);
+  }
+  function draw() {
+    var d = +dEl.value, k = +kEl.value, i, j;
+    document.getElementById('raDv').textContent = d; document.getElementById('raKv').textContent = k;
+    document.getElementById('raNzv').textContent = (+sEl.value).toFixed(2);
+    c.clearRect(0, 0, W, H);
+    c.font = '10px sans-serif'; c.lineWidth = 1;
+    // ---- left: the data, the truth, the degree-k fit
+    var LX = 34, LY = 12, LW = 250, LH = H - 44, YM = 3.4;
+    function LPX(x) { return LX + (x + 1) / 2 * LW; } function LPY(y) { return LY + (1 - (y + YM) / (2 * YM)) * LH; }
+    c.strokeStyle = '#eee'; c.beginPath(); c.moveTo(LX, LPY(0)); c.lineTo(LX + LW, LPY(0)); c.stroke();
+    c.strokeStyle = '#e6e6e6'; c.strokeRect(LX, LY, LW, LH);
+    c.save(); c.beginPath(); c.rect(LX, LY, LW, LH); c.clip();
+    var fit = []; for (i = 0; i < N; i++) { var v = 0; for (j = 0; j <= k; j++) v += dd[j] * Q[j][i]; fit.push(v); }
+    function line(a, col, w) { c.strokeStyle = col; c.lineWidth = w; c.beginPath(); for (var i = 0; i < N; i++) { var px = LPX(xs[i]), py = LPY(a[i]); i ? c.lineTo(px, py) : c.moveTo(px, py); } c.stroke(); }
+    line(mu, '#e74c3c', 2.5); line(fit, '#5b8cff', 2);
+    c.fillStyle = 'rgba(44,62,80,0.65)';
+    for (i = 0; i < N; i++) { c.beginPath(); c.arc(LPX(xs[i]), LPY(Y[i]), 2.6, 0, 6.2832); c.fill(); }
+    c.restore();
+    c.fillStyle = '#888'; c.textAlign = 'center'; c.fillText('x', LX + LW / 2, H - 4);
+    c.textAlign = 'left'; c.fillStyle = '#e74c3c'; c.fillText('truth: degree ' + d, LX + 5, LY + 12);
+    c.fillStyle = '#5b8cff'; c.fillText('fit: degree ' + k, LX + 5, LY + 24);
+    // ---- right: R² and adjusted R² against the fitted degree
+    var RX = 340, RW = W - RX - 14;
+    function RPX(kk) { return RX + (kk - 1) / (KM - 1) * RW; } function RPY(y) { return LY + (1 - y) * LH; }
+    c.strokeStyle = '#eee'; c.fillStyle = '#999'; c.textAlign = 'right';
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (g) { c.beginPath(); c.moveTo(RX, RPY(g)); c.lineTo(RX + RW, RPY(g)); c.stroke(); c.fillText(g.toFixed(2), RX - 4, RPY(g) + 3); });
+    c.textAlign = 'center'; c.fillText('k (degree fitted)', RX + RW / 2, H - 4);
+    c.save(); c.beginPath(); c.rect(RX, LY, RW, LH); c.clip();
+    c.strokeStyle = '#c9ccd2'; c.setLineDash([4, 3]); c.beginPath(); c.moveTo(RPX(d), LY); c.lineTo(RPX(d), LY + LH); c.stroke(); c.setLineDash([]);
+    function curve(a, col) { c.strokeStyle = col; c.lineWidth = 2.6; c.beginPath(); for (var i = 0; i < KM; i++) { var px = RPX(i + 1), py = RPY(a[i]); i ? c.lineTo(px, py) : c.moveTo(px, py); } c.stroke(); }
+    curve(r2, '#5b8cff'); curve(r2a, '#27ae60');
+    c.strokeStyle = '#bbb'; c.setLineDash([3, 3]); c.beginPath(); c.moveTo(RPX(k), LY); c.lineTo(RPX(k), LY + LH); c.stroke(); c.setLineDash([]);
+    c.fillStyle = '#5b8cff'; c.beginPath(); c.arc(RPX(k), RPY(r2[k - 1]), 3.5, 0, 6.2832); c.fill();
+    c.fillStyle = '#27ae60'; c.beginPath(); c.arc(RPX(k), RPY(r2a[k - 1]), 3.5, 0, 6.2832); c.fill();
+    c.restore();
+    c.fillStyle = '#9aa0aa'; c.textAlign = 'center'; c.fillText('d', RPX(d), LY + LH + 12);
+    document.getElementById('raR2').textContent = r2[k - 1].toFixed(3);
+    document.getElementById('raR2a').textContent = r2a[k - 1].toFixed(3);
+    document.getElementById('raPop').textContent = pop.toFixed(3);
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify({ d: +dEl.value, k: +kEl.value, s: +sEl.value })); } catch (e) {} }
+  var st = null; try { st = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  if (st) { if (st.d != null) dEl.value = st.d; if (st.k != null) kEl.value = st.k; if (st.s != null) sEl.value = st.s; }
+  kEl.addEventListener('input', function () { draw(); save(); });
+  [dEl, sEl].forEach(function (el) { el.addEventListener('input', function () { compute(); draw(); save(); }); });
   document.getElementById('raNew').addEventListener('click', function () { regen(); compute(); draw(); });
   regen(); compute(); draw();
 })();
@@ -235,7 +302,7 @@ $H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0$
 
 - **Student's t-test**: is variable $j$ significant? \
 [$H_0: \beta_j = 0$ vs $H_1: \beta_j \neq 0$]{style="background-color: lightblue;"}
-- **Global F-test**: is any variable significant? Identity matrix excluding intercept \
+- **Global F-test**: is any variable significant? Here $R = (0 \mid I_{p-1})$: all slopes, intercept left free \
 [$H_0: \beta_2 = \cdots = \beta_p = 0$ vs $H_1: \exists j \in \{2,\ldots,p\}$ s.t. $\beta_j \neq 0$ ]{style="background-color: lightblue;"}
 - **Nested model test**: are q variables jointly significant? \
 [$H_0: \beta_{p-q+1} = \cdots = \beta_p = 0$ vs $H_1$: the contrary]{style="background-color: lightblue;"}
@@ -259,7 +326,7 @@ $H_0: R\beta = 0 \quad \text{vs} \quad H_1: R\beta \neq 0$
 - $SSR_c$: sum of squares of residuals in the constrained regression model, i.e., in the sub-model satisfying $R\beta = 0$
   
 ::: {.fragment}
-If $\text{rank}(X) = p$, $\text{rank}(R)=q$ and $\varepsilon \sim N(0, \sigma^2 I_n)$, then under $H_0: R\beta = 0$:
+If $\text{rank}(X) = p$ (with $p < n$), $\text{rank}(R)=q$ and $\varepsilon \sim N(0, \sigma^2 I_n)$, then under $H_0: R\beta = 0$:
 
 $$F = \frac{n-p}{q} \cdot \frac{{SSR}_c - {SSR}}{{SSR}} \sim F(q, n-p)$$
 
@@ -272,11 +339,11 @@ where $F(q, n-p)$ denotes the Fisher distribution with $(q, n-p)$ degrees of fre
 
 . . .
 
-Key argument: $SSR_c - SSR$ is equal to $\|(P_{V_0^\perp}-P_{[X]^\perp})Y\|^2$, where [$V_0=X(Ker(R))$]{style="background-color: lightblue;"} and $\dim(V_0)=p-q$ (so $[X]\ominus V_0$ has dimension $q$).
+Key argument: $SSR_c - SSR = \|(P_{V_0^\perp}-P_{[X]^\perp})Y\|^2 \geq 0$: the squared norm of a projection of $Y$ onto a $q$-dimensional space, where [$V_0=X(Ker(R))$]{style="background-color: lightblue;"} and $\dim(V_0)=p-q$ (so $[X]\ominus V_0$ has dimension $q$).
 
 . . .
 
-Therefore, the critical region at significance level $\alpha$ for testing $H_0: R\beta = 0$ against $H_1: R\beta \neq 0$ is:
+Under $H_1$, $F$ tends to be [large]{style="background-color: yellow;"}, so the critical region at significance level $\alpha$ is [one-sided]{style="background-color: yellow;"}:
 
 ::: {.square-def}
 $$RC_\alpha = \{F > f_{q,n-p}(1-\alpha)\}$$
@@ -285,6 +352,10 @@ $$RC_\alpha = \{F > f_{q,n-p}(1-\alpha)\}$$
 
 
 where $f_{q,n-p}(1-\alpha)$ denotes the $(1-\alpha)$-quantile of an $F(q, n-p)$ distribution.
+
+. . .
+
+p-value: $\P(Z \geq F_{obs})$, where $Z \sim F(q,n-p)$ and $F_{obs}$ is the observed statistic.
 
 
 
@@ -306,18 +377,28 @@ Only one constraint: $q=1$, so that
 
 :::{style="font-size: 80%;"}
 ::: {.square-def}
-$$ F = (n-p) \frac{SSR_c-SSR}{SSR} \sim \mathcal F(1,n-p) \sim \mathcal T^2(n-p)$$
+$$ F = (n-p) \frac{SSR_c-SSR}{SSR} \sim \mathcal F(1,n-p)$$
 :::
 :::
-
-
 
 . . .
 
-In fact, Here $F = \big(\tfrac{\hat \beta_j}{\hat \sigma_{\hat \beta_j}}\big)^2$ so [$F$ is the squared student test statistic]{style="background-color: yellow;"} presented before
+$\mathcal F(1,n-p)$ is the distribution of $T^2$ when $T \sim \mathcal T(n-p)$
+
+. . .
+
+In fact, here $F = \big(\tfrac{\hat \beta_j}{\hat \sigma_{\hat \beta_j}}\big)^2$ so [$F$ is the squared student test statistic]{style="background-color: yellow;"} presented before
+
+. . .
+
+Since $f_{1,n-p}(1-\alpha) = t_{n-p}(1-\alpha/2)^2$, rejecting when $F > f_{1,n-p}(1-\alpha)$ is [exactly the two-sided Student test]{style="background-color: yellow;"}
 
 
 ## Particular Case 2: Global Fisher Test
+
+. . .
+
+Assume the model has an [intercept]{style="background-color: yellow;"}: $\1 \in [X]$, say $X^{(1)} = \1$.
 
 . . .
 
@@ -326,6 +407,10 @@ $H_0: \beta_2= \dots = \beta_p=0$ VS $H_1$: contrary
 :::
 
 $q = p-1$ in this case
+
+. . .
+
+Constrained model: intercept only, so $SSR_c = \|Y - \overline Y \1\|^2 = SST$ and [$SSR_c - SSR = SST - SSR = SSE$]{style="background-color: lightblue;"}
 
 . . .
 
@@ -345,6 +430,10 @@ $H_0: \beta_{p-q+1}= \dots = \beta_p=0$ VS $H_1$: contrary
 
 . . .
 
+$SSR_c$: residuals of the [constrained submodel]{style="background-color: lightblue;"} using only the first $p-q$ variables; $SSR$: residuals of the full model
+
+. . .
+
 ::: {.square-def}
 $$F = \frac{n-p}{q}\frac{SSR_c - SSR}{SSR} \sim \mathcal F(q, n-p)$$
 :::
@@ -353,7 +442,7 @@ $$F = \frac{n-p}{q}\frac{SSR_c - SSR}{SSR} \sim \mathcal F(q, n-p)$$
 
 Interpretation:
 
-If [$F \geq f_{q,n-p}(1-\alpha)$]{style="background-color: yellow;"} ($1-\alpha$-quantile of Fisher dist.) then constraints are not satisfied. We [do not accept the submodel]{style="background-color: yellow;"} with respect to larger model.
+If [$F > f_{q,n-p}(1-\alpha)$]{style="background-color: yellow;"} ($1-\alpha$-quantile of Fisher dist.) we reject $H_0$: we [reject the submodel]{style="background-color: yellow;"} in favour of the larger model.
 
 
 ## Example of R Output

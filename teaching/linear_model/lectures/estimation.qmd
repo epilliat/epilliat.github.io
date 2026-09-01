@@ -140,7 +140,7 @@ $$\hat{\varepsilon} = P_{[X]^\perp}Y = P_{[X]^\perp}(X\beta + \varepsilon) = P_{
 since $P_{[X]^\perp}X = 0$.
 
 Therefore:
-$$\hat \sigma^2=\|\hat{\varepsilon}\|^2 = \varepsilon^T P_{[X]^\perp}\varepsilon$$
+$$\|\hat{\varepsilon}\|^2 = \varepsilon^T P_{[X]^\perp}\varepsilon$$
 
 Since $P_{[X]^\perp}$ is idempotent and symmetric with $\text{tr}(P_{[X]^\perp}) = n - p$:
 
@@ -268,22 +268,34 @@ $$\ell(\beta, \sigma^2) = \log L(\beta, \sigma^2) = -\frac{n}{2} \log(2\pi\sigma
 
 ### Existence and Uniqueness of Global Maximum {#MLE}
 
-Let $\beta^*$ be the minimizer of $\|Y-X\tilde \beta\|$ over all $\tilde \beta \in \mathbb R^p$. $\beta^*$ the OLS estimator by definition, and it satisfies
-$\ell(\beta, \sigma^2) \leq -\frac{n}{2} \log(2\pi\sigma^2) - \frac{1}{2\sigma^2} \|Y - X\beta^*\|^2 = \ell(\beta^*, \sigma^2)$. 
-Since $p < n$, we almost surely have that $Y \not \in [X]$, so that $\|Y - X\beta^*\|^2 > 0$.
+**Maximization in $\beta$.** Fix any $\sigma^2 > 0$. The term $-\frac{n}{2}\log(2\pi\sigma^2)$ does not depend on $\beta$, and $\frac{1}{2\sigma^2}$ is a positive constant, so maximizing $\beta \mapsto \ell(\beta, \sigma^2)$ amounts to minimizing $\beta \mapsto \|Y - X\beta\|^2$: the maximizer is the OLS estimator $\hat \beta$, [and it is the same for every value of $\sigma^2$]{style="background-color: yellow;"}. It is unique because $\text{rg}(X) = p$, so
+$$\ell(\beta, \sigma^2) \leq \ell(\hat \beta, \sigma^2) \quad \text{for all } \beta \in \mathbb R^p, \ \sigma^2 > 0,$$
+with equality only if $\beta = \hat \beta$.
 
-Now that $\beta^*$ is fixed, the function $\sigma^2 \to -\frac{n}{2} \log(2\pi\sigma^2  ) - \frac{1}{2\sigma^2} \|Y - X\beta^*\|^2$ is concave on $(0, +\infty)$, and cancelling the gradient gives that it achieves its maximum at $(\sigma^*)^2 = \frac{1}{n}\|Y - X\beta^*\|^2$. 
+**Maximization in $\sigma^2$.** Since $p < n$, we almost surely have that $Y \not \in [X]$, so that $S = \|Y - X\hat \beta\|^2 > 0$. Study $g(u) = \ell(\hat \beta, u) = -\frac{n}{2} \log(2\pi u) - \frac{S}{2u}$ for $u = \sigma^2 \in (0, +\infty)$. Its derivative is
+$$g'(u) = -\frac{n}{2u} + \frac{S}{2u^2} = \frac{S - nu}{2u^2},$$
+which is $>0$ for $u < S/n$ and $<0$ for $u > S/n$: $g$ increases then decreases, so it attains its maximum at the unique point $(\sigma^*)^2 = \frac{1}{n}\|Y - X\hat \beta\|^2$, and $g(u) < g((\sigma^*)^2)$ for every $u \neq (\sigma^*)^2$.
 
-Hence, we obtain that for any $\beta$ and $\sigma$, $\ell(\beta, \sigma^2) \leq \ell(\beta^*, \sigma^2) \leq \ell(\beta^*, (\sigma^*)^2)$.
-We just proved that $(\beta^*, (\sigma^*))^2$ is the unique global maximum, which implies that 
+Combining the two steps, for any $\beta$ and any $\sigma^2$,
+$$\ell(\beta, \sigma^2) \leq \ell(\hat \beta, \sigma^2) \leq \ell(\hat \beta, (\sigma^*)^2),$$
+with equality throughout only if $\beta = \hat \beta$ and $\sigma^2 = (\sigma^*)^2$.
+We just proved that $(\hat \beta, (\sigma^*)^2)$ is the unique global maximum, which implies that 
 
 ::: {.square-def}
 $$
 \begin{aligned}
-\hat \beta_{MLE}&= \beta^* = \hat \beta \\
-\hat \sigma_{MLE}&= \sigma^* = \frac{1}{n}\|Y-X\hat \beta\|^2
+\hat \beta_{MLE}&= \hat \beta = (X^TX)^{-1}X^TY \\
+\hat \sigma^2_{MLE}&= (\sigma^*)^2 = \frac{1}{n}\|Y-X\hat \beta\|^2
 \end{aligned}
 $$
+:::
+
+::: {.callout-note}
+
+Beware that $g$ is [not concave]{style="background-color: yellow;"} on $(0,+\infty)$: $g''(u) = \frac{nu - 2S}{2u^3}$ is negative only for $u < 2S/n$, and $g$ is convex in the tail. Unimodality is enough for the argument above. If one insists on concavity, reparametrize by the precision $\tau = 1/\sigma^2$: then
+$$\ell = \frac{n}{2}\log \tau - \frac{n}{2}\log(2\pi) - \frac{S\tau}{2}, \qquad \frac{\partial^2 \ell}{\partial \tau^2} = -\frac{n}{2\tau^2} < 0,$$
+which is strictly concave, with maximum at $\tau^* = n/S$. Since $\tau \mapsto 1/\tau$ is a bijection of $(0,+\infty)$, we recover $(\sigma^*)^2 = S/n$.
+
 :::
 
 
@@ -291,7 +303,7 @@ $$
 
 ::: {.callout-note}
 ## Theorem
-In the Gaussian Model, $\hat \beta$ is an [efficient]{style="background-color: yellow;"} estimator of $\hat \beta$. This means that 
+In the Gaussian Model, $\hat \beta$ is an [efficient]{style="background-color: yellow;"} estimator of $\beta$. This means that
 $$
 \Var(\hat \beta) \preceq \Var(\tilde \beta)\; ,
 $$
@@ -305,7 +317,7 @@ It holds that for any estimator $\tilde \beta$,
 $$\mathbb V(\tilde \beta) \succeq [I(\beta)]^{-1}$$
 where $I(\beta)$ is the Fisher Information Matrix.
 This comes from the [Cramér-Rao lower bound](../notes/cramer-rao.qmd).
-Hence, it is enough to prove that $\mathbb V(\tilde \beta) = [I(\beta)]^{-1}$.
+Hence, it is enough to prove that $\mathbb V(\hat \beta) = [I(\beta)]^{-1}$.
 
 ### Fisher Information Matrix
 

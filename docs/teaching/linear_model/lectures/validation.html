@@ -185,32 +185,34 @@ window.Quarto = {
 <h1>F-Test for Linear Constraints</h1>
 <section id="theorem" class="level2">
 <h2 class="anchored" data-anchor-id="theorem">Theorem</h2>
-<p>If <span class="math inline">\(\text{rank}(X) = p\)</span>, <span class="math inline">\(\text{rank}(R) = q\)</span>, and <span class="math inline">\(\varepsilon \sim N(0, \sigma^2 I_n)\)</span>, then under <span class="math inline">\(H_0: R\beta = 0\)</span>:</p>
+<p>Let <span class="math inline">\(R \in \mathbb R^{q \times p}\)</span> be a constraint matrix, with <span class="math inline">\(q \leq p\)</span>. If <span class="math inline">\(\text{rank}(X) = p\)</span> (with <span class="math inline">\(p &lt; n\)</span>), <span class="math inline">\(\text{rank}(R) = q\)</span>, and <span class="math inline">\(\varepsilon \sim N(0, \sigma^2 I_n)\)</span>, then under <span class="math inline">\(H_0: R\beta = 0\)</span>:</p>
 <p><span class="math display">\[F = \frac{n-p}{q} \cdot \frac{SSR_c - SSR}{SSR} \sim F(q, n-p)\]</span></p>
 <p>where:</p>
 <ul>
-<li><span class="math inline">\(SSR\)</span>: sum of squares of residuals in the unconstrained model</li>
-<li><span class="math inline">\(SSR_c\)</span>: sum of squares of residuals in the constrained model satisfying <span class="math inline">\(R\beta = 0\)</span></li>
+<li><span class="math inline">\(SSR = \|Y - X\hat\beta\|^2\)</span>: sum of squares of residuals in the unconstrained model</li>
+<li><span class="math inline">\(SSR_c\)</span>: sum of squares of residuals in the constrained model, i.e., in the sub-model satisfying <span class="math inline">\(R\beta = 0\)</span></li>
 </ul>
 </section>
 <section id="proof" class="level2">
 <h2 class="anchored" data-anchor-id="proof">Proof</h2>
-<p>Define</p>
+<p>Define the constrained subspace</p>
 <ul>
-<li><span class="math inline">\(V_0 = \{X\beta : R\beta = 0\} = X(\text{Ker}(R))\)</span> (constrained subspace)</li>
+<li><span class="math inline">\(V_0 = \{X\beta : \beta \in \mathbb R^p, \ R\beta = 0\} = X(\text{Ker}(R))\)</span></li>
 </ul>
-<p>Since <span class="math inline">\(\text{rank}(X) = p\)</span> and <span class="math inline">\(\text{rank}(R) = q\)</span>, it holds that <span class="math inline">\(\dim(\text{Ker}(R)) = p - q\)</span>.</p>
-<p>Since <span class="math inline">\(X\)</span> has full column rank, the <span class="math inline">\(\beta \mapsto X\beta\)</span> is injective Therefore: <span class="math inline">\(\dim(V_0) = \dim(X(\text{Ker}(R))) = \dim(\text{Ker}(R)) = p - q\)</span>.</p>
-<p>We have that</p>
+<p><strong>Dimension of <span class="math inline">\(V_0\)</span>.</strong> By the rank–nullity theorem applied to <span class="math inline">\(R\)</span>, <span class="math inline">\(\dim(\text{Ker}(R)) = p - \text{rank}(R) = p - q\)</span>.</p>
+<p>Since <span class="math inline">\(\text{rank}(X) = p\)</span>, the map <span class="math inline">\(\beta \mapsto X\beta\)</span> is injective. Therefore: <span class="math inline">\(\dim(V_0) = \dim(X(\text{Ker}(R))) = \dim(\text{Ker}(R)) = p - q\)</span>.</p>
+<p><strong>The two <span class="math inline">\(SSR\)</span>s are squared norms of projections.</strong> Fitting a linear model by least squares amounts to projecting <span class="math inline">\(Y\)</span> orthogonally onto the corresponding subspace, so</p>
 <ul>
-<li><span class="math inline">\(SSR = \|P_{[X]^\perp} Y\|^2\)</span></li>
-<li><span class="math inline">\(SSR_c = \|P_{V_0^\perp}Y\|^2\)</span></li>
+<li><span class="math inline">\(SSR = \|Y - P_{[X]}Y\|^2 = \|P_{[X]^\perp} Y\|^2\)</span></li>
+<li><span class="math inline">\(SSR_c = \|Y - P_{V_0}Y\|^2 = \|P_{V_0^\perp}Y\|^2\)</span></li>
 </ul>
-<p>Let us now decompose</p>
+<p>Let us now decompose the constrained residual vector as</p>
+<div class="square-def">
 <p><span class="math display">\[
-Y = P_{[X]^\perp} Y + (P_{V_0^\perp} - P_{[X]^\perp})Y
+P_{V_0^\perp}Y = P_{[X]^\perp} Y + (P_{V_0^\perp} - P_{[X]^\perp})Y
 \]</span></p>
-<p>The first term correspond to the residuals, and let us now analyse the second term. For this we use the following useful Lemma.</p>
+</div>
+<p>The first term is the vector of residuals of the unconstrained model; let us analyse the second term. For this we use the following useful Lemma.</p>
 <div class="callout callout-style-simple callout-none no-icon callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
@@ -221,27 +223,30 @@ Useful Lemma
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>If <span class="math inline">\(E\)</span> <span class="math inline">\(F\)</span> are two subspace of <span class="math inline">\(\mathbb R^n\)</span> such that <span class="math inline">\(E \subset F\)</span>, and if <span class="math inline">\(P_E\)</span>, <span class="math inline">\(P_F\)</span> are the orthogonal projectors on <span class="math inline">\(E\)</span> and <span class="math inline">\(F\)</span>, then</p>
+<p>If <span class="math inline">\(E\)</span>, <span class="math inline">\(F\)</span> are two subspaces of <span class="math inline">\(\mathbb R^n\)</span> such that <span class="math inline">\(E \subset F\)</span>, and if <span class="math inline">\(P_E\)</span>, <span class="math inline">\(P_F\)</span> are the orthogonal projectors on <span class="math inline">\(E\)</span> and <span class="math inline">\(F\)</span>, then</p>
 <p><span class="math inline">\(P_EP_F = P_FP_E = P_E\)</span>.</p>
 </div>
 </div>
-<p>Hence, projecting the above decomposition on <span class="math inline">\(V_0^\perp\)</span>, we get</p>
+<p>Here, <span class="math inline">\(V_0 \subset [X]\)</span> so that <span class="math inline">\([X]^\perp \subset V_0^{\perp}\)</span>, and the Lemma gives <span class="math inline">\(P_{[X]^\perp}P_{V_0^\perp} = P_{V_0^\perp}P_{[X]^\perp} = P_{[X]^\perp}\)</span>. Hence</p>
+<p><span class="math display">\[(P_{V_0^\perp} - P_{[X]^\perp})^2 = P_{V_0^\perp} - P_{[X]^\perp} - P_{[X]^\perp} + P_{[X]^\perp} = P_{V_0^\perp} - P_{[X]^\perp} = (P_{V_0^\perp} - P_{[X]^\perp})^T\]</span></p>
+<p>so that <span style="background-color: lightblue;"><span class="math inline">\(P_{V_0^\perp} - P_{[X]^\perp}\)</span> is an orthogonal projector</span> (it projects onto <span class="math inline">\([X] \cap V_0^\perp\)</span>) on a subspace of dimension <span class="math inline">\(\text{tr}(P_{V_0^\perp}) - \text{tr}(P_{[X]^\perp}) = n-(p-q)-(n-p) = q\)</span>.</p>
+<p>The same identity gives <span class="math inline">\(P_{[X]^\perp}(P_{V_0^\perp} - P_{[X]^\perp}) = P_{[X]^\perp} - P_{[X]^\perp} = 0\)</span>, so the two projectors in the decomposition <span style="background-color: lightblue;">project onto orthogonal subspaces</span>. By Pythagoras, <span class="math inline">\(\|P_{V_0^\perp}Y\|^2 = \|P_{[X]^\perp}Y\|^2 + \|(P_{V_0^\perp} - P_{[X]^\perp})Y\|^2\)</span>, that is</p>
 <div class="square-def">
 <p><span class="math display">\[
-P_{V_0^\perp}Y = P_{[X]^\perp} Y + (P_{V_0^\perp} - P_{[X]^\perp})Y
+SSR_c - SSR = \|(P_{V_0^\perp} - P_{[X]^\perp})Y\|^2 \geq 0 \enspace .
 \]</span></p>
 </div>
-<p>Here, <span class="math inline">\(V_0 \subset [X]\)</span> so that <span class="math inline">\([X]^\perp \subset V_0^{\perp}\)</span>, and we check that</p>
-<p><span class="math inline">\((P_{V_0^\perp} - P_{[X]^\perp})^2 = (P_{V_0^\perp} - P_{[X]^\perp})= (P_{V_0^\perp} - P_{[X]^\perp})^T\)</span></p>
-<p>so that <span style="background-color: lightblue;"><span class="math inline">\(P_{V_0^\perp} - P_{[X]^\perp}\)</span> is an orthogonal projector</span> on a subspace of dimension <span class="math inline">\(tr(V_0^\perp) - tr(P_{[X]^\perp}) = n-(p-q)-(n-p) = q\)</span></p>
-<p>Since <span class="math inline">\(P_{[X]^\perp}(P_{V_0^\perp} - P_{[X]^\perp}) = P_{[X]^\perp}P_{[X]^\perp}-P_{[X]^\perp}P_{[X]^\perp} = 0\)</span>, we also have that <span style="background-color: lightblue;"><span class="math inline">\(P_{[X]^\perp} Y\)</span> and <span class="math inline">\((P_{V_0^\perp} - P_{[X]^\perp})Y\)</span> are orthogonal</span>.</p>
-<p>Hence, by the Cochran Theorem, <span class="math inline">\(P_{[X]^\perp} Y\)</span> and <span class="math inline">\((P_{V_0^\perp} - P_{[X]^\perp})Y\)</span> are indpendent and</p>
+<p><strong>Distributions.</strong> Since <span class="math inline">\(P_{[X]^\perp}X = 0\)</span>, we always have <span class="math inline">\(P_{[X]^\perp}Y = P_{[X]^\perp}\varepsilon\)</span>. Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(X\beta \in V_0\)</span>, so <span class="math inline">\(P_{V_0^\perp}X\beta = 0\)</span> and also <span class="math inline">\((P_{V_0^\perp} - P_{[X]^\perp})Y = (P_{V_0^\perp} - P_{[X]^\perp})\varepsilon\)</span>.</p>
+<p>By the Cochran Theorem applied to <span class="math inline">\(\varepsilon \sim \mathcal N(0, \sigma^2I_n)\)</span> and to the two orthogonal projectors <span class="math inline">\(P_{[X]^\perp}\)</span> and <span class="math inline">\(P_{V_0^\perp} - P_{[X]^\perp}\)</span>, whose product is <span class="math inline">\(0\)</span>:</p>
 <ul>
-<li><span class="math inline">\(SSR=\|P_{[X]^\perp} Y\|^2 = \|P_{[X]^\perp} \varepsilon\|^2\)</span> has distribution <span class="math inline">\(\chi^2(n-p)\)</span></li>
-<li>Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(X\beta \in V_0\)</span> so that <span class="math inline">\(SSR_c=\|P_{V_0^\perp}Y\|^2 = P_{V_0^\perp}(X\beta + \varepsilon) = P_{V_0^\perp}(\varepsilon)\)</span></li>
-<li>Hence, sill under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(SSR_c -SSR = \|(P_{V_0^\perp} - P_{[X]^\perp}) \varepsilon\|^2\)</span> has distribution <span class="math inline">\(\chi^2(q)\)</span></li>
-<li><span class="math inline">\(SSR\)</span> and <span class="math inline">\(SSR_c - SSR\)</span> are independent since they are projections on orthogonal subspaces of <span class="math inline">\(\varepsilon \sim \mathcal N(0, \sigma^2I_n)\)</span></li>
+<li><span class="math inline">\(P_{[X]^\perp} \varepsilon\)</span> and <span class="math inline">\((P_{V_0^\perp} - P_{[X]^\perp})\varepsilon\)</span> are <span style="background-color: lightblue;">independent</span> — not merely uncorrelated: this step uses the Gaussianity of <span class="math inline">\(\varepsilon\)</span>;</li>
+<li><span class="math inline">\(SSR = \|P_{[X]^\perp} \varepsilon\|^2\)</span> satisfies <span class="math inline">\(SSR/\sigma^2 \sim \chi^2(n-p)\)</span> (projector of rank <span class="math inline">\(n-p\)</span>);</li>
+<li>Under <span class="math inline">\(H_0\)</span>, <span class="math inline">\(SSR_c - SSR = \|(P_{V_0^\perp} - P_{[X]^\perp}) \varepsilon\|^2\)</span> satisfies <span class="math inline">\((SSR_c - SSR)/\sigma^2 \sim \chi^2(q)\)</span> (projector of rank <span class="math inline">\(q\)</span>);</li>
+<li><span class="math inline">\(SSR\)</span> and <span class="math inline">\(SSR_c - SSR\)</span> are independent, as functions of the two independent vectors above.</li>
 </ul>
+<p><strong>Conclusion.</strong> Under <span class="math inline">\(H_0\)</span>,</p>
+<p><span class="math display">\[F = \frac{n-p}{q} \cdot \frac{SSR_c - SSR}{SSR} = \frac{\big[(SSR_c - SSR)/\sigma^2\big]/q}{\big[SSR/\sigma^2\big]/(n-p)}\]</span></p>
+<p>is the ratio of two independent <span class="math inline">\(\chi^2\)</span> random variables, each divided by its number of degrees of freedom: by definition, <span class="math inline">\(F \sim F(q, n-p)\)</span>. <span class="math inline">\(\square\)</span></p>
 
 
 </section>
