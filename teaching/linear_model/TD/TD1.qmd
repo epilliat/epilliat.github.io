@@ -10,7 +10,20 @@ css: ../../../styles.css
 
 ---
 
-## Exercise 1. Empirical Mean
+## Exercise 1. Recognizing a Linear Regression Model
+Are the following models linear regression models? If not, can we apply a transformation to reduce them to one? For each linear regression model of the type $Y = X\beta + \epsilon$, specify what $Y$, $X$, $\beta$, and $\epsilon$ are.
+
+1. We observe $(x_i, y_i)$, $i = 1, \ldots, n$ theoretically linked by the relation $y_i = a + bx_i + \epsilon_i$, $i = 1, \ldots, n$, where the variables $\epsilon_i$ are centered, with variance $\sigma^2$ and uncorrelated. We wish to estimate $a$ and $b$.
+
+2. We observe $(x_i, y_i)$, $i = 1, \ldots, n$ theoretically linked by the relation $y_i = a_1x_i + a_2x_i^2 + \epsilon_i$, $i = 1, \ldots, n$, where the variables $\epsilon_i$ are centered, with variance $\sigma^2$ and uncorrelated. We wish to estimate $a_1$ and $a_2$.
+
+3. For different countries ($i = 1, \ldots, n$), we record their production $P_i$, their capital $K_i$, their labor factor $T_i$ which are theoretically linked by the Cobb-Douglas relation $P_i = \alpha_1K_i^{\alpha_2}T_i^{\alpha_3}$. We wish to verify this relation and estimate $\alpha_1$, $\alpha_2$, and $\alpha_3$.
+
+4. The rate of active ingredient $y$ in a medication is assumed to evolve over time $t$ according to the relation $y = \beta_1e^{-\beta_2t}$. We have measurements of $n$ rates $y_i$ taken at $n$ time points $t_i$. We wish to verify this relation and estimate $\beta_1$ and $\beta_2$.
+
+5. Same problem as above but the theoretical model between observations is written as $y_i = \beta_1e^{-\beta_2t_i} + u_i$, $i = 1, \ldots, n$, where the variables $u_i$ are centered, with variance $\sigma^2$ and uncorrelated.
+
+## Exercise 2. Empirical Mean
 Let $z_1, \ldots, z_n$ be observations of a variable $Z$.
 
 1. Determine the value $\hat{m}$ that minimizes the quadratic distance to the data $S(m) = \sum_{i=1}^{n}(z_i - m)^2$.
@@ -19,61 +32,41 @@ Let $z_1, \ldots, z_n$ be observations of a variable $Z$.
 
 3. Recover the result from the first question using the general formula for the least squares estimator: $\hat{\beta} = (X^TX)^{-1}X^TY$.
 
-## Exercise 2. Recognizing a Linear Regression Model
-Are the following models linear regression models? If not, can we apply a transformation to reduce them to one? For each linear regression model of the type $Y = X\beta + \epsilon$, specify what $Y$, $X$, $\beta$, and $\epsilon$ are.
-
-1. We observe $(x_i, y_i)$, $i = 1, \ldots, n$ theoretically linked by the relation $y_i = a + bx_i + \epsilon_i$, $i = 1, \ldots, n$, where the variables $\epsilon_i$ are centered, with variance $\sigma^2$ and uncorrelated. We wish to estimate $a$ and $b$.
-
-2. We observe $(x_i, y_i)$, $i = 1, \ldots, n$ theoretically linked by the relation $y_i = a_1x_i + a_2x_i^2 + \epsilon_i$, $i = 1, \ldots, n$, where the variables $\epsilon_i$ are centered, with variance $\sigma^2$ and uncorrelated. We wish to estimate $a_1$ and $a_2$.
-
-3. For different countries ($i = 1, \ldots, n$), we record their production $P_i$, their capital $K_i$, their labor factor $T_i$ which are theoretically linked by the Cobb-Douglas relation $P = \alpha_1K^{\alpha_2}T^{\alpha_3}$. We wish to verify this relation and estimate $\alpha_1$, $\alpha_2$, and $\alpha_3$.
-
-4. The rate of active ingredient $y$ in a medication is assumed to evolve over time $t$ according to the relation $y = \beta_1e^{-\beta_2t}$. We have measurements of $n$ rates $y_i$ taken at $n$ time points $t_i$. We wish to verify this relation and estimate $\beta_1$ and $\beta_2$.
-
-5. Same problem as above but the theoretical model between observations is written as $y_i = \beta_1e^{-\beta_2t_i} + u_i$, $i = 1, \ldots, n$, where the variables $u_i$ are centered, with variance $\sigma^2$ and uncorrelated.
-
 ## Exercise 3. Simple Regression
-Consider the simple linear regression model where we observe $n$ realizations $(x_i, y_i)$, $i = 1, \ldots, n$ linked by the relation $y_i = \beta_0 + \beta_1x_i + \epsilon_i$, $i = 1, \ldots, n$. We assume that the $x_i$ are deterministic and that the variables $\epsilon_i$ are centered, with variance $\sigma^2$ and uncorrelated with each other.
-
-1. Write the model in matrix form.
-
-2. What minimization problem is the least squares estimator $\hat{\beta} = (\hat{\beta}_0, \hat{\beta}_1)$ the solution to?
-
-3. We can find $\hat{\beta}$ by setting the gradient of the function to be minimized to zero. This has already been done and the solutions should be known by heart: what are they?
-
-4. Recover $\hat{\beta}$ using the general formula $\hat{\beta} = (X^TX)^{-1}X^TY$.
-
-5. Justify why the regression line necessarily passes through the point $(\bar{x}_n, \bar{y}_n)$.
-
-6. We wish to predict the value $y_o$ associated with the value $x_o$ of a new individual, assuming that this individual follows exactly the same model as the previous $n$ individuals. What is the prediction $\hat{y}_o$ of $y_o$?
-
-7. Show that the expectation of the prediction error $y_o - \hat{y}_o$ is zero.
-
-8. For a general linear regression model, the variance of the prediction error associated with a new regressor vector $x$, of dimension $p$, is (see lecture notes): $\sigma^2(x^T(X^TX)^{-1}x + 1)$. Show that here this variance can be rewritten as:
-$$\sigma^2\left(1 + \frac{1}{n} + \frac{(x_o - \bar{x}_n)^2}{\sum_{i=1}^{n}(x_i - \bar{x}_n)^2}\right)$$
-
-9. Discuss the quality of the prediction depending on whether $x_o$ is close to or far from the empirical mean $\bar{x}_n$.
-
-10. What happens if $n$ is large?
-
-## Exercise 4. Other Small Questions on Simple Linear Regression
-Consider the simple linear regression model where we observe $n$ realizations $(x_i, y_i)$, $i = 1, \ldots, n$ linked by the theoretical relation $y_i = \beta_0 + \beta_1x_i + \epsilon_i$, $i = 1, \ldots, n$.
+Consider the simple linear regression model where we observe $n$ realizations $(x_i, y_i)$, $i = 1, \ldots, n$ linked by the relation $y_i = \beta_0 + \beta_1x_i + \epsilon_i$, $i = 1, \ldots, n$. We assume that the $x_i$ are deterministic.
 
 1. What are the standard assumptions on the modeling errors $\epsilon_i$?
 
-2. Under what assumption is the model identifiable, in the sense that $\beta_0$ and $\beta_1$ are uniquely defined?
+2. Write the model in matrix form.
 
-3. Under what assumption does the OLS estimator of $\beta_0$ and $\beta_1$ exist?
+3. Under what assumption is the model identifiable, in the sense that $\beta_0$ and $\beta_1$ are uniquely defined?
 
-4. Do the variables $y_i$ have the same expectation?
+4. What minimization problem is the least squares estimator $\hat{\beta} = (\hat{\beta}_0, \hat{\beta}_1)$ the solution to?
 
-5. Does the regression line estimated from the observations $(x_i, y_i)$ always pass through the point $(\bar{x}_n, \bar{y}_n)$?
+5. We can find $\hat{\beta}$ by setting the gradient of the function to be minimized to zero. This has already been done and the solutions should be known by heart: what are they?
 
-6. Are the OLS estimators of the coefficients $\beta_0$ and $\beta_1$ independent?
+6. Under what assumption does the previous estimator exist?
 
-7. Is it possible to find estimators of the regression coefficients with lower variance than that of the OLS estimators?
+7. Recover $\hat{\beta}$ using the general formula $\hat{\beta} = (X^TX)^{-1}X^TY$.
 
-## Exercise 5. Convergence of Estimators
+8. Justify why the regression line necessarily passes through the point $(\bar{x}_n, \bar{y}_n)$.
+
+9. Are the OLS estimators of the coefficients $\beta_0$ and $\beta_1$ uncorrelated?
+
+10. Is it possible to find estimators of the regression coefficients with lower variance than that of the OLS estimators?
+
+11. We wish to predict the value $y_o$ associated with the value $x_o$ of a new individual, assuming that this individual follows exactly the same model as the previous $n$ individuals. What is the prediction $\hat{y}_o$ of $y_o$?
+
+12. Show that the expectation of the prediction error $y_o - \hat{y}_o$ is zero.
+
+13. For a general linear regression model, the variance of the prediction error associated with a new regressor vector $x$, of dimension $p$, is (see lecture notes): $\sigma^2\left(x^T(X^TX)^{-1}x + 1\right)$. Show that here this variance can be rewritten as:
+$$\sigma^2\left(1 + \frac{1}{n} + \frac{(x_o - \bar{x}_n)^2}{\sum_{i=1}^{n}(x_i - \bar{x}_n)^2}\right)$$
+
+14. Discuss the quality of the prediction depending on whether $x_o$ is close to or far from the empirical mean $\bar{x}_n$.
+
+15. What happens if $n$ is large?
+
+## Exercise 4. Convergence of Estimators
 We place ourselves as in the previous exercise in the framework of a simple regression model. We recall that the design matrix $X$ and the matrix $(X^TX)^{-1}$ in this case are:
 
 $$X = \begin{pmatrix} 1 & x_1 \\ \vdots & \vdots \\ 1 & x_n \end{pmatrix}, \quad (X^TX)^{-1} = \frac{1}{\sum_{i=1}^{n}(x_i - \bar{x}_n)^2} \begin{pmatrix} \frac{1}{n}\sum_{i=1}^{n}x_i^2 & -\bar{x}_n \\ -\bar{x}_n & 1 \end{pmatrix}$$
@@ -94,7 +87,7 @@ We will examine some examples of designs, i.e., distributions of the values of $
    a) Express $\hat{\beta} - \beta$ as a function of the matrix $X$ and the vector $\epsilon$.
    b) Deduce that $\hat{\beta}$ converges almost surely to $\beta$ when $n \to \infty$.
 
-## Exercise 6. Candy Consumption
+## Exercise 5. Candy Consumption
 Data published by the Chicago Tribune in 1993 show candy consumption in millions of pounds and population in millions of inhabitants in 17 countries in 1991. We denote $y_i$ the consumption and $x_i$ the population of the $i$-th country, $i = 1, \ldots, 17$. We are given the following values:
 
 $$\sum_{i=1}^{17} x_i = 751.8, \quad \sum_{i=1}^{17} y_i = 13683.8, \quad \sum_{i=1}^{17} x_i^2 = 97913.92$$
@@ -118,7 +111,7 @@ Table 1: Quantiles of order $1 - \alpha$ of a Student's t-distribution with $q$ 
 
 3. Give the expression of an unbiased estimator of the variance of the modeling error, as a function of the sums given above. Deduce its value.
 
-4. What is the theoretical variance of the OLS estimators? How to estimate it? Deduce an estimate of the standard deviation of each estimator (you can use the expression of $(X^TX)^{-1}$ recalled in Exercise 5).
+4. What is the theoretical variance of the OLS estimators? How to estimate it? Deduce an estimate of the standard deviation of each estimator (you can use the expression of $(X^TX)^{-1}$ recalled in Exercise 4).
 
 5. Test whether the regression slope is significantly different from 0, recalling the underlying assumptions. For the numerical application, perform a test at the 5% level using the quantiles given in Table 1.
 
