@@ -4,7 +4,7 @@
 # -----------------------------------------------------------------------------
 # ⚠ KEEP IN SYNC with `pluto/1_compilation_and_types.jl` — same lesson, two formats.
 # Cells are delimited by `#%%` (Alt+Enter in VS Code). Needs BenchmarkTools
-# (`using Pkg; Pkg.add("BenchmarkTools")`); Random and Profile are stdlib.
+# (`using Pkg; Pkg.add("BenchmarkTools")`); Random is stdlib.
 #
 # The thread of the whole course: why can the same computation, mathematically
 # identical, be tens or hundreds of times faster depending on how it is written?
@@ -15,7 +15,6 @@
 #%% 0. Getting started
 using BenchmarkTools     # @btime, @benchmark
 using InteractiveUtils   # @code_lowered/_typed/_native/_warntype
-using Profile            # the sampling profiler (section 7)
 using Random             # MersenneTwister (reproducible darts)
 @btime 1 + 2             # the first use of a package precompiles — Julia compiles
 
@@ -209,91 +208,7 @@ end
 # Always interpolate with $ (`@btime f($x)`), or you measure the section-4 pitfall.
 @benchmark mysum($v)
 
-#%% 7. Profiling — WHERE does the time actually go?
-# @btime answers "how long?"; on a real script the question is "WHERE?", and you
-# cannot @btime every line. `Profile` samples the call stack every few ms: no
-# instrumentation, negligible cost, and a function's sample count ≈ its share.
-#
-# ⚠ Run this section with ONE thread (julia --threads=1). With several, the idle ones
-#   flood the report with poptask/wait frames — that noise is the threads module's
-#   actual lesson, but here it just drowns the signal.
-
-# A layered pipeline. Which of the three costs the most? Bet before you look.
-clean(v)     = [x for x in v if x > 0.01]
-transform(v) = sqrt.(abs.(v))
-function score(v)                               # sin+cos+exp in a loop — surely THIS?
-    s = 0.0
-    for x in v
-        s += sin(x) * cos(x) * exp(-x)
-    end
-    return s
-end
-pipeline(v) = score(transform(clean(v)))
-
-pdata = rand(3_000_000)
-pipeline(pdata)          # warm up — never profile the compilation
-
-#%% Profile it and read the flat report
-Profile.clear()
-Profile.@profile for _ in 1:10
-    pipeline(pdata)
-end
-Profile.print(format = :flat, sortedby = :count, mincount = 60)
-
-#%% What the report says
-# Absolute counts vary; the ORDER is the lesson:
-#     620  clean          ← MORE than score. Nobody bets on this one.
-#     602  push!           ⎫
-#     543  _growend!       ⎬ all UNDER clean: not computing — ALLOCATING
-#     524  GenericMemory   ⎭
-#     490  score          ← the "obvious" suspect, only second
-#     157  transform
-# `[x for x in v if cond]` cannot know the final size, so it GROWS the array:
-# reallocate and copy, over and over.
-
-#%% Fix what the profiler found, then measure again
-clean_fast(v) = filter(>(0.01), v)   # allocates the full size ONCE, then resizes down
-@assert clean(pdata) == clean_fast(pdata)
-print("comprehension : "); @btime clean($pdata)
-print("filter        : "); @btime clean_fast($pdata)
-# comprehension : ~7 ms (36 allocations: 80.48 MiB)
-# filter        : ~4 ms ( 3 allocations: 22.89 MiB)
-
-#%% "So it was all about the growth?" — test that, don't assume it
-# If regrowing were the whole story, pre-sizing should recover ALL the lost time.
-function clean_sizehint(v)
-    out = similar(v, 0)
-    sizehint!(out, length(v))         # reserve everything up front
-    for x in v
-        x > 0.01 && push!(out, x)
-    end
-    out
-end
-@assert clean_sizehint(pdata) == clean_fast(pdata)
-print("push!+sizehint! : "); @btime clean_sizehint($pdata)
-# → 3 allocations, 22.89 MiB: EXACTLY filter's. And still clearly slower. So growth
-#   was NOT the whole story. Base's filter (array.jl:2932) has NO BRANCH in its loop:
-#
-#       @inbounds b[j] = ai                 # write ALWAYS, unconditionally
-#       j = ifelse(f(ai)::Bool, j+1, j)     # only the CURSOR is conditional
-#
-#   `ifelse` compiles to a conditional move, not a jump. Our push! loop branches on
-#   every element; on random data the predictor misses often, ~15-20 cycles each.
-# HONEST ACCOUNTING: growth explains the MEMORY and part of the time; the rest is the
-# BRANCH. Same thesis one level down — speed is what the machine must do PER ELEMENT.
-#
-# 🐍 NOW GO LOOK AT python/1, SECTION 6 — the SAME pipeline, the OPPOSITE diagnosis. There
-#    `score` dominates (2.24 s) and `clean` is nearly free (0.17 s), with 44.5 MILLION
-#    function calls: the interpreter tax buries the allocations. Here the arithmetic is
-#    compiled and nearly free, so the MEMORY is what sticks out. A profiler never tells you
-#    what is slow in the abstract — only what dominates IN THIS LANGUAGE. That is the point
-#    of running both tracks.
-
-#%% The loop that matters
-# @btime says HOW LONG · the profiler says WHERE · the allocations say WHY.
-# profile → diagnose → fix → re-measure. That is the method of the whole course.
-
-#%% 8. Application — Monte-Carlo π
+#%% 7. Application — Monte-Carlo π
 # π ≈ 4 × #{x² + y² ≤ 1} / n. We meet it again: sequential → threads → GPU.
 function estimate_pi(n)
     hits = 0

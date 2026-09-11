@@ -33,7 +33,7 @@ begin
     using Downloads          # stdlib HTTP client (download to an IOBuffer)
     using Base.Threads       # @spawn, nthreads
     using Printf             # @sprintf / @printf
-    using Profile            # @profile — revisited here on threaded code
+    using Profile            # @profile — the sampling profiler (stdlib)
     using Random             # default_rng / seed! — for Q4 (the task-local RNG)
     using BenchmarkTools     # @belapsed for clean CPU timings
     md"Packages loaded ✓"
@@ -301,9 +301,9 @@ md"""
 
 # ╔═╡ d3000000-0000-4a00-8000-00000000001a
 md"""
-## Profiling the parallel version — the same tool, a *different* question
+## Profiling the parallel version — a *different* question
 
-In the compilation module the profiler told us **where** the time went. Point it at **threaded** code and the top of the report is… the **scheduler**.
+`Profile` (stdlib) is a **sampling** profiler: it interrupts the program every few milliseconds and records the **call stack**, so a function's sample count is roughly its share of the time. On sequential code it tells you **where** the time goes. Point it at **threaded** code and the top of the report is… the **scheduler**.
 """
 
 # ╔═╡ d3000000-0000-4a00-8000-00000000001b
@@ -335,7 +335,7 @@ Total snapshots: 616. Utilization: 60% across all threads and tasks.
 
 ~60% means about **40% of the available thread-time went into waiting**: the split / spawn / reduce that stays sequential (**Amdahl**, above), plus the threads that finish early and then idle.
 
-This is also *why* the compilation module told you to profile with `--threads=1` — those `poptask`/`wait` frames are exactly the noise that drowns a sequential profile. **Same tool, two questions: pick the right one.**
+Profiling *sequential* code? Start Julia with `--threads=1` — those `poptask`/`wait` frames are exactly the noise that drowns a sequential profile. **Same tool, two questions: pick the right one.**
 """
 
 # ╔═╡ d3000000-0000-4a00-8000-00000000001d

@@ -181,7 +181,7 @@ function count_in_disk(n)
     inside = 0
     for _ in 1:n
         x, y = rand(), rand()      # rand() → a Float64 in [0, 1)
-        if x^2 + y^2 ≤ 1           # inside the quarter disk?
+        if x^2 + y^2 <= 1           # inside the quarter disk?
             inside += 1
         end
     end

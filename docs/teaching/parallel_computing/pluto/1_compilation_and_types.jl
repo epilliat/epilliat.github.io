@@ -9,7 +9,6 @@ begin
     using BenchmarkTools   # @btime, @benchmark: reliable measurements
     using PlutoUI          # sliders, formatting
     using Printf
-    using Profile          # @profile: the sampling profiler (section 7)
     using Random           # MersenneTwister (reproducible darts)
     md"Packages loaded ✓"
 end
@@ -432,149 +431,9 @@ A single measurement is polluted by noise (OS, CPU frequency, cache). You must *
 # ╔═╡ ca49af93-0baa-47ee-a4ec-3849a1cacffb
 @benchmark mysum($v)
 
-# ╔═╡ d1000000-0000-4a00-8000-000000000001
-md"""
-## 7. Profiling — *where* does the time actually go?
-
-`@btime` answers **"how long?"**. On a real script with several functions the question is **"where?"** — and you can't `@btime` every line.
-
-`Profile` (stdlib) is a **sampling** profiler: it interrupts the program every few milliseconds and records the **call stack**. The cost is negligible and nothing needs instrumenting; a function's **sample count** is roughly its share of the time.
-
-> ⚙️ Run this section with **one thread** (`julia --threads=1`, the default). With several threads the *idle* ones flood the report with `poptask`/`wait` frames — we come back to that in the threads module, where that noise becomes the actual lesson.
-
-Here is a small **layered pipeline**. Which of the three costs the most? **Bet before you look.**
-"""
-
-# ╔═╡ d1000000-0000-4a00-8000-000000000002
-begin
-    clean(v)     = [x for x in v if x > 0.01]      # keep the useful values
-    transform(v) = sqrt.(abs.(v))
-    function score(v)                               # sin+cos+exp in a loop — surely THIS one?
-        s = 0.0
-        for x in v
-            s += sin(x) * cos(x) * exp(-x)
-        end
-        return s
-    end
-    pipeline(v) = score(transform(clean(v)))
-end
-
-# ╔═╡ d1000000-0000-4a00-8000-000000000003
-const pdata = rand(3_000_000)
-
-# ╔═╡ d1000000-0000-4a00-8000-000000000004
-# profile it — warm up first, never profile the compilation
-let
-    pipeline(pdata)
-    Profile.clear()
-    Profile.@profile for _ in 1:10
-        pipeline(pdata)
-    end
-    Profile.print(format = :flat, sortedby = :count, mincount = 60)
-end
-
-# ╔═╡ d1000000-0000-4a00-8000-000000000005
-md"""
-### What the report says
-
-The absolute numbers vary run to run — **the order is the lesson**:
-
-| count | frame | |
-|---|---|---|
-| **620** | `clean` | ← **more than `score`**. Nobody bets on this one. |
-| 602 | `push!` | ⎫ |
-| 543 | `_growend!` | ⎬ all **under `clean`** — it isn't computing, it's **allocating** |
-| 524 | `GenericMemory` | ⎭ |
-| **490** | `score` | ← the "obvious" suspect, only **second** |
-| 157 | `transform` | |
-
-`[x for x in v if cond]` **cannot know the final size**, so it **grows** the array: reallocate + copy, again and again.
-
-> The profiler pointed straight at a **one-line function that looks free** — and told us its cost is **memory, not arithmetic**.
-"""
-
-# ╔═╡ d1000000-0000-4a00-8000-000000000006
-# the fix: allocate the full size ONCE, then resize down
-clean_fast(v) = filter(>(0.01), v)
-
-# ╔═╡ d1000000-0000-4a00-8000-000000000007
-let
-    @assert clean(pdata) == clean_fast(pdata)
-    print("comprehension : "); @btime clean($pdata)
-    print("filter        : "); @btime clean_fast($pdata)
-end
-
-# ╔═╡ d1000000-0000-4a00-8000-000000000008
-md"""
-```
-comprehension : ~7 ms  (36 allocations: 80.48 MiB)
-filter        : ~4 ms  ( 3 allocations: 22.89 MiB)
-```
-
-**~1.7× faster and 3.5× less memory, for one word changed** — and we'd never have looked there without the profiler.
-
-### *"So it was all about the growth?"* — test that, don't assume it
-
-If regrowing the array were the whole story, **pre-sizing** it should recover *all* the lost time. That hypothesis is one function away, so let's write it: the same `push!` loop, told the size upfront.
-"""
-
-# ╔═╡ d1000000-0000-4a00-8000-000000000009
-function clean_sizehint(v)
-    out = similar(v, 0)
-    sizehint!(out, length(v))          # no more regrowing: reserve everything now
-    for x in v
-        x > 0.01 && push!(out, x)
-    end
-    out
-end
-
-# ╔═╡ d1000000-0000-4a00-8000-00000000000a
-let
-    @assert clean_sizehint(pdata) == clean_fast(pdata)
-    print("filter          : "); @btime clean_fast($pdata)
-    print("push!+sizehint! : "); @btime clean_sizehint($pdata)
-end
-
-# ╔═╡ d1000000-0000-4a00-8000-00000000000b
-md"""
-**3 allocations, 22.89 MiB — *exactly* `filter`'s allocations.** And yet it's still clearly slower. So growth was **not** the whole story.
-
-Why? Read Base's `filter` ([`array.jl:2932`](https://github.com/JuliaLang/julia/blob/master/base/array.jl)) — it's worth the detour:
-
-```julia
-function filter(f, a::Array{T, N}) where {T, N}
-    j = 1
-    b = Vector{T}(undef, length(a))
-    for ai in a
-        @inbounds b[j] = ai                 # write ALWAYS, unconditionally
-        j = ifelse(f(ai)::Bool, j+1, j)     # only the CURSOR is conditional
-    end
-    resize!(b, j-1); sizehint!(b, length(b)); b
-end
-```
-
-There is **no branch in that loop**. It writes *every* element, then decides whether to keep it by moving `j` — with `ifelse`, which compiles to a **conditional move**, not a jump. Our `push!` loop branches on every element; with random data the predictor is wrong a good fraction of the time, and each miss costs ~15–20 cycles of pipeline flush.
-
-So the honest accounting is:
-
-| | explains |
-|---|---|
-| the **growth** | the **memory** (80.48 → 22.89 MiB), and part of the time |
-| the **branch** | the rest — *same allocations, still slower* |
-
-!!! tip "This is the module's thesis, one level down"
-	Speed is **what the machine must do per element**. Not the language. Not even the allocations alone.
-
-### The loop that matters
-
-> `@btime` says **how long** · the profiler says **where** · the allocations say **why**.
->
-> **profile → diagnose → fix → re-measure.** That's the method of this whole course — and what you're graded on, whatever the language.
-"""
-
 # ╔═╡ 49ea0717-5e4a-44df-a895-11b9d55c747f
 md"""
-## 8. Application — Monte-Carlo π
+## 7. Application — Monte-Carlo π
 
 Let's put it all into practice on a classic: estimate π by drawing random points in the square $[0,1]^2$ and counting the fraction that falls in the quarter disk.
 
@@ -711,7 +570,6 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
-Profile = "9abbd945-dff8-562f-b5e8-e1ebf5ef1b79"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -1074,17 +932,6 @@ version = "1.64.0+1"
 # ╟─d02cd083-dea1-417f-a941-8eac616197a6
 # ╟─46c146f1-d1e4-4797-87bc-2c03a0185daf
 # ╠═ca49af93-0baa-47ee-a4ec-3849a1cacffb
-# ╟─d1000000-0000-4a00-8000-000000000001
-# ╠═d1000000-0000-4a00-8000-000000000002
-# ╠═d1000000-0000-4a00-8000-000000000003
-# ╠═d1000000-0000-4a00-8000-000000000004
-# ╟─d1000000-0000-4a00-8000-000000000005
-# ╠═d1000000-0000-4a00-8000-000000000006
-# ╠═d1000000-0000-4a00-8000-000000000007
-# ╟─d1000000-0000-4a00-8000-000000000008
-# ╠═d1000000-0000-4a00-8000-000000000009
-# ╠═d1000000-0000-4a00-8000-00000000000a
-# ╟─d1000000-0000-4a00-8000-00000000000b
 # ╟─49ea0717-5e4a-44df-a895-11b9d55c747f
 # ╠═760cd379-4178-4e7f-9695-a1d709b36969
 # ╠═8adcfe41-1d0d-475a-968c-5a5a971a142b
