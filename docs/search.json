@@ -270,21 +270,21 @@
     "href": "teaching/linear_model/slides/validation.html#r²",
     "title": "Validation",
     "section": "R²",
-    "text": "R²\n\n\n\n\n\n\nR² if 1 ∈ [X]\n\n\n\\[R^2 = \\frac{SSE}{SST} = 1-\\frac{SSR}{SST}\\]\n\n\n\n\n\n\n\nR² if 1 ∉ [X]\n\n\n\\[R^2 = \\frac{\\|\\widehat Y\\|^2}{\\|Y\\|^2} = 1 - \\frac{SSR}{\\|Y\\|^2}\\]\n\n\n\n\n\n\\(0 \\leq R^2 \\leq 1\\). “Better model” if \\(R^2\\) close to \\(1\\)\nTwo definitions of \\(R^2\\) when \\(\\1 \\in [X]\\) or not\nIn simple linear regression \\((Y_i = \\beta_1+\\beta_2X_i+\\varepsilon_i)\\): \\(R^2 = \\hat \\rho^2\\) is the square empirical correlation between \\(Y\\) and \\(X\\)"
+    "text": "R²\n\n\n\n\n\n\nR² if 1 ∈ [X]\n\n\n\\[R^2 = \\frac{SSE}{SST} = 1-\\frac{SSR}{SST}\\]\n\n\n\n\n\n\n\nR² if 1 ∉ [X]\n\n\n\\[R^2 = \\frac{\\|\\widehat Y\\|^2}{\\|Y\\|^2} = 1 - \\frac{SSR}{\\|Y\\|^2}\\]\n\n\n\n\n\n\\(0 \\leq R^2 \\leq 1\\). “Better model” if \\(R^2\\) close to \\(1\\)\nTwo definitions of \\(R^2\\) when \\(\\1 \\in [X]\\) or not\nIn simple linear regression \\((Y_i = \\beta_1+\\beta_2X_i+\\varepsilon_i)\\): \\(R^2 = \\hat \\rho^2\\) is the square empirical correlation between \\(Y\\) and \\(X\\) (proof: \\(R^2\\) is a squared cosine)"
   },
   {
     "objectID": "teaching/linear_model/slides/validation.html#adjusted-r²",
     "href": "teaching/linear_model/slides/validation.html#adjusted-r²",
     "title": "Validation",
     "section": "Adjusted R²",
-    "text": "Adjusted R²\n\nMain flaw of \\(R^2\\): adding a new variable increases \\(R^2\\) (because \\([X]\\) is a bigger projection space)\n\n\n\n\n\n\n\nRₐ² if 1 ∈ [X]\n\n\n\\[R^2_a = 1-\\frac{n-1}{n-p}\\frac{SSR}{SST}\\]\n\n\n\n\n\n\n\nRₐ² if 1 ∉ [X]\n\n\n\\[R^2_a = 1 - \\frac{n}{n-p}\\frac{SSR}{\\|Y\\|^2}\\]\n\n\n\n\n\n\nWith a new variable, \\(SSR\\) decreases but \\(p \\to p+1\\)\n\n\n\\(R_a^2\\)​ only increases when adding a new variable if that variable reduces \\(SSR\\) enough.\n\n\nExactly: \\(R^2_a\\) increases iff the partial Fisher statistic of that variable exceeds \\(1\\) — a much weaker requirement than being significant, met by about one junk variable in three."
+    "text": "Adjusted R²\n\nMain flaw of \\(R^2\\): adding a new variable increases \\(R^2\\) (because \\([X]\\) is a bigger projection space)\n\n\n\n\n\n\n\nRₐ² if 1 ∈ [X]\n\n\n\\[R^2_a = 1-\\frac{n-1}{n-p}\\frac{SSR}{SST}\\]\n\n\n\n\n\n\n\nRₐ² if 1 ∉ [X]\n\n\n\\[R^2_a = 1 - \\frac{n}{n-p}\\frac{SSR}{\\|Y\\|^2}\\]"
   },
   {
     "objectID": "teaching/linear_model/slides/validation.html#r²-always-rises-r²ₐ-does-not",
     "href": "teaching/linear_model/slides/validation.html#r²-always-rises-r²ₐ-does-not",
     "title": "Validation",
     "section": "R² always rises, R²ₐ does not",
-    "text": "R² always rises, R²ₐ does not\n\n\nThe truth (red) is a cosine-shaped polynomial of degree \\(d\\); we fit polynomials of degree \\(k\\). \\(R^2\\) (blue) keeps rising — that’s its flaw. \\(R^2_a\\) (green) stops rising at \\(k=d\\): past the true degree, a new term no longer pays for the degree of freedom it costs. Move \\(d\\): the elbow follows. But it flattens rather than plunges — \\(R^2_a\\) stops rewarding useless terms without really punishing them, which is why selection needs \\(C_p\\), AIC or BIC.\n\n\n\n  \n  true degree d  10  ·  noise σ  0.50   ↻ resample\n  degree fitted k  10  ·   R² –    R²ₐ –  ·  population R² = –"
+    "text": "R² always rises, R²ₐ does not\n\n\n\n  \n  true degree d  10  ·  noise σ  0.50   + Cₚ · AIC · BIC ↻ resample\n  degree fitted k  10  ·   R² –    R²ₐ –  ·  min at k:  Cₚ –   AIC –   BIC –"
   },
   {
     "objectID": "teaching/linear_model/slides/validation.html#r-output-interpretation",
@@ -11793,5 +11793,117 @@
     "title": "TD1",
     "section": "Exercise 5. Candy Consumption",
     "text": "Exercise 5. Candy Consumption\nData published by the Chicago Tribune in 1993 show candy consumption in millions of pounds and population in millions of inhabitants in 17 countries in 1991. We denote \\(y_i\\) the consumption and \\(x_i\\) the population of the \\(i\\)-th country, \\(i = 1, \\ldots, 17\\). We are given the following values:\n\\[\\sum_{i=1}^{17} x_i = 751.8, \\quad \\sum_{i=1}^{17} y_i = 13683.8, \\quad \\sum_{i=1}^{17} x_i^2 = 97913.92\\]\n\\[\\sum_{i=1}^{17} y_i^2 = 36404096.44, \\quad \\sum_{i=1}^{17} x_iy_i = 1798166.66\\]\nWe wish to link candy consumption to the population of each country using a linear regression model (with intercept).\n\n\n\n\\(\\alpha \\backslash q\\)\n14\n15\n16\n17\n18\n\n\n\n\n0.01\n2.62\n2.60\n2.58\n2.57\n2.55\n\n\n0.025\n2.14\n2.13\n2.12\n2.11\n2.10\n\n\n0.05\n1.76\n1.75\n1.75\n1.74\n1.73\n\n\n0.10\n1.35\n1.34\n1.34\n1.33\n1.33\n\n\n\nTable 1: Quantiles of order \\(1 - \\alpha\\) of a Student’s t-distribution with \\(q\\) degrees of freedom, for different values of \\(\\alpha\\) and \\(q\\).\n\nWrite the equation of the proposed model for each country, specifying the assumptions made.\nGive the expressions for the OLS estimators of the slope and intercept of the model, as functions of the sums given above. Deduce their values.\nGive the expression of an unbiased estimator of the variance of the modeling error, as a function of the sums given above. Deduce its value.\nWhat is the theoretical variance of the OLS estimators? How to estimate it? Deduce an estimate of the standard deviation of each estimator (you can use the expression of \\((X^TX)^{-1}\\) recalled in Exercise 4).\nTest whether the regression slope is significantly different from 0, recalling the underlying assumptions. For the numerical application, perform a test at the 5% level using the quantiles given in Table 1.\nGive the expression for the p-value of the previous test. You are not asked to perform the numerical calculation, but at least to give an approximate value.\nSimilarly test whether the intercept is significantly different from 0, both by setting the level at 5% and by roughly evaluating the associated p-value."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#adjusted-r²-when-does-it-increase",
+    "href": "teaching/linear_model/slides/validation.html#adjusted-r²-when-does-it-increase",
+    "title": "Validation",
+    "section": "Adjusted R²: when does it increase?",
+    "text": "Adjusted R²: when does it increase?\n\nWith a new variable, \\(SSR\\) decreases but \\(p \\to p+1\\)\n\n\n\\(R_a^2\\)​ only increases when adding a new variable if that variable reduces \\(SSR\\) enough."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#log-y-closes-the-funnel",
+    "href": "teaching/linear_model/slides/validation.html#log-y-closes-the-funnel",
+    "title": "Validation",
+    "section": "log Y closes the funnel",
+    "text": "log Y closes the funnel\n\nThe same data refit on three scales. Raw \\(Y\\): the residuals fan out — the noise is multiplicative, so the spread grows with \\(\\E(Y)\\). On \\(\\log Y\\): a band, and Breusch–Pagan stops rejecting.\n\n\n\n  \n  \n    Y\n    √Y\n    log Y\n      noise σ  0.30   ↻ resample\n  \n  Breusch–Pagan \\(\\chi^2_1\\) = –   p = –  ·  residual spread, top third / bottom third of \\(\\widehat Y\\) = –"
+  },
+  {
+    "objectID": "teaching/linear_model/notes/r2_correlation.html",
+    "href": "teaching/linear_model/notes/r2_correlation.html",
+    "title": "R² and the Empirical Correlation",
+    "section": "",
+    "text": "AI was used to assist with the formatting and writing of the proofs on this page."
+  },
+  {
+    "objectID": "teaching/linear_model/notes/r2_correlation.html#setup",
+    "href": "teaching/linear_model/notes/r2_correlation.html#setup",
+    "title": "R² and the Empirical Correlation",
+    "section": "Setup",
+    "text": "Setup\nConsider the simple linear regression model, with an intercept: \\[Y_i = \\beta_1 + \\beta_2 x_i + \\varepsilon_i, \\qquad i = 1, \\dots, n,\\]\nso that the design matrix is \\(X = [\\mathbf 1, x] \\in \\mathbb R^{n \\times 2}\\), where \\(\\mathbf 1\\) is the constant vector and \\(x = (x_1, \\dots, x_n)^T\\). We assume \\(n \\geq 3\\), that \\(x\\) is not constant (otherwise \\(\\mathrm{rank}(X) = 1\\) and \\(\\hat\\beta\\) is not identifiable) and that \\(Y\\) is not constant (otherwise \\(SST = 0\\) and neither \\(R^2\\) nor \\(\\hat\\rho\\) is defined).\nWrite the empirical sums of squares and cross-products \\[s_{xx} = \\sum_{i=1}^n (x_i - \\bar x)^2, \\qquad\n  s_{YY} = \\sum_{i=1}^n (Y_i - \\bar Y)^2, \\qquad\n  s_{xY} = \\sum_{i=1}^n (x_i - \\bar x)(Y_i - \\bar Y),\\]\nso that the empirical correlation between \\(x\\) and \\(Y\\) is \\[\\hat\\rho = \\frac{s_{xY}}{\\sqrt{s_{xx}\\, s_{YY}}}\\]\n(the factor \\(1/n\\) or \\(1/(n-1)\\) used to turn these sums into empirical variances and covariances cancels in the ratio). Since \\(\\mathbf 1 \\in [X]\\), the coefficient of determination is \\[R^2 = \\frac{SSE}{SST} = 1 - \\frac{SSR}{SST}, \\qquad\n  SST = \\|Y - \\bar Y \\mathbf 1\\|^2 = s_{YY}, \\quad\n  SSE = \\|\\widehat Y - \\bar Y \\mathbf 1\\|^2 .\\]\n\n\n\n\n\n\nProposition\n\n\n\nIn the simple linear regression model with an intercept, \\[R^2 = \\hat\\rho^2 .\\]"
+  },
+  {
+    "objectID": "teaching/linear_model/notes/r2_correlation.html#a-preliminary-remark",
+    "href": "teaching/linear_model/notes/r2_correlation.html#a-preliminary-remark",
+    "title": "R² and the Empirical Correlation",
+    "section": "A preliminary remark",
+    "text": "A preliminary remark\nBecause \\(\\mathbf 1 \\in [X]\\), the residual vector \\(Y - \\widehat Y\\) is orthogonal to \\(\\mathbf 1\\), hence \\[\\sum_{i=1}^n (Y_i - \\widehat Y_i) = 0, \\qquad \\text{i.e.} \\qquad \\overline{\\widehat Y} = \\bar Y .\\]\nThis is what makes \\(\\bar Y \\mathbf 1\\) the right centering for both \\(Y\\) and \\(\\widehat Y\\), and it is used in both proofs below. It is also exactly what fails without an intercept."
+  },
+  {
+    "objectID": "teaching/linear_model/notes/r2_correlation.html#proof-1-by-direct-computation",
+    "href": "teaching/linear_model/notes/r2_correlation.html#proof-1-by-direct-computation",
+    "title": "R² and the Empirical Correlation",
+    "section": "Proof 1 — by direct computation",
+    "text": "Proof 1 — by direct computation\nThe least-squares estimators in the simple regression model are \\[\\hat\\beta_2 = \\frac{s_{xY}}{s_{xx}}, \\qquad \\hat\\beta_1 = \\bar Y - \\hat\\beta_2 \\bar x .\\]\nSubstituting \\(\\hat\\beta_1\\) into \\(\\widehat Y_i = \\hat\\beta_1 + \\hat\\beta_2 x_i\\) gives the fitted values in centered form: \\[\\widehat Y_i = \\bar Y + \\hat\\beta_2 (x_i - \\bar x) .\\]\nTherefore \\[SSE = \\sum_{i=1}^n (\\widehat Y_i - \\bar Y)^2\n      = \\hat\\beta_2^2 \\sum_{i=1}^n (x_i - \\bar x)^2\n      = \\hat\\beta_2^2\\, s_{xx}\n      = \\frac{s_{xY}^2}{s_{xx}^2}\\, s_{xx}\n      = \\frac{s_{xY}^2}{s_{xx}} .\\]\nSince \\(SST = s_{YY}\\), we conclude \\[R^2 = \\frac{SSE}{SST} = \\frac{s_{xY}^2}{s_{xx}\\, s_{YY}} = \\hat\\rho^2 . \\qquad \\blacksquare\\]"
+  },
+  {
+    "objectID": "teaching/linear_model/notes/r2_correlation.html#proof-2-the-geometric-one-r²-is-a-squared-cosine",
+    "href": "teaching/linear_model/notes/r2_correlation.html#proof-2-the-geometric-one-r²-is-a-squared-cosine",
+    "title": "R² and the Empirical Correlation",
+    "section": "Proof 2 — the geometric one: R² is a squared cosine",
+    "text": "Proof 2 — the geometric one: R² is a squared cosine\nThis proof explains why the identity holds, and generalizes immediately.\nCenter the two vectors: \\[\\tilde Y = Y - \\bar Y \\mathbf 1, \\qquad \\tilde x = x - \\bar x \\mathbf 1 .\\]\nNote that \\(\\langle \\mathbf 1, \\tilde x\\rangle = \\sum_i (x_i - \\bar x) = 0\\), so \\[[X] = \\mathrm{span}(\\mathbf 1) \\oplus \\mathrm{span}(\\tilde x)\\] is an orthogonal decomposition of the design space. The projection onto \\([X]\\) therefore splits, and since \\(P_{\\tilde x} \\mathbf 1 = 0\\), \\[\\widehat Y = P_{[X]} Y = P_{\\mathbf 1} Y + P_{\\tilde x} Y = \\bar Y \\mathbf 1 + P_{\\tilde x} \\tilde Y .\\]\nHence \\(SSE = \\|\\widehat Y - \\bar Y \\mathbf 1\\|^2 = \\|P_{\\tilde x} \\tilde Y\\|^2\\) and \\(SST = \\|\\tilde Y\\|^2\\), so that \\[R^2 = \\frac{\\|P_{\\tilde x} \\tilde Y\\|^2}{\\|\\tilde Y\\|^2} = \\cos^2 \\theta ,\\]\nwhere \\(\\theta\\) is the angle between \\(\\tilde Y\\) and \\(\\tilde x\\): projecting onto a line and dividing by the norm is precisely taking a cosine. Explicitly, \\(P_{\\tilde x}\\tilde Y = \\frac{\\langle \\tilde x, \\tilde Y\\rangle}{\\|\\tilde x\\|^2}\\,\\tilde x\\), so \\[R^2 = \\frac{\\langle \\tilde x, \\tilde Y\\rangle^2}{\\|\\tilde x\\|^2 \\, \\|\\tilde Y\\|^2}\n      = \\frac{s_{xY}^2}{s_{xx}\\, s_{YY}} = \\hat\\rho^2 . \\qquad \\blacksquare\\]\n\n\n\n\n\n\nWhat to remember\n\n\n\nThe empirical correlation is the cosine of the angle between the two centered vectors, \\[\\hat\\rho = \\cos\\big(\\tilde x, \\tilde Y\\big) = \\frac{\\langle \\tilde x, \\tilde Y\\rangle}{\\|\\tilde x\\| \\, \\|\\tilde Y\\|},\\] and \\(R^2\\) is a squared cosine. The identity \\(R^2 = \\hat\\rho^2\\) is then not a computation but a restatement: \\(\\hat\\rho\\) measures the angle, \\(R^2\\) measures the fraction of \\(\\|\\tilde Y\\|^2\\) captured by the projection, and Pythagoras makes them the same quantity. This also re-proves \\(0 \\leq R^2 \\leq 1\\) and \\(|\\hat\\rho| \\leq 1\\) (Cauchy–Schwarz)."
+  },
+  {
+    "objectID": "teaching/linear_model/notes/r2_correlation.html#remarks",
+    "href": "teaching/linear_model/notes/r2_correlation.html#remarks",
+    "title": "R² and the Empirical Correlation",
+    "section": "Remarks",
+    "text": "Remarks\n1. The square loses the sign. From \\(\\hat\\rho = \\hat\\beta_2 \\sqrt{s_{xx}/s_{YY}}\\) we get \\(\\mathrm{sign}(\\hat\\rho) = \\mathrm{sign}(\\hat\\beta_2)\\), so \\[\\hat\\rho = \\mathrm{sign}(\\hat\\beta_2)\\, \\sqrt{R^2} .\\] \\(R^2\\) says how strong the linear link is, \\(\\hat\\rho\\) also says in which direction.\n2. The intercept is not optional. Both proofs use \\(\\mathbf 1 \\in [X]\\) — Proof 1 through \\(\\hat\\beta_1 = \\bar Y - \\hat\\beta_2 \\bar x\\), Proof 2 through the orthogonal splitting of \\([X]\\). Without an intercept the decomposition \\(SST = SSR + SSE\\) itself fails, \\(R^2\\) must be redefined as \\(\\|\\widehat Y\\|^2 / \\|Y\\|^2\\), and that quantity is not \\(\\hat\\rho^2\\).\n3. The general case: \\(R^2\\) is still a squared correlation. With \\(p\\) regressors and \\(\\mathbf 1 \\in [X]\\), let \\(M = P_{[X]} - P_{\\mathbf 1}\\), the projection onto \\([X] \\ominus \\mathrm{span}(\\mathbf 1)\\). As above \\(\\widehat Y - \\bar Y\\mathbf 1 = M\\tilde Y\\), and since \\(M\\) is a symmetric idempotent matrix, \\[\\langle \\tilde Y, M \\tilde Y \\rangle = \\|M\\tilde Y\\|^2 .\\] The empirical correlation between the observations and the fitted values is therefore \\[\\hat\\rho\\big(Y, \\widehat Y\\big)\n= \\frac{\\langle \\tilde Y, M\\tilde Y\\rangle}{\\|\\tilde Y\\| \\, \\|M\\tilde Y\\|}\n= \\frac{\\|M\\tilde Y\\|}{\\|\\tilde Y\\|} = \\sqrt{R^2} \\; \\geq 0 ,\\] that is, \\(R^2 = \\hat\\rho(Y, \\widehat Y)^2\\): the multiple correlation coefficient. Simple regression is the special case where the projection space \\([X] \\ominus \\mathrm{span}(\\mathbf 1)\\) is the single line \\(\\mathrm{span}(\\tilde x)\\), which is why \\(\\widehat Y\\) can be replaced by \\(x\\) there. Note that this correlation is always non-negative — projecting can only shrink a vector, never flip it.\n4. Link with the tests. In simple regression (\\(p = 2\\)), the global Fisher statistic is \\[F = \\frac{n-p}{p-1}\\,\\frac{R^2}{1 - R^2} = (n-2)\\,\\frac{\\hat\\rho^2}{1 - \\hat\\rho^2} = t^2 ,\\] where \\(t\\) is the Student statistic of \\(H_0: \\beta_2 = 0\\). So in this model the three tests — “the slope is zero”, “the model explains nothing”, “\\(x\\) and \\(Y\\) are uncorrelated” — are one and the same test."
+  },
+  {
+    "objectID": "teaching/linear_model/notes/r2_correlation.html#statement",
+    "href": "teaching/linear_model/notes/r2_correlation.html#statement",
+    "title": "R² and the Empirical Correlation",
+    "section": "Statement",
+    "text": "Statement\nSimple linear regression with an intercept, \\(Y_i = \\beta_1 + \\beta_2 X_i + \\varepsilon_i\\), with \\(X\\) non-constant. Write \\[s_{XX} = \\sum_i (X_i - \\bar X)^2, \\quad s_{YY} = \\sum_i (Y_i - \\bar Y)^2, \\quad\n  s_{XY} = \\sum_i (X_i - \\bar X)(Y_i - \\bar Y), \\qquad\n  \\hat\\rho = \\frac{s_{XY}}{\\sqrt{s_{XX}\\, s_{YY}}} .\\]\nSince \\(\\mathbf 1 \\in [X]\\), we have \\(R^2 = SSE/SST\\) with \\(SST = \\|Y - \\bar Y \\mathbf 1\\|^2 = s_{YY}\\) and \\(SSE = \\|\\widehat Y - \\bar Y \\mathbf 1\\|^2\\).\n\n\n\n\n\n\nProposition\n\n\n\n\\[R^2 = \\hat\\rho^{\\,2}\\]"
+  },
+  {
+    "objectID": "teaching/linear_model/notes/r2_correlation.html#proof",
+    "href": "teaching/linear_model/notes/r2_correlation.html#proof",
+    "title": "R² and the Empirical Correlation",
+    "section": "Proof",
+    "text": "Proof\nHere \\(\\hat\\beta_2 = s_{XY}/s_{XX}\\) and \\(\\hat\\beta_1 = \\bar Y - \\hat\\beta_2 \\bar X\\), so the fitted values are \\(\\widehat Y_i = \\bar Y + \\hat\\beta_2 (X_i - \\bar X)\\). Hence \\[SSE = \\sum_i (\\widehat Y_i - \\bar Y)^2 = \\hat\\beta_2^2\\, s_{XX} = \\frac{s_{XY}^2}{s_{XX}} ,\\]\nand dividing by \\(SST = s_{YY}\\) gives \\(R^2 = \\dfrac{s_{XY}^2}{s_{XX}\\, s_{YY}} = \\hat\\rho^{\\,2}\\). \\(\\blacksquare\\)"
+  },
+  {
+    "objectID": "teaching/linear_model/notes/r2_correlation.html#geometric-view",
+    "href": "teaching/linear_model/notes/r2_correlation.html#geometric-view",
+    "title": "R² and the Empirical Correlation",
+    "section": "Geometric view",
+    "text": "Geometric view\nCenter both vectors: \\(\\tilde Y = Y - \\bar Y \\mathbf 1\\) and \\(\\tilde X = X - \\bar X \\mathbf 1\\). Since \\(\\langle \\mathbf 1, \\tilde X \\rangle = 0\\), the decomposition \\([X] = \\mathrm{span}(\\mathbf 1) \\oplus \\mathrm{span}(\\tilde X)\\) is orthogonal, so \\(\\widehat Y = \\bar Y \\mathbf 1 + P_{\\tilde X} \\tilde Y\\) and \\[R^2 = \\frac{\\|P_{\\tilde X} \\tilde Y\\|^2}{\\|\\tilde Y\\|^2} = \\cos^2\\big(\\tilde X, \\tilde Y\\big) = \\hat\\rho^{\\,2} .\\]\nThe empirical correlation is the cosine of the angle between the centered vectors, and \\(R^2\\) is its square."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#log-x-straightens-the-curve",
+    "href": "teaching/linear_model/slides/validation.html#log-x-straightens-the-curve",
+    "title": "Validation",
+    "section": "log X straightens the curve",
+    "text": "log X straightens the curve\n\nTruth: \\(Y = 1 + 2\\log X + \\varepsilon\\), fitted by a straight line in the chosen scale. Raw \\(X\\): the residuals curve and the nested \\(F\\)-test for an added \\(u^2\\) rejects. On \\(\\log X\\): structureless, and the test stops rejecting.\n\n\n\n  \n  \n    fit against X√Xlog X\n      noise σ  0.50   ↻ resample\n  \n  curvature test, add \\(u^2\\):   F = –   p = –  ·  bars = mean residual per third of the fitted range"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#many-β-one-ŷ",
+    "href": "teaching/linear_model/slides/validation.html#many-β-one-ŷ",
+    "title": "Validation",
+    "section": "Many β, one Ŷ",
+    "text": "Many β, one Ŷ\n\n\\(X^{(2)} = 2X^{(1)}\\) exactly: slide \\(\\beta\\) along \\(\\beta_1 + 2\\beta_2 = \\text{const}\\) — the fit never moves, \\(SSR\\) not by a digit. With a pinch of noise on \\(X^{(2)}\\): one minimum, in a valley 1% deep.\n\n\n\n  \n  \n    X₂ = 2X₁ exactly+ pinch of noise\n      walk along the line    ↻ resample\n  \n  β₁ = –   β₂ = –  ·  SSR = –   (min –)  ·  this step costs –  ·  in any other direction –"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#collinearity-the-sum-not-the-split",
+    "href": "teaching/linear_model/slides/validation.html#collinearity-the-sum-not-the-split",
+    "title": "Validation",
+    "section": "Collinearity: the sum, not the split",
+    "text": "Collinearity: the sum, not the split\n\nLeft: the \\((X^{(1)},X^{(2)})\\) cloud. Right: where \\(\\hat\\beta\\) lands over 40 refits of the same design, with the exact 95% region. As \\(r \\to 1\\) it becomes a needle: \\(\\hat\\beta_1+\\hat\\beta_2\\) stays sharp, the split between the two does not — and \\(\\widehat Y\\) never notices. Drop one point: the refits move along the needle, the more so as \\(r\\) grows.\n\n\n\n  \n  \n    correlation r  0.50\n      40 new samplesdrop one point\n      ↻ new design\n  \n  \\(\\mathrm{sd}(\\hat\\beta_1)\\) = –  ·  \\(\\mathrm{sd}(\\hat\\beta_1+\\hat\\beta_2)\\) = –  ·  \\(\\mathrm{sd}(\\hat\\beta_1-\\hat\\beta_2)\\) = –  ·  \\(\\mathrm{sd}(\\widehat Y)\\) at a typical point = –\n  dropping a single one of the 60 points moves \\(\\hat\\beta\\) by up to –"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/validation.html#collinearity-in-3d-the-cloud-collapses",
+    "href": "teaching/linear_model/slides/validation.html#collinearity-in-3d-the-cloud-collapses",
+    "title": "Validation",
+    "section": "Collinearity in 3D: the cloud collapses",
+    "text": "Collinearity in 3D: the cloud collapses\n\nOne dot per observation \\((X^{(1)}_i, X^{(2)}_i, Y_i)\\), grey = its shadow on the floor. At \\(r=1\\) the shadow is a line and the plane tilts for free.\n\n\n\n  \n  \n    collinearity r  0.50\n     ·  tilt the plane \n      ↻ resample\n  \n  VIF = 1/(1−r²) = –  ·  tilting costs – of SSR (minimum –)"
+  },
+  {
+    "objectID": "teaching/linear_model/index.html#annals",
+    "href": "teaching/linear_model/index.html#annals",
+    "title": "Linear & Generalized Linear Models",
+    "section": "Annals",
+    "text": "Annals\nThe 2026 MCQ was run in two sessions with disjoint questions. Each file below holds both papers — morning first, then afternoon — so either one doubles as revision material for the other.\n\nMCQ 2026 (PDF) Correction 2026 (PDF)"
   }
 ]
