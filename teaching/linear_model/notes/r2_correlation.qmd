@@ -1,0 +1,49 @@
+---
+title: "R² and the Empirical Correlation"
+format:
+  html:
+    incremental: true
+    callout-icon: false
+    theme: [default]
+smaller: true
+css: ../../../styles.css
+---
+
+AI was used to assist with the formatting and writing of the proofs on this page.
+
+## Statement
+
+Simple linear regression **with an intercept**, $Y_i = \beta_1 + \beta_2 X_i + \varepsilon_i$, with $X$
+non-constant. Write
+$$s_{XX} = \sum_i (X_i - \bar X)^2, \quad s_{YY} = \sum_i (Y_i - \bar Y)^2, \quad
+  s_{XY} = \sum_i (X_i - \bar X)(Y_i - \bar Y), \qquad
+  \hat\rho = \frac{s_{XY}}{\sqrt{s_{XX}\, s_{YY}}} .$$
+
+Since $\mathbf 1 \in [X]$, we have $R^2 = SSE/SST$ with $SST = \|Y - \bar Y \mathbf 1\|^2 = s_{YY}$ and
+$SSE = \|\widehat Y - \bar Y \mathbf 1\|^2$.
+
+::: {.callout-note}
+## Proposition
+
+$$R^2 = \hat\rho^{\,2}$$
+:::
+
+## Proof
+
+Here $\hat\beta_2 = s_{XY}/s_{XX}$ and $\hat\beta_1 = \bar Y - \hat\beta_2 \bar X$, so the fitted values
+are $\widehat Y_i = \bar Y + \hat\beta_2 (X_i - \bar X)$. Hence
+$$SSE = \sum_i (\widehat Y_i - \bar Y)^2 = \hat\beta_2^2\, s_{XX} = \frac{s_{XY}^2}{s_{XX}} ,$$
+
+and dividing by $SST = s_{YY}$ gives $R^2 = \dfrac{s_{XY}^2}{s_{XX}\, s_{YY}} = \hat\rho^{\,2}$.
+$\blacksquare$
+
+## Geometric view
+
+Center both vectors: $\tilde Y = Y - \bar Y \mathbf 1$ and $\tilde X = X - \bar X \mathbf 1$. Since
+$\langle \mathbf 1, \tilde X \rangle = 0$, the decomposition
+$[X] = \mathrm{span}(\mathbf 1) \oplus \mathrm{span}(\tilde X)$ is orthogonal, so
+$\widehat Y = \bar Y \mathbf 1 + P_{\tilde X} \tilde Y$ and
+$$R^2 = \frac{\|P_{\tilde X} \tilde Y\|^2}{\|\tilde Y\|^2} = \cos^2\big(\tilde X, \tilde Y\big) = \hat\rho^{\,2} .$$
+
+The empirical correlation **is** the cosine of the angle between the centered vectors, and $R^2$ **is**
+its square.
