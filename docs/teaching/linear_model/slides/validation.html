@@ -1548,6 +1548,9 @@ Test: <span class="math inline">\(\Var(\varepsilon)\)</span> is diagonal (uncorr
 </ol>
 </div>
 <div class="fragment">
+<p>It also avoids the <span class="math inline">\(n\)</span> leave-one-out fits (<a href="../../../teaching/linear_model/notes/cooks_distance.html">proof and comments</a>: a rank-one update of <span class="math inline">\(\hat\beta\)</span>)</p>
+</div>
+<div class="fragment">
 <p><strong>R functions</strong>: <code>cooks.distance</code> and last plot of <code>plot.lm</code></p>
 </div>
 </section>
@@ -1604,6 +1607,110 @@ Test: <span class="math inline">\(\Var(\varepsilon)\)</span> is diagonal (uncorr
   regen(); draw();
 })();
 </script>
+</div>
+</section>
+<section id="the-modeling-loop" class="slide level2">
+<h2>The modeling loop</h2>
+<div class="fragment">
+<div style="font-size:86%">
+<p>Validation is not the last step: it is what <strong>sends you back</strong> into the loop.</p>
+</div>
+</div>
+<div class="fragment">
+<style>
+.dgw{
+  --dg-edge:#7b8aa8; --dg-lab:#54627d; --dg-sub:#5c6880;
+  --dg-blue-f:#eaf0ff;   --dg-blue-s:#5b8cff;   --dg-blue-t:#1c3f91;
+  --dg-green-f:#e8f7f0;  --dg-green-s:#3fb984;  --dg-green-t:#13664a;
+  --dg-amber-f:#fdf4e4;  --dg-amber-s:#e0a33a;  --dg-amber-t:#7a5410;
+  --dg-purple-f:#f4edfb; --dg-purple-s:#a77bd6; --dg-purple-t:#5a3883;
+  --dg-teal-f:#e6f4f9;   --dg-teal-s:#4aa8c4;   --dg-teal-t:#10566b;
+  text-align:center;
+}
+html.lm-dark .dgw{
+  --dg-edge:#8e9cba; --dg-lab:#aab6cd; --dg-sub:#9aa6c0;
+  --dg-blue-f:rgba(91,140,255,.15);  --dg-blue-s:rgba(91,140,255,.65);  --dg-blue-t:#d2dcff;
+  --dg-green-f:rgba(63,185,132,.15); --dg-green-s:rgba(63,185,132,.65); --dg-green-t:#b6ebd3;
+  --dg-amber-f:rgba(224,163,58,.15); --dg-amber-s:rgba(224,163,58,.65); --dg-amber-t:#f6dca6;
+  --dg-purple-f:rgba(167,123,214,.17);--dg-purple-s:rgba(167,123,214,.65);--dg-purple-t:#e3d1f5;
+  --dg-teal-f:rgba(74,168,196,.16); --dg-teal-s:rgba(74,168,196,.65); --dg-teal-t:#bfe6f2;
+}
+.dgw svg{width:100%;max-width:980px;height:auto;font-family:inherit}
+.dg-b{stroke-width:2}
+.dg-t{font-size:21px;font-weight:600}
+.dg-s{font-size:13px;fill:var(--dg-sub)}
+.dg-e{fill:none;stroke:var(--dg-edge);stroke-width:2.2}
+.dg-e.dash{stroke-dasharray:7 6;stroke-width:1.9;opacity:.75}
+.dg-l{font-size:13.5px;fill:var(--dg-lab)}
+.dg-l.em{font-weight:600}
+.dg-data .dg-b{fill:var(--dg-blue-f);stroke:var(--dg-blue-s)}    .dg-data .dg-t{fill:var(--dg-blue-t)}
+.dg-pre  .dg-b{fill:var(--dg-green-f);stroke:var(--dg-green-s)}  .dg-pre  .dg-t{fill:var(--dg-green-t)}
+.dg-inf  .dg-b{fill:var(--dg-amber-f);stroke:var(--dg-amber-s)}  .dg-inf  .dg-t{fill:var(--dg-amber-t)}
+.dg-val  .dg-b{fill:var(--dg-purple-f);stroke:var(--dg-purple-s)}.dg-val  .dg-t{fill:var(--dg-purple-t)}
+.dg-sel  .dg-b{fill:var(--dg-teal-f);stroke:var(--dg-teal-s)}    .dg-sel  .dg-t{fill:var(--dg-teal-t)}
+.dg-out .dg-b{fill:none;stroke:var(--dg-edge);stroke-dasharray:6 5;stroke-width:1.8}
+.dg-out .dg-t{font-size:15px;font-weight:500;fill:var(--dg-lab)}
+</style>
+<div class="dgw">
+<svg viewbox="0 0 980 500" role="img" aria-label="Iterative modeling loop: data, pre-modeling, inference, validation">
+  <defs>
+    <marker id="dgA" viewbox="0 0 10 10" refx="9" refy="5" markerwidth="7" markerheight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--dg-edge)"></path>
+    </marker>
+  </defs>
+
+  <!-- edges -->
+  <path class="dg-e" d="M 330,64 L 610,64" marker-end="url(#dgA)"></path>
+  <path class="dg-e" d="M 800,98 C 866,160 860,218 806,273" marker-end="url(#dgA)"></path>
+  <path class="dg-e" d="M 596,300 C 520,252 450,252 390,299" marker-end="url(#dgA)"></path>
+  <path class="dg-e" d="M 390,341 C 460,394 520,394 594,342" marker-end="url(#dgA)"></path>
+  <path class="dg-e" d="M 150,270 L 150,224" marker-end="url(#dgA)"></path>
+  <path class="dg-e" d="M 150,150 L 150,104" marker-end="url(#dgA)"></path>
+  <path class="dg-e dash" d="M 220,368 L 220,420" marker-end="url(#dgA)"></path>
+
+  <!-- edge labels -->
+  <text class="dg-l" x="470" y="50" text-anchor="middle">explore</text>
+  <text class="dg-l" x="786" y="188" text-anchor="end">specify &amp; fit</text>
+  <text class="dg-l em" x="492" y="240" text-anchor="middle">diagnose</text>
+  <text class="dg-l em" x="492" y="419" text-anchor="middle">change the model</text>
+  <text class="dg-l" x="236" y="400">assumptions OK</text>
+  <text class="dg-l" x="162" y="252">compare models</text>
+  <text class="dg-l" x="162" y="130">refit</text>
+
+  <!-- nodes -->
+  <g class="dg-data">
+    <rect class="dg-b" x="80" y="30" width="250" height="68" rx="14"></rect>
+    <text class="dg-t" x="205" y="60" text-anchor="middle">Data (X, Y)</text>
+    <text class="dg-s" x="205" y="82" text-anchor="middle">n individuals, p variables</text>
+  </g>
+  <g class="dg-pre">
+    <rect class="dg-b" x="620" y="30" width="300" height="68" rx="14"></rect>
+    <text class="dg-t" x="770" y="60" text-anchor="middle">Pre-modeling</text>
+    <text class="dg-s" x="770" y="82" text-anchor="middle">bar plots, pairs, correlation matrix</text>
+  </g>
+  <g class="dg-inf">
+    <rect class="dg-b" x="600" y="280" width="300" height="78" rx="14"></rect>
+    <text class="dg-t" x="750" y="311" text-anchor="middle">Inference</text>
+    <text class="dg-s" x="750" y="333" text-anchor="middle">β̂, tests, confidence intervals,</text>
+    <text class="dg-s" x="750" y="350" text-anchor="middle">interpretation</text>
+  </g>
+  <g class="dg-val">
+    <rect class="dg-b" x="55" y="272" width="330" height="94" rx="14"></rect>
+    <text class="dg-t" x="220" y="303" text-anchor="middle">Validation</text>
+    <text class="dg-s" x="220" y="325" text-anchor="middle">linearity · no collinearity · homoscedasticity</text>
+    <text class="dg-s" x="220" y="345" text-anchor="middle">residuals: normality, outliers, influence</text>
+  </g>
+  <g class="dg-sel">
+    <rect class="dg-b" x="40" y="150" width="220" height="64" rx="14"></rect>
+    <text class="dg-t" x="150" y="180" text-anchor="middle">Selection</text>
+    <text class="dg-s" x="150" y="201" text-anchor="middle">Cₚ, AIC, BIC, stepwise</text>
+  </g>
+  <g class="dg-out">
+    <rect class="dg-b" x="80" y="424" width="280" height="46" rx="23"></rect>
+    <text class="dg-t" x="220" y="453" text-anchor="middle">prediction · report</text>
+  </g>
+</svg>
+</div>
 </div>
 </section>
 <section id="next" class="slide level2">

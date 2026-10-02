@@ -397,6 +397,54 @@ X=\begin{pmatrix}
 <p>Interpretation: gives coefficients <span style="background-color: yellow;"><span class="math inline">\(\alpha_i= \mu_i\)</span></span></p>
 </div>
 </section>
+<section id="in-r-the-intercept-is-a-mean" class="slide level2 smaller">
+<h2>In R: the intercept is a mean</h2>
+<div class="fragment">
+<p>Data of the example below: <code>Loss ~ Exercise</code>, <span class="math inline">\(I=4\)</span> groups of <span class="math inline">\(N_i=18\)</span>.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">tapply</span>(Loss, Exercise, mean)     <span class="co"># the four empirical means</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>      1       2       3       4 
+ 9.6111 16.7778 13.5000  9.0000 </code></pre>
+<p>that is <span class="math inline">\(\overline{Y}_1 = 9.6111\)</span>, <span class="math inline">\(\overline{Y}_2 = 16.7778\)</span>, <span class="math inline">\(\overline{Y}_3 = 13.5\)</span>, <span class="math inline">\(\overline{Y}_4 = 9\)</span>.</p>
+</div>
+<div class="fragment">
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(Loss <span class="sc">~</span> Exercise))     <span class="co"># with intercept (default)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   9.6111     0.7992  12.025  &lt; 2e-16 ***
+Exercise2     7.1667     1.1303   6.340 2.14e-08 ***
+Exercise3     3.8889     1.1303   3.441 0.000996 ***
+Exercise4    -0.6111     1.1303  -0.541   0.5905    
+
+Residual standard error: 3.391 on 68 degrees of freedom</code></pre>
+</div>
+<div class="fragment">
+<p>R prints <strong>no</strong> <code>Exercise1</code>: the column <span class="math inline">\(\mathbf{1}_{A_1}\)</span> was dropped, and <span style="background-color: yellow;"><span class="math inline">\(\hat m = \overline{Y}_1 = 9.6111\)</span></span> is exactly the mean of that removed modality.</p>
+</div>
+<div class="fragment">
+<p>The others are differences to it: <span style="background-color: yellow;"><span class="math inline">\(\hat\alpha_i = \overline{Y}_i - \overline{Y}_1\)</span></span>, e.g.&nbsp;<span class="math inline">\(16.7778 - 9.6111 = 7.1667\)</span>.</p>
+</div>
+</section>
+<section id="without-intercept-the-means-themselves" class="slide level2 smaller">
+<h2>Without intercept: the means themselves</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(Loss <span class="sc">~</span> Exercise <span class="sc">-</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>          Estimate Std. Error t value Pr(&gt;|t|)    
+Exercise1   9.6111     0.7992  12.025  &lt; 2e-16 ***
+Exercise2  16.7778     0.7992  20.992  &lt; 2e-16 ***
+Exercise3  13.5000     0.7992  16.891  &lt; 2e-16 ***
+Exercise4   9.0000     0.7992  11.261  &lt; 2e-16 ***
+
+Residual standard error: 3.391 on 68 degrees of freedom</code></pre>
+</div>
+<div class="fragment">
+<p>The four modalities are back, and <span style="background-color: yellow;"><span class="math inline">\(\hat\alpha_i = \overline{Y}_i\)</span></span> — the same four numbers as <code>tapply</code>.</p>
+</div>
+<div class="fragment">
+<p>Both fits are the <strong>same model</strong>: same <span class="math inline">\(\widehat{Y}_k = \overline{Y}_i\)</span> for <span class="math inline">\(X_k = A_i\)</span>, same residuals, same <span class="math inline">\(\hat\sigma = 3.391\)</span> on <span class="math inline">\(n-I=68\)</span> degrees of freedom. Only the parameterization changes.</p>
+</div>
+<div class="fragment">
+<p>So <code>Exercise2 = 7.1667</code> never means “group 2 has mean <span class="math inline">\(7.17\)</span>”: it means group 2 sits <span class="math inline">\(7.17\)</span> <strong>above</strong> group 1.</p>
+</div>
+</section>
 <section id="estimation-of-μ" class="slide level2">
 <h2>Estimation of μ</h2>
 <div class="fragment">
@@ -699,7 +747,7 @@ X=\begin{pmatrix}
 <section id="why-naive-pairwise-testing-fails" class="slide level2 smaller">
 <h2>Why naive pairwise testing fails</h2>
 <div style="font-size:84%">
-<p><strong>Left:</strong> the chance of flagging at least one false “significant” pair (FWER) vs the number of groups, by <strong>Monte-Carlo</strong> — <em>hover</em> to read the %. <strong>Right:</strong> <em>one</em> experiment as a circle of the <span class="math inline">\(I\)</span> groups. The true means are <strong>all equal</strong>, but sampled means wiggle: every pair is tested (grey), a chord turns <strong>red</strong> when the naive test calls it different, <strong>green</strong> when even <strong>Tukey</strong> does — every coloured chord is a <strong>false positive</strong>.</p>
+<p><strong>Left:</strong> FWER — the chance of flagging at least one pair — vs the number of groups, by Monte-Carlo (<em>hover</em> for the %). <strong>Right:</strong> one experiment, all true means <strong>equal</strong>: a chord turns <strong>red</strong> when the naive test calls that pair different, <strong>green</strong> when Tukey does too. Every coloured chord is a false positive.</p>
 </div>
 <style>
 .lm-btn{font-family:inherit;font-size:.82em;padding:.35em 1em;margin:.1em .18em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
@@ -811,7 +859,7 @@ X=\begin{pmatrix}
 <h2>Example of R output</h2>
 <div class="fragment">
 <p>Homoscedasticity Test:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">leveneTest</span>(Loss<span class="sc">~</span>Exercise)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="fu">leveneTest</span>(Loss<span class="sc">~</span>Exercise)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>We get</p>
 <pre><code>Levene’s Test for Homogeneity of Variance (center = median)
       Df   F value  Pr(&gt;F)
@@ -820,8 +868,8 @@ group 3    0.6527   0.584
 </div>
 <div class="fragment">
 <p>Homoscedasticity is ok. ANOVA?</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>reg<span class="ot">=</span><span class="fu">lm</span>(Loss<span class="sc">~</span>Exercise) <span class="co"># Exercise has 4 categories</span></span>
-<span id="cb5-2"><a></a><span class="fu">anova</span>(reg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a>reg<span class="ot">=</span><span class="fu">lm</span>(Loss<span class="sc">~</span>Exercise) <span class="co"># Exercise has 4 categories</span></span>
+<span id="cb11-2"><a></a><span class="fu">anova</span>(reg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <p>We get</p>
@@ -848,7 +896,7 @@ Residuals 68 781.89   11.498</code></pre>
 <p>We finish by analyzing the mean differences more precisely:</p>
 </div>
 <div class="fragment">
-<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="fu">TukeyHSD</span>(<span class="fu">aov</span>(Loss<span class="sc">~</span>Exercise))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="fu">TukeyHSD</span>(<span class="fu">aov</span>(Loss<span class="sc">~</span>Exercise))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <pre><code>Exercise
@@ -982,7 +1030,7 @@ Y_k &amp;= m + \sum_{i=1}^I \alpha_i\1\{X^{(1)}_k = A_i\} + \sum_{j=1}^J \beta_j
 <h2>Implementation in R</h2>
 <div class="fragment">
 <p>The complete model (with interaction) is launched with the command:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="fu">lm</span>(Y <span class="sc">~</span> A <span class="sc">+</span> B <span class="sc">+</span> A<span class="sc">:</span>B) <span class="do">## or equivalently, lm(Y ~ A*B)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a></a><span class="fu">lm</span>(Y <span class="sc">~</span> A <span class="sc">+</span> B <span class="sc">+</span> A<span class="sc">:</span>B) <span class="do">## or equivalently, lm(Y ~ A*B)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <p>With these constraints, the parameter interpretation is as follows:</p>
@@ -997,7 +1045,7 @@ Y_k &amp;= m + \sum_{i=1}^I \alpha_i\1\{X^{(1)}_k = A_i\} + \sum_{j=1}^J \beta_j
 <h2>Important Note on Interpretation</h2>
 <div class="fragment">
 <p>From</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">lm</span>(Y <span class="sc">~</span> A <span class="sc">+</span> B <span class="sc">+</span> A<span class="sc">:</span>B) <span class="do">## or equivalently, lm(Y ~ A*B)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="fu">lm</span>(Y <span class="sc">~</span> A <span class="sc">+</span> B <span class="sc">+</span> A<span class="sc">:</span>B) <span class="do">## or equivalently, lm(Y ~ A*B)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <p><strong>Intercept:</strong> <span class="math inline">\(m = \mu_{11}\)</span><br>
@@ -1014,7 +1062,7 @@ Y_k &amp;= m + \sum_{i=1}^I \alpha_i\1\{X^{(1)}_k = A_i\} + \sum_{j=1}^J \beta_j
 </div>
 <div class="callout-content">
 <p>To impose the constraints from the previous approach (<span style="background-color: orange;">sum-to-zero</span> constraints):</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">lm</span>(Y <span class="sc">~</span> A<span class="sc">*</span>B, <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">A =</span> contr.sum, <span class="at">B =</span> contr.sum))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a></a><span class="fu">lm</span>(Y <span class="sc">~</span> A<span class="sc">*</span>B, <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">A =</span> contr.sum, <span class="at">B =</span> contr.sum))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -1041,6 +1089,50 @@ Y_k &amp;= m + \sum_{i=1}^I \alpha_i\1\{X^{(1)}_k = A_i\} + \sum_{j=1}^J \beta_j
 </div>
 </div>
 </section>
+<section id="reading-a-crossed-modality-in-r" class="slide level2 smaller">
+<h2>Reading a crossed modality in R</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(yield <span class="sc">~</span> fertilizer <span class="sc">*</span> water))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>                        Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)               12.000     0.8573  13.997 1.09e-14 ***
+fertilizer2                6.000     1.2124   4.949 2.69e-05 ***
+watermedium                4.000     1.2124   3.299  0.00250 ** 
+waterhigh                 10.000     1.2124   8.248 3.31e-09 ***
+fertilizer2:watermedium   -3.000     1.7146  -1.750  0.09041 .  
+fertilizer2:waterhigh    -11.000     1.7146  -6.415 4.39e-07 ***
+
+Residual standard error: 2.1 on 30 degrees of freedom</code></pre>
+</div>
+<div class="fragment">
+<p>Everything is read against the cell <span class="math inline">\((A_1, B_1)\)</span>: <span class="math inline">\(\hat m = \overline{Y}_{11} = 12\)</span>, <span class="math inline">\(\hat\alpha_2 = \overline{Y}_{21} - \overline{Y}_{11} = 6\)</span>, <span class="math inline">\(\hat\beta_3 = \overline{Y}_{13} - \overline{Y}_{11} = 10\)</span>, <span class="math inline">\(\hat\gamma_{23} = \overline{Y}_{23} - \overline{Y}_{21} - \overline{Y}_{13} + \overline{Y}_{11} = -11\)</span>.</p>
+</div>
+<div class="fragment">
+<p>Summing them back gives the crossed modality:</p>
+<div class="square-def">
+<p><span class="math inline">\(\hat\mu_{23} = \hat m + \hat\alpha_2 + \hat\beta_3 + \hat\gamma_{23} = 12 + 6 + 10 - 11 = 17 = \overline{Y}_{23}\)</span></p>
+</div>
+</div>
+</section>
+<section id="the-same-fit-with-sum-to-zero-constraints" class="slide level2 smaller">
+<h2>The same fit with sum-to-zero constraints</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(yield <span class="sc">~</span> fertilizer<span class="sc">*</span>water,</span>
+<span id="cb20-2"><a></a>           <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">fertilizer =</span> contr.sum, <span class="at">water =</span> contr.sum)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>                   Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)         17.3333     0.3500  49.524  &lt; 2e-16 ***
+fertilizer1         -0.6667     0.3500  -1.905  0.06644 .  
+water1              -2.3333     0.4950  -4.714 5.22e-05 ***
+water2               0.1667     0.4950   0.337  0.73870    
+fertilizer1:water1  -2.3333     0.4950  -4.714 5.22e-05 ***
+fertilizer1:water2  -0.8333     0.4950  -1.684  0.10260    </code></pre>
+</div>
+<div class="fragment">
+<p><span class="math inline">\(\hat m = 17.33\)</span> is now the <strong>grand mean</strong>; the last level of each factor is not printed, being minus the sum of the others: <span class="math inline">\(\hat\alpha_2 = +0.6667\)</span>, <span class="math inline">\(\hat\beta_3 = +2.1667\)</span>, <span class="math inline">\(\hat\gamma_{23} = -3.1667\)</span>. Same fit, same <span class="math inline">\(\hat\sigma = 2.1\)</span>:</p>
+<div class="square-def">
+<p><span class="math inline">\(\hat\mu_{23} = 17.3333 + 0.6667 + 2.1667 - 3.1667 = 17 = \overline{Y}_{23}\)</span></p>
+</div>
+</div>
+</section>
 <section id="significance-tests-for-effects" class="slide level2">
 <h2>Significance Tests for Effects</h2>
 <ul>
@@ -1055,31 +1147,149 @@ Y_k &amp;= m + \sum_{i=1}^I \alpha_i\1\{X^{(1)}_k = A_i\} + \sum_{j=1}^J \beta_j
 <p><strong>Do we have <span class="math inline">\(\gamma_{ij} = 0\)</span> for all <span class="math inline">\(i, j\)</span>?</strong></p>
 </div>
 </section>
-<section id="reading-interaction-plots" class="slide level2">
-<h2>Reading Interaction Plots</h2>
-<div class="fragment">
-<p>Plot <span class="math inline">\(\overline Y_{ij}\)</span> in function of modalities <span class="math inline">\((i,j)\)</span><br>
-</p>
+<section id="interaction-plot-the-term-γ" class="slide level2 smaller">
+<h2>Interaction plot: the term γ</h2>
+<div style="font-size:80%">
+<p><span class="math display">\[\mu_{ij}(t) = m + \alpha_i + \beta_j + t\,\gamma_{ij}, \qquad
+  \mu_{2j}(t) - \mu_{1j}(t) = (\alpha_2 - \alpha_1) + t\,(\gamma_{2j} - \gamma_{1j})\]</span></p>
 </div>
-<div class="fragment">
-<p>without interactions, lines should be almost parallel</p>
-<div style="text-align: center;">
-<p><img data-src="images/captures/interaction_1.png" style="width:50.0%"></p>
+<style>
+.lm-btn{font-family:inherit;font-size:.82em;padding:.35em 1em;margin:.1em .18em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-btn.on{background:#3b6fb6;color:#fff;border-color:#3b6fb6}
+.lm-row{font-size:.72em;line-height:2.1;margin:.08rem 0}
+.lm-wrap{text-align:center}
+.lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
+#paWrap input[type=range]{vertical-align:middle;width:84px}
+#paWrap b{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+#paWrap .sl{display:inline-block;min-width:22px}
+</style>
+<div class="lm-wrap" id="paWrap">
+  <div class="lm-row">
+    <button class="lm-btn" data-mode="T">reference modality</button><button class="lm-btn on" data-mode="S">sum to zero</button>
+    &nbsp;·&nbsp; <span id="paCons"></span>
+  </div>
+  <canvas id="paCanvas" width="680" height="244" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px"></canvas>
+  <div class="lm-row">
+    <span class="sl" id="paLm"></span> <input id="paM" type="range" autocomplete="off" min="4" max="28" step="0.01" value="17.33333"> <b id="paMv">–</b> &nbsp;
+    <span class="sl" id="paLa"></span> <input id="paA" type="range" autocomplete="off" min="-8" max="8" step="0.01" value="-0.66667"> <b id="paAv">–</b> &nbsp;
+    <span class="sl" id="paLb1"></span> <input id="paB1" type="range" autocomplete="off" min="-8" max="8" step="0.01" value="-2.33333"> <b id="paB1v">–</b> &nbsp;
+    <span class="sl" id="paLb2"></span> <input id="paB2" type="range" autocomplete="off" min="-12" max="12" step="0.01" value="0.16667"> <b id="paB2v">–</b>
+  </div>
+  <div class="lm-row">
+    <span class="sl" id="paLg1"></span> <input id="paG1" type="range" autocomplete="off" min="-12" max="12" step="0.01" value="-2.33333"> <b id="paG1v">–</b> &nbsp;
+    <span class="sl" id="paLg2"></span> <input id="paG2" type="range" autocomplete="off" min="-14" max="14" step="0.01" value="-0.83333"> <b id="paG2v">–</b> &nbsp;
+    \(t\) <input id="paT" type="range" autocomplete="off" min="0" max="1.5" step="0.01" value="0"> <b id="paTv">–</b> &nbsp;
+    <button class="lm-btn" id="paPlay">▶ animate</button><button class="lm-btn" id="paReset">↻ reset</button>
+  </div>
+  <div class="lm-row"><span class="lm-sw" style="background:#3498db"></span> \(i=1\) &nbsp; <span class="lm-sw" style="background:#e67e22"></span> \(i=2\) &nbsp;·&nbsp; \(t\,\gamma_{2j}\) = <b id="paG">–</b> &nbsp;·&nbsp; \(\mu_{2j}-\mu_{1j}\) = <b id="paD">–</b></div>
 </div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="fu">interaction.plot</span>(A,B,Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="interaction-plots-lines-cross" class="slide level2">
-<h2>Interaction Plots: Lines Cross</h2>
+<script>
+(function () {
+  var cv = document.getElementById('paCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, KEY = 'lmParallel3';
+  var LAB = ['low', 'medium', 'high'], TMAX = 1.5, mode = 'S';
+  var ID = { m: 'paM', a: 'paA', b1: 'paB1', b2: 'paB2', g1: 'paG1', g2: 'paG2', t: 'paT' };
+  var DEF = { S: { m: 17.33333, a: -0.66667, b1: -2.33333, b2: 0.16667, g1: -2.33333, g2: -0.83333 },
+              T: { m: 12, a: 6, b1: 4, b2: 10, g1: -3, g2: -11 } };
+  var LBL = { S: ['m', '\\alpha_1', '\\beta_1', '\\beta_2', '\\gamma_{11}', '\\gamma_{12}'],
+              T: ['m', '\\alpha_2', '\\beta_2', '\\beta_3', '\\gamma_{22}', '\\gamma_{23}'] };
+  var CONS = { S: '\\sum_i \\alpha_i = \\sum_j \\beta_j = 0,\\ \\sum_i \\gamma_{ij} = \\sum_j \\gamma_{ij} = 0',
+               T: '\\alpha_1 = \\beta_1 = 0,\\ \\gamma_{1j} = \\gamma_{i1} = 0' };
+  var LID = ['paLm', 'paLa', 'paLb1', 'paLb2', 'paLg1', 'paLg2'];
+  var btn = document.getElementById('paPlay'), raf = 0, dir = 1;
+  function el(k) { return document.getElementById(ID[k]); }
+  function par() { var p = {}; for (var k in ID) p[k] = +el(k).value; return p; }
+  function coef(p) {
+    if (mode === 'S') {
+      var g1 = [p.g1, p.g2, -(p.g1 + p.g2)];
+      return { AL: [p.a, -p.a], BE: [p.b1, p.b2, -(p.b1 + p.b2)], GA: [g1, [-g1[0], -g1[1], -g1[2]]] };
+    }
+    return { AL: [0, p.a], BE: [0, p.b1, p.b2], GA: [[0, 0, 0], [0, p.g1, p.g2]] };
+  }
+  function muOf(p, k, i, j, t) { return p.m + k.AL[i] + k.BE[j] + t * k.GA[i][j]; }
+  function typeset(nodes) { if (window.MathJax && MathJax.Hub && MathJax.Hub.Queue) MathJax.Hub.Queue(['Typeset', MathJax.Hub, nodes]); else setTimeout(function () { typeset(nodes); }, 200); }
+  function labels() {
+    for (var i = 0; i < 6; i++) document.getElementById(LID[i]).innerHTML = '\\(' + LBL[mode][i] + '\\)';
+    document.getElementById('paCons').innerHTML = '\\(' + CONS[mode] + '\\)';
+    typeset(document.getElementById('paWrap'));
+  }
+  function setMode(nm) {
+    if (nm === mode) return;
+    var p = par(), k = coef(p), M = [[0, 0, 0], [0, 0, 0]], i, j;
+    for (i = 0; i < 2; i++) for (j = 0; j < 3; j++) M[i][j] = muOf(p, k, i, j, 1);   // keep the fully-interacted picture
+    mode = nm;
+    if (mode === 'T') {
+      el('m').value = M[0][0]; el('a').value = M[1][0] - M[0][0];
+      el('b1').value = M[0][1] - M[0][0]; el('b2').value = M[0][2] - M[0][0];
+      el('g1').value = M[1][1] - M[1][0] - M[0][1] + M[0][0];
+      el('g2').value = M[1][2] - M[1][0] - M[0][2] + M[0][0];
+    } else {
+      var gm = (M[0][0] + M[0][1] + M[0][2] + M[1][0] + M[1][1] + M[1][2]) / 6;
+      var r0 = (M[0][0] + M[0][1] + M[0][2]) / 3, c0 = (M[0][0] + M[1][0]) / 2, c1 = (M[0][1] + M[1][1]) / 2;
+      el('m').value = gm; el('a').value = r0 - gm; el('b1').value = c0 - gm; el('b2').value = c1 - gm;
+      el('g1').value = M[0][0] - gm - (r0 - gm) - (c0 - gm);
+      el('g2').value = M[0][1] - gm - (r0 - gm) - (c1 - gm);
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('#paWrap .lm-btn[data-mode]'), function (b) { b.classList.toggle('on', b.dataset.mode === mode); });
+    labels(); draw(); save();
+  }
+  function draw() {
+    var p = par(), k = coef(p), i, j;
+    for (var q in ID) document.getElementById(ID[q] + 'v').textContent = p[q].toFixed(2);
+    var lo = Infinity, hi = -Infinity;
+    for (i = 0; i < 2; i++) for (j = 0; j < 3; j++) { [0, TMAX].forEach(function (tt) { var v = muOf(p, k, i, j, tt); if (v < lo) lo = v; if (v > hi) hi = v; }); }
+    lo = Math.floor(lo - 1); hi = Math.ceil(hi + 1); if (hi - lo < 6) hi = lo + 6;
+    var x0 = 60, x1 = W - 24, y0 = 14, y1 = H - 38;
+    function PX(j) { return x0 + j * (x1 - x0) / 2; }
+    function PY(v) { return y1 - (v - lo) / (hi - lo) * (y1 - y0); }
+    c.clearRect(0, 0, W, H);
+    var stepY = Math.max(1, Math.round((hi - lo) / 7));
+    c.strokeStyle = '#eee'; c.lineWidth = 1; c.font = '11px sans-serif'; c.fillStyle = '#999'; c.textAlign = 'right';
+    for (var v = Math.ceil(lo / stepY) * stepY; v <= hi; v += stepY) { c.beginPath(); c.moveTo(x0 - 6, PY(v)); c.lineTo(x1, PY(v)); c.stroke(); c.fillText(v, x0 - 10, PY(v) + 4); }
+    c.textAlign = 'center'; c.fillStyle = '#777'; for (j = 0; j < 3; j++) c.fillText(LAB[j], PX(j), y1 + 16);
+    c.fillText('j', (x0 + x1) / 2, y1 + 31);
+    c.save(); c.translate(14, (y0 + y1) / 2); c.rotate(-Math.PI / 2); c.fillText('μ', 0, 0); c.restore();
+    var dif = [];
+    for (j = 0; j < 3; j++) {
+      var a = muOf(p, k, 0, j, p.t), b = muOf(p, k, 1, j, p.t); dif.push(b - a);
+      c.strokeStyle = '#ccc'; c.setLineDash([3, 3]); c.beginPath(); c.moveTo(PX(j), PY(a)); c.lineTo(PX(j), PY(b)); c.stroke(); c.setLineDash([]);
+      c.fillStyle = '#888'; c.font = '10px sans-serif'; c.textAlign = j === 2 ? 'right' : 'left';
+      c.fillText((b - a >= 0 ? '+' : '') + (b - a).toFixed(1), PX(j) + (j === 2 ? -6 : 6), (PY(a) + PY(b)) / 2 + 3);
+    }
+    [0, 1].forEach(function (ii) {
+      var col = ii ? '#e67e22' : '#3498db';
+      c.strokeStyle = col; c.lineWidth = 2.6; c.beginPath();
+      for (j = 0; j < 3; j++) { var q2 = PY(muOf(p, k, ii, j, p.t)); j ? c.lineTo(PX(j), q2) : c.moveTo(PX(j), q2); } c.stroke();
+      c.fillStyle = col; for (j = 0; j < 3; j++) { c.beginPath(); c.arc(PX(j), PY(muOf(p, k, ii, j, p.t)), 4, 0, 6.2832); c.fill(); }
+    });
+    function fmt(arr) { return arr.map(function (g) { return (g >= 0 ? '+' : '') + g.toFixed(1); }).join(' / '); }
+    document.getElementById('paG').textContent = fmt([0, 1, 2].map(function (jj) { return p.t * k.GA[1][jj]; }));
+    document.getElementById('paD').textContent = fmt(dif);
+  }
+  function save() { try { var o = par(); o.mode = mode; localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
+  function stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } btn.textContent = '▶ animate'; btn.classList.remove('on'); }
+  function tick() { var t = +el('t').value + dir * 0.012; if (t >= TMAX) { t = TMAX; dir = -1; } else if (t <= 0) { t = 0; dir = 1; } el('t').value = t; draw(); raf = requestAnimationFrame(tick); }
+  btn.addEventListener('click', function () { if (raf) { stop(); save(); } else { btn.textContent = '⏸ pause'; btn.classList.add('on'); raf = requestAnimationFrame(tick); } });
+  document.getElementById('paReset').addEventListener('click', function () { stop(); var d = DEF[mode]; for (var q in d) el(q).value = d[q]; draw(); save(); });
+  Array.prototype.forEach.call(document.querySelectorAll('#paWrap .lm-btn[data-mode]'), function (b) { b.addEventListener('click', function () { stop(); setMode(b.dataset.mode); }); });
+  for (var q in ID) el(q).addEventListener('input', function () { stop(); draw(); save(); });
+  var saved = null; try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+  if (saved) {
+    if (saved.mode === 'T' || saved.mode === 'S') mode = saved.mode;
+    for (var r in ID) if (saved[r] != null) el(r).value = saved[r];
+    Array.prototype.forEach.call(document.querySelectorAll('#paWrap .lm-btn[data-mode]'), function (b) { b.classList.toggle('on', b.dataset.mode === mode); });
+  }
+  labels(); draw(); save();
+})();
+</script>
 <div class="fragment">
-<p>Lines cross in presence of interaction</p>
-<p><img data-src="images/captures/interaction_2.png"></p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a><span class="fu">interaction.plot</span>(water, fertilizer, yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="interaction-plot-drag-the-cell-means" class="slide level2 smaller">
 <h2>Interaction plot — drag the cell means</h2>
 <div style="font-size:82%">
-<p>Drag a cell mean (solid = <strong>theoretical</strong> <span class="math inline">\(\mu_{ij}\)</span>; light dashed = <strong>empirical</strong> <span class="math inline">\(\hat Y_{ij}\)</span>, with noise). Pick the active cell with the <strong>i / j</strong> buttons; <strong>hover a point</strong> to read its value. The interaction term <span class="math inline">\(\gamma_{ij}\)</span> turns green and <span class="math inline">\(\to 0\)</span> when the lines are parallel.</p>
+<p>Drag a cell mean (solid <span class="math inline">\(\mu_{ij}\)</span>, dashed <span class="math inline">\(\hat Y_{ij}\)</span> with noise); <strong>i / j</strong> select the active cell. The table holds the whole decomposition, each <span class="math inline">\(\gamma_{ij}\)</span> green at <span class="math inline">\(0\)</span>.</p>
 </div>
 <style>
 .lm-btn{font-family:inherit;font-size:.8em;padding:.3em .9em;margin:.08em .14em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
@@ -1091,9 +1301,14 @@ Y_k &amp;= m + \sum_{i=1}^I \alpha_i\1\{X^{(1)}_k = A_i\} + \sum_{j=1}^J \beta_j
 #ipEq .op{font-size:1.1em;padding:0 .08em .38em}
 #ipEq .sym{height:1.55em;line-height:1.55em}
 #ipEq .val{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.8em;width:56px;text-align:center;color:#444}
+#ipTab{font-size:.62em;margin:.3rem auto 0;border-collapse:collapse}
+#ipTab th,#ipTab td{padding:.1em .6em;border:1px solid #e0e0e0;text-align:center;min-width:54px}
+#ipTab th{color:#777;font-weight:500}
+#ipTab td{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#444}
+#ipTab td.act{outline:2px solid #3b6fb6;outline-offset:-2px}
 </style>
 <div class="lm-wrap" id="ipWrap">
-  <canvas id="ipCanvas" width="680" height="248" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <canvas id="ipCanvas" width="680" height="206" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
   <div class="lm-row">noise σ <input id="ipS" type="range" autocomplete="off" min="0.2" max="4" step="0.05" value="2" style="vertical-align:middle;width:100px"> <b id="ipSv">2.00</b> &nbsp; n/cell <input id="ipN" type="range" autocomplete="off" min="2" max="100" step="1" value="6" style="vertical-align:middle;width:100px"> <b id="ipNv">6</b> &nbsp; <button class="lm-btn" id="ipNew">↻ resample</button> <button class="lm-btn" id="ipFlat">remove interaction</button> <button class="lm-btn" id="ipReset">↻ reset</button></div>
   <div class="lm-row">cell &nbsp;i <button class="lm-btn ib" data-i="0">1</button><button class="lm-btn ib" data-i="1">2</button> &nbsp; j <button class="lm-btn jb" data-j="0">1</button><button class="lm-btn jb" data-j="1">2</button><button class="lm-btn jb" data-j="2">3</button></div>
   <div id="ipEq">
@@ -1107,6 +1322,40 @@ Y_k &amp;= m + \sum_{i=1}^I \alpha_i\1\{X^{(1)}_k = A_i\} + \sum_{j=1}^J \beta_j
     <span class="op">+</span>
     <span class="trm"><span class="sym" id="ipSymG"></span><span class="val" id="ipValG">–</span></span>
   </div>
+  
+<table id="ipTab" class="caption-top" data-quarto-postprocess="true">
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">\(\gamma_{ij}\)</td>
+<td data-quarto-table-cell-role="th">\(j=1\)</td>
+<td data-quarto-table-cell-role="th">\(j=2\)</td>
+<td data-quarto-table-cell-role="th">\(j=3\)</td>
+<td data-quarto-table-cell-role="th">\(\alpha_i\)</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">\(i=1\)</td>
+<td id="ipT00">–</td>
+<td id="ipT01">–</td>
+<td id="ipT02">–</td>
+<td id="ipTA0">–</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">\(i=2\)</td>
+<td id="ipT10">–</td>
+<td id="ipT11">–</td>
+<td id="ipT12">–</td>
+<td id="ipTA1">–</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">\(\beta_j\)</td>
+<td id="ipTB0">–</td>
+<td id="ipTB1">–</td>
+<td id="ipTB2">–</td>
+<td data-quarto-table-cell-role="th">\(m\) <span id="ipTM">–</span></td>
+</tr>
+</tbody>
+</table>
+
 </div>
 <script>
 (function(){
@@ -1149,6 +1398,13 @@ Y_k &amp;= m + \sum_{i=1}^I \alpha_i\1\{X^{(1)}_k = A_i\} + \sum_{j=1}^J \beta_j
     id('ipValA').textContent=sgn(d.ai[i]);
     id('ipValB').textContent=sgn(d.bj[j]);
     var g=id('ipValG'); g.textContent=sgn(gij); g.style.color=Math.abs(gij)<0.1?'#27ae60':'#c0392b';
+    var ii,jj,cell;
+    for(ii=0;ii<I;ii++){ id('ipTA'+ii).textContent=sgn(d.ai[ii]);
+      for(jj=0;jj<J;jj++){ cell=id('ipT'+ii+jj); cell.textContent=sgn(d.G[ii][jj]);
+        cell.style.color=Math.abs(d.G[ii][jj])<0.1?'#27ae60':'#c0392b';
+        cell.classList.toggle('act', ii===i&&jj===j); } }
+    for(jj=0;jj<J;jj++) id('ipTB'+jj).textContent=sgn(d.bj[jj]);
+    id('ipTM').textContent=d.m.toFixed(2);
   }
   function setActive(i,j){ act=[i,j];
     Array.prototype.forEach.call(document.querySelectorAll('#ipWrap .ib'),function(b){b.classList.toggle('on',+b.dataset.i===i);});
@@ -1203,6 +1459,7 @@ Y_k &amp;= m + \sum_{i=1}^I \alpha_i\1\{X^{(1)}_k = A_i\} + \sum_{j=1}^J \beta_j
   function save(){try{localStorage.setItem(KEY,JSON.stringify({mu:mu,s:+sEl.value,n:+nEl.value,a:act}));}catch(e){}}
   var saved=null; try{saved=JSON.parse(localStorage.getItem(KEY));}catch(e){}
   if(saved&&saved.mu&&saved.mu.length===I){ mu=saved.mu.map(function(r){return r.slice();}); if(saved.a)act=saved.a; sEl.value=saved.s; nEl.value=saved.n; }
+  (function ts(){ if(window.MathJax&&MathJax.Hub&&MathJax.Hub.Queue) MathJax.Hub.Queue(['Typeset',MathJax.Hub,id('ipTab')]); else setTimeout(ts,200); })();
   regen(); setActive(act[0],act[1]); draw();
 })();
 </script>

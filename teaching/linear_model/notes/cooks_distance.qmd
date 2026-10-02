@@ -1,0 +1,92 @@
+---
+title: "Cook's Distance: the Alternative Formula"
+format:
+  html:
+    incremental: true
+    callout-icon: false
+    theme: [default]
+smaller: true
+css: ../../../styles.css
+---
+
+AI was used to assist with the formatting and writing of the proofs on this page.
+
+## Why an alternative formula?
+
+The definition of Cook's distance,
+$$C_i = \frac{\|\widehat Y - \widehat Y_{(-i)}\|^2}{p\,\hat\sigma^2},
+  \qquad \widehat Y_{(-i)} = X\hat\beta_{(-i)},$$
+is a *leave-one-out* quantity: read literally, computing $C_1, \dots, C_n$ means fitting the model
+$n+1$ times. The alternative formula
+$$C_i = \frac{1}{p}\cdot\frac{h_{ii}}{1-h_{ii}}\cdot t_i^2$$
+gives the same numbers from the **single** full fit, using only the hat matrix diagonal $h_{ii}$ and the
+residuals. Two reasons to care:
+
+- **Cost.** All $n$ influence measures come for free once $P_{[X]}$ and $\hat\varepsilon$ are known. This
+  is what `cooks.distance` actually evaluates.
+- **Interpretation.** The definition says *how much* individual $i$ moves the fit, but not *why*. The
+  factorised form splits the influence into a purely **positional** part $h_{ii}/(1-h_{ii})$, increasing
+  in the leverage, and a purely **residual** part $t_i^2$, measuring how aberrant $Y_i$ is. Influence
+  needs both: a high-leverage point that lies on the line ($t_i \approx 0$) and an outlier in the middle
+  of the design ($h_{ii} \approx p/n$) are both harmless, while their combination is not.
+
+## Statement
+
+Assume $X$ is of full rank $p$ and write $X_i^T$ for the $i$-th row of $X$, so that
+$$h_{ii} = X_i^T (X^TX)^{-1} X_i, \qquad \hat\varepsilon_i = Y_i - \widehat Y_i, \qquad
+  t_i = \frac{\hat\varepsilon_i}{\hat\sigma\sqrt{1-h_{ii}}}.$$
+
+::: {.callout-note}
+## Proposition
+
+If $h_{ii} < 1$, then
+$$C_i = \frac{1}{p}\cdot\frac{h_{ii}}{1-h_{ii}}\cdot t_i^2
+      = \frac{\hat\varepsilon_i^2}{p\,\hat\sigma^2}\cdot\frac{h_{ii}}{(1-h_{ii})^2} .$$
+:::
+
+Note that $\hat\sigma^2$ is the estimate from the **full** fit, both in $C_i$ and in $t_i$ (which is then
+the *internally* studentised residual): no quantity on the right-hand side refers to the reduced model.
+
+## Proof
+
+Everything starts from the numerator of the definition. Since $\widehat Y = X\hat\beta$ and
+$\widehat Y_{(-i)} = X\hat\beta_{(-i)}$,
+$$\|\widehat Y - \widehat Y_{(-i)}\|^2 = \|X(\hat\beta - \hat\beta_{(-i)})\|^2
+  = (\hat\beta - \hat\beta_{(-i)})^T X^TX\, (\hat\beta - \hat\beta_{(-i)}) ,$$
+so the whole problem is to find how much the estimator itself moves when individual $i$ is removed.
+
+Removing individual $i$ deletes one row from $X$ and one entry from $Y$, which subtracts that
+individual's own contribution to the normal equations:
+$$X_{(-i)}^T X_{(-i)} = X^TX - X_i X_i^T, \qquad X_{(-i)}^T Y_{(-i)} = X^TY - X_i Y_i .$$
+
+The matrix to invert is therefore $X^TX$ modified by a rank-one term, and the inverse of such a matrix
+differs from $(X^TX)^{-1}$ only by a rank-one term as well. Writing $A = X^TX$ and assuming
+$h_{ii} \neq 1$, this suggests the candidate
+$$B = A^{-1} + \frac{A^{-1}X_iX_i^TA^{-1}}{1-h_{ii}} ,$$
+which we check directly. Using $X_i^TA^{-1}X_i = h_{ii}$,
+$$(A - X_iX_i^T)\,B = I + \frac{X_iX_i^TA^{-1}}{1-h_{ii}} - X_iX_i^TA^{-1}
+   - \frac{h_{ii}}{1-h_{ii}}\,X_iX_i^TA^{-1} = I ,$$
+since $\frac{1}{1-h_{ii}} - 1 - \frac{h_{ii}}{1-h_{ii}} = 0$. A square matrix admitting a right inverse
+is invertible, so $B$ is *the* inverse:
+$$(X^TX - X_iX_i^T)^{-1} = (X^TX)^{-1} + \frac{(X^TX)^{-1}X_i X_i^T (X^TX)^{-1}}{1-h_{ii}} .$$
+
+Write $a = (X^TX)^{-1}X_i$, so that $X_i^T a = h_{ii}$ and $X_i^T\hat\beta = \widehat Y_i$. Then
+$$\hat\beta_{(-i)} = \left[(X^TX)^{-1} + \frac{a\,a^T}{1-h_{ii}}\right](X^TY - X_iY_i)
+   = \hat\beta - a\,Y_i + a\,\frac{\widehat Y_i - h_{ii}Y_i}{1-h_{ii}} ,$$
+and collecting the two last terms over the denominator $1-h_{ii}$,
+$$-Y_i(1-h_{ii}) + \widehat Y_i - h_{ii}Y_i = -(Y_i - \widehat Y_i) = -\hat\varepsilon_i .$$
+
+::: {.square-def}
+$$\hat\beta - \hat\beta_{(-i)} = \frac{\hat\varepsilon_i}{1-h_{ii}}\,(X^TX)^{-1}X_i$$
+:::
+
+The shift is along the fixed direction $(X^TX)^{-1}X_i$, with a magnitude driven by the residual and
+inflated by $1/(1-h_{ii})$ — the point pulls the fit towards itself, so its own residual *understates*
+the move. Plugging it into the quadratic form above, and using
+$(X^TX)^{-1}X^TX(X^TX)^{-1} = (X^TX)^{-1}$,
+$$\|\widehat Y - \widehat Y_{(-i)}\|^2 = \frac{\hat\varepsilon_i^2}{(1-h_{ii})^2}\;
+  X_i^T (X^TX)^{-1} X_i = \frac{\hat\varepsilon_i^2\, h_{ii}}{(1-h_{ii})^2} ,$$
+since the last factor is $h_{ii}$ by definition. Dividing by $p\hat\sigma^2$,
+$$C_i = \frac{\hat\varepsilon_i^2}{p\,\hat\sigma^2}\cdot\frac{h_{ii}}{(1-h_{ii})^2}
+      = \frac{1}{p}\cdot\frac{h_{ii}}{1-h_{ii}}\cdot
+        \underbrace{\frac{\hat\varepsilon_i^2}{\hat\sigma^2(1-h_{ii})}}_{t_i^2} . \qquad \blacksquare$$

@@ -1,0 +1,97 @@
+---
+title: "Mallows' Cₚ: Risk Formula and F Form"
+format:
+  html:
+    incremental: true
+    callout-icon: false
+    theme: [default]
+smaller: true
+css: ../../../styles.css
+---
+
+AI was used to assist with the formatting and writing of the proofs on this page.
+
+## Setting
+
+The observations follow the **true** model, whose design is unknown:
+$$Y = X^*\beta^* + \varepsilon \in \mathbb R^n, \qquad
+  \mathbb E[\varepsilon] = 0, \quad \mathbb V(\varepsilon) = \sigma^2 I_n, \qquad
+  \mu := \mathbb E[Y] = X^*\beta^* .$$
+
+The maximal design $X_{\max}$ has $p_{\max}$ columns; the **tested** model regresses $Y$ on $p$ of them,
+forming a full-rank $X$, and $q = p_{\max} - p$ is the number of columns it leaves out. Throughout:
+
+- $[X]$ is the column space of $X$ and $P_{[X]}$ the orthogonal projection onto it, so
+  $\widehat Y = P_{[X]}Y$ are the fitted values of the tested model. The vector $\mu$ lies in $[X]$ only
+  if the tested model keeps all the true columns;
+- $SSR = \|Y - \widehat Y\|^2$ is the residual sum of squares of the tested model, $SSR_{\max}$ that of
+  the maximal model;
+- $\hat\sigma^2 = SSR_{\max}/(n-p_{\max})$ is the variance estimate of the maximal model, the same for
+  every tested model;
+- $F = \dfrac{SSR - SSR_{\max}}{q\,\hat\sigma^2}$ is the Fisher statistic comparing the tested model to
+  the maximal one;
+- $\tilde Y$ is an independent copy of $Y$: same distribution, independent of it.
+
+The tested model is judged by its **prediction risk**
+$$\mathcal R = \mathbb E\big(\|\tilde Y - \widehat Y\|^2\big),$$
+which $C_p$ estimates after the rescaling $r \mapsto r/\sigma^2 - n$, common to all tested models.
+
+::: {.callout-note}
+## Definition
+
+$$C_p = \frac{SSR}{\hat\sigma^2} - n + 2p$$
+:::
+
+::: {.callout-note}
+## Proposition
+
+**1.** $\mathcal R = \mathbb E[SSR] + 2p\,\sigma^2$, so that $\hat\sigma^2(C_p + n) = SSR + 2p\,\hat\sigma^2$
+estimates $\mathcal R$.
+
+**2.** $C_p = p + q\,(F-1)$.
+:::
+
+## Proof of the risk formula
+
+Start from $\mathcal R$ and centre at $\mu$. As $\tilde Y \perp\!\!\!\perp \widehat Y$ with
+$\mathbb E[\tilde Y - \mu] = 0$, the cross term vanishes:
+$$\mathcal R = \mathbb E\|\tilde Y - \mu\|^2 + \mathbb E\|\widehat Y - \mu\|^2
+  = n\sigma^2 + \mathbb E\|\widehat Y - \mu\|^2 .$$
+
+Both terms split along $[X]$ and $[X]^\perp$, with $Y = \mu + \varepsilon$:
+$$\begin{aligned}
+\mathbb E\|\widehat Y - \mu\|^2
+  &= \mathbb E\big\|P_{[X]}(\mu+\varepsilon) - \mu\big\|^2
+   = \mathbb E\big\|-(I-P_{[X]})\mu + P_{[X]}\varepsilon\big\|^2 \\[2pt]
+  &= \|(I-P_{[X]})\mu\|^2
+     - 2\,\underbrace{\big\langle (I-P_{[X]})\mu,\; P_{[X]}\mathbb E[\varepsilon]\big\rangle}_{=\,0}
+     + \mathbb E\|P_{[X]}\varepsilon\|^2 \\[2pt]
+  &= \|(I-P_{[X]})\mu\|^2 + \sigma^2\,\mathrm{tr}(P_{[X]})
+   = \|(I-P_{[X]})\mu\|^2 + p\,\sigma^2 ,
+\end{aligned}$$
+
+$$\begin{aligned}
+\mathbb E[SSR]
+  &= \mathbb E\big\|(I-P_{[X]})(\mu+\varepsilon)\big\|^2 \\[2pt]
+  &= \|(I-P_{[X]})\mu\|^2
+     + 2\,\underbrace{\big\langle (I-P_{[X]})\mu,\; (I-P_{[X]})\mathbb E[\varepsilon]\big\rangle}_{=\,0}
+     + \mathbb E\|(I-P_{[X]})\varepsilon\|^2 \\[2pt]
+  &= \|(I-P_{[X]})\mu\|^2 + \sigma^2\,\mathrm{tr}(I-P_{[X]})
+   = \|(I-P_{[X]})\mu\|^2 + (n-p)\,\sigma^2 .
+\end{aligned}$$
+
+Eliminating $\|(I-P_{[X]})\mu\|^2$,
+$$\mathcal R = n\sigma^2 + \big(\mathbb E[SSR] - (n-p)\sigma^2\big) + p\sigma^2
+  = \mathbb E[SSR] + 2p\,\sigma^2 .$$
+
+Replacing $\sigma^2$ by $\hat\sigma^2$, the estimate of $\mathcal R$ is
+$SSR + 2p\,\hat\sigma^2 = \hat\sigma^2(C_p + n)$. $\blacksquare$
+
+## Proof of the F form
+
+Start from the definition. By definition of $F$, $SSR = SSR_{\max} + q\,\hat\sigma^2 F$, and
+$SSR_{\max}/\hat\sigma^2 = n - p_{\max}$, so
+$$\frac{SSR}{\hat\sigma^2} = (n - p_{\max}) + qF .$$
+
+Hence, with $p_{\max} = p + q$,
+$$C_p = (n - p_{\max}) + qF - n + 2p = qF - p_{\max} + 2p = p + q\,(F-1) . \qquad \blacksquare$$
