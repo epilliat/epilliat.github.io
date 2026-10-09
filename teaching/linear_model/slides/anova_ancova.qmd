@@ -1103,156 +1103,10 @@ We test for interaction first. Under $H_0^{(AB)}$, the model reduces to the **ad
 **Do we have $\gamma_{ij} = 0$ for all $i, j$?**
 
 
-## Interaction plot: the term γ {.smaller}
-
-::: {style="font-size:80%"}
-$$\mu_{ij}(t) = m + \alpha_i + \beta_j + t\,\gamma_{ij}, \qquad
-  \mu_{2j}(t) - \mu_{1j}(t) = (\alpha_2 - \alpha_1) + t\,(\gamma_{2j} - \gamma_{1j})$$
-:::
-
-```{=html}
-<style>
-.lm-btn{font-family:inherit;font-size:.82em;padding:.35em 1em;margin:.1em .18em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
-.lm-btn.on{background:#3b6fb6;color:#fff;border-color:#3b6fb6}
-.lm-row{font-size:.72em;line-height:2.1;margin:.08rem 0}
-.lm-wrap{text-align:center}
-.lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
-#paWrap input[type=range]{vertical-align:middle;width:84px}
-#paWrap b{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
-#paWrap .sl{display:inline-block;min-width:22px}
-</style>
-<div class="lm-wrap" id="paWrap">
-  <div class="lm-row">
-    <button class="lm-btn" data-mode="T">reference modality</button><button class="lm-btn on" data-mode="S">sum to zero</button>
-    &nbsp;·&nbsp; <span id="paCons"></span>
-  </div>
-  <canvas id="paCanvas" width="680" height="244" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px"></canvas>
-  <div class="lm-row">
-    <span class="sl" id="paLm"></span> <input id="paM" type="range" autocomplete="off" min="4" max="28" step="0.01" value="17.33333"> <b id="paMv">–</b> &nbsp;
-    <span class="sl" id="paLa"></span> <input id="paA" type="range" autocomplete="off" min="-8" max="8" step="0.01" value="-0.66667"> <b id="paAv">–</b> &nbsp;
-    <span class="sl" id="paLb1"></span> <input id="paB1" type="range" autocomplete="off" min="-8" max="8" step="0.01" value="-2.33333"> <b id="paB1v">–</b> &nbsp;
-    <span class="sl" id="paLb2"></span> <input id="paB2" type="range" autocomplete="off" min="-12" max="12" step="0.01" value="0.16667"> <b id="paB2v">–</b>
-  </div>
-  <div class="lm-row">
-    <span class="sl" id="paLg1"></span> <input id="paG1" type="range" autocomplete="off" min="-12" max="12" step="0.01" value="-2.33333"> <b id="paG1v">–</b> &nbsp;
-    <span class="sl" id="paLg2"></span> <input id="paG2" type="range" autocomplete="off" min="-14" max="14" step="0.01" value="-0.83333"> <b id="paG2v">–</b> &nbsp;
-    \(t\) <input id="paT" type="range" autocomplete="off" min="0" max="1.5" step="0.01" value="0"> <b id="paTv">–</b> &nbsp;
-    <button class="lm-btn" id="paPlay">▶ animate</button><button class="lm-btn" id="paReset">↻ reset</button>
-  </div>
-  <div class="lm-row"><span class="lm-sw" style="background:#3498db"></span> \(i=1\) &nbsp; <span class="lm-sw" style="background:#e67e22"></span> \(i=2\) &nbsp;·&nbsp; \(t\,\gamma_{2j}\) = <b id="paG">–</b> &nbsp;·&nbsp; \(\mu_{2j}-\mu_{1j}\) = <b id="paD">–</b></div>
-</div>
-<script>
-(function () {
-  var cv = document.getElementById('paCanvas'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
-  var c = cv.getContext('2d'), W = cv.width, H = cv.height, KEY = 'lmParallel3';
-  var LAB = ['low', 'medium', 'high'], TMAX = 1.5, mode = 'S';
-  var ID = { m: 'paM', a: 'paA', b1: 'paB1', b2: 'paB2', g1: 'paG1', g2: 'paG2', t: 'paT' };
-  var DEF = { S: { m: 17.33333, a: -0.66667, b1: -2.33333, b2: 0.16667, g1: -2.33333, g2: -0.83333 },
-              T: { m: 12, a: 6, b1: 4, b2: 10, g1: -3, g2: -11 } };
-  var LBL = { S: ['m', '\\alpha_1', '\\beta_1', '\\beta_2', '\\gamma_{11}', '\\gamma_{12}'],
-              T: ['m', '\\alpha_2', '\\beta_2', '\\beta_3', '\\gamma_{22}', '\\gamma_{23}'] };
-  var CONS = { S: '\\sum_i \\alpha_i = \\sum_j \\beta_j = 0,\\ \\sum_i \\gamma_{ij} = \\sum_j \\gamma_{ij} = 0',
-               T: '\\alpha_1 = \\beta_1 = 0,\\ \\gamma_{1j} = \\gamma_{i1} = 0' };
-  var LID = ['paLm', 'paLa', 'paLb1', 'paLb2', 'paLg1', 'paLg2'];
-  var btn = document.getElementById('paPlay'), raf = 0, dir = 1;
-  function el(k) { return document.getElementById(ID[k]); }
-  function par() { var p = {}; for (var k in ID) p[k] = +el(k).value; return p; }
-  function coef(p) {
-    if (mode === 'S') {
-      var g1 = [p.g1, p.g2, -(p.g1 + p.g2)];
-      return { AL: [p.a, -p.a], BE: [p.b1, p.b2, -(p.b1 + p.b2)], GA: [g1, [-g1[0], -g1[1], -g1[2]]] };
-    }
-    return { AL: [0, p.a], BE: [0, p.b1, p.b2], GA: [[0, 0, 0], [0, p.g1, p.g2]] };
-  }
-  function muOf(p, k, i, j, t) { return p.m + k.AL[i] + k.BE[j] + t * k.GA[i][j]; }
-  function typeset(nodes) { if (window.MathJax && MathJax.Hub && MathJax.Hub.Queue) MathJax.Hub.Queue(['Typeset', MathJax.Hub, nodes]); else setTimeout(function () { typeset(nodes); }, 200); }
-  function labels() {
-    for (var i = 0; i < 6; i++) document.getElementById(LID[i]).innerHTML = '\\(' + LBL[mode][i] + '\\)';
-    document.getElementById('paCons').innerHTML = '\\(' + CONS[mode] + '\\)';
-    typeset(document.getElementById('paWrap'));
-  }
-  function setMode(nm) {
-    if (nm === mode) return;
-    var p = par(), k = coef(p), M = [[0, 0, 0], [0, 0, 0]], i, j;
-    for (i = 0; i < 2; i++) for (j = 0; j < 3; j++) M[i][j] = muOf(p, k, i, j, 1);   // keep the fully-interacted picture
-    mode = nm;
-    if (mode === 'T') {
-      el('m').value = M[0][0]; el('a').value = M[1][0] - M[0][0];
-      el('b1').value = M[0][1] - M[0][0]; el('b2').value = M[0][2] - M[0][0];
-      el('g1').value = M[1][1] - M[1][0] - M[0][1] + M[0][0];
-      el('g2').value = M[1][2] - M[1][0] - M[0][2] + M[0][0];
-    } else {
-      var gm = (M[0][0] + M[0][1] + M[0][2] + M[1][0] + M[1][1] + M[1][2]) / 6;
-      var r0 = (M[0][0] + M[0][1] + M[0][2]) / 3, c0 = (M[0][0] + M[1][0]) / 2, c1 = (M[0][1] + M[1][1]) / 2;
-      el('m').value = gm; el('a').value = r0 - gm; el('b1').value = c0 - gm; el('b2').value = c1 - gm;
-      el('g1').value = M[0][0] - gm - (r0 - gm) - (c0 - gm);
-      el('g2').value = M[0][1] - gm - (r0 - gm) - (c1 - gm);
-    }
-    Array.prototype.forEach.call(document.querySelectorAll('#paWrap .lm-btn[data-mode]'), function (b) { b.classList.toggle('on', b.dataset.mode === mode); });
-    labels(); draw(); save();
-  }
-  function draw() {
-    var p = par(), k = coef(p), i, j;
-    for (var q in ID) document.getElementById(ID[q] + 'v').textContent = p[q].toFixed(2);
-    var lo = Infinity, hi = -Infinity;
-    for (i = 0; i < 2; i++) for (j = 0; j < 3; j++) { [0, TMAX].forEach(function (tt) { var v = muOf(p, k, i, j, tt); if (v < lo) lo = v; if (v > hi) hi = v; }); }
-    lo = Math.floor(lo - 1); hi = Math.ceil(hi + 1); if (hi - lo < 6) hi = lo + 6;
-    var x0 = 60, x1 = W - 24, y0 = 14, y1 = H - 38;
-    function PX(j) { return x0 + j * (x1 - x0) / 2; }
-    function PY(v) { return y1 - (v - lo) / (hi - lo) * (y1 - y0); }
-    c.clearRect(0, 0, W, H);
-    var stepY = Math.max(1, Math.round((hi - lo) / 7));
-    c.strokeStyle = '#eee'; c.lineWidth = 1; c.font = '11px sans-serif'; c.fillStyle = '#999'; c.textAlign = 'right';
-    for (var v = Math.ceil(lo / stepY) * stepY; v <= hi; v += stepY) { c.beginPath(); c.moveTo(x0 - 6, PY(v)); c.lineTo(x1, PY(v)); c.stroke(); c.fillText(v, x0 - 10, PY(v) + 4); }
-    c.textAlign = 'center'; c.fillStyle = '#777'; for (j = 0; j < 3; j++) c.fillText(LAB[j], PX(j), y1 + 16);
-    c.fillText('j', (x0 + x1) / 2, y1 + 31);
-    c.save(); c.translate(14, (y0 + y1) / 2); c.rotate(-Math.PI / 2); c.fillText('μ', 0, 0); c.restore();
-    var dif = [];
-    for (j = 0; j < 3; j++) {
-      var a = muOf(p, k, 0, j, p.t), b = muOf(p, k, 1, j, p.t); dif.push(b - a);
-      c.strokeStyle = '#ccc'; c.setLineDash([3, 3]); c.beginPath(); c.moveTo(PX(j), PY(a)); c.lineTo(PX(j), PY(b)); c.stroke(); c.setLineDash([]);
-      c.fillStyle = '#888'; c.font = '10px sans-serif'; c.textAlign = j === 2 ? 'right' : 'left';
-      c.fillText((b - a >= 0 ? '+' : '') + (b - a).toFixed(1), PX(j) + (j === 2 ? -6 : 6), (PY(a) + PY(b)) / 2 + 3);
-    }
-    [0, 1].forEach(function (ii) {
-      var col = ii ? '#e67e22' : '#3498db';
-      c.strokeStyle = col; c.lineWidth = 2.6; c.beginPath();
-      for (j = 0; j < 3; j++) { var q2 = PY(muOf(p, k, ii, j, p.t)); j ? c.lineTo(PX(j), q2) : c.moveTo(PX(j), q2); } c.stroke();
-      c.fillStyle = col; for (j = 0; j < 3; j++) { c.beginPath(); c.arc(PX(j), PY(muOf(p, k, ii, j, p.t)), 4, 0, 6.2832); c.fill(); }
-    });
-    function fmt(arr) { return arr.map(function (g) { return (g >= 0 ? '+' : '') + g.toFixed(1); }).join(' / '); }
-    document.getElementById('paG').textContent = fmt([0, 1, 2].map(function (jj) { return p.t * k.GA[1][jj]; }));
-    document.getElementById('paD').textContent = fmt(dif);
-  }
-  function save() { try { var o = par(); o.mode = mode; localStorage.setItem(KEY, JSON.stringify(o)); } catch (e) {} }
-  function stop() { if (raf) { cancelAnimationFrame(raf); raf = 0; } btn.textContent = '▶ animate'; btn.classList.remove('on'); }
-  function tick() { var t = +el('t').value + dir * 0.012; if (t >= TMAX) { t = TMAX; dir = -1; } else if (t <= 0) { t = 0; dir = 1; } el('t').value = t; draw(); raf = requestAnimationFrame(tick); }
-  btn.addEventListener('click', function () { if (raf) { stop(); save(); } else { btn.textContent = '⏸ pause'; btn.classList.add('on'); raf = requestAnimationFrame(tick); } });
-  document.getElementById('paReset').addEventListener('click', function () { stop(); var d = DEF[mode]; for (var q in d) el(q).value = d[q]; draw(); save(); });
-  Array.prototype.forEach.call(document.querySelectorAll('#paWrap .lm-btn[data-mode]'), function (b) { b.addEventListener('click', function () { stop(); setMode(b.dataset.mode); }); });
-  for (var q in ID) el(q).addEventListener('input', function () { stop(); draw(); save(); });
-  var saved = null; try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
-  if (saved) {
-    if (saved.mode === 'T' || saved.mode === 'S') mode = saved.mode;
-    for (var r in ID) if (saved[r] != null) el(r).value = saved[r];
-    Array.prototype.forEach.call(document.querySelectorAll('#paWrap .lm-btn[data-mode]'), function (b) { b.classList.toggle('on', b.dataset.mode === mode); });
-  }
-  labels(); draw(); save();
-})();
-</script>
-```
-
-. . .
-
-```r
-interaction.plot(water, fertilizer, yield)
-```
-
-
 ## Interaction plot — drag the cell means {.smaller}
 
 ::: {style="font-size:82%"}
-Drag a cell mean (solid $\mu_{ij}$, dashed $\hat Y_{ij}$ with noise); **i / j** select the active cell. The table holds the whole decomposition, each $\gamma_{ij}$ green at $0$.
+Drag a cell mean (solid $\mu_{ij}$, dashed $\hat Y_{ij}$ with noise); **i / j** select the active cell, `constraints` switches the coding. The table holds the whole decomposition, each $\gamma_{ij}$ green at $0$. In R: `interaction.plot(B, A, Y)`.
 :::
 
 ```{=html}
@@ -1275,7 +1129,7 @@ Drag a cell mean (solid $\mu_{ij}$, dashed $\hat Y_{ij}$ with noise); **i / j** 
 <div class="lm-wrap" id="ipWrap">
   <canvas id="ipCanvas" width="680" height="206" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
   <div class="lm-row">noise σ <input id="ipS" type="range" autocomplete="off" min="0.2" max="4" step="0.05" value="2" style="vertical-align:middle;width:100px"> <b id="ipSv">2.00</b> &nbsp; n/cell <input id="ipN" type="range" autocomplete="off" min="2" max="100" step="1" value="6" style="vertical-align:middle;width:100px"> <b id="ipNv">6</b> &nbsp; <button class="lm-btn" id="ipNew">↻ resample</button> <button class="lm-btn" id="ipFlat">remove interaction</button> <button class="lm-btn" id="ipReset">↻ reset</button></div>
-  <div class="lm-row">cell &nbsp;i <button class="lm-btn ib" data-i="0">1</button><button class="lm-btn ib" data-i="1">2</button> &nbsp; j <button class="lm-btn jb" data-j="0">1</button><button class="lm-btn jb" data-j="1">2</button><button class="lm-btn jb" data-j="2">3</button></div>
+  <div class="lm-row">cell &nbsp;i <button class="lm-btn ib" data-i="0">1</button><button class="lm-btn ib" data-i="1">2</button> &nbsp; j <button class="lm-btn jb" data-j="0">1</button><button class="lm-btn jb" data-j="1">2</button><button class="lm-btn jb" data-j="2">3</button> &nbsp;·&nbsp; constraints <button class="lm-btn pb" data-pm="T">reference modality</button><button class="lm-btn pb on" data-pm="S">sum to zero</button></div>
   <div id="ipEq">
     <span class="trm"><span class="sym" id="ipSymMu"></span><span class="val" id="ipValMu">–</span></span>
     <span class="op">=</span>
@@ -1310,8 +1164,16 @@ Drag a cell mean (solid $\mu_{ij}$, dashed $\hat Y_{ij}$ with noise); **i / j** 
   function pos(e){var r=cv.getBoundingClientRect();return [(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height];}
   function sgn(v){return (v<0?'-':'+')+Math.abs(v).toFixed(2);}
   function id(s){return document.getElementById(s);}
+  var pm='S';
   function decomp(){
-    var m=0,i,j,s; for(i=0;i<I;i++)for(j=0;j<J;j++)m+=mu[i][j]; m/=I*J;
+    var m=0,i,j,s;
+    if(pm==='T'){ var mT=mu[0][0], aT=[], bT=[], GT=[];
+      for(i=0;i<I;i++) aT[i]=mu[i][0]-mT;
+      for(j=0;j<J;j++) bT[j]=mu[0][j]-mT;
+      for(i=0;i<I;i++){GT[i]=[];for(j=0;j<J;j++)GT[i][j]=mu[i][j]-mu[i][0]-mu[0][j]+mT;}
+      return {m:mT,ai:aT,bj:bT,G:GT};
+    }
+    for(i=0;i<I;i++)for(j=0;j<J;j++)m+=mu[i][j]; m/=I*J;
     var ai=[],bj=[],G=[];
     for(i=0;i<I;i++){s=0;for(j=0;j<J;j++)s+=mu[i][j];ai[i]=s/J-m;}
     for(j=0;j<J;j++){s=0;for(i=0;i<I;i++)s+=mu[i][j];bj[j]=s/I-m;}
@@ -1338,7 +1200,7 @@ Drag a cell mean (solid $\mu_{ij}$, dashed $\hat Y_{ij}$ with noise); **i / j** 
     var ii,jj,cell;
     for(ii=0;ii<I;ii++){ id('ipTA'+ii).textContent=sgn(d.ai[ii]);
       for(jj=0;jj<J;jj++){ cell=id('ipT'+ii+jj); cell.textContent=sgn(d.G[ii][jj]);
-        cell.style.color=Math.abs(d.G[ii][jj])<0.1?'#27ae60':'#c0392b';
+        cell.style.color=(pm==='T'&&(ii===0||jj===0))?'#aaa':(Math.abs(d.G[ii][jj])<0.1?'#27ae60':'#c0392b');
         cell.classList.toggle('act', ii===i&&jj===j); } }
     for(jj=0;jj<J;jj++) id('ipTB'+jj).textContent=sgn(d.bj[jj]);
     id('ipTM').textContent=d.m.toFixed(2);
@@ -1393,9 +1255,14 @@ Drag a cell mean (solid $\mu_{ij}$, dashed $\hat Y_{ij}$ with noise); **i / j** 
   Array.prototype.forEach.call(document.querySelectorAll('#ipWrap .ib'),function(b){b.addEventListener('click',function(){setActive(+b.dataset.i,act[1]);draw();});});
   Array.prototype.forEach.call(document.querySelectorAll('#ipWrap .jb'),function(b){b.addEventListener('click',function(){setActive(act[0],+b.dataset.j);draw();});});
   sEl.addEventListener('input',draw); nEl.addEventListener('input',draw);
-  function save(){try{localStorage.setItem(KEY,JSON.stringify({mu:mu,s:+sEl.value,n:+nEl.value,a:act}));}catch(e){}}
+  Array.prototype.forEach.call(document.querySelectorAll('#ipWrap .pb'),function(b){b.addEventListener('click',function(){
+    pm=b.dataset.pm;
+    Array.prototype.forEach.call(document.querySelectorAll('#ipWrap .pb'),function(x){x.classList.toggle('on',x===b);});
+    draw(); });});
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({mu:mu,s:+sEl.value,n:+nEl.value,a:act,pm:pm}));}catch(e){}}
   var saved=null; try{saved=JSON.parse(localStorage.getItem(KEY));}catch(e){}
-  if(saved&&saved.mu&&saved.mu.length===I){ mu=saved.mu.map(function(r){return r.slice();}); if(saved.a)act=saved.a; sEl.value=saved.s; nEl.value=saved.n; }
+  if(saved&&saved.mu&&saved.mu.length===I){ mu=saved.mu.map(function(r){return r.slice();}); if(saved.a)act=saved.a; sEl.value=saved.s; nEl.value=saved.n;
+    if(saved.pm==='T'||saved.pm==='S'){ pm=saved.pm; Array.prototype.forEach.call(document.querySelectorAll('#ipWrap .pb'),function(x){x.classList.toggle('on',x.dataset.pm===pm);}); } }
   (function ts(){ if(window.MathJax&&MathJax.Hub&&MathJax.Hub.Queue) MathJax.Hub.Queue(['Typeset',MathJax.Hub,id('ipTab')]); else setTimeout(ts,200); })();
   regen(); setActive(act[0],act[1]); draw();
 })();
