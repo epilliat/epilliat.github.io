@@ -12115,5 +12115,19 @@
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Interaction 3: crossover",
     "text": "Interaction 3: crossover\n\nSurvival (months), \\(T\\) = treatment, \\(G\\) = variant carrier, \\(50\\) per cell. Truth: \\(Y = 24 - 12\\,T - 12\\,G + 24\\,TG + \\varepsilon\\).\nsummary(lm(surv ~ treat * variant))\n              Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)      23.75      0.849  27.990  &lt; 2e-16 ***\ntreat           -11.77      1.200  -9.808  &lt; 2e-16 ***\nvariant         -11.51      1.200  -9.592  &lt; 2e-16 ***\ntreat:variant    23.81      1.697  14.030  &lt; 2e-16 ***\n\nResidual standard error: 6 on 196 degrees of freedom\n\n\n\n\n\n\n\\(\\overline{Y}_{ij}\\)\nnon-carrier\ncarrier\n\n\n\n\nplacebo\n23.75\n12.24\n\n\ntreatment\n11.98\n24.28\n\n\n\n\n\n\nCrossover: the effect of one factor changes direction depending on the other."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/anova_ancova.html#three-factors-start-additive",
+    "href": "teaching/linear_model/slides/anova_ancova.html#three-factors-start-additive",
+    "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
+    "section": "Three factors: start additive",
+    "text": "Three factors: start additive\n\nRun time (min) of a job: algo (new vs old), ssd (SSD vs HDD), ram (32 vs 8 GB), \\(25\\) per cell.\nsummary(lm(time ~ algo + ssd + ram))\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)    57.76      0.776  74.473  &lt; 2e-16 ***\nalgo           -5.79      0.776  -7.461 2.72e-12 ***\nssd            -8.06      0.776 -10.397  &lt; 2e-16 ***\nram            -5.94      0.776  -7.665 8.09e-13 ***\n\nResidual standard error: 5.484 on 196 degrees of freedom\n\n\nThree switches, three savings, read anywhere: \\(-5.8\\) min for the new algorithm, \\(-8.1\\) for the SSD, \\(-5.9\\) for the RAM."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/anova_ancova.html#three-factors-adding-one-interaction",
+    "href": "teaching/linear_model/slides/anova_ancova.html#three-factors-adding-one-interaction",
+    "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
+    "section": "Three factors: adding one interaction",
+    "text": "Three factors: adding one interaction\n\nsummary(lm(time ~ algo * ssd + ram))\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)    59.72      0.810  73.715  &lt; 2e-16 ***\nalgo           -9.72      1.025  -9.486  &lt; 2e-16 ***\nssd           -12.00      1.025 -11.708  &lt; 2e-16 ***\nram            -5.94      0.725  -8.203 3.11e-14 ***\nalgo:ssd        7.87      1.449   5.430 1.66e-07 ***\n\nResidual standard error: 5.124 on 195 degrees of freedom\n\n\nThe new algorithm saves \\(9.7\\) min on a HDD but only \\(9.72 - 7.87 \\approx 1.9\\) on an SSD: it was mostly avoiding disk reads. The RAM keeps its own \\(-5.9\\) whatever the rest, so it stays additive."
   }
 ]

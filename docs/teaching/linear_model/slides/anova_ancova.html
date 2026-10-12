@@ -1796,6 +1796,40 @@ Residual standard error: 6 on 196 degrees of freedom</code></pre>
 <div class="fragment">
 <p>In practice, choices are made to <span style="background-color: lightgreen;">include only a limited number of effects and interactions</span> in the analysis.</p>
 </div>
+</section>
+<section id="three-factors-start-additive" class="slide level2 smaller">
+<h2>Three factors: start additive</h2>
+<div class="fragment">
+<p>Run time (min) of a job: <code>algo</code> (new vs old), <code>ssd</code> (SSD vs HDD), <code>ram</code> (32 vs 8 GB), <span class="math inline">\(25\)</span> per cell.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(time <span class="sc">~</span> algo <span class="sc">+</span> ssd <span class="sc">+</span> ram))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    57.76      0.776  74.473  &lt; 2e-16 ***
+algo           -5.79      0.776  -7.461 2.72e-12 ***
+ssd            -8.06      0.776 -10.397  &lt; 2e-16 ***
+ram            -5.94      0.776  -7.665 8.09e-13 ***
+
+Residual standard error: 5.484 on 196 degrees of freedom</code></pre>
+</div>
+<div class="fragment">
+<p>Three switches, three savings, read anywhere: <span class="math inline">\(-5.8\)</span> min for the new algorithm, <span class="math inline">\(-8.1\)</span> for the SSD, <span class="math inline">\(-5.9\)</span> for the RAM.</p>
+</div>
+</section>
+<section id="three-factors-adding-one-interaction" class="slide level2 smaller">
+<h2>Three factors: adding one interaction</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(time <span class="sc">~</span> algo <span class="sc">*</span> ssd <span class="sc">+</span> ram))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    59.72      0.810  73.715  &lt; 2e-16 ***
+algo           -9.72      1.025  -9.486  &lt; 2e-16 ***
+ssd           -12.00      1.025 -11.708  &lt; 2e-16 ***
+ram            -5.94      0.725  -8.203 3.11e-14 ***
+algo:ssd        7.87      1.449   5.430 1.66e-07 ***
+
+Residual standard error: 5.124 on 195 degrees of freedom</code></pre>
+</div>
+<div class="fragment">
+<p>The new algorithm saves <span class="math inline">\(9.7\)</span> min on a HDD but only <span class="math inline">\(9.72 - 7.87 \approx 1.9\)</span> on an SSD: it was mostly avoiding disk reads. The RAM keeps its own <span class="math inline">\(-5.9\)</span> whatever the rest, so it stays additive.</p>
+</div>
 </section></section>
 <section>
 <section id="analysis-of-covariance-ancova" class="title-slide slide level1 center">

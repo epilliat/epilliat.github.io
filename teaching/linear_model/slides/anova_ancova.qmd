@@ -1670,6 +1670,51 @@ Each effect can be tested using [linear constraint tests]{style="background-colo
 In practice, choices are made to [include only a limited number of effects and interactions]{style="background-color: lightgreen;"} in the analysis.
 
 
+## Three factors: start additive {.smaller}
+
+. . .
+
+Run time (min) of a job: `algo` (new vs old), `ssd` (SSD vs HDD), `ram` (32 vs 8 GB), $25$ per cell.
+
+```r
+summary(lm(time ~ algo + ssd + ram))
+```
+```
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)    57.76      0.776  74.473  < 2e-16 ***
+algo           -5.79      0.776  -7.461 2.72e-12 ***
+ssd            -8.06      0.776 -10.397  < 2e-16 ***
+ram            -5.94      0.776  -7.665 8.09e-13 ***
+
+Residual standard error: 5.484 on 196 degrees of freedom
+```
+
+. . .
+
+Three switches, three savings, read anywhere: $-5.8$ min for the new algorithm, $-8.1$ for the SSD, $-5.9$ for the RAM.
+
+## Three factors: adding one interaction {.smaller}
+
+. . .
+
+```r
+summary(lm(time ~ algo * ssd + ram))
+```
+```
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)    59.72      0.810  73.715  < 2e-16 ***
+algo           -9.72      1.025  -9.486  < 2e-16 ***
+ssd           -12.00      1.025 -11.708  < 2e-16 ***
+ram            -5.94      0.725  -8.203 3.11e-14 ***
+algo:ssd        7.87      1.449   5.430 1.66e-07 ***
+
+Residual standard error: 5.124 on 195 degrees of freedom
+```
+
+. . .
+
+The new algorithm saves $9.7$ min on a HDD but only $9.72 - 7.87 \approx 1.9$ on an SSD: it was mostly avoiding disk reads. The RAM keeps its own $-5.9$ whatever the rest, so it stays additive.
+
 # Analysis of Covariance (ANCOVA)
 
 ## Model Components
