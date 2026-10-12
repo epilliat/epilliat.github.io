@@ -1183,6 +1183,107 @@ We test for interaction first. Under $H_0^{(AB)}$, the model reduces to the **ad
 **Do we have $\gamma_{ij} = 0$ for all $i, j$?**
 
 
+## Interaction 1: crossover {.smaller}
+
+. . .
+
+Survival (months), $T$ = treatment, $G$ = variant carrier, $50$ per cell.
+Truth: $Y = 24 - 12\,T - 12\,G + 24\,TG + \varepsilon$.
+
+```r
+tapply(surv, list(treat, variant), mean)
+```
+```
+      0     1
+0 23.75 12.24
+1 11.98 24.28
+```
+
+. . .
+
+```r
+summary(lm(surv ~ treat * variant))
+```
+```
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      23.75      0.849  27.990  < 2e-16 ***
+treat           -11.77      1.200  -9.808  < 2e-16 ***
+variant         -11.51      1.200  -9.592  < 2e-16 ***
+treat:variant    23.81      1.697  14.030  < 2e-16 ***
+```
+
+. . .
+
+Halves survival in non-carriers, doubles it in carriers: on a 50/50 population the average effect is **zero**.
+
+## Interaction 2: pure synergy {.smaller}
+
+. . .
+
+Yield (q/ha) in hydroponics, $E$ = fertiliser, $W$ = water, $40$ per cell.
+Truth: $Y = 50\,EW + \varepsilon$.
+
+```r
+tapply(yield, list(fert, water), mean)
+```
+```
+      0     1
+0 -0.23  0.22
+1 -0.02 50.26
+```
+
+. . .
+
+```r
+summary(lm(yield ~ fert * water))
+```
+```
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)    -0.23      0.791  -0.291  0.77149    
+fert            0.21      1.118   0.188  0.85125    
+water           0.45      1.118   0.402  0.68787    
+fert:water     49.83      1.581  31.515  < 2e-16 ***
+```
+
+. . .
+
+Neither factor alone does anything. Under centred coding the main effects would read $+25$ each: their nullity is a coding artefact, the interaction is not.
+
+## Interaction 3: substitutes {.smaller}
+
+. . .
+
+Loneliness score (0–40), $C$ = dog, $H$ = cat, $60$ per cell.
+Truth: $Y = 40 - 20\,C - 20\,H + 20\,CH + \varepsilon$, i.e. $Y = 40 - 20\max(C,H)$.
+
+```r
+tapply(score, list(dog, cat), mean)
+```
+```
+      0     1
+0 39.70 20.29
+1 19.97 20.34
+```
+
+. . .
+
+```r
+summary(lm(score ~ dog * cat))
+```
+```
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)    39.70      1.033  38.439  < 2e-16 ***
+dog           -19.73      1.461 -13.508  < 2e-16 ***
+cat           -19.41      1.461 -13.289  < 2e-16 ***
+dog:cat        19.78      2.066   9.576  < 2e-16 ***
+```
+
+. . .
+
+One animal takes the score from 40 to 20, the second adds nothing.
+
+In short: crossover $\gamma_{22} = -2\alpha_2$, pure synergy $\alpha_2 = \beta_2 = 0$, substitutes $\gamma_{22} = -\alpha_2 = -\beta_2$.
+
 ## Interaction plot — drag the cell means {.smaller}
 
 ::: {style="font-size:82%"}
