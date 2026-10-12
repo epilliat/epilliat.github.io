@@ -12129,5 +12129,19 @@
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Three factors: adding one interaction",
     "text": "Three factors: adding one interaction\n\nsummary(lm(time ~ algo * ssd + ram))\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)    59.72      0.810  73.715  &lt; 2e-16 ***\nalgo           -9.72      1.025  -9.486  &lt; 2e-16 ***\nssd           -12.00      1.025 -11.708  &lt; 2e-16 ***\nram            -5.94      0.725  -8.203 3.11e-14 ***\nalgo:ssd        7.87      1.449   5.430 1.66e-07 ***\n\nResidual standard error: 5.124 on 195 degrees of freedom\n\n\nThe new algorithm saves \\(9.7\\) min on a HDD but only \\(9.72 - 7.87 \\approx 1.9\\) on an SSD: it was mostly avoiding disk reads. The RAM keeps its own \\(-5.9\\) whatever the rest, so it stays additive."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/anova_ancova.html#two-factors-and-a-covariate-additive",
+    "href": "teaching/linear_model/slides/anova_ancova.html#two-factors-and-a-covariate-additive",
+    "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
+    "section": "Two factors and a covariate: additive",
+    "text": "Two factors and a covariate: additive\n\nDaily food (g) of \\(n = 200\\) dogs: breed (lab / chihuahua), ster (sterilised yes / no), km walked per day, \\(0\\) to \\(10\\) for both breeds.\nsummary(lm(food ~ breed + ster + km))\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)    88.31      8.364  10.559  &lt; 2e-16 ***\nbreedlab      486.40      6.703  72.571  &lt; 2e-16 ***\nsteryes       -59.29      6.766  -8.763 9.02e-16 ***\nkm             24.99      1.170  21.364  &lt; 2e-16 ***\n\nResidual standard error: 47.35 on 196 degrees of freedom\n\n\nOne slope for every dog: \\(+25\\) g per km, whatever the breed."
+  },
+  {
+    "objectID": "teaching/linear_model/slides/anova_ancova.html#two-factors-and-a-covariate-mixed-interaction",
+    "href": "teaching/linear_model/slides/anova_ancova.html#two-factors-and-a-covariate-mixed-interaction",
+    "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
+    "section": "Two factors and a covariate: mixed interaction",
+    "text": "Two factors and a covariate: mixed interaction\n\nsummary(lm(food ~ breed * km + ster))\n            Estimate Std. Error t value Pr(&gt;|t|)    \n(Intercept)   148.88      4.840  30.763  &lt; 2e-16 ***\nbreedlab      348.67      6.544  53.280  &lt; 2e-16 ***\nkm             12.16      0.783  15.528  &lt; 2e-16 ***\nsteryes       -58.92      3.364 -17.514  &lt; 2e-16 ***\nbreedlab:km    28.26      1.156  24.455  &lt; 2e-16 ***\n\nResidual standard error: 23.54 on 195 degrees of freedom\n\n\nTwo slopes now: \\(12.2\\) g per km for a chihuahua, \\(12.16 + 28.26 = 40.4\\) for a labrador. Sterilisation stays a flat \\(-59\\) g, and \\(\\hat\\sigma\\) falls from \\(47\\) to \\(24\\)."
   }
 ]

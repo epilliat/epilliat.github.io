@@ -1808,6 +1808,51 @@ $$
 
 **Key Insight:** In the interaction model, the coefficient $\beta$ associated with $X$ varies according to the modality $A_i$.
 
+## Two factors and a covariate: additive {.smaller}
+
+. . .
+
+Daily food (g) of $n = 200$ dogs: `breed` (lab / chihuahua), `ster` (sterilised yes / no), `km` walked per day, $0$ to $10$ for both breeds.
+
+```r
+summary(lm(food ~ breed + ster + km))
+```
+```
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)    88.31      8.364  10.559  < 2e-16 ***
+breedlab      486.40      6.703  72.571  < 2e-16 ***
+steryes       -59.29      6.766  -8.763 9.02e-16 ***
+km             24.99      1.170  21.364  < 2e-16 ***
+
+Residual standard error: 47.35 on 196 degrees of freedom
+```
+
+. . .
+
+One slope for every dog: $+25$ g per km, whatever the breed.
+
+## Two factors and a covariate: mixed interaction {.smaller}
+
+. . .
+
+```r
+summary(lm(food ~ breed * km + ster))
+```
+```
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   148.88      4.840  30.763  < 2e-16 ***
+breedlab      348.67      6.544  53.280  < 2e-16 ***
+km             12.16      0.783  15.528  < 2e-16 ***
+steryes       -58.92      3.364 -17.514  < 2e-16 ***
+breedlab:km    28.26      1.156  24.455  < 2e-16 ***
+
+Residual standard error: 23.54 on 195 degrees of freedom
+```
+
+. . .
+
+Two slopes now: $12.2$ g per km for a chihuahua, $12.16 + 28.26 = 40.4$ for a labrador. Sterilisation stays a flat $-59$ g, and $\hat\sigma$ falls from $47$ to $24$.
+
 ## Next
 
 [Introduction to the Generalized Linear Model](../../glm/slides/Introduction_glm.qmd)

@@ -1919,6 +1919,40 @@ Y_k &amp;= m + \beta X_k + \sum_{i=2}^{I} \beta_i X_k \mathbf{1}\{Z_k=A_i\} \\
 <p><strong>Key Insight:</strong> In the interaction model, the coefficient <span class="math inline">\(\beta\)</span> associated with <span class="math inline">\(X\)</span> varies according to the modality <span class="math inline">\(A_i\)</span>.</p>
 </div>
 </section>
+<section id="two-factors-and-a-covariate-additive" class="slide level2 smaller">
+<h2>Two factors and a covariate: additive</h2>
+<div class="fragment">
+<p>Daily food (g) of <span class="math inline">\(n = 200\)</span> dogs: <code>breed</code> (lab / chihuahua), <code>ster</code> (sterilised yes / no), <code>km</code> walked per day, <span class="math inline">\(0\)</span> to <span class="math inline">\(10\)</span> for both breeds.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(food <span class="sc">~</span> breed <span class="sc">+</span> ster <span class="sc">+</span> km))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    88.31      8.364  10.559  &lt; 2e-16 ***
+breedlab      486.40      6.703  72.571  &lt; 2e-16 ***
+steryes       -59.29      6.766  -8.763 9.02e-16 ***
+km             24.99      1.170  21.364  &lt; 2e-16 ***
+
+Residual standard error: 47.35 on 196 degrees of freedom</code></pre>
+</div>
+<div class="fragment">
+<p>One slope for every dog: <span class="math inline">\(+25\)</span> g per km, whatever the breed.</p>
+</div>
+</section>
+<section id="two-factors-and-a-covariate-mixed-interaction" class="slide level2 smaller">
+<h2>Two factors and a covariate: mixed interaction</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(food <span class="sc">~</span> breed <span class="sc">*</span> km <span class="sc">+</span> ster))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   148.88      4.840  30.763  &lt; 2e-16 ***
+breedlab      348.67      6.544  53.280  &lt; 2e-16 ***
+km             12.16      0.783  15.528  &lt; 2e-16 ***
+steryes       -58.92      3.364 -17.514  &lt; 2e-16 ***
+breedlab:km    28.26      1.156  24.455  &lt; 2e-16 ***
+
+Residual standard error: 23.54 on 195 degrees of freedom</code></pre>
+</div>
+<div class="fragment">
+<p>Two slopes now: <span class="math inline">\(12.2\)</span> g per km for a chihuahua, <span class="math inline">\(12.16 + 28.26 = 40.4\)</span> for a labrador. Sterilisation stays a flat <span class="math inline">\(-59\)</span> g, and <span class="math inline">\(\hat\sigma\)</span> falls from <span class="math inline">\(47\)</span> to <span class="math inline">\(24\)</span>.</p>
+</div>
+</section>
 <section id="next" class="slide level2">
 <h2>Next</h2>
 <p><a href="../../../teaching/glm/slides/Introduction_glm.html">Introduction to the Generalized Linear Model</a></p>
