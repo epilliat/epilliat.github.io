@@ -1169,40 +1169,7 @@ $\hat m = 17.33$ is now the **grand mean**; the last level of each factor is not
 $\hat\mu_{23} = 17.3333 + 0.6667 + 2.1667 - 3.1667 = 17 = \overline{Y}_{23}$
 :::
 
-## Interaction 1: crossover {.smaller}
-
-. . .
-
-Survival (months), $T$ = treatment, $G$ = variant carrier, $50$ per cell.
-Truth: $Y = 24 - 12\,T - 12\,G + 24\,TG + \varepsilon$.
-
-```r
-summary(lm(surv ~ treat * variant))
-```
-```
-              Estimate Std. Error t value Pr(>|t|)    
-(Intercept)      23.75      0.849  27.990  < 2e-16 ***
-treat           -11.77      1.200  -9.808  < 2e-16 ***
-variant         -11.51      1.200  -9.592  < 2e-16 ***
-treat:variant    23.81      1.697  14.030  < 2e-16 ***
-
-Residual standard error: 6 on 196 degrees of freedom
-```
-
-. . .
-
-::: {style="font-size:85%"}
-| $\overline{Y}_{ij}$ | non-carrier | carrier |
-|:--|--:|--:|
-| **placebo** | 23.75 | 12.24 |
-| **treatment** | 11.98 | 24.28 |
-:::
-
-. . .
-
-Halves survival in non-carriers, doubles it in carriers: on a 50/50 population the average effect is **zero**.
-
-## Interaction 2: pure synergy {.smaller}
+## Interaction 1: pure synergy {.smaller}
 
 . . .
 
@@ -1233,9 +1200,9 @@ Residual standard error: 5 on 156 degrees of freedom
 
 . . .
 
-Neither factor alone does anything. Under centred coding the main effects would read $+25$ each: their nullity is a coding artefact, the interaction is not.
+The two factors work better together than the sum of their separate effects.
 
-## Interaction 3: substitutes {.smaller}
+## Interaction 2: substitutes {.smaller}
 
 . . .
 
@@ -1266,9 +1233,40 @@ Residual standard error: 8 on 236 degrees of freedom
 
 . . .
 
-One animal takes the score from 40 to 20, the second adds nothing.
+The two factors do the same job, so having one makes the other less useful.
 
-In short: crossover $\gamma_{22} = -2\alpha_2$, pure synergy $\alpha_2 = \beta_2 = 0$, substitutes $\gamma_{22} = -\alpha_2 = -\beta_2$.
+## Interaction 3: crossover {.smaller}
+
+. . .
+
+Survival (months), $T$ = treatment, $G$ = variant carrier, $50$ per cell.
+Truth: $Y = 24 - 12\,T - 12\,G + 24\,TG + \varepsilon$.
+
+```r
+summary(lm(surv ~ treat * variant))
+```
+```
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept)      23.75      0.849  27.990  < 2e-16 ***
+treat           -11.77      1.200  -9.808  < 2e-16 ***
+variant         -11.51      1.200  -9.592  < 2e-16 ***
+treat:variant    23.81      1.697  14.030  < 2e-16 ***
+
+Residual standard error: 6 on 196 degrees of freedom
+```
+
+. . .
+
+::: {style="font-size:85%"}
+| $\overline{Y}_{ij}$ | non-carrier | carrier |
+|:--|--:|--:|
+| **placebo** | 23.75 | 12.24 |
+| **treatment** | 11.98 | 24.28 |
+:::
+
+. . .
+
+Crossover: the effect of one factor changes direction depending on the other.
 
 ## Interaction plot — drag the cell means {.smaller}
 
