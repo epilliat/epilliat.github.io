@@ -1217,18 +1217,37 @@ fertilizer1:water2  -0.8333     0.4950  -1.684  0.10260    </code></pre>
 <h2>Interaction 1: crossover</h2>
 <div class="fragment">
 <p>Survival (months), <span class="math inline">\(T\)</span> = treatment, <span class="math inline">\(G\)</span> = variant carrier, <span class="math inline">\(50\)</span> per cell. Truth: <span class="math inline">\(Y = 24 - 12\,T - 12\,G + 24\,TG + \varepsilon\)</span>.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a><span class="fu">tapply</span>(surv, <span class="fu">list</span>(treat, variant), mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<pre><code>      0     1
-0 23.75 12.24
-1 11.98 24.28</code></pre>
-</div>
-<div class="fragment">
-<div class="sourceCode" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(surv <span class="sc">~</span> treat <span class="sc">*</span> variant))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(surv <span class="sc">~</span> treat <span class="sc">*</span> variant))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>              Estimate Std. Error t value Pr(&gt;|t|)    
 (Intercept)      23.75      0.849  27.990  &lt; 2e-16 ***
 treat           -11.77      1.200  -9.808  &lt; 2e-16 ***
 variant         -11.51      1.200  -9.592  &lt; 2e-16 ***
 treat:variant    23.81      1.697  14.030  &lt; 2e-16 ***</code></pre>
+</div>
+<div class="fragment">
+<div style="font-size:85%">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><span class="math inline">\(\overline{Y}_{ij}\)</span></th>
+<th style="text-align: right;">non-carrier</th>
+<th style="text-align: right;">carrier</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>placebo</strong></td>
+<td style="text-align: right;">23.75</td>
+<td style="text-align: right;">12.24</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>treatment</strong></td>
+<td style="text-align: right;">11.98</td>
+<td style="text-align: right;">24.28</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div class="fragment">
 <p>Halves survival in non-carriers, doubles it in carriers: on a 50/50 population the average effect is <strong>zero</strong>.</p>
@@ -1238,18 +1257,37 @@ treat:variant    23.81      1.697  14.030  &lt; 2e-16 ***</code></pre>
 <h2>Interaction 2: pure synergy</h2>
 <div class="fragment">
 <p>Yield (q/ha) in hydroponics, <span class="math inline">\(E\)</span> = fertiliser, <span class="math inline">\(W\)</span> = water, <span class="math inline">\(40\)</span> per cell. Truth: <span class="math inline">\(Y = 50\,EW + \varepsilon\)</span>.</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a><span class="fu">tapply</span>(yield, <span class="fu">list</span>(fert, water), mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<pre><code>      0     1
-0 -0.23  0.22
-1 -0.02 50.26</code></pre>
-</div>
-<div class="fragment">
-<div class="sourceCode" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(yield <span class="sc">~</span> fert <span class="sc">*</span> water))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(yield <span class="sc">~</span> fert <span class="sc">*</span> water))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>            Estimate Std. Error t value Pr(&gt;|t|)    
 (Intercept)    -0.23      0.791  -0.291  0.77149    
 fert            0.21      1.118   0.188  0.85125    
 water           0.45      1.118   0.402  0.68787    
 fert:water     49.83      1.581  31.515  &lt; 2e-16 ***</code></pre>
+</div>
+<div class="fragment">
+<div style="font-size:85%">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><span class="math inline">\(\overline{Y}_{ij}\)</span></th>
+<th style="text-align: right;">no water</th>
+<th style="text-align: right;">water</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>no fertiliser</strong></td>
+<td style="text-align: right;">−0.23</td>
+<td style="text-align: right;">0.22</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>fertiliser</strong></td>
+<td style="text-align: right;">−0.02</td>
+<td style="text-align: right;">50.26</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div class="fragment">
 <p>Neither factor alone does anything. Under centred coding the main effects would read <span class="math inline">\(+25\)</span> each: their nullity is a coding artefact, the interaction is not.</p>
@@ -1259,18 +1297,37 @@ fert:water     49.83      1.581  31.515  &lt; 2e-16 ***</code></pre>
 <h2>Interaction 3: substitutes</h2>
 <div class="fragment">
 <p>Loneliness score (0–40), <span class="math inline">\(C\)</span> = dog, <span class="math inline">\(H\)</span> = cat, <span class="math inline">\(60\)</span> per cell. Truth: <span class="math inline">\(Y = 40 - 20\,C - 20\,H + 20\,CH + \varepsilon\)</span>, i.e.&nbsp;<span class="math inline">\(Y = 40 - 20\max(C,H)\)</span>.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a><span class="fu">tapply</span>(score, <span class="fu">list</span>(dog, cat), mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<pre><code>      0     1
-0 39.70 20.29
-1 19.97 20.34</code></pre>
-</div>
-<div class="fragment">
-<div class="sourceCode" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(score <span class="sc">~</span> dog <span class="sc">*</span> cat))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a><span class="fu">summary</span>(<span class="fu">lm</span>(score <span class="sc">~</span> dog <span class="sc">*</span> cat))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <pre><code>            Estimate Std. Error t value Pr(&gt;|t|)    
 (Intercept)    39.70      1.033  38.439  &lt; 2e-16 ***
 dog           -19.73      1.461 -13.508  &lt; 2e-16 ***
 cat           -19.41      1.461 -13.289  &lt; 2e-16 ***
 dog:cat        19.78      2.066   9.576  &lt; 2e-16 ***</code></pre>
+</div>
+<div class="fragment">
+<div style="font-size:85%">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;"><span class="math inline">\(\overline{Y}_{ij}\)</span></th>
+<th style="text-align: right;">no cat</th>
+<th style="text-align: right;">cat</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><strong>no dog</strong></td>
+<td style="text-align: right;">39.70</td>
+<td style="text-align: right;">20.29</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><strong>dog</strong></td>
+<td style="text-align: right;">19.97</td>
+<td style="text-align: right;">20.34</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div class="fragment">
 <p>One animal takes the score from 40 to 20, the second adds nothing.</p>
