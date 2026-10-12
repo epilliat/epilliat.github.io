@@ -451,7 +451,7 @@ html.lm-dark .dsw{--ds-bar:#5b8cff;--ds-ax:#9aa6c0;--ds-grid:#2a3550;--ds-txt:#c
 </div>
 </div>
 <div class="fragment">
-<p>Whiskers: <span class="math inline">\(\overline{Y}_i \pm \hat\sigma/\sqrt{N_i}\)</span>, with <span class="math inline">\(\hat\sigma = 3.391\)</span>. Programme 2 looks best, 1 and 4 almost tied — the rest of the chapter makes that reading a test.</p>
+<p>Programme 2 looks best, 1 and 4 almost tied.</p>
 </div>
 </section>
 <section id="in-r-the-intercept-is-a-mean" class="slide level2 smaller">
@@ -892,29 +892,32 @@ Residual standard error: 3.391 on 68 degrees of freedom</code></pre>
     c.fillStyle='#888'; c.font='13px sans-serif'; c.fillText('node colour = its sample mean (blue low → red high)',bx0+bpW/2,top+plotH-20);
     if(nC===0){ c.fillStyle='#27ae60'; c.font='13px sans-serif'; c.fillText('no false positive this time — ↻ or raise I',bx0+bpW/2,top+plotH-6); }
     else { c.fillStyle='#c0392b'; c.font='bold 13px sans-serif'; c.fillText(nC+' naive false positive'+(nC>1?'s':'')+(tC?'  ·  '+tC+' even with Tukey':'  ·  Tukey: 0'),bx0+bpW/2,top+plotH-6); }
-    // ===== RIGHT: the same experiment as a bar plot =====
+    // ===== RIGHT: the same experiment, data and intervals =====
     c.strokeStyle='#e6e6e6'; c.lineWidth=1; c.strokeRect(cx0,top,cpW,plotH);
-    var lo2=Math.min(mmin,0), hi2=Math.max(mmax, mmin+HSD), pad2=((hi2-lo2)||1)*0.22;
-    lo2-=pad2; hi2+=pad2;
-    function BY(v){ return top+plotH-34-(v-lo2)/(hi2-lo2)*(plotH-62); }
-    var step=(cpW-30)/I, bw=Math.min(30, step*0.6);
-    c.strokeStyle='#bbb'; c.setLineDash([4,3]); c.beginPath(); c.moveTo(cx0+6,BY(0)); c.lineTo(cx0+cpW-6,BY(0)); c.stroke(); c.setLineDash([]);
-    function tag(lab,x,y,col){ c.font='12px sans-serif'; c.textAlign='right';
-      var tw=c.measureText(lab).width; c.fillStyle='#fff'; c.fillRect(x-tw-3,y-11,tw+6,14); c.fillStyle=col; c.fillText(lab,x,y); }
-    tag('true μ',cx0+cpW-8,BY(0)+15,'#aaa');
-    c.strokeStyle='#888'; c.setLineDash([2,3]); c.beginPath(); c.moveTo(cx0+6,BY(mmin)); c.lineTo(cx0+cpW-6,BY(mmin)); c.stroke(); c.setLineDash([]);
-    tag('min',cx0+cpW-8,BY(mmin)+15,'#888');
-    function thr(v,col,lab){ if(BY(v)<top+16) return; c.strokeStyle=col; c.setLineDash([5,4]); c.lineWidth=1.6;
-      c.beginPath(); c.moveTo(cx0+6,BY(v)); c.lineTo(cx0+cpW-6,BY(v)); c.stroke(); c.setLineDash([]); tag(lab,cx0+cpW-8,BY(v)-5,col); }
-    thr(mmin+LSD,'#c0392b','min + LSD'); thr(mmin+HSD,'#27ae60','min + HSD');
-    for(i=0;i<I;i++){
-      var bxc=cx0+15+step*(i+0.5), y0b=BY(0), y1b=BY(means[i]);
-      c.fillStyle=mcol((means[i]-mmin)/rng);
-      c.fillRect(bxc-bw/2,Math.min(y0b,y1b),bw,Math.max(2,Math.abs(y1b-y0b)));
-      c.fillStyle='#777'; c.font='12px sans-serif'; c.textAlign='center'; c.fillText(i+1,bxc,top+plotH-14);
+    var hCI=tcrit(df,alpha)*sd*Math.sqrt(1/NG), hTK=(qByI[I]||0)/2*sd*Math.sqrt(1/NG), g2, k2, v2;
+    var lo2=Math.min(0,mmin-hTK), hi2=Math.max(0,mmax+hTK);
+    for(g2=0;g2<I;g2++) for(k2=0;k2<NG;k2++){ v2=pool[g2][k2]; if(v2<lo2)lo2=v2; if(v2>hi2)hi2=v2; }
+    var pad2=((hi2-lo2)||1)*0.1; lo2-=pad2; hi2+=pad2;
+    function BY(v){ return top+plotH-34-(v-lo2)/(hi2-lo2)*(plotH-58); }
+    var step=(cpW-30)/I, bw=Math.min(28, step*0.52);
+    c.strokeStyle='#ddd'; c.setLineDash([4,3]); c.beginPath(); c.moveTo(cx0+6,BY(0)); c.lineTo(cx0+cpW-6,BY(0)); c.stroke(); c.setLineDash([]);
+    for(g2=0;g2<I;g2++){
+      var bxc=cx0+15+step*(g2+0.5), y0b=BY(0), y1b=BY(means[g2]);
+      c.fillStyle=mcol((means[g2]-mmin)/rng); c.globalAlpha=0.75;
+      c.fillRect(bxc-bw/2,Math.min(y0b,y1b),bw,Math.max(2,Math.abs(y1b-y0b))); c.globalAlpha=1;
+      c.fillStyle='rgba(120,130,150,0.22)';                                    // Tukey (conservative)
+      c.fillRect(bxc-9,BY(means[g2]+hTK),18,BY(means[g2]-hTK)-BY(means[g2]+hTK));
+      c.strokeStyle='#333'; c.lineWidth=2.2; c.beginPath();                    // 95% CI
+      c.moveTo(bxc,BY(means[g2]-hCI)); c.lineTo(bxc,BY(means[g2]+hCI));
+      c.moveTo(bxc-5,BY(means[g2]-hCI)); c.lineTo(bxc+5,BY(means[g2]-hCI));
+      c.moveTo(bxc-5,BY(means[g2]+hCI)); c.lineTo(bxc+5,BY(means[g2]+hCI)); c.stroke();
+      c.fillStyle='rgba(44,62,80,0.5)';                                        // the data
+      for(k2=0;k2<NG;k2++){ var jx=bxc-9+((k2+0.5)/NG)*18;
+        c.beginPath(); c.arc(jx,BY(pool[g2][k2]),2.3,0,6.2832); c.fill(); }
+      c.fillStyle='#777'; c.font='12px sans-serif'; c.textAlign='center'; c.fillText(g2+1,bxc,top+plotH-14);
     }
-    c.fillStyle='#444'; c.font='bold 13px sans-serif'; c.textAlign='center'; c.fillText('its group means',cx0+cpW/2,top+14);
-    c.fillStyle='#888'; c.font='13px sans-serif'; c.fillText('tallest bar above a line ⇒ flagged by that test',cx0+cpW/2,top+plotH-1);
+    c.fillStyle='#444'; c.font='bold 14px sans-serif'; c.textAlign='center'; c.fillText('its groups: data and intervals',cx0+cpW/2,top+14);
+    c.fillStyle='#888'; c.font='12px sans-serif'; c.fillText('dots = data · black = 95% CI · grey = Tukey',cx0+cpW/2,top+plotH-1);
     document.getElementById('fwNa').textContent=nC;
     document.getElementById('fwTu').textContent=tC;
     save();
