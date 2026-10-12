@@ -10413,7 +10413,7 @@
     "href": "teaching/linear_model/slides/anova_ancova.html#one-hot-encoding",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "One Hot Encoding",
-    "text": "One Hot Encoding\n\nWe use one-hot encoding: \\(X_{ki}=\\1\\{X_k=A_i\\}\\)\n\n\nThat is, for individual \\(k\\), \\(X_{k\\cdot} = (\\1\\{X_k=A_1\\}, \\dots, \\1\\{X_k=A_I\\}) \\in \\{0,1\\}^I\\)\n\n\nOr, using previous notations, \\(X = (X^{(1)}, \\dots, X^{(I)})\\) where\n\\[X^{(i)}= \\begin{pmatrix}\nX^{(i)}_1 \\\\\n\\vdots  \\\\\nX^{(i)}_n\n\\end{pmatrix}\\]"
+    "text": "One Hot Encoding\n\n\\(X\\) is qualitative, with \\(I\\) modalities \\(A_1, \\dots, A_I\\). We use one-hot encoding: \\(X_{ki}=\\1\\{X_k=A_i\\}\\)\n\n\nThat is, for individual \\(k\\), \\(X_{k\\cdot} = (\\1\\{X_k=A_1\\}, \\dots, \\1\\{X_k=A_I\\}) \\in \\{0,1\\}^I\\)\n\n\nOr, using previous notations, \\(X = (X^{(1)}, \\dots, X^{(I)})\\) where\n\\[X^{(i)}= \\begin{pmatrix}\nX^{(i)}_1 \\\\\n\\vdots  \\\\\nX^{(i)}_n\n\\end{pmatrix}\\]"
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#in-other-words",
@@ -10525,14 +10525,14 @@
     "href": "teaching/linear_model/slides/anova_ancova.html#multiple-testing-tukeys-test",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Multiple Testing: Tukey’s Test",
-    "text": "Multiple Testing: Tukey’s Test\n\n\n\\[Q = \\max_{(i,j)} \\frac{|\\overline{Y}_i - \\overline{Y}_j|}{\\hat{\\sigma}\\sqrt{\\tfrac{1}{2}\\left(\\frac{1}{N_i} + \\frac{1}{N_j}\\right)}}\\]\n\n\n\n\n\n\nDistribution of Tukey’s Test Statistic\n\n\nUnder \\(H_0: \\mu_1 = \\cdots = \\mu_I\\) and assuming \\(\\varepsilon \\sim N(0, \\sigma^2 I_n)\\):\n\\[Q \\sim Q_{I,n-I}\\]\nwhere \\(Q_{I,n-I}\\) denotes the Tukey distribution with \\((I, n-I)\\) degrees of freedom.\nNote: This is exact if all \\(n_i\\) are equal, otherwise the distribution is approximately Tukey."
+    "text": "Multiple Testing: Tukey’s Test\n\n\n\\[Q = \\max_{(i,j)} \\frac{|\\overline{Y}_i - \\overline{Y}_j|}{\\hat{\\sigma}\\sqrt{\\tfrac{1}{2}\\left(\\frac{1}{N_i} + \\frac{1}{N_j}\\right)}}\\]\n\n\n\n\n\n\nDistribution of Tukey’s Test Statistic\n\n\nUnder \\(H_0: \\mu_1 = \\cdots = \\mu_I\\) and \\(\\varepsilon \\sim N(0, \\sigma^2 I_n)\\), \\[Q \\sim Q_{I,n-I},\\] the Tukey distribution with \\((I, n-I)\\) degrees of freedom — exactly if the \\(N_i\\) are equal, approximately otherwise."
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#individual-tests",
     "href": "teaching/linear_model/slides/anova_ancova.html#individual-tests",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Individual Tests",
-    "text": "Individual Tests\n\nTo test each \\(H_0^{i,j}: \\mu_i = \\mu_j\\), we use the critical regions:\n\n\n\n\n\\[CR_\\alpha^{i,j} = \\left\\{|\\overline{Y}_i - \\overline{Y}_j| &gt; \\frac{\\hat{\\sigma}}{\\sqrt{2}} \\sqrt{\\frac{1}{n_i} + \\frac{1}{n_j}} \\cdot Q_{I,n-I}(1-\\alpha)\\right\\}\\]\n\n\nwhere \\(Q_{I,n-I}(1-\\alpha)\\) denotes the \\((1-\\alpha)\\) quantile of a tukey distribution \\(Q(I,n-I)\\) of degrees \\((I, n-I)\\)."
+    "text": "Individual Tests\n\nTo test each \\(H_0^{i,j}: \\mu_i = \\mu_j\\), we use the critical regions:\n\n\n\n\n\\[CR_\\alpha^{i,j} = \\left\\{|\\overline{Y}_i - \\overline{Y}_j| &gt; \\frac{\\hat{\\sigma}}{\\sqrt{2}} \\sqrt{\\frac{1}{N_i} + \\frac{1}{N_j}} \\cdot Q_{I,n-I}(1-\\alpha)\\right\\}\\]\n\n\nwhere \\(Q_{I,n-I}(1-\\alpha)\\) denotes the \\((1-\\alpha)\\) quantile of a tukey distribution \\(Q(I,n-I)\\) of degrees \\((I, n-I)\\)."
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#key-properties-of-tukeys-test",
@@ -10553,7 +10553,7 @@
     "href": "teaching/linear_model/slides/anova_ancova.html#why-naive-pairwise-testing-fails",
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Why naive pairwise testing fails",
-    "text": "Why naive pairwise testing fails\n\nLeft: FWER — the chance of flagging at least one pair — vs the number of groups, by Monte-Carlo (hover for the %). Right: one experiment, all true means equal: a chord turns red when the naive test calls that pair different, green when Tukey does too. Every coloured chord is a false positive.\n\n\n\n  \n  data: \\( Y_{g,k} = \\mu + \\varepsilon_{g,k},\\ \\ \\varepsilon_{g,k}\\sim\\mathcal N(0,\\sigma^2) \\) — same \\(\\mu\\) for every group (pure noise, no real differences)\n  groups I  6   α  0.05   ↻ new experiment\n   naive false positive    Tukey false positive  ·  this experiment: naive –, Tukey –  (true = 0)"
+    "text": "Why naive pairwise testing fails\n\nAll true means are equal, so every colour is a false positive: left, the FWER by Monte-Carlo (hover for the %); middle, the pairs flagged by the naive test (red) and by Tukey (green); right, this experiment’s means against the two thresholds.\n\n\n\n  \n  data: \\( Y_{g,k} = \\mu + \\varepsilon_{g,k},\\ \\ \\varepsilon_{g,k}\\sim\\mathcal N(0,\\sigma^2) \\) — same \\(\\mu\\) for every group (pure noise, no real differences)\n  groups I  6   α  0.05   ↻ new experiment\n   naive false positive    Tukey false positive  ·  this experiment: naive –, Tukey –  (true = 0)"
   },
   {
     "objectID": "teaching/linear_model/slides/anova_ancova.html#example-of-r-output",
@@ -12066,5 +12066,12 @@
     "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
     "section": "Interaction plot: the term γ",
     "text": "Interaction plot: the term γ\n\n\\[\\mu_{ij}(t) = m + \\alpha_i + \\beta_j + t\\,\\gamma_{ij}, \\qquad\n  \\mu_{2j}(t) - \\mu_{1j}(t) = (\\alpha_2 - \\alpha_1) + t\\,(\\gamma_{2j} - \\gamma_{1j})\\]\n\n\n\n  \n    reference modalitysum to zero\n     ·  \n  \n  \n  \n      –  \n      –  \n      –  \n      –\n  \n  \n      –  \n      –  \n    \\(t\\)  –  \n    ▶ animate↻ reset\n  \n   \\(i=1\\)    \\(i=2\\)  ·  \\(t\\,\\gamma_{2j}\\) = –  ·  \\(\\mu_{2j}-\\mu_{1j}\\) = –\n\n\n\ninteraction.plot(water, fertilizer, yield)"
+  },
+  {
+    "objectID": "teaching/linear_model/slides/anova_ancova.html#the-data-loss-exercise",
+    "href": "teaching/linear_model/slides/anova_ancova.html#the-data-loss-exercise",
+    "title": "Analysis of Variance - ANOVA, and of Covariance - ANCOVA",
+    "section": "The data: Loss ~ Exercise",
+    "text": "The data: Loss ~ Exercise\n\n\\(Y\\) = weight Loss, \\(X\\) = Exercise programme: \\(I = 4\\) modalities, \\(N_i = 18\\) each, \\(n = 72\\).\n\n\n\n  \n  5\n  10\n  15\n  20\n  0\n\n  \n  \n  \n  \n\n  \n  \n  \n  \n\n  \n  overall mean 12.22\n\n  1\n  2\n  3\n  4\n  exercise programme\n  mean Loss\n\n  9.61\n  16.78\n  13.50\n  9.00\n\n\n\n\nWhiskers: \\(\\overline{Y}_i \\pm \\hat\\sigma/\\sqrt{N_i}\\), with \\(\\hat\\sigma = 3.391\\). Programme 2 looks best, 1 and 4 almost tied — the rest of the chapter makes that reading a test."
   }
 ]

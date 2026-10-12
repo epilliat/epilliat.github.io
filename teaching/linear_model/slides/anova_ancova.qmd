@@ -59,6 +59,50 @@ We'll see that these situations **reduce to the case** of the previous chapter.
 # One-Way ANOVA (One Factor)
 
 
+## One Hot Encoding
+
+. . .
+
+$X$ is qualitative, with $I$ modalities $A_1, \dots, A_I$. We use
+[one-hot encoding]{style="background-color: yellow;"}: $X_{ki}=\1\{X_k=A_i\}$
+
+. . .
+
+That is, for individual $k$, [$X_{k\cdot} = (\1\{X_k=A_1\}, \dots, \1\{X_k=A_I\}) \in \{0,1\}^I$]{style="background-color: lightblue;"}
+
+. . .
+
+Or, using previous notations, $X = (X^{(1)}, \dots, X^{(I)})$ where
+
+
+$$X^{(i)}= \begin{pmatrix}
+X^{(i)}_1 \\
+\vdots  \\
+X^{(i)}_n 
+\end{pmatrix}$$
+
+## In Other Words
+
+- If there are [ $3$ categories]{style="background-color: yellow;"} e.g. [blue]{style="background-color: lightblue;"}, [orange]{style="background-color: orange;"}, [green]{style="background-color: lightgreen;"}, we replace the column $X$ by $3$ columns
+
+- Example with $I=3$ categories and $n=5$ individuals
+$$
+\begin{pmatrix}
+\color{blue}{\mathrm{blue}} \\
+\mathrm{green} \\
+\color{blue}{\mathrm{blue}} \\
+\mathrm{orange} \\
+\mathrm{orange} \\
+\end{pmatrix} \quad  \text{becomes} \quad
+X=\begin{pmatrix}
+\color{blue}{\mathrm{1}} & \mathrm{0} & \mathrm{0}\\
+\mathrm{0} & \mathrm{0} & \mathrm{1}\\
+\color{blue}{\mathrm{1}} & \mathrm{0} & \mathrm{0}\\
+\mathrm{0} & \mathrm{1} & \mathrm{0}\\
+\mathrm{0} & \mathrm{1} & \mathrm{0}\\
+\end{pmatrix}
+$$
+
 ## Context, Notations
 
 . . .
@@ -105,49 +149,6 @@ where $\E[\varepsilon_k]=0$,  $\Cov(\varepsilon_k,\varepsilon_l)=\sigma^2\1\{k=l
 - Do we have $\mu_1 = \mu_2 = \ldots = \mu_I$? (Does factor $A$ influence $Y$?)
 - Does some $\mu_i$ have more influence on $Y$?
 - How do we estimate the $\mu_i$'s?
-
-## One Hot Encoding
-
-. . .
-
-We use [one-hot encoding]{style="background-color: yellow;"}: $X_{ki}=\1\{X_k=A_i\}$
-
-. . .
-
-That is, for individual $k$, [$X_{k\cdot} = (\1\{X_k=A_1\}, \dots, \1\{X_k=A_I\}) \in \{0,1\}^I$]{style="background-color: lightblue;"}
-
-. . .
-
-Or, using previous notations, $X = (X^{(1)}, \dots, X^{(I)})$ where
-
-
-$$X^{(i)}= \begin{pmatrix}
-X^{(i)}_1 \\
-\vdots  \\
-X^{(i)}_n 
-\end{pmatrix}$$
-
-## In Other Words
-
-- If there are [ $3$ categories]{style="background-color: yellow;"} e.g. [blue]{style="background-color: lightblue;"}, [orange]{style="background-color: orange;"}, [green]{style="background-color: lightgreen;"}, we replace the column $X$ by $3$ columns
-
-- Example with $I=3$ categories and $n=5$ individuals
-$$
-\begin{pmatrix}
-\color{blue}{\mathrm{blue}} \\
-\mathrm{green} \\
-\color{blue}{\mathrm{blue}} \\
-\mathrm{orange} \\
-\mathrm{orange} \\
-\end{pmatrix} \quad  \text{becomes} \quad
-X=\begin{pmatrix}
-\color{blue}{\mathrm{1}} & \mathrm{0} & \mathrm{0}\\
-\mathrm{0} & \mathrm{0} & \mathrm{1}\\
-\color{blue}{\mathrm{1}} & \mathrm{0} & \mathrm{0}\\
-\mathrm{0} & \mathrm{1} & \mathrm{0}\\
-\mathrm{0} & \mathrm{1} & \mathrm{0}\\
-\end{pmatrix}
-$$
 
 ## Model, Matrix Form
 
@@ -238,6 +239,67 @@ lm(Y~A-1) #without intercept
 . . .
 
 Interpretation: gives coefficients [$\alpha_i= \mu_i$]{style="background-color: yellow;"}
+
+## The data: Loss ~ Exercise {.smaller}
+
+. . .
+
+$Y$ = weight **Loss**, $X$ = **Exercise** programme: $I = 4$ modalities, $N_i = 18$ each, $n = 72$.
+
+```{=html}
+<style>
+.dsw{--ds-bar:#3b6fb6;--ds-ax:#999;--ds-grid:#ececec;--ds-txt:#555;--ds-ref:#c0392b;text-align:center}
+html.lm-dark .dsw{--ds-bar:#5b8cff;--ds-ax:#9aa6c0;--ds-grid:#2a3550;--ds-txt:#c9d3e8;--ds-ref:#ff8a7a}
+.dsw svg{width:100%;max-width:780px;height:auto;font-family:inherit}
+.dsw .gl{stroke:var(--ds-grid);stroke-width:1}
+.dsw .tk{fill:var(--ds-ax);font-size:13px}
+.dsw .lb{fill:var(--ds-txt);font-size:14px}
+.dsw .bar{fill:var(--ds-bar);opacity:.85}
+.dsw .wh{stroke:var(--ds-txt);stroke-width:1.6;fill:none}
+.dsw .ref{stroke:var(--ds-ref);stroke-width:1.6;stroke-dasharray:6 4}
+.dsw .rl{fill:var(--ds-ref);font-size:13px}
+.dsw .vl{fill:#fff;font-size:14px;font-weight:600}
+</style>
+<div class="dsw">
+<svg viewBox="0 0 660 272" role="img" aria-label="Mean weight loss per exercise programme">
+  <line class="gl" x1="70" y1="212" x2="640" y2="212"/>
+  <line class="gl" x1="70" y1="164" x2="640" y2="164"/><text class="tk" x="62" y="168" text-anchor="end">5</text>
+  <line class="gl" x1="70" y1="116" x2="640" y2="116"/><text class="tk" x="62" y="120" text-anchor="end">10</text>
+  <line class="gl" x1="70" y1="68"  x2="640" y2="68"/><text class="tk" x="62" y="72"  text-anchor="end">15</text>
+  <line class="gl" x1="70" y1="20"  x2="640" y2="20"/><text class="tk" x="62" y="24"  text-anchor="end">20</text>
+  <text class="tk" x="62" y="216" text-anchor="end">0</text>
+
+  <rect class="bar" x="106" y="119.5" width="76" height="92.5"/>
+  <rect class="bar" x="248" y="51.3"  width="76" height="160.7"/>
+  <rect class="bar" x="390" y="82.5"  width="76" height="129.5"/>
+  <rect class="bar" x="532" y="125.3" width="76" height="86.7"/>
+
+  <path class="wh" d="M144,112 L144,127 M137,112 H151 M137,127 H151"/>
+  <path class="wh" d="M286,43.6 L286,59 M279,43.6 H293 M279,59 H293"/>
+  <path class="wh" d="M428,74.8 L428,90.2 M421,74.8 H435 M421,90.2 H435"/>
+  <path class="wh" d="M570,117.6 L570,133 M563,117.6 H577 M563,133 H577"/>
+
+  <line class="ref" x1="70" y1="94.5" x2="640" y2="94.5"/>
+  <text class="rl" x="74" y="89">overall mean 12.22</text>
+
+  <text class="lb" x="144" y="233" text-anchor="middle">1</text>
+  <text class="lb" x="286" y="233" text-anchor="middle">2</text>
+  <text class="lb" x="428" y="233" text-anchor="middle">3</text>
+  <text class="lb" x="570" y="233" text-anchor="middle">4</text>
+  <text class="lb" x="355" y="254" text-anchor="middle">exercise programme</text>
+  <text class="lb" x="18" y="116" text-anchor="middle" transform="rotate(-90 18 116)">mean Loss</text>
+
+  <text class="vl" x="144" y="140" text-anchor="middle">9.61</text>
+  <text class="vl" x="286" y="72"  text-anchor="middle">16.78</text>
+  <text class="vl" x="428" y="103" text-anchor="middle">13.50</text>
+  <text class="vl" x="570" y="146" text-anchor="middle">9.00</text>
+</svg>
+</div>
+```
+
+. . .
+
+Whiskers: $\overline{Y}_i \pm \hat\sigma/\sqrt{N_i}$, with $\hat\sigma = 3.391$. Programme 2 looks best, 1 and 4 almost tied — the rest of the chapter makes that reading a test.
 
 ## In R: the intercept is a mean {.smaller}
 
@@ -379,7 +441,7 @@ $$F = \frac{SSB/(I-1)}{SSW/(n-I)} \sim F(I-1, n-I)$$
 <style>
 .lm-btn{font-family:inherit;font-size:.82em;padding:.35em 1em;margin:.1em .18em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
 .lm-btn.on{background:#3b6fb6;color:#fff;border-color:#3b6fb6}
-.lm-row{font-size:.72em;line-height:2.3;margin:.12rem 0}
+.lm-row{font-size:.8em;line-height:2.1;margin:.12rem 0}
 .lm-wrap{text-align:center}
 .lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
 </style>
@@ -417,24 +479,24 @@ $$F = \frac{SSB/(I-1)}{SSW/(n-I)} \sim F(I-1, n-I)$$
     c.clearRect(0,0,W,H);
     c.strokeStyle='#e6e6e6'; c.lineWidth=1; c.strokeRect(X0,top,plotW,plotH);
     c.strokeStyle='#aaa'; c.setLineDash([4,3]); c.beginPath(); c.moveTo(X0,PY(gm)); c.lineTo(X0+plotW,PY(gm)); c.stroke(); c.setLineDash([]);
-    c.fillStyle='#999'; c.font='10px sans-serif'; c.textAlign='left'; c.fillText('grand mean',X0+4,PY(gm)-4);
+    c.fillStyle='#999'; c.font='12px sans-serif'; c.textAlign='left'; c.fillText('grand mean',X0+4,PY(gm)-4);
     for(i=0;i<I;i++){
       var cx=X0+(i+0.5)/I*plotW;
       for(k=0;k<NG;k++){ var jx=cx+(vdcJit(k)-0.5)*30; c.fillStyle=COL[i]; c.globalAlpha=0.75; c.beginPath(); c.arc(jx,PY(ys[i][k]),3.2,0,6.2832); c.fill(); }
       c.globalAlpha=1;
       c.strokeStyle=COL[i]; c.lineWidth=2.5; c.beginPath(); c.moveTo(cx-22,PY(ybar[i])); c.lineTo(cx+22,PY(ybar[i])); c.stroke();
-      c.fillStyle='#555'; c.font='11px sans-serif'; c.textAlign='center'; c.fillText('A'+(i+1),cx,H-30);
+      c.fillStyle='#555'; c.font='12px sans-serif'; c.textAlign='center'; c.fillText('A'+(i+1),cx,H-30);
     }
-    c.fillStyle='#777'; c.font='11px sans-serif'; c.textAlign='center'; c.fillText('groups',X0+plotW/2,H-12);
+    c.fillStyle='#777'; c.font='12px sans-serif'; c.textAlign='center'; c.fillText('groups',X0+plotW/2,H-12);
     var bx=X0+plotW+44, bw=70, bTop=top, bH=plotH;
     c.strokeStyle='#e6e6e6'; c.strokeRect(bx,bTop,bw,bH);
     var fb=SSB/(SST||1), hB=fb*bH;
     c.fillStyle='#3b6fb6'; c.fillRect(bx,bTop+bH-hB,bw,hB);
     c.fillStyle='#bbb'; c.fillRect(bx,bTop,bw,bH-hB);
-    c.font='bold 12px sans-serif'; c.textAlign='center';
+    c.font='bold 14px sans-serif'; c.textAlign='center';
     if(fb>0.08){ c.fillStyle='#fff'; c.fillText(Math.round(fb*100)+'%',bx+bw/2,bTop+bH-hB/2+4); }
     if(1-fb>0.08){ c.fillStyle='#555'; c.fillText(Math.round((1-fb)*100)+'%',bx+bw/2,bTop+(bH-hB)/2+4); }
-    c.fillStyle='#777'; c.font='11px sans-serif'; c.fillText('SST',bx+bw/2,bTop+bH+16);
+    c.fillStyle='#777'; c.font='12px sans-serif'; c.fillText('SST',bx+bw/2,bTop+bH+16);
     document.getElementById('awF').textContent=F.toFixed(2);
     document.getElementById('awP').textContent=p<1e-4?p.toExponential(1):p.toFixed(3);
     save();
@@ -574,14 +636,9 @@ $$Q = \max_{(i,j)} \frac{|\overline{Y}_i - \overline{Y}_j|}{\hat{\sigma}\sqrt{\t
 
 ::: {.callout-note}
 ## Distribution of Tukey's Test Statistic
-Under [$H_0: \mu_1 = \cdots = \mu_I$]{style="background-color: lightblue;"} and assuming $\varepsilon \sim N(0, \sigma^2 I_n)$:
-
-$$Q \sim Q_{I,n-I}$$
-
-
-where $Q_{I,n-I}$ denotes the **Tukey distribution** with $(I, n-I)$ degrees of freedom.
-
-**Note**: This is exact if all $n_i$ are equal, otherwise the distribution is approximately Tukey.
+Under [$H_0: \mu_1 = \cdots = \mu_I$]{style="background-color: lightblue;"} and $\varepsilon \sim N(0, \sigma^2 I_n)$,
+$$Q \sim Q_{I,n-I},$$
+the **Tukey distribution** with $(I, n-I)$ degrees of freedom — exactly if the $N_i$ are equal, approximately otherwise.
 :::
 
 ## Individual Tests
@@ -595,7 +652,7 @@ To test each [$H_0^{i,j}: \mu_i = \mu_j$]{style="background-color: lightblue;"},
 
 :::{style="font-size: 80%;"}
 ::: {.square-def}
-$$CR_\alpha^{i,j} = \left\{|\overline{Y}_i - \overline{Y}_j| > \frac{\hat{\sigma}}{\sqrt{2}} \sqrt{\frac{1}{n_i} + \frac{1}{n_j}} \cdot Q_{I,n-I}(1-\alpha)\right\}$$
+$$CR_\alpha^{i,j} = \left\{|\overline{Y}_i - \overline{Y}_j| > \frac{\hat{\sigma}}{\sqrt{2}} \sqrt{\frac{1}{N_i} + \frac{1}{N_j}} \cdot Q_{I,n-I}(1-\alpha)\right\}$$
 :::
 :::
 
@@ -633,18 +690,18 @@ With Tukey's test, two significantly different means are **truly different**, no
 ## Why naive pairwise testing fails {.smaller}
 
 ::: {style="font-size:84%"}
-**Left:** FWER — the chance of flagging at least one pair — vs the number of groups, by Monte-Carlo (*hover* for the %). **Right:** one experiment, all true means **equal**: a chord turns **red** when the naive test calls that pair different, **green** when Tukey does too. Every coloured chord is a false positive.
+All true means are **equal**, so every colour is a false positive: **left**, the FWER by Monte-Carlo (*hover* for the %); **middle**, the pairs flagged by the naive test (red) and by Tukey (green); **right**, this experiment's means against the two thresholds.
 :::
 
 ```{=html}
 <style>
 .lm-btn{font-family:inherit;font-size:.82em;padding:.35em 1em;margin:.1em .18em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
-.lm-row{font-size:.72em;line-height:2.1;margin:.12rem 0}
+.lm-row{font-size:.8em;line-height:2.1;margin:.12rem 0}
 .lm-wrap{text-align:center}
 .lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
 </style>
 <div class="lm-wrap">
-  <canvas id="fwCanvas" width="760" height="338" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <canvas id="fwCanvas" width="1020" height="360" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
   <div class="lm-row">data: \( Y_{g,k} = \mu + \varepsilon_{g,k},\ \ \varepsilon_{g,k}\sim\mathcal N(0,\sigma^2) \) — <b>same \(\mu\) for every group</b> (pure noise, no real differences)</div>
   <div class="lm-row">groups I <input id="fwI" type="range" autocomplete="off" min="2" max="10" step="1" value="6" style="vertical-align:middle;width:150px"> <b id="fwIv">6</b> &nbsp; α <input id="fwA" type="range" autocomplete="off" min="0.01" max="0.1" step="0.01" value="0.05" style="vertical-align:middle;width:110px"> <b id="fwAv">0.05</b> &nbsp; <button class="lm-btn" id="fwNew">↻ new experiment</button></div>
   <div class="lm-row"><span class="lm-sw" style="background:#c0392b"></span> naive false positive &nbsp; <span class="lm-sw" style="background:#27ae60"></span> Tukey false positive &nbsp;·&nbsp; this experiment: naive <b id="fwNa">–</b>, Tukey <b id="fwTu">–</b> &nbsp;<span style="color:#999">(true = 0)</span></div>
@@ -654,7 +711,7 @@ With Tukey's test, two significantly different means are **truly different**, no
   var cv=document.getElementById('fwCanvas'); if(!cv||cv.dataset.init)return; cv.dataset.init=1;
   var c=cv.getContext('2d'),W=cv.width,H=cv.height, NG=6, M=300, MQ=1200, IMAX=10;
   var iEl=document.getElementById('fwI'), aEl=document.getElementById('fwA'), KEY='lmFwer';
-  var top=20, plotH=H-50, X0=52, plotW=300, bx0=X0+plotW+50, bpW=W-bx0-14, hoverI=null;
+  var top=22, plotH=H-54, X0=56, plotW=268, bx0=X0+plotW+44, bpW=286, cx0=bx0+286+40, cpW=W-(bx0+286+40)-14, hoverI=null;
   function gauss(){var u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
   function lgamma(z){var g=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];if(z<0.5)return Math.log(Math.PI/Math.sin(Math.PI*z))-lgamma(1-z);z-=1;var x=g[0];for(var i=1;i<9;i++)x+=g[i]/(z+i);var t=z+7.5;return 0.5*Math.log(2*Math.PI)+(z+0.5)*Math.log(t)-t+Math.log(x);}
   function betacf(a,b,x){var F=1e-300,qab=a+b,qap=a+1,qam=a-1,cc=1,d=1-qab*x/qap;if(Math.abs(d)<F)d=F;d=1/d;var h=d;for(var m=1;m<=200;m++){var m2=2*m,aa=m*(b-m)*x/((qam+m2)*(a+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;cc=1+aa/cc;if(Math.abs(cc)<F)cc=F;d=1/d;h*=d*cc;aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));d=1+aa*d;if(Math.abs(d)<F)d=F;cc=1+aa/cc;if(Math.abs(cc)<F)cc=F;d=1/d;var del=d*cc;h*=del;if(Math.abs(del-1)<3e-12)break;}return h;}
@@ -689,10 +746,10 @@ With Tukey's test, two significantly different means are **truly different**, no
     c.clearRect(0,0,W,H);
     // ===== LEFT: FWER curves =====
     c.strokeStyle='#e6e6e6'; c.lineWidth=1; c.strokeRect(X0,top,plotW,plotH);
-    c.font='10px sans-serif';
+    c.font='13px sans-serif';
     for(yy=0;yy<=1.0001;yy+=0.25){ c.textAlign='right'; c.fillStyle='#999'; c.fillText(Math.round(yy*100)+'%',X0-6,PY(yy)+3); c.strokeStyle='#f2f2f2'; c.beginPath(); c.moveTo(X0,PY(yy)); c.lineTo(X0+plotW,PY(yy)); c.stroke(); }
-    c.save(); c.translate(13,top+plotH/2); c.rotate(-Math.PI/2); c.textAlign='center'; c.fillStyle='#888'; c.font='10px sans-serif'; c.fillText('chance of ≥1 false positive',0,0); c.restore();
-    c.textAlign='center'; c.fillStyle='#999'; c.font='10px sans-serif'; for(ii=2;ii<=IMAX;ii++) c.fillText(ii,PX(ii),top+plotH+15);
+    c.save(); c.translate(13,top+plotH/2); c.rotate(-Math.PI/2); c.textAlign='center'; c.fillStyle='#888'; c.font='13px sans-serif'; c.fillText('chance of ≥1 false positive',0,0); c.restore();
+    c.textAlign='center'; c.fillStyle='#999'; c.font='13px sans-serif'; for(ii=2;ii<=IMAX;ii++) c.fillText(ii,PX(ii),top+plotH+15);
     c.fillText('number of groups I',X0+plotW/2,H-6);
     c.strokeStyle='#aaa'; c.setLineDash([4,3]); c.beginPath(); c.moveTo(X0,PY(alpha)); c.lineTo(X0+plotW,PY(alpha)); c.stroke(); c.setLineDash([]);
     c.fillStyle='#999'; c.textAlign='left'; c.fillText('α',X0+plotW+2,PY(alpha)+3);
@@ -706,7 +763,7 @@ With Tukey's test, two significantly different means are **truly different**, no
       c.fillStyle='#c0392b'; c.beginPath(); c.arc(hx,PY(curveN[hoverI]),4,0,6.2832); c.fill();
       c.fillStyle='#27ae60'; c.beginPath(); c.arc(hx,PY(curveT[hoverI]),4,0,6.2832); c.fill();
       var txt='I='+hoverI+'   naive '+Math.round(curveN[hoverI]*100)+'%   Tukey '+Math.round(curveT[hoverI]*100)+'%';
-      c.font='11px sans-serif'; var tw=c.measureText(txt).width+12, tx=Math.min(hx+8,X0+plotW-tw); if(tx<X0)tx=X0;
+      c.font='14px sans-serif'; var tw=c.measureText(txt).width+12, tx=Math.min(hx+8,X0+plotW-tw); if(tx<X0)tx=X0;
       c.fillStyle='rgba(20,20,20,0.82)'; c.fillRect(tx,top+4,tw,19); c.fillStyle='#fff'; c.textAlign='left'; c.fillText(txt,tx+6,top+17);
     }
     // ===== RIGHT: one experiment as a circle =====
@@ -721,11 +778,34 @@ With Tukey's test, two significantly different means are **truly different**, no
     for(i=0;i<I;i++)for(j=i+1;j<I;j++){ c.strokeStyle='rgba(0,0,0,0.09)'; c.lineWidth=1; c.beginPath(); c.moveTo(px[i],py[i]); c.lineTo(px[j],py[j]); c.stroke(); }
     for(i=0;i<I;i++)for(j=i+1;j<I;j++){ if(Math.abs(means[i]-means[j])>LSD){ nC++; c.strokeStyle='#c0392b'; c.lineWidth=2; c.beginPath(); c.moveTo(px[i],py[i]); c.lineTo(px[j],py[j]); c.stroke(); } }
     for(i=0;i<I;i++)for(j=i+1;j<I;j++){ if(Math.abs(means[i]-means[j])>HSD){ tC++; c.strokeStyle='#27ae60'; c.lineWidth=3.2; c.beginPath(); c.moveTo(px[i],py[i]); c.lineTo(px[j],py[j]); c.stroke(); } }
-    for(i=0;i<I;i++){ var t=(means[i]-mmin)/rng; c.fillStyle=mcol(t); c.beginPath(); c.arc(px[i],py[i],7,0,6.2832); c.fill(); c.strokeStyle='#fff'; c.lineWidth=2; c.stroke(); c.fillStyle='#555'; c.font='9px sans-serif'; c.textAlign='center'; var lr=R+13; c.fillText(i+1,cx+lr*Math.cos(-Math.PI/2+i*2*Math.PI/I),cy+lr*Math.sin(-Math.PI/2+i*2*Math.PI/I)+3); }
-    c.fillStyle='#444'; c.font='bold 11px sans-serif'; c.textAlign='center'; c.fillText('one experiment — I = '+I+'  ('+(I*(I-1)/2)+' pairs tested)',bx0+bpW/2,top+13);
-    c.fillStyle='#888'; c.font='10px sans-serif'; c.fillText('node colour = its sample mean (blue low → red high)',bx0+bpW/2,top+plotH-20);
-    if(nC===0){ c.fillStyle='#27ae60'; c.font='10px sans-serif'; c.fillText('no false positive this time — ↻ or raise I',bx0+bpW/2,top+plotH-6); }
-    else { c.fillStyle='#c0392b'; c.font='bold 11px sans-serif'; c.fillText(nC+' naive false positive'+(nC>1?'s':'')+(tC?'  ·  '+tC+' even with Tukey':'  ·  Tukey: 0'),bx0+bpW/2,top+plotH-6); }
+    for(i=0;i<I;i++){ var t=(means[i]-mmin)/rng; c.fillStyle=mcol(t); c.beginPath(); c.arc(px[i],py[i],7,0,6.2832); c.fill(); c.strokeStyle='#fff'; c.lineWidth=2; c.stroke(); c.fillStyle='#555'; c.font='12px sans-serif'; c.textAlign='center'; var lr=R+13; c.fillText(i+1,cx+lr*Math.cos(-Math.PI/2+i*2*Math.PI/I),cy+lr*Math.sin(-Math.PI/2+i*2*Math.PI/I)+3); }
+    c.fillStyle='#444'; c.font='bold 13px sans-serif'; c.textAlign='center'; c.fillText('one experiment — I = '+I+'  ('+(I*(I-1)/2)+' pairs tested)',bx0+bpW/2,top+13);
+    c.fillStyle='#888'; c.font='13px sans-serif'; c.fillText('node colour = its sample mean (blue low → red high)',bx0+bpW/2,top+plotH-20);
+    if(nC===0){ c.fillStyle='#27ae60'; c.font='13px sans-serif'; c.fillText('no false positive this time — ↻ or raise I',bx0+bpW/2,top+plotH-6); }
+    else { c.fillStyle='#c0392b'; c.font='bold 13px sans-serif'; c.fillText(nC+' naive false positive'+(nC>1?'s':'')+(tC?'  ·  '+tC+' even with Tukey':'  ·  Tukey: 0'),bx0+bpW/2,top+plotH-6); }
+    // ===== RIGHT: the same experiment as a bar plot =====
+    c.strokeStyle='#e6e6e6'; c.lineWidth=1; c.strokeRect(cx0,top,cpW,plotH);
+    var lo2=Math.min(mmin,0), hi2=Math.max(mmax, mmin+HSD), pad2=((hi2-lo2)||1)*0.22;
+    lo2-=pad2; hi2+=pad2;
+    function BY(v){ return top+plotH-34-(v-lo2)/(hi2-lo2)*(plotH-62); }
+    var step=(cpW-30)/I, bw=Math.min(30, step*0.6);
+    c.strokeStyle='#bbb'; c.setLineDash([4,3]); c.beginPath(); c.moveTo(cx0+6,BY(0)); c.lineTo(cx0+cpW-6,BY(0)); c.stroke(); c.setLineDash([]);
+    function tag(lab,x,y,col){ c.font='12px sans-serif'; c.textAlign='right';
+      var tw=c.measureText(lab).width; c.fillStyle='#fff'; c.fillRect(x-tw-3,y-11,tw+6,14); c.fillStyle=col; c.fillText(lab,x,y); }
+    tag('true μ',cx0+cpW-8,BY(0)+15,'#aaa');
+    c.strokeStyle='#888'; c.setLineDash([2,3]); c.beginPath(); c.moveTo(cx0+6,BY(mmin)); c.lineTo(cx0+cpW-6,BY(mmin)); c.stroke(); c.setLineDash([]);
+    tag('min',cx0+cpW-8,BY(mmin)+15,'#888');
+    function thr(v,col,lab){ if(BY(v)<top+16) return; c.strokeStyle=col; c.setLineDash([5,4]); c.lineWidth=1.6;
+      c.beginPath(); c.moveTo(cx0+6,BY(v)); c.lineTo(cx0+cpW-6,BY(v)); c.stroke(); c.setLineDash([]); tag(lab,cx0+cpW-8,BY(v)-5,col); }
+    thr(mmin+LSD,'#c0392b','min + LSD'); thr(mmin+HSD,'#27ae60','min + HSD');
+    for(i=0;i<I;i++){
+      var bxc=cx0+15+step*(i+0.5), y0b=BY(0), y1b=BY(means[i]);
+      c.fillStyle=mcol((means[i]-mmin)/rng);
+      c.fillRect(bxc-bw/2,Math.min(y0b,y1b),bw,Math.max(2,Math.abs(y1b-y0b)));
+      c.fillStyle='#777'; c.font='12px sans-serif'; c.textAlign='center'; c.fillText(i+1,bxc,top+plotH-14);
+    }
+    c.fillStyle='#444'; c.font='bold 13px sans-serif'; c.textAlign='center'; c.fillText('its group means',cx0+cpW/2,top+14);
+    c.fillStyle='#888'; c.font='13px sans-serif'; c.fillText('tallest bar above a line ⇒ flagged by that test',cx0+cpW/2,top+plotH-1);
     document.getElementById('fwNa').textContent=nC;
     document.getElementById('fwTu').textContent=tC;
     save();
@@ -1113,7 +1193,7 @@ Drag a cell mean (solid $\mu_{ij}$, dashed $\hat Y_{ij}$ with noise); **i / j** 
 <style>
 .lm-btn{font-family:inherit;font-size:.8em;padding:.3em .9em;margin:.08em .14em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
 .lm-btn.on{background:#3b6fb6;color:#fff;border-color:#3b6fb6}
-.lm-row{font-size:.72em;line-height:2;margin:.08rem 0}
+.lm-row{font-size:.8em;line-height:2;margin:.08rem 0}
 .lm-wrap{text-align:center}
 #ipEq{display:inline-flex;align-items:flex-end;gap:.04rem;margin-top:.35rem}
 #ipEq .trm{display:inline-flex;flex-direction:column;align-items:center;min-width:60px}
@@ -1215,7 +1295,7 @@ Drag a cell mean (solid $\mu_{ij}$, dashed $\hat Y_{ij}$ with noise); **i / j** 
     id('ipSv').textContent=sig.toFixed(2); id('ipNv').textContent=nn;
     c.clearRect(0,0,W,H);
     c.strokeStyle='#e6e6e6'; c.lineWidth=1; c.strokeRect(X0,top,plotW,plotH);
-    c.font='11px sans-serif'; c.textAlign='center';
+    c.font='12px sans-serif'; c.textAlign='center';
     for(j=0;j<J;j++){ c.strokeStyle='#f1f1f1'; c.beginPath(); c.moveTo(PX(j),top); c.lineTo(PX(j),top+plotH); c.stroke(); c.fillStyle='#777'; c.fillText('B'+(j+1),PX(j),top+plotH+15); }
     c.fillStyle='#777'; c.fillText('factor B',X0+plotW/2,H-4);
     c.save(); c.translate(14,top+plotH/2); c.rotate(-Math.PI/2); c.fillStyle='#777'; c.fillText('cell mean',0,0); c.restore();
@@ -1231,7 +1311,7 @@ Drag a cell mean (solid $\mu_{ij}$, dashed $\hat Y_{ij}$ with noise); **i / j** 
       for(j=0;j<J;j++){ var x2=PX(j),y2=PY(mu[i][j]); j?c.lineTo(x2,y2):c.moveTo(x2,y2); } c.stroke();
       for(j=0;j<J;j++){ var on=(act[0]===i&&act[1]===j); c.fillStyle=TCOL[i]; c.beginPath(); c.arc(PX(j),PY(mu[i][j]),on?7:6,0,6.2832); c.fill(); c.strokeStyle=on?'#000':'#fff'; c.lineWidth=on?2.5:2; c.stroke(); }
     }
-    if(hover){ c.font='11px sans-serif'; var tw=c.measureText(hover.txt).width+10, tx=Math.min(Math.max(hover.x-tw/2,X0),X0+plotW-tw), ty=hover.y-24; if(ty<top)ty=hover.y+10;
+    if(hover){ c.font='12px sans-serif'; var tw=c.measureText(hover.txt).width+10, tx=Math.min(Math.max(hover.x-tw/2,X0),X0+plotW-tw), ty=hover.y-24; if(ty<top)ty=hover.y+10;
       c.fillStyle='rgba(20,20,20,0.82)'; c.fillRect(tx,ty,tw,18); c.fillStyle='#fff'; c.textAlign='left'; c.fillText(hover.txt,tx+5,ty+13); }
     updateNumbers(decomp());
     save();

@@ -236,7 +236,7 @@
 </div>
 <style>
 .lm-btn{font-family:inherit;font-size:.85em;padding:.4em 1.1em;margin:.12em .22em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
-.lm-row{font-size:.72em;line-height:2.3;margin:.12rem 0}
+.lm-row{font-size:.8em;line-height:2.1;margin:.12rem 0}
 .lm-wrap{text-align:center}
 .lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
 </style>
@@ -267,7 +267,7 @@
     c.clearRect(0, 0, W, H);
     // LEFT: design matrix schematic
     var mx0 = 16, mtop = 16, mh = 210, cw = (236 - mx0) / PMAX;
-    c.font = '11px sans-serif'; c.textAlign = 'center'; c.fillStyle = '#777'; c.fillText('columns of X (powers)', mx0 + PMAX * cw / 2 - 4, mtop - 4);
+    c.font = '12px sans-serif'; c.textAlign = 'center'; c.fillStyle = '#777'; c.fillText('columns of X (powers)', mx0 + PMAX * cw / 2 - 4, mtop - 4);
     for (var k = 0; k < PMAX; k++) {
       c.fillStyle = selSet[k] ? '#3b6fb6' : '#c0508f'; c.globalAlpha = selSet[k] ? 0.9 : 0.5;
       c.fillRect(mx0 + k * cw + 1, mtop, cw - 3, mh); c.globalAlpha = 1;
@@ -443,7 +443,7 @@
     function PX(x) { return lx0 + (x - XL) / (XH - XL) * (lx1 - lx0); }
     function PY(y) { return ly1 - (y - YL) / (YH - YL) * (ly1 - ly0); }
     c.strokeStyle = '#e6e6e6'; c.lineWidth = 1; c.strokeRect(lx0, ly0, lx1 - lx0, ly1 - ly0);
-    c.font = '11px sans-serif'; c.textAlign = 'center'; c.fillStyle = '#777'; c.fillText('fit with p = ' + p + ' columns (degree ' + (p - 1) + ')', (lx0 + lx1) / 2, H - 10);
+    c.font = '12px sans-serif'; c.textAlign = 'center'; c.fillStyle = '#777'; c.fillText('fit with p = ' + p + ' columns (degree ' + (p - 1) + ')', (lx0 + lx1) / 2, H - 10);
     c.strokeStyle = '#bbb'; c.lineWidth = 1.5; c.setLineDash([5, 4]); c.beginPath(); for (i = 0; i <= 200; i++) { var x = XL + (XH - XL) * i / 200; i ? c.lineTo(PX(x), PY(trueY(x))) : c.moveTo(PX(x), PY(trueY(x))); } c.stroke(); c.setLineDash([]);
     c.save(); c.beginPath(); c.rect(lx0, ly0, lx1 - lx0, ly1 - ly0); c.clip();
     var beta = F[p - 1].beta;
@@ -456,16 +456,16 @@
     CR.forEach(function (cr, idx) {
       var y0 = top + idx * rowH, lo = Math.min.apply(0, cr.v), hi = Math.max.apply(0, cr.v), sp = (hi - lo) || 1, j;
       function QY(val) { return y0 + plotH - (val - lo) / sp * plotH; }
-      c.textAlign = 'left'; c.fillStyle = cr.col; c.font = 'bold 12px sans-serif'; c.fillText(cr.n, 344, y0 + plotH / 2 + 4);
+      c.textAlign = 'left'; c.fillStyle = cr.col; c.font = 'bold 14px sans-serif'; c.fillText(cr.n, 344, y0 + plotH / 2 + 4);
       c.strokeStyle = '#ddd'; c.lineWidth = 1; c.setLineDash([3, 3]); c.beginPath(); c.moveTo(QX(p), y0 - 5); c.lineTo(QX(p), y0 + plotH + 5); c.stroke(); c.setLineDash([]);
       c.strokeStyle = cr.col; c.lineWidth = 2; c.beginPath(); for (j = 1; j <= PMAX; j++) { var X1 = QX(j), Y1 = QY(cr.v[j - 1]); j > 1 ? c.lineTo(X1, Y1) : c.moveTo(X1, Y1); } c.stroke();
       c.fillStyle = cr.col; for (j = 1; j <= PMAX; j++) { c.beginPath(); c.arc(QX(j), QY(cr.v[j - 1]), 2.2, 0, 6.2832); c.fill(); }
       var bi = 0; for (j = 1; j < PMAX; j++) if (cr.max ? cr.v[j] > cr.v[bi] : cr.v[j] < cr.v[bi]) bi = j;
-      c.fillStyle = '#e8a200'; c.font = '13px sans-serif'; c.textAlign = 'center'; c.fillText('★', QX(bi + 1), QY(cr.v[bi]) - 7);
-      c.fillStyle = '#666'; c.font = '10px sans-serif'; c.textAlign = 'left'; c.fillText(cr.v[p - 1].toFixed(cr.max ? 3 : 1), 344, y0 + plotH / 2 + 19);
+      c.fillStyle = '#e8a200'; c.font = '14px sans-serif'; c.textAlign = 'center'; c.fillText('★', QX(bi + 1), QY(cr.v[bi]) - 7);
+      c.fillStyle = '#666'; c.font = '12px sans-serif'; c.textAlign = 'left'; c.fillText(cr.v[p - 1].toFixed(cr.max ? 3 : 1), 344, y0 + plotH / 2 + 19);
       document.getElementById('fcB' + idx).textContent = bi + 1;
     });
-    c.fillStyle = '#999'; c.font = '10px sans-serif'; c.textAlign = 'center'; for (k = 1; k <= PMAX; k++) c.fillText(k, QX(k), H - 16);
+    c.fillStyle = '#999'; c.font = '12px sans-serif'; c.textAlign = 'center'; for (k = 1; k <= PMAX; k++) c.fillText(k, QX(k), H - 16);
     c.fillText('model size p', (rx0 + rx1) / 2, H - 4);
   }
   pEl.addEventListener('input', function () { draw(); save(); });
@@ -564,7 +564,7 @@
 </div>
 <style>
 .lm-btn{font-family:inherit;font-size:.82em;padding:.35em 1em;margin:.1em .18em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
-.lm-row{font-size:.72em;line-height:2.3;margin:.12rem 0}
+.lm-row{font-size:.8em;line-height:2.1;margin:.12rem 0}
 .lm-wrap{text-align:center}
 .lm-sw{display:inline-block;width:11px;height:11px;border-radius:2px;vertical-align:middle}
 </style>
@@ -602,7 +602,7 @@
     c.clearRect(0, 0, W, H);
     [['AIC', R.aic, W * 0.32], ['BIC', R.bic, W * 0.68]].forEach(function (g) {
       var name = g[0], pr = g[1], cx = g[2], y = top;
-      for (var s = 0; s < 3; s++) { var seg = pr[s] * bh; c.fillStyle = cols[s]; c.fillRect(cx - bw / 2, y, bw, seg); if (pr[s] > 0.06) { c.fillStyle = '#fff'; c.font = 'bold 12px sans-serif'; c.textAlign = 'center'; c.fillText(Math.round(pr[s] * 100) + '%', cx, y + seg / 2 + 4); } y += seg; }
+      for (var s = 0; s < 3; s++) { var seg = pr[s] * bh; c.fillStyle = cols[s]; c.fillRect(cx - bw / 2, y, bw, seg); if (pr[s] > 0.06) { c.fillStyle = '#fff'; c.font = 'bold 14px sans-serif'; c.textAlign = 'center'; c.fillText(Math.round(pr[s] * 100) + '%', cx, y + seg / 2 + 4); } y += seg; }
       c.fillStyle = '#222'; c.font = 'bold 14px sans-serif'; c.textAlign = 'center'; c.fillText(name, cx, top + bh + 20);
     });
     c.strokeStyle = '#eee'; c.strokeRect(8, top, W - 16, bh);
@@ -702,7 +702,7 @@
 .lm-btn{font-family:inherit;font-size:.8em;padding:.32em .9em;margin:.1em .15em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
 .lm-btn.on{background:#3b6fb6;color:#fff;border-color:#3b6fb6}
 .lm-btn:disabled{opacity:.4;cursor:default}
-.lm-row{font-size:.68em;line-height:2.1;margin:.08rem 0}
+.lm-row{font-size:.78em;line-height:2.1;margin:.08rem 0}
 .lm-wrap{text-align:center}
 </style>
 <div class="lm-wrap" id="saWrap">
@@ -755,7 +755,7 @@
     var f = fit(sel), beta = f.beta, k;
     c.clearRect(0, 0, W, H);
     var mx0 = 16, mtop = 16, mh = 190, cw = (236 - mx0) / PMAX;
-    c.font = '11px sans-serif'; c.textAlign = 'center'; c.fillStyle = '#777'; c.fillText('columns of X (powers)', mx0 + PMAX * cw / 2 - 4, mtop - 5);
+    c.font = '12px sans-serif'; c.textAlign = 'center'; c.fillStyle = '#777'; c.fillText('columns of X (powers)', mx0 + PMAX * cw / 2 - 4, mtop - 5);
     for (k = 0; k < PMAX; k++) { c.fillStyle = selSet[k] ? '#3b6fb6' : '#c0508f'; c.globalAlpha = selSet[k] ? 0.9 : 0.45; c.fillRect(mx0 + k * cw + 1, mtop, cw - 3, mh); c.globalAlpha = 1; c.fillStyle = '#333'; c.fillText(LBL[k], mx0 + k * cw + cw / 2, mtop + mh + 14); if (TRUESET.indexOf(k) >= 0) { c.fillStyle = '#e8a200'; c.fillText('★', mx0 + k * cw + cw / 2, mtop + mh + 27); } }
     var rx0 = 300, rx1 = W - 12, XL = -1.12, XH = 1.12, YL = -1.9, YH = 1.9, i;
     function PX(x) { return rx0 + (x - XL) / (XH - XL) * (rx1 - rx0); } function PY(y) { return H - 22 - (y - YL) / (YH - YL) * (H - 34); }
