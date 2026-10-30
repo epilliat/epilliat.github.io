@@ -15,171 +15,398 @@ css: ../../../styles.css
 ## Goals
 
 :::{.nonincremental}
-- You already program fluently in **Python**. Julia is dynamic, high-level, REPL-driven — it will feel familiar.
-- Learn only the handful of things that are **different**, so the later modules read smoothly.
-- **No performance and no parallelism yet** — that starts next module. Here we just read and write Julia.
+- Dynamic, REPL-driven, like **Python**: only what **differs**.
+- **No performance, no parallelism yet.**
 :::
 
 . . .
 
-> The four differences that actually trip people up: **1-based** arrays, blocks close with **`end`**, element-wise math uses the **dot**, and behaviour lives in **functions**, not classes.
+> Four traps: arrays start at **1**, blocks close with **`end`**, the **dot**, **functions** not classes.
 
 . . .
 
-> ▶ Notebook (all of this, runnable): [Julia for Python users](../pluto/0_julia_basics.jl)
+> ▶ Script: [0_julia_basics.jl](../scripts/0_julia_basics.jl)  ·  Notebook: [0_julia_basics.jl](../pluto/0_julia_basics.jl)
 
 . . .
 
-> ⬅ **Previous:** [Course home](../index.qmd)  ·  **Next:** [1 — Interpreted vs compiled](1_compilation_and_types.qmd) ➡
+> ⬅ **Previous:** [Overview](course.qmd)  ·  **Next:** [1 — Interpreted vs compiled](1_compilation_and_types.qmd) ➡
 
-## Blocks end with `end`, not indentation
+::: {.notes}
+Predict, then run each cell. Performance starts with compilation, in the next deck.
+:::
 
-Julia does **not** use indentation to delimit blocks, and there is no `:` after the header.
+# Values {style="text-align: center;"}
+
+## Variables & types
+
+. . .
+
+Assign with `=`, no declaration.
 
 . . .
 
 ```julia
-for i in 1:3
-    println(i)
-end            # ← end closes the loop
+x = 3            # Int64
+y = 2.5          # Float64
+name = "Ada"     # String
 ```
 
 . . .
 
-- Every `for`, `while`, `if`, `function`, `struct` is closed by a matching **`end`**.
-- Indent for readability — it's ignored by the parser.
-- Else-if is one word: [`elseif`]{style="background-color: yellow;"}.
+> `typeof(x)` = Python's `type(x)`.
 
-## Arrays start at 1 {.smaller}
+::: {.notes}
+Types matter a lot from the compilation module on.
+:::
 
-The difference that bites hardest:
+## Numbers
+
+. . .
+
+```julia
+10 / 4      # 2.5  (true division)
+10 ÷ 4      # 2    (Python's //)
+10 % 4      # 2
+2^10        # 1024
+sqrt(2)     # 1.414…
+```
+
+- Power is [`^`]{style="background-color: yellow;"}. **Bet first:** what does `2**10` do?
+- How do you type `÷`? Next slide.
+
+. . .
+
+> ▶ Script: cell "Numbers" — try `2**10`.
+
+::: {.notes}
+`2**10` is a syntax error: `**` is not an operator in Julia.
+:::
+
+## Unicode: `\name` then TAB
+
+. . .
+
+```julia
+10 ÷ 4               # \div
+α = 0.1              # \alpha
+3 ≤ 4                # \le
+2 ∈ [1, 2, 3]        # \in
+2π                   # 2 * π
+```
+
+. . .
+
+> `2α` is `2 * α`: formulas map straight to code.
+
+> ▶ Script: cell "Unicode & juxtaposition".
+
+## Strings
+
+. . .
+
+```julia
+a, b = 3, 4
+"Hello, $name"          # "Hello, Ada"
+"$a + $b = $(a + b)"    # "3 + 4 = 7"
+"foo" * "bar"           # "foobar"
+'a'                     # a Char
+```
+
+- `$` = f-string. **Bet first:** `"foo" + "bar"`? Concatenation is [`*`]{style="background-color: yellow;"}.
+- `"…"` text; `'…'` **one** character.
+
+. . .
+
+> ▶ Script: cell "Strings".
+
+::: {.notes}
+`"foo" + "bar"` is a `MethodError`: `+` is not defined for strings.
+:::
+
+# Collections {style="text-align: center;"}
+
+## Arrays start at 1
 
 . . .
 
 ```julia
 v = [10, 20, 30, 40, 50]
-
-v[1]        # 10   — FIRST element (not v[0])
-v[end]      # 50   — last (end is a keyword inside [ ])
-v[end-1]    # 40   — second to last
-v[2:4]      # [20, 30, 40]   — slice, BOTH ends included
+v[1]        # 10  (v[0]: error)
+v[end]      # 50
+v[end-1]    # 40
+v[2:4]      # [20, 30, 40]
+length(v)   # 5
 ```
 
 . . .
 
 | | Python | Julia |
 |---|---|---|
-| First element | `v[0]` | [`v[1]`]{style="background-color: yellow;"} |
-| Last element | `v[-1]` | `v[end]` |
-| Slice `2:4` | elements 2,3 | elements 2,3,**4** |
+| First | `v[0]` | [`v[1]`]{style="background-color: yellow;"} |
+| Last | `v[-1]` | `v[end]` |
+| Slice `2:4` | 2, 3 | 2, 3, **4** |
 
 . . .
 
-> Matrices are stored **column-major** (columns contiguous) — the opposite of NumPy. It won't matter until the memory module, but it's why the *first* index is the fast one.
+> ▶ Script: cell "Arrays: 1-based" — try `v[0]`.
 
-## Broadcasting: the dot `.` {.smaller}
-
-Julia's answer to NumPy vectorisation *and* element-wise comprehensions — put a **dot** on any function or operator:
+## Ranges, comprehensions, matrices
 
 . . .
 
 ```julia
-x = [1.0, 4.0, 9.0]
+1:5                             # 1, 2, 3, 4, 5
+1:2:9                           # 1, 3, 5, 7, 9
+[i^2 for i in 1:5]              # [1, 4, 9, 16, 25]
+[i for i in 1:10 if iseven(i)]  # [2, 4, 6, 8, 10]
+M = [1 2 3; 4 5 6]              # 2×3 matrix
+M[2, 3]                         # 6
+```
 
-sqrt.(x)        # element-wise sqrt → [1.0, 2.0, 3.0]
-x .+ 1          # add 1 to each
-x .* 2          # double each
-@. x^2 + 1      # @. puts a dot on EVERY operation
+- Ranges are **lazy**; `collect(1:2:9)` builds the array.
+- Matrices are **column-major** (opposite of NumPy).
+
+::: {.notes}
+In a matrix literal, spaces separate columns, `;` starts a new row. Column-major matters in the memory module.
+:::
+
+## Tuples, named tuples, dicts
+
+. . .
+
+```julia
+t = (1, "two", 3.0)
+p, q, s = t                  # q == "two"
+t[1]                         # 1
+
+nt = (x = 10, y = 20)
+nt.x                         # 10
+
+d = Dict("apple" => 3, "pear" => 5)
+d["apple"]                   # 3
+haskey(d, "pear")            # "pear" in d
+```
+
+# Control flow {style="text-align: center;"}
+
+## Blocks close with `end`
+
+. . .
+
+No `:`, no indentation rule.
+
+. . .
+
+```julia
+for i in 1:3
+    println(i)
+end            # ← closes the loop
+```
+
+- `for`, `while`, `if`, `function`, `struct`: each closed by **`end`**.
+- Indentation: for readers only.
+
+## Conditionals
+
+. . .
+
+```julia
+x = 11
+if x ≥ 16
+    "excellent"
+elseif x ≥ 10
+    "pass"
+else
+    "fail"
+end                    # "pass"
+
+x ≥ 0 ? "pos" : "neg"  # ternary
 ```
 
 . . .
 
-- Where NumPy relies on `np.sqrt(x)` being vectorised, Julia makes the intent **explicit** with the dot.
-- Chained dotted operations are [**fused into one loop**]{style="background-color: yellow;"} — no temporary arrays.
+> [`elseif`]{style="background-color: yellow;"}, one word. `c ? a : b` = Python's `a if c else b`.
 
-## Functions — three forms {.smaller}
-
-`return` is optional (the last expression is returned); keyword args come after a `;`.
+## Loops
 
 . . .
 
 ```julia
-function area_rect(L, w)      # 1) long form
-    L * w
+words = ["a", "b"]
+for (i, w) in enumerate(words)
+    println(i, " ", w)
 end
 
-square(x) = x^2               # 2) short "assignment" form
-cube = x -> x^3               # 3) anonymous (lambda)
-
-greet(name; punct = "!") = "Hi $name$punct"   # keyword arg with default
+[(i, w) for (i, w) in enumerate(words)]  # [(1, "a"), (2, "b")]
 ```
 
-. . .
+- `for … end`, comprehensions: as in Python.
+- `enumerate` counts from **1**.
 
-> A trailing **`!`** in a name (`push!`, `sort!`) is a **convention** meaning *"mutates its argument"* — a habit, not syntax.
-
-## Structs, not classes {.smaller}
-
-Julia has **no classes** and no `self`. Group data in a `struct`; the behaviour lives **outside**, in functions.
+## `let … end`: a local scope
 
 . . .
 
 ```julia
-struct Point            # immutable by default
+v = [10, 20, 30, 40, 50]
+let
+    acc = zero(eltype(v))      # 0 of v's type
+    for i in eachindex(v)      # 1:5
+        acc += v[i]
+    end
+    acc                        # → 150
+end
+```
+
+. . .
+
+> Like a function body run at once. Later scripts time code inside `let`.
+
+::: {.notes}
+`zero(eltype(v))` and `eachindex(v)` work for any array: later modules use them. The last expression is the block's value.
+:::
+
+# Functions & types {style="text-align: center;"}
+
+## Functions — three forms
+
+. . .
+
+```julia
+function area_rect(L, w)      # 1) long
+    return L * w
+end
+
+square(x) = x^2               # 2) one-line
+cube = x -> x^3               # 3) lambda
+
+greet(who; punct = "!") = "Hi $who$punct"   # kwarg after ;
+greet("Bob"; punct = "?")                    # "Hi Bob?"
+```
+
+- `return` optional: last expression is returned.
+- Trailing **`!`** (`push!`, `sort!`): modifies its argument (convention).
+
+## Broadcasting: the dot `.`
+
+. . .
+
+```julia
+xs = [1.0, 4.0, 9.0]
+sqrt.(xs)       # [1.0, 2.0, 3.0]
+xs .+ 1         # [2.0, 5.0, 10.0]
+@. xs^2 + 1     # dot on EVERY op
+```
+
+- **Bet first:** `sqrt(xs)`, without the dot?
+- Works on **your** functions: `square.(xs)`.
+- Chained dots [**fuse into one loop**]{style="background-color: yellow;"}.
+
+. . .
+
+> ▶ Script: cell "Broadcasting" — try `sqrt(xs)`.
+
+::: {.notes}
+`sqrt(xs)` is a `MethodError`: `sqrt` takes a number. The dot says "element by element". Fusion: no temporary arrays.
+:::
+
+## Structs, not classes
+
+. . .
+
+```julia
+struct Point            # immutable
     x::Float64
     y::Float64
 end
 
-p = Point(1.0, 2.0)     # default constructor — no __init__, no self
-p.x                     # 1.0
-# p.x = 5.0  → ERROR, Point is immutable  (use `mutable struct` to allow it)
+mutable struct Counter; n::Int; end
+
+pt = Point(1.0, 2.0)    # no __init__
+c = Counter(0); c.n += 1  # fine
+# pt.x = 5.0            # ERROR
 ```
+
+- No `self`: behavior in **functions** (dispatch module).
 
 . . .
 
-> Putting behaviour *outside* the type is the whole point of the **next language module** (multiple dispatch vs OOP). Here we just note: `struct`, immutable, no `self`.
+> ▶ Script: cell "Structs instead of classes" — try `pt.x = 5.0`.
 
-## A delight: Unicode & math {.smaller}
+::: {.notes}
+Changing a struct's fields later needs a REPL restart.
+:::
 
-Identifiers can be **Unicode**. Type a LaTeX name then **TAB** in the editor:
+## Packages
 
 . . .
 
 ```julia
-α = 0.1              # \alpha then TAB
-radius = 2.0
-2π * radius          # π is built in; 2π means 2 * π  (juxtaposition)
-3 ≤ 4                # ≤ is \le then TAB
-2 ∈ [1, 2, 3]        # ∈ is \in then TAB
+using Statistics           # stdlib: just load
+
+using Pkg
+Pkg.add("BenchmarkTools")  # once (pip install)
+using BenchmarkTools       # import
 ```
 
 . . .
 
-> A number written right before a name **multiplies**: `2x` is `2 * x`. Great for maths, and it's how formulas on the slides map straight to code.
+> `using` ≈ `from numpy import *`.
+
+> ▶ Script: cell "Packages".
+
+# Monte-Carlo π {style="text-align: center;"}
+
+## Monte-Carlo π — the running example
+
+. . .
+
+```julia
+function count_in_disk(n)
+    hits = 0
+    for _ in 1:n
+        x, y = rand(), rand()
+        if x^2 + y^2 ≤ 1
+            hits += 1
+        end
+    end
+    return hits
+end
+n = 100_000
+4 * count_in_disk(n) / n       # ≈ 3.14
+```
+
+. . .
+
+> Back in every module: **timed**, then **threads**, then **GPU**. ▶ Script: cell "5. Monte-Carlo π".
+
+::: {.notes}
+Fraction of random points of the unit square inside the quarter-disk → π/4.
+:::
 
 ## Cheat-sheet — Python → Julia {.smaller}
 
 | Topic | Python | Julia |
 |---|---|---|
-| First / last element | `v[0]` / `v[-1]` | `v[1]` / `v[end]` |
-| Slice (both ends) | `v[1:4]` excl. 4 | `v[2:4]` **incl.** 4 |
-| Block delimiter | indentation + `:` | keywords, closed by **`end`** |
-| Else-if | `elif` | `elseif` |
+| First / last | `v[0]` / `v[-1]` | `v[1]` / `v[end]` |
+| Slice | `v[1:4]` excl. 4 | `v[2:4]` **incl.** 4 |
+| Blocks / else-if | `:` + indent / `elif` | **`end`** / `elseif` |
 | Power / int-div | `2**10` / `//` | `2^10` / `÷` |
-| String concat / f-string | `"a"+"b"` / `f"{x}"` | `"a"*"b"` / `"$x"` |
-| Object method | `obj.method()` | `method(obj)` |
-| Class | `class C` (has `self`) | `struct C` (immutable, no `self`) |
-| Element-wise | `np.f(x)` | `f.(x)` — the dot |
-| Copy vs alias | `b = a[:]` | `b = a` aliases; `copy(a)` |
-| Absent value | `None` | `nothing` |
+| Concat / f-string | `"a"+"b"` / `f"{x}"` | `"a"*"b"` / `"$x"` |
+| Element-wise | `np.f(x)` | `f.(x)` |
+| Method call | `obj.method()` | `method(obj)` |
+| Class | `class C` + `self` | `struct C` |
+| Copy vs alias | `b = a[:]` copies | `b = a` aliases; `copy(a)` |
+| Absent value | `None` | `nothing` / `missing` |
 
 ## Going further
 
 :::{.nonincremental}
-- ▶ Notebook (runnable, every example above): [Julia for Python users](../pluto/0_julia_basics.jl)
-- 🎯 The one to internalise: **arrays are 1-based**, blocks close with **`end`**, element-wise math is **the dot**.
+- ▶ Script: [0_julia_basics.jl](../scripts/0_julia_basics.jl)
+- ▶ Notebook: [0_julia_basics.jl](../pluto/0_julia_basics.jl)
+- 🎯 Arrays start at **1**, blocks close with **`end`**, element-wise is **the dot**, behavior lives in **functions**.
 :::
 
 . . .
 
-> ⬅ **Previous:** [Course home](../index.qmd)  ·  **Next:** [1 — Interpreted vs compiled](1_compilation_and_types.qmd) ➡
+> ⬅ **Previous:** [Overview](course.qmd)  ·  **Next:** [1 — Interpreted vs compiled](1_compilation_and_types.qmd) ➡

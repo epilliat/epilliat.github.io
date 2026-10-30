@@ -12,72 +12,93 @@ smaller: false
 css: ../../../styles.css
 ---
 
-## Course outline {.smaller}
+## Course outline
 
 :::{.nonincremental}
-- [**0 — Julia for Python users**](0_julia_basics.qmd): a short syntax bridge — 1-based arrays,
-  `end`, broadcasting, structs. No performance yet.
-- [**1 — Interpreted vs compiled**](1_compilation_and_types.qmd): why the same computation can be
-  100× faster — type specialization, benchmarking.
-- [**2 — Multiple dispatch vs OOP**](2_dispatch_vs_oop.qmd): how Julia picks the method to run,
-  against Python's object-oriented style — and what it costs when types aren't concrete.
-- [**3 — Threads & concurrency**](3_threads_and_concurrency.qmd): async I/O on one core, then real
-  multithreading — and the parallel sum that returns a wrong answer.
-- [**4 — Memory & batching**](4_memory_and_batching.qmd): the memory hierarchy, locality, and how
-  batching turns memory-bound into compute-bound.
-- [**5 — GPU**](5_gpu.qmd): thousands of threads — provided you feed them.
+- [**0 — Julia for Python users**](0_julia_basics.qmd): syntax bridge
+- [**1 — Interpreted vs compiled**](1_compilation_and_types.qmd): JIT, type specialization
+- [**2 — Multiple dispatch vs OOP**](2_dispatch_vs_oop.qmd): dispatch, type instability
+- [**3 — Threads & concurrency**](3_threads_and_concurrency.qmd): `@async`, `@spawn`, races
+- [**4 — Memory & batching**](4_memory_and_batching.qmd): cache, locality
+- [**5 — GPU**](5_gpu.qmd): feed thousands of threads
 :::
 
 . . .
 
-**The red thread:** estimating π by Monte-Carlo — carried from a sequential loop, to
-multithreading, to the GPU.
+**Running example:** Monte-Carlo π — loop → threads → GPU.
 
 . . .
 
-> Julia as the test bench, **Python as the point of comparison**.
+> Julia = test bench, **Python = comparison**.
+
+::: {.notes}
+0: 1-based arrays, `end`, the dot, structs instead of classes; no performance yet.
+1: a Julia loop in milliseconds vs Python half a second — the JIT, measuring properly, type
+specialization.
+2: how Julia picks the method to run, and what it costs when the compiler can't know the type
+(abstract container ~10×, untyped global > 100×: type instability).
+3: `@async` overlaps waiting on one core; `Threads.@spawn` splits computing over many — and the
+parallel π that returns a wrong answer.
+4: the processor waits for memory. 5: the bus, and locality again on the card.
+Running example: same dart count, `count_in_disk` — loop (0–1), threads (3), GPU (5). Batching also in 4.
+:::
 
 ## How we work
 
 :::{.nonincremental}
-- These slides **frame** each session; the demos live in the **notebooks**.
-- Every module ships three ways to run it: a **Pluto notebook** (live, reactive), a **plain-script
-  twin** for VS Code, and a **Python notebook** for Colab — zero install.
-- We compare the **numbers** between the two languages. That's the whole point.
+- Slides **frame**; **scripts** and **notebooks** demo: predict, then run.
+- Each module: a Julia **script** + **Pluto notebook**; modules 1–5: a **Python notebook** (Colab).
+- Short [**activities**](../index.qmd) in class (5–10 min, Python or Julia).
+- We compare the **numbers** across languages.
 :::
 
 . . .
 
 ::: {.callout-note}
-The Python track is the **common** one — nobody falls behind. The Julia track is the deep dive
-(`@btime`, `@code_native`, `@spawn`, the GPU).
+Python track = **common**; Julia track = deep dive.
 :::
 
-# Synthesis {style="text-align: center;"}
-
-## Synthesis
-
-:::{.nonincremental}
-1. **Compiling and specializing** removes the *per-operation* overhead.
-2. **Multiple dispatch**: generic *and* fast — provided the types are **concrete**; it even flips a
-   computation onto the GPU.
-3. **Parallelizing** demands *minimizing sharing*, otherwise the result is wrong.
-4. **Feeding the hardware**: honour the cache, batch, saturate the GPU.
+::: {.notes}
+Same lesson in script (VS Code) and Pluto. 6 decks but 5 Julia notebooks: modules 4 and 5 share
+one script, one notebook and one Python notebook. Activities: one or two blanks to fill, one
+striking number, handed out in class. Python track: nobody falls behind; Julia track: `@btime`,
+`@code_native`, `@spawn`, the GPU.
 :::
-
-. . .
-
-> Performance doesn't come from a magic language, but from **understanding what the machine actually
-> does**: the cost of each operation, who shares what, and where the data travels.
-
-. . .
-
-> Running through the whole course: **type discovered at run time = slow; type known at compile time
-> = fast**.
 
 ## Start here
 
 :::{.nonincremental}
 - ▶ [0 — Julia for Python users](0_julia_basics.qmd) — the onboarding deck.
-- 📓 All notebooks and scripts: [course page](../index.qmd).
+- 📓 All scripts, notebooks and Python notebooks: [course page](../index.qmd).
+:::
+
+. . .
+
+> **Next:** [0 — Julia for Python users](0_julia_basics.qmd) ➡
+
+# Synthesis {#synthesis style="text-align: center;"}
+
+## Four ideas
+
+:::{.nonincremental}
+1. **Compile and specialize** (1): no cost paid *per operation*.
+2. **Concrete types** (2): generic *and* fast.
+3. **Share as little as possible** (3): or the result is wrong.
+4. **Feed the hardware** (4–5): cache, batching, busy GPU.
+:::
+
+. . .
+
+> Not a magic language: **understand what the machine does**.
+> Type known at compile time = fast.
+
+. . .
+
+> ⬅ [5 — GPU](5_gpu.qmd)  ·  [Course page](../index.qmd)
+
+::: {.notes}
+2: multiple dispatch is generic and fast — and the same `*` runs on the GPU.
+Performance comes from understanding the cost of each operation, who shares what, and where the
+data travels. Through the whole course: type found at run time = slow; type known at compile
+time = fast.
 :::

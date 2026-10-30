@@ -209,52 +209,168 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="goals" class="slide level2">
 <h2>Goals</h2>
 <ul>
-<li>You already program fluently in <strong>Python</strong>. Julia is dynamic, high-level, REPL-driven — it will feel familiar.</li>
-<li>Learn only the handful of things that are <strong>different</strong>, so the later modules read smoothly.</li>
-<li><strong>No performance and no parallelism yet</strong> — that starts next module. Here we just read and write Julia.</li>
+<li>Dynamic, REPL-driven, like <strong>Python</strong>: only what <strong>differs</strong>.</li>
+<li><strong>No performance, no parallelism yet.</strong></li>
 </ul>
 <div class="fragment">
 <blockquote>
-<p>The four differences that actually trip people up: <strong>1-based</strong> arrays, blocks close with <strong><code>end</code></strong>, element-wise math uses the <strong>dot</strong>, and behaviour lives in <strong>functions</strong>, not classes.</p>
+<p>Four traps: arrays start at <strong>1</strong>, blocks close with <strong><code>end</code></strong>, the <strong>dot</strong>, <strong>functions</strong> not classes.</p>
 </blockquote>
 </div>
 <div class="fragment">
 <blockquote>
-<p>▶ Notebook (all of this, runnable): <a href="../pluto/0_julia_basics.jl">Julia for Python users</a></p>
+<p>▶ Script: <a href="../scripts/0_julia_basics.jl">0_julia_basics.jl</a> · Notebook: <a href="../pluto/0_julia_basics.jl">0_julia_basics.jl</a></p>
 </blockquote>
 </div>
 <div class="fragment">
 <blockquote>
-<p>⬅ <strong>Previous:</strong> <a href="../../../teaching/parallel_computing/index.html">Course home</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html">1 — Interpreted vs compiled</a> ➡</p>
+<p>⬅ <strong>Previous:</strong> <a href="../../../teaching/parallel_computing/slides/course.html">Overview</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html">1 — Interpreted vs compiled</a> ➡</p>
 </blockquote>
+<aside class="notes">
+<p>Predict, then run each cell. Performance starts with compilation, in the next deck.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
 </section>
-<section id="blocks-end-with-end-not-indentation" class="slide level2">
-<h2>Blocks end with <code>end</code>, not indentation</h2>
-<p>Julia does <strong>not</strong> use indentation to delimit blocks, and there is no <code>:</code> after the header.</p>
+<section>
+<section id="values" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Values</h1>
+
+</section>
+<section id="variables-types" class="slide level2">
+<h2>Variables &amp; types</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="cf">for</span> i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span></span>
-<span id="cb1-2"><a></a>    <span class="fu">println</span>(i)</span>
-<span id="cb1-3"><a></a><span class="cf">end</span>            <span class="co"># ← end closes the loop</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Assign with <code>=</code>, no declaration.</p>
 </div>
 <div class="fragment">
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a>x <span class="op">=</span> <span class="fl">3</span>            <span class="co"># Int64</span></span>
+<span id="cb1-2"><a></a>y <span class="op">=</span> <span class="fl">2.5</span>          <span class="co"># Float64</span></span>
+<span id="cb1-3"><a></a>name <span class="op">=</span> <span class="st">"Ada"</span>     <span class="co"># String</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<blockquote>
+<p><code>typeof(x)</code> = Python’s <code>type(x)</code>.</p>
+</blockquote>
+<aside class="notes">
+<p>Types matter a lot from the compilation module on.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="numbers" class="slide level2">
+<h2>Numbers</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a><span class="fl">10</span> <span class="op">/</span> <span class="fl">4</span>      <span class="co"># 2.5  (true division)</span></span>
+<span id="cb2-2"><a></a><span class="fl">10</span> <span class="op">÷</span> <span class="fl">4</span>      <span class="co"># 2    (Python's //)</span></span>
+<span id="cb2-3"><a></a><span class="fl">10</span> <span class="op">%</span> <span class="fl">4</span>      <span class="co"># 2</span></span>
+<span id="cb2-4"><a></a><span class="fl">2</span><span class="op">^</span><span class="fl">10</span>        <span class="co"># 1024</span></span>
+<span id="cb2-5"><a></a><span class="fu">sqrt</span>(<span class="fl">2</span>)     <span class="co"># 1.414…</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li class="fragment">Every <code>for</code>, <code>while</code>, <code>if</code>, <code>function</code>, <code>struct</code> is closed by a matching <strong><code>end</code></strong>.</li>
-<li class="fragment">Indent for readability — it’s ignored by the parser.</li>
-<li class="fragment">Else-if is one word: <span style="background-color: yellow;"><code>elseif</code></span>.</li>
+<li class="fragment">Power is <span style="background-color: yellow;"><code>^</code></span>. <strong>Bet first:</strong> what does <code>2**10</code> do?</li>
+<li class="fragment">How do you type <code>÷</code>? Next slide.</li>
 </ul>
 </div>
-</section>
-<section id="arrays-start-at-1" class="slide level2 smaller">
-<h2>Arrays start at 1</h2>
-<p>The difference that bites hardest:</p>
 <div class="fragment">
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a>v <span class="op">=</span> [<span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">30</span>, <span class="fl">40</span>, <span class="fl">50</span>]</span>
-<span id="cb2-2"><a></a></span>
-<span id="cb2-3"><a></a>v[<span class="fl">1</span>]        <span class="co"># 10   — FIRST element (not v[0])</span></span>
-<span id="cb2-4"><a></a>v[<span class="kw">end</span>]      <span class="co"># 50   — last (end is a keyword inside [ ])</span></span>
-<span id="cb2-5"><a></a>v[<span class="kw">end</span><span class="op">-</span><span class="fl">1</span>]    <span class="co"># 40   — second to last</span></span>
-<span id="cb2-6"><a></a>v[<span class="fl">2</span><span class="op">:</span><span class="fl">4</span>]      <span class="co"># [20, 30, 40]   — slice, BOTH ends included</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<blockquote>
+<p>▶ Script: cell “Numbers” — try <code>2**10</code>.</p>
+</blockquote>
+<aside class="notes">
+<p><code>2**10</code> is a syntax error: <code>**</code> is not an operator in Julia.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="unicode-name-then-tab" class="slide level2">
+<h2>Unicode: <code>\name</code> then TAB</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a></a><span class="fl">10</span> <span class="op">÷</span> <span class="fl">4</span>               <span class="co"># \div</span></span>
+<span id="cb3-2"><a></a>α <span class="op">=</span> <span class="fl">0.1</span>              <span class="co"># \alpha</span></span>
+<span id="cb3-3"><a></a><span class="fl">3</span> <span class="op">≤</span> <span class="fl">4</span>                <span class="co"># \le</span></span>
+<span id="cb3-4"><a></a><span class="fl">2</span> <span class="op">∈</span> [<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>]        <span class="co"># \in</span></span>
+<span id="cb3-5"><a></a><span class="fl">2</span>π                   <span class="co"># 2 * π</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<blockquote>
+<p><code>2α</code> is <code>2 * α</code>: formulas map straight to code.</p>
+</blockquote>
+<blockquote>
+<p>▶ Script: cell “Unicode &amp; juxtaposition”.</p>
+</blockquote>
+</div>
+</section>
+<section id="strings" class="slide level2">
+<h2>Strings</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a></a>a, b <span class="op">=</span> <span class="fl">3</span>, <span class="fl">4</span></span>
+<span id="cb4-2"><a></a><span class="st">"Hello, </span><span class="sc">$</span>name<span class="st">"</span>          <span class="co"># "Hello, Ada"</span></span>
+<span id="cb4-3"><a></a><span class="st">"</span><span class="sc">$</span>a<span class="st"> + </span><span class="sc">$</span>b<span class="st"> = </span><span class="sc">$</span>(a <span class="op">+</span> b)<span class="st">"</span>    <span class="co"># "3 + 4 = 7"</span></span>
+<span id="cb4-4"><a></a><span class="st">"foo"</span> <span class="op">*</span> <span class="st">"bar"</span>           <span class="co"># "foobar"</span></span>
+<span id="cb4-5"><a></a><span class="ch">'a'</span>                     <span class="co"># a Char</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li class="fragment"><code>$</code> = f-string. <strong>Bet first:</strong> <code>"foo" + "bar"</code>? Concatenation is <span style="background-color: yellow;"><code>*</code></span>.</li>
+<li class="fragment"><code>"…"</code> text; <code>'…'</code> <strong>one</strong> character.</li>
+</ul>
+</div>
+<div class="fragment">
+<blockquote>
+<p>▶ Script: cell “Strings”.</p>
+</blockquote>
+<aside class="notes">
+<p><code>"foo" + "bar"</code> is a <code>MethodError</code>: <code>+</code> is not defined for strings.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section></section>
+<section>
+<section id="collections" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Collections</h1>
+
+</section>
+<section id="arrays-start-at-1" class="slide level2">
+<h2>Arrays start at 1</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a></a>v <span class="op">=</span> [<span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">30</span>, <span class="fl">40</span>, <span class="fl">50</span>]</span>
+<span id="cb5-2"><a></a>v[<span class="fl">1</span>]        <span class="co"># 10  (v[0]: error)</span></span>
+<span id="cb5-3"><a></a>v[<span class="kw">end</span>]      <span class="co"># 50</span></span>
+<span id="cb5-4"><a></a>v[<span class="kw">end</span><span class="op">-</span><span class="fl">1</span>]    <span class="co"># 40</span></span>
+<span id="cb5-5"><a></a>v[<span class="fl">2</span><span class="op">:</span><span class="fl">4</span>]      <span class="co"># [20, 30, 40]</span></span>
+<span id="cb5-6"><a></a><span class="fu">length</span>(v)   <span class="co"># 5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <table class="caption-top">
@@ -267,99 +383,305 @@ Emmanuel Pilliat — ENSAI 3A
 </thead>
 <tbody>
 <tr class="odd">
-<td>First element</td>
+<td>First</td>
 <td><code>v[0]</code></td>
 <td><span style="background-color: yellow;"><code>v[1]</code></span></td>
 </tr>
 <tr class="even">
-<td>Last element</td>
+<td>Last</td>
 <td><code>v[-1]</code></td>
 <td><code>v[end]</code></td>
 </tr>
 <tr class="odd">
 <td>Slice <code>2:4</code></td>
-<td>elements 2,3</td>
-<td>elements 2,3,<strong>4</strong></td>
+<td>2, 3</td>
+<td>2, 3, <strong>4</strong></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
 <blockquote>
-<p>Matrices are stored <strong>column-major</strong> (columns contiguous) — the opposite of NumPy. It won’t matter until the memory module, but it’s why the <em>first</em> index is the fast one.</p>
+<p>▶ Script: cell “Arrays: 1-based” — try <code>v[0]</code>.</p>
 </blockquote>
 </div>
 </section>
-<section id="broadcasting-the-dot-." class="slide level2 smaller">
-<h2>Broadcasting: the dot <code>.</code></h2>
-<p>Julia’s answer to NumPy vectorisation <em>and</em> element-wise comprehensions — put a <strong>dot</strong> on any function or operator:</p>
+<section id="ranges-comprehensions-matrices" class="slide level2">
+<h2>Ranges, comprehensions, matrices</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a></a>x <span class="op">=</span> [<span class="fl">1.0</span>, <span class="fl">4.0</span>, <span class="fl">9.0</span>]</span>
-<span id="cb3-2"><a></a></span>
-<span id="cb3-3"><a></a><span class="fu">sqrt</span>.(x)        <span class="co"># element-wise sqrt → [1.0, 2.0, 3.0]</span></span>
-<span id="cb3-4"><a></a>x <span class="op">.+</span> <span class="fl">1</span>          <span class="co"># add 1 to each</span></span>
-<span id="cb3-5"><a></a>x <span class="op">.*</span> <span class="fl">2</span>          <span class="co"># double each</span></span>
-<span id="cb3-6"><a></a>@. x<span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">1</span>      <span class="co"># @. puts a dot on EVERY operation</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a></a><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>                             <span class="co"># 1, 2, 3, 4, 5</span></span>
+<span id="cb6-2"><a></a><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">:</span><span class="fl">9</span>                           <span class="co"># 1, 3, 5, 7, 9</span></span>
+<span id="cb6-3"><a></a>[i<span class="op">^</span><span class="fl">2</span> for i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>]              <span class="co"># [1, 4, 9, 16, 25]</span></span>
+<span id="cb6-4"><a></a>[i for i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span> if <span class="fu">iseven</span>(i)]  <span class="co"># [2, 4, 6, 8, 10]</span></span>
+<span id="cb6-5"><a></a>M <span class="op">=</span> [<span class="fl">1</span> <span class="fl">2</span> <span class="fl">3</span>; <span class="fl">4</span> <span class="fl">5</span> <span class="fl">6</span>]              <span class="co"># 2×3 matrix</span></span>
+<span id="cb6-6"><a></a>M[<span class="fl">2</span>, <span class="fl">3</span>]                         <span class="co"># 6</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li class="fragment">Ranges are <strong>lazy</strong>; <code>collect(1:2:9)</code> builds the array.</li>
+<li class="fragment">Matrices are <strong>column-major</strong> (opposite of NumPy).</li>
+</ul>
+<aside class="notes">
+<p>In a matrix literal, spaces separate columns, <code>;</code> starts a new row. Column-major matters in the memory module.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="tuples-named-tuples-dicts" class="slide level2">
+<h2>Tuples, named tuples, dicts</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a></a>t <span class="op">=</span> (<span class="fl">1</span>, <span class="st">"two"</span>, <span class="fl">3.0</span>)</span>
+<span id="cb7-2"><a></a>p, q, s <span class="op">=</span> t                  <span class="co"># q == "two"</span></span>
+<span id="cb7-3"><a></a>t[<span class="fl">1</span>]                         <span class="co"># 1</span></span>
+<span id="cb7-4"><a></a></span>
+<span id="cb7-5"><a></a>nt <span class="op">=</span> (x <span class="op">=</span> <span class="fl">10</span>, y <span class="op">=</span> <span class="fl">20</span>)</span>
+<span id="cb7-6"><a></a>nt.x                         <span class="co"># 10</span></span>
+<span id="cb7-7"><a></a></span>
+<span id="cb7-8"><a></a>d <span class="op">=</span> <span class="fu">Dict</span>(<span class="st">"apple"</span> <span class="op">=&gt;</span> <span class="fl">3</span>, <span class="st">"pear"</span> <span class="op">=&gt;</span> <span class="fl">5</span>)</span>
+<span id="cb7-9"><a></a>d[<span class="st">"apple"</span>]                   <span class="co"># 3</span></span>
+<span id="cb7-10"><a></a><span class="fu">haskey</span>(d, <span class="st">"pear"</span>)            <span class="co"># "pear" in d</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section></section>
+<section>
+<section id="control-flow" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Control flow</h1>
+
+</section>
+<section id="blocks-close-with-end" class="slide level2">
+<h2>Blocks close with <code>end</code></h2>
+<div class="fragment">
+<p>No <code>:</code>, no indentation rule.</p>
 </div>
 <div class="fragment">
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a></a><span class="cf">for</span> i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span></span>
+<span id="cb8-2"><a></a>    <span class="fu">println</span>(i)</span>
+<span id="cb8-3"><a></a><span class="cf">end</span>            <span class="co"># ← closes the loop</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li class="fragment">Where NumPy relies on <code>np.sqrt(x)</code> being vectorised, Julia makes the intent <strong>explicit</strong> with the dot.</li>
-<li class="fragment">Chained dotted operations are <span style="background-color: yellow;"><strong>fused into one loop</strong></span> — no temporary arrays.</li>
+<li class="fragment"><code>for</code>, <code>while</code>, <code>if</code>, <code>function</code>, <code>struct</code>: each closed by <strong><code>end</code></strong>.</li>
+<li class="fragment">Indentation: for readers only.</li>
 </ul>
 </div>
 </section>
-<section id="functions-three-forms" class="slide level2 smaller">
+<section id="conditionals" class="slide level2">
+<h2>Conditionals</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a></a>x <span class="op">=</span> <span class="fl">11</span></span>
+<span id="cb9-2"><a></a><span class="cf">if</span> x <span class="op">≥</span> <span class="fl">16</span></span>
+<span id="cb9-3"><a></a>    <span class="st">"excellent"</span></span>
+<span id="cb9-4"><a></a><span class="cf">elseif</span> x <span class="op">≥</span> <span class="fl">10</span></span>
+<span id="cb9-5"><a></a>    <span class="st">"pass"</span></span>
+<span id="cb9-6"><a></a><span class="cf">else</span></span>
+<span id="cb9-7"><a></a>    <span class="st">"fail"</span></span>
+<span id="cb9-8"><a></a><span class="cf">end</span>                    <span class="co"># "pass"</span></span>
+<span id="cb9-9"><a></a></span>
+<span id="cb9-10"><a></a>x <span class="op">≥</span> <span class="fl">0</span> ? <span class="st">"pos"</span> <span class="op">:</span> <span class="st">"neg"</span>  <span class="co"># ternary</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<blockquote>
+<p><span style="background-color: yellow;"><code>elseif</code></span>, one word. <code>c ? a : b</code> = Python’s <code>a if c else b</code>.</p>
+</blockquote>
+</div>
+</section>
+<section id="loops" class="slide level2">
+<h2>Loops</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a></a>words <span class="op">=</span> [<span class="st">"a"</span>, <span class="st">"b"</span>]</span>
+<span id="cb10-2"><a></a><span class="cf">for</span> (i, w) <span class="kw">in</span> <span class="fu">enumerate</span>(words)</span>
+<span id="cb10-3"><a></a>    <span class="fu">println</span>(i, <span class="st">" "</span>, w)</span>
+<span id="cb10-4"><a></a><span class="cf">end</span></span>
+<span id="cb10-5"><a></a></span>
+<span id="cb10-6"><a></a>[(i, w) for (i, w) <span class="kw">in</span> <span class="fu">enumerate</span>(words)]  <span class="co"># [(1, "a"), (2, "b")]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li class="fragment"><code>for … end</code>, comprehensions: as in Python.</li>
+<li class="fragment"><code>enumerate</code> counts from <strong>1</strong>.</li>
+</ul>
+</div>
+</section>
+<section id="let-end-a-local-scope" class="slide level2">
+<h2><code>let … end</code>: a local scope</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a></a>v <span class="op">=</span> [<span class="fl">10</span>, <span class="fl">20</span>, <span class="fl">30</span>, <span class="fl">40</span>, <span class="fl">50</span>]</span>
+<span id="cb11-2"><a></a><span class="kw">let</span></span>
+<span id="cb11-3"><a></a>    acc <span class="op">=</span> <span class="fu">zero</span>(<span class="fu">eltype</span>(v))      <span class="co"># 0 of v's type</span></span>
+<span id="cb11-4"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(v)      <span class="co"># 1:5</span></span>
+<span id="cb11-5"><a></a>        acc <span class="op">+=</span> v[i]</span>
+<span id="cb11-6"><a></a>    <span class="cf">end</span></span>
+<span id="cb11-7"><a></a>    acc                        <span class="co"># → 150</span></span>
+<span id="cb11-8"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<blockquote>
+<p>Like a function body run at once. Later scripts time code inside <code>let</code>.</p>
+</blockquote>
+<aside class="notes">
+<p><code>zero(eltype(v))</code> and <code>eachindex(v)</code> work for any array: later modules use them. The last expression is the block’s value.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section></section>
+<section>
+<section id="functions-types" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Functions &amp; types</h1>
+
+</section>
+<section id="functions-three-forms" class="slide level2">
 <h2>Functions — three forms</h2>
-<p><code>return</code> is optional (the last expression is returned); keyword args come after a <code>;</code>.</p>
 <div class="fragment">
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a></a><span class="kw">function</span> <span class="fu">area_rect</span>(L, w)      <span class="co"># 1) long form</span></span>
-<span id="cb4-2"><a></a>    L <span class="op">*</span> w</span>
-<span id="cb4-3"><a></a><span class="kw">end</span></span>
-<span id="cb4-4"><a></a></span>
-<span id="cb4-5"><a></a><span class="fu">square</span>(x) <span class="op">=</span> x<span class="op">^</span><span class="fl">2</span>               <span class="co"># 2) short "assignment" form</span></span>
-<span id="cb4-6"><a></a>cube <span class="op">=</span> x <span class="op">-&gt;</span> x<span class="op">^</span><span class="fl">3</span>               <span class="co"># 3) anonymous (lambda)</span></span>
-<span id="cb4-7"><a></a></span>
-<span id="cb4-8"><a></a><span class="fu">greet</span>(name; punct <span class="op">=</span> <span class="st">"!"</span>) <span class="op">=</span> <span class="st">"Hi </span><span class="sc">$</span>name<span class="sc">$</span>punct<span class="st">"</span>   <span class="co"># keyword arg with default</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a></a><span class="kw">function</span> <span class="fu">area_rect</span>(L, w)      <span class="co"># 1) long</span></span>
+<span id="cb12-2"><a></a>    <span class="cf">return</span> L <span class="op">*</span> w</span>
+<span id="cb12-3"><a></a><span class="kw">end</span></span>
+<span id="cb12-4"><a></a></span>
+<span id="cb12-5"><a></a><span class="fu">square</span>(x) <span class="op">=</span> x<span class="op">^</span><span class="fl">2</span>               <span class="co"># 2) one-line</span></span>
+<span id="cb12-6"><a></a>cube <span class="op">=</span> x <span class="op">-&gt;</span> x<span class="op">^</span><span class="fl">3</span>               <span class="co"># 3) lambda</span></span>
+<span id="cb12-7"><a></a></span>
+<span id="cb12-8"><a></a><span class="fu">greet</span>(who; punct <span class="op">=</span> <span class="st">"!"</span>) <span class="op">=</span> <span class="st">"Hi </span><span class="sc">$</span>who<span class="sc">$</span>punct<span class="st">"</span>   <span class="co"># kwarg after ;</span></span>
+<span id="cb12-9"><a></a><span class="fu">greet</span>(<span class="st">"Bob"</span>; punct <span class="op">=</span> <span class="st">"?"</span>)                    <span class="co"># "Hi Bob?"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li class="fragment"><code>return</code> optional: last expression is returned.</li>
+<li class="fragment">Trailing <strong><code>!</code></strong> (<code>push!</code>, <code>sort!</code>): modifies its argument (convention).</li>
+</ul>
+</div>
+</section>
+<section id="broadcasting-the-dot-." class="slide level2">
+<h2>Broadcasting: the dot <code>.</code></h2>
+<div class="fragment">
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a></a>xs <span class="op">=</span> [<span class="fl">1.0</span>, <span class="fl">4.0</span>, <span class="fl">9.0</span>]</span>
+<span id="cb13-2"><a></a><span class="fu">sqrt</span>.(xs)       <span class="co"># [1.0, 2.0, 3.0]</span></span>
+<span id="cb13-3"><a></a>xs <span class="op">.+</span> <span class="fl">1</span>         <span class="co"># [2.0, 5.0, 10.0]</span></span>
+<span id="cb13-4"><a></a>@. xs<span class="op">^</span><span class="fl">2</span> <span class="op">+</span> <span class="fl">1</span>     <span class="co"># dot on EVERY op</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li class="fragment"><strong>Bet first:</strong> <code>sqrt(xs)</code>, without the dot?</li>
+<li class="fragment">Works on <strong>your</strong> functions: <code>square.(xs)</code>.</li>
+<li class="fragment">Chained dots <span style="background-color: yellow;"><strong>fuse into one loop</strong></span>.</li>
+</ul>
 </div>
 <div class="fragment">
 <blockquote>
-<p>A trailing <strong><code>!</code></strong> in a name (<code>push!</code>, <code>sort!</code>) is a <strong>convention</strong> meaning <em>“mutates its argument”</em> — a habit, not syntax.</p>
+<p>▶ Script: cell “Broadcasting” — try <code>sqrt(xs)</code>.</p>
 </blockquote>
+<aside class="notes">
+<p><code>sqrt(xs)</code> is a <code>MethodError</code>: <code>sqrt</code> takes a number. The dot says “element by element”. Fusion: no temporary arrays.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
 </section>
-<section id="structs-not-classes" class="slide level2 smaller">
+<section id="structs-not-classes" class="slide level2">
 <h2>Structs, not classes</h2>
-<p>Julia has <strong>no classes</strong> and no <code>self</code>. Group data in a <code>struct</code>; the behaviour lives <strong>outside</strong>, in functions.</p>
 <div class="fragment">
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a></a><span class="kw">struct</span> Point            <span class="co"># immutable by default</span></span>
-<span id="cb5-2"><a></a>    x<span class="op">::</span><span class="dt">Float64</span></span>
-<span id="cb5-3"><a></a>    y<span class="op">::</span><span class="dt">Float64</span></span>
-<span id="cb5-4"><a></a><span class="kw">end</span></span>
-<span id="cb5-5"><a></a></span>
-<span id="cb5-6"><a></a>p <span class="op">=</span> <span class="fu">Point</span>(<span class="fl">1.0</span>, <span class="fl">2.0</span>)     <span class="co"># default constructor — no __init__, no self</span></span>
-<span id="cb5-7"><a></a>p.x                     <span class="co"># 1.0</span></span>
-<span id="cb5-8"><a></a><span class="co"># p.x = 5.0  → ERROR, Point is immutable  (use `mutable struct` to allow it)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a></a><span class="kw">struct</span> Point            <span class="co"># immutable</span></span>
+<span id="cb14-2"><a></a>    x<span class="op">::</span><span class="dt">Float64</span></span>
+<span id="cb14-3"><a></a>    y<span class="op">::</span><span class="dt">Float64</span></span>
+<span id="cb14-4"><a></a><span class="kw">end</span></span>
+<span id="cb14-5"><a></a></span>
+<span id="cb14-6"><a></a><span class="kw">mutable struct</span> Counter; n<span class="op">::</span><span class="dt">Int</span>; <span class="kw">end</span></span>
+<span id="cb14-7"><a></a></span>
+<span id="cb14-8"><a></a>pt <span class="op">=</span> <span class="fu">Point</span>(<span class="fl">1.0</span>, <span class="fl">2.0</span>)    <span class="co"># no __init__</span></span>
+<span id="cb14-9"><a></a>c <span class="op">=</span> <span class="fu">Counter</span>(<span class="fl">0</span>); c.n <span class="op">+=</span> <span class="fl">1</span>  <span class="co"># fine</span></span>
+<span id="cb14-10"><a></a><span class="co"># pt.x = 5.0            # ERROR</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li class="fragment">No <code>self</code>: behavior in <strong>functions</strong> (dispatch module).</li>
+</ul>
 </div>
 <div class="fragment">
 <blockquote>
-<p>Putting behaviour <em>outside</em> the type is the whole point of the <strong>next language module</strong> (multiple dispatch vs OOP). Here we just note: <code>struct</code>, immutable, no <code>self</code>.</p>
+<p>▶ Script: cell “Structs instead of classes” — try <code>pt.x = 5.0</code>.</p>
 </blockquote>
+<aside class="notes">
+<p>Changing a struct’s fields later needs a REPL restart.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
 </section>
-<section id="a-delight-unicode-math" class="slide level2 smaller">
-<h2>A delight: Unicode &amp; math</h2>
-<p>Identifiers can be <strong>Unicode</strong>. Type a LaTeX name then <strong>TAB</strong> in the editor:</p>
+<section id="packages" class="slide level2">
+<h2>Packages</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a></a>α <span class="op">=</span> <span class="fl">0.1</span>              <span class="co"># \alpha then TAB</span></span>
-<span id="cb6-2"><a></a>radius <span class="op">=</span> <span class="fl">2.0</span></span>
-<span id="cb6-3"><a></a><span class="fl">2</span>π <span class="op">*</span> radius          <span class="co"># π is built in; 2π means 2 * π  (juxtaposition)</span></span>
-<span id="cb6-4"><a></a><span class="fl">3</span> <span class="op">≤</span> <span class="fl">4</span>                <span class="co"># ≤ is \le then TAB</span></span>
-<span id="cb6-5"><a></a><span class="fl">2</span> <span class="op">∈</span> [<span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span>]        <span class="co"># ∈ is \in then TAB</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><a></a><span class="im">using</span> <span class="bu">Statistics</span>           <span class="co"># stdlib: just load</span></span>
+<span id="cb15-2"><a></a></span>
+<span id="cb15-3"><a></a><span class="im">using</span> <span class="bu">Pkg</span></span>
+<span id="cb15-4"><a></a><span class="bu">Pkg</span>.<span class="fu">add</span>(<span class="st">"BenchmarkTools"</span>)  <span class="co"># once (pip install)</span></span>
+<span id="cb15-5"><a></a><span class="im">using</span> <span class="bu">BenchmarkTools</span>       <span class="co"># import</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <blockquote>
-<p>A number written right before a name <strong>multiplies</strong>: <code>2x</code> is <code>2 * x</code>. Great for maths, and it’s how formulas on the slides map straight to code.</p>
+<p><code>using</code> ≈ <code>from numpy import *</code>.</p>
 </blockquote>
+<blockquote>
+<p>▶ Script: cell “Packages”.</p>
+</blockquote>
+</div>
+</section></section>
+<section>
+<section id="monte-carlo-π" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Monte-Carlo π</h1>
+
+</section>
+<section id="monte-carlo-π-the-running-example" class="slide level2">
+<h2>Monte-Carlo π — the running example</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb16"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb16-1"><a></a><span class="kw">function</span> <span class="fu">count_in_disk</span>(n)</span>
+<span id="cb16-2"><a></a>    hits <span class="op">=</span> <span class="fl">0</span></span>
+<span id="cb16-3"><a></a>    <span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>n</span>
+<span id="cb16-4"><a></a>        x, y <span class="op">=</span> <span class="fu">rand</span>(), <span class="fu">rand</span>()</span>
+<span id="cb16-5"><a></a>        <span class="cf">if</span> x<span class="op">^</span><span class="fl">2</span> <span class="op">+</span> y<span class="op">^</span><span class="fl">2</span> <span class="op">≤</span> <span class="fl">1</span></span>
+<span id="cb16-6"><a></a>            hits <span class="op">+=</span> <span class="fl">1</span></span>
+<span id="cb16-7"><a></a>        <span class="cf">end</span></span>
+<span id="cb16-8"><a></a>    <span class="cf">end</span></span>
+<span id="cb16-9"><a></a>    <span class="cf">return</span> hits</span>
+<span id="cb16-10"><a></a><span class="kw">end</span></span>
+<span id="cb16-11"><a></a>n <span class="op">=</span> <span class="fl">100_000</span></span>
+<span id="cb16-12"><a></a><span class="fl">4</span> <span class="op">*</span> <span class="fu">count_in_disk</span>(n) <span class="op">/</span> n       <span class="co"># ≈ 3.14</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<blockquote>
+<p>Back in every module: <strong>timed</strong>, then <strong>threads</strong>, then <strong>GPU</strong>. ▶ Script: cell “5. Monte-Carlo π”.</p>
+</blockquote>
+<aside class="notes">
+<p>Fraction of random points of the unit square inside the quarter-disk → π/4.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
 </section>
 <section id="cheat-sheet-python-julia" class="slide level2 smaller">
@@ -374,59 +696,54 @@ Emmanuel Pilliat — ENSAI 3A
 </thead>
 <tbody>
 <tr class="odd">
-<td>First / last element</td>
+<td>First / last</td>
 <td><code>v[0]</code> / <code>v[-1]</code></td>
 <td><code>v[1]</code> / <code>v[end]</code></td>
 </tr>
 <tr class="even">
-<td>Slice (both ends)</td>
+<td>Slice</td>
 <td><code>v[1:4]</code> excl. 4</td>
 <td><code>v[2:4]</code> <strong>incl.</strong> 4</td>
 </tr>
 <tr class="odd">
-<td>Block delimiter</td>
-<td>indentation + <code>:</code></td>
-<td>keywords, closed by <strong><code>end</code></strong></td>
+<td>Blocks / else-if</td>
+<td><code>:</code> + indent / <code>elif</code></td>
+<td><strong><code>end</code></strong> / <code>elseif</code></td>
 </tr>
 <tr class="even">
-<td>Else-if</td>
-<td><code>elif</code></td>
-<td><code>elseif</code></td>
-</tr>
-<tr class="odd">
 <td>Power / int-div</td>
 <td><code>2**10</code> / <code>//</code></td>
 <td><code>2^10</code> / <code>÷</code></td>
 </tr>
-<tr class="even">
-<td>String concat / f-string</td>
+<tr class="odd">
+<td>Concat / f-string</td>
 <td><code>"a"+"b"</code> / <code>f"{x}"</code></td>
 <td><code>"a"*"b"</code> / <code>"$x"</code></td>
 </tr>
+<tr class="even">
+<td>Element-wise</td>
+<td><code>np.f(x)</code></td>
+<td><code>f.(x)</code></td>
+</tr>
 <tr class="odd">
-<td>Object method</td>
+<td>Method call</td>
 <td><code>obj.method()</code></td>
 <td><code>method(obj)</code></td>
 </tr>
 <tr class="even">
 <td>Class</td>
-<td><code>class C</code> (has <code>self</code>)</td>
-<td><code>struct C</code> (immutable, no <code>self</code>)</td>
+<td><code>class C</code> + <code>self</code></td>
+<td><code>struct C</code></td>
 </tr>
 <tr class="odd">
-<td>Element-wise</td>
-<td><code>np.f(x)</code></td>
-<td><code>f.(x)</code> — the dot</td>
-</tr>
-<tr class="even">
 <td>Copy vs alias</td>
-<td><code>b = a[:]</code></td>
+<td><code>b = a[:]</code> copies</td>
 <td><code>b = a</code> aliases; <code>copy(a)</code></td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Absent value</td>
 <td><code>None</code></td>
-<td><code>nothing</code></td>
+<td><code>nothing</code> / <code>missing</code></td>
 </tr>
 </tbody>
 </table>
@@ -434,17 +751,18 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="going-further" class="slide level2">
 <h2>Going further</h2>
 <ul>
-<li>▶ Notebook (runnable, every example above): <a href="../pluto/0_julia_basics.jl">Julia for Python users</a></li>
-<li>🎯 The one to internalise: <strong>arrays are 1-based</strong>, blocks close with <strong><code>end</code></strong>, element-wise math is <strong>the dot</strong>.</li>
+<li>▶ Script: <a href="../scripts/0_julia_basics.jl">0_julia_basics.jl</a></li>
+<li>▶ Notebook: <a href="../pluto/0_julia_basics.jl">0_julia_basics.jl</a></li>
+<li>🎯 Arrays start at <strong>1</strong>, blocks close with <strong><code>end</code></strong>, element-wise is <strong>the dot</strong>, behavior lives in <strong>functions</strong>.</li>
 </ul>
 <div class="fragment">
 <blockquote>
-<p>⬅ <strong>Previous:</strong> <a href="../../../teaching/parallel_computing/index.html">Course home</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html">1 — Interpreted vs compiled</a> ➡</p>
+<p>⬅ <strong>Previous:</strong> <a href="../../../teaching/parallel_computing/slides/course.html">Overview</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html">1 — Interpreted vs compiled</a> ➡</p>
 </blockquote>
 
 
 </div>
-</section>
+</section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">

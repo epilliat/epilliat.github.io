@@ -1,11 +1,17 @@
-using Downloads          # stdlib HTTP client
-using Base.Threads       # @spawn, nthreads
-using Profile            # @profile — the sampling profiler (stdlib)
-using Random             # for Q4 (the task-local RNG)
+# =============================================================================
+# Threads & concurrency — waiting is overlapped; computing must be split
+# ⚠ KEEP IN SYNC with `pluto/3_threads_and_concurrency.jl` (same code, two formats).
+# Cells: `#%%` (Alt+Enter in VS Code). Needs BenchmarkTools and the network (Part A).
+# For each cell: predict, then run.
+# =============================================================================
+
+#%% 0. Getting started
+using Downloads
+using Base.Threads
 using BenchmarkTools
-println("threads available: ", nthreads(), "   (Part B wants > 1)")
+println("nthreads = $(nthreads())")   # 1? relaunch with julia --threads=auto (VS Code: "julia.NumThreads": "auto", restart REPL)
 
-
+#%% 1. Part A — async on one core: waiting for the network
 SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
     "ADAUSDT", "DOGEUSDT", "TRXUSDT", "DOTUSDT", "LTCUSDT",
     "AVAXUSDT", "LINKUSDT", "ATOMUSDT", "UNIUSDT", "ETCUSDT"]
@@ -13,39 +19,36 @@ SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
 function fetch_price(sym)
     url = "https://api.binance.com/api/v3/ticker/price?symbol=$(sym)"
     io = IOBuffer()
-    Downloads.download(url, io)                 # blocks THIS task, yields to others
+    Downloads.download(url, io)
     m = match(r"\"price\":\"([0-9.]+)\"", String(take!(io)))
     return m === nothing ? NaN : parse(Float64, m.captures[1])
 end
+fetch_price(SYMBOLS[1])   # warm-up: compile before timing
 
-#%% Three ways to fetch — sequential vs (wrong) async vs (real) async
-# @elapsed ONCE each — never @btime here, it would hammer the API.
+#%% Three ways to fetch — predict the three timings first (@elapsed once: don't hammer the API)
 n = length(SYMBOLS)
 
-# 1) SEQUENTIAL — request, wait, next request… ≈ the sum of the latencies.
 seq = Vector{Float64}(undef, n)
 t_seq = @elapsed for i in 1:n
     seq[i] = fetch_price(SYMBOLS[i])
 end
 println("1) sequential          : $(round(t_seq, digits=3)) s")
 
-# 2) WRONG async — @async with NO @sync: we time TASK CREATION, not the fetches.
-bad = fill(NaN, n)                          # NaN = "not fetched yet"
+bad = fill(NaN, n)
 t_bad = @elapsed for i in 1:n
     @async bad[i] = fetch_price(SYMBOLS[i])
 end
-ready = count(!isnan, bad)
-println("2) async WITHOUT @sync : $(round(t_bad, digits=5)) s   ← only task creation! ($ready/$n results ready)")
+println("2) @async, no @sync    : $(round(t_bad, digits=5)) s   ($(count(!isnan, bad))/$n ready)")
+sleep(2)
+println("   2 s later, same array: $(count(!isnan, bad))/$n ready")
 
-
-# 3) we time all fetches, ran in parallel. notice the use of @sync and @async. @async declares a task, @sync forces to wait for all tasks to end.
 good = Vector{Float64}(undef, n)
 t_good = @elapsed @sync for i in 1:n
     @async good[i] = fetch_price(SYMBOLS[i])
 end
-println("3) async WITH @sync    : $(round(t_good, digits=3)) s   ← ~one round-trip, speedup $(round(t_seq / t_good, digits=1))x")
-println("   e.g. $(SYMBOLS[1]) = $(round(good[1], digits=2)) USDT")
+println("3) @sync + @async      : $(round(t_good, digits=3)) s   speedup $(round(t_seq / t_good, digits=1))x")
 
+#%% 2. Part B — @spawn on many cores: independent Markov chains
 function simulate_markov(nsteps; p_stay=0.9)
     state = 1
     count1 = 0
@@ -56,82 +59,91 @@ function simulate_markov(nsteps; p_stay=0.9)
     return count1 / nsteps
 end
 
-markov_seq(K, L) = [simulate_markov(L) for _ in 1:K]                 # one after another
-markov_spawn(K, L) = fetch.([Threads.@spawn simulate_markov(L) for _ in 1:K])  # all at once
+markov_seq(K, L) = [simulate_markov(L) for _ in 1:K]
+markov_spawn(K, L) = fetch.([Threads.@spawn simulate_markov(L) for _ in 1:K])
 
-#%% Time them (K chains of L steps)
+#%% Predict the speedup on 8 chains, then run
 let
     K, L = 8, 20_000_000
     t_seq = @belapsed markov_seq($K, $L)
     t_spawn = @belapsed markov_spawn($K, $L)
     println("markov: seq $(round(t_seq, digits=3)) s | @spawn $(round(t_spawn, digits=3)) s | " *
-            "speedup $(round(t_seq / t_spawn, digits=1))x  (nthreads=$(nthreads()))")
+            "speedup $(round(t_seq / t_spawn, digits=1))x")
 end
 
-#%% The red thread — parallel Monte-Carlo π, and the race that ruins it
-# π ≈ 4 × #{x²+y² ≤ 1} / n. Perfect for many cores — but WHERE the tasks write matters.
-pi_chunk(m) = begin
+#%% 3. Monte-Carlo π — the sequential baseline (same count as in the compilation module)
+function count_in_disk(n)
     hits = 0
-    for _ in 1:m
-        x = rand();
-        y = rand()
+    for _ in 1:n
+        x = rand(); y = rand()
         hits += (x * x + y * y <= 1.0)
     end
-    hits
+    return hits
 end
 
-pi_seq(n) = 4 * pi_chunk(n) / n
+pi_seq(n) = 4 * count_in_disk(n) / n
 
-# WRONG — every task mutates one CAPTURED counter. `hits += 1` is read-add-write, not
-# atomic: increments are lost. Too small AND different every run. No error, just wrong.
+#%% Same CPU work with @async: predict the speedup
+function pi_async(n; ntasks=nthreads())
+    per = n ÷ ntasks
+    tasks = [@async count_in_disk(per) for _ in 1:ntasks]
+    return 4 * sum(fetch, tasks) / (per * ntasks)
+end
+
+let n = 100_000_000
+    t_seq = @belapsed pi_seq($n)
+    t_async = @belapsed pi_async($n)
+    println("π: seq $(round(t_seq, digits=3)) s | @async × $(nthreads()): $(round(t_seq / t_async, digits=1))x")
+end
+
+#%% π on all threads, one task per thread: what does it print? Spot the bug before running
 function pi_race(n; ntasks=nthreads())
     per = n ÷ ntasks
     hits = 0
     @sync for _ in 1:ntasks
         Threads.@spawn for _ in 1:per
-            x = rand();
-            y = rand()
-            hits += (x * x + y * y <= 1.0)      # ⚠ shared → race condition
+            x = rand(); y = rand()
+            hits += (x * x + y * y <= 1.0)
         end
     end
     return 4 * hits / (per * ntasks)
 end
 
-# RIGHT — each task returns its OWN count, we reduce with sum(fetch, tasks). No shared
-# mutable state in the hot loop. (Better than indexing by threadid(), now discouraged.)
+nthreads() == 1 && @warn "1 thread: no race to see — restart with --threads=auto"
+println("pi_race  : ", [round(pi_race(20_000_000), digits=5) for _ in 1:4])
+
+#%% The cure: each task returns its count, reduce once. Stable now?
 function pi_spawn(n; ntasks=nthreads())
     per = n ÷ ntasks
-    tasks = [Threads.@spawn pi_chunk(per) for _ in 1:ntasks]
+    tasks = [Threads.@spawn count_in_disk(per) for _ in 1:ntasks]
     return 4 * sum(fetch, tasks) / (per * ntasks)
 end
 
-#%% Watch the race: wrong AND unstable vs right AND stable
-let
-    println("π reference : ", π)
-    println("pi_race  (shared counter — WRONG, differs each run):")
-    for _ in 1:4
-        println("   $(round(pi_race(20_000_000), digits=5))")
+println("pi_spawn : ", [round(pi_spawn(20_000_000), digits=5) for _ in 1:4])
+
+#%% Why not an atomic counter? Correct? Faster than pi_seq?
+function pi_atomic(n; ntasks=nthreads())
+    per = n ÷ ntasks
+    hits = Threads.Atomic{Int}(0)
+    @sync for _ in 1:ntasks
+        Threads.@spawn for _ in 1:per
+            x = rand(); y = rand()
+            (x * x + y * y <= 1.0) && Threads.atomic_add!(hits, 1)
+        end
     end
-    println("pi_spawn (return + reduce — correct, stable):")
-    for _ in 1:4
-        println("   $(round(pi_spawn(20_000_000), digits=5))")
-    end
+    return 4 * hits[] / (per * ntasks)
 end
 
-#%% Speed of the correct versions
-let
-    t_seq = @belapsed pi_seq(40_000_000)
-    t_spawn = @belapsed pi_spawn(40_000_000)
+let n = 100_000_000
+    t_seq = @belapsed pi_seq($n)
+    t_atomic = @belapsed pi_atomic($n)
+    println("pi_atomic = $(round(pi_atomic(n), digits=5)) | $(round(t_atomic / t_seq, digits=1))x the time of pi_seq")
+end
+
+#%% Speedup vs nthreads: predict it, then explain the gap (relaunch with --threads=1, 2, 4)
+let n = 100_000_000
+    t_seq = @belapsed pi_seq($n)
+    t_spawn = @belapsed pi_spawn($n)
     println("π: seq $(round(t_seq, digits=3)) s | @spawn $(round(t_spawn, digits=3)) s | " *
             "speedup $(round(t_seq / t_spawn, digits=1))x  (nthreads=$(nthreads()))")
 end
-# Speedup < nthreads: AMDAHL. Splitting, spawning and the final reduce stay
-# sequential, and rand() has a per-task cost. Perfect scaling is a myth.
-
-#%% Profiling threaded code — the profiler answers a DIFFERENT question
-# `Profile` samples the call stack every few ms: a function's sample count ≈ its
-# share of the time. On sequential code it says WHERE the time goes. On threads:
-Profile.clear()
-Profile.@profile pi_spawn(200_000_000)
-Profile.print(format=:flat, sortedby=:count, mincount=100, maxdepth=8)
-

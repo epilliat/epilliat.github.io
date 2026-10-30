@@ -195,7 +195,7 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">1 — Interpreted vs compiled</h1>
-  <p class="subtitle">Compilation, JIT and warmup</p>
+  <p class="subtitle">Compilation, JIT and type specialization</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -206,23 +206,16 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 
 </section>
-<section id="a-tale-of-two-ships" class="slide level2 smaller">
-<h2>A tale of two ships</h2>
-<div class="r-stack">
-<p><img data-src="../images/ship_python.png" style="width:82.0%"></p>
-<p><img data-src="../images/ship_julia.png" class="fragment" style="width:82.0%"></p>
-</div>
-</section>
 <section id="goals" class="slide level2">
 <h2>Goals</h2>
 <ul>
-<li>Understand what happens between source code and the processor.</li>
-<li>See <strong>type specialization</strong> (why Julia ≈ C).</li>
-<li>Learn to <strong>measure performance properly</strong>.</li>
+<li>From source code to the processor</li>
+<li><strong>Type specialization</strong> (Julia ≈ C)</li>
+<li><strong>Measuring</strong> performance properly</li>
 </ul>
 <div class="fragment">
 <blockquote>
-<p>▶ Notebook (demo + solution): <a href="../pluto/1_compilation_and_types.jl">Interpreted vs compiled</a></p>
+<p>▶ Script: <a href="../scripts/1_compilation_and_types.jl">1_compilation_and_types.jl</a> · Notebook: <a href="../pluto/1_compilation_and_types.jl">Interpreted vs compiled</a> · 🐍 Python: <a href="../python/1_compilation_and_types_python.ipynb">1_compilation_and_types_python.ipynb</a></p>
 </blockquote>
 </div>
 <div class="fragment">
@@ -231,16 +224,46 @@ Emmanuel Pilliat — ENSAI 3A
 </blockquote>
 </div>
 </section>
-<section id="same-computation-very-different-times" class="slide level2">
-<h2>Same computation, very different times</h2>
+<section>
+<section id="the-jit-warmup" class="title-slide slide level1 center" style="text-align: center;">
+<h1>The JIT warmup</h1>
+
+</section>
+<section id="a-tale-of-two-ships" class="slide level2 smaller">
+<h2>A tale of two ships</h2>
+<div class="fragment">
+<div class="r-stack">
+<p><img data-src="../images/ship_python.png" style="width:82.0%"></p>
+<p><img data-src="../images/ship_julia.png" class="fragment" style="width:82.0%"></p>
+</div>
+</div>
+</section>
+<section id="the-loop-we-will-study" class="slide level2">
+<h2>The loop we will study</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="kw">function</span> <span class="fu">mysum</span>(x)</span>
+<span id="cb1-2"><a></a>    s <span class="op">=</span> <span class="fu">zero</span>(<span class="fu">eltype</span>(x))     <span class="co"># 0.0 here</span></span>
+<span id="cb1-3"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(x)</span>
+<span id="cb1-4"><a></a>        s <span class="op">+=</span> x[i]</span>
+<span id="cb1-5"><a></a>    <span class="cf">end</span></span>
+<span id="cb1-6"><a></a>    <span class="cf">return</span> s</span>
+<span id="cb1-7"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li class="fragment">We sum a large vector (10⁶ floats) — <em>the same computation</em> everywhere.</li>
-<li class="fragment">We call it <strong>R = 2000 times in a row</strong> and time <strong>every call</strong>.</li>
-<li class="fragment">Five variants: pure Python, <code>numba @njit</code>, <code>numpy</code>, Julia <code>mysum</code> (loop), Julia <code>sum</code>.</li>
+<li class="fragment">Pure Python, 10⁷ floats: <strong>~0.5 s</strong></li>
+<li class="fragment">Julia: a few <strong>ms</strong></li>
+<li class="fragment"><span style="background-color: yellow;">Same loop, same machine. Why the gap?</span></li>
+</ul>
+</div>
+</section>
+<section id="the-experiment" class="slide level2">
+<h2>The experiment</h2>
+<ul>
+<li class="fragment">Sum 10⁶ floats, <strong>2000 calls</strong>, time <strong>each call</strong></li>
+<li class="fragment">5 variants: pure Python, <code>numba @njit</code>, <code>numpy</code>, Julia <code>mysum</code>, Julia <code>sum</code></li>
 </ul>
 <div class="fragment">
 <blockquote>
-<p>The question: what happens <strong>on the very first call</strong>?</p>
+<p>What happens <strong>on the very first call</strong>?</p>
 </blockquote>
 </div>
 </section>
@@ -264,24 +287,24 @@ Emmanuel Pilliat — ENSAI 3A
 <thead>
 <tr class="header">
 <th>variant</th>
-<th>compile spike</th>
+<th>1st-call spike</th>
 <th>plateau</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>pure Python</td>
-<td><strong>0</strong> — never compiled</td>
+<td><strong>0</strong></td>
 <td>~50 ms</td>
 </tr>
 <tr class="even">
 <td>numba <code>@njit</code></td>
-<td><strong>~340 ms</strong></td>
+<td><strong>~270 ms</strong></td>
 <td>~0.4 ms</td>
 </tr>
 <tr class="odd">
 <td>numpy</td>
-<td>≈ 0 — precompiled C</td>
+<td>≈ 0</td>
 <td>~0.2 ms</td>
 </tr>
 <tr class="even">
@@ -299,29 +322,23 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 <div class="fragment">
 <blockquote>
-<p>The <strong>spike</strong> is the JIT compiling — paid once, then amortized. Pure Python has <strong>no spike</strong>, but its plateau stays <strong>slow</strong> (never compiled).</p>
+<p><strong>Spike then fast</strong> (numba, Julia) · <strong>no spike</strong> (Python slow, numpy fast). Why?</p>
 </blockquote>
 </div>
 </section>
-<section id="what-the-warmup-reveals" class="slide level2">
-<h2>What the warmup reveals</h2>
+<section id="three-ways-to-run-code" class="slide level2">
+<h2>Three ways to run code</h2>
 <ul>
-<li class="fragment">The spike = <strong>just-in-time (JIT) compilation on the 1st call</strong>, for that argument type.</li>
-<li class="fragment"><strong>Everything is JIT in Julia</strong>: even Base <code>sum</code> (re)compiles per type on first use.</li>
-<li class="fragment"><strong>numpy</strong> = ahead-of-time C → fast, no warmup; <strong>pure Python</strong> = never compiled → slow, no spike.</li>
+<li class="fragment"><strong>Interpreted</strong> (CPython): re-examined at run time → instant start, <strong>slow</strong></li>
+<li class="fragment"><strong>AOT</strong> (C, <code>numpy</code>): compiled before → fast, <strong>no warmup</strong></li>
+<li class="fragment"><strong>JIT</strong> (Julia, numba): compiled <strong>on 1st call</strong> → fast <em>after</em></li>
 </ul>
 <div class="fragment">
-<div class="callout callout-note no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Note</strong></p>
-</div>
-<div class="callout-content">
-<p>Type <strong>checked at run time</strong>, every operation, on boxed objects (pure Python) = slow; type <strong>known at compile time</strong>, check eliminated (numba/Julia) = specialized native code = fast… once the warmup is paid.</p>
-</div>
-</div>
-</div>
+<blockquote>
+<p>The spike <strong>is</strong> the JIT compiling. Paid once.</p>
+</blockquote>
 <aside class="notes">
+<p>Interpreted: each operation is re-examined at run time (bytecode visible with <code>dis</code> in the Python notebook). AOT = ahead-of-time, JIT = just-in-time. The JIT cost is amortized over later calls.</p>
 <p>Don’t say “Python can’t specialize by type” — false since 3.11 (PEP 659): the adaptive interpreter rewrites a hot <code>s += x</code> into <code>BINARY_OP_ADD_FLOAT</code>. The point is that it specializes ONE bytecode and KEEPS the guard, inside the interpreter, on boxed objects. Julia specializes the whole function and deletes the guard. That’s why the 100× survives.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
@@ -336,29 +353,106 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="what-is-jit" class="slide level2">
-<h2>What is JIT?</h2>
+<section id="numpy-fast-but-only-inside" class="slide level2">
+<h2>numpy: fast, but only inside</h2>
 <div class="fragment">
-<p>Three ways to get from source code to the processor:</p>
-</div>
-<div class="fragment">
+<p><code>numpy.sum</code>: <strong>the loop is compiled C</strong>.</p>
 <ul>
-<li class="fragment"><strong>Interpreted</strong> (CPython): the bytecode is re-examined at every operation → slow, but starts instantly.</li>
-<li class="fragment"><strong>Ahead-of-time / AOT</strong> (C, <code>numpy</code>): everything compiled before execution → fast, <strong>zero warmup</strong>.</li>
-<li class="fragment"><strong>Just-in-time / JIT</strong> (Julia): compiled <strong>on the 1st execution</strong>, then native → fast <em>after</em> the warmup.</li>
+<li class="fragment">Python <code>for</code> over a numpy array: slow again</li>
+<li class="fragment">Python: <strong>vectorize</strong> — push loops into numpy</li>
+<li class="fragment">Julia: <span style="background-color: yellow;">your own loop is compiled too</span></li>
 </ul>
+<aside class="notes">
+<p>A Python <code>for</code> loop over a numpy array is slow because each element crosses back into the interpreter. In Julia there is no such boundary.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section></section>
+<section>
+<section id="measuring-properly" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Measuring properly</h1>
+
+</section>
+<section id="pitfall-1-timing-the-compiler" class="slide level2">
+<h2>Pitfall 1: timing the compiler</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a><span class="fu">g</span>(x) <span class="op">=</span> <span class="fu">sum</span>(abs2, x)</span>
+<span id="cb2-2"><a></a><span class="pp">@time</span> <span class="fu">g</span>(v)   <span class="co"># compile + compute</span></span>
+<span id="cb2-3"><a></a><span class="pp">@time</span> <span class="fu">g</span>(v)   <span class="co"># compute only</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <blockquote>
-<p>The <strong>spike</strong> we just saw is <strong>exactly</strong> the JIT compiling.</p>
+<p>Discard the 1st call; measure the <strong>steady state</strong>.</p>
 </blockquote>
 </div>
-</section>
-<section id="julia-one-native-version-per-type" class="slide level2 smaller">
-<h2>Julia: one native version per type</h2>
-<p>JIT gives native speed — but there’s a catch: the machine code must be <strong>specialized</strong>. There is no single “<code>x + y</code>” instruction.</p>
 <div class="fragment">
-<p>The <em>same</em> <code>x + y</code> becomes <strong>different assembly</strong> depending on the argument types:</p>
+<blockquote>
+<p>▶ Script: cell “0. Getting started”, then “2. Measuring properly — compare the two timings”</p>
+</blockquote>
+<aside class="notes">
+<p>The very first line of a session is slow for the same reason: everything it touches (here <code>@btime</code> and BenchmarkTools) gets compiled.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="pitfall-2-measuring-only-once" class="slide level2">
+<h2>Pitfall 2: measuring only once</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a></a><span class="im">using</span> <span class="bu">BenchmarkTools</span></span>
+<span id="cb3-2"><a></a><span class="pp">@btime</span>     <span class="fu">mysum</span>(<span class="op">$</span>v)   <span class="co"># minimum</span></span>
+<span id="cb3-3"><a></a><span class="pp">@benchmark</span> <span class="fu">mysum</span>(<span class="op">$</span>v)   <span class="co"># distribution</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li class="fragment">Many runs, warmup <strong>dropped</strong></li>
+<li class="fragment"><code>$v</code> <strong>plugs the value in</strong>: time <code>mysum</code>, not the global lookup (why: with dispatch)</li>
+<li class="fragment"><span style="background-color: yellow;">Always <code>$</code> before globals in <code>@btime</code></span></li>
+</ul>
+<aside class="notes">
+<p><code>@btime</code> / <code>@benchmark</code> run the call many times and drop the warmup for you. Without <code>$</code>, we would also time the lookup of the untyped global variable <code>v</code>. Why an untyped global is slow: with dispatch, when the compiler cannot know the type.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+<div class="fragment">
+<blockquote>
+<p>▶ Script: cell “Read the distribution: why is the minimum the number to quote?”</p>
+</blockquote>
+</div>
+</section></section>
+<section>
+<section id="type-specialization" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Type specialization</h1>
+
+</section>
+<section id="one-x-y-several-machine-codes" class="slide level2">
+<h2>One <code>x + y</code>, several machine codes</h2>
+<div class="fragment">
+<p>No single “<code>x + y</code>” instruction: it depends on the <strong>types</strong>.</p>
 </div>
 <div class="fragment">
 <table class="caption-top">
@@ -379,133 +473,177 @@ Emmanuel Pilliat — ENSAI 3A
 </tr>
 <tr class="odd">
 <td><code>Float64, Int</code></td>
-<td><code>vcvtsi2sd</code> + <code>vaddsd</code> (convert, then add)</td>
+<td><code>vcvtsi2sd</code> + <code>vaddsd</code> (convert + add)</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
-<p><strong>Julia’s solution</strong>: on the 1st call, compile a native version <strong>specialized for the concrete types</strong>, then reuse it. Type known at compile time → the check/conversion <strong>vanishes</strong> from the hot code (<strong>≈ C</strong>).</p>
+<blockquote>
+<p><strong>Julia</strong>: 1st call compiles a version <strong>for the concrete types</strong>, then reuses it. No type checks left → <strong>≈ C</strong>.</p>
+</blockquote>
+<aside class="notes">
+<p>Each entry in the table is one (or two) processor instructions. Picking the version from the types of ALL arguments is multiple dispatch — next module.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="watching-the-compiler" class="slide level2">
+<h2>Watching the compiler</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a></a><span class="fu">f</span>(x) <span class="op">=</span> <span class="fl">2</span>x <span class="op">+</span> <span class="fl">1</span></span>
+<span id="cb4-2"><a></a></span>
+<span id="cb4-3"><a></a><span class="pp">@code_lowered</span> <span class="fu">f</span>(<span class="fl">3.0</span>)   <span class="co"># desugared</span></span>
+<span id="cb4-4"><a></a><span class="pp">@code_typed</span>   <span class="fu">f</span>(<span class="fl">3.0</span>)   <span class="co"># types inferred</span></span>
+<span id="cb4-5"><a></a><span class="pp">@code_native</span>  <span class="fu">f</span>(<span class="fl">3.0</span>)   <span class="co"># assembly</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <blockquote>
-<p>Picking the version from the type of <strong>all</strong> arguments = <strong>multiple dispatch</strong> (<span style="background-color: yellow;">covered in the dispatch module</span>).</p>
+<p>Try <code>f(3.0)</code> <strong>and</strong> <code>f(3)</code>. What changes?</p>
 </blockquote>
 </div>
-</section>
-<section id="the-pitfall-type-instability" class="slide level2">
-<h2>The pitfall: type instability</h2>
-<ul>
-<li class="fragment">Untyped global variable → dynamic code, comparable to Python.</li>
-<li class="fragment">The tool: <code>@code_warntype</code> (red = <code>Any</code>).</li>
-<li class="fragment"><strong>Golden rule</strong>: put the work in <strong>functions</strong> that receive their data as arguments.</li>
-</ul>
-</section>
-<section id="measuring-properly" class="slide level2">
-<h2>Measuring properly</h2>
-<ul>
-<li class="fragment">Pitfall A: <strong>timing the compilation</strong> instead of the computation — <em>exactly the warmup spike we just saw</em>.</li>
-<li class="fragment">Pitfall B: measuring only once → <code>@btime</code> / <code>@benchmark</code>.</li>
-</ul>
 <div class="fragment">
 <blockquote>
-<p><strong>Always</strong> discard the 1st call (warmup), then measure the <strong>steady state</strong>.</p>
+<p>▶ Script: cells “3. Type specialization — step 1” to “Step 3, with an Int”</p>
 </blockquote>
 </div>
 </section>
+<section id="same-f-two-compilations" class="slide level2 smaller">
+<h2>Same <code>f</code>, two compilations</h2>
+<div class="fragment">
+<div class="columns">
+<div class="column" style="width:48%;">
+<p><code>f(3.0)</code> — <code>Float64</code></p>
+<pre><code>mul_float(2.0, x)
+add_float(%1, 1.0)</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource asm number-lines code-with-copy"><code class="sourceCode fasm"><span id="cb6-1"><a></a>vaddsd  <span class="kw">xmm0</span><span class="op">,</span> <span class="kw">xmm0</span><span class="op">,</span> <span class="kw">xmm0</span></span>
+<span id="cb6-2"><a></a>vaddsd  <span class="kw">xmm0</span><span class="op">,</span> <span class="kw">xmm0</span><span class="op">,</span> <span class="op">[</span><span class="fl">1.0</span><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div><div class="column" style="width:48%;">
+<p><code>f(3)</code> — <code>Int</code></p>
+<pre><code>mul_int(2, x)
+add_int(%1, 1)</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource asm number-lines code-with-copy"><code class="sourceCode fasm"><span id="cb8-1"><a></a><span class="bu">lea</span>     <span class="kw">rax</span><span class="op">,</span> <span class="op">[</span><span class="dv">2</span><span class="op">*</span><span class="kw">rdi</span> <span class="op">+</span> <span class="dv">1</span><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div></div>
+<ul>
+<li class="fragment">One line, <strong>two native functions</strong></li>
+<li class="fragment">No type check: types <strong>known at compile time</strong></li>
+<li class="fragment">Not known? <strong>Type instability</strong>, with dispatch</li>
+</ul>
+</div>
+</section></section>
 <section>
-<section id="code-introspection" class="title-slide slide level1 center" style="text-align: center;">
-<h1>Code introspection</h1>
+<section id="bonus-optional-why-sum-beats-mysum" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Bonus (optional): why <code>sum</code> beats <code>mysum</code></h1>
 
 </section>
-<section id="opening-the-box" class="slide level2">
-<h2>Opening the box</h2>
-<ul>
-<li class="fragment">Julia lets you <strong>inspect</strong> what it generates, at every stage of the pipeline:</li>
-</ul>
+<section id="the-gap-to-explain" class="slide level2">
+<h2>The gap to explain</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="pp">@code_lowered</span>  <span class="fu">mysum</span>(x)   <span class="co"># desugared form</span></span>
-<span id="cb1-2"><a></a><span class="pp">@code_typed</span>    <span class="fu">mysum</span>(x)   <span class="co"># after type inference</span></span>
-<span id="cb1-3"><a></a><span class="pp">@code_warntype</span> <span class="fu">mysum</span>(x)   <span class="co"># unstable types in red (= Any)</span></span>
-<span id="cb1-4"><a></a><span class="pp">@code_native</span>   <span class="fu">mysum</span>(x)   <span class="co"># the assembly actually executed</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>10⁵ floats (fits in cache):</p>
+</div>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>time / call</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>mysum</code></td>
+<td><strong>44 µs</strong></td>
+</tr>
+<tr class="even">
+<td>Base <code>sum</code></td>
+<td><strong>7.5 µs</strong></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="fragment">
 <blockquote>
-<p>We saw <strong>Base <code>sum</code> ≈ 5× faster than <code>mysum</code></strong> (same computation). <code>@code_native</code> tells us <em>why</em>.</p>
+<p><strong>~6× apart</strong>. <code>@code_native</code> tells why.</p>
+</blockquote>
+</div>
+<div class="fragment">
+<blockquote>
+<p>▶ Script: cells “4. Bonus (optional)” to “The kernel <code>sum</code> calls”</p>
 </blockquote>
 </div>
 </section>
-<section id="why-sum-beats-mysum-12" class="slide level2">
-<h2>Why <code>sum</code> beats <code>mysum</code> — 1/2</h2>
-<p><code>@code_native mysum</code> — the hot loop:</p>
+<section id="mysum-what-to-look-for" class="slide level2">
+<h2><code>mysum</code>: what to look for</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource asm number-lines code-with-copy"><code class="sourceCode fasm"><span id="cb2-1"><a></a><span class="fu">.LBB0_6:</span>                          <span class="co">; loop unrolled ×8</span></span>
-<span id="cb2-2"><a></a>    vaddsd  <span class="kw">xmm0</span><span class="op">,</span> <span class="kw">xmm0</span><span class="op">,</span> <span class="op">[</span><span class="kw">rcx</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">rdx</span><span class="op">]</span></span>
-<span id="cb2-3"><a></a>    vaddsd  <span class="kw">xmm0</span><span class="op">,</span> <span class="kw">xmm0</span><span class="op">,</span> <span class="op">[</span><span class="kw">rcx</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">rdx</span> <span class="op">+</span> <span class="dv">8</span><span class="op">]</span></span>
-<span id="cb2-4"><a></a>    vaddsd  <span class="kw">xmm0</span><span class="op">,</span> <span class="kw">xmm0</span><span class="op">,</span> <span class="op">[</span><span class="kw">rcx</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">rdx</span> <span class="op">+</span> <span class="dv">16</span><span class="op">]</span></span>
-<span id="cb2-5"><a></a>    ...                               <span class="co">; ×8</span></span>
-<span id="cb2-6"><a></a>    <span class="bu">add</span>     <span class="kw">rdx</span><span class="op">,</span> <span class="dv">8</span></span>
-<span id="cb2-7"><a></a>    <span class="cf">jne</span>     <span class="op">.</span>LBB0_6</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="fragment">
+<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource asm number-lines code-with-copy"><code class="sourceCode fasm"><span id="cb9-1"><a></a>vaddsd  <span class="kw">xmm0</span><span class="op">,</span> <span class="kw">xmm0</span><span class="op">,</span> <span class="op">[</span><span class="kw">rcx</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">rdx</span><span class="op">]</span></span>
+<span id="cb9-2"><a></a>vaddsd  <span class="kw">xmm0</span><span class="op">,</span> <span class="kw">xmm0</span><span class="op">,</span> <span class="op">[</span><span class="kw">rcx</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">rdx</span> <span class="op">+</span> <span class="dv">8</span><span class="op">]</span></span>
+<span id="cb9-3"><a></a>...</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li class="fragment"><code>vaddSD</code> = <strong>S</strong>calar <strong>D</strong>ouble = <strong>1 float</strong> at a time, <strong>a single accumulator</strong> <code>xmm0</code>. → <span style="background-color: yellow;">scalar</span>.</li>
-<li class="fragment">Each <code>+</code> waits for the previous one → <strong>a single dependency chain</strong> (<em>latency-bound</em>).</li>
+<li class="fragment"><code>vaddsd</code> = <strong>S</strong>calar <strong>D</strong>ouble → <span style="background-color: yellow;">1 float / instruction</span></li>
+<li class="fragment">Always <code>xmm0</code> → <strong>one accumulator</strong>: each <code>+</code> waits for the previous</li>
 </ul>
 </div>
 </section>
-<section id="why-sum-beats-mysum-22" class="slide level2 smaller">
-<h2>Why <code>sum</code> beats <code>mysum</code> — 2/2</h2>
-<p><code>@code_native sum</code> shows that for N ≥ 16 the work is <strong>not inlined</strong>:</p>
+<section id="sum-what-to-look-for" class="slide level2">
+<h2><code>sum</code>: what to look for</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource asm number-lines code-with-copy"><code class="sourceCode fasm"><span id="cb3-1"><a></a>    <span class="bu">cmp</span>     <span class="kw">rdx</span><span class="op">,</span> <span class="dv">15</span></span>
-<span id="cb3-2"><a></a>    <span class="cf">jle</span>     <span class="op">.</span>small_case</span>
-<span id="cb3-3"><a></a>    <span class="cf">call</span>    mapreduce_impl          <span class="co">; kernel elsewhere</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>@code_native sum(vc)</code> is mostly a <code>call</code>; the work is in <code>Base.mapreduce_impl</code>:</p>
 </div>
 <div class="fragment">
-<p>Inside <code>mapreduce_impl</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource asm number-lines code-with-copy"><code class="sourceCode fasm"><span id="cb4-1"><a></a><span class="fu">.LBB0_8:</span></span>
-<span id="cb4-2"><a></a>    vaddpd  <span class="kw">ymm0</span><span class="op">,</span> <span class="kw">ymm0</span><span class="op">,</span> <span class="op">[</span><span class="kw">r8</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">r9</span> <span class="op">-</span> <span class="dv">96</span><span class="op">]</span></span>
-<span id="cb4-3"><a></a>    vaddpd  <span class="kw">ymm1</span><span class="op">,</span> <span class="kw">ymm1</span><span class="op">,</span> <span class="op">[</span><span class="kw">r8</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">r9</span> <span class="op">-</span> <span class="dv">64</span><span class="op">]</span></span>
-<span id="cb4-4"><a></a>    vaddpd  <span class="kw">ymm2</span><span class="op">,</span> <span class="kw">ymm2</span><span class="op">,</span> <span class="op">[</span><span class="kw">r8</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">r9</span> <span class="op">-</span> <span class="dv">32</span><span class="op">]</span></span>
-<span id="cb4-5"><a></a>    vaddpd  <span class="kw">ymm3</span><span class="op">,</span> <span class="kw">ymm3</span><span class="op">,</span> <span class="op">[</span><span class="kw">r8</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">r9</span><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="fragment">
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource asm number-lines code-with-copy"><code class="sourceCode fasm"><span id="cb10-1"><a></a>vaddpd  <span class="kw">ymm0</span><span class="op">,</span> <span class="kw">ymm0</span><span class="op">,</span> <span class="op">[</span><span class="kw">r8</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">r9</span> <span class="op">-</span> <span class="dv">96</span><span class="op">]</span></span>
+<span id="cb10-2"><a></a>vaddpd  <span class="kw">ymm1</span><span class="op">,</span> <span class="kw">ymm1</span><span class="op">,</span> <span class="op">[</span><span class="kw">r8</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">r9</span> <span class="op">-</span> <span class="dv">64</span><span class="op">]</span></span>
+<span id="cb10-3"><a></a>vaddpd  <span class="kw">ymm2</span><span class="op">,</span> <span class="kw">ymm2</span><span class="op">,</span> <span class="op">[</span><span class="kw">r8</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">r9</span> <span class="op">-</span> <span class="dv">32</span><span class="op">]</span></span>
+<span id="cb10-4"><a></a>vaddpd  <span class="kw">ymm3</span><span class="op">,</span> <span class="kw">ymm3</span><span class="op">,</span> <span class="op">[</span><span class="kw">r8</span> <span class="op">+</span> <span class="dv">8</span><span class="op">*</span><span class="kw">r9</span><span class="op">]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li class="fragment"><code>vaddPD</code> = <strong>P</strong>acked <strong>D</strong>ouble = <strong>4 floats</strong> at once → <span style="background-color: yellow;">SIMD 4-wide</span>.</li>
-<li class="fragment"><strong>4 independent accumulators</strong> <code>ymm0..ymm3</code> → <strong>16 doubles / iteration</strong>, 4 parallel chains (ILP).</li>
+<li class="fragment"><code>vaddpd</code> = <strong>P</strong>acked <strong>D</strong>ouble → <span style="background-color: yellow;">4 floats / instruction (SIMD)</span></li>
+<li class="fragment"><strong>4 accumulators</strong> <code>ymm0…ymm3</code> → 4 independent chains</li>
 </ul>
 </div>
 </section>
-<section id="the-catch-associativity" class="slide level2">
-<h2>The catch: associativity</h2>
+<section id="why-not-our-loop" class="slide level2">
+<h2>Why not our loop?</h2>
+<div class="fragment">
+<p><strong>Bet first:</strong> why can’t the compiler do this for <em>our</em> loop?</p>
+</div>
+</section>
+<section id="what-we-saw-the-order-of-the-additions" class="slide level2">
+<h2>What we saw: the order of the additions</h2>
+<div class="fragment">
 <div class="callout callout-warning no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
 <p><strong>Warning</strong></p>
 </div>
 <div class="callout-content">
-<p>Floating-point addition is <strong>not associative</strong>: <code>(a+b)+c ≠ a+(b+c)</code> (rounding). Without permission, the compiler <strong>must</strong> keep the order → <code>mysum</code> stays scalar and serial.</p>
+<p>Float <code>+</code> is <strong>not associative</strong>: <code>(a+b)+c ≠ a+(b+c)</code>. The compiler <strong>must</strong> keep our order → scalar.</p>
+</div>
 </div>
 </div>
 </div>
 <div class="fragment">
-<ul>
-<li class="fragment"><code>sum</code> goes through a <strong>reduction that allows reassociation</strong> (+ <em>pairwise</em> in blocks of 1024) → the compiler can vectorize and parallelize.</li>
-</ul>
+<p><code>sum</code> allows reordering → vectorized.</p>
 </div>
 </section>
-<section id="confirmation-simd" class="slide level2 smaller">
-<h2>Confirmation: <code>@simd</code></h2>
-<p>A single word lifts the catch — we explicitly allow reassociation:</p>
+<section id="simd-permission-to-reorder" class="slide level2 smaller">
+<h2><code>@simd</code>: permission to reorder</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a></a><span class="kw">function</span> <span class="fu">mysum_simd</span>(x)</span>
-<span id="cb5-2"><a></a>    s <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb5-3"><a></a>    <span class="pp">@inbounds</span> <span class="pp">@simd</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(x)   <span class="co"># ← @simd</span></span>
-<span id="cb5-4"><a></a>        s <span class="op">+=</span> x[i]</span>
-<span id="cb5-5"><a></a>    <span class="cf">end</span></span>
-<span id="cb5-6"><a></a>    s</span>
-<span id="cb5-7"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a></a><span class="kw">function</span> <span class="fu">mysum_simd</span>(x)</span>
+<span id="cb11-2"><a></a>    s <span class="op">=</span> <span class="fu">zero</span>(<span class="fu">eltype</span>(x))</span>
+<span id="cb11-3"><a></a>    <span class="pp">@inbounds</span> <span class="pp">@simd</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(x)   <span class="co"># ← @simd</span></span>
+<span id="cb11-4"><a></a>        s <span class="op">+=</span> x[i]</span>
+<span id="cb11-5"><a></a>    <span class="cf">end</span></span>
+<span id="cb11-6"><a></a>    <span class="cf">return</span> s</span>
+<span id="cb11-7"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>@inbounds</code>: no bounds checks · <code>@simd</code>: may reorder <code>+</code></p>
 </div>
 <div class="fragment">
 <table class="caption-top">
@@ -518,32 +656,72 @@ Emmanuel Pilliat — ENSAI 3A
 <tbody>
 <tr class="odd">
 <td><code>mysum</code> (scalar)</td>
-<td><strong>42 µs</strong></td>
+<td><strong>44 µs</strong></td>
 </tr>
 <tr class="even">
-<td><code>mysum_simd</code> (<code>vaddpd ymm</code>)</td>
-<td><strong>4 µs</strong></td>
+<td><code>mysum_simd</code> (<code>vaddpd</code>)</td>
+<td><strong>~4 µs</strong></td>
 </tr>
 <tr class="odd">
 <td>Base <code>sum</code></td>
-<td>8 µs</td>
+<td>7.5 µs</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
 <blockquote>
-<p>It’s not “Julia magic”: what we see is <strong>the algorithm</strong> (allowed reassociation → SIMD + ILP), not the language.</p>
+<p>Not magic: <strong>the algorithm</strong> (reordering → SIMD), not the language.</p>
+</blockquote>
+</div>
+</section></section>
+<section>
+<section id="monte-carlo-π" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Monte-Carlo π</h1>
+
+</section>
+<section id="estimating-π" class="slide level2">
+<h2>Estimating π</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a></a><span class="fu">estimate_pi</span>(n) <span class="op">=</span> <span class="fl">4</span> <span class="op">*</span> <span class="fu">count_in_disk</span>(n) <span class="op">/</span> n</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol type="1">
+<li class="fragment">Time and allocations of <code>estimate_pi(10_000_000)</code>?</li>
+<li class="fragment">Type-stable? <code>@code_warntype</code> = <code>@code_typed</code>, uncertain types in color</li>
+<li class="fragment">How does the error shrink with <code>n</code>? Why ideal for parallelism?</li>
+</ol>
+<aside class="notes">
+<p>Same count as in the Julia-basics module; here we measure it and check its types. Q2: red <code>Any</code> = bad (none here); yellow <code>Union{Nothing, Tuple…}</code> = the <code>for</code> iterator, harmless. The red <code>Any</code> and its cost are shown with dispatch (global vs argument).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+<div class="fragment">
+<blockquote>
+<p>▶ Script: cells “5. Monte-Carlo π” to “Q3”</p>
 </blockquote>
 </div>
 </section>
 <section id="going-further" class="slide level2">
 <h2>Going further</h2>
 <ul>
-<li>▶ Notebook (demo + solution): <a href="../pluto/1_compilation_and_types.jl">Interpreted vs compiled</a></li>
-<li>🔬 The JIT warmup: <a href="../experiences/warmup_jit/"><code>experiences/warmup_jit/</code></a> (<code>warmup.py</code>, <code>warmup.jl</code>).</li>
-<li>🔬 The <code>mysum</code> vs <code>sum</code> asm + the <code>@simd</code> counter-test: <a href="../experiences/sum_vs_size/reflection.jl"><code>experiences/sum_vs_size/reflection.jl</code></a>.</li>
+<li>▶ <a href="../scripts/1_compilation_and_types.jl">Script</a> · <a href="../pluto/1_compilation_and_types.jl">Notebook</a> · 🐍 <a href="../python/1_compilation_and_types_python.ipynb">Python notebook</a></li>
+<li>✏️ Activity: <a href="../activities/release/1_warmup_julia_todo.jl">Julia</a> · 🐍 <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/1_warmup_python_todo.ipynb">Python (Colab)</a></li>
+<li>🔬 JIT warmup: <a href="../experiences/warmup_jit/"><code>warmup_jit/</code></a></li>
+<li>🔬 asm, <code>@simd</code>: <a href="../experiences/sum_vs_size/reflection.jl"><code>sum_vs_size/reflection.jl</code></a></li>
 </ul>
+<div class="fragment">
+<blockquote>
+<p>🎯 Concrete types → specialized code (≈ C) · <code>@btime f($x)</code></p>
+</blockquote>
+</div>
 <div class="fragment">
 <blockquote>
 <p>⬅ <strong>Previous:</strong> <a href="../../../teaching/parallel_computing/slides/0_julia_basics.html">0 — Julia for Python users</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html">2 — Multiple dispatch vs OOP</a> ➡</p>

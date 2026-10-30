@@ -10,12 +10,12 @@
 using BenchmarkTools
 abstract type Shape end
 struct Circle    <: Shape; r::Float64;             end
-struct Rectangle <: Shape; w::Float64; h::Float64; end
+struct Rectangle <: Shape; L::Float64; w::Float64; end
 
 #%% Your turn: one `area` method per shape — same function name, different argument types
-#= SOLUTION: define area(c::Circle) = π*c.r^2  and  area(r::Rectangle) = r.w*r.h =#
+#= SOLUTION: define area(c::Circle) = π*c.r^2  and  area(r::Rectangle) = r.L*r.w =#
 area(c::Circle)    = π * c.r^2
-area(r::Rectangle) = r.w * r.h
+area(r::Rectangle) = r.L * r.w
 #= END =#
 
 #%% Run me — dispatch picks the right method for each element, no if/isa

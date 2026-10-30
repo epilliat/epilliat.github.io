@@ -209,29 +209,41 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="goals" class="slide level2">
 <h2>Goals</h2>
 <ul>
-<li><strong>Concurrency ≠ parallelism</strong>: overlap the <strong>waiting</strong> (I/O) on a single core with <code>@async</code>/<code>@sync</code>.</li>
-<li>Then <strong>real parallelism</strong> on many cores with <code>Threads.@spawn</code>.</li>
-<li>The classic trap: the <strong>parallel sum that returns a wrong answer</strong> (<em>race condition</em>).</li>
+<li><strong>Concurrency</strong>: overlap <strong>waiting</strong>, one core — <code>@async</code>/<code>@sync</code>.</li>
+<li><strong>Parallelism</strong>: split <strong>computing</strong>, many cores — <code>@spawn</code>.</li>
+<li>The trap: a parallel sum that <strong>lies</strong> (<em>race condition</em>).</li>
 </ul>
 <div class="fragment">
 <blockquote>
-<p>Parallelism starts here. The compilation and dispatch modules made <strong>one</strong> core fast; now we use <strong>many</strong>.</p>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Notebook (demo + solution): <a href="../pluto/3_threads_and_concurrency.jl">Threads &amp; concurrency</a></p>
+<p>▶ <a href="../scripts/3_threads_and_concurrency.jl">Script</a> · <a href="../pluto/3_threads_and_concurrency.jl">Notebook</a> · 🐍 <a href="../python/3_threads_and_concurrency_python.ipynb">Python</a> · ✏️ <a href="../activities/release/3_concurrency_julia_todo.jl">Activity</a> · ✏️ <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/3_concurrency_python_todo.ipynb">Activity (Colab)</a></p>
 </blockquote>
 </div>
 <div class="fragment">
 <blockquote>
 <p>⬅ <strong>Previous:</strong> <a href="../../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html">2 — Multiple dispatch vs OOP</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/4_memory_and_batching.html">4 — Memory &amp; batching</a> ➡</p>
 </blockquote>
+<aside class="notes">
+<p>Parallelism starts here: compilation and dispatch made one core fast; now we use many. Script: predict, then run each cell.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
+</section>
+<section>
+<section id="two-problems-two-tools" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Two problems, two tools</h1>
+
 </section>
 <section id="concurrency-parallelism" class="slide level2">
 <h2>Concurrency ≠ parallelism</h2>
-<p>Two different words because the <strong>enemy is not the same</strong>.</p>
 <div class="fragment">
 <table class="caption-top">
 <colgroup>
@@ -243,21 +255,21 @@ Emmanuel Pilliat — ENSAI 3A
 <thead>
 <tr class="header">
 <th></th>
-<th>the problem</th>
-<th>the fix</th>
-<th>cores needed</th>
+<th>problem</th>
+<th>fix</th>
+<th>cores</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td><strong>Concurrency</strong></td>
-<td>you are <strong>waiting</strong> (network, disk)</td>
+<td><strong>waiting</strong> (network, disk)</td>
 <td><strong>overlap</strong> the waits</td>
-<td><strong>1</strong> is enough</td>
+<td><strong>1</strong></td>
 </tr>
 <tr class="even">
 <td><strong>Parallelism</strong></td>
-<td>you are <strong>computing</strong></td>
+<td><strong>computing</strong></td>
 <td><strong>split</strong> the work</td>
 <td><strong>many</strong></td>
 </tr>
@@ -266,10 +278,23 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 <div class="fragment">
 <blockquote>
-<p><strong>Waiting is overlapped; computing must be split.</strong> Use the wrong one and you get all of the complexity and none of the speed — we’ll <em>measure</em> that.</p>
+<p><strong>Waiting is overlapped; computing must be split.</strong></p>
 </blockquote>
+<aside class="notes">
+<p>Pick the wrong one: all the complexity, none of the speed. We will measure it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
-</section>
+</section></section>
 <section>
 <section id="part-a-async-overlap-the-waiting" class="title-slide slide level1 center" style="text-align: center;">
 <h1>Part A — async: overlap the waiting</h1>
@@ -278,23 +303,47 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="fetching-15-prices" class="slide level2">
 <h2>Fetching 15 prices</h2>
 <ul>
-<li class="fragment">15 HTTP requests to Binance. Each one: send, then <strong>wait ~0.25 s</strong> for the network.</li>
-<li class="fragment">Done one by one = <strong>waiting 15 times in a row</strong>. The CPU does <em>nothing</em> the whole time.</li>
+<li class="fragment">15 HTTP requests to Binance, <strong>~0.25 s</strong> wait each.</li>
+<li class="fragment">One by one = <strong>15 waits in a row</strong>, CPU idle.</li>
 </ul>
 <div class="fragment">
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="pp">@async</span> expr     <span class="co"># fire a task, return IMMEDIATELY (don't wait)</span></span>
-<span id="cb1-2"><a></a><span class="pp">@sync</span> <span class="cf">begin</span>     <span class="co"># ...wait for every @async inside this block</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="pp">@async</span> expr     <span class="co"># start a task, return at once</span></span>
+<span id="cb1-2"><a></a><span class="pp">@sync</span> <span class="cf">begin</span>     <span class="co"># wait for every @async inside</span></span>
 <span id="cb1-3"><a></a>    <span class="op">...</span></span>
 <span id="cb1-4"><a></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <blockquote>
-<p>One core is plenty: there is no computing to split — only <strong>waiting</strong> to overlap.</p>
+<p>One core is enough: only <strong>waiting</strong> to overlap.</p>
 </blockquote>
 </div>
 </section>
-<section id="the-three-ways-to-fetch" class="slide level2 smaller">
-<h2>The three ways to fetch</h2>
+<section id="three-ways-to-fetch" class="slide level2">
+<h2>Three ways to fetch</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a><span class="cf">for</span> i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>n                         <span class="co"># 1) sequential</span></span>
+<span id="cb2-2"><a></a>    seq[i] <span class="op">=</span> <span class="fu">fetch_price</span>(SYMBOLS[i])</span>
+<span id="cb2-3"><a></a><span class="cf">end</span></span>
+<span id="cb2-4"><a></a><span class="cf">for</span> i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>n                         <span class="co"># 2) @async, no @sync</span></span>
+<span id="cb2-5"><a></a>    <span class="pp">@async</span> bad[i] <span class="op">=</span> <span class="fu">fetch_price</span>(SYMBOLS[i])</span>
+<span id="cb2-6"><a></a><span class="cf">end</span></span>
+<span id="cb2-7"><a></a><span class="pp">@sync</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>n                   <span class="co"># 3) @sync + @async</span></span>
+<span id="cb2-8"><a></a>    <span class="pp">@async</span> good[i] <span class="op">=</span> <span class="fu">fetch_price</span>(SYMBOLS[i])</span>
+<span id="cb2-9"><a></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<blockquote>
+<p><strong>Bet first:</strong> how long does each one take?</p>
+</blockquote>
+</div>
+<div class="fragment">
+<blockquote>
+<p>▶ Script: cell “Three ways to fetch”</p>
+</blockquote>
+</div>
+</section>
+<section id="three-ways-to-fetch-the-timings" class="slide level2">
+<h2>Three ways to fetch: the timings</h2>
 <div class="fragment">
 <table class="caption-top">
 <colgroup>
@@ -311,35 +360,33 @@ Emmanuel Pilliat — ENSAI 3A
 </thead>
 <tbody>
 <tr class="odd">
-<td>sequential</td>
+<td>1) sequential</td>
 <td><strong>~4 s</strong></td>
-<td>the sum of the 15 latencies</td>
+<td>sum of 15 waits</td>
 </tr>
 <tr class="even">
-<td><code>@async</code> <strong>without</strong> <code>@sync</code></td>
+<td>2) <code>@async</code> <strong>without</strong> <code>@sync</code></td>
 <td><strong>~10 µs</strong></td>
-<td>⚠️ we timed only <strong>task creation</strong></td>
+<td>⚠️ timed <strong>task creation</strong> only</td>
 </tr>
 <tr class="odd">
-<td><code>@sync</code> + <code>@async</code></td>
+<td>3) <code>@sync</code> + <code>@async</code></td>
 <td><strong>~0.3 s</strong></td>
-<td>~one round-trip: all 15 waits overlapped</td>
+<td>≈ one round-trip</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="fragment">
 <ul>
-<li class="fragment">The middle row is the trap: it looks <strong>400 000× faster</strong> and it is simply <strong>wrong</strong> — the data isn’t there yet.</li>
-<li class="fragment"><code>@sync</code> is what makes the measurement <em>honest</em> <strong>and</strong> the results <em>correct</em>.</li>
+<li class="fragment">Row 2: “400 000× faster” — <strong>wrong</strong>, data not there yet.</li>
+<li class="fragment"><code>@sync</code>: honest timing <strong>and</strong> correct result.</li>
 </ul>
 </div>
 <div class="fragment">
 <blockquote>
-<p>Async overlaps <strong>waiting</strong>, not computing. ~4 s → ~0.3 s on <strong>one</strong> core.</p>
+<p>~4 s → ~0.3 s on <strong>one</strong> core.</p>
 </blockquote>
 <aside class="notes">
-<p>Network-dependent: your latency will differ. The shape (sum-of-latencies → one round-trip) is the lesson, not the exact seconds. Run it live if the wifi allows.</p>
+<p>Network-dependent: your latency will differ. The shape (sum of latencies → one round-trip) is the lesson, not the exact seconds. Run it live if the wifi allows. The script prints “x/15 ready” for row 2, then again 2 s later: 15/15. Async overlaps waiting, not computing.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -353,16 +400,10 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="julia-forgot-to-wait-python-forgot-to-start" class="slide level2 smaller">
-<h2>Julia forgot to wait; Python forgot to start</h2>
-<p>The <em>same</em> bug in both languages — from <strong>opposite</strong> causes.</p>
+<section id="julia-didnt-wait-python-didnt-start" class="slide level2">
+<h2>Julia didn’t wait; Python didn’t start</h2>
 <div class="fragment">
 <table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
 <thead>
 <tr class="header">
 <th></th>
@@ -373,71 +414,32 @@ Emmanuel Pilliat — ENSAI 3A
 <tbody>
 <tr class="odd">
 <td>the task is…</td>
-<td><strong>eager</strong> — already running</td>
-<td><strong>lazy</strong> — a coroutine object</td>
+<td><strong>eager</strong>: running</td>
+<td><strong>lazy</strong>: a coroutine object</td>
 </tr>
 <tr class="even">
-<td>creating 5 costs</td>
-<td><strong>187 µs</strong></td>
-<td><strong>1.8 µs</strong></td>
+<td>ready at once</td>
+<td><strong>0 / 15</strong></td>
+<td><strong>0 / 15</strong></td>
 </tr>
 <tr class="odd">
-<td>ready immediately</td>
-<td><strong>0 / 5</strong></td>
-<td><strong>0 / 5</strong></td>
-</tr>
-<tr class="even">
-<td>1 s later</td>
-<td><strong>5 / 5 done</strong></td>
-<td><strong>still 0 / 5</strong> — never started</td>
+<td>2 s later</td>
+<td><strong>15 / 15</strong></td>
+<td><strong>0 / 15</strong>: never started</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="fragment">
 <ul>
-<li class="fragment">Julia: the work <strong>is</strong> happening, you just didn’t <strong>wait</strong> for it → <code>@sync</code>.</li>
-<li class="fragment">Python: the work <strong>never began</strong>; a coroutine does nothing until awaited → <code>await</code> / <code>gather</code>.</li>
+<li class="fragment">Julia: you didn’t <strong>wait</strong> → <code>@sync</code>.</li>
+<li class="fragment">Python: never <strong>awaited</strong> → <code>await</code> / <code>asyncio.gather</code>.</li>
 </ul>
 </div>
 <div class="fragment">
 <blockquote>
-<p><span style="background-color: yellow;">Same symptom, opposite mechanism.</span> <code>asyncio.gather</code> = <code>@sync</code> + <code>@async</code> in one call.</p>
-</blockquote>
-</div>
-</section>
-<section id="the-gil-precisely" class="slide level2 smaller">
-<h2>The GIL, precisely</h2>
-<ul>
-<li class="fragment">Python’s GIL forbids running <strong>Python bytecode</strong> on two threads at once.</li>
-<li class="fragment">But it is <strong>released</strong> while a thread waits on the network.</li>
-</ul>
-<div class="fragment">
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Python <code>ThreadPoolExecutor</code> on…</th>
-<th>speedup</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>I/O</strong> (waiting on 15 URLs)</td>
-<td><strong>~12×</strong></td>
-</tr>
-<tr class="even">
-<td><strong>CPU</strong> (a pure-Python loop)</td>
-<td><strong>~1×</strong></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="fragment">
-<blockquote>
-<p><em>“Threads are pointless in Python”</em> is <span style="background-color: yellow;"><strong>false</strong></span> — it is only true for <strong>CPU</strong> work. Same threads, same GIL: what changed is <em>waiting</em> vs <em>computing</em>. <strong>Julia has no GIL at all.</strong></p>
+<p><code>asyncio.gather</code> = <code>@sync</code> + <code>@async</code>.</p>
 </blockquote>
 <aside class="notes">
-<p>Ageing caveat: true for default CPython. Free-threaded builds (PEP 703) are officially supported since 3.13/3.14 and remove the GIL — say “default CPython”.</p>
+<p>Same bug in both languages, from opposite causes.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -458,23 +460,49 @@ Emmanuel Pilliat — ENSAI 3A
 </section>
 <section id="splitting-the-computing" class="slide level2">
 <h2>Splitting the computing</h2>
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a>t <span class="op">=</span> <span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="fu">f</span>()   <span class="co"># a task the scheduler may put on ANOTHER thread</span></span>
-<span id="cb2-2"><a></a><span class="fu">fetch</span>(t)                 <span class="co"># ...and its result</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="fragment">
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a></a>t <span class="op">=</span> <span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="fu">f</span>()   <span class="co"># may run on another core</span></span>
+<span id="cb3-2"><a></a><span class="fu">fetch</span>(t)                 <span class="co"># wait, get the result</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li class="fragment">Needs <code>julia --threads=auto</code> (otherwise you have <strong>one</strong> thread and nothing to spawn onto).</li>
-<li class="fragment">Our machine: <code>nthreads() = 22</code>.</li>
+<li class="fragment">Needs <code>julia --threads=auto</code> (else <code>nthreads() = 1</code>).</li>
+<li class="fragment">Our machine: <code>Threads.nthreads() = 22</code>.</li>
 </ul>
 </div>
 <div class="fragment">
 <blockquote>
-<p><code>@async</code> = <em>concurrency</em> (one core). <code>@spawn</code> = <em>parallelism</em> (many cores). They look almost identical. <strong>Let’s measure the difference.</strong></p>
+<p><code>@async</code> and <code>@spawn</code> look alike. Only one uses more cores.</p>
 </blockquote>
 </div>
 </section>
-<section id="the-quadrant-that-settles-it" class="slide level2 smaller">
-<h2>The quadrant that settles it</h2>
-<p>Monte-Carlo π, <code>n = 10⁸</code>, same code — only <code>@async</code> vs <code>@spawn</code> changes:</p>
+<section id="first-split-independent-markov-chains" class="slide level2">
+<h2>First split: independent Markov chains</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a></a><span class="fu">markov_seq</span>(K, L) <span class="op">=</span> [<span class="fu">simulate_markov</span>(L) for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>K]</span>
+<span id="cb4-2"><a></a><span class="fu">markov_spawn</span>(K, L) <span class="op">=</span></span>
+<span id="cb4-3"><a></a>    <span class="fu">fetch</span>.([<span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="fu">simulate_markov</span>(L) for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>K])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li class="fragment"><code>K = 8</code> chains, <code>L = 2×10⁷</code> steps, <strong>no shared state</strong>.</li>
+<li class="fragment"><strong>Bet first:</strong> speedup on 8 chains?</li>
+</ul>
+</div>
+<div class="fragment">
+<blockquote>
+<p>▶ Script: cell “Predict the speedup on 8 chains, then run”</p>
+</blockquote>
+</div>
+<div class="fragment">
+<blockquote>
+<p>Independent tasks: each returns, <code>fetch</code> collects.</p>
+</blockquote>
+</div>
+</section>
+<section id="same-cpu-work-with-async" class="slide level2">
+<h2>Same CPU work, with <code>@async</code></h2>
+<div class="fragment">
+<blockquote>
+<p><strong>Bet first:</strong> π (<code>n = 10⁸</code>), <code>@async</code> × 22: speedup? ▶ Script: cell “Same CPU work with <span class="citation" data-cites="async">@async</span>”</p>
+</blockquote>
+</div>
 <div class="fragment">
 <table class="caption-top">
 <colgroup>
@@ -484,7 +512,7 @@ Emmanuel Pilliat — ENSAI 3A
 </colgroup>
 <thead>
 <tr class="header">
-<th>22 tasks</th>
+<th></th>
 <th>time</th>
 <th>speedup</th>
 </tr>
@@ -503,23 +531,17 @@ Emmanuel Pilliat — ENSAI 3A
 <tr class="odd">
 <td><code>@spawn</code> × 22</td>
 <td>0.057 s</td>
-<td><span style="background-color: yellow;"><strong>6.3×</strong></span></td>
+<td><strong>6.3×</strong></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
-<ul>
-<li class="fragment"><code>@async</code> <strong>never</strong> passed ~1.3× at <strong>any</strong> task count we tried (1 → 22). One core, nothing to overlap — <strong>it was never waiting</strong>.</li>
-<li class="fragment"><code>@spawn</code> scales because the tasks land on <strong>different cores</strong>.</li>
-</ul>
-</div>
-<div class="fragment">
 <blockquote>
-<p>This is <em>concurrency ≠ parallelism</em> as a <strong>number</strong>, not a definition.</p>
+<p><em>Concurrency ≠ parallelism</em>, as a <strong>number</strong>.</p>
 </blockquote>
 <aside class="notes">
-<p>Deliberately NOT showing a speedup-vs-ntasks curve here: with 22 Julia threads and few tasks, the OS may place them on 5 GHz P-cores or 2.5 GHz LP-E cores, so the curve is dominated by placement luck (measured 1.3x at 4 tasks but 4.7x at 6). The honest curve needs one process per point — that’s experiences/threads_scaling/.</p>
+<p>count_in_disk is the same count as in the compilation module; only the macro changes (who runs it). <span class="citation" data-cites="async">@async</span>: one core, nothing to overlap. <span class="citation" data-cites="spawn">@spawn</span>: the tasks land on different cores. Script cells “Same CPU work with <span class="citation" data-cites="async">@async</span>” (seq, <span class="citation" data-cites="async">@async</span>) and “Speedup vs nthreads” (<span class="citation" data-cites="spawn">@spawn</span>). <span class="citation" data-cites="async">@async</span> never passed ~1.3x at any task count tried (1 -&gt; 22). No speedup-vs-ntasks curve here: in one session the OS may place few tasks on 5 GHz P-cores or 2.5 GHz LP-E cores (measured 1.3x at 4 tasks but 4.7x at 6). The honest curve needs one process per point: experiences/threads_scaling/.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -536,10 +558,7 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="bet-before-you-look" class="slide level2" style="text-align: center;">
 <h2>Bet before you look 🎲</h2>
 <div class="fragment">
-<p>We now sum π in parallel with a <strong>shared counter</strong>.</p>
-</div>
-<div class="fragment">
-<p>22 threads, 20 million points.</p>
+<p>π on all 22 threads, 20 million points, one task per thread.</p>
 </div>
 <div class="fragment">
 <blockquote>
@@ -548,19 +567,21 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 <div class="fragment">
 <blockquote>
-<p><em>(Almost nobody guesses.)</em></p>
+<p>▶ Script: cell “π on all threads, one task per thread: what does it print?”</p>
 </blockquote>
 </div>
 </section>
-<section id="the-parallel-sum-that-lies" class="slide level2 smaller">
+<section id="the-parallel-sum-that-lies" class="slide level2">
 <h2>The parallel sum that lies</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a></a>hits <span class="op">=</span> <span class="fl">0</span></span>
-<span id="cb3-2"><a></a><span class="pp">@sync</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>ntasks</span>
-<span id="cb3-3"><a></a>    <span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>per</span>
-<span id="cb3-4"><a></a>        x <span class="op">=</span> <span class="fu">rand</span>(); y <span class="op">=</span> <span class="fu">rand</span>()</span>
-<span id="cb3-5"><a></a>        hits <span class="op">+=</span> (x<span class="op">*</span>x <span class="op">+</span> y<span class="op">*</span>y <span class="op">&lt;=</span> <span class="fl">1.0</span>)    <span class="co"># ⚠ shared, mutated from 22 tasks</span></span>
-<span id="cb3-6"><a></a>    <span class="cf">end</span></span>
-<span id="cb3-7"><a></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="fragment">
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a></a>hits <span class="op">=</span> <span class="fl">0</span></span>
+<span id="cb5-2"><a></a><span class="pp">@sync</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>ntasks</span>
+<span id="cb5-3"><a></a>    <span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>per</span>
+<span id="cb5-4"><a></a>        x <span class="op">=</span> <span class="fu">rand</span>(); y <span class="op">=</span> <span class="fu">rand</span>()</span>
+<span id="cb5-5"><a></a>        hits <span class="op">+=</span> (x <span class="op">*</span> x <span class="op">+</span> y <span class="op">*</span> y <span class="op">&lt;=</span> <span class="fl">1.0</span>)   <span class="co"># ⚠️ shared</span></span>
+<span id="cb5-6"><a></a>    <span class="cf">end</span></span>
+<span id="cb5-7"><a></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 <div class="fragment">
 <table class="caption-top">
 <thead>
@@ -590,12 +611,13 @@ Emmanuel Pilliat — ENSAI 3A
 </tbody>
 </table>
 </div>
-<div class="fragment">
+</section>
+<section id="why-it-lies" class="slide level2">
+<h2>Why it lies</h2>
 <ul>
-<li class="fragment">Not “a bit off” — <strong>an order of magnitude wrong</strong>, and <strong>different every run</strong>.</li>
-<li class="fragment"><code>hits += 1</code> is <strong>read-add-write</strong>: three steps, not atomic. Increments are lost.</li>
+<li class="fragment"><strong>10× too small</strong>, different every run.</li>
+<li class="fragment"><code>hits += 1</code> = read, add, write: increments get lost.</li>
 </ul>
-</div>
 <div class="fragment">
 <div class="callout callout-warning no-icon callout-titled callout-style-default">
 <div class="callout-body">
@@ -603,12 +625,12 @@ Emmanuel Pilliat — ENSAI 3A
 <p><strong>Warning</strong></p>
 </div>
 <div class="callout-content">
-<p><strong>No error. No warning. Just a wrong number.</strong> Writing to one place from several threads without care = <strong>silent corruption</strong>.</p>
+<p><strong>No error. No warning. Just a wrong number.</strong></p>
 </div>
 </div>
 </div>
 <aside class="notes">
-<p>Your values WILL differ — that is the point (non-determinism). Never quote a fixed number here; run it live and let the class watch it change.</p>
+<p>Your values WILL differ — that is the point (non-determinism). Never quote a fixed number here; run it live and let the class watch it change. Two tasks read the same value → one increment is lost.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -622,76 +644,73 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="the-cure-is-less-sharing-not-a-bigger-lock" class="slide level2 smaller">
-<h2>The cure is <em>less sharing</em>, not a bigger lock</h2>
-<p>The fix: each task <strong>returns its own count</strong>; we reduce once at the end.</p>
+<section id="the-cure-return-and-reduce" class="slide level2">
+<h2>The cure: return and reduce</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a></a>tasks <span class="op">=</span> [<span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="fu">pi_chunk</span>(per) for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>ntasks]</span>
-<span id="cb4-2"><a></a><span class="fl">4</span> <span class="op">*</span> <span class="fu">sum</span>(fetch, tasks) <span class="op">/</span> n            <span class="co"># correct AND fast</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a></a><span class="kw">function</span> <span class="fu">pi_spawn</span>(n; ntasks<span class="op">=</span><span class="bu">Threads</span>.<span class="fu">nthreads</span>())</span>
+<span id="cb6-2"><a></a>    per <span class="op">=</span> n <span class="op">÷</span> ntasks</span>
+<span id="cb6-3"><a></a>    tasks <span class="op">=</span> [<span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="fu">count_in_disk</span>(per) for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>ntasks]</span>
+<span id="cb6-4"><a></a>    <span class="cf">return</span> <span class="fl">4</span> <span class="op">*</span> <span class="fu">sum</span>(fetch, tasks) <span class="op">/</span> (per <span class="op">*</span> ntasks)</span>
+<span id="cb6-5"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
-<p>Why not just make the counter atomic? Because it is <strong>correct — and catastrophic</strong>:</p>
+<blockquote>
+<p>No shared counter in the hot loop: <strong>correct and fast</strong>.</p>
+</blockquote>
+<blockquote>
+<p>▶ Script: cell “The cure”</p>
+</blockquote>
+<aside class="notes">
+<p>Each task returns its own count; we add them up once, at the end. Same pattern as the Markov chains.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="why-not-an-atomic-counter" class="slide level2">
+<h2>Why not an atomic counter?</h2>
+<div class="fragment">
+<p><code>Threads.Atomic</code> makes <code>hits += 1</code> safe. Correct? Fast?</p>
+</div>
+<div class="fragment">
+<blockquote>
+<p>▶ Script: cell “Why not an atomic counter?”</p>
+</blockquote>
 </div>
 <div class="fragment">
 <table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>n = 40M</th>
-<th>time</th>
+<th>22 threads, vs <code>pi_seq</code> (1 core)</th>
 <th></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>pi_seq</code> (1 core)</td>
-<td>0.105 s</td>
-<td></td>
+<td><code>pi_spawn</code> (return + reduce)</td>
+<td><strong>6.3× faster</strong></td>
 </tr>
 <tr class="even">
-<td><code>pi_spawn</code> (return + reduce)</td>
-<td><strong>0.013 s</strong></td>
-<td>7.9× faster</td>
-</tr>
-<tr class="odd">
-<td><code>pi_atomic</code> (<code>Threads.Atomic</code>)</td>
-<td><strong>0.720 s</strong></td>
-<td><span style="background-color: yellow;"><strong>54× slower</strong> than <code>@spawn</code></span></td>
+<td><code>pi_atomic</code></td>
+<td><span style="background-color: yellow;"><strong>~7× slower</strong></span></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
 <blockquote>
-<p>The atomic is <strong>7× slower than not parallelizing at all</strong>: 22 cores fight over <strong>one cache line</strong>. Touch shared memory <strong>once per task</strong>, not once per draw.</p>
-</blockquote>
-</div>
-</section>
-<section id="amdahl-speedup-number-of-threads" class="slide level2 smaller">
-<h2>Amdahl: speedup ≠ number of threads</h2>
-<p>22 threads gave <strong>6.3×</strong>, not 22×. Three reasons, and the third is <em>this laptop</em>:</p>
-<div class="fragment">
-<ul>
-<li class="fragment"><strong>Amdahl</strong>: splitting, spawning and the final reduce stay <strong>sequential</strong>.</li>
-<li class="fragment"><strong>SMT</strong>: 22 <em>logical</em> threads, but only <strong>16 physical cores</strong>.</li>
-<li class="fragment"><strong>The cores are not equal.</strong> Intel Core Ultra 7 165H = 6 P-cores <span class="citation" data-cites="5.0">@5.0</span> GHz + 8 E-cores <span class="citation" data-cites="3.8">@3.8</span> GHz + 2 <strong>LP-E <span class="citation" data-cites="2.5">@2.5</span> GHz</strong>.</li>
-</ul>
-</div>
-<div class="fragment">
-<p>Time each task of a <strong>22-way equal split</strong>:</p>
-<pre><code>fastest task  0.022 s   |   slowest task  0.051 s   →  2.3×
-0.02 ×5    0.03 ×6    0.04 ×8    0.05 ×3      ← P / E / LP-E</code></pre>
-</div>
-<div class="fragment">
-<blockquote>
-<p>Equal work, <strong>unequal cores</strong> → the <strong>slowest task sets the wall clock</strong>. Same trap in BLAS on this box: <strong>8 threads → 2.7 ms, 22 threads → 39 ms</strong> (14× <em>slower</em>).</p>
+<p>Correct, but catastrophic. The cure is <strong>less sharing</strong>, not a bigger lock.</p>
 </blockquote>
 <aside class="notes">
-<p>This is why “speedup ≈ nthreads” must never be said. On a hybrid laptop CPU an equal split is the <em>wrong</em> split — the fix is more, smaller tasks (work stealing), which is exactly what <span class="citation" data-cites="spawn">@spawn</span>’s scheduler does if you give it enough of them.</p>
+<p>22 cores fight over one memory location, once per draw. Touch shared memory once per task instead. Ratio measured at n = 4e7 (7x; 8.8x in power-saver mode); it does not depend much on n.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -705,32 +724,143 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="profiling-threads-a-different-question" class="slide level2 smaller">
-<h2>Profiling threads: a <em>different</em> question</h2>
-<p><code>Profile.@profile</code> samples the call stack ~1000×/s. On sequential code it answers <em>“where does the time go?”</em>. On threaded code:</p>
+<section id="amdahl-speedup-number-of-threads" class="slide level2">
+<h2>Amdahl: speedup ≠ number of threads</h2>
 <div class="fragment">
-<pre><code>Count  Overhead  Function
-  217       216  poptask
-  217         0  wait
-  208         0  task_done_hook
-                        ...and `pi_chunk` is nowhere near the top.
-
-Total snapshots: 528.  Utilization: 59% across all threads and tasks.</code></pre>
+<blockquote>
+<p><strong>Bet first:</strong> speedup on 2, 4, 22 threads? ▶ Script: cell “Speedup vs nthreads” (<code>--threads=1, 2, 4</code>)</p>
+</blockquote>
 </div>
 <div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>threads</th>
+<th>1</th>
+<th>2</th>
+<th>4</th>
+<th>22</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>speedup</td>
+<td>1×</td>
+<td><strong>1.8×</strong></td>
+<td><strong>3.1×</strong></td>
+<td><strong>6.3×</strong></td>
+</tr>
+</tbody>
+</table>
 <ul>
-<li class="fragment">The top of the report is the <strong>scheduler</strong>, not your code.</li>
-<li class="fragment">The line that matters is the last one: <strong><code>Utilization: 59%</code></strong> — <em>are my threads actually working?</em></li>
+<li class="fragment"><strong>Amdahl</strong>: the sequential part caps the speedup (10 % → ≤ 10×).</li>
+<li class="fragment"><strong>SMT</strong>: 22 <em>logical</em> threads, <strong>16 physical cores</strong>.</li>
+<li class="fragment"><strong>Unequal cores</strong> (next slide).</li>
 </ul>
+<aside class="notes">
+<p>Monte-Carlo π, <span class="citation" data-cites="spawn">@spawn</span>, one Julia process per thread count. Sequential part here: splitting, spawning, the final reduce. SMT = simultaneous multithreading: two threads share one core. Never say “speedup ≈ number of threads”. 1/2/4 threads: experiences/threads_scaling/ (one process per point; <span class="citation" data-cites="async">@async</span> stays ~1x on the same plot). 22 threads: the <span class="citation" data-cites="async">@async</span> vs <span class="citation" data-cites="spawn">@spawn</span> table above.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="equal-work-unequal-cores" class="slide level2">
+<h2>Equal work, unequal cores</h2>
+<div class="fragment">
+<p>6 fast (5.0 GHz), 8 medium (3.8 GHz), 2 slow (2.5 GHz) cores.</p>
+</div>
+<div class="fragment">
+<p>22 equal π tasks, each timed (demo, not in the script):</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>fastest task</th>
+<th>slowest task</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.022 s</td>
+<td>0.051 s (2.3×)</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="fragment">
 <blockquote>
-<p>On sequential code a profiler says <strong>where</strong> the time goes. Here we ask <strong>are they busy</strong> — and 59% is Amdahl, measured.</p>
+<p>The <strong>slowest task sets the wall clock</strong>. Fix: more, smaller tasks.</p>
 </blockquote>
+<aside class="notes">
+<p>More, smaller tasks so the scheduler can rebalance (work stealing). Same trap in BLAS on this box: 8 threads -&gt; 2.7 ms, 22 threads -&gt; 39 ms (14x slower).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="and-in-python-the-gil" class="slide level2">
+<h2>And in Python? The GIL</h2>
+<ul>
+<li class="fragment">GIL: one thread runs <strong>Python bytecode</strong> at a time.</li>
+<li class="fragment"><strong>Released</strong> while waiting on the network.</li>
+</ul>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th><code>ThreadPoolExecutor</code> on…</th>
+<th>speedup</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>I/O</strong> (15 URLs)</td>
+<td><strong>~10×</strong></td>
+</tr>
+<tr class="even">
+<td><strong>CPU</strong> (pure-Python loop)</td>
+<td><strong>~1×</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<blockquote>
+<p><em>“Threads are pointless in Python”</em>: <span style="background-color: yellow;"><strong>false</strong></span>, only for <strong>CPU</strong>. <strong>Julia has no GIL.</strong></p>
+</blockquote>
+<aside class="notes">
+<p>Same threads, same GIL; what changed is waiting vs computing. Ageing caveat: true for default CPython. Free-threaded builds (PEP 703) are officially supported since 3.13/3.14 and remove the GIL — say “default CPython”.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
 </section>
 <section id="when-does-what-help" class="slide level2">
 <h2>When does what help?</h2>
+<div class="fragment">
 <table class="caption-top">
 <colgroup>
 <col style="width: 33%">
@@ -747,8 +877,8 @@ Total snapshots: 528.  Utilization: 59% across all threads and tasks.</code></pr
 <tbody>
 <tr class="odd">
 <td><strong>Python</strong></td>
-<td>threads <strong>work</strong> (GIL released), or <code>asyncio</code></td>
-<td>threads <strong>useless</strong> → <code>multiprocessing</code></td>
+<td>threads (GIL released), <code>asyncio</code></td>
+<td><code>multiprocessing</code></td>
 </tr>
 <tr class="even">
 <td><strong>Julia</strong></td>
@@ -757,18 +887,21 @@ Total snapshots: 528.  Utilization: 59% across all threads and tasks.</code></pr
 </tr>
 </tbody>
 </table>
+</div>
 <div class="fragment">
 <blockquote>
-<p><strong>Waiting is overlapped; computing must be split.</strong> Get the row wrong and you buy all the complexity for none of the speed.</p>
+<p><strong>Waiting is overlapped; computing must be split.</strong></p>
 </blockquote>
 </div>
 </section>
 <section id="going-further" class="slide level2">
 <h2>Going further</h2>
 <ul>
-<li>▶ Notebook (demo + solution): <a href="../pluto/3_threads_and_concurrency.jl">Threads &amp; concurrency</a></li>
-<li>🔬 The <code>@async</code> vs <code>@spawn</code> quadrant + the Amdahl curve: <a href="../experiences/threads_scaling/"><code>experiences/threads_scaling/</code></a></li>
-<li>🎯 The one to remember: a race condition <strong>does not crash</strong> — it just lies to you.</li>
+<li>▶ Script: <a href="../scripts/3_threads_and_concurrency.jl">3_threads_and_concurrency.jl</a></li>
+<li>▶ Notebook: <a href="../pluto/3_threads_and_concurrency.jl">Threads &amp; concurrency</a></li>
+<li>🐍 Python: <a href="../python/3_threads_and_concurrency_python.ipynb">3_threads_and_concurrency_python.ipynb</a></li>
+<li>🔬 Amdahl curve, <code>@spawn</code> vs <code>@async</code>: <a href="../experiences/threads_scaling/"><code>experiences/threads_scaling/</code></a></li>
+<li>🎯 A race condition <strong>does not crash</strong>. It lies.</li>
 </ul>
 <div class="fragment">
 <blockquote>

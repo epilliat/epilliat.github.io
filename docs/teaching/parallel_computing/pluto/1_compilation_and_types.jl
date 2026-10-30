@@ -4,133 +4,83 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 86593a2f-41c2-464d-905a-70b368785d81
-begin
-    using BenchmarkTools   # @btime, @benchmark: reliable measurements
-    using PlutoUI          # sliders, formatting
-    using Printf
-    using Random           # MersenneTwister (reproducible darts)
-    md"Packages loaded ✓"
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    #! format: off
+    return quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+    #! format: on
 end
 
 # ╔═╡ ab181e11-6516-4169-9189-fb4488f4c8d3
 md"""
-# Parallel computing — Interpreted vs compiled
+# Interpreted vs compiled
 ## Why the same computation can be 100× faster
 
-**ENSAI 3A — Julia as a test bench, Python as a point of comparison**
+**ENSAI 3A — Julia as a test bench, Python as a point of comparison.** For each cell: **predict, then run.**
 
----
-
-The thread of the whole course is one question:
-
-> *Why can the same computation, mathematically identical, be tens or even hundreds of times faster depending on how it's written?*
-
-Today we answer with three ingredients:
-
-1. **Interpreted vs compiled** — what really happens between your code and the processor.
-2. **Type specialization** — why Julia can be as fast as C.
-3. **Measuring properly** — a performance number is only worth as much as its measurement protocol.
-
-Parallelism (threads, GPU) comes in later modules. But you can't sensibly parallelize code whose sequential cost you don't already understand.
+Plan: the JIT warmup → measuring properly → type specialization → *(bonus)* SIMD → Monte-Carlo π.
 """
 
 # ╔═╡ e4c6629b-29ce-4e63-b529-04bf1020ee4f
 md"""
 ## 0. Getting started
 
-This cell installs and loads the packages we need. The **first run** may take a minute or two (download + precompilation): that's already an illustration of the course — Julia compiles.
+The first run downloads and precompiles the packages — already an illustration: Julia compiles.
 """
 
-# ╔═╡ 7525bf04-f5c7-45aa-b826-642c15b68eaf
-@btime 1+2
+# ╔═╡ 86593a2f-41c2-464d-905a-70b368785d81
+begin
+    using BenchmarkTools   # @btime, @benchmark
+    using PlutoUI          # slider (interactive bonus)
+    using Random           # MersenneTwister (reproducible darts)
+    md"Packages loaded ✓"
+end
 
-# ╔═╡ d4572c88-919a-4a54-9581-8f241edc1d7a
-@benchmark 1+2
+# ╔═╡ 7525bf04-f5c7-45aa-b826-642c15b68eaf
+@btime 1 + 2
 
 # ╔═╡ 9c279c3b-f2c3-4a98-8f21-b21190182e5b
 md"""
-## 1. Same computation, very different times
+`@btime 1 + 2` says **~1 ns**… yet the cell took seconds. **Why?**
 
-Let's start with the simplest possible demo: **summing a large vector of numbers**.
-
-We'll write this computation three ways:
-
-- a **pure Python loop** (which we'll simulate mentally / compare against);
-- the **`numpy`** version;
-- a **Julia loop**.
-
-The computation is *exactly the same*. The times are not at all.
+## 1. The JIT warmup — a hand-written loop on 10M floats
 """
 
 # ╔═╡ 5ea349ac-02a9-420c-a600-8ebfd7a81176
-# A vector of 10 million Float64
-const N = 10_000_000
+N = 10_000_000
 
 # ╔═╡ 5ea349ac-02a9-420c-a600-8ebfd7a81177
-const v = rand(N)
-
-# ╔═╡ 5ea349ac-02a9-420c-a600-8ebfd7a81178
-summary(v)
+v = rand(N)
 
 # ╔═╡ 26289681-0477-4670-950f-8351be0fdd5a
-# Sum via a hand-written Julia loop
 function mysum(x)
-    s = zero(eltype(x))
-    for i in eachindex(x)
+    s = zero(eltype(x))    # a zero of the element type (0.0 here)
+    for i in eachindex(x)  # the valid indices of x
         s += x[i]
     end
     return s
 end
 
 # ╔═╡ da96898d-efc5-4e47-a73e-8e0a991bc0f8
-mysum(v)   # check it works
+mysum(v)
 
 # ╔═╡ bb0ace77-07a4-4504-80c1-edc793f3f899
 md"""
-### The Python point of comparison
-
-In pure Python, the same computation would read:
-
-```python
-def mysum(x):
-    s = 0.0
-    for xi in x:
-        s += xi
-    return s
-```
-
-On 10 million elements, this Python loop typically takes **~1 second**. The Julia loop above takes a few **milliseconds** — a factor of about **100×**, for code that *looks the same line for line*.
-
-`numpy.sum(x)`, on the other hand, is fast (~10 ms) — but because it **doesn't run in Python**: it calls a compiled C routine. We come back to this in section 5.
-
-So the question becomes: **why is the Julia loop fast while the Python loop is slow?**
+The same loop in pure Python (`for xi in x: s += xi`) takes **~0.5 s**. **Bet** on Julia's time — we measure it in §2.
 """
-
-# ╔═╡ 99808d58-8875-42ed-bd94-c7e06ab36c10
-md"""
-## 2. The warmup: the first call is special
-
-The **very first call** of a function pays the **JIT compilation**; the following calls are the real cost. Run the next cell: the first `@time` is inflated (huge allocations, "compilation" time), the second is the real time.
-"""
-
-# ╔═╡ a8128f4d-9cdc-4cd2-8025-33c5935757e0
-let
-    g(x) = sum(abs2, x)        # new function, never compiled
-    @time g(v)                 # 1st call: includes compilation
-    @time g(v)                 # 2nd call: the real cost
-end
 
 # ╔═╡ 05891168-bf4c-42c6-86f1-5d038606e267
 md"""
-**The warmup, seen over several calls.** Let's time **each** call of a *fresh* function over the first iterations: the 1st pays the compilation (spike), then the time **decays** to the steady state.
+**The warmup over 10 calls:** which call is slow, and why only that one?
 """
 
 # ╔═╡ b1180cde-dd1e-4983-aae0-bd631034c0df
-let
-    # FRESH function (never compiled). Trick: we call it via an abstract container
-    # Function[...] so the compilation falls INSIDE the 1st timed call
-    # (otherwise Julia compiles it beforehand, before the loop, and the spike disappears).
+let                                 # let … end = a local scope
     function fresh(x)
         s = 0.0
         @inbounds for i in eachindex(x)
@@ -138,55 +88,60 @@ let
         end
         return s
     end
-    fb = Function[fresh]
+    fb = Function[fresh]            # hides the type: compilation lands in call 1
     times = [@elapsed(fb[1](v)) for _ in 1:10]
-    for k in eachindex(times)
-        println(@sprintf("call %2d : %8.3f ms", k, times[k] * 1e3))
-    end
+    println("ms per call: ", round.(times .* 1e3, digits=3))
 end
 
 # ╔═╡ 97acf5d7-5b90-4b3a-a2b9-ffdda2d75a52
 md"""
-The **spike** on the 1st call is the **JIT** compiling `fresh` for `Vector{Float64}`. **Rule of thumb**: always discard this 1st call, then measure the steady state (which is what `@btime` does).
+Full experiment (5 variants, 2000 calls): `experiences/warmup_jit/`. The numpy side (fast inside, slow in a Python loop): `python/1_compilation_and_types_python.ipynb`.
+"""
 
-So *what* is this compilation, exactly? That's the next section.
+# ╔═╡ d02cd083-dea1-417f-a941-8eac616197a6
+md"""
+## 2. Measuring properly — compare the two timings
+"""
+
+# ╔═╡ a8128f4d-9cdc-4cd2-8025-33c5935757e0
+let
+    g(x) = sum(abs2, x)
+    @time g(v)
+    @time g(v)
+end
+
+# ╔═╡ 46c146f1-d1e4-4797-87bc-2c03a0185daf
+md"""
+**Read the distribution:** why is the *minimum* the number to quote?
+"""
+
+# ╔═╡ 3533f187-1da1-452b-9a63-0ea1bd69b4f6
+@btime mysum($v)
+
+# ╔═╡ ca49af93-0baa-47ee-a4ec-3849a1cacffb
+@benchmark mysum($v)
+
+# ╔═╡ 90e32a56-6c3c-4248-86d3-74e504341707
+md"""
+Then try `@btime mysum(v)` **without `$`**: what changes? *(The why — untyped globals — comes with dispatch.)*
 """
 
 # ╔═╡ 22d3648b-a71a-4299-8e1b-46f032a74046
 md"""
-## 3. Interpreted vs compiled: observing the compilation
+## 3. Type specialization — step 1, lowered code
 
-The spike we just saw is Julia **compiling**. Three ways to get from source code to the processor:
-
-- **interpreted** (CPython): the bytecode is re-examined at every operation → slow, no warmup;
-- **ahead-of-time / AOT** (C, `numpy`): compiled before running → fast, no warmup;
-- **just-in-time / JIT** (Julia): compiled on the 1st call, then native → fast *after* the warmup.
-
-Julia lets you **inspect** every stage between source code and assembly. Let's take a deliberately trivial function so the output stays readable.
+The warmup spike was Julia **compiling**. Let's look at each stage, on a deliberately trivial function.
 """
 
 # ╔═╡ a51ea6fa-9f15-453f-bcea-852c7e71a354
 f(x) = 2x + 1
-
-# ╔═╡ e8d202f2-8080-4e46-aa29-157c5a707c13
-md"""
-### Step 1 — the *lowered* code
-
-Julia first rewrites your code into a canonical form of elementary instructions (SSA). It is still type-independent.
-"""
 
 # ╔═╡ 26118708-e6fa-4cdb-a5e9-7a72a376b84f
 @code_lowered f(3.0)
 
 # ╔═╡ c3c88228-8ec2-4a08-9384-7da546be08fb
 md"""
-### Step 2 — the typed code
-
-This is the **decisive** step. Julia now knows the argument's type (`Float64`) and **propagates the types** through the whole function: each operation knows what it acts on.
-
-**This is where "one compilation per type" happens.** The *same* function `f` produces different code depending on the argument type: `f(3.0)` (`Float64`) and `f(3)` (`Int`) trigger **two distinct compiled versions**, each specialized for its type. (Julia calls this a *specialization* / *method instance*: it compiles a new one on the **first** encounter of each type combination, then reuses it.)
-
-Compare the two outputs:
+### Step 2 — typed code: compare `Float64` and `Int`
 """
 
 # ╔═╡ c14f0bba-a2a2-457d-a400-35224ec23b34
@@ -197,14 +152,7 @@ Compare the two outputs:
 
 # ╔═╡ 3e4c87e0-e1aa-4593-8f71-a57b44ef14fe
 md"""
-### Step 3 — the assembly
-
-We go all the way down to processor instructions. Per-type compilation becomes **directly observable**:
-
-- `f(3.0)` (`Float64`) → **floating-point** instructions (`vmulsd`, `vaddsd`…);
-- `f(3)` (`Int`) → **integer** instructions (`lea`, `add`…).
-
-Two types → **two different machine codes**, a few lines each, no loop and no "interpreter". Proof, at the lowest level, that there really is a compiled version **per type**.
+### Step 3 — assembly: how many instructions? Float or integer ones?
 """
 
 # ╔═╡ cf7f8128-23b8-4c2e-a122-d2705f2c43c6
@@ -215,36 +163,18 @@ Two types → **two different machine codes**, a few lines each, no loop and no 
 
 # ╔═╡ cb125025-5a35-4e36-bf13-7efc3e29abd4
 md"""
-### What to remember
-
-- **Python (CPython)** keeps your code as *bytecode* and runs it through a big interpretation loop. Every `+` goes through the loop, on **boxed** objects allocated on the heap. This **cost per operation** is what penalizes the loop.
-- **Julia** compiles, *on first use and for each type combination*, a specialized native version. Once compiled, `2x+1` on `Float64` is literally just two machine instructions.
-
-That's the meaning of "Julia is compiled": not a compiler run by hand before execution, but **just-in-time (JIT)** compilation, triggered by the argument types.
-
-!!! warning "Don't say \"Python can't specialize\" — it's false, and the truth is a better argument"
-	Since **3.11** (PEP 659) CPython has a *specializing adaptive interpreter*: it watches the types flowing through each bytecode and rewrites it in place — a warmed-up `s += x` on floats really does become `BINARY_OP_ADD_FLOAT`, with no `__add__` lookup left. (`dis.dis()` hides this; you need `dis.get_instructions(f, adaptive=True)`.)
-
-	The difference is **what gets specialized, and what survives**. CPython specializes **one bytecode** and keeps a **type guard on every execution**, still inside the interpreter, still on **boxed** heap objects. Julia specializes **the whole function**, ahead of the loop, **proves** the guard once and deletes it, and works on unboxed values in registers.
-
-	CPython removed the method lookup — the cheapest part. That's why the ~100× survives PEP 659. The Python track measures this (`python/1`).
-
-> **Key distinction — what is specialized, and does the check survive?**
-> - **Python**: one instruction at a time, the guard is re-checked at *every* operation, inside the interpreter, boxed → **slow**.
-> - **Julia/JIT**: the whole function, the type is known once, the check **disappears** from the hot code, unboxed → **fast**.
->
-> This **compile-time vs run-time** opposition will return for **dispatch**, **threads** and the **GPU**.
+One function, **one compiled version per argument type**, a few machine instructions each, no interpreter left. CPython ≥ 3.11 also specializes — but one bytecode at a time, re-checking the type guard at every operation, on boxed objects.
 """
 
 # ╔═╡ 656f12ed-0f30-498d-8462-f58bff519eda
 md"""
-### Going further: why Base `sum` beats our loop
+## 4. Bonus (optional) — Base `sum` vs our loop
 
-`mysum` is already compiled native code. Yet Base `sum` is **faster** — *exactly the same computation*. To isolate the **computation** (not the memory), let's take a vector that **fits in cache**:
+A vector that fits in cache, to isolate the computation from memory:
 """
 
 # ╔═╡ 6f3bc084-05bc-4b17-98f6-5d306b03740e
-const vc = rand(100_000)   # ~800 KB: fits in cache
+vc = rand(100_000)
 
 # ╔═╡ c3c32bc0-9d67-46e2-bdbe-c7d3f84ee2f8
 @btime mysum($vc)
@@ -254,7 +184,7 @@ const vc = rand(100_000)   # ~800 KB: fits in cache
 
 # ╔═╡ e8b6b134-eb4f-49f2-8f39-eb3c3f1365e9
 md"""
-`sum` is **~5× faster**. The reason is in the assembly. First **our** loop:
+Our loop's assembly: `vaddsd` = *scalar double*. How many accumulators?
 """
 
 # ╔═╡ 9301ea0f-f270-4015-8acd-f23507b82804
@@ -262,9 +192,7 @@ md"""
 
 # ╔═╡ ba010064-49f9-4872-a4fe-a42d2e754d75
 md"""
-We see **`vaddsd`**: *Scalar Double* = **one** float at a time, in **a single** accumulator (`xmm0`). Each `+` waits for the previous one → a single dependency chain (*latency-bound*).
-
-Now look at `sum` itself — and brace yourself for a surprise:
+`sum`'s assembly: look for `vaddpd`… then for the `call`.
 """
 
 # ╔═╡ 9301ea0f-f270-4015-8acd-f23507b82805
@@ -272,22 +200,7 @@ Now look at `sum` itself — and brace yourself for a surprise:
 
 # ╔═╡ 9301ea0f-f270-4015-8acd-f23507b82806
 md"""
-!!! warning "No `vaddpd` here either! Don't stop reading now"
-	If you scan this listing for the SIMD we promised, you won't find it: no `vaddpd`, no `ymm`, just a handful of `vaddsd`. The obvious conclusion — *"so `sum` isn't vectorized after all"* — is **wrong**. The work simply **isn't in this function**. Three things to spot:
-
-	```asm
-	cmp     rdx, 15
-	jle     .LBB0_6                        ← N ≤ 15? handle it right here
-	movabs  rax, offset j_mapreduce_impl   ← otherwise CALL the real kernel
-	mov     ecx, 1024                      ← ...with a block size of 1024
-	call    rax
-	```
-
-	So the `vaddsd` you *do* see belong to the **small-N path** (N ≤ 15, fully unrolled) — not to the hot loop at all. The **`N ≥ 16` threshold** and the **1024-element pairwise block** are literally readable in the machine code; both live in Base's `reduce.jl`.
-
-	*Lesson beyond `sum`: `@code_native` shows you **one** function. When the work is behind a `call`, you have to follow it.*
-
-Let's follow the call. **This** is where the SIMD lives:
+The kernel `sum` calls: what replaces `vaddsd`? How many accumulators?
 """
 
 # ╔═╡ 9301ea0f-f270-4015-8acd-f23507b82807
@@ -295,15 +208,15 @@ Let's follow the call. **This** is where the SIMD lives:
 
 # ╔═╡ ba010064-49f9-4872-a4fe-a42d2e754d76
 md"""
-There it is — **`vaddpd` on `ymm0..ymm3`**: *Packed Double* = **4 floats at once** (SIMD) × **4 independent accumulators** → ~16 doubles per iteration, 4 dependency chains in parallel (**ILP**). At the end they're folded together (`vaddpd ymm0, ymm1, ymm0` …).
+Why can't the compiler do this to **our** loop? Hint: is `(a+b)+c == a+(b+c)` in floats?
 
-Why isn't our loop allowed to do that? Floating-point addition is **not associative** (`(a+b)+c ≠ a+(b+c)`, due to rounding): without permission, the compiler **must** preserve the order. `sum` goes through a reduction that **allows reassociation**. We can grant the same permission to our loop with **`@simd`**:
+### `@simd`: permission to reassociate
 """
 
 # ╔═╡ 8e0cdaff-257b-4836-8998-2cd5f0ef8044
 function mysum_simd(x)
     s = zero(eltype(x))
-    @inbounds @simd for i in eachindex(x)   # @simd: allows reassociation
+    @inbounds @simd for i in eachindex(x)   # @inbounds: skip bounds checks
         s += x[i]
     end
     return s
@@ -312,226 +225,70 @@ end
 # ╔═╡ 0662912c-e7ab-4223-82d2-e2683543f99b
 @btime mysum_simd($vc)
 
-# ╔═╡ c62ea649-7bc8-4b64-b662-b874c41547f5
-md"""
-A single word (`@simd`) and the loop **vectorizes**: it catches up with (or beats) `sum`. So speed doesn't come from a "magic" language but from **what the compiler is allowed to do** — here, reassociate to exploit SIMD + instruction-level parallelism.
-
-*(Reproducible demo — assembly + `@simd` benchmark: `experiences/sum_vs_size/reflection.jl`.)*
-"""
-
-# ╔═╡ fad9827d-f3db-43ae-b0bb-b58aca083e79
-md"""
-## 4. Pitfall #1: type instability
-
-"Julia is fast" is false if the compiler **cannot** determine the types. The most common case: an **untyped global variable**.
-
-Here is the same sum, but reading a global variable.
-"""
-
-# ╔═╡ fa9596a7-23bd-4675-998b-af232a7b08e8
-# global variable (type not fixed from the compiler's point of view)
-glob = rand(1000)
-
-# ╔═╡ fa9596a7-23bd-4675-998b-af232a7b08e9
-function sum_global()
-    s = 0.0
-    for i in eachindex(glob)   # glob is a global
-        s += glob[i]
-    end
-    return s
-end
-
-# ╔═╡ 41165e5b-f988-4698-97d1-04ca43eb7964
-function sum_arg(x)
-    s = 0.0
-    for i in eachindex(x)
-        s += x[i]
-    end
-    return s
-end
-
-# ╔═╡ 761ce2e0-503b-48b1-9a5d-2b2cce7f4f45
-md"""
-The key tool is `@code_warntype`: it colors in **red** the places where Julia doesn't know the type (`Any`). Red = code falling back to dynamic behavior, comparable to Python.
-
-Look at the global version (red / `Any`):
-"""
-
-# ╔═╡ ba6f002b-32d3-4327-a14e-ad049956e1ec
-@code_warntype sum_global()
-
-# ╔═╡ 8d4f26b4-4d42-4291-8c31-0891ba765a37
-md"""
-…then the version that takes its array **as an argument** (everything typed, no red):
-"""
-
-# ╔═╡ 0fcbe125-0551-42b2-93b7-2fe0f6e65bb2
-@code_warntype sum_arg(glob)
-
-# ╔═╡ bd7de916-7afd-4b63-81e3-2f82fc00b935
-md"""
-### The lesson, measured
-
-Both do the same computation. Let's measure the gap.
-"""
-
-# ╔═╡ f53445b9-d198-4ad4-9414-140afdb6460c
-@benchmark sum_global()
-
-# ╔═╡ 20c2f0e8-b528-40cf-94b5-e308ae298137
-@benchmark sum_arg($glob)
-
-# ╔═╡ 46d41ce1-700e-41eb-8ae4-02a37802725b
-md"""
-**Julia golden rule**: put the work in **functions** that receive their data **as arguments**. That's what enables type specialization — hence speed. A loop "at global scope" in a Julia script is a common mistake when coming from Python.
-"""
-
-# ╔═╡ 260d7cdf-31b5-47d5-8ea5-ccc76e270dbe
-md"""
-## 5. Why numpy is fast (and what it hides)
-
-Back to Python. `numpy.sum(x)` is ~100× faster than a Python loop. Why?
-
-Because `numpy` **doesn't run the loop in Python**. It stores the data in a contiguous typed array, and delegates the sum to a **compiled C function** (numpy's `.so` / `.pyd` files, themselves from C). Python only *calls* that C.
-
-Important consequence:
-
-- As long as you stay in "vectorized" numpy operations (`x + y`, `x.sum()`, `x @ y`), you're fast.
-- **As soon as you write a Python loop around numpy elements**, you pay the interpreter cost on every iteration, and it all collapses.
-
-Julia doesn't have this boundary: the loop *and* the "vectorized" form are the same compiled language. This is the *two-language problem* — Python solves it by writing the fast parts in another language (C, Cython, Numba); Julia tries to eliminate it.
-
-### What about Numba?
-
-`@numba.njit` adds a JIT to Python: it compiles certain numeric functions to native code, and can make a Python loop almost as fast as Julia. But it's a **subset** of Python (limited types, not every Python object is supported), and you must trigger it explicitly. It's exactly Julia's mechanism… added on top of Python for a restricted domain. A good counterpoint: "JIT" isn't magic, it's *specialize by types then compile*.
-"""
-
-# ╔═╡ d02cd083-dea1-417f-a941-8eac616197a6
-md"""
-## 6. Measuring properly — the art of benchmarking
-
-Everything above rests on numbers, and a wrong number is worse than no number. Two pitfalls:
-
-- **Pitfall A — timing the compilation.** That's the **warmup** from section 2: the 1st call includes JIT compilation. Always **discard the 1st call**.
-- **Pitfall B — measuring only once** (below).
-"""
-
-# ╔═╡ 46c146f1-d1e4-4797-87bc-2c03a0185daf
-md"""
-### Pitfall B — measuring only once
-
-A single measurement is polluted by noise (OS, CPU frequency, cache). You must **repeat** and look at the distribution. That's the whole point of `BenchmarkTools`:
-
-- `@btime`: shows the **minimum** (most representative of the "pure" cost), plus allocations.
-- `@benchmark`: the full distribution (min / median / mean / max).
-
-⚠️ **Always interpolate variables with `\$`** (`@btime f(\$x)`) so the variable isn't treated as a global — otherwise you measure the pitfall from section 4, not your function.
-"""
-
-# ╔═╡ ca49af93-0baa-47ee-a4ec-3849a1cacffb
-@benchmark mysum($v)
-
 # ╔═╡ 49ea0717-5e4a-44df-a895-11b9d55c747f
 md"""
-## 7. Application — Monte-Carlo π
-
-Let's put it all into practice on a classic: estimate π by drawing random points in the square $[0,1]^2$ and counting the fraction that falls in the quarter disk.
+## 5. Monte-Carlo π — same count as in the Julia-basics module
 
 $$\pi \approx 4 \times \frac{\#\{x^2+y^2 \le 1\}}{n}$$
-
-We'll meet it again later in the course (sequential → multi-thread → GPU).
 """
 
-# ╔═╡ 760cd379-4178-4e7f-9695-a1d709b36969
-function estimate_pi(n)
+# ╔═╡ e342c5aa-9ddc-46d3-8ac2-c6f90e1b855a
+function count_in_disk(n)
     hits = 0
     for _ in 1:n
-        x = rand(); y = rand()
-        if x*x + y*y <= 1.0
+        x, y = rand(), rand()
+        if x^2 + y^2 ≤ 1
             hits += 1
         end
     end
-    return 4 * hits / n
+    return hits
 end
+
+# ╔═╡ 760cd379-4178-4e7f-9695-a1d709b36969
+estimate_pi(n) = 4 * count_in_disk(n) / n
 
 # ╔═╡ 8adcfe41-1d0d-475a-968c-5a5a971a142b
 estimate_pi(10_000_000)
 
 # ╔═╡ 855d77ed-ca4b-407a-b225-2be1a2c499f5
 md"""
-**Exercises.** Answer in the following cells (edit the code, Pluto re-evaluates automatically).
-
-**Q1.** Measure `estimate_pi` with `@btime` for `n = 10⁷`. How long? How many allocations? (Hint: `rand()` with no argument doesn't allocate — that's intentional.)
+**Q1** — how long? How many allocations?
 """
 
 # ╔═╡ 3cb6763c-dc00-4c09-94b5-289f773dc460
-# Q1: your measurement here
 @btime estimate_pi(10_000_000)
 
 # ╔═╡ f15bd89d-47f6-4c87-a3d9-17078b722f1e
 md"""
-**Q2.** Check type stability with `@code_warntype estimate_pi(1000)`. You'll find `Body::Float64`, `hits::Int64` — everything concrete, and **no red at all**. Two things are worth understanding here rather than pattern-matching:
+**Q2** — type-stable? Is the yellow `Union{Nothing, Tuple…}` a problem? Why always `Float64`?
 
-1. **Why is the result always `Float64`, never `Int`** — whatever the branches do? (Look again at what `/` does in Julia. Check yourself with `Base.return_types(estimate_pi, (Int,))`.)
-2. **The one highlighted line is not a bug.** What is `@_3::Union{Nothing, Tuple{Int64, Int64}}`, and why does it appear in *every* `for` loop you will ever write?
-
-!!! warning "Learning to ignore *that* yellow matters as much as spotting the real red"
-	Section 4 taught you "red = `Any` = bad". If you go hunting for red here, you'll land on this yellow `Union` instead and conclude that an ordinary `for` loop is type-unstable — **the exact opposite of the lesson**.
-
-	`@_3` is the **iterator protocol**: `iterate` returns either a `(value, state)` tuple or `nothing` when the range is exhausted. That `Union` is *benign*, the compiler **union-splits** it, and it costs nothing. Compare with `sum_global()` above, where `Any` really does show up.
-
-	As for `/`: it is **always true division** in Julia (the Julia-basics module!), so `4 * hits / n` is `Float64` even when `hits` is `0`. The `if` changes the **value** of `hits`, never its **type**.
+`@code_warntype` = `@code_typed` with uncertain types in color (red `Any` = unknown).
 """
 
 # ╔═╡ 654b39b4-b592-4066-b519-0783a704f637
-# Q2: your analysis here
-@code_warntype estimate_pi(1000)
+@code_warntype count_in_disk(1000)
 
 # ╔═╡ 654b39b4-b592-4066-b519-0783a704f638
-Base.return_types(estimate_pi, (Int,))   # → [Float64]. Always.
+Base.return_types(estimate_pi, (Int,))
 
 # ╔═╡ 49546ce1-11ee-4cc8-b412-24b9e933a728
 md"""
-**Q3 (board / discussion).** The error on π decreases like $1/\sqrt{n}$. To gain one decimal digit you thus need ~100× more points. **Why is it the *perfect* candidate for parallelism?** (Hint: each draw is completely independent of the others — we say *embarrassingly parallel*. Keep this idea for the threads module.)
+**Q3** — how does the error shrink with `n`? Why is this ideal for parallelism?
 """
 
 # ╔═╡ b7792bef-9262-42b4-98d0-407113ded36c
-# Q3: free space to experiment (vary n and observe the error)
 let
     for n in (10^4, 10^5, 10^6, 10^7, 10^8)
         err = abs(estimate_pi(n) - π)
-        println(@sprintf("n = 10^%d   error = %.5f", round(Int, log10(n)), err))
+        println("n = 10^$(round(Int, log10(n)))   error = $(round(err, digits=5))")
     end
 end
 
-# ╔═╡ 765124ae-9c5d-436c-ac54-d3cb26587b87
-md"""
-## 9. Wrap-up
-
-| Idea | What we saw |
-|---|---|
-| **Interpreted (Python)** | bytecode + interpretation loop → cost per operation |
-| **JIT-compiled (Julia)** | type specialization → native code, no per-operation overhead |
-| **numpy / Numba** | fast because they *leave* the Python interpreter (compiled C / restricted JIT) |
-| **Type stability** | the condition for Julia to be fast; `@code_warntype`, no globals |
-| **Benchmark** | `@btime`/`@benchmark`, interpolate variables |
-
-### Takeaway
-
-> Speed doesn't come from the language "in itself", but from **what the machine must do per operation**. Compiling and specializing removes the overhead; once memory is on the table, only one enemy remains: **the time to fetch data from memory**.
-
-### What's next
-
-First Julia's **multiple dispatch** (vs Python's object-orientation); then **threads** and a classic case: **the parallel sum that gives a wrong result**.
-"""
-
 # ╔═╡ 5973d547-5a91-4d4b-8696-88dfbf03a0a3
 md"""
-## 10. Bonus — watch π converge (interactive)
+## Bonus (Pluto only) — watch π converge
 
-Each dart is a random point in the unit square. **Green** landed inside the quarter disk (x² + y² ≤ 1), **red** outside. The estimate is **4 × (green / n)**, and it closes in on π as the darts pile up.
-
-Drag the slider and watch it settle — slowly, like 1/√n (that's Q3, seen live).
+**Green** darts land in the quarter disk, **red** outside; the estimate is 4 × green / n. Drag the slider: does it settle like 1/√n (Q3)?
 """
 
 # ╔═╡ c687db86-e0a1-4083-ba96-d5a9af91738c
@@ -569,7 +326,7 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -578,7 +335,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.12.6"
 manifest_format = "2.0"
-project_hash = "db49b271b4149145d21642645bfe62ddc84408ba"
+project_hash = "c23e975c6e744836faae74be2696ce7fec871174"
 
 [[deps.AbstractPlutoDingetjes]]
 git-tree-sha1 = "6c3913f4e9bdf6ba3c08041a446fb1332716cbc2"
@@ -878,22 +635,23 @@ version = "1.64.0+1"
 # ╟─e4c6629b-29ce-4e63-b529-04bf1020ee4f
 # ╠═86593a2f-41c2-464d-905a-70b368785d81
 # ╠═7525bf04-f5c7-45aa-b826-642c15b68eaf
-# ╠═d4572c88-919a-4a54-9581-8f241edc1d7a
 # ╟─9c279c3b-f2c3-4a98-8f21-b21190182e5b
 # ╠═5ea349ac-02a9-420c-a600-8ebfd7a81176
 # ╠═5ea349ac-02a9-420c-a600-8ebfd7a81177
-# ╠═5ea349ac-02a9-420c-a600-8ebfd7a81178
 # ╠═26289681-0477-4670-950f-8351be0fdd5a
 # ╠═da96898d-efc5-4e47-a73e-8e0a991bc0f8
 # ╟─bb0ace77-07a4-4504-80c1-edc793f3f899
-# ╟─99808d58-8875-42ed-bd94-c7e06ab36c10
-# ╠═a8128f4d-9cdc-4cd2-8025-33c5935757e0
 # ╟─05891168-bf4c-42c6-86f1-5d038606e267
 # ╠═b1180cde-dd1e-4983-aae0-bd631034c0df
 # ╟─97acf5d7-5b90-4b3a-a2b9-ffdda2d75a52
+# ╟─d02cd083-dea1-417f-a941-8eac616197a6
+# ╠═a8128f4d-9cdc-4cd2-8025-33c5935757e0
+# ╟─46c146f1-d1e4-4797-87bc-2c03a0185daf
+# ╠═3533f187-1da1-452b-9a63-0ea1bd69b4f6
+# ╠═ca49af93-0baa-47ee-a4ec-3849a1cacffb
+# ╟─90e32a56-6c3c-4248-86d3-74e504341707
 # ╟─22d3648b-a71a-4299-8e1b-46f032a74046
 # ╠═a51ea6fa-9f15-453f-bcea-852c7e71a354
-# ╟─e8d202f2-8080-4e46-aa29-157c5a707c13
 # ╠═26118708-e6fa-4cdb-a5e9-7a72a376b84f
 # ╟─c3c88228-8ec2-4a08-9384-7da546be08fb
 # ╠═c14f0bba-a2a2-457d-a400-35224ec23b34
@@ -915,24 +673,8 @@ version = "1.64.0+1"
 # ╟─ba010064-49f9-4872-a4fe-a42d2e754d76
 # ╠═8e0cdaff-257b-4836-8998-2cd5f0ef8044
 # ╠═0662912c-e7ab-4223-82d2-e2683543f99b
-# ╟─c62ea649-7bc8-4b64-b662-b874c41547f5
-# ╟─fad9827d-f3db-43ae-b0bb-b58aca083e79
-# ╠═fa9596a7-23bd-4675-998b-af232a7b08e8
-# ╠═fa9596a7-23bd-4675-998b-af232a7b08e9
-# ╠═41165e5b-f988-4698-97d1-04ca43eb7964
-# ╟─761ce2e0-503b-48b1-9a5d-2b2cce7f4f45
-# ╠═ba6f002b-32d3-4327-a14e-ad049956e1ec
-# ╟─8d4f26b4-4d42-4291-8c31-0891ba765a37
-# ╠═0fcbe125-0551-42b2-93b7-2fe0f6e65bb2
-# ╟─bd7de916-7afd-4b63-81e3-2f82fc00b935
-# ╠═f53445b9-d198-4ad4-9414-140afdb6460c
-# ╠═20c2f0e8-b528-40cf-94b5-e308ae298137
-# ╟─46d41ce1-700e-41eb-8ae4-02a37802725b
-# ╟─260d7cdf-31b5-47d5-8ea5-ccc76e270dbe
-# ╟─d02cd083-dea1-417f-a941-8eac616197a6
-# ╟─46c146f1-d1e4-4797-87bc-2c03a0185daf
-# ╠═ca49af93-0baa-47ee-a4ec-3849a1cacffb
 # ╟─49ea0717-5e4a-44df-a895-11b9d55c747f
+# ╠═e342c5aa-9ddc-46d3-8ac2-c6f90e1b855a
 # ╠═760cd379-4178-4e7f-9695-a1d709b36969
 # ╠═8adcfe41-1d0d-475a-968c-5a5a971a142b
 # ╟─855d77ed-ca4b-407a-b225-2be1a2c499f5
@@ -942,7 +684,6 @@ version = "1.64.0+1"
 # ╠═654b39b4-b592-4066-b519-0783a704f638
 # ╟─49546ce1-11ee-4cc8-b412-24b9e933a728
 # ╠═b7792bef-9262-42b4-98d0-407113ded36c
-# ╟─765124ae-9c5d-436c-ac54-d3cb26587b87
 # ╟─5973d547-5a91-4d4b-8696-88dfbf03a0a3
 # ╟─c687db86-e0a1-4083-ba96-d5a9af91738c
 # ╟─7f18d64c-dc08-4d31-850a-a7e3bfc4bdcf

@@ -140,31 +140,45 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 
 </section>
-<section id="course-outline" class="slide level2 smaller">
+<section id="course-outline" class="slide level2">
 <h2>Course outline</h2>
 <ul>
-<li><a href="../../../teaching/parallel_computing/slides/0_julia_basics.html"><strong>0 — Julia for Python users</strong></a>: a short syntax bridge — 1-based arrays, <code>end</code>, broadcasting, structs. No performance yet.</li>
-<li><a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html"><strong>1 — Interpreted vs compiled</strong></a>: why the same computation can be 100× faster — type specialization, benchmarking.</li>
-<li><a href="../../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html"><strong>2 — Multiple dispatch vs OOP</strong></a>: how Julia picks the method to run, against Python’s object-oriented style — and what it costs when types aren’t concrete.</li>
-<li><a href="../../../teaching/parallel_computing/slides/3_threads_and_concurrency.html"><strong>3 — Threads &amp; concurrency</strong></a>: async I/O on one core, then real multithreading — and the parallel sum that returns a wrong answer.</li>
-<li><a href="../../../teaching/parallel_computing/slides/4_memory_and_batching.html"><strong>4 — Memory &amp; batching</strong></a>: the memory hierarchy, locality, and how batching turns memory-bound into compute-bound.</li>
-<li><a href="../../../teaching/parallel_computing/slides/5_gpu.html"><strong>5 — GPU</strong></a>: thousands of threads — provided you feed them.</li>
+<li><a href="../../../teaching/parallel_computing/slides/0_julia_basics.html"><strong>0 — Julia for Python users</strong></a>: syntax bridge</li>
+<li><a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html"><strong>1 — Interpreted vs compiled</strong></a>: JIT, type specialization</li>
+<li><a href="../../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html"><strong>2 — Multiple dispatch vs OOP</strong></a>: dispatch, type instability</li>
+<li><a href="../../../teaching/parallel_computing/slides/3_threads_and_concurrency.html"><strong>3 — Threads &amp; concurrency</strong></a>: <code>@async</code>, <code>@spawn</code>, races</li>
+<li><a href="../../../teaching/parallel_computing/slides/4_memory_and_batching.html"><strong>4 — Memory &amp; batching</strong></a>: cache, locality</li>
+<li><a href="../../../teaching/parallel_computing/slides/5_gpu.html"><strong>5 — GPU</strong></a>: feed thousands of threads</li>
 </ul>
 <div class="fragment">
-<p><strong>The red thread:</strong> estimating π by Monte-Carlo — carried from a sequential loop, to multithreading, to the GPU.</p>
+<p><strong>Running example:</strong> Monte-Carlo π — loop → threads → GPU.</p>
 </div>
 <div class="fragment">
 <blockquote>
-<p>Julia as the test bench, <strong>Python as the point of comparison</strong>.</p>
+<p>Julia = test bench, <strong>Python = comparison</strong>.</p>
 </blockquote>
+<aside class="notes">
+<p>0: 1-based arrays, <code>end</code>, the dot, structs instead of classes; no performance yet. 1: a Julia loop in milliseconds vs Python half a second — the JIT, measuring properly, type specialization. 2: how Julia picks the method to run, and what it costs when the compiler can’t know the type (abstract container ~10×, untyped global &gt; 100×: type instability). 3: <code>@async</code> overlaps waiting on one core; <code>Threads.@spawn</code> splits computing over many — and the parallel π that returns a wrong answer. 4: the processor waits for memory. 5: the bus, and locality again on the card. Running example: same dart count, <code>count_in_disk</code> — loop (0–1), threads (3), GPU (5). Batching also in 4.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
 </section>
 <section id="how-we-work" class="slide level2">
 <h2>How we work</h2>
 <ul>
-<li>These slides <strong>frame</strong> each session; the demos live in the <strong>notebooks</strong>.</li>
-<li>Every module ships three ways to run it: a <strong>Pluto notebook</strong> (live, reactive), a <strong>plain-script twin</strong> for VS Code, and a <strong>Python notebook</strong> for Colab — zero install.</li>
-<li>We compare the <strong>numbers</strong> between the two languages. That’s the whole point.</li>
+<li>Slides <strong>frame</strong>; <strong>scripts</strong> and <strong>notebooks</strong> demo: predict, then run.</li>
+<li>Each module: a Julia <strong>script</strong> + <strong>Pluto notebook</strong>; modules 1–5: a <strong>Python notebook</strong> (Colab).</li>
+<li>Short <a href="../../../teaching/parallel_computing/index.html"><strong>activities</strong></a> in class (5–10 min, Python or Julia).</li>
+<li>We compare the <strong>numbers</strong> across languages.</li>
 </ul>
 <div class="fragment">
 <div class="callout callout-note no-icon callout-titled callout-style-default">
@@ -173,10 +187,35 @@ Emmanuel Pilliat — ENSAI 3A
 <p><strong>Note</strong></p>
 </div>
 <div class="callout-content">
-<p>The Python track is the <strong>common</strong> one — nobody falls behind. The Julia track is the deep dive (<code>@btime</code>, <code>@code_native</code>, <code>@spawn</code>, the GPU).</p>
+<p>Python track = <strong>common</strong>; Julia track = deep dive.</p>
 </div>
 </div>
 </div>
+<aside class="notes">
+<p>Same lesson in script (VS Code) and Pluto. 6 decks but 5 Julia notebooks: modules 4 and 5 share one script, one notebook and one Python notebook. Activities: one or two blanks to fill, one striking number, handed out in class. Python track: nobody falls behind; Julia track: <code>@btime</code>, <code>@code_native</code>, <code>@spawn</code>, the GPU.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="start-here" class="slide level2">
+<h2>Start here</h2>
+<ul>
+<li>▶ <a href="../../../teaching/parallel_computing/slides/0_julia_basics.html">0 — Julia for Python users</a> — the onboarding deck.</li>
+<li>📓 All scripts, notebooks and Python notebooks: <a href="../../../teaching/parallel_computing/index.html">course page</a>.</li>
+</ul>
+<div class="fragment">
+<blockquote>
+<p><strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/0_julia_basics.html">0 — Julia for Python users</a> ➡</p>
+</blockquote>
 </div>
 </section>
 <section>
@@ -184,33 +223,39 @@ Emmanuel Pilliat — ENSAI 3A
 <h1>Synthesis</h1>
 
 </section>
-<section id="synthesis-1" class="slide level2">
-<h2>Synthesis</h2>
+<section id="four-ideas" class="slide level2">
+<h2>Four ideas</h2>
 <ol type="1">
-<li><strong>Compiling and specializing</strong> removes the <em>per-operation</em> overhead.</li>
-<li><strong>Multiple dispatch</strong>: generic <em>and</em> fast — provided the types are <strong>concrete</strong>; it even flips a computation onto the GPU.</li>
-<li><strong>Parallelizing</strong> demands <em>minimizing sharing</em>, otherwise the result is wrong.</li>
-<li><strong>Feeding the hardware</strong>: honour the cache, batch, saturate the GPU.</li>
+<li><strong>Compile and specialize</strong> (1): no cost paid <em>per operation</em>.</li>
+<li><strong>Concrete types</strong> (2): generic <em>and</em> fast.</li>
+<li><strong>Share as little as possible</strong> (3): or the result is wrong.</li>
+<li><strong>Feed the hardware</strong> (4–5): cache, batching, busy GPU.</li>
 </ol>
 <div class="fragment">
 <blockquote>
-<p>Performance doesn’t come from a magic language, but from <strong>understanding what the machine actually does</strong>: the cost of each operation, who shares what, and where the data travels.</p>
+<p>Not a magic language: <strong>understand what the machine does</strong>. Type known at compile time = fast.</p>
 </blockquote>
 </div>
 <div class="fragment">
 <blockquote>
-<p>Running through the whole course: <strong>type discovered at run time = slow; type known at compile time = fast</strong>.</p>
+<p>⬅ <a href="../../../teaching/parallel_computing/slides/5_gpu.html">5 — GPU</a> · <a href="../../../teaching/parallel_computing/index.html">Course page</a></p>
 </blockquote>
+<aside class="notes">
+<p>2: multiple dispatch is generic and fast — and the same <code>*</code> runs on the GPU. Performance comes from understanding the cost of each operation, who shares what, and where the data travels. Through the whole course: type found at run time = slow; type known at compile time = fast.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+
+
 </div>
-</section>
-<section id="start-here" class="slide level2">
-<h2>Start here</h2>
-<ul>
-<li>▶ <a href="../../../teaching/parallel_computing/slides/0_julia_basics.html">0 — Julia for Python users</a> — the onboarding deck.</li>
-<li>📓 All notebooks and scripts: <a href="../../../teaching/parallel_computing/index.html">course page</a>.</li>
-</ul>
-
-
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
