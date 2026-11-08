@@ -252,6 +252,11 @@
 <div style="font-size:80%">
 <p>100 patients; duplicated ages are stacked. <strong>Hover</strong> for values, <strong>toggle</strong> layers below.</p>
 </div>
+<style>
+.lm-btn{font-family:inherit;font-size:.85em;padding:.4em 1.1em;margin:.12em .22em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-btn.on{background:#3b6fb6;color:#fff;border-color:#3b6fb6}
+.lm-row{font-size:.8em;line-height:2.1;margin:.15rem 0}
+</style>
 <div style="text-align:center">
   <canvas id="chd1" width="720" height="300" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
   <div class="lm-row" id="chd1R"></div>
@@ -2078,6 +2083,84 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 <p><span class="math display">\[\hat{p}_{\text{sat}}(x) = \frac{n_1(x)}{n(x)}\]</span></p>
 </div>
 </div>
+</section>
+<section id="saturated-estimator-illustration" class="slide level2 smaller">
+<h2>Saturated Estimator: Illustration</h2>
+<div style="font-size:90%">
+<p>Few distinct values of <span class="math inline">\(x\)</span>: <span class="math inline">\(\hat p_{\text{sat}}(x)=n_1(x)/n(x)\)</span> is close to <span class="math inline">\(p(x)\)</span>. All values distinct: it is <span class="math inline">\(0\)</span> or <span class="math inline">\(1\)</span>. The <strong>nearest neighbour</strong> rule extends it to every <span class="math inline">\(x\)</span>.</p>
+</div>
+<div style="text-align:center">
+  <canvas id="satC" width="720" height="300" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px"></canvas>
+  <div class="lm-row">
+    distinct values of x:
+    <button class="lm-btn" data-l="4">4</button>
+    <button class="lm-btn" data-l="8">8</button>
+    <button class="lm-btn" data-l="20">20</button>
+    <button class="lm-btn" data-l="0">all distinct</button>
+    &nbsp; <button class="lm-btn" id="satNN">nearest neighbour</button>
+    <button class="lm-btn" id="satNew">↻ resample</button>
+  </div>
+</div>
+<script>
+(function () {
+  var cv=document.getElementById('satC'); if(!cv||cv.dataset.init)return; cv.dataset.init=1;
+  var c=cv.getContext('2d'),W=cv.width,H=cv.height,KEY='glmSat';
+  var lBtns=[].slice.call(cv.parentNode.querySelectorAll('button[data-l]')),nnB=document.getElementById('satNN');
+  var n=40,ux=[],uu=[],L=8,nn=false;
+  var ml=52,mr=16,mt=14,mb=40,x0=-.3,x1=10.3,y0=-.12,y1=1.12;
+  function X(x){return ml+(x-x0)/(x1-x0)*(W-ml-mr);} function Y(p){return H-mb-(p-y0)/(y1-y0)*(H-mt-mb);}
+  function ptrue(x){return 1/(1+Math.exp(-(-3+0.6*x)));}
+  function base(){for(var i=0;i<n;i++){ux[i]=Math.random();uu[i]=Math.random();}}
+  function draw(){
+    lBtns.forEach(function(b){b.classList.toggle('on',+b.dataset.l===L);});nnB.classList.toggle('on',nn);
+    // data: x on L equally spaced levels (or continuous), y ~ B(p(x)) from fixed uniforms
+    var xs=[],ys=[];
+    for(var i=0;i<n;i++){var x=L?10*Math.min(L-1,Math.floor(ux[i]*L))/(L-1):10*ux[i];xs.push(x);ys.push(uu[i]<ptrue(x)?1:0);}
+    var g={};xs.forEach(function(x,i){var k=x.toFixed(6);g[k]=g[k]||{x:x,n:0,n1:0,k:0};g[k].n++;g[k].n1+=ys[i];});
+    var lv=Object.keys(g).map(function(k){return g[k];}).sort(function(a,b){return a.x-b.x;});
+    c.clearRect(0,0,W,H);c.fillStyle='#fff';c.fillRect(0,0,W,H);c.lineWidth=1;c.font='13px sans-serif';
+    c.fillStyle='#666';c.textAlign='right';c.textBaseline='middle';
+    [0,.5,1].forEach(function(p){c.strokeStyle=p===.5?'#eee':'#ccc';c.beginPath();c.moveTo(ml,Y(p));c.lineTo(W-mr,Y(p));c.stroke();c.fillText(p,ml-8,Y(p));});
+    c.textAlign='center';c.textBaseline='top';for(var t=0;t<=10;t+=2)c.fillText(t,X(t),H-mb+5);
+    c.fillStyle='#333';c.fillText('x',(ml+W-mr)/2,H-mb+20);
+    // true p(x)
+    c.strokeStyle='#999';c.lineWidth=2;c.setLineDash([6,5]);c.beginPath();
+    for(var j=0;j<=200;j++){var xx=x0+(x1-x0)*j/200;j?c.lineTo(X(xx),Y(ptrue(xx))):c.moveTo(X(xx),Y(ptrue(xx)));}c.stroke();c.setLineDash([]);
+    // nearest neighbour: step function through the saturated values
+    if(nn){
+      c.strokeStyle='#e67e22';c.lineWidth=2;c.beginPath();
+      lv.forEach(function(v,i){var a=i?(lv[i-1].x+v.x)/2:x0,b=i<lv.length-1?(v.x+lv[i+1].x)/2:x1,p=v.n1/v.n;
+        if(i)c.lineTo(X(a),Y(p));else c.moveTo(X(a),Y(p));c.lineTo(X(b),Y(p));});
+      c.stroke();
+    }
+    // data points, stacked outward from 0 and 1
+    var stk={},cnt={};xs.forEach(function(x,i){var k=x.toFixed(6)+'_'+ys[i];cnt[k]=(cnt[k]||0)+1;stk.max=Math.max(stk.max||0,cnt[k]-1);});
+    xs.forEach(function(x,i){var k=x.toFixed(6)+'_'+ys[i];stk[k]=(stk[k]||0)+1;var s=stk[k]-1;
+      var sp=Math.min(6,28/Math.max(1,stk.max||1));c.beginPath();c.arc(X(x),ys[i]?Y(1)-s*sp:Y(0)+s*sp,3.4,0,7);c.fillStyle='rgba(44,62,80,.6)';c.fill();});
+    // saturated estimator at each observed x
+    lv.forEach(function(v){var p=v.n1/v.n;
+      c.beginPath();c.arc(X(v.x),Y(p),L&&L<=8?7:5,0,7);c.fillStyle='#e67e22';c.fill();c.strokeStyle='#fff';c.lineWidth=1.5;c.stroke();
+      if(L&&L<=8){c.fillStyle='#b9651e';c.font='12px sans-serif';c.textAlign='left';c.textBaseline='middle';c.fillText(v.n1+'/'+v.n,X(v.x)+10,Y(p)-(p>.85?-12:10));}});
+    c.lineWidth=1;
+    // legend
+    c.font='13px sans-serif';c.textAlign='left';c.textBaseline='middle';
+    c.strokeStyle='#999';c.lineWidth=2;c.setLineDash([6,5]);c.beginPath();c.moveTo(X(0),Y(.9));c.lineTo(X(.6),Y(.9));c.stroke();c.setLineDash([]);
+    c.fillStyle='#333';c.fillText('true p(x)',X(.75),Y(.9));
+    c.beginPath();c.arc(X(.3),Y(.78),5,0,7);c.fillStyle='#e67e22';c.fill();
+    c.fillStyle='#333';c.fillText('saturated estimate  n₁(x)/n(x)'+(nn?'   — nearest neighbour':''),X(.75),Y(.78));
+    c.textAlign='right';c.fillStyle='#555';
+    c.fillText('n = '+n+',  '+lv.length+' distinct x,  about '+(n/lv.length).toFixed(1)+' obs. per x',W-mr-8,Y(.5)+14);
+    c.lineWidth=1;
+    try{localStorage.setItem(KEY,JSON.stringify({l:L,nn:nn}));}catch(e){}
+  }
+  lBtns.forEach(function(b){b.onclick=function(){L=+b.dataset.l;draw();};});
+  nnB.onclick=function(){nn=!nn;draw();};
+  document.getElementById('satNew').onclick=function(){base();draw();};
+  base();
+  try{var sv=JSON.parse(localStorage.getItem(KEY));if(sv){L=[0,4,8,20].indexOf(sv.l)>=0?sv.l:8;nn=!!sv.nn;}}catch(e){}
+  draw();
+})();
+</script>
 </section>
 <section id="remark-distinct-observations" class="slide level2">
 <h2>Remark: Distinct Observations</h2>
