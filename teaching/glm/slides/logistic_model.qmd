@@ -17,7 +17,7 @@ css: ../../../styles.css
 ---
 
 
-# GLM Models for Binary Variables
+# Choosing the Link for Binary Y
 
 ::: {style="display:none"}
 $\newcommand{\VS}{\quad \mathrm{VS} \quad}$
@@ -33,6 +33,14 @@ $\newcommand{\1}{\mathbf 1}$
 
 > ⬅ **Previous:** [Introduction to the Generalized Linear Model](Introduction_glm.qmd)  ·  **Next:** [Models for Categorical Data](categorical_data.qmd) ➡
 
+## Outline of the Chapter
+
+- **Binary response**: choosing the link function (logit, probit, cloglog)
+- **Interpretation**: odds and odds ratios
+- **Estimation**: maximum likelihood; uniqueness, existence, asymptotic normality
+- **Inference**: Wald tests, confidence intervals, deviance tests, AIC/BIC
+- **Prediction**: confidence interval for $p(x)$, classification, ROC curve
+
 ## Context
 
 . . .
@@ -45,7 +53,7 @@ $X = (X^{(1)}, \ldots, X^{(p)})$ are $p$ regressors
 
 . . .
 
-$Y|X = x$ follows a [Bernoulli distribution]{style="background-color: yellow;"} with parameter [$p(x) = P(Y = 1|X = x)$]{style="background-color: lightblue;"}. Model:
+$Y|X = x$ follows a [Bernoulli distribution]{style="background-color: yellow;"} with parameter [$p(x) = P(Y = 1|X = x)$]{style="background-color: lightblue;"}. We model it as
 
 . . .
 
@@ -59,7 +67,7 @@ where $g^{-1}$ is a [strictly increasing function]{style="background-color: yell
 
 . . .
 
-**Approach**: We begin by discussing the choice of $g^{-1}$ (or $g$)
+**First question**: how to choose $g^{-1}$ (equivalently, the link function $g$)?
 
 
 
@@ -68,16 +76,151 @@ where $g^{-1}$ is a [strictly increasing function]{style="background-color: yell
 
 . . .
 
-**Data Description**: Presence of chd as a function of age
-$Y = \text{chd} \in \{0,1\}$, $X = \text{age}$
+**Data**: presence of coronary heart disease (chd) as a function of age, with $Y = \text{chd} \in \{0,1\}$ and $X = \text{age}$
 
 . . .
 
-We want to estimate $p(x) = \E(Y|X = x) = \P(\text{chd} = 1|X = x)$ for all $x$
+**Goal**: estimate [$p(x) = \E(Y|X = x) = \P(\text{chd} = 1|X = x)$]{style="background-color: lightblue;"} for every $x$
 
-::: {style="text-align: center;"}
-![](../images/logit1.png){width=50%}
+::: {style="font-size:80%"}
+100 patients; duplicated ages are stacked. **Hover** for values, **toggle** layers below.
 :::
+
+```{=html}
+<div style="text-align:center">
+  <canvas id="chd1" width="720" height="300" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <div class="lm-row" id="chd1R"></div>
+</div>
+<script>
+(function () {
+  if (window.chdWidget) return;
+  var AGE=[20,23,24,25,25,26,26,28,28,29,30,30,30,30,30,30,32,32,33,33,34,34,34,34,34,35,35,36,36,36,37,37,37,38,38,39,39,40,40,41,41,42,42,42,42,43,43,43,44,44,44,44,45,45,46,46,47,47,47,48,48,48,49,49,49,50,50,51,52,52,53,53,54,55,55,55,56,56,56,57,57,57,57,57,57,58,58,58,59,59,60,60,61,62,62,63,64,64,65,69];
+  var CHD=[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,1,0,0,1,1,0,1,0,1,0,0,1,0,1,1,0,0,1,0,1,0,0,1,1,1,1,0,1,1,1,1,1,0,0,1,1,1,1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,1];
+  var N=AGE.length;
+  function erf(z){var s=z<0?-1:1;z=Math.abs(z);var t=1/(1+0.3275911*z);return s*(1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-z*z));}
+  function Phi(x){return .5*(1+erf(x/Math.SQRT2));}
+  function sig(t){return 1/(1+Math.exp(-t));}
+  var L={
+    logit:{col:'#e74c3c',F:sig,f:function(t){var p=sig(t);return p*(1-p);}},
+    probit:{col:'#3498db',F:Phi,f:function(t){return Math.exp(-t*t/2)/2.5066282746;}},
+    cloglog:{col:'#27ae60',F:function(t){return 1-Math.exp(-Math.exp(t));},f:function(t){return Math.exp(t-Math.exp(t));}}
+  };
+  // MLE by Fisher scoring (IRLS), age centred at 45 for stability
+  function fit(l){
+    var a=0,b=0,XC=45;
+    for(var it=0;it<100;it++){
+      var S0=0,S1=0,S2=0,T0=0,T1=0;
+      for(var i=0;i<N;i++){
+        var x=AGE[i]-XC,e=a+b*x,m=Math.min(1-1e-10,Math.max(1e-10,l.F(e))),d=Math.max(l.f(e),1e-12);
+        var w=d*d/(m*(1-m)),z=e+(CHD[i]-m)/d;
+        S0+=w;S1+=w*x;S2+=w*x*x;T0+=w*z;T1+=w*x*z;
+      }
+      var D=S0*S2-S1*S1,na=(S2*T0-S1*T1)/D,nb=(S0*T1-S1*T0)/D,dd=Math.abs(na-a)+Math.abs(nb-b);
+      a=na;b=nb;if(dd<1e-12)break;
+    }
+    l.b0=a-b*XC;l.b1=b;
+  }
+  for(var k in L)fit(L[k]);
+  var CL=[[20,30],[30,35],[35,40],[40,45],[45,50],[50,55],[55,60],[60,70]];
+  CL.forEach(function(cl){var n=0,s=0;for(var i=0;i<N;i++)if(AGE[i]>=cl[0]&&AGE[i]<cl[1]){n++;s+=CHD[i];}cl.push(n,s);});
+  var STK=[],cnt={};
+  for(var i=0;i<N;i++){var key=AGE[i]+'_'+CHD[i];cnt[key]=cnt[key]||0;STK.push(cnt[key]++);}
+
+  window.chdWidget=function(id,init){
+    var cv=document.getElementById(id); if(!cv||cv.dataset.init)return; cv.dataset.init=1;
+    var c=cv.getContext('2d'),W=cv.width,H=cv.height,row=document.getElementById(id+'R');
+    var ml=62,mr=16,mt=14,mb=44,x0=17,x1=71,y0=-0.13,y1=1.13,FONT='14px sans-serif';
+    function X(a){return ml+(a-x0)/(x1-x0)*(W-ml-mr);}
+    function Y(p){return H-mb-(p-y0)/(y1-y0)*(H-mt-mb);}
+    function IX(px){return x0+(px-ml)/(W-ml-mr)*(x1-x0);}
+    function pos(e){var r=cv.getBoundingClientRect();return [(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height];}
+    var KEY='glmChd_'+id,on={};
+    init.forEach(function(k){on[k]=true;});
+    try{var sv=JSON.parse(localStorage.getItem(KEY));if(sv)on=sv;}catch(e){}
+    function save(){try{localStorage.setItem(KEY,JSON.stringify(on));}catch(e){}}
+    var hover=null;
+    [['cls','age classes'],['logit','logit'],['probit','probit'],['cloglog','cloglog']].forEach(function(bb){
+      var b=document.createElement('button');b.className='lm-btn'+(on[bb[0]]?' on':'');b.textContent=bb[1];
+      b.onclick=function(){on[bb[0]]=!on[bb[0]];b.classList.toggle('on',!!on[bb[0]]);save();draw();};
+      row.appendChild(b);
+    });
+    function hatB(sub,x,y){ // β̂₀ drawn with a real caret
+      var yb=y+5;c.textBaseline='alphabetic';c.fillText('β'+sub,x,yb);var w=c.measureText('β').width,cx=x+w/2;
+      c.beginPath();c.moveTo(cx-3.5,yb-13);c.lineTo(cx,yb-17);c.lineTo(cx+3.5,yb-13);c.stroke();c.textBaseline='middle';
+      return x+c.measureText('β'+sub).width;
+    }
+    function draw(){
+      c.clearRect(0,0,W,H);c.fillStyle='#fff';c.fillRect(0,0,W,H);
+      c.font=FONT;c.lineWidth=1;
+      // grid
+      c.strokeStyle='#eee';c.fillStyle='#666';c.textAlign='right';c.textBaseline='middle';
+      [0,.25,.5,.75,1].forEach(function(p){c.strokeStyle=(p===0||p===1)?'#ccc':'#eee';c.beginPath();c.moveTo(ml,Y(p));c.lineTo(W-mr,Y(p));c.stroke();c.fillText(p,ml-8,Y(p));});
+      c.textAlign='center';c.textBaseline='top';
+      for(var a=20;a<=70;a+=10){c.strokeStyle='#f2f2f2';c.beginPath();c.moveTo(X(a),mt);c.lineTo(X(a),H-mb);c.stroke();c.fillText(a,X(a),H-mb+6);}
+      c.fillStyle='#333';c.fillText('age',(ml+W-mr)/2,H-20);
+      c.save();c.translate(16,(mt+H-mb)/2);c.rotate(-Math.PI/2);c.textBaseline='middle';c.fillText('P(chd = 1 | age)',0,0);c.restore();
+      // age classes
+      if(on.cls){
+        c.setLineDash([4,4]);c.strokeStyle='#d5d5d5';
+        CL.forEach(function(cl,j){if(j>0){c.beginPath();c.moveTo(X(cl[0]),mt);c.lineTo(X(cl[0]),H-mb);c.stroke();}});
+        c.setLineDash([]);
+        CL.forEach(function(cl){
+          var p=cl[3]/cl[2],xa=X(cl[0])+2,xb=X(cl[1])-2,yp=Y(p);
+          c.fillStyle='rgba(230,126,34,.14)';c.fillRect(xa,yp,xb-xa,Y(0)-yp);
+          c.strokeStyle='#e67e22';c.lineWidth=3;c.beginPath();c.moveTo(xa,yp);c.lineTo(xb,yp);c.stroke();c.lineWidth=1;
+          c.fillStyle='#c0661a';c.font='12px sans-serif';c.textAlign='center';c.textBaseline='bottom';
+          c.fillText(cl[3]+'/'+cl[2],(xa+xb)/2,yp-3);c.font=FONT;
+        });
+      }
+      // fitted curves
+      var act=['logit','probit','cloglog'].filter(function(k){return on[k];});
+      c.save();c.beginPath();c.rect(ml,mt,W-ml-mr,H-mt-mb);c.clip();
+      act.forEach(function(k){
+        var l=L[k];c.strokeStyle=l.col;c.lineWidth=3;c.beginPath();
+        for(var a=x0;a<=x1;a+=.25){var py=Y(l.F(l.b0+l.b1*a));if(a===x0)c.moveTo(X(a),py);else c.lineTo(X(a),py);}
+        c.stroke();
+      });
+      c.restore();c.lineWidth=1;
+      // data: duplicates stacked outward from 0 and 1
+      for(var i=0;i<N;i++){
+        var py=CHD[i]?Y(1)-STK[i]*6.5:Y(0)+STK[i]*6.5;
+        c.beginPath();c.arc(X(AGE[i]),py,3.6,0,7);c.fillStyle='rgba(44,62,80,.72)';c.fill();
+      }
+      // legend
+      var ly=Y(.93);
+      act.forEach(function(k){
+        var l=L[k];c.strokeStyle=l.col;c.lineWidth=3;c.beginPath();c.moveTo(X(19),ly);c.lineTo(X(21.5),ly);c.stroke();c.lineWidth=1.3;
+        c.fillStyle='#333';c.strokeStyle='#333';c.textAlign='left';c.textBaseline='middle';
+        var x=X(22.2);c.fillText(k,x,ly);x+=62;
+        x=hatB('₀',x,ly+1);c.fillText(' = '+l.b0.toFixed(2)+',',x,ly);x+=c.measureText(' = '+l.b0.toFixed(2)+',').width+10;
+        x=hatB('₁',x,ly+1);c.fillText(' = '+l.b1.toFixed(3),x,ly);
+        ly+=22;
+      });
+      c.lineWidth=1;
+      // hover readout
+      if(hover!==null){
+        var hx=X(hover);c.strokeStyle='rgba(0,0,0,.35)';c.setLineDash([3,3]);c.beginPath();c.moveTo(hx,mt);c.lineTo(hx,H-mb);c.stroke();c.setLineDash([]);
+        var lines=['age '+hover.toFixed(0)];
+        act.forEach(function(k){var l=L[k],p=l.F(l.b0+l.b1*Math.round(hover));lines.push([k,p]);
+          c.beginPath();c.arc(hx,Y(l.F(l.b0+l.b1*hover)),5,0,7);c.fillStyle=l.col;c.fill();});
+        if(on.cls)CL.forEach(function(cl){if(hover>=cl[0]&&hover<cl[1])lines.push(['class',cl[3]/cl[2]]);});
+        var bw=150,bh=10+lines.length*20,bx=hx+12>W-mr-bw?hx-12-bw:hx+12,by=Y(.62);
+        c.fillStyle='rgba(255,255,255,.92)';c.strokeStyle='#ccc';c.fillRect(bx,by,bw,bh);c.strokeRect(bx,by,bw,bh);
+        c.textAlign='left';c.textBaseline='middle';
+        lines.forEach(function(t,j){var yy=by+15+j*20;
+          if(typeof t==='string'){c.fillStyle='#333';c.fillText(t,bx+10,yy);}
+          else{c.fillStyle=t[0]==='class'?'#c0661a':L[t[0]].col;c.fillText(t[0],bx+10,yy);c.fillStyle='#333';c.textAlign='right';c.fillText(t[1].toFixed(3),bx+bw-10,yy);c.textAlign='left';}
+        });
+      }
+    }
+    cv.addEventListener('pointermove',function(e){var p=pos(e),a=IX(p[0]);hover=(p[0]>=ml&&p[0]<=W-mr&&a>=19.5&&a<=69.5)?Math.round(a):null;draw();});
+    cv.addEventListener('pointerleave',function(){hover=null;draw();});
+    draw();
+  };
+})();
+chdWidget('chd1',[]);
+</script>
+```
 
 
 
@@ -85,14 +228,18 @@ We want to estimate $p(x) = \E(Y|X = x) = \P(\text{chd} = 1|X = x)$ for all $x$
 
 
 
-- Group the $x$ values by age class
-- Calculate the proportion of $chd = 1$ in the class containing $x$
+- Group the ages into classes
+- Estimate $p(x)$ by the proportion of $chd = 1$ in the class containing $x$
 
 . . .
 
-::: {style="text-align: center;"}
-![](../images/logit2.png){width=50%}
-:::
+```{=html}
+<div style="text-align:center">
+  <canvas id="chd2" width="720" height="300" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <div class="lm-row" id="chd2R"></div>
+</div>
+<script>chdWidget('chd2',['cls']);</script>
+```
 
 ## Example: GLM Approach
 
@@ -100,12 +247,12 @@ We want to estimate $p(x) = \E(Y|X = x) = \P(\text{chd} = 1|X = x)$ for all $x$
 
 . . .
 
-**Objective**: We want to model $p(x) = P(\text{chd} = 1|X = x)$ by:
+**Objective**: model $p(x) = P(\text{chd} = 1|X = x)$ as
 $$p(x) = g^{-1}(\beta_0 + \beta_1 x)$$
 
 . . .
 
-**Constraint**: We need $g^{-1}$ to have values in $[0, 1]$
+**Constraint**: $g^{-1}$ must take values in $[0, 1]$, since $p(x)$ is a probability
 
 ## Example: The Logit Model
 
@@ -123,21 +270,17 @@ $$g^{-1}(t) = \frac{e^t}{1 + e^t} \quad \text{i.e.} \quad g(t) = \ln\left(\frac{
 
 . . .
 
-::: {.columns}
-
-::: {.column}
-::: {style="text-align: center;"}
-![](../images/logit3.png){width=100%}
-:::
+::: {style="font-size:80%"}
+Curve: $g^{-1}(\hat\beta_0+\hat\beta_1 x)$ with $\hat\beta$ obtained by MLE. **Hover** to read $\hat p(x)$.
 :::
 
-::: {.column}
-\
-\
-Results of $g^{-1}(\hat \beta_0 + \hat \beta_1 x)$ obtained by MLE
-:::
-
-:::
+```{=html}
+<div style="text-align:center">
+  <canvas id="chd3" width="720" height="290" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <div class="lm-row" id="chd3R"></div>
+</div>
+<script>chdWidget('chd3',['cls','logit']);</script>
+```
 
 
 
@@ -149,27 +292,23 @@ Results of $g^{-1}(\hat \beta_0 + \hat \beta_1 x)$ obtained by MLE
 
 . . .
 
-If $\Phi$ is the CDF of a $\mathcal{N}(0, 1)$ distribution, we take [$g^{-1}(t) = \Phi(t)$]{style="background-color: lightblue;"}
+With $\Phi$ the CDF of the $\mathcal{N}(0, 1)$ distribution, we take [$g^{-1}(t) = \Phi(t)$]{style="background-color: lightblue;"}
 
 
-::: {.columns}
-
-::: {.column}
-::: {style="text-align: center;"}
-![](../images/probit.png){width=100%}
-:::
+::: {style="font-size:80%"}
+Curve: $g^{-1}(\hat\beta_0+\hat\beta_1 x)$ with $\hat\beta$ obtained by MLE. **Hover** to read $\hat p(x)$.
 :::
 
-::: {.column}
-\
-\
-Results of $g^{-1}(\hat \beta_0 + \hat \beta_1 x)$ obtained by MLE
-:::
+```{=html}
+<div style="text-align:center">
+  <canvas id="chd4" width="720" height="300" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <div class="lm-row" id="chd4R"></div>
+</div>
+<script>chdWidget('chd4',['cls','probit']);</script>
+```
 
-:::
 
-
-## Example: Model cloglog
+## Example: The cloglog Model
 
 
 
@@ -181,21 +320,17 @@ $$g^{-1}(t) = 1 - e^{-e^t}$$
 
 . . .
 
-::: {.columns}
-
-::: {.column}
-::: {style="text-align: center;"}
-![](../images/cloglog.png){width=100%}
-:::
+::: {style="font-size:80%"}
+Curve: $g^{-1}(\hat\beta_0+\hat\beta_1 x)$ with $\hat\beta$ obtained by MLE. **Hover** to read $\hat p(x)$.
 :::
 
-::: {.column}
-\
-\
-Results of $g^{-1}(\hat \beta_0 + \hat \beta_1 x)$ obtained by MLE
-:::
-
-:::
+```{=html}
+<div style="text-align:center">
+  <canvas id="chd5" width="720" height="290" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <div class="lm-row" id="chd5R"></div>
+</div>
+<script>chdWidget('chd5',['cls','cloglog']);</script>
+```
 
 
 
@@ -206,32 +341,35 @@ Results of $g^{-1}(\hat \beta_0 + \hat \beta_1 x)$ obtained by MLE
 
 . . .
 
-logit and probit give  [approximately the same result]{style="background-color: yellow;"}
-cloglog differs slightly and is not "symmetric"
+logit and probit give [approximately the same result]{style="background-color: yellow;"}; cloglog differs slightly and is not "symmetric"
 
-::: {style="text-align: center;"}
-![](../images/logitprobitloglog.png){width=50%}
-:::
+```{=html}
+<div style="text-align:center">
+  <canvas id="chd6" width="720" height="300" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <div class="lm-row" id="chd6R"></div>
+</div>
+<script>chdWidget('chd6',['logit','probit','cloglog']);</script>
+```
 
-## Which Link Function to Choose for Binary Case?
+## Which Link Function for Binary Y?
 
 
-
-. . .
-
-**Question**: Which link function to choose in practice when $Y$ is binary?
-
-. . .
-
-**Default choice**: By default, we favor the **logit model**
 
 . . .
 
-**Exceptions**: Unless there is a good reason to choose something else (probit model, complementary log-log, or log-log)
+**Question**: which link function should we choose in practice when $Y$ is binary?
 
 . . .
 
-**Next steps**: We return to the 3 usual choices to justify this preference
+**Default choice**: we favor the [**logit model**]{style="background-color: yellow;"}
+
+. . .
+
+**Exceptions**: unless there is a good reason to choose another link (probit, complementary log-log, or log-log)
+
+. . .
+
+**Next steps**: we revisit the 3 usual choices to justify this preference
 
 ## Details on the Probit Model
 
@@ -248,7 +386,7 @@ where [$Z(x) \sim \mathcal{N}(x^T\beta, \sigma^2)$]{style="background-color: lig
 
 . . .
 
-If $\Phi$ is the CDF of a $\mathcal N(0,1)$
+With $\Phi$ the CDF of $\mathcal N(0,1)$, we get
 $$P(Y = 1|X = x) = P(Z(x) \geq \tau) = \Phi\left(\frac{x^T\beta - \tau}{\sigma}\right)$$
 
 
@@ -257,8 +395,8 @@ $$P(Y = 1|X = x) = P(Z(x) \geq \tau) = \Phi\left(\frac{x^T\beta - \tau}{\sigma}\
 
 
 
-- $Y$ represents a purchase decision, and $Z(x)$ quantifies the utility of the good
-- $Y$ is a declared psychological state (happiness, depression) and $Z(x)$ is a latent, unobserved measure of personal satisfaction
+- $Y$ is a purchase decision, and $Z(x)$ quantifies the [utility]{style="background-color: yellow;"} of the good
+- $Y$ is a declared psychological state (happiness, depression) and $Z(x)$ is an [unobserved (latent) measure]{style="background-color: yellow;"} of personal satisfaction
 
 ## Probit vs Logit: Current Trends
 
@@ -266,22 +404,22 @@ $$P(Y = 1|X = x) = P(Z(x) \geq \tau) = \Phi\left(\frac{x^T\beta - \tau}{\sigma}\
 
 . . .
 
-**Econometricians**: The [probit model]{style="background-color: yellow;"} remains relatively popular among [econometricians]{style="background-color: yellow;"}...
+**Econometricians**: the [probit model]{style="background-color: yellow;"} remains fairly popular among [econometricians]{style="background-color: yellow;"}...
 
 . . .
 
-**General trend**: but it tends to be [replaced by the logistic model]{style="background-color: yellow;"}
+**General trend**: ...but it tends to be [replaced by the logistic model]{style="background-color: yellow;"}
 
 . . .
 
-**Advantages of logit**: The [logit model has many advantages]{style="background-color: yellow;"} that probit does not have:
+**Advantages of logit**: the [logit model has many advantages]{style="background-color: yellow;"} that probit lacks:
 
 - Interpretation of results
 - Explicit formulas
 
 . . .
 
-**Theoretical justification**: CDF of probit close to CDF of logit
+**Theoretical justification**: the probit CDF is close to the logit CDF
 
 
 ## Remarks on cloglog Model
@@ -290,7 +428,7 @@ $$P(Y = 1|X = x) = P(Z(x) \geq \tau) = \Phi\left(\frac{x^T\beta - \tau}{\sigma}\
 
 . . .
 
-The modeling approach is $p(x) = g^{-1}(x^T\beta)$ with
+The model is $p(x) = g^{-1}(x^T\beta)$ with
 
 ::: {.square-def}
 $$g(t) = \ln(-\ln(1-t)) \quad \text{i.e.} \quad g^{-1}(t) = 1 - e^{-e^t}$$
@@ -300,28 +438,28 @@ $$g(t) = \ln(-\ln(1-t)) \quad \text{i.e.} \quad g^{-1}(t) = 1 - e^{-e^t}$$
 
 . . .
 
-Not symmetric in the sense that [$g(t) \neq -g(1-t)$]{style="background-color: lightblue;"}.
+It is not symmetric, in the sense that [$g(t) \neq -g(1-t)$]{style="background-color: lightblue;"}.
 
-$p(x)$ approaches $0$ slowly but $1$ very rapidly
-
-. . .
-
-If the opposite is true: take $g(t) = -\ln(-\ln(t))$ (loglog model)
+$p(x)$ approaches $0$ slowly but $1$ very rapidly.
 
 . . .
 
-Useful in [survival models]{style="background-color: yellow;"} (e.g. Cox)
+If the opposite holds (fast to $0$, slow to $1$), take $g(t) = -\ln(-\ln(t))$ (loglog model).
+
+. . .
+
+cloglog is useful in [survival models]{style="background-color: yellow;"} (e.g. the Cox model).
 
 
 ## Details on the Logit Model
 
 
 
-1. Highly valued interpretation tool: odds-ratios.
+1. A highly valued interpretation tool: odds ratios.
 
-2. More "practical" from a theoretical point of view.
+2. More convenient from a theoretical point of view.
 
-3. Natural model in many situations.
+3. A natural model in many situations.
 
 
 ## Theoretical Motivation of Logit
@@ -330,9 +468,9 @@ Useful in [survival models]{style="background-color: yellow;"} (e.g. Cox)
 
 . . .
 
-We will show in exercises that:
+We will show in the exercises that:
 
-[If]{style="background-color: orange;"} the two groups of individuals associated with $Y = 0$ and $Y = 1$ have a Gaussian distribution of $X$ with different means, i.e. for $m_0 \neq m_1$,
+[If]{style="background-color: orange;"}, in the two groups $Y = 0$ and $Y = 1$, $X$ is Gaussian with different means $m_0 \neq m_1$ (and the same covariance $\Sigma$),
 
 ::: {.square-def}
 $X|(Y = 0) \sim \mathcal N(m_0, \Sigma) \and X|(Y = 1) \sim \mathcal N(m_1, \Sigma)$
@@ -344,7 +482,7 @@ $X|(Y = 0) \sim \mathcal N(m_0, \Sigma) \and X|(Y = 1) \sim \mathcal N(m_1, \Sig
 
 . . .
 
-The previous result remains true for any distribution from the exponential family instead of $\mathcal N$.
+The result still holds for two distributions of the same exponential family (with sufficient statistic $x$) that differ only by their natural parameter.
 
 
 ## Summary for Binary Variables
@@ -355,7 +493,7 @@ The previous result remains true for any distribution from the exponential famil
 
 If $Y$ is a binary variable, [$(Y|X = x) \sim \mathcal B(p(x))$]{style="background-color: lightblue;"}.
 
-In a GLM model for $Y$, we set $p(x) = g^{-1}(x^T\beta)$ where $g$ is:
+In a GLM for $Y$, we set $p(x) = g^{-1}(x^T\beta)$ where $g$ is:
 
 - [by default the logit]{style="background-color: yellow;"} function, which is the most natural;
 
@@ -369,25 +507,30 @@ In a GLM model for $Y$, we set $p(x) = g^{-1}(x^T\beta)$ where $g$ is:
 . . .
 
 
-In the following, we will [focus on the logit model]{style="background-color: yellow;"}.
+From now on, we [focus on the logit model]{style="background-color: yellow;"}.
 
-## Outline
+## Roadmap for the Logit Model
 
-
-
-- interpret the model,
-- estimate $\beta$ from a dataset,
-- evaluate the quality of estimation,
-- exploit it to make predictions/classification.
+- **Interpretation**: what does a coefficient $\beta_j$ mean?
+- **Estimation**: compute $\hat\beta$ by maximum likelihood; when does it exist?
+- **Inference**: tests and confidence intervals on $\beta$, model comparison
+- **Prediction**: estimate $p(x)$ for a new individual, classify it
 
 # Model Interpretation
+
+## Outline: Interpretation
+
+- How the sign and size of $\beta_j$ shape $p(x)$
+- A running example: the BMI study
+- Odds and odds ratios
+- In logistic regression, the odds ratio is $e^{\beta_j}$
 
 
 ## Interpretation of the Logistic Model
 
 . . .
 
-If $x=(x^{(1)}, \dots, x^{(p)}) \in \mathbb R^{p \times 1}$
+For $x=(x^{(1)}, \dots, x^{(p)}) \in \mathbb R^{p \times 1}$,
 
 ::: {.square-def}
 $$p(x) = \text{logit}^{-1}(x^T\beta) = \frac{e^{x^T\beta}}{1 + e^{x^T\beta}}$$
@@ -395,33 +538,94 @@ $$p(x) = \text{logit}^{-1}(x^T\beta) = \frac{e^{x^T\beta}}{1 + e^{x^T\beta}}$$
 
 
 
-- $x^{(j)} \to p(x)$ is increasing if $\beta_j > 0$, decreasing otherwise.
+- The map $x^{(j)} \to p(x)$ (other regressors fixed) is increasing if $\beta_j > 0$, decreasing if $\beta_j < 0$ (constant if $\beta_j = 0$).
 
-- The larger $|\beta_j|$ is, the stronger the discriminatory power of regressor $X^{(j)}$ (a small variation in $x^{(j)}$ can cause a large variation in $p(x)$).
+- The larger $|\beta_j|$, the stronger the [discriminatory power]{style="background-color: yellow;"} of regressor $X^{(j)}$: a small change in $x^{(j)}$ can cause a large change in $p(x)$.
 
-## Shape of logit function
+## Shape of the logistic curve {.smaller}
 
 
 
 . . .
 
 
-::: {style="text-align: center;"}
-![](../images/shape_logit.png){width=40%}
+::: {style="font-size:90%"}
+As a function of $x^{(j)}$ (other regressors fixed): the **sign** of $\beta_j$ gives the direction, $|\beta_j|$ the steepness, slope $\beta_j/4$ at $p=1/2$.
 :::
 
-shape of $x^{(j)} \to p(x)$
+```{=html}
+<div style="text-align:center">
+  <canvas id="shapeC" width="680" height="300" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px"></canvas>
+  <div class="lm-row">
+    <button class="lm-btn" data-b="1">β<sub>j</sub> = 1</button>
+    <button class="lm-btn" data-b="10">β<sub>j</sub> = 10</button>
+    <button class="lm-btn" data-b="-1">β<sub>j</sub> = −1</button>
+    <button class="lm-btn" data-b="-10">β<sub>j</sub> = −10</button>
+  </div>
+  <div class="lm-row">
+    β<sub>j</sub> <input id="shapeB1" type="range" min="-10" max="10" step="0.1" value="1" autocomplete="off" style="vertical-align:middle;width:200px"> <b id="shapeB1v" style="display:inline-block;width:3.2em">1.0</b>
+    &nbsp; other terms <input id="shapeB0" type="range" min="-4" max="4" step="0.1" value="0" autocomplete="off" style="vertical-align:middle;width:160px"> <b id="shapeB0v" style="display:inline-block;width:3.2em">0.0</b>
+  </div>
+</div>
+<script>
+(function () {
+  var cv=document.getElementById('shapeC'); if(!cv||cv.dataset.init)return; cv.dataset.init=1;
+  var c=cv.getContext('2d'),W=cv.width,H=cv.height;
+  var s1=document.getElementById('shapeB1'),s0=document.getElementById('shapeB0'),v1=document.getElementById('shapeB1v'),v0=document.getElementById('shapeB0v');
+  var btns=[].slice.call(cv.parentNode.querySelectorAll('button[data-b]'));
+  var ml=60,mr=16,mt=14,mb=40,x0=-3,x1=3,y0=-.04,y1=1.04,KEY='glmShape';
+  function X(a){return ml+(a-x0)/(x1-x0)*(W-ml-mr);}
+  function Y(p){return H-mb-(p-y0)/(y1-y0)*(H-mt-mb);}
+  function sig(t){return 1/(1+Math.exp(-t));}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({b1:+s1.value,b0:+s0.value}));}catch(e){}}
+  function draw(){
+    var b1=+s1.value,b0=+s0.value;
+    v1.textContent=b1.toFixed(1);v0.textContent=(b0>=0?'+':'')+b0.toFixed(1);
+    btns.forEach(function(b){b.classList.toggle('on',+b.dataset.b===b1&&b0===0);});
+    c.clearRect(0,0,W,H);c.fillStyle='#fff';c.fillRect(0,0,W,H);c.font='14px sans-serif';c.lineWidth=1;
+    c.fillStyle='#666';c.textAlign='right';c.textBaseline='middle';
+    [0,.5,1].forEach(function(p){c.strokeStyle=p===.5?'#e3e3e3':'#ccc';c.beginPath();c.moveTo(ml,Y(p));c.lineTo(W-mr,Y(p));c.stroke();c.fillText(p,ml-8,Y(p));});
+    c.textAlign='center';c.textBaseline='top';
+    for(var a=-3;a<=3;a++){c.strokeStyle='#f2f2f2';c.beginPath();c.moveTo(X(a),mt);c.lineTo(X(a),H-mb);c.stroke();c.fillText(a,X(a),H-mb+6);}
+    c.fillStyle='#333';c.fillText('x⁽ʲ⁾',(ml+W-mr)/2,H-20);
+    c.save();c.translate(16,(mt+H-mb)/2);c.rotate(-Math.PI/2);c.textBaseline='middle';c.fillText('p(x)',0,0);c.restore();
+    c.save();c.beginPath();c.rect(ml,mt,W-ml-mr,H-mt-mb);c.clip();
+    // midpoint p = 1/2 and tangent of slope βj/4
+    if(Math.abs(b1)>1e-9){
+      var xm=-b0/b1;
+      if(xm>x0&&xm<x1){
+        c.strokeStyle='#999';c.setLineDash([4,4]);c.beginPath();c.moveTo(X(xm),Y(.5));c.lineTo(X(xm),Y(0));c.stroke();c.setLineDash([]);
+        var dx=Math.min(1.2,1.2/Math.abs(b1));
+        c.strokeStyle='#3498db';c.lineWidth=2;c.setLineDash([7,5]);c.beginPath();
+        c.moveTo(X(xm-dx),Y(.5-b1/4*dx));c.lineTo(X(xm+dx),Y(.5+b1/4*dx));c.stroke();c.setLineDash([]);
+        c.fillStyle='#3498db';c.textAlign='left';c.textBaseline='middle';
+        c.fillText('slope βⱼ/4 = '+(b1/4).toFixed(2),X(xm)+12,Y(.5)+(b1>0?18:-18));
+        c.beginPath();c.arc(X(xm),Y(.5),5,0,7);c.fillStyle='#2c3e50';c.fill();
+      }
+    }
+    c.strokeStyle='#e74c3c';c.lineWidth=3;c.beginPath();
+    for(var i=0;i<=600;i++){var a=x0+(x1-x0)*i/600,py=Y(sig(b0+b1*a));if(i)c.lineTo(X(a),py);else c.moveTo(X(a),py);}
+    c.stroke();c.restore();c.lineWidth=1;
+    save();
+  }
+  btns.forEach(function(b){b.onclick=function(){s1.value=b.dataset.b;s0.value=0;draw();};});
+  s1.addEventListener('input',draw);s0.addEventListener('input',draw);
+  try{var sv=JSON.parse(localStorage.getItem(KEY));if(sv){s1.value=sv.b1;s0.value=sv.b0;}}catch(e){}
+  draw();
+})();
+</script>
+```
 
 
 ## Example: BMI Study (French: IMC)
 
 . . .
 
-For each of the 5300 patients, we observe:
+For each of the 5301 patients, we observe:
 
 - [$Y$: 1 if BMI > 35]{style="background-color: yellow;"}, 0 otherwise
 - AGE
-- DBP: low pressure (diastolic)
+- DBP: diastolic blood pressure
 - SEXE: male or female
 - ACTIV: 1 if intense sports activity, 0 otherwise
 - WALK: 1 if walking or cycling to work, 0 otherwise
@@ -434,11 +638,11 @@ For each of the 5300 patients, we observe:
 
 . . .
 
-We seek to model $P(Y = 1|X)$ where $X$ groups the previous variables (excluding $Y$).
+We model $P(Y = 1|X)$, where $X$ gathers all the previous variables except $Y$.
 
 . . .
 
-In R, we use the `glm` function with the `family=binomial` option.
+In R, we use the `glm` function with the option `family=binomial`:
 
 ```r
 glm(Y ~ AGE + DBP + SEXE + ACTIV + WALK + MARITAL, family=binomial)
@@ -469,11 +673,11 @@ glm(Y ~ AGE + DBP + SEXE + ACTIV + WALK + MARITAL, family=binomial)
 
 . . .
 
-The interpretation is similar to that of a linear regression model.
+The table reads as for a linear regression (estimates, standard errors, tests).
 
 . . .
 
-We want to remove the MARITAL variable from the model.
+None of the MARITAL coefficients is significant: we want to remove MARITAL from the model.
 
 ## Model Results with AGE²
 
@@ -484,7 +688,7 @@ We want to remove the MARITAL variable from the model.
 glm(Y ~ AGE + I(AGE^2) + DBP + SEXE + WALK + ACTIV, family=binomial)
 ```
 
-Gives
+which gives:
 
 . . .
 
@@ -500,17 +704,17 @@ Gives
 | ACTIV1      | -0.6573558 | 0.1150226  | -5.715  | 1.10e-08    | ***          |
 :::
 
-For someone for which WALK1=0 and [ACTIV1=0]{style="background-color: yellow;"}:
+For an individual with WALK1=0 and [ACTIV1=0]{style="background-color: yellow;"}:
 
 :::{style="font-size: 50%;"}
-$P(Y = 1|\text{AGE}, \text{DBP}) = \text{logit}^{-1}(-3.95 + 0.064 \times \text{AGE} - 0.00068 \times \text{AGE}^2 + 0.0122 \times \text{DBP})$
+$P(Y = 1|\text{AGE}, \text{DBP}) = \text{logit}^{-1}(-3.96 + 0.064 \times \text{AGE} - 0.00068 \times \text{AGE}^2 + 0.0122 \times \text{DBP})$
 :::
 . . .
 
-For someone for which WALK1=0 and [ACTIV1=1]{style="background-color: yellow;"}:
+For an individual with WALK1=0 and [ACTIV1=1]{style="background-color: yellow;"}:
 
 :::{style="font-size: 50%;"}
-$P(Y = 1|\text{AGE}, \text{DBP}) = \text{logit}^{-1}(-3.95 + 0.064 \times \text{AGE} - 0.00068 \times \text{AGE}^2 + 0.0122 \times \text{DBP} \color{red}{ - 0.657})$
+$P(Y = 1|\text{AGE}, \text{DBP}) = \text{logit}^{-1}(-3.96 + 0.064 \times \text{AGE} - 0.00068 \times \text{AGE}^2 + 0.0122 \times \text{DBP} \color{red}{ - 0.657})$
 :::
 
 
@@ -527,11 +731,11 @@ $$\text{odds} = \frac{p}{1-p}$$
 
 . . .
 
-**Betting interpretation** for example, $3$ to $1$ means that for $3$ people betting on $A$, $1$ person bets on $B$. 
+**Betting interpretation**: odds of $3$ to $1$ mean that for every $3$ people betting on $A$, $1$ person bets on $B$.
 
 . . .
 
-So a randomly chosen bettor has a probability of $p=3/4$ of betting on $A$ and $1-p=1/4$ on betting on $B$
+So a randomly chosen bettor bets on $A$ with probability [$p=3/4$]{style="background-color: lightblue;"} and on $B$ with probability $1-p=1/4$.
 
 
 ## Odds given X=x
@@ -540,7 +744,7 @@ So a randomly chosen bettor has a probability of $p=3/4$ of betting on $A$ and $
 
 . . .
 
-Similarly, the odds of obtaining $Y = 1$ given $X = x$ is:
+Similarly, the odds of $Y = 1$ given $X = x$ are
 
 ::: {.square-def}
 $$\text{odds}(x) = \frac{p(x)}{1 - p(x)}$$
@@ -558,7 +762,7 @@ where $p(x) = P(Y = 1|X = x)$.
 
 . . .
 
-If two individuals have characteristics $x_1$ and $x_2$ respectively, we call the odds ratio between $x_1$ and $x_2$:
+For two individuals with characteristics $x_1$ and $x_2$, the [odds ratio]{style="background-color: yellow;"} between $x_1$ and $x_2$ is
 
 $$OR(x_1, x_2) = \frac{\text{odds}(x_1)}{\text{odds}(x_2)} = \frac{\frac{p(x_1)}{1-p(x_1)}}{\frac{p(x_2)}{1-p(x_2)}}$$
 
@@ -567,17 +771,17 @@ $$OR(x_1, x_2) = \frac{\text{odds}(x_1)}{\text{odds}(x_2)} = \frac{\frac{p(x_1)}
 ::: {.callout-warning}
 [**DO NOT CONFUSE ODDS RATIO WITH PROBABILITY RATIO**]{style="background-color: orange;"}
 
-Only possible exception: if $p(x_1)$ and $p(x_2)$ are very small because then $1 - p(x_1) \approx 1$ and $1 - p(x_2) \approx 1$, so that $OR(x_1, x_2) \approx p(x_1)/p(x_2)$
+Only possible exception: if $p(x_1)$ and $p(x_2)$ are both very small, then $1 - p(x_1) \approx 1$ and $1 - p(x_2) \approx 1$, so that $OR(x_1, x_2) \approx p(x_1)/p(x_2)$
 :::
 
 
-## Link with Proba. Ratio
+## Link with the Probability Ratio
 
 
 
 . . .
 
-However, it remains that:
+However, the OR and the probability ratio are [always on the same side of $1$]{style="background-color: yellow;"}:
 
 $$\begin{aligned}
 OR(x_1, x_2) > 1 &\Leftrightarrow \frac{p(x_1)}{p(x_2)} > 1\\
@@ -586,11 +790,11 @@ OR(x_1, x_2) = 1 &\Leftrightarrow \frac{p(x_1)}{p(x_2)} = 1
 \end{aligned}$$
 
 
-## Other Property of Odds Ratio
+## Another Property of the Odds Ratio
 
 . . .
 
-$OR(x_1, x_2)$ accentuates the differences compared to $p(x_1)/p(x_2)$:
+$OR(x_1, x_2)$ [accentuates the differences]{style="background-color: yellow;"}: it is further from $1$ than $p(x_1)/p(x_2)$:
 
 $$\begin{aligned}
 OR(x_1, x_2) > \frac{p(x_1)}{p(x_2)} &\text{ when } OR(x_1, x_2) > 1\\
@@ -602,25 +806,25 @@ OR(x_1, x_2) < \frac{p(x_1)}{p(x_2)} &\text{ when } OR(x_1, x_2) < 1
 
 . . .
 
-A logistic regression is most often used to compare the [behavior of two individuals]{style="background-color: lightgreen;"} with respect to [the variable of interest]{style="background-color: lightblue;"}.
+Logistic regression is most often used to compare the [behavior of two individuals]{style="background-color: lightgreen;"} with respect to [the variable of interest]{style="background-color: lightblue;"}.
 
 . . .
 
 Examples:
 
 - [probability of purchase]{style="background-color: lightgreen;"} depending on whether or not one has been the [subject of a personalized promotion]{style="background-color: lightblue;"};
-- for a given vehicle, [probability of experiencing a breakdown]{style="background-color: lightgreen;"} [according to age]{style="background-color: lightblue;"};
-- [probability of recovery]{style="background-color: lightgreen;"} according to the [treatment used]{style="background-color: lightblue;"};
+- [probability of a breakdown]{style="background-color: lightgreen;"} of a vehicle [according to its age]{style="background-color: lightblue;"};
+- [probability of recovery]{style="background-color: lightgreen;"} according to the [treatment used]{style="background-color: lightblue;"}.
 
 
 ## Odds Ratio in Logistic Regression
 
 . . .
 
-It holds that [$\text{odds}(x) = \frac{p(x)}{1 - p(x)} = \exp(x^T \beta)$]{style="background-color: lightblue;"}
+In the logistic model, [$\text{odds}(x) = \frac{p(x)}{1 - p(x)} = \exp(x^T \beta)$]{style="background-color: lightblue;"}
 
 
-Hence, 
+Hence
 
 ::: {.square-def}
 $OR(x_1, x_2) = \frac{\text{odds}(x_1)}{\text{odds}(x_2)} = \exp((x_1 - x_2)^T \beta)$
@@ -629,33 +833,33 @@ $OR(x_1, x_2) = \frac{\text{odds}(x_1)}{\text{odds}(x_2)} = \exp((x_1 - x_2)^T \
 
 . . .
 
-If the two individuals differ only by regressor $j$, then
+If the two individuals differ only in regressor $j$:
 
 $OR(x_1, x_2) = \exp(\beta_j (x_1^{(j)} - x_2^{(j)}))$
 
 . . .
 
-If regressor $j$ is binary ($x_1^{(j)} = 1$ while $x_2^{(j)} = 0$):
+If regressor $j$ is binary ($x_1^{(j)} = 1$ and $x_2^{(j)} = 0$):
 
-$OR(x_1, x_2) = \exp(\beta_j)$
+[$OR(x_1, x_2) = \exp(\beta_j)$]{style="background-color: lightblue;"}
 
 
 ## Key Summary Statement
 
 . . .
 
-In a logistic regression model, $\beta_j$ is interpreted as the logarithm of the odds-ratio between two individuals differing by a quantity of $1$ on regressor $j$, all else being equal.
+In a logistic regression model, $\beta_j$ is the logarithm of the odds ratio between two individuals whose regressor $j$ differs by $1$, all else being equal.
 
 . . .
 
 **In brief:** [$\exp(\beta_j) = OR(x^{(j)} + 1, x^{(j)})$]{style="background-color: yellow;"}
 
 
-If regressor $j$ is binary (absence or presence of a certain characteristic):
+If regressor $j$ is binary (presence or absence of a characteristic):
 
 . . .
 
-$\exp(\beta_j)$ is simply the OR between the [presence or absence]{style="background-color: yellow;"} of this characteristic, all else being equal.
+$\exp(\beta_j)$ is simply the OR between [presence and absence]{style="background-color: yellow;"} of this characteristic, all else being equal.
 
 
 ## Example 1: Intense Sports Activity
@@ -676,7 +880,7 @@ $\exp(\beta_j)$ is simply the OR between the [presence or absence]{style="backgr
 
 . . .
 
-The Odds Ratio corresponding to practicing or not practicing intense sports activity is, all else being equal:
+All else being equal, the OR between practicing and not practicing intense sports activity is
 
 . . .
 
@@ -684,13 +888,15 @@ $\exp(-0.657) \approx 0.52$
 
 . . .
 
-The odds of obesity occurrence therefore decrease by half for individuals practicing intense sports activity.
+The odds of obesity are therefore [roughly halved]{style="background-color: lightblue;"} for individuals who practice intense sports activity.
 
 
-**(The odds, not the probability!)**
+[**(The odds, not the probability!)**]{style="background-color: orange;"}
 
 
 ## Example 2: Diastolic Pressure
+
+. . .
 
 :::{style="font-size: 50%;"}
 | Variable    | Estimate   | Std. Error | z value | Pr(>|z|)    | Significance |
@@ -704,7 +910,7 @@ The odds of obesity occurrence therefore decrease by half for individuals practi
 | ACTIV1      | -0.6573558 | 0.1150226  | -5.715  | 1.10e-08    | ***          |
 :::
 
-The OR for a diastolic pressure difference of $+20$ is:
+All else being equal, the OR for an increase of $+20$ in diastolic pressure is
 
 . . .
 
@@ -712,10 +918,17 @@ $\exp(0.0121546 \times 20) \approx 1.28$
 
 . . .
 
-The odds of obesity occurrence therefore increase by $28\%$.
+The odds of obesity therefore increase by [$28\%$]{style="background-color: lightblue;"}.
 
 
 # Estimation of the Parameters
+
+## Outline: Estimation
+
+- Likelihood and log-likelihood of the logistic model
+- The MLE has no closed form: numerical optimization
+- Uniqueness (when $\text{rank}(X) = p$) and existence (when the classes overlap)
+- Asymptotic normality of $\hat\beta$ and Fisher information
 
 ## The Framework
 
@@ -725,7 +938,7 @@ We observe $n$ i.i.d. realizations $(Y_i, X_i)$ where $Y_i \in \{0, 1\}$ and $X_
 
 . . .
 
-We denote $p(x_i) = P(Y_i = 1|X_i = x_i)$.
+We write $p(x_i) = P(Y_i = 1|X_i = x_i)$.
 
 ## The Logistic Model
 
@@ -755,14 +968,14 @@ We will estimate $\beta$ by [maximizing the likelihood]{style="background-color:
 
 . . .
 
-We will denote [$p_\beta(x_i)$]{style="background-color: lightblue;"} to emphasize the dependence of [$p(x_i)$]{style="background-color: lightblue;"} on $\beta$.
+We write [$p_\beta(x_i)$]{style="background-color: lightblue;"} instead of $p(x_i)$ to emphasize its dependence on $\beta$.
 
 
 ## Likelihood Calculation
 
 . . .
 
-For all $i$, $Y_i|(X_i = x_i)$ follows the distribution $B(p_\beta(x_i))$. Therefore
+For each $i$, $Y_i|(X_i = x_i)$ follows the Bernoulli distribution $B(p_\beta(x_i))$, so
 
 :::{style="font-size: 80%;"}
 ::: {.square-def}
@@ -792,7 +1005,7 @@ $$\ell(\beta, y_1, \ldots, y_n, x_1, \ldots, x_n) = \prod_{i=1}^n p_\beta(x_i)^{
 
 . . .
 
-Taking the log and replacing $p(x_i)$ by its expression, we obtain the log-likelihood:
+Taking the log and plugging in the expression of $p(x_i)$, we get the log-likelihood:
 
 :::{style="font-size: 80%;"}
 ::: {.square-def}
@@ -807,7 +1020,7 @@ L(\beta, y_1, \ldots, y_n, x_1, \ldots, x_n) &= \ln(\ell) \\
 
 . . .
 
-The MLE $\hat{\beta}$, if it exists, cancels the gradient of $L$ with respect to $\beta$. This gradient equals
+If it exists, the MLE $\hat{\beta}$ is a zero of the gradient of $L$ with respect to $\beta$, which equals
 
 ::: {.square-def}
 $$\frac{\partial L}{\partial \beta} = \sum_{i=1}^n x_i \left(y_i - \frac{e^{x_i^T \beta}}{1 + e^{x_i^T \beta}}\right)$$
@@ -815,21 +1028,21 @@ $$\frac{\partial L}{\partial \beta} = \sum_{i=1}^n x_i \left(y_i - \frac{e^{x_i^
 
 
 
-We therefore need to solve a system of $p$ equations with $p$ unknowns.
+We must therefore solve a system of $p$ equations in $p$ unknowns.
 
 . . .
 
-But the solution is not explicit: we resort to [numerical methods]{style="background-color: yellow;"} (Newton-Raphson algorithm)
+There is no explicit solution: we use [numerical methods]{style="background-color: yellow;"} (Newton–Raphson algorithm).
 
 ## Remarks on Optimization
 
 . . .
 
-This is a classic situation when using advanced statistical models: we often [resort to optimization algorithms]{style="background-color: yellow;"}.
+This is typical of advanced statistical models: we often [rely on optimization algorithms]{style="background-color: yellow;"}.
 
 . . .
 
-Does the solution exist? Is it unique?
+Two questions: does the solution exist? Is it unique?
 
 
 ## MLE Uniqueness
@@ -850,11 +1063,11 @@ If $\text{rank}(X) = p$, then the MLE, if it exists, is unique.
 
 . . .
 
-It suffices to show that $L$ is strictly concave in $\beta$.
+It suffices to show that [$L$ is strictly concave]{style="background-color: yellow;"} in $\beta$.
 
 . . .
 
-Hessian Matrix of $L$:
+The Hessian matrix of $L$ is
 
 $$\frac{\partial^2 L}{\partial \beta^2} = -\sum_{i=1}^n p_\beta(x_i)(1 - p_\beta(x_i)) x_i x_i^T$$
 
@@ -862,7 +1075,7 @@ $$\frac{\partial^2 L}{\partial \beta^2} = -\sum_{i=1}^n p_\beta(x_i)(1 - p_\beta
 
 . . .
 
-It is negative semi-definite. Moreover, for all $u \in \mathbb{R}^p$,
+It is [negative semi-definite]{style="background-color: yellow;"}. Moreover, for every $u \in \mathbb{R}^p$,
 
 $$\begin{aligned}
 u^T \frac{\partial^2 L}{\partial \beta^2} u = 0 &\Leftrightarrow u^T x_i x_i^T u = 0 \text{ for all } i\\
@@ -871,39 +1084,39 @@ u^T \frac{\partial^2 L}{\partial \beta^2} u = 0 &\Leftrightarrow u^T x_i x_i^T u
 &\Leftrightarrow u = 0
 \end{aligned}$$
 
-since $\text{rank}(X) = p$.
+where the last equivalence holds since [$\text{rank}(X) = p$]{style="background-color: lightblue;"}.
 
 ## Conclusion
 
 . . .
 
-Thus, for all $u \neq 0$, 
+Hence, for every $u \neq 0$,
 
 ::: {.square-def}
 $$u^T \frac{\partial^2 L}{\partial \beta^2} u < 0$$
 :::
 
 
-The Hessian matrix is negative definite and therefore $L$ is strictly concave,
+The Hessian is negative definite, so $L$ is strictly concave.
 
-The MLE is unique
+Hence [the MLE, if it exists, is unique]{style="background-color: lightblue;"}.
 
 
 ## About MLE Existence
 
 . . .
 
-Although $L$ is strictly concave, its [maximum can occur at infinity]{style="background-color: orange;"} (think of the $\ln$ function), in which case $\hat{\beta}$ does not exist.
+Even though $L$ is strictly concave, its [maximum can occur at infinity]{style="background-color: orange;"} (think of $t \mapsto -\ln(1+e^{-t})$, which increases towards $0$ without ever reaching it); then $\hat{\beta}$ does not exist.
 
 . . .
 
-This occurs if there is [non-overlap]{style="background-color: yellow;"}, i.e., separation by a hyperplane of the $x_i$ for which $y_i = 0$ and those for which $y_i = 1$.
+This happens when there is [non-overlap]{style="background-color: yellow;"}, i.e. when a hyperplane separates the $x_i$ with $y_i = 0$ from those with $y_i = 1$.
 
 ## Non-Overlap Situation
 
 . . .
 
-Mathematically, there is non-overlap if there exists $\alpha \in \mathbb{R}^p$ such that
+Mathematically, there is [non-overlap]{style="background-color: yellow;"} if there exists [$\alpha \in \mathbb{R}^p$, $\alpha \neq 0$]{style="background-color: lightblue;"}, such that
 
 $$\begin{cases}
 \text{for all } i \text{ such that } y_i = 0, & \alpha^T x_i \geq 0 \\
@@ -911,9 +1124,204 @@ $$\begin{cases}
 \end{cases}$$
 
 
-## Illustration of Non-Overlap Situation
+## Illustration of Non-Overlap Situation {.smaller}
 
-![](../images/non_recouvrement.png)
+::: {style="font-size:90%"}
+**Drag** a point across the boundary. Separated data: $\|\beta\|\to\infty$; gradient descent still converges *in direction*, to the max-margin separator.
+:::
+
+```{=html}
+<div style="text-align:center">
+  <canvas id="sepC" width="800" height="360" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <div class="lm-row">
+    <button class="lm-btn" data-m="sep">separated</button>
+    <button class="lm-btn" data-m="ovl">overlapping</button>
+    <button class="lm-btn" id="sepNew">↻ resample</button>
+    &nbsp;
+    <button class="lm-btn" data-a="newton">Newton</button>
+    <button class="lm-btn" data-a="gd">gradient descent</button>
+    <button class="lm-btn" data-a="ngd">normalized GD</button>
+    <button class="lm-btn" id="sepSvm">max-margin line</button>
+  </div>
+  <div class="lm-row">
+    <button class="lm-btn" id="sepPlay">▶ run</button>
+    &nbsp; step k <input id="sepK" type="range" min="0" max="40" step="1" value="40" autocomplete="off" style="vertical-align:middle;width:200px"> <b id="sepKv" style="display:inline-block;width:7.5em;text-align:left">40</b>
+  </div>
+</div>
+<script>
+(function () {
+  var cv=document.getElementById('sepC'); if(!cv||cv.dataset.init)return; cv.dataset.init=1;
+  var c=cv.getContext('2d'),W=cv.width,H=cv.height,KEY='glmSep2';
+  var kEl=document.getElementById('sepK'),kV=document.getElementById('sepKv'),playB=document.getElementById('sepPlay'),svmB=document.getElementById('sepSvm');
+  var mBtns=[].slice.call(cv.parentNode.querySelectorAll('button[data-m]')),aBtns=[].slice.call(cv.parentNode.querySelectorAll('button[data-a]'));
+  // left: data plane; right: ‖β‖ and angle to the max-margin direction along the iterations
+  var PL=12,PT=12,PW=500,PH=336,SC=62.5,xr=PW/SC/2,yr=PH/SC/2;
+  function X(x){return PL+PW/2+x*SC;} function Y(y){return PT+PH/2-y*SC;}
+  function IX(px){return (px-PL-PW/2)/SC;} function IY(py){return (PT+PH/2-py)/SC;}
+  function pos(e){var r=cv.getBoundingClientRect();return [(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height];}
+  function gauss(){var u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+  var NC=14,K=40,mode='sep',algo='newton',showSvm=true,pts=[],path=[],svm=null,TK=[];
+  // gradient descents are shown at log-spaced iterations t_k = TMAX^(k/K), k = 0..K
+  function setTK(){var TMAX=algo==='gd'?1e5:1e4;TK=[0];for(var k=1;k<=K;k++)TK.push(Math.max(TK[k-1]+1,Math.round(Math.pow(TMAX,k/K))));}
+  function sig(t){return 1/(1+Math.exp(-t));}
+  function l1pe(t){return t>0?t+Math.log1p(Math.exp(-t)):Math.log1p(Math.exp(t));}
+  function eta(b,p){return b[0]+b[1]*p.x+b[2]*p.y;}
+  function solve3(A,g){ // Gaussian elimination with partial pivoting
+    var M=A.map(function(r,i){return r.concat([g[i]]);});
+    for(var i=0;i<3;i++){var mx=i;for(var j=i+1;j<3;j++)if(Math.abs(M[j][i])>Math.abs(M[mx][i]))mx=j;var t=M[i];M[i]=M[mx];M[mx]=t;
+      for(j=i+1;j<3;j++){var f=M[j][i]/M[i][i];for(var k=i;k<4;k++)M[j][k]-=f*M[i][k];}}
+    var x=[0,0,0];for(i=2;i>=0;i--){var s=M[i][3];for(j=i+1;j<3;j++)s-=M[i][j]*x[j];x[i]=s/M[i][i];}return x;
+  }
+  function dev(b){var d=0;pts.forEach(function(p){var e=eta(b,p);d+=2*(p.c?l1pe(-e):l1pe(e));});return d;}
+  function newton(){
+    var b=[0,0,0];path=[b.slice()];
+    for(var k=0;k<K;k++){
+      var A=[[0,0,0],[0,0,0],[0,0,0]],g=[0,0,0];
+      pts.forEach(function(p){var xi=[1,p.x,p.y],e=Math.max(-700,Math.min(700,eta(b,p))),sp=sig(e),sm=sig(-e),w=sp*sm,r=p.c?sm:-sp; // stable for |η| large
+        for(var i=0;i<3;i++){g[i]+=r*xi[i];for(var j=0;j<3;j++)A[i][j]+=w*xi[i]*xi[j];}});
+      var rg=1e-12*(A[0][0]+A[1][1]+A[2][2]);for(var ii=0;ii<3;ii++)A[ii][ii]+=rg;
+      var s=solve3(A,g),n=Math.hypot(s[0],s[1],s[2]);if(!isFinite(n))break;
+      if(n>2.5)s=s.map(function(v){return v*2.5/n;}); // capped Newton step, so divergence is visible
+      b=[b[0]+s[0],b[1]+s[1],b[2]+s[2]];path.push(b.slice());
+    }
+    while(path.length<K+1)path.push(path[path.length-1]);
+  }
+  function gd(kmax,norm){ // gradient ascent on the log-likelihood, step 4/tr(XᵀX); normalized: step divided by the loss
+    var tr=0;pts.forEach(function(p){tr+=1+p.x*p.x+p.y*p.y;});
+    var lr=4/tr,b0=0,b1=0,b2=0,t=0,n=pts.length,xs=pts.map(function(p){return p.x;}),ys=pts.map(function(p){return p.y;}),cs=pts.map(function(p){return p.c;});
+    path=[[0,0,0]];
+    for(var k=1;k<=kmax;k++){
+      for(;t<TK[k];t++){var g0=0,g1=0,g2=0;
+        var Ls=0;
+        for(var i=0;i<n;i++){var e=b0+b1*xs[i]+b2*ys[i],r=cs[i]?1/(1+Math.exp(e)):-1/(1+Math.exp(-e));g0+=r;g1+=r*xs[i];g2+=r*ys[i];if(norm)Ls+=cs[i]?l1pe(-e):l1pe(e);}
+        var st=norm?lr/Math.min(1,Ls):lr;b0+=st*g0;b1+=st*g1;b2+=st*g2;}
+      path.push([b0,b1,b2]);
+    }
+    while(path.length<K+1)path.push(path[path.length-1]);
+  }
+  // hard-margin SVM in 2D = perpendicular bisector of the closest pair of points of the two convex hulls
+  function maxMargin(){
+    var A=pts.filter(function(p){return !p.c;}),B=pts.filter(function(p){return p.c;}),best=null;
+    function seg(p,a,b){var dx=b.x-a.x,dy=b.y-a.y,L=dx*dx+dy*dy,t=L?Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/L)):0;return {x:a.x+t*dx,y:a.y+t*dy};}
+    function scan(S,T,flip){S.forEach(function(p){for(var i=0;i<T.length;i++)for(var j=i;j<T.length;j++){
+      var q=seg(p,T[i],T[j]),d=Math.hypot(q.x-p.x,q.y-p.y);if(!best||d<best.d)best=flip?{d:d,a:q,b:p}:{d:d,a:p,b:q};}});}
+    scan(A,B,false);scan(B,A,true);
+    var w=[best.b.x-best.a.x,best.b.y-best.a.y],nw=Math.hypot(w[0],w[1])||1;w=[w[0]/nw,w[1]/nw];
+    var cc=w[0]*(best.a.x+best.b.x)/2+w[1]*(best.a.y+best.b.y)/2,m=best.d/2;
+    var ok=m>1e-9&&pts.every(function(p){return (2*p.c-1)*(w[0]*p.x+w[1]*p.y-cc)>1e-9;}); // a line separates ⇔ this one does
+    return {ok:ok,w:w,c:cc,m:m};
+  }
+  // hard-margin SVM on z = (1, x, y), intercept penalized too: the limit direction of gradient descent
+  // (Soudry et al., 2018). Dual coordinate ascent: max Σα − ½‖Σ αᵢ sᵢ zᵢ‖², α ≥ 0.
+  function hsvm(){
+    var Z=pts.map(function(p){var s=p.c?1:-1;return [s,s*p.x,s*p.y];}),a=Z.map(function(){return 0;}),w=[0,0,0];
+    for(var sw=0;sw<3000;sw++)for(var i=0;i<Z.length;i++){var z=Z[i],m=w[0]*z[0]+w[1]*z[1]+w[2]*z[2],q=z[0]*z[0]+z[1]*z[1]+z[2]*z[2],na=Math.max(0,a[i]+(1-m)/q),d=na-a[i];
+      if(d){a[i]=na;w=[w[0]+d*z[0],w[1]+d*z[1],w[2]+d*z[2]];}}
+    return {w:w,sv:pts.filter(function(p,i){return a[i]>1e-8;})};
+  }
+  function angle(b){if(!svm.ok)return NaN;var n=Math.hypot(b[0],b[1],b[2]),w=svm.h.w;if(n<1e-12)return NaN;
+    return Math.acos(Math.max(-1,Math.min(1,(b[0]*w[0]+b[1]*w[1]+b[2]*w[2])/n/Math.hypot(w[0],w[1],w[2]))))*180/Math.PI;}
+  function compute(fast){svm=maxMargin();if(svm.ok)svm.h=hsvm();setTK();if(algo==='newton')newton();else gd(fast&&algo==='gd'?32:K,algo==='ngd');}
+  function gen(){
+    for(var t=0;t<60;t++){
+      var d=mode==='sep'?1.55:0.55,sd=mode==='sep'?0.62:0.85;pts=[];
+      for(var i=0;i<2*NC;i++){var cl=i<NC?0:1,s=cl?1:-1;pts.push({x:s*d+sd*gauss(),y:s*d*0.35+sd*gauss(),c:cl});}
+      pts.forEach(function(p){p.x=Math.max(-xr+.2,Math.min(xr-.2,p.x));p.y=Math.max(-yr+.2,Math.min(yr-.2,p.y));});
+      if(maxMargin().ok===(mode==='sep'))break;
+    }
+    compute();
+  }
+  function lineAt(b,t,col,w,dash){ // draws {b0+b1 x+b2 y = t}
+    if(Math.abs(b[1])+Math.abs(b[2])<1e-12)return;
+    var p1,p2;
+    if(Math.abs(b[2])>Math.abs(b[1])){p1=[-xr-1,(t-b[0]-b[1]*(-xr-1))/b[2]];p2=[xr+1,(t-b[0]-b[1]*(xr+1))/b[2]];}
+    else{p1=[(t-b[0]-b[2]*(-yr-1))/b[1],-yr-1];p2=[(t-b[0]-b[2]*(yr+1))/b[1],yr+1];}
+    c.strokeStyle=col;c.lineWidth=w;c.setLineDash(dash||[]);c.beginPath();c.moveTo(X(p1[0]),Y(p1[1]));c.lineTo(X(p2[0]),Y(p2[1]));c.stroke();c.setLineDash([]);
+  }
+  function fmtT(t){return t>=1e4?(t/1e3).toFixed(0)+'k':String(t);}
+  function minipanel(vals,top,bot,title,vmaxMin,fmt,k){
+    var RL=PL+PW+50,RR=W-16,ok=vals.filter(function(v){return isFinite(v);});
+    var vm=Math.max(vmaxMin,ok.length?Math.max.apply(null,ok)*1.1:1);
+    function RX(i){return RL+i/K*(RR-RL);} function RY(v){return bot-v/vm*(bot-top);}
+    c.fillStyle='#333';c.font='13px sans-serif';c.textAlign='left';c.textBaseline='bottom';c.fillText(title,RL-34,top-5);
+    c.strokeStyle='#ccc';c.lineWidth=1;c.beginPath();c.moveTo(RL,top);c.lineTo(RL,bot);c.lineTo(RR,bot);c.stroke();
+    c.fillStyle='#777';c.font='11px sans-serif';c.textAlign='right';c.textBaseline='middle';c.fillText('0',RL-4,bot);c.fillText(fmt(vm),RL-4,top+4);
+    if(!ok.length){c.fillStyle='#999';c.font='12px sans-serif';c.textAlign='center';c.fillText('no separating line',(RL+RR)/2,(top+bot)/2);return;}
+    c.strokeStyle='#ccc';c.lineWidth=2;c.beginPath();var st=false;
+    vals.forEach(function(v,i){if(!isFinite(v))return;st?c.lineTo(RX(i),RY(v)):c.moveTo(RX(i),RY(v));st=true;});c.stroke();
+    c.strokeStyle='#2c3e50';c.beginPath();st=false;
+    for(var i=0;i<=k;i++){if(!isFinite(vals[i]))continue;st?c.lineTo(RX(i),RY(vals[i])):c.moveTo(RX(i),RY(vals[i]));st=true;}c.stroke();c.lineWidth=1;
+    if(isFinite(vals[k])){c.beginPath();c.arc(RX(k),RY(vals[k]),4,0,7);c.fillStyle='#2c3e50';c.fill();}
+    c.fillStyle='#777';c.font='11px sans-serif';c.textAlign='center';c.textBaseline='top';
+    if(algo==='newton'){c.fillText('0',RL,bot+3);c.fillText('k = '+K,RR-10,bot+3);}
+    else{var J=algo==='gd'?5:4;c.fillText('0',RL,bot+3);for(var j=1;j<=J;j++)c.fillText('10'+'¹²³⁴⁵'[j-1],RX(K*j/J),bot+3);}
+  }
+  function draw(){
+    var k=+kEl.value,b=path[k];
+    kV.textContent=algo==='newton'?'k = '+k:'t = '+fmtT(TK[k]);
+    mBtns.forEach(function(bt){bt.classList.toggle('on',bt.dataset.m===mode);});
+    aBtns.forEach(function(bt){bt.classList.toggle('on',bt.dataset.a===algo);});
+    svmB.classList.toggle('on',showSvm);
+    c.clearRect(0,0,W,H);c.fillStyle='#fff';c.fillRect(0,0,W,H);
+    c.save();c.beginPath();c.rect(PL,PT,PW,PH);c.clip();
+    for(var px=PL;px<PL+PW;px+=6)for(var py=PT;py<PT+PH;py+=6){
+      var p=sig(Math.max(-35,Math.min(35,b[0]+b[1]*IX(px+3)+b[2]*IY(py+3)))),a=Math.abs(p-.5)*0.62;
+      c.fillStyle=p>.5?'rgba(231,76,60,'+a+')':'rgba(52,152,219,'+a+')';c.fillRect(px,py,6,6);
+    }
+    lineAt(b,Math.log(9),'rgba(0,0,0,.35)',1,[5,4]);lineAt(b,-Math.log(9),'rgba(0,0,0,.35)',1,[5,4]);
+    lineAt(b,0,'#2c3e50',2.2);
+    var sv=[];
+    if(showSvm&&svm.ok){
+      var wb=svm.h.w;
+      lineAt(wb,0,'#8e44ad',2.2,[10,5]);lineAt(wb,1,'rgba(142,68,173,.55)',1.2,[3,4]);lineAt(wb,-1,'rgba(142,68,173,.55)',1.2,[3,4]);
+      sv=svm.h.sv;
+    }
+    pts.forEach(function(p){c.beginPath();c.arc(X(p.x),Y(p.y),7,0,7);c.fillStyle=p.c?'#e74c3c':'#3498db';c.fill();c.strokeStyle='#fff';c.lineWidth=1.5;c.stroke();});
+    sv.forEach(function(p){c.beginPath();c.arc(X(p.x),Y(p.y),11,0,7);c.strokeStyle='#8e44ad';c.lineWidth=2;c.stroke();});
+    c.restore();c.lineWidth=1;
+    c.strokeStyle='#ccc';c.strokeRect(PL,PT,PW,PH);
+    c.font='13px sans-serif';c.textAlign='left';c.textBaseline='top';
+    c.fillStyle='rgba(255,255,255,.85)';c.fillRect(PL+4,PT+PH-24,showSvm&&svm.ok?470:250,20);
+    c.fillStyle='#2c3e50';c.fillText('— p = 0.5',PL+8,PT+PH-21);c.fillStyle='#666';c.fillText('- - p = 0.1, 0.9',PL+80,PT+PH-21);
+    if(showSvm&&svm.ok){c.fillStyle='#8e44ad';c.fillText('- - max margin, SVM on (1, x, y)',PL+200,PT+PH-21);}
+    // right panels
+    var norms=path.map(function(q){return Math.hypot(q[0],q[1],q[2]);}),angs=path.map(angle);
+    minipanel(norms,PT+28,PT+118,'‖β‖',6,function(v){return v.toFixed(0);},k);
+    minipanel(angs,PT+168,PT+258,'angle(β, max-margin direction)',5,function(v){return v.toFixed(0)+'°';},k);
+    var tx=PL+PW+16;
+    c.font='13px sans-serif';c.textAlign='left';c.textBaseline='top';c.fillStyle='#333';
+    c.fillText('‖β‖ = '+norms[k].toFixed(1)+'    deviance = '+dev(b).toFixed(3),tx,PT+282);
+    if(svm.ok&&isFinite(angs[k]))c.fillText('angle to max margin = '+angs[k].toFixed(2)+'°',tx,PT+300);
+    c.font='bold 13px sans-serif';c.fillStyle=svm.ok?'#c0392b':'#1e8449';
+    c.fillText(svm.ok?'separated: the MLE does not exist':'overlap: the MLE exists, unique',tx,PT+322);
+  }
+  function save(){try{localStorage.setItem(KEY,JSON.stringify({m:mode,a:algo,s:showSvm,k:+kEl.value,p:pts}));}catch(e){}}
+  var drag=-1,timer=null;
+  function stop(){if(timer){clearInterval(timer);timer=null;playB.textContent='▶ run';}}
+  cv.addEventListener('pointerdown',function(e){var p=pos(e),best=14;drag=-1;
+    pts.forEach(function(q,i){var d=Math.hypot(X(q.x)-p[0],Y(q.y)-p[1]);if(d<best){best=d;drag=i;}});
+    if(drag>=0){stop();cv.setPointerCapture(e.pointerId);e.preventDefault();}});
+  cv.addEventListener('pointermove',function(e){if(drag<0)return;var p=pos(e);
+    pts[drag].x=Math.max(-xr+.1,Math.min(xr-.1,IX(p[0])));pts[drag].y=Math.max(-yr+.1,Math.min(yr-.1,IY(p[1])));
+    compute(true);draw();e.preventDefault();}); // GD: only up to t = 10⁴ while dragging
+  window.addEventListener('pointerup',function(){if(drag>=0){drag=-1;compute();draw();save();}});
+  function reset(){stop();compute();kEl.value=K;draw();save();}
+  mBtns.forEach(function(bt){bt.onclick=function(){mode=bt.dataset.m;gen();reset();};});
+  aBtns.forEach(function(bt){bt.onclick=function(){algo=bt.dataset.a;reset();};});
+  svmB.onclick=function(){showSvm=!showSvm;draw();save();};
+  document.getElementById('sepNew').onclick=function(){gen();reset();};
+  kEl.addEventListener('input',function(){draw();save();});
+  playB.onclick=function(){
+    if(timer){stop();return;}
+    kEl.value=0;draw();playB.textContent='■ stop';
+    timer=setInterval(function(){var k=+kEl.value+1;if(k>K){stop();save();return;}kEl.value=k;draw();},180);
+  };
+  var sv=null;try{sv=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+  if(sv&&sv.p&&sv.p.length===2*NC){mode=sv.m==='ovl'?'ovl':'sep';algo=(sv.a==='gd'||sv.a==='ngd')?sv.a:'newton';showSvm=sv.s!==false;pts=sv.p;compute();kEl.value=sv.k;}else gen();
+  draw();save();
+})();
+</script>
+```
 
 
 ## Non-Overlap and Existence
@@ -922,33 +1330,33 @@ $$\begin{cases}
 
 ::: {.callout-note}
 ## Proposition (admitted)
-In case of non-overlap, the estimator [$\hat{\beta}$ does not exist]{style="background-color: orange;"}, in the sense that $L(\beta)$ is maximal when $\|\beta\| \to \infty$ (in one or several directions).
+In case of non-overlap, [$\hat{\beta}$ does not exist]{style="background-color: orange;"}: $L(\beta)$ is maximal only as $\|\beta\| \to \infty$ (in one or several directions).
 :::
 
 . . .
 
-For all $x$, [$\hat{p}(x) \in \{0,1\}$]{style="background-color: lightblue;"}, depending on the position of $x$ relative to the separating hyperplane.
+As $\|\beta\| \to \infty$ along a separating direction, [$p_\beta(x) \to 0$ or $1$]{style="background-color: lightblue;"} for every $x$ off the hyperplane, depending on its side.
 
 . . .
 
-Nevertheless, there is a "dead zone" in the middle of the $2$ point clouds, because the [separating hyperplane is not necessarily unique]{style="background-color: orange;"}.
+However, there is a "dead zone" between the $2$ point clouds, because the [separating hyperplane is not necessarily unique]{style="background-color: orange;"}.
 
 ## Beyond the Dead Zone
 
 . . .
 
-Beyond this dead zone, classification is very simple ($0$ or $1$).
+Outside this dead zone, classification is trivial ($0$ or $1$).
 
 . . .
 
-But no interpretation of the model is possible (the OR are worth $0$ or $+\infty$).
+But the model cannot be interpreted: the ORs are $0$ or $+\infty$.
 
 
 ## Existence and Uniqueness of MLE
 
 . . .
 
-We say [there is overlap]{style="background-color: yellow;"} when no hyperplane can separate the red points from the blue points.
+We say that [there is overlap]{style="background-color: yellow;"} when no hyperplane separates the red points from the blue points (the $x_i$ with $y_i = 0$ from those with $y_i = 1$).
 
 . . .
 
@@ -958,13 +1366,13 @@ If $\text{rank}(X) = p$ and [there is overlap]{style="background-color: yellow;"
 :::
 
 
-Under these conditions, we [can therefore search for the MLE]{style="background-color: yellow;"} using the Newton-Raphson algorithm.
+Under these conditions, we [can safely search for the MLE]{style="background-color: yellow;"} with the Newton–Raphson algorithm, since:
 
 
 1. the maximum exists,
 
 
-2. the function to optimize is strictly concave and there is therefore no local maximum, only a global maximum.
+2. the function to optimize is strictly concave, so it has no local maximum other than the global one.
 
 
 ## Fisher Information (Recall)
@@ -975,15 +1383,15 @@ Let $X$ be the design matrix (whose rows are the vectors $x_i$).
 
 . . .
 
-Let $J_n(\beta)$ be the Fisher information matrix: 
+We denote by $J_n(\beta)$ the Fisher information matrix:
 
 ::: {.square-def}
-$$J_n(\beta) = -E\left[\frac{\partial^2 L}{\partial \beta^2}(\beta) \right]$$
+$$J_n(\beta) = -E\left[\frac{\partial^2 L}{\partial \beta^2}(\beta) \bigg| X\right]$$
 :::
 
 
 
-## Asymptotic Efficiency
+## Asymptotic Normality of the MLE
 
 
 
@@ -991,7 +1399,7 @@ $$J_n(\beta) = -E\left[\frac{\partial^2 L}{\partial \beta^2}(\beta) \right]$$
 ## Proposition (admitted)
 In the logistic regression model, [if]{style="background-color: yellow;"}
 
-1. the distribution of the regressors $(X_1, \ldots, X_p)$ has compact support,
+1. the distribution of the regressors $(X^{(1)}, \ldots, X^{(p)})$ has compact support,
 2. $\text{rank}(X) = p$,
 3. the smallest eigenvalue of $X^T X$ tends to infinity with $n$,
 
@@ -1009,19 +1417,15 @@ where $I_p$ is the identity matrix of size $p$.
 
 . . .
 
-Under these conditions, the MLE therefore exists for sufficiently large $n$. In fact, there is necessarily overlap when $n$ is large.
+Under these conditions, [the MLE exists for $n$ large enough]{style="background-color: lightblue;"}: the probability of overlap tends to $1$ as $n \to \infty$.
 
 . . .
 
-It is asymptotically efficient (= minimal asymptotic variance)
+The MLE is asymptotically efficient (minimal asymptotic variance).
 
 . . .
 
-The Fisher information matrix $J_n(\beta)$ can be calculated
-
-. . .
-
-We will be able to rely on asymptotic normality to perform tests and construct confidence intervals
+We can rely on [asymptotic normality]{style="background-color: yellow;"} to build tests and confidence intervals.
 
 ## Comparison: Linear Regression
 
@@ -1035,17 +1439,17 @@ Its expectation and variance are [explicit]{style="background-color: lightgreen;
 
 . . .
 
-In the Gaussian model ($Y|X$ Gaussian), the distribution of $\hat{\beta}$ is [explicit]{style="background-color: lightgreen;"}, which allows constructing exact tests (Student, Fisher).
+In the Gaussian model ($Y|X$ Gaussian), the distribution of $\hat{\beta}$ is [explicit]{style="background-color: lightgreen;"}, which gives exact tests (Student, Fisher).
 
 . . .
 
-If the model is not Gaussian, these tests are valid asymptotically.
+Without the Gaussian assumption, these tests are only asymptotically valid.
 
 ## Comparison: Logistic Regression
 
 . . .
 
-[No explicit]{style="background-color: orange;"} formula for $\hat{\beta}$, the solution is obtained numerically;
+[No explicit]{style="background-color: orange;"} formula for $\hat{\beta}$: it is computed numerically;
 
 . . .
 
@@ -1053,7 +1457,7 @@ We know neither the bias nor the variance of $\hat{\beta}$;
 
 . . .
 
-The distribution of $Y|X$ is simple (a Bernoulli), but we don't know the distribution of $\hat{\beta}$.
+The distribution of $Y|X$ is simple (a Bernoulli), but the exact distribution of $\hat{\beta}$ is unknown.
 
 . . .
 
@@ -1061,16 +1465,22 @@ We only know its asymptotic distribution.
 
 . . .
 
-We'll do [asymptotic tests]{style="background-color: orange;"}!
+Hence we use [asymptotic tests]{style="background-color: orange;"}!
 
 
 # Wald Tests and Confidence Intervals
+
+## Outline: Inference
+
+- **Wald tests** and confidence intervals, from the asymptotic normality of $\hat\beta$: one coefficient, one odds ratio
+- **Deviance**: how far a model is from the saturated model
+- **Deviance tests** (likelihood ratio tests) for nested models; AIC and BIC
 
 ## Asymptotic Framework
 
 . . .
 
-Under "good conditions",
+Under "good conditions" (see the proposition above),
 
 ::: {.square-def}
 $$J_n(\beta)^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)$$
@@ -1080,7 +1490,7 @@ where $J_n(\beta)$ is the Fisher information matrix.
 
 . . .
 
-To build asymptotic tests, we need to understand $J_n(\beta)$ and be able to estimate it.
+To build asymptotic tests, we need [an expression for $J_n(\beta)$]{style="background-color: yellow;"} and [a way to estimate it]{style="background-color: yellow;"} ($\beta$ is unknown).
 
 
 ## Computation of Jₙ(β)
@@ -1097,7 +1507,7 @@ where $L$ is the log-likelihood of the model.
 
 . . .
 
-From the proof of existence of MLE,
+Using the Hessian computed in the uniqueness proof,
 
 ::: {.square-def}
 $$J_n(\beta) = \sum_{i=1}^n p_\beta(x_i)(1 - p_\beta(x_i)) x_i x_i^T$$
@@ -1107,7 +1517,7 @@ $$J_n(\beta) = \sum_{i=1}^n p_\beta(x_i)(1 - p_\beta(x_i)) x_i x_i^T$$
 
 . . .
 
-We can write equivalently
+Equivalently,
 
 ::: {.square-def}
 $$J_n(\beta) = X^T W_\beta X$$
@@ -1136,7 +1546,7 @@ p_\beta(x_1)(1 - p_\beta(x_1)) & 0 & \cdots & 0 \\
 
 . . .
 
-To estimate $J_n(\beta)$, we simply replace $\beta$ by the MLE $\hat{\beta}$
+To estimate $J_n(\beta)$, we simply replace $\beta$ by the MLE $\hat{\beta}$.
 
 . . .
 
@@ -1158,7 +1568,7 @@ $$J_n(\hat{\beta})^{1/2}(\hat{\beta} - \beta) \xrightarrow{L} N(0, I_p)$$
 
 . . .
 
-Denoting [$\hat{\sigma}_j^2$]{style="background-color: lightblue;"} the $j$-th diagonal element of [$J_n(\hat{\beta})^{-1}$]{style="background-color: lightblue;"}, we obtain (admitted):
+Denote by [$\hat{\sigma}_j^2$]{style="background-color: lightblue;"} the $j$-th diagonal element of [$J_n(\hat{\beta})^{-1}$]{style="background-color: lightblue;"}. Then (admitted):
 
 ::: {.square-def}
 $$\frac{\hat{\beta}_j - \beta_j}{\hat{\sigma}_j} \xrightarrow{L} N(0, 1)$$
@@ -1170,7 +1580,7 @@ $$\frac{\hat{\beta}_j - \beta_j}{\hat{\sigma}_j} \xrightarrow{L} N(0, 1)$$
 
 . . .
 
-We deduce a confidence interval for $\beta_j$, at asymptotic confidence level $1 - \alpha$:
+This yields a confidence interval for $\beta_j$ at asymptotic confidence level $1 - \alpha$:
 
 ::: {.square-def}
 $$\text{CI}_{1-\alpha}(\beta_j) = \left[\hat{\beta}_j - q_{1-\alpha/2}\hat{\sigma}_j \,;\, \hat{\beta}_j + q_{1-\alpha/2}\hat{\sigma}_j\right]$$
@@ -1178,11 +1588,11 @@ $$\text{CI}_{1-\alpha}(\beta_j) = \left[\hat{\beta}_j - q_{1-\alpha/2}\hat{\sigm
 :::
 
 
-where $q(1 - \alpha/2)$ is the quantile of order $1 - \alpha/2$ of the $N(0, 1)$ distribution.
+where $q_{1-\alpha/2}$ is the quantile of order $1 - \alpha/2$ of the $N(0, 1)$ distribution.
 
 . . .
 
-We verify that we have [$\P(\beta_j \in \text{CI}_{1-\alpha}(\beta_j)) \to 1 - \alpha$]{style="background-color: lightblue;"}.
+One can check that [$\P(\beta_j \in \text{CI}_{1-\alpha}(\beta_j)) \to 1 - \alpha$]{style="background-color: lightblue;"}.
 
 
 ## Significance Test for One Coefficient
@@ -1192,11 +1602,11 @@ We verify that we have [$\P(\beta_j \in \text{CI}_{1-\alpha}(\beta_j)) \to 1 - \
 We want to test [$H_0: \beta_j = 0$ against $H_1: \beta_j \neq 0$]{style="background-color: yellow;"}.
 
 
-Under $H_0$ we know that [$\frac{\hat{\beta}_j}{\hat{\sigma}_j} \xrightarrow{L} N(0, 1)$]{style="background-color: lightblue;"}
+Under $H_0$, [$\frac{\hat{\beta}_j}{\hat{\sigma}_j} \xrightarrow{L} N(0, 1)$]{style="background-color: lightblue;"}
 
 
 
-We deduce a critical region at asymptotic level $\alpha$:
+This gives a critical region at asymptotic level $\alpha$:
 
 ::: {.square-def}
 $$\mathcal R_\alpha = \left\{\frac{|\hat{\beta}_j|}{\hat{\sigma}_j} > q_{1-\alpha/2}\right\}$$
@@ -1208,13 +1618,13 @@ $$\mathcal R_\alpha = \left\{\frac{|\hat{\beta}_j|}{\hat{\sigma}_j} > q_{1-\alph
 
 Indeed $P_{H_0}(\mathcal R_\alpha) \to \alpha$.
 
-This test is called the Wald test. (As any other test that relies on asymptotic normality)
+This is the [Wald test]{style="background-color: yellow;"} (based on the asymptotic normality of the MLE).
 
 ## P-value
 
 . . .
 
-Denoting $\Phi$ the cdf of the $\mathcal N(0, 1)$ distribution, the p-value of the test equals
+With $\Phi$ the cdf of the $\mathcal N(0, 1)$ distribution, the p-value of the test is
 
 ::: {.square-def}
 $$p\text{-value} = 2\left(1 - \Phi\left(\frac{|\hat{\beta}_j|}{\hat{\sigma}_j}\right)\right)$$
@@ -1241,7 +1651,7 @@ $$p\text{-value} = 2\left(1 - \Phi\left(\frac{|\hat{\beta}_j|}{\hat{\sigma}_j}\r
 
 . . .
 
-Each column corresponds resp. to
+The first three columns give, respectively:
 
 ::: {.nonincremental}
 - $\hat \beta_j$
@@ -1254,7 +1664,7 @@ Each column corresponds resp. to
 
 . . .
 
-We consider two individuals $1$ and $2$ who differ only by their regressor $j$. Then,
+Consider two individuals $1$ and $2$ who differ only in regressor $j$. Then
 
 ::: {.square-def}
 
@@ -1265,11 +1675,11 @@ $$OR(x_1^{(j)}, x_2^{(j)}) = e^{\beta_j(x_1^{(j)} - x_2^{(j)})}$$
 
 . . .
 
-Do we have $OR(x_1^{(j)}, x_2^{(j)})\approx 1$?
+**Question**: do we have $OR(x_1^{(j)}, x_2^{(j)})\approx 1$?
 
 . . .
 
-The estimation of $OR(x_1^{(j)}, x_2^{(j)})$ is simply
+The OR is simply estimated by
 
 ::: {.square-def}
 $$\widehat{OR}(x_1^{(j)}, x_2^{(j)}) = e^{\hat{\beta}_j(x_1^{(j)} - x_2^{(j)})}$$
@@ -1312,7 +1722,7 @@ $$\text{CI}_{1-\alpha}(OR(x_1^{(j)}, x_2^{(j)})) = \left[e^{l(x_1^{(j)} - x_2^{(
 
 . . .
 
-We generally want to compare $OR(x_1^{(j)}, x_2^{(j)})$ to $1$.
+We usually want to compare $OR(x_1^{(j)}, x_2^{(j)})$ with $1$:
 
 ::: {.square-def}
 $$OR(x_1^{(j)}, x_2^{(j)}) = 1 \Leftrightarrow e^{\beta_j(x_1^{(j)} - x_2^{(j)})} = 1 \Leftrightarrow \beta_j = 0$$
@@ -1330,7 +1740,7 @@ $H_0: OR(x_1^{(j)}, x_2^{(j)}) = 1$ VS $H_1: OR(x_1^{(j)}, x_2^{(j)}) \neq 1$
 
 . . .
 
-amounts to testing [$H_0: \beta_j = 0$ against $H_1: \beta_j \neq 0$]{style="background-color: lightblue;"}. The Rejection region at level $\alpha$ is
+amounts to testing [$H_0: \beta_j = 0$ against $H_1: \beta_j \neq 0$]{style="background-color: lightblue;"}. The rejection region at asymptotic level $\alpha$ is
 
 . . .
 
@@ -1344,7 +1754,7 @@ $$\mathcal R_\alpha = \left\{\frac{|\hat{\beta}_j|}{\hat{\sigma}_j} > q_{1-\alph
 
 . . .
 
-Nevertheless, for ORs, we [often prefer one-sided tests]{style="background-color: yellow;"}.
+However, for ORs, one [often prefers one-sided tests]{style="background-color: yellow;"}, e.g.
 
 . . .
 
@@ -1356,7 +1766,7 @@ $H_0: OR(x_1^{(j)}, x_2^{(j)}) = 1$ VS $H_1: OR(x_1^{(j)}, x_2^{(j)}) > 1$
 
 . . .
 
-If $x_1^{(j)} > x_2^{(j)}$. Since [$OR(x_1^{(j)}, x_2^{(j)}) \geq 1 \Leftrightarrow \beta_j \geq 0$]{style="background-color: lightblue;"} rejection region at level $\alpha$ is
+If $x_1^{(j)} > x_2^{(j)}$, then [$OR(x_1^{(j)}, x_2^{(j)}) \geq 1 \Leftrightarrow \beta_j \geq 0$]{style="background-color: lightblue;"}, so the rejection region at asymptotic level $\alpha$ is
 
 ::: {.square-def}
 $$\mathcal R_{\alpha}=\left\{\frac{\hat{\beta}_j}{\hat{\sigma}_j} > q_{1-\alpha}\right\}$$
@@ -1371,16 +1781,16 @@ $$\mathcal R_{\alpha}=\left\{\frac{\hat{\beta}_j}{\hat{\sigma}_j} > q_{1-\alpha}
 
 . . .
 
-Suppose we have $n$ observations $(Y_1, \dots, Y_n)$ and $(X_1, \dots, X_n)$ (categorical)
+Suppose we have $n$ observations $(Y_1, \dots, Y_n)$ and $(X_1, \dots, X_n)$, with categorical regressors.
 
 . . .
 
-Here $X_k$ can represent the vector $X_k = (X^{(1)}_k, \dots, X^{(p)}_k)^T$. 
+Here $X_k$ may be a vector $X_k = (X^{(1)}_k, \dots, X^{(p)}_k)^T$. 
 
 . . .
 
 
-Assume that individuals are iid, with [$\mathbb P(Y=1|X_k=x) = p(x)$]{style="background-color: lightblue;"}.
+Assume that the individuals are i.i.d., with [$\mathbb P(Y=1|X_k=x) = p(x)$]{style="background-color: lightblue;"}.
 
 . . .
 
@@ -1394,7 +1804,7 @@ Suppose we have $n$ observations $(Y_1, \dots, Y_n)$ and $(X_1, \dots, X_n)$
 
 . . .
 
-[$n(x) = |\{k:~ X_k = x\}|$]{style="background-color: lightblue;"} (number of indiv. $k$ s.t. $X_k=x$)
+[$n(x) = |\{k:~ X_k = x\}|$]{style="background-color: lightblue;"} (number of individuals $k$ with $X_k=x$)
 
 . . .
 
@@ -1402,7 +1812,7 @@ Suppose we have $n$ observations $(Y_1, \dots, Y_n)$ and $(X_1, \dots, X_n)$
 
 . . .
 
-The saturated model is one that estimates $p(x)$, for an observed $x$, by
+The [saturated model]{style="background-color: yellow;"} estimates $p(x)$, for each observed $x$, by
 
 ::: {.square-def}
 $$\hat{p}_{\text{sat}}(x) = \frac{n_1(x)}{n(x)}$$
@@ -1418,7 +1828,7 @@ $$\hat{p}_{\text{sat}}(x) = \frac{n_1(x)}{n(x)}$$
 $$\hat{p}_{\text{sat}}(x) = \frac{n_1(x)}{n(x)}$$
 :::
 
-[If all observations are distinct]{style="background-color: yellow;"}, i.e., each observed $x$ is only for a single individual, then for an observed $x$:
+[If all observations are distinct]{style="background-color: yellow;"}, i.e. each observed $x$ corresponds to a single individual, then for every observed $x$:
 
 . . .
 
@@ -1429,7 +1839,7 @@ $n(x) = 1$, $n_1(x) \in \{0,1\}$, and $\hat{p}_{\text{sat}}(x) = 0$ or $1$.
 
 . . .
 
-The saturated model is the [simplest model]{style="background-color: yellow;"} to imagine.
+The saturated model is the [most flexible model]{style="background-color: yellow;"}: one parameter per distinct value of $x$.
 
 . . .
 
@@ -1437,22 +1847,22 @@ It fits the data perfectly.
 
 . . .
 
-However, it has [no explanatory power]{style="background-color: orange;"} (effect of regressors on $Y$?).
+However, it has [no explanatory power]{style="background-color: orange;"} (what is the effect of the regressors on $Y$?).
 
 . . .
 
-And it says nothing about $p(x)$ if $x$ is not observed.
+Nor does it say anything about $p(x)$ for an unobserved $x$.
 
 . . .
 
-It will serves as a [reference]{style="background-color: yellow;"} for fit
+It serves as a [reference]{style="background-color: yellow;"} to assess the fit of other models.
 
 
 ## Likelihood of Saturated Estimator
 
 . . .
 
-For the saturated model with probabilities $p(x)$, the Log-likelihood is:
+Given probabilities $p(x)$, the log-likelihood is
 
 :::{style="font-size: 80%;"}
 ::: {.square-def}
@@ -1462,7 +1872,7 @@ $$L(y_1, \ldots, y_n|x_1, \ldots, x_n) = \sum_{i=1}^n y_i \ln(p(x_i)) + (1 - y_i
 
 . . .
 
-The saturated model maximizes this likelihood, and we denote
+The saturated estimator maximizes this log-likelihood over all choices of $p(x)$; we denote
 
 :::{style="font-size: 80%;"}
 ::: {.square-def}
@@ -1475,7 +1885,7 @@ $$L_{\text{sat}} = \sum_{i=1}^n y_i \ln(\hat p_{\text{sat}}(x_i)) + (1 - y_i) \l
 
 . . .
 
-If all observations $x_i$ are distinct, we have $\hat{p}_{\text{sat}}(x_i) = y_i$ with $y_i \in \{0, 1\}$. We thus have
+If all observations $x_i$ are distinct, we have $\hat{p}_{\text{sat}}(x_i) = y_i$ with $y_i \in \{0, 1\}$, hence
 
 ::: {.square-def}
 $$L_{\text{sat}} = 0$$
@@ -1485,7 +1895,7 @@ $$L_{\text{sat}} = 0$$
 
 . . .
 
-The saturated estimator has highest possible log-likelihood: it [fits the data perfectly]{style="background-color: orange;"} (too well).
+This is the highest possible log-likelihood: the saturated estimator [fits the data perfectly]{style="background-color: orange;"} (too well).
 
 ## Case 2: Non-Distinct Observations
 
@@ -1502,7 +1912,7 @@ $$L_{\text{sat}} = \sum_x \left[n_1(x) \ln\left(\frac{n_1(x)}{n(x)}\right) + (n(
 
 :::
 
-where the sum runs over the set of values $x$ taken by the $x_i$.
+where the sum runs over the distinct values $x$ taken by the $x_i$.
 
 
 
@@ -1510,7 +1920,7 @@ where the sum runs over the set of values $x$ taken by the $x_i$.
 
 . . .
 
-The deviance of a model measures how much this model [deviates from the saturated model]{style="background-color: yellow;"} (the ideal model in terms of likelihood).
+The deviance of a model measures how much it [deviates from the saturated model]{style="background-color: yellow;"} (the best possible model in terms of likelihood).
 
 . . .
 
@@ -1519,7 +1929,7 @@ $$D = 2(L_{\text{sat}} - L_{\text{mod}})$$
 :::
 
 
-where $L_{\text{mod}}$ denotes the log-likelihood for the model parameters.
+where $L_{\text{mod}}$ is the maximized log-likelihood of the model.
 
 . . .
 
@@ -1527,7 +1937,7 @@ We always have [$D \geq 0$]{style="background-color: lightblue;"}.
 
 . . .
 
-If all observations are distinct, $L_{\text{sat}} = 0$ therefore [$D = -2L_{\text{mod}}$]{style="background-color: lightblue;"}
+If all observations are distinct, $L_{\text{sat}} = 0$, hence [$D = -2L_{\text{mod}}$]{style="background-color: lightblue;"}
 
 ## Role of Deviance and Computation in R
 
@@ -1539,11 +1949,11 @@ $$D = 2(L_{\text{sat}} - L_{\text{mod}})$$
 
 . . .
 
-Deviance plays the role of the SSR of a linear model: [the higher the deviance, the less well the model is fitted]{style="background-color: yellow;"} to the data.
+Deviance plays the role of the SSR of a linear model: [the higher the deviance, the worse the model fits]{style="background-color: yellow;"} the data.
 
 . . .
 
-[In R]{style="background-color: yellow;"}, The returned deviance is [ $-2L_{\text{mod}}$]{style="background-color: yellow;"}: the term $L_{\text{sat}}$ is therefore omitted.
+With 0/1 responses (one row per individual), R takes $L_{\text{sat}} = 0$: the reported deviance is [$-2L_{\text{mod}}$]{style="background-color: orange;"}.
 
 
 # Deviance Tests and Model Selection
@@ -1552,34 +1962,34 @@ Deviance plays the role of the SSR of a linear model: [the higher the deviance, 
 
 . . .
 
-As in linear regression, we would like to test [$H_0: R\beta = 0$ VS $H_1: R\beta \neq 0$]{style="background-color: lightblue;"}
+As in linear regression, we want to test [$H_0: R\beta = 0$ VS $H_1: R\beta \neq 0$]{style="background-color: lightblue;"}
 
-where $R$ is a constraint matrix of size [$(q, p)$]{style="background-color: lightblue;"} of full rank.
+where $R$ is a full-rank constraint matrix of size [$(q, p)$]{style="background-color: lightblue;"}.
 
 
 
 . . .
 
-For recall, depending on the choice of $R$ this allows:
+Recall that, depending on the choice of $R$, this covers:
 
 
-- testing the minimum: is there at least one relevant regressor?
+- the global test: is there at least one relevant regressor?
 
 
 - comparing nested models
 
 
-- examining the collective significance of a family of regressors
+- the joint significance of a group of regressors
 
 ## Available Procedures
 
 . . .
 
-In GLM, several test procedures address the problem.
+In GLMs, three test procedures address this problem.
 
 
 
-**The Wald test**, based on the asymptotic normality of $\hat{\beta}$, which generalizes the one seen for testing $\beta_j = 0$ against $\beta_j \neq 0$.
+**The Wald test**, based on the asymptotic normality of $\hat{\beta}$, generalizing the test of $\beta_j = 0$ against $\beta_j \neq 0$ seen earlier.
 
 . . .
 
@@ -1587,26 +1997,26 @@ In GLM, several test procedures address the problem.
 
 . . .
 
-**The score test**, based on the behavior of the gradient of the log-likelihood at the critical point.
+**The score test**, based on the gradient of the log-likelihood at the MLE under $H_0$, $\hat{\beta}_{H_0}$.
 
 . . .
 
-**The most used** is the [deviance test]{style="background-color: yellow;"}.
+**Most used**: the [deviance test]{style="background-color: yellow;"}.
 
 
 ## The Deviance Test (or Likelihood Ratio Test)
 
 . . .
 
-To test [ $H_0: R\beta = 0$ against $H_1: R\beta \neq 0$]{style="background-color: lightblue;"}, the principle of the test is as follows:
+To test [ $H_0: R\beta = 0$ against $H_1: R\beta \neq 0$]{style="background-color: lightblue;"}, the principle is as follows.
 
 . . .
 
-We calculate the MLE in each model to obtain $\hat{\beta}$ in the complete model and [$\hat{\beta}_{H_0}$ in the constrained model]{style="background-color: yellow;"}.
+Compute the MLE in each model: $\hat{\beta}$ in the full model and [$\hat{\beta}_{H_0}$ in the constrained model]{style="background-color: yellow;"}.
 
 . . .
 
-**Logic**: If $H_0$ is true, the constrained model should be as "likely" as the complete model, so [$L(\hat{\beta})$ and $L(\hat{\beta}_{H_0})$ should be similar]{style="background-color: yellow;"}.
+**Logic**: If $H_0$ is true, the constrained model should be as "likely" as the full model, so [$L(\hat{\beta})$ and $L(\hat{\beta}_{H_0})$ should be similar]{style="background-color: yellow;"}.
 
 ## Deviance Test Statistic
 
@@ -1620,7 +2030,7 @@ $$D_{H_0} - D_{H_1} = 2\left(L(\hat{\beta}) - L(\hat{\beta}_{H_0})\right)$$
 
 . . .
 
-Under $H_0$, denoting $q$ the number of constraints, we have the convergence (admitted):
+Under $H_0$, with $q$ the number of constraints, we have (admitted):
 
 ::: {.square-def}
 $$D_{H_0} - D_{H_1} = 2\left(L(\hat{\beta}) - L(\hat{\beta}_{H_0})\right) \xrightarrow{L} \chi^2_q$$
@@ -1632,7 +2042,7 @@ $$D_{H_0} - D_{H_1} = 2\left(L(\hat{\beta}) - L(\hat{\beta}_{H_0})\right) \xrigh
 
 . . .
 
-The asymp. rejection region at asymptotic level $\alpha$ is therefore
+The rejection region at asymptotic level $\alpha$ is therefore
 
 ::: {.square-def}
 $$\mathcal R_\alpha = \{D_{H_0} - D_{H_1} > \chi^2_{q,1-\alpha}\}$$
@@ -1640,12 +2050,12 @@ $$\mathcal R_\alpha = \{D_{H_0} - D_{H_1} > \chi^2_{q,1-\alpha}\}$$
 
 
 
-where $\chi^2_{q,1-\alpha}$: quantile $1 - \alpha$ of a $\chi^2_q$ distribution.
+where $\chi^2_{q,1-\alpha}$ is the quantile of order $1 - \alpha$ of the $\chi^2_q$ distribution.
 
 
 . . .
 
-The p-value equals
+The p-value is
 
 ::: {.square-def}
 
@@ -1661,11 +2071,11 @@ where $F$ is the cdf of a $\chi^2_q$ distribution.
 
 . . .
 
-We want to test if a model (having a constant) is significant
+We want to test whether a model (with a constant) is significant.
 
 . . .
 
-We therefore test $H_0$: all its [coefficients are zero except the constant]{style="background-color: yellow;"}. This corresponds to the special case 
+We test $H_0$: all [coefficients are zero except the constant]{style="background-color: yellow;"}, i.e. the special case
 
 ::: {.square-def}
 $R = [0 | I_{p-1}]$.
@@ -1675,7 +2085,7 @@ $R = [0 | I_{p-1}]$.
 
 . . .
 
-We [compare the deviance of the model to the null deviance $D_0$]{style="background-color: yellow;"}, corresponding to a model that contains only the constant.
+We [compare the deviance of the model to the null deviance $D_0$]{style="background-color: yellow;"}, the deviance of the model containing only the constant.
 
 ## Test Statistic
 
@@ -1689,7 +2099,7 @@ $$D_0 - D \sim \chi^2_{p-1}$$
 
 . . .
 
-The model is therefore significant (relative to the null model) if the sample is in the critical region of asymptotic level $\alpha$:
+The model is [declared significant]{style="background-color: yellow;"} (relative to the null model) if the sample falls in the critical region of asymptotic level $\alpha$:
 
 ::: {.square-def}
 $$\mathcal R_\alpha = \{D_0 - D > \chi^2_{p-1,1-\alpha}\}$$
@@ -1705,7 +2115,7 @@ Suppose that model [$1$ (with deviance $D_1$) is a sub-model of model $2$]{style
 
 . . .
 
-Model $1$ is therefore obtained from model $2$, with parameter $\beta$, via a constraint of the type $R\beta = 0$ where [$R$ is a $(q, p)$ matrix]{style="background-color: lightblue;"}.
+Model $1$ is then obtained from model $2$ (parameter $\beta$) through a constraint $R\beta = 0$, where [$R$ is a $(q, p)$ matrix]{style="background-color: lightblue;"}.
 
 
 . . .
@@ -1727,7 +2137,7 @@ $\mathcal R_\alpha = \{D_1 - D_2 > \chi^2_{q,1 - \alpha}\}$
 
 . . .
 
-The AIC and BIC criteria are defined similarly to linear regression, i.e.
+AIC and BIC are defined as in linear regression:
 
 ::: {.square-def}
 $\text{AIC} = -2L_{\text{mod}} + 2p$
@@ -1739,13 +2149,13 @@ $\text{BIC} = -2L_{\text{mod}} + \ln(n)p$
 
 
 
-where $L_{\text{mod}}$ is the log-likelihood of the estimated model.
+where $L_{\text{mod}}$ is the maximized log-likelihood of the fitted model.
 
 ## AIC and BIC via Deviance
 
 . . .
 
-If we ignore saturated likelihood and set $L_{\text{sat}}=0$,
+If we ignore the saturated likelihood, i.e. set $L_{\text{sat}}=0$,
 
 ::: {.square-def}
 $\text{AIC} = D + 2p$
@@ -1756,11 +2166,11 @@ $\text{BIC} = D + \ln(n)p$
 :::
 
 
-**In practice**, we choose the model having the minimal AIC or BIC
+**In practice**, we choose the model with the [smallest AIC or BIC]{style="background-color: yellow;"}.
 
 . . .
 
-As in linear regression, we can use automatic selection procedures (backward, forward, etc).
+As in linear regression, we can use automatic selection procedures (backward, forward, etc.).
 
 ## Example: Obesity Study
 
@@ -1784,13 +2194,13 @@ summary(model)
 
 . . .
 
-The model deviance is therefore $D = 4459.5$.
+The model deviance is $D = 4459.5$.
 
-**Significance Test**: We compare $D$ to the null deviance $D_0 = 4610.8$: [$D_0 - D = 151.3$]{style="background-color: lightblue;"}. The p-value of the test equals [$1 - \chi^2_{10}(151.3) \approx 0$]{style="background-color: lightblue;"} where $\chi^2_{10}$ is the cdf of a $\chi^2_{10}$.
+**Significance test**: we compare $D$ to the null deviance $D_0 = 4610.8$: [$D_0 - D = 151.3$]{style="background-color: lightblue;"}. The p-value of the test is [$1 - F_{10}(151.3) \approx 0$]{style="background-color: lightblue;"} where $F_{10}$ is the cdf of a $\chi^2_{10}$.
 
 . . .
 
-The model is significant.
+[The model is significant]{style="background-color: lightgreen;"}.
 
 
 ## Example: Significance Test of MARITAL
@@ -1816,14 +2226,14 @@ summary(model)
 
 . . .
 
-The deviance is now $D_2 = 4462.7$. To compare with the previous model, we calculate: [$D_2 - D = 3.2$]{style="background-color: lightblue;"}.
+The deviance is now $D_2 = 4462.7$. Compared with the previous model: [$D_2 - D = 3.2$]{style="background-color: lightblue;"}.
 
 . . .
 
-The p-value of the test equals [$1 - F_5(3.2) \approx 0.67$]{style="background-color: lightblue;"}, where $F_5$: cdf of a $\chi^2_5$.
+The p-value of the test is [$1 - F_5(3.2) \approx 0.67$]{style="background-color: lightblue;"}, where $F_5$ is the cdf of the $\chi^2_5$ distribution.
 
 
-We therefore [accept $H_0$]{style="background-color: yellow;"}: the coefficients related to [ MARITAL are zero]{style="background-color: yellow;"}. (Also confirmed with AIC)
+We therefore [do not reject $H_0$]{style="background-color: yellow;"}: the [MARITAL coefficients can be taken to be zero]{style="background-color: yellow;"} (the AIC confirms it).
 
 ## Example: Significance Test of AGE²
 
@@ -1844,19 +2254,19 @@ summary(model)
 
 . . .
 
-The deviance test with the previous model has p-value [$1 - F_1(4462.7 - 4439.5) = 1 - F_1(23.2) \approx 10^{-6}$]{style="background-color: lightblue;"}
+The deviance test against the previous model has p-value [$1 - F_1(4462.7 - 4439.5) = 1 - F_1(23.2) \approx 10^{-6}$]{style="background-color: lightblue;"}
 
 . . .
 
-This model is [therefore preferable]{style="background-color: yellow;"}, (confirmed with AIC).
+This model is [therefore preferable]{style="background-color: yellow;"} (the AIC confirms it).
 
 . . .
 
-However, we [cannot compare this model with the first]{style="background-color: orange;"} one by deviance test because they are [not nested]{style="background-color: orange;"}.
+However, we [cannot compare this model with the first one]{style="background-color: orange;"} by a deviance test, since they are [not nested]{style="background-color: orange;"}.
 
 . . .
 
-We [can however compare their AIC]{style="background-color: lightgreen;"}: this model is preferable.
+We [can still compare their AICs]{style="background-color: lightgreen;"}: this model is preferable.
 
 
 # Prediction
@@ -1872,13 +2282,13 @@ Suppose we are interested in a [new individual]{style="background-color: yellow;
 
 . . .
 
-We want to [predict $Y$]{style="background-color: yellow;"} for this [new individual]{style="background-color: yellow;"}.
+**Goal**: [predict $Y$]{style="background-color: yellow;"} for this new individual.
 
 ## Recall in the Logit Model
 
 . . .
 
-If we have [fitted a logistic regression]{style="background-color: yellow;"} model, we can estimate
+Once we have [fitted a logistic regression]{style="background-color: yellow;"} model, we estimate
 
 ::: {.square-def}
 $$p_\beta(x) = P(Y = 1|X = x)$$
@@ -1907,30 +2317,30 @@ $$p_\beta(x) = P(Y = 1|X = x)$$
 We will see:
 
 
-1. how to construct a [confidence interval around the estimation $p_{\hat{\beta}}(x)$]{style="background-color: yellow;"};
+1. how to construct a [confidence interval around the estimate $p_{\hat{\beta}}(x)$]{style="background-color: yellow;"};
 
 
-2. how to exploit this estimation to [classify the new individual]{style="background-color: yellow;"} in category $Y = 0$ or $Y = 1$.
+2. how to use this estimate to [classify the new individual]{style="background-color: yellow;"} in category $Y = 0$ or $Y = 1$.
 
-## CI: Asymptotic Distribution of p_β(x)
+## CI: Asymptotic Distribution of β̂
 
 . . .
 
-We know that when $n \to \infty$:
+We know that, for large $n$ (when $n \to \infty$):
 
 ::: {.square-def}
 $$\hat{\beta} \sim N(\beta, (X^T W_{\hat{\beta}} X)^{-1})$$
 :::
 
 - $X=(X^{(1)}, \dots, X^{(p)})$ is the $n \times p$ [design matrix]{style="background-color: yellow;"}
-- $W_{\hat{\beta}}$ is the $n \times n$ [diagonal matrix]{style="background-color: yellow;"} with coefs [$p_{\hat \beta}(x_i)(1-p_{\hat \beta}(x_i))$]{style="background-color: lightblue;"}
+- $W_{\hat{\beta}}$ is the $n \times n$ [diagonal matrix]{style="background-color: yellow;"} with diagonal entries [$p_{\hat \beta}(x_i)(1-p_{\hat \beta}(x_i))$]{style="background-color: lightblue;"}
 
 
 ## CI for Linear Predictor
 
 . . .
 
-We deduce that when $n \to +\infty$, [$x^T \hat{\beta} \sim N(x^T \beta, x^T (X^T W_{\hat{\beta}} X)^{-1} x)$ ]{style="background-color: lightblue;"}, and the asymptotic CI of $x^T\beta$:
+Hence, when $n \to +\infty$, [$x^T \hat{\beta} \sim N(x^T \beta, x^T (X^T W_{\hat{\beta}} X)^{-1} x)$ ]{style="background-color: lightblue;"}, which gives the asymptotic CI for $x^T\beta$:
 
 . . .
 
@@ -1944,7 +2354,7 @@ $$\text{CI}_{1-\alpha}(x^T \beta) = \left[x^T \hat{\beta} \pm q_{1-\alpha/2} \sq
 
 . . .
 
-Since [$p_{\hat{\beta}}(x) = \text{logit}^{-1}(x^T \hat{\beta})$]{style="background-color: lightblue;"}, we have therefore by application of the increasing function $\text{logit}^{-1}$, the CI at asymptotic level $1 - \alpha$:
+Since [$p_{\hat{\beta}}(x) = \text{logit}^{-1}(x^T \hat{\beta})$]{style="background-color: lightblue;"} and $\text{logit}^{-1}$ is increasing, applying it to both bounds gives the CI at asymptotic level $1 - \alpha$:
 
 . . .
 
@@ -1963,12 +2373,12 @@ We have estimated $p_\beta(x) = P(Y = 1|X = x)$ by $p_{\hat{\beta}}(x)$.
 
 . . .
 
-For a [threshold to choose $s \in [0, 1]$]{style="background-color: yellow;"}, we use the rule:
+For a [threshold $s \in [0, 1]$ to be chosen]{style="background-color: yellow;"}, we use the rule:
 
 ::: {.square-def}
 $$\begin{cases}
 \text{if } p_{\hat{\beta}}(x) > s, & \hat{Y} = 1 \\
-\text{if } p_{\hat{\beta}}(x) < s, & \hat{Y} = 0
+\text{if } p_{\hat{\beta}}(x) \leq s, & \hat{Y} = 0
 \end{cases}$$
 :::
 
@@ -1982,11 +2392,11 @@ The "natural" choice of threshold is $s = 0.5$ but [this choice can be optimized
 
 . . .
 
-We proceed by [cross-validation]{style="background-color: yellow;"}:
+We use a [validation sample]{style="background-color: yellow;"}:
 
 . . .
 
-Using a [train sample]{style="background-color: yellow;"}, predict $Y$ on a [test sample]{style="background-color: yellow;"} and form the [confusion matrix]{style="background-color: yellow;"}.
+Fit the model on a [train sample]{style="background-color: yellow;"}, predict $Y$ on a [test sample]{style="background-color: yellow;"}, and form the [confusion matrix]{style="background-color: yellow;"}.
 
 . . .
 
@@ -1995,18 +2405,18 @@ Using a [train sample]{style="background-color: yellow;"}, predict $Y$ on a [tes
 | $\hat{Y} = 0$ | TN | FN |
 | $\hat{Y} = 1$ | FP | TP |
 
-**Reading**: T: true, F:False, N: Negative, P: Positive.
+**Reading**: T = true, F = false, N = negative, P = positive.
 
 . . .
 
-**FP**: false positives: number of individuals who were classified [positive]{style="background-color: yellow;"} who were actually [negative]{style="background-color: orange;"}
+**FP** (false positives): number of individuals classified [positive]{style="background-color: yellow;"} who are actually [negative]{style="background-color: orange;"}.
 
 
 ## Sensitivity and Specificity
 
 . . .
 
-The ideal is to have a confusion matrix that is [as diagonal as possible]{style="background-color: yellow;"}.
+Ideally, the confusion matrix is [as diagonal as possible]{style="background-color: yellow;"}.
 
 . . .
 
@@ -2026,7 +2436,7 @@ $$\frac{\text{TP}}{\text{TP} + \text{FN}}$$
 :::
 ::: {.column}
 
-The **specificity** (or selectivity, or true negative rate) estimates [$\P(\hat{Y} = 0|Y = 0)$]{style="background-color: lightblue;"}
+The **specificity** (or selectivity, or true negative rate) estimates [$\P(\hat{Y} = 0|Y = 0)$]{style="background-color: lightblue;"} by
 
 ::: {.square-def}
 $$\frac{\text{TN}}{\text{TN} + \text{FP}}$$
@@ -2047,7 +2457,7 @@ $\frac{\text{TP}}{\text{TP} + \text{FP}}$
 :::
 . . .
 
-The **$F$-score** is the harmonic mean between sensitivity and precision:
+The **$F$-score** is the harmonic mean of sensitivity and precision:
 
 ::: {.square-def}
 $$F_1 = 2 \frac{\text{precision} \times \text{sensitivity}}{\text{precision} + \text{sensitivity}}$$
@@ -2057,29 +2467,29 @@ $$F_1 = 2 \frac{\text{precision} \times \text{sensitivity}}{\text{precision} + \
 
 . . .
 
-For each threshold $s$, from a test sample:
+For each threshold $s$, using a test sample, we:
 
-- we can form the confusion matrix
-- calculate scores (sensitivity, $F$-score, etc.)
-
-. . .
-
-We finally choose the [optimal threshold $s$]{style="background-color: yellow;"}, according to the [chosen score]{style="background-color: yellow;"}.
-
-
-## Choosing the score
-
-- It depends on the context of the study
-- It can be much more serious to wrongly predict $\hat{Y} = 0$ than $\hat{Y} = 1$
+- form the confusion matrix,
+- compute scores (sensitivity, $F$-score, etc.).
 
 . . .
 
+Finally, we choose the [optimal threshold $s$]{style="background-color: yellow;"} for the [chosen score]{style="background-color: yellow;"}.
 
-$\hat Y=1$ (treatment) while the patient is [not ill]{style="background-color: yellow;"} ($Y = 0$)
+
+## Choosing the Score
+
+- It depends on the context of the study.
+- Wrongly predicting $\hat{Y} = 0$ can be much more serious than wrongly predicting $\hat{Y} = 1$:
 
 . . .
 
-$\hat Y=0$ (no treatment) while the patient [has a serious illness]{style="background-color: yellow;"} ($Y=1$)
+
+**False positive**: $\hat Y=1$ (treatment) while the patient is [not ill]{style="background-color: yellow;"} ($Y = 0$)
+
+. . .
+
+**False negative**: $\hat Y=0$ (no treatment) while the patient [has a serious illness]{style="background-color: yellow;"} ($Y=1$)
 
 ## ROC Curve
 
@@ -2097,24 +2507,119 @@ $ROC:~~\mathrm{sensitiv.} = \frac{TP}{TP+FN} = F\left(\frac{FP}{FP+TN}\right) = 
 
 . . .
 
-The [AUC (area under the curve)]{style="background-color: yellow;"} is a quality indicator of the model ($0 \leq \text{AUC} \leq 1$). 
+The [AUC (area under the curve)]{style="background-color: yellow;"} is a quality indicator of the model ($0 \leq \text{AUC} \leq 1$).
 
 . . .
 
-Or equivalently, the [Gini index: $2 \times \text{AUC} - 1$]{style="background-color: yellow;"}.
+Equivalently, one can use the [Gini index: $2 \times \text{AUC} - 1$]{style="background-color: yellow;"}.
 
 . . .
 
 **Use**: compare $2$ models by [plotting the 2 ROC curves]{style="background-color: yellow;"}. 
 
 
-## ROC Curve Illustration
+## ROC Curve Illustration {.smaller}
 
-. . .
-
-::: {style="text-align: center;"}
-![](../images/roc.png)
+::: {style="font-size:90%"}
+Each threshold $s$ gives one point of the ROC curve. **Drag** the threshold; a better model pulls the curve towards the ideal point.
 :::
+
+```{=html}
+<div style="text-align:center">
+  <canvas id="rocC" width="800" height="330" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px;touch-action:none"></canvas>
+  <div class="lm-row">
+    threshold s <input id="rocS" type="range" min="0.01" max="0.99" step="0.01" value="0.5" autocomplete="off" style="vertical-align:middle;width:190px"> <b id="rocSv" style="display:inline-block;width:2.6em">0.50</b>
+    &nbsp; model quality <input id="rocD" type="range" min="0" max="5" step="0.05" value="2" autocomplete="off" style="vertical-align:middle;width:150px">
+  </div>
+  <div class="lm-row" id="rocTxt">–</div>
+</div>
+<script>
+(function () {
+  var cv=document.getElementById('rocC'); if(!cv||cv.dataset.init)return; cv.dataset.init=1;
+  var c=cv.getContext('2d'),W=cv.width,H=cv.height,KEY='glmRoc';
+  var sEl=document.getElementById('rocS'),dEl=document.getElementById('rocD'),sV=document.getElementById('rocSv'),txt=document.getElementById('rocTxt');
+  function erf(z){var s=z<0?-1:1;z=Math.abs(z);var t=1/(1+0.3275911*z);return s*(1-((((1.061405429*t-1.453152027)*t+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-z*z));}
+  function Phi(x){return .5*(1+erf(x/Math.SQRT2));}
+  function logit(s){return Math.log(s/(1-s));}
+  // scores p̂(x): logit(p̂) ~ N(-δ/2,1) if Y=0, N(+δ/2,1) if Y=1
+  function dens(s,mu){var l=logit(s);return Math.exp(-(l-mu)*(l-mu)/2)/2.5066282746/(s*(1-s));}
+  var L0=50,L1=470,T=20,B=H-48;           // left panel
+  var R0=522,RS=262,RT=20;                // ROC square
+  function SX(s){return L0+s*(L1-L0);} function ISX(px){return (px-L0)/(L1-L0);}
+  function FX(f){return R0+f*RS;} function FY(t){return RT+RS-t*RS;}
+  function pos(e){var r=cv.getBoundingClientRect();return [(e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height];}
+  function rates(s,d){var l=logit(s);return {tpr:1-Phi(l-d/2),fpr:1-Phi(l+d/2)};}
+  function draw(){
+    var s=+sEl.value,d=+dEl.value;sV.textContent=s.toFixed(2);
+    c.clearRect(0,0,W,H);c.fillStyle='#fff';c.fillRect(0,0,W,H);c.lineWidth=1;
+    // ---- score densities
+    var M=400,mx=0,g0=[],g1=[];
+    for(var i=1;i<M;i++){var u=i/M,a=dens(u,-d/2),b=dens(u,d/2);g0.push([u,a]);g1.push([u,b]);mx=Math.max(mx,a,b);}
+    mx=Math.min(mx,12)*1.08;
+    function DY(v){return B-Math.min(v,mx)/mx*(B-T);}
+    function area(g,from,to,col){c.beginPath();c.moveTo(SX(from),B);g.forEach(function(q){if(q[0]>=from&&q[0]<=to)c.lineTo(SX(q[0]),DY(q[1]));});c.lineTo(SX(to),B);c.closePath();c.fillStyle=col;c.fill();}
+    function curve(g,col){c.beginPath();g.forEach(function(q,j){j?c.lineTo(SX(q[0]),DY(q[1])):c.moveTo(SX(q[0]),DY(q[1]));});c.strokeStyle=col;c.lineWidth=2;c.stroke();c.lineWidth=1;}
+    c.save();c.beginPath();c.rect(L0,T,L1-L0,B-T);c.clip();
+    area(g0,0,s,'rgba(52,152,219,.10)');area(g0,s,1,'rgba(52,152,219,.38)');
+    area(g1,0,s,'rgba(231,76,60,.10)');area(g1,s,1,'rgba(231,76,60,.38)');
+    curve(g0,'#3498db');curve(g1,'#e74c3c');
+    c.restore();
+    c.strokeStyle='#ccc';c.beginPath();c.moveTo(L0,B);c.lineTo(L1,B);c.stroke();
+    c.font='13px sans-serif';c.fillStyle='#666';c.textAlign='center';c.textBaseline='top';
+    for(var t=0;t<=1.001;t+=.25)c.fillText(t.toFixed(2).replace(/0$/,'').replace(/\.0$/,''),SX(t),B+5);
+    c.fillStyle='#333';c.font='14px sans-serif';c.fillText('score = predicted probability',(L0+L1)/2,B+24);
+    // threshold
+    c.strokeStyle='#2c3e50';c.lineWidth=2.5;c.beginPath();c.moveTo(SX(s),T);c.lineTo(SX(s),B);c.stroke();c.lineWidth=1;
+    c.fillStyle='#2c3e50';c.beginPath();c.arc(SX(s),T+6,6,0,7);c.fill();
+    c.textBaseline='middle';c.font='13px sans-serif';
+    c.textAlign='right';c.fillStyle='#555';c.fillText('Ŷ = 0  ←',SX(s)-8,T+6);
+    c.textAlign='left';c.fillText('→  Ŷ = 1',SX(s)+8,T+6);
+    c.font='bold 13px sans-serif';
+    c.fillStyle='#2471a3';c.textAlign='left';c.fillText('Y = 0',L0+8,T+34);
+    c.fillStyle='#c0392b';c.textAlign='right';c.fillText('Y = 1',L1-8,T+34);
+    // ---- ROC
+    var r=rates(s,d);
+    c.strokeStyle='#ccc';c.strokeRect(FX(0),FY(1),RS,RS);
+    c.setLineDash([4,4]);c.beginPath();c.moveTo(FX(0),FY(0));c.lineTo(FX(1),FY(1));c.stroke();c.setLineDash([]);
+    var roc=[];for(i=-400;i<=400;i++){roc.push(rates(1/(1+Math.exp(-i/40)),d));}
+    roc.sort(function(p,q){return p.fpr-q.fpr;});
+    c.beginPath();c.moveTo(FX(0),FY(0));roc.forEach(function(q){c.lineTo(FX(q.fpr),FY(q.tpr));});c.lineTo(FX(1),FY(1));c.lineTo(FX(1),FY(0));c.closePath();c.fillStyle='rgba(52,152,219,.10)';c.fill();
+    c.beginPath();c.moveTo(FX(0),FY(0));roc.forEach(function(q){c.lineTo(FX(q.fpr),FY(q.tpr));});c.lineTo(FX(1),FY(1));c.strokeStyle='#2c3e50';c.lineWidth=2.2;c.stroke();c.lineWidth=1;
+    c.strokeStyle='rgba(231,76,60,.6)';c.setLineDash([3,3]);c.beginPath();c.moveTo(FX(r.fpr),FY(0));c.lineTo(FX(r.fpr),FY(r.tpr));c.lineTo(FX(0),FY(r.tpr));c.stroke();c.setLineDash([]);
+    c.beginPath();c.arc(FX(r.fpr),FY(r.tpr),6,0,7);c.fillStyle='#e74c3c';c.fill();
+    c.fillStyle='#e74c3c';c.font='13px sans-serif';c.textAlign='left';c.textBaseline='middle';
+    c.beginPath();c.arc(FX(0),FY(1),4,0,7);c.fill();c.fillText('ideal point',FX(0)+8,FY(1)+12);
+    c.fillStyle='#777';c.fillText('s = 1',FX(0)+8,FY(0)-10);c.textAlign='right';c.fillText('s = 0',FX(1)-6,FY(1)+12);
+    c.fillStyle='#666';c.textAlign='center';c.textBaseline='top';c.font='12px sans-serif';
+    c.fillText('0',FX(0),FY(0)+4);c.fillText('1',FX(1),FY(0)+4);
+    c.fillStyle='#333';c.font='13px sans-serif';c.fillText('FP rate = 1 − specificity',FX(.5),FY(0)+20);
+    c.save();c.translate(FX(0)-18,FY(.5));c.rotate(-Math.PI/2);c.textBaseline='middle';c.fillText('TP rate = sensitivity',0,0);c.restore();
+    var auc=Phi(d/Math.SQRT2);
+    txt.innerHTML='sensitivity <b>'+r.tpr.toFixed(2)+'</b> &nbsp;·&nbsp; specificity <b>'+(1-r.fpr).toFixed(2)+'</b> &nbsp;·&nbsp; AUC <b>'+auc.toFixed(3)+'</b> &nbsp;·&nbsp; Gini <b>'+(2*auc-1).toFixed(3)+'</b> &nbsp; <span style="opacity:.7">(dark blue: FP, dark red: TP)</span>';
+    try{localStorage.setItem(KEY,JSON.stringify({s:s,d:d}));}catch(e){}
+  }
+  var drag=false;
+  cv.addEventListener('pointerdown',function(e){var p=pos(e);if(p[0]>=L0-10&&p[0]<=L1+10&&p[1]<=B){drag=true;cv.setPointerCapture(e.pointerId);sEl.value=Math.max(.01,Math.min(.99,ISX(p[0])));draw();}});
+  cv.addEventListener('pointermove',function(e){if(!drag)return;var p=pos(e);sEl.value=Math.max(.01,Math.min(.99,ISX(p[0])));draw();e.preventDefault();});
+  window.addEventListener('pointerup',function(){drag=false;});
+  sEl.addEventListener('input',draw);dEl.addEventListener('input',draw);
+  try{var sv=JSON.parse(localStorage.getItem(KEY));if(sv){sEl.value=sv.s;dEl.value=sv.d;}}catch(e){}
+  draw();
+})();
+</script>
+```
+
+## Summary of the Chapter
+
+- **Model**: $Y|X=x \sim \mathcal B(p(x))$ with $\text{logit}\, p(x) = x^T\beta$
+- **Interpretation**: $e^{\beta_j}$ is the odds ratio for a one-unit increase of $x^{(j)}$, other regressors fixed
+- **Estimation**: MLE computed numerically; unique if $\text{rank}(X) = p$, exists if and only if the classes overlap
+- **Inference**: Wald tests and CIs (asymptotic normality), deviance tests for nested models, AIC/BIC
+- **Prediction**: CI for $p(x)$, classification with a threshold $s$, ROC curve and AUC
+
+## Next
+
+[Models for Categorical Data](categorical_data.qmd)
 
 . . .
 
