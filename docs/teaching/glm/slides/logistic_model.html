@@ -1287,6 +1287,71 @@ OR(x_1, x_2) &lt; \frac{p(x_1)}{p(x_2)} &amp;\text{ when } OR(x_1, x_2) &lt; 1
 <p><span class="math inline">\(\exp(\beta_j)\)</span> is simply the OR between <span style="background-color: yellow;">presence and absence</span> of this characteristic, all else being equal.</p>
 </div>
 </section>
+<section id="example-betting-on-football" class="slide level2">
+<h2>Example: Betting on Football</h2>
+<div class="fragment">
+<p>A bettor records <span class="math inline">\(n = 400\)</span> bets of the form “team A wins”. <span style="background-color: yellow;"><span class="math inline">\(Y = 1\)</span> if the bet is won</span>, <span class="math inline">\(Y = 0\)</span> otherwise (draw or defeat).</p>
+<ul>
+<li class="fragment"><code>elo_diff</code>: rating gap <span class="math inline">\(\text{Elo}(A) - \text{Elo}(\text{opponent})\)</span>, in hundreds of points (<span style="background-color: lightblue;">quantitative</span>)</li>
+<li class="fragment"><code>venue</code>: where A plays, <span class="math inline">\(\{\)</span><code>away</code>, <code>home</code>, <code>neutral</code><span class="math inline">\(\}\)</span> (<span style="background-color: lightblue;">qualitative</span>, 3 levels)</li>
+</ul>
+</div>
+<div class="fragment">
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>model <span class="ot">&lt;-</span> <span class="fu">glm</span>(won <span class="sc">~</span> elo_diff <span class="sc">+</span> venue, <span class="at">family =</span> binomial, <span class="at">data =</span> bets)</span>
+<span id="cb3-2"><a></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<p>As in ANCOVA, R takes the <span style="background-color: orange;">first level <code>away</code> as reference</span>: <code>venuehome</code> and <code>venueneutral</code> are compared with <code>away</code>.</p>
+</div>
+</section>
+<section id="example-r-output" class="slide level2">
+<h2>Example: R Output</h2>
+<div class="fragment">
+<pre><code>Coefficients:
+              Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)  -0.972076   0.176286  -5.514 3.50e-08 ***
+elo_diff      0.525162   0.082023   6.403 1.53e-10 ***
+venuehome     0.660842   0.234259   2.821  0.00479 ** 
+venueneutral -0.008264   0.419999  -0.020  0.98430    </code></pre>
+</div>
+<div class="fragment">
+<p>The fitted model, for a match with rating gap <span class="math inline">\(x\)</span>:</p>
+<div class="square-def">
+<p><span class="math display">\[\text{logit}\, \hat p = -0.97 + 0.53\, x + 0.66\, \mathbf 1_{\text{home}} - 0.01\, \mathbf 1_{\text{neutral}}\]</span></p>
+</div>
+</div>
+</section>
+<section id="example-reading-the-coefficients" class="slide level2">
+<h2>Example: Reading the Coefficients</h2>
+<div class="fragment">
+<p><strong><code>elo_diff</code></strong>: <span class="math inline">\(e^{0.525} \approx 1.69\)</span>. Each extra <span class="math inline">\(100\)</span> Elo points <span style="background-color: lightblue;">multiplies the odds of winning the bet by <span class="math inline">\(1.69\)</span></span>, at the same venue.</p>
+</div>
+<div class="fragment">
+<p><strong><code>venuehome</code></strong>: <span class="math inline">\(e^{0.661} \approx 1.94\)</span>. At the same rating gap, the odds of winning are <span style="background-color: lightblue;">almost doubled at home</span> compared with away.</p>
+</div>
+<div class="fragment">
+<p><strong><code>venueneutral</code></strong>: <span class="math inline">\(e^{-0.008} \approx 0.99\)</span> and the p-value is large: <span style="background-color: orange;">no evidence</span> that a neutral ground differs from away (tests: see the Wald section).</p>
+</div>
+<div class="fragment">
+<p><strong><code>(Intercept)</code></strong>: an away match against an equally rated team (<span class="math inline">\(x = 0\)</span>) is won with probability <span class="math inline">\(\text{logit}^{-1}(-0.97) \approx 0.27\)</span>.</p>
+</div>
+</section>
+<section id="example-is-the-bet-worth-it" class="slide level2">
+<h2>Example: Is the Bet Worth It?</h2>
+<div class="fragment">
+<p>Team A plays <span style="background-color: yellow;">at home</span> and is rated <span class="math inline">\(100\)</span> points above its opponent (<span class="math inline">\(x = 1\)</span>):</p>
+<p><span class="math display">\[\text{logit}\, \hat p = -0.972 + 0.525 + 0.661 = 0.214 \quad\Rightarrow\quad \hat p = \frac{e^{0.214}}{1 + e^{0.214}} \approx 0.55\]</span></p>
+</div>
+<div class="fragment">
+<p>A bookmaker pays <span class="math inline">\(c\)</span> times the stake if the bet is won. The expected gain per unit staked is <span class="math inline">\(c\, \hat p - 1\)</span>.</p>
+</div>
+<div class="fragment">
+<p>The bet is worth taking (according to the model) if <span style="background-color: lightblue;"><span class="math inline">\(c &gt; 1/\hat p \approx 1.81\)</span></span>.</p>
+</div>
+<div class="fragment">
+<p><span style="background-color: orange;">Odds ratios act on the odds, not on the probability</span>: <span class="math inline">\(1.94 \times\)</span> the odds is not <span class="math inline">\(1.94 \times\)</span> the probability.</p>
+</div>
+</section>
 <section id="example-1-intense-sports-activity" class="slide level2">
 <h2>Example 1: Intense Sports Activity</h2>
 <div class="fragment">
@@ -2693,8 +2758,8 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 <section id="example-obesity-study" class="slide level2">
 <h2>Example: Obesity Study</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>model<span class="ot">=</span><span class="fu">glm</span>(Y<span class="sc">~</span>AGE<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>ACTIV<span class="sc">+</span>WALK<span class="sc">+</span>MARITAL, <span class="at">family=</span>binomial)</span>
-<span id="cb3-2"><a></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>model<span class="ot">=</span><span class="fu">glm</span>(Y<span class="sc">~</span>AGE<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>ACTIV<span class="sc">+</span>WALK<span class="sc">+</span>MARITAL, <span class="at">family=</span>binomial)</span>
+<span id="cb5-2"><a></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <div style="font-size: 60%;">
@@ -2737,8 +2802,8 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 <section id="example-significance-test-of-marital" class="slide level2">
 <h2>Example: Significance Test of MARITAL</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>model<span class="ot">=</span><span class="fu">glm</span>(Y<span class="sc">~</span>AGE<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>ACTIV<span class="sc">+</span>WALK, <span class="at">family=</span>binomial) <span class="co"># We want to test if `MARITAL` is significant</span></span>
-<span id="cb4-2"><a></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>model<span class="ot">=</span><span class="fu">glm</span>(Y<span class="sc">~</span>AGE<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>ACTIV<span class="sc">+</span>WALK, <span class="at">family=</span>binomial) <span class="co"># We want to test if `MARITAL` is significant</span></span>
+<span id="cb6-2"><a></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <div style="font-size: 60%;">
@@ -2781,8 +2846,8 @@ p_\beta(x_1)(1 - p_\beta(x_1)) &amp; 0 &amp; \cdots &amp; 0 \\
 <section id="example-significance-test-of-age²" class="slide level2">
 <h2>Example: Significance Test of AGE²</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>model<span class="ot">=</span><span class="fu">glm</span>(Y<span class="sc">~</span>AGE<span class="sc">+</span><span class="fu">I</span>(AGE<span class="sc">^</span><span class="dv">2</span>)<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>WALK<span class="sc">+</span>ACTIV, <span class="at">family=</span>binomial) <span class="co"># We add AGE^2</span></span>
-<span id="cb5-2"><a></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a>model<span class="ot">=</span><span class="fu">glm</span>(Y<span class="sc">~</span>AGE<span class="sc">+</span><span class="fu">I</span>(AGE<span class="sc">^</span><span class="dv">2</span>)<span class="sc">+</span>DBP<span class="sc">+</span>SEXE<span class="sc">+</span>WALK<span class="sc">+</span>ACTIV, <span class="at">family=</span>binomial) <span class="co"># We add AGE^2</span></span>
+<span id="cb7-2"><a></a><span class="fu">summary</span>(model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div style="font-size: 60%;">
 <table class="caption-top">
 <thead>

@@ -12899,5 +12899,33 @@
     "title": "The Logistic Model",
     "section": "Odds Ratio vs Probability Ratio",
     "text": "Odds Ratio vs Probability Ratio\n\nTwo individuals \\(x_1\\), \\(x_2\\), each observed \\(100\\) times; points are outcomes \\(Y=1\\) / \\(Y=0\\). Move the sliders and compare \\(OR(x_1,x_2)\\) with \\(p(x_1)/p(x_2)\\): they agree only when both probabilities are small.\n\n\n  \n  \n    x₁: Y=1   Y=0 \n       \n    x₂: Y=1   Y=0"
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.html#example-betting-on-football",
+    "href": "teaching/glm/slides/logistic_model.html#example-betting-on-football",
+    "title": "The Logistic Model",
+    "section": "Example: Betting on Football",
+    "text": "Example: Betting on Football\n\nA bettor records \\(n = 400\\) bets of the form “team A wins”. \\(Y = 1\\) if the bet is won, \\(Y = 0\\) otherwise (draw or defeat).\n\nelo_diff: rating gap \\(\\text{Elo}(A) - \\text{Elo}(\\text{opponent})\\), in hundreds of points (quantitative)\nvenue: where A plays, \\(\\{\\)away, home, neutral\\(\\}\\) (qualitative, 3 levels)\n\n\n\nmodel &lt;- glm(won ~ elo_diff + venue, family = binomial, data = bets)\nsummary(model)\n\n\nAs in ANCOVA, R takes the first level away as reference: venuehome and venueneutral are compared with away."
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.html#example-r-output",
+    "href": "teaching/glm/slides/logistic_model.html#example-r-output",
+    "title": "The Logistic Model",
+    "section": "Example: R Output",
+    "text": "Example: R Output\n\nCoefficients:\n              Estimate Std. Error z value Pr(&gt;|z|)    \n(Intercept)  -0.972076   0.176286  -5.514 3.50e-08 ***\nelo_diff      0.525162   0.082023   6.403 1.53e-10 ***\nvenuehome     0.660842   0.234259   2.821  0.00479 ** \nvenueneutral -0.008264   0.419999  -0.020  0.98430    \n\n\nThe fitted model, for a match with rating gap \\(x\\):\n\n\\[\\text{logit}\\, \\hat p = -0.97 + 0.53\\, x + 0.66\\, \\mathbf 1_{\\text{home}} - 0.01\\, \\mathbf 1_{\\text{neutral}}\\]"
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.html#example-reading-the-coefficients",
+    "href": "teaching/glm/slides/logistic_model.html#example-reading-the-coefficients",
+    "title": "The Logistic Model",
+    "section": "Example: Reading the Coefficients",
+    "text": "Example: Reading the Coefficients\n\nelo_diff: \\(e^{0.525} \\approx 1.69\\). Each extra \\(100\\) Elo points multiplies the odds of winning the bet by \\(1.69\\), at the same venue.\n\n\nvenuehome: \\(e^{0.661} \\approx 1.94\\). At the same rating gap, the odds of winning are almost doubled at home compared with away.\n\n\nvenueneutral: \\(e^{-0.008} \\approx 0.99\\) and the p-value is large: no evidence that a neutral ground differs from away (tests: see the Wald section).\n\n\n(Intercept): an away match against an equally rated team (\\(x = 0\\)) is won with probability \\(\\text{logit}^{-1}(-0.97) \\approx 0.27\\)."
+  },
+  {
+    "objectID": "teaching/glm/slides/logistic_model.html#example-is-the-bet-worth-it",
+    "href": "teaching/glm/slides/logistic_model.html#example-is-the-bet-worth-it",
+    "title": "The Logistic Model",
+    "section": "Example: Is the Bet Worth It?",
+    "text": "Example: Is the Bet Worth It?\n\nTeam A plays at home and is rated \\(100\\) points above its opponent (\\(x = 1\\)):\n\\[\\text{logit}\\, \\hat p = -0.972 + 0.525 + 0.661 = 0.214 \\quad\\Rightarrow\\quad \\hat p = \\frac{e^{0.214}}{1 + e^{0.214}} \\approx 0.55\\]\n\n\nA bookmaker pays \\(c\\) times the stake if the bet is won. The expected gain per unit staked is \\(c\\, \\hat p - 1\\).\n\n\nThe bet is worth taking (according to the model) if \\(c &gt; 1/\\hat p \\approx 1.81\\).\n\n\nOdds ratios act on the odds, not on the probability: \\(1.94 \\times\\) the odds is not \\(1.94 \\times\\) the probability."
   }
 ]

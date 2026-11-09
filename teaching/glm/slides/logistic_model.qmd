@@ -1114,6 +1114,85 @@ If regressor $j$ is binary (presence or absence of a characteristic):
 $\exp(\beta_j)$ is simply the OR between [presence and absence]{style="background-color: yellow;"} of this characteristic, all else being equal.
 
 
+## Example: Betting on Football
+
+. . .
+
+A bettor records $n = 400$ bets of the form "team A wins". [$Y = 1$ if the bet is won]{style="background-color: yellow;"}, $Y = 0$ otherwise (draw or defeat).
+
+- `elo_diff`: rating gap $\text{Elo}(A) - \text{Elo}(\text{opponent})$, in hundreds of points ([quantitative]{style="background-color: lightblue;"})
+- `venue`: where A plays, $\{$`away`, `home`, `neutral`$\}$ ([qualitative]{style="background-color: lightblue;"}, 3 levels)
+
+. . .
+
+```r
+model <- glm(won ~ elo_diff + venue, family = binomial, data = bets)
+summary(model)
+```
+
+. . .
+
+As in ANCOVA, R takes the [first level `away` as reference]{style="background-color: orange;"}: `venuehome` and `venueneutral` are compared with `away`.
+
+## Example: R Output
+
+. . .
+
+```
+Coefficients:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -0.972076   0.176286  -5.514 3.50e-08 ***
+elo_diff      0.525162   0.082023   6.403 1.53e-10 ***
+venuehome     0.660842   0.234259   2.821  0.00479 ** 
+venueneutral -0.008264   0.419999  -0.020  0.98430    
+```
+
+. . .
+
+The fitted model, for a match with rating gap $x$:
+
+::: {.square-def}
+$$\text{logit}\, \hat p = -0.97 + 0.53\, x + 0.66\, \mathbf 1_{\text{home}} - 0.01\, \mathbf 1_{\text{neutral}}$$
+:::
+
+## Example: Reading the Coefficients
+
+. . .
+
+**`elo_diff`**: $e^{0.525} \approx 1.69$. Each extra $100$ Elo points [multiplies the odds of winning the bet by $1.69$]{style="background-color: lightblue;"}, at the same venue.
+
+. . .
+
+**`venuehome`**: $e^{0.661} \approx 1.94$. At the same rating gap, the odds of winning are [almost doubled at home]{style="background-color: lightblue;"} compared with away.
+
+. . .
+
+**`venueneutral`**: $e^{-0.008} \approx 0.99$ and the p-value is large: [no evidence]{style="background-color: orange;"} that a neutral ground differs from away (tests: see the Wald section).
+
+. . .
+
+**`(Intercept)`**: an away match against an equally rated team ($x = 0$) is won with probability $\text{logit}^{-1}(-0.97) \approx 0.27$.
+
+## Example: Is the Bet Worth It?
+
+. . .
+
+Team A plays [at home]{style="background-color: yellow;"} and is rated $100$ points above its opponent ($x = 1$):
+
+$$\text{logit}\, \hat p = -0.972 + 0.525 + 0.661 = 0.214 \quad\Rightarrow\quad \hat p = \frac{e^{0.214}}{1 + e^{0.214}} \approx 0.55$$
+
+. . .
+
+A bookmaker pays $c$ times the stake if the bet is won. The expected gain per unit staked is $c\, \hat p - 1$.
+
+. . .
+
+The bet is worth taking (according to the model) if [$c > 1/\hat p \approx 1.81$]{style="background-color: lightblue;"}.
+
+. . .
+
+[Odds ratios act on the odds, not on the probability]{style="background-color: orange;"}: $1.94 \times$ the odds is not $1.94 \times$ the probability.
+
 ## Example 1: Intense Sports Activity
 
 . . .
