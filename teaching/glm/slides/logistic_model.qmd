@@ -862,6 +862,75 @@ $$\text{odds} = \frac{p}{1-p}$$
 So a randomly chosen bettor bets on $A$ with probability [$p=3/4$]{style="background-color: lightblue;"} and on $B$ with probability $1-p=1/4$.
 
 
+## Odds: Counting the Bettors {.smaller}
+
+::: {style="font-size:90%"}
+$N=100$ bettors. The odds of $A$ compare the two groups: $\text{odds} = \frac{P(A)}{P(B)} = \frac{n_A}{n_B}$. **Move the slider** (or click a region to move one bettor there).
+:::
+
+```{=html}
+<div style="text-align:center">
+  <canvas id="odC" width="720" height="300" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px"></canvas>
+  <div class="lm-row">
+    <span style="color:#c0392b"><b>n<sub>A</sub></b></span> <input type="range" min="1" max="99" step="1" data-g="A" autocomplete="off" style="vertical-align:middle;width:260px"> <b data-v="A" style="display:inline-block;width:2.2em;text-align:left"></b>
+    &nbsp;&nbsp;
+    <span style="color:#2471a3"><b>n<sub>B</sub> = 100 − n<sub>A</sub> =</b></span> <b data-v="B" style="display:inline-block;width:2.2em;text-align:left"></b>
+  </div>
+</div>
+<script>
+(function () {
+  // shared by the odds and odds-ratio slides: a box split into two regions in proportion to the counts
+  window.oddsBox = window.oddsBox || function (c, x, y, w, h, nA, nB, labA, labB) {
+    var wA = w * nA / (nA + nB), parts = [[x, wA, nA, labA, '#e74c3c', 'rgba(231,76,60,.10)'], [x + wA, w - wA, nB, labB, '#3498db', 'rgba(52,152,219,.10)']];
+    parts.forEach(function (q) {
+      var px = q[0], pw = q[1], n = q[2];
+      c.fillStyle = q[5]; c.fillRect(px, y, pw, h);
+      c.font = 'bold 22px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'top'; c.fillStyle = q[4];
+      if (pw > 24) c.fillText(q[3], px + pw / 2, y + 6);
+      var top = y + 34, ah = h - 42, s = Math.min(20, Math.sqrt(pw * ah / Math.max(n, 1)) * 0.92);
+      var cols = Math.max(1, Math.floor((pw - 4) / s)), rows = Math.ceil(n / cols);
+      var gx = px + (pw - Math.min(n, cols) * s) / 2 + s / 2, gy = top + (ah - rows * s) / 2 + s / 2;
+      for (var i = 0; i < n; i++) {
+        c.beginPath(); c.arc(gx + (i % cols) * s, gy + Math.floor(i / cols) * s, Math.max(2.5, Math.min(7, s * 0.36)), 0, 7);
+        c.fillStyle = q[4]; c.fill();
+      }
+    });
+    c.strokeStyle = '#555'; c.lineWidth = 1.5; c.strokeRect(x, y, w, h);
+    c.beginPath(); c.moveTo(x + wA, y); c.lineTo(x + wA, y + h); c.stroke(); c.lineWidth = 1;
+    return x + wA; // position of the split
+  };
+  var cv = document.getElementById('odC'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, KEY = 'glmOdds100', n = { A: 75, B: 25 };
+  try { var sv = JSON.parse(localStorage.getItem(KEY)); if (sv && sv.A >= 1 && sv.A <= 99) n = { A: sv.A, B: 100 - sv.A }; } catch (e) {}
+  var BX = 40, BY = 16, BW = 640, BH = 190;
+  function pos(e) { var r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; }
+  function f2(v) { return v.toFixed(2); }
+  function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+  function draw() {
+    c.clearRect(0, 0, W, H); c.fillStyle = '#fff'; c.fillRect(0, 0, W, H);
+    oddsBox(c, BX, BY, BW, BH, n.A, n.B, 'A', 'B');
+    var N = n.A + n.B, p = n.A / N;
+    c.textBaseline = 'middle'; c.textAlign = 'center'; c.font = '16px sans-serif';
+    c.fillStyle = '#c0392b'; c.fillText('P(A) = ' + n.A + '/' + N + ' = ' + f2(p), W / 2 - 150, BY + BH + 26);
+    c.fillStyle = '#2471a3'; c.fillText('P(B) = 1 − P(A) = ' + n.B + '/' + N + ' = ' + f2(1 - p), W / 2 + 150, BY + BH + 26);
+    c.font = 'bold 18px sans-serif'; c.fillStyle = '#2c3e50';
+    c.fillText('odds of A = P(A) / P(B) = ' + n.A + ' / ' + n.B + ' = ' + f2(n.A / n.B) + '      ("' + n.A / gcd(n.A, n.B) + ' to ' + n.B / gcd(n.A, n.B) + '")', W / 2, BY + BH + 62);
+    try { localStorage.setItem(KEY, JSON.stringify(n)); } catch (e) {}
+  }
+  var sl = [].slice.call(cv.parentNode.querySelectorAll('input[data-g]'));
+  function sync() { sl.forEach(function (s) { s.value = n.A; }); ['A','B'].forEach(function (k) { cv.parentNode.querySelector('b[data-v="' + k + '"]').textContent = n[k]; }); }
+  function add(g, d) { n.A = Math.max(1, Math.min(99, n.A + (g === 'A' ? d : -d))); n.B = 100 - n.A; sync(); draw(); }
+  sl.forEach(function (s) { s.addEventListener('input', function () { n.A = +s.value; n.B = 100 - n.A; sync(); draw(); }); });
+  sync();
+  cv.addEventListener('pointerdown', function (e) {
+    var p = pos(e); if (p[1] < BY || p[1] > BY + BH || p[0] < BX || p[0] > BX + BW) return;
+    add(p[0] < BX + BW * n.A / (n.A + n.B) ? 'A' : 'B', 1);
+  });
+  draw();
+})();
+</script>
+```
+
 ## Odds given X=x
 
 
@@ -898,6 +967,65 @@ $$OR(x_1, x_2) = \frac{\text{odds}(x_1)}{\text{odds}(x_2)} = \frac{\frac{p(x_1)}
 Only possible exception: if $p(x_1)$ and $p(x_2)$ are both very small, then $1 - p(x_1) \approx 1$ and $1 - p(x_2) \approx 1$, so that $OR(x_1, x_2) \approx p(x_1)/p(x_2)$
 :::
 
+
+## Odds Ratio vs Probability Ratio {.smaller}
+
+::: {style="font-size:90%"}
+Two individuals $x_1$, $x_2$, each observed $100$ times; points are outcomes $Y=1$ / $Y=0$. **Move the sliders** and compare $OR(x_1,x_2)$ with $p(x_1)/p(x_2)$: they agree only when both probabilities are small.
+:::
+
+```{=html}
+<div style="text-align:center">
+  <canvas id="orC" width="780" height="330" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px"></canvas>
+  <div class="lm-row">
+    <b>x₁</b>: <span style="color:#c0392b">Y=1</span> <input type="range" min="1" max="99" step="1" data-k="a1" autocomplete="off" style="vertical-align:middle;width:180px"> <b data-v="a1" style="display:inline-block;width:2.2em;text-align:left"></b> <span style="color:#2471a3">Y=0</span> <b data-v="b1" style="display:inline-block;width:2.2em;text-align:left"></b>
+    &nbsp;&nbsp;&nbsp;
+    <b>x₂</b>: <span style="color:#c0392b">Y=1</span> <input type="range" min="1" max="99" step="1" data-k="a2" autocomplete="off" style="vertical-align:middle;width:180px"> <b data-v="a2" style="display:inline-block;width:2.2em;text-align:left"></b> <span style="color:#2471a3">Y=0</span> <b data-v="b2" style="display:inline-block;width:2.2em;text-align:left"></b>
+  </div>
+</div>
+<script>
+(function () {
+  var cv = document.getElementById('orC'); if (!cv || cv.dataset.init) return; cv.dataset.init = 1;
+  var c = cv.getContext('2d'), W = cv.width, H = cv.height, KEY = 'glmOR100', n = { a1: 60, b1: 40, a2: 30, b2: 70 };
+  try { var sv = JSON.parse(localStorage.getItem(KEY)); if (sv && sv.a1 >= 1 && sv.a1 <= 99 && sv.a2 >= 1 && sv.a2 <= 99) n = { a1: sv.a1, b1: 100 - sv.a1, a2: sv.a2, b2: 100 - sv.a2 }; } catch (e) {}
+  var BY = 34, BW = 340, BH = 170, BOX = [[30, 'a1', 'b1', 'x₁'], [410, 'a2', 'b2', 'x₂']];
+  function pos(e) { var r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * W / r.width, (e.clientY - r.top) * H / r.height]; }
+  function f2(v) { return v.toFixed(2); }
+  function draw() {
+    c.clearRect(0, 0, W, H); c.fillStyle = '#fff'; c.fillRect(0, 0, W, H);
+    var P = [], O = [];
+    BOX.forEach(function (b, j) {
+      var a = n[b[1]], z = n[b[2]], p = a / (a + z);
+      c.font = 'bold 16px sans-serif'; c.fillStyle = '#333'; c.textAlign = 'center'; c.textBaseline = 'bottom';
+      c.fillText('individual ' + b[3], b[0] + BW / 2, BY - 6);
+      oddsBox(c, b[0], BY, BW, BH, a, z, 'Y=1', 'Y=0');
+      c.font = '15px sans-serif'; c.textBaseline = 'middle';
+      c.fillStyle = '#c0392b'; c.fillText('p(' + b[3] + ') = ' + a + '/' + (a + z) + ' = ' + f2(p), b[0] + BW / 2, BY + BH + 20);
+      c.fillStyle = '#2c3e50'; c.fillText('odds(' + b[3] + ') = ' + a + '/' + z + ' = ' + f2(a / z), b[0] + BW / 2, BY + BH + 42);
+      P.push(p); O.push(a / z);
+    });
+    var OR = O[0] / O[1], PR = P[0] / P[1];
+    c.font = 'bold 18px sans-serif'; c.textAlign = 'center';
+    c.fillStyle = '#8e44ad'; c.fillText('OR(x₁, x₂) = odds(x₁) / odds(x₂) = ' + f2(OR), W / 2 - 170, BY + BH + 86);
+    c.fillStyle = '#16a085'; c.fillText('p(x₁) / p(x₂) = ' + f2(PR), W / 2 + 220, BY + BH + 86);
+    c.font = '13px sans-serif'; c.fillStyle = '#666';
+    var gap = Math.abs(OR - PR) / PR;
+    c.fillText(gap < 0.1 ? 'both probabilities small: OR ≈ probability ratio' : 'OR is further from 1 than the probability ratio (same side of 1)', W / 2, BY + BH + 112);
+    try { localStorage.setItem(KEY, JSON.stringify(n)); } catch (e) {}
+  }
+  var sl = [].slice.call(cv.parentNode.querySelectorAll('input[data-k]'));
+  function sync() { ['a1','b1','a2','b2'].forEach(function (k) { cv.parentNode.querySelector('b[data-v="' + k + '"]').textContent = n[k]; }); sl.forEach(function (s) { s.value = n[s.dataset.k]; }); }
+  function add(k, d) { var a = k.charAt(1) === '1' ? 'a1' : 'a2', b = a === 'a1' ? 'b1' : 'b2'; n[a] = Math.max(1, Math.min(99, n[a] + (k === a ? d : -d))); n[b] = 100 - n[a]; sync(); draw(); }
+  sl.forEach(function (s) { s.addEventListener('input', function () { var a = s.dataset.k; n[a] = +s.value; n[a === 'a1' ? 'b1' : 'b2'] = 100 - n[a]; sync(); draw(); }); });
+  sync();
+  cv.addEventListener('pointerdown', function (e) {
+    var p = pos(e); if (p[1] < BY || p[1] > BY + BH) return;
+    BOX.forEach(function (b) { if (p[0] >= b[0] && p[0] <= b[0] + BW) { var a = n[b[1]], z = n[b[2]]; add(p[0] < b[0] + BW * a / (a + z) ? b[1] : b[2], 1); } });
+  });
+  draw();
+})();
+</script>
+```
 
 ## Link with the Probability Ratio
 
