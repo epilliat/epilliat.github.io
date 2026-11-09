@@ -143,18 +143,27 @@ where $g^{-1}$ is a [strictly increasing function]{style="background-color: yell
     init.forEach(function(k){on[k]=true;});
     try{var sv=JSON.parse(localStorage.getItem(KEY));if(sv)on=sv;}catch(e){}
     function save(){try{localStorage.setItem(KEY,JSON.stringify(on));}catch(e){}}
-    var hover=null;
-    [['cls','age classes'],['logit','logit'],['probit','probit'],['cloglog','cloglog']].forEach(function(bb){
+    var hover=null,KC='#8e44ad';
+    if(!(on.h>=1&&on.h<=15))on.h=4;
+    var hw=document.createElement('span');
+    hw.innerHTML='&nbsp; σ (years) <input type="range" min="1" max="15" step="0.5" autocomplete="off" style="vertical-align:middle;width:140px"> <b style="display:inline-block;width:2.2em;text-align:left"></b>';
+    var hEl=hw.querySelector('input'),hV=hw.querySelector('b');hEl.value=on.h;
+    hEl.addEventListener('input',function(){on.h=+hEl.value;save();draw();});
+    [['cls','age classes'],['ker','gaussian kernel'],['logit','logit'],['probit','probit'],['cloglog','cloglog']].forEach(function(bb){
       var b=document.createElement('button');b.className='lm-btn'+(on[bb[0]]?' on':'');b.textContent=bb[1];
       b.onclick=function(){on[bb[0]]=!on[bb[0]];b.classList.toggle('on',!!on[bb[0]]);save();draw();};
       row.appendChild(b);
     });
+    row.appendChild(hw);
+    // Nadaraya–Watson: weighted proportion of chd = 1, Gaussian weights of std σ around x
+    function kern(x){var s=0,w=0;for(var i=0;i<N;i++){var u=(x-AGE[i])/on.h,k=Math.exp(-u*u/2);s+=k*CHD[i];w+=k;}return s/w;}
     function hatB(sub,x,y){ // β̂₀ drawn with a real caret
       var yb=y+5;c.textBaseline='alphabetic';c.fillText('β'+sub,x,yb);var w=c.measureText('β').width,cx=x+w/2;
       c.beginPath();c.moveTo(cx-3.5,yb-13);c.lineTo(cx,yb-17);c.lineTo(cx+3.5,yb-13);c.stroke();c.textBaseline='middle';
       return x+c.measureText('β'+sub).width;
     }
     function draw(){
+      hw.style.display=on.ker?'inline':'none';hV.textContent=(+on.h).toFixed(1);
       c.clearRect(0,0,W,H);c.fillStyle='#fff';c.fillRect(0,0,W,H);
       c.font=FONT;c.lineWidth=1;
       // grid
@@ -185,6 +194,16 @@ where $g^{-1}$ is a [strictly increasing function]{style="background-color: yell
         for(var a=x0;a<=x1;a+=.25){var py=Y(l.F(l.b0+l.b1*a));if(a===x0)c.moveTo(X(a),py);else c.lineTo(X(a),py);}
         c.stroke();
       });
+      if(on.ker){
+        if(hover!==null){ // the Gaussian weights used at the hovered age
+          c.fillStyle='rgba(142,68,173,.13)';c.strokeStyle='rgba(142,68,173,.6)';c.lineWidth=1.5;c.beginPath();c.moveTo(X(x0),Y(0));
+          for(var a=x0;a<=x1;a+=.25){var u=(a-hover)/on.h;c.lineTo(X(a),Y(0)-70*Math.exp(-u*u/2));}
+          c.lineTo(X(x1),Y(0));c.closePath();c.fill();c.stroke();
+        }
+        c.strokeStyle=KC;c.lineWidth=3;c.beginPath();
+        for(var a=x0;a<=x1;a+=.25){var py=Y(kern(a));if(a===x0)c.moveTo(X(a),py);else c.lineTo(X(a),py);}
+        c.stroke();
+      }
       c.restore();c.lineWidth=1;
       // data: duplicates stacked outward from 0 and 1
       for(var i=0;i<N;i++){
@@ -201,6 +220,8 @@ where $g^{-1}$ is a [strictly increasing function]{style="background-color: yell
         x=hatB('₁',x,ly+1);c.fillText(' = '+l.b1.toFixed(3),x,ly);
         ly+=22;
       });
+      if(on.ker){c.strokeStyle=KC;c.lineWidth=3;c.beginPath();c.moveTo(X(19),ly);c.lineTo(X(21.5),ly);c.stroke();
+        c.fillStyle='#333';c.textAlign='left';c.textBaseline='middle';c.fillText('gaussian kernel, σ = '+(+on.h).toFixed(1),X(22.2),ly);}
       c.lineWidth=1;
       // hover readout
       if(hover!==null){
@@ -209,12 +230,13 @@ where $g^{-1}$ is a [strictly increasing function]{style="background-color: yell
         act.forEach(function(k){var l=L[k],p=l.F(l.b0+l.b1*Math.round(hover));lines.push([k,p]);
           c.beginPath();c.arc(hx,Y(l.F(l.b0+l.b1*hover)),5,0,7);c.fillStyle=l.col;c.fill();});
         if(on.cls)CL.forEach(function(cl){if(hover>=cl[0]&&hover<cl[1])lines.push(['class',cl[3]/cl[2]]);});
+        if(on.ker){var pk=kern(hover);lines.push(['kernel',pk]);c.beginPath();c.arc(hx,Y(pk),5,0,7);c.fillStyle=KC;c.fill();}
         var bw=150,bh=10+lines.length*20,bx=hx+12>W-mr-bw?hx-12-bw:hx+12,by=Y(.62);
         c.fillStyle='rgba(255,255,255,.92)';c.strokeStyle='#ccc';c.fillRect(bx,by,bw,bh);c.strokeRect(bx,by,bw,bh);
         c.textAlign='left';c.textBaseline='middle';
         lines.forEach(function(t,j){var yy=by+15+j*20;
           if(typeof t==='string'){c.fillStyle='#333';c.fillText(t,bx+10,yy);}
-          else{c.fillStyle=t[0]==='class'?'#c0661a':L[t[0]].col;c.fillText(t[0],bx+10,yy);c.fillStyle='#333';c.textAlign='right';c.fillText(t[1].toFixed(3),bx+bw-10,yy);c.textAlign='left';}
+          else{c.fillStyle=t[0]==='class'?'#c0661a':t[0]==='kernel'?KC:L[t[0]].col;c.fillText(t[0],bx+10,yy);c.fillStyle='#333';c.textAlign='right';c.fillText(t[1].toFixed(3),bx+bw-10,yy);c.textAlign='left';}
         });
       }
     }
@@ -235,6 +257,7 @@ chdWidget('chd1',[]);
 
 - Group the ages into classes
 - Estimate $p(x)$ by the proportion of $chd = 1$ in the class containing $x$
+- Smoother variant: a proportion weighted by a [Gaussian kernel]{style="background-color: yellow;"} of width $\sigma$ around $x$
 
 . . .
 
