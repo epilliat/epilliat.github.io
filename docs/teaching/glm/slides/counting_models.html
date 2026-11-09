@@ -236,6 +236,104 @@
 </div>
 </div>
 </section>
+<section id="the-poisson-model-in-one-picture" class="slide level2 smaller">
+<h2>The Poisson Model in One Picture</h2>
+<div style="font-size:90%">
+<p><span class="math inline">\(Y|X=x\)</span> is <strong>Poisson</strong> around <span class="math inline">\(\lambda_\beta(x)=e^{\beta_0+\beta_1x}\)</span>: its spread grows with its mean. <strong>Move</strong> <span class="math inline">\(\beta_0,\beta_1\)</span>, then compare with the other GLMs.</p>
+</div>
+<style>
+.lm-btn{font-family:inherit;font-size:.85em;padding:.4em 1.1em;margin:.12em .22em;border:1px solid #bbb;border-radius:8px;background:#f4f4f4;color:#333;cursor:pointer}
+.lm-btn.on{background:#3b6fb6;color:#fff;border-color:#3b6fb6}
+.lm-row{font-size:.8em;line-height:2.1;margin:.15rem 0}
+</style>
+<div style="text-align:center">
+  <div id="gxEq" style="font-size:.78em;min-height:1.8em;margin-bottom:.2em">\(Y\mid X=x\sim\mathcal N(\mu(x),\sigma^2),\quad \mu(x)=\beta_0+\beta_1x\)</div>
+  <canvas id="gxC" width="720" height="300" style="max-width:100%;background:#fff;border:1px solid #ddd;border-radius:8px"></canvas>
+  <div class="lm-row">
+    <button class="lm-btn" data-m="G">Gaussian · identity</button>
+    <button class="lm-btn" data-m="B">Bernoulli · logit</button>
+    <button class="lm-btn" data-m="P">Poisson · log</button>
+  </div>
+  <div class="lm-row">
+    β<sub>0</sub> <input id="gxB0" type="range" step="0.05" autocomplete="off" style="vertical-align:middle;width:170px"> <b id="gxB0v" style="display:inline-block;width:3em">0</b>
+    &nbsp; β<sub>1</sub> <input id="gxB1" type="range" step="0.01" autocomplete="off" style="vertical-align:middle;width:170px"> <b id="gxB1v" style="display:inline-block;width:3em">0</b>
+  </div>
+</div>
+<script>
+(function () {
+  var cv=document.getElementById('gxC'); if(!cv||cv.dataset.init)return; cv.dataset.init=1;
+  var c=cv.getContext('2d'),W=cv.width,H=cv.height,KEY='glmExplorerPoisson',eq=document.getElementById('gxEq');
+  var s0=document.getElementById('gxB0'),s1=document.getElementById('gxB1'),v0=document.getElementById('gxB0v'),v1=document.getElementById('gxB1v');
+  var mBtns=[].slice.call(cv.parentNode.querySelectorAll('button[data-m]'));
+  var CFG={
+    G:{b0:[-3,5,1],b1:[-1,1.5,.8],y:[-4,14],tk:[0,4,8,12],tex:'Y\\mid X=x\\sim\\mathcal N(\\mu(x),\\sigma^2),\\quad \\mu(x)=\\beta_0+\\beta_1x'},
+    B:{b0:[-8,4,-4],b1:[-2,2,.8],y:[-.12,1.12],tk:[0,.5,1],tex:'Y\\mid X=x\\sim\\mathcal B(\\mu(x)),\\quad \\mathrm{logit}\\,\\mu(x)=\\beta_0+\\beta_1x'},
+    P:{b0:[-2,2.5,-.3],b1:[-.4,.4,.28],y:[-1,20],tk:[0,5,10,15,20],tex:'Y\\mid X=x\\sim\\mathcal P(\\mu(x)),\\quad \\ln\\mu(x)=\\beta_0+\\beta_1x'}
+  };
+  var mode='G',n=90,ux=[],uu=[],gz=[],uj=[],SIG=1.5,XS=[1,3,5,7,9];
+  for(var i=0;i<n;i++){ux[i]=Math.random()*10;uu[i]=Math.random();var a=0,b=0;while(!a)a=Math.random();while(!b)b=Math.random();gz[i]=Math.sqrt(-2*Math.log(a))*Math.cos(2*Math.PI*b);uj[i]=Math.random()-.5;}
+  function sig(t){return 1/(1+Math.exp(-t));}
+  function mu(x){var e=+s0.value+(+s1.value)*x;return mode==='G'?e:mode==='B'?sig(e):Math.exp(Math.min(e,6));}
+  function qpois(u,m){var k=0,p=Math.exp(-m),s=p;while(u>s&&k<300){k++;p*=m/k;s+=p;}return k;}
+  function typesetEq(){if(window.MathJax&&MathJax.Hub&&MathJax.Hub.Queue)MathJax.Hub.Queue(['Typeset',MathJax.Hub,eq]);else setTimeout(typesetEq,200);}
+  function setMode(m,keep){
+    mode=m;var q=CFG[m];
+    s0.min=q.b0[0];s0.max=q.b0[1];s1.min=q.b1[0];s1.max=q.b1[1];
+    if(!keep){s0.value=q.b0[2];s1.value=q.b1[2];}
+    mBtns.forEach(function(b){b.classList.toggle('on',b.dataset.m===m);});
+    eq.innerHTML='\\('+q.tex+'\\)';typesetEq();
+  }
+  function draw(){
+    var q=CFG[mode],lo=q.y[0],hi=q.y[1],ml=46,mr=16,mt=10,mb=34;
+    v0.textContent=(+s0.value).toFixed(2);v1.textContent=(+s1.value).toFixed(2);
+    function X(x){return ml+(x+.2)/10.8*(W-ml-mr);} function Y(v){return H-mb-(v-lo)/(hi-lo)*(H-mt-mb);}
+    c.clearRect(0,0,W,H);c.fillStyle='#fff';c.fillRect(0,0,W,H);c.lineWidth=1;c.font='13px sans-serif';
+    c.fillStyle='#666';c.textAlign='right';c.textBaseline='middle';
+    q.tk.forEach(function(v){c.strokeStyle=v===0?'#ccc':'#eee';c.beginPath();c.moveTo(ml,Y(v));c.lineTo(W-mr,Y(v));c.stroke();c.fillText(v,ml-7,Y(v));});
+    c.textAlign='center';c.textBaseline='top';for(var x=0;x<=10;x+=2)c.fillText(x,X(x),H-mb+5);
+    c.fillStyle='#333';c.fillText('x',(ml+W-mr)/2,H-mb+18);
+    c.save();c.beginPath();c.rect(ml,mt,W-ml-mr,H-mt-mb);c.clip();
+    // sample, drawn from fixed uniforms so it morphs smoothly
+    for(var i=0;i<n;i++){var m=mu(ux[i]),y=mode==='G'?m+SIG*gz[i]:mode==='B'?(uu[i]<m?1:0)+uj[i]*.06:qpois(uu[i],m);
+      c.beginPath();c.arc(X(ux[i]),Y(y),3.2,0,7);c.fillStyle='rgba(44,62,80,.45)';c.fill();}
+    // conditional distributions of Y | X = x, drawn sideways
+    var WD=58;
+    XS.forEach(function(x0){
+      var m=mu(x0),bx=X(x0);
+      c.strokeStyle='rgba(0,0,0,.25)';c.beginPath();c.moveTo(bx,mt);c.lineTo(bx,H-mb);c.stroke();
+      c.fillStyle='rgba(52,152,219,.22)';c.strokeStyle='#3498db';
+      if(mode==='G'){
+        c.beginPath();c.moveTo(bx,Y(m-3.5*SIG));
+        for(var t=-3.5;t<=3.5;t+=.1)c.lineTo(bx+WD*Math.exp(-t*t/2),Y(m+t*SIG));
+        c.lineTo(bx,Y(m+3.5*SIG));c.closePath();c.fill();c.stroke();
+      }else if(mode==='B'){
+        [[0,1-m],[1,m]].forEach(function(r){c.fillRect(bx,Y(r[0])-6,WD*r[1],12);c.strokeRect(bx,Y(r[0])-6,WD*r[1],12);});
+        c.fillStyle='#2471a3';c.textAlign='left';c.textBaseline='bottom';c.fillText(m.toFixed(2),bx+4,Y(1)-8);
+      }else{
+        var pk=0,p=Math.exp(-m),pm=[];for(var k=0;k<=hi;k++){pm.push(p);pk=Math.max(pk,p);p*=m/(k+1);}
+        var th=Math.max(3,Math.min(9,(Y(0)-Y(1))*.7));
+        pm.forEach(function(pp,k){c.fillRect(bx,Y(k)-th/2,WD*pp/pk,th);});
+      }
+      c.beginPath();c.arc(bx,Y(m),5,0,7);c.fillStyle='#e74c3c';c.fill();
+    });
+    // mean curve
+    c.strokeStyle='#e74c3c';c.lineWidth=3;c.beginPath();
+    for(var j=0;j<=300;j++){var xx=-.2+10.8*j/300;j?c.lineTo(X(xx),Y(mu(xx))):c.moveTo(X(xx),Y(mu(xx)));}c.stroke();
+    c.restore();c.lineWidth=1;
+    c.font='14px sans-serif';c.textAlign='left';c.textBaseline='middle';
+    c.strokeStyle='#e74c3c';c.lineWidth=3;c.beginPath();c.moveTo(ml+12,mt+14);c.lineTo(ml+36,mt+14);c.stroke();c.lineWidth=1;
+    c.fillStyle='#333';c.fillText('E(Y | X = x) = g⁻¹(β₀ + β₁x)',ml+44,mt+14);
+    c.fillStyle='rgba(52,152,219,.5)';c.fillRect(ml+12,mt+30,24,10);c.fillStyle='#333';c.fillText('law of Y | X = x',ml+44,mt+35);
+    try{localStorage.setItem(KEY,JSON.stringify({m:mode,b0:+s0.value,b1:+s1.value}));}catch(e){}
+  }
+  mBtns.forEach(function(b){b.onclick=function(){setMode(b.dataset.m);draw();};});
+  s0.addEventListener('input',draw);s1.addEventListener('input',draw);
+  var sv=null;try{sv=JSON.parse(localStorage.getItem(KEY));}catch(e){}
+  if(sv&&CFG[sv.m]){setMode(sv.m,true);s0.value=sv.b0;s1.value=sv.b1;}else setMode('P');
+  draw();
+})();
+</script>
+</section>
 <section id="illustration" class="slide level2">
 <h2>Illustration</h2>
 <div class="fragment">
