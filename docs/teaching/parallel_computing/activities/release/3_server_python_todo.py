@@ -13,7 +13,8 @@ from concurrent.futures import ThreadPoolExecutor
 class Slow(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         time.sleep(0.2)                    # the server takes its time
-        body = (str(self.server.number) if self.path == "/number" else self.path).encode()  # echoes the path
+        answers = {"/inside": str(int(self.server.inside)), "/name": self.server.name}
+        body = answers.get(self.path, self.path).encode()   # otherwise: echoes the path
         self.send_response(200)
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
@@ -26,9 +27,9 @@ class OneAtATime(http.server.HTTPServer):
 class OnePerRequest(http.server.ThreadingHTTPServer):  # one thread per request
     request_queue_size = 64
 
-def start(server_class, host="127.0.0.1", number=0):
+def start(server_class, host="127.0.0.1", inside=False, name=""):
     server = server_class((host, 0), Slow)   # port 0 = any free port
-    server.number = number
+    server.inside, server.name = inside, name
     threading.Thread(target=server.serve_forever, daemon=True).start()
     return f"http://127.0.0.1:{server.server_address[1]}"
 
@@ -89,16 +90,24 @@ for name, server in [("serial", serial), ("concurrent", concurrent)]:
         print(f"{name}  workers={workers:2}  {t:.2f} s")
 
 # %% [markdown]
-# ### Optional — the class sum
-# On your laptop, not Colab. Your server answers `my_number` at `/number`; register it, get everyone's address, return the sum. Nobody reaches the registry? School Wi-Fi may block it: try a phone hotspot.
+# ### Optional — π by the whole class
+# On your laptop, not Colab. One random point each: your server answers at `/inside` (1 in the quarter disk, 0 outside) and `/name`; register it, get everyone's address, estimate π. Nobody reaches the registry? School Wi-Fi may block it: try a phone hotspot.
 
 # %%
-my_number = 7                                   # your choice
-shared = start(OnePerRequest, host="0.0.0.0", number=my_number)
+import random
+x, y = random.random(), random.random()
+inside = x*x + y*y <= 1                         # in the quarter disk?
+my_name = ""                                    # optional: a name or a message
+shared = start(OnePerRequest, host="0.0.0.0", inside=inside, name=my_name)
 registry = "http://127.0.0.1:9000"              # replace by the address on the board
 fetch(registry + "/register?port=" + shared.rsplit(":", 1)[1])   # your address, as the others see it
 
 # %%
 addresses = fetch(registry + "/list").split()   # everyone's addresses (Python or Julia servers)
-# ✏️ your turn: fetch "/number" from every address at once with fetch_all, convert to int, sum
+# ✏️ your turn: fetch "/inside" from every address at once with fetch_all, convert to int, sum
 raise NotImplementedError("remove this line and write your code")
+4 * hits / len(addresses)
+
+# %%
+# Everyone's names or messages
+list(zip(addresses, fetch_all([a + "/name" for a in addresses], len(addresses))))

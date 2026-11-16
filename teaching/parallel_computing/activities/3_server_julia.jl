@@ -5,20 +5,21 @@
 #%% 0. Setup (given): a slow server, and a function that fetches one URL
 using Sockets, Downloads
 
-function answer(sock, number)
+function answer(sock, inside, name)
     path = split(readline(sock))[2]            # "GET /3 HTTP/1.1" -> "/3"
     while !isempty(readline(sock)) end         # skip the headers
     sleep(0.2)                                 # the server takes its time
-    body = path == "/number" ? string(number) : path   # echoes the path
+    body = path == "/inside" ? string(Int(inside)) :
+           path == "/name"   ? name : path      # otherwise: echoes the path
     write(sock, "HTTP/1.1 200 OK\r\nContent-Length: $(sizeof(body))\r\nConnection: close\r\n\r\n$body")
     close(sock)
 end
 
-function start(one_per_request; host=ip"127.0.0.1", number=0)
+function start(one_per_request; host=ip"127.0.0.1", inside=false, name="")
     port, server = listenany(host, 8000)       # first free port from 8000
     @async while true
         sock = accept(server)
-        one_per_request ? (@async answer(sock, number)) : answer(sock, number)
+        one_per_request ? (@async answer(sock, inside, name)) : answer(sock, inside, name)
     end
     return "http://127.0.0.1:$port"
 end
@@ -32,7 +33,7 @@ end
 concurrent = start(true)   # one task per request
 serial = start(false)     # one request at a time
 
-fetch_url(concurrent * "/number")    # → "0" ici, ou my_number pour le serveur `shared`
+fetch_url(concurrent * "/inside")    # → "0" ici, ou inside pour le serveur `shared`
 
 #%% 1. One request
 @elapsed fetch_url(concurrent * "/1")
@@ -80,15 +81,21 @@ for server in (serial, concurrent), workers in (1, 5, 20)
     println(server == concurrent ? "concurrent" : "serial", "  workers=", lpad(workers, 2), "  ", round(t, digits=2), " s")
 end
 
-#%% 8. Optional — the class sum: your server answers my_number at /number
-my_number = 7                                  # your choice
-shared = start(true; host=ip"0.0.0.0", number=my_number)
+#%% 8. Optional — π by the whole class: one random point each, your server answers it at /inside
+x, y = rand(), rand()
+inside = x^2 + y^2 <= 1                        # in the quarter disk?
+my_name = ""                                   # optional: a name or a message
+shared = start(true; host=ip"0.0.0.0", inside=inside, name=my_name)
 registry = "http://127.0.0.1:9000"             # replace by the address on the board
 fetch_url(registry * "/register?port=" * split(shared, ":")[end])   # your address, as the others see it
 # Nobody reaches the registry? School Wi-Fi may block it: try a phone hotspot.
 
-#%% Everyone's addresses (Python or Julia servers), then the sum of their numbers
+#%% Everyone's points (Python or Julia servers), then π
 addresses = split(fetch_url(registry * "/list"))
-#= SOLUTION: fetch "/number" from every address at once with fetch_all, parse to Int, sum =#
-sum(parse.(Int, fetch_all([a * "/number" for a in addresses], length(addresses))))
+#= SOLUTION: fetch "/inside" from every address at once with fetch_all, parse to Int, sum =#
+hits = sum(parse.(Int, fetch_all([a * "/inside" for a in addresses], length(addresses))))
 #= END =#
+4 * hits / length(addresses)
+
+#%% Everyone's names or messages
+addresses .=> fetch_all([a * "/name" for a in addresses], length(addresses))

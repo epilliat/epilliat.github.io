@@ -12,7 +12,7 @@ They are formative, not graded. A gain or a slowdown is acceptable when explaine
 | 2 | Python I/O (20 min), CPU lots/reduction (30 min), race discussion | Julia concurrency parts A/B; A3d slow local server, Python or Julia (no Internet) |
 | 3 | Python locality (20 min), batching (20 min), GPU/analysis (30 min) | Julia locality/GPU |
 
-A3d's optional class sum needs `registry.py` or `registry.jl` running on the instructor's laptop (address on the board).
+A3d's optional class π needs `registry.py` or `registry.jl` on the instructor's laptop (address on the board; open it in a browser to project names and points).
 Python CPU work uses the importable `../python/parallel_workers.py`; download it alongside a standalone notebook.
 I/O supports synthetic values with controlled waits, explicitly labelled. CPU work is independent of I/O.
 A GPU is not guaranteed: use [the analysis activity](../gpu-fallback.qmd) without one.
