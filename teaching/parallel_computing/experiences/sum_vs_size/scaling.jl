@@ -9,7 +9,7 @@
 #   - sum   : Base's `sum(x)` (pairwise summation + SIMD) → reveals a slight
 #             **staircase** (the steps of the recursion / of the SIMD blocking).
 #
-# For each N we take REPS measurements → mean ± standard deviation (the CI drawn on the slides).
+# For each N we take REPS measurements → mean ± standard deviation (the SD drawn on the slides).
 # Zero dependency (Base only; mean/standard deviation computed by hand). Run with: `julia scaling.jl`.
 # CSV output `n,mean_s,std_s` in results/, read back by plot_scaling.py.
 

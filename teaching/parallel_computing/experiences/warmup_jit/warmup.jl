@@ -7,7 +7,7 @@
 #   - mysum  : explicit native loop, compiled just in time → big spike on the 1st
 #              call (JIT compilation), then a fast steady state. Analogue of the
 #              numba @njit version on the Python side.
-#   - sum    : Base's `sum(x)` → already-compiled reference, flat and fast
+#   - sum    : Base's `sum(x)` → library reference; its first call may also compile (see README)
 #              (analogue of numpy.sum).
 #
 # Zero dependency: Base only, CSV written by hand. Run with: `julia warmup.jl`.

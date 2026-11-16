@@ -1,31 +1,60 @@
-# Concurrency vs parallelism — waiting (Part A), then computing (Part B).  ~10 min.
-# Part A: download 20 days of Bitcoin prices, one by one vs all at once (real network I/O).
-# Part B: count darts in the disk (Monte-Carlo π) on several threads.
-# One blank per part. Run each #%% cell, read the numbers.
-#
-# ⚠ Part B needs SEVERAL THREADS. Start Julia with:   julia --threads=auto
-#   (VS Code: set  "julia.NumThreads": "auto"  and restart the Julia REPL.)
-# Needs UnicodePlots:  using Pkg; Pkg.add("UnicodePlots")
+# A3a (Part A: waiting) and A3c (Part B: computing), Julia.  20 min + 30 min.
+# One blank per part. Run each #%% cell; run small timings twice (the 1st run compiles).
+# Part B needs several threads: julia --threads=auto  (VS Code: "julia.NumThreads": "auto", restart the REPL)
 
 # ============================================================================
 # Part A — I/O: overlap the waits
 # ============================================================================
 #%% setup
-using Downloads, Dates, UnicodePlots
+using Downloads, Dates
 SYMBOL = "BTCUSDT"
 days = [Date(2024, 6, 1) + Day(d) for d in 0:19]      # 20 days
 
-# download ONE day's kline from Binance and return its close price (given — just read it)
-function close_on(day)
+# given: the close price of one day, from Binance
+function real_close_on(day)
     ms = round(Int, Dates.datetime2unix(DateTime(day)) * 1000)
     io = IOBuffer()
     Downloads.download(
-        "https://api.binance.com/api/v3/klines?symbol=$(SYMBOL)&interval=1d&startTime=$(ms)&limit=1", io)
+        "https://api.binance.com/api/v3/klines?symbol=$(SYMBOL)&interval=1d&startTime=$(ms)&limit=1", io; timeout=3)
     m = match(r"\[\d+,\"[\d.]+\",\"[\d.]+\",\"[\d.]+\",\"([\d.]+)\"", String(take!(io)))
     return parse(Float64, m.captures[1])              # column 4 = close price
 end
 
-#%% sequential — one request, wait, next… (slow on purpose)
+# COURSE_LIVE_IO=0: simulated waits (offline)
+live_io = get(ENV, "COURSE_LIVE_IO", "1") == "1"
+if live_io
+    try
+        real_close_on(first(days))
+    catch
+        global live_io = false
+    end
+end
+println(live_io ? "REAL API data" : "SIMULATED waits + synthetic values")
+function close_on(day)
+    if live_io
+        return real_close_on(day)
+    end
+    sleep(0.05)
+    return 100.0 + Dates.value(day - first(days))
+end
+# If the service fails later: live_io = false, rerun Part A from here. Part B does not need Part A.
+
+#%% One day
+@elapsed close_on(days[1])
+
+#%% Two days, one after the other
+@elapsed begin
+    close_on(days[1])
+    close_on(days[2])
+end
+
+#%% Two days at once
+@elapsed @sync begin
+    @async close_on(days[1])
+    @async close_on(days[2])
+end
+
+#%% sequential — the 20 days, one after the other
 t0 = time()
 closes_seq = [close_on(d) for d in days]
 t_seq = time() - t0
@@ -42,26 +71,23 @@ function download_all(days)
     return out
 end
 
-#%% Run me — the 20 requests, overlapped
+#%% The 20 days, overlapped
 t0 = time()
 closes = download_all(days)
 t_con = time() - t0
 @assert closes == closes_seq
 println("concurrent : ", round(t_con, digits=1), " s")
-println("→ ~", round(Int, t_seq / t_con), "× faster — the requests WAIT on the network, and the waits overlap.")
-# @async gives CONCURRENCY: while one request waits, another runs — all on ONE thread.
-# In Python, plain threads do the same (the GIL is released during I/O):
-# 3_concurrency_python.ipynb measures it.
+println("ratio sequential / concurrent : ", round(t_seq / t_con, digits=1), "×  (", live_io ? "live I/O" : "labelled simulation", ")")
 
-#%% And here are the returns — the reason we downloaded anything at all
+#%% Daily returns (optional)
 returns = closes[2:end] ./ closes[1:end-1] .- 1        # daily returns
 cum = cumprod(1 .+ returns)                            # 1 unit invested on day 1
-lineplot(cum, title="$(SYMBOL) cumulative return", xlabel="day", ylabel="× invested", height=8)
+println("Final cumulative ratio (optional interpretation): ", last(cum))
 
 # ============================================================================
-# Part B — CPU work: nobody waits. Does @async still help?
+# Part B — CPU work
 # ============================================================================
-#%% setup — the dart counter from the Julia basics, and how many threads we have
+#%% setup
 "Count how many of `n` random points land inside the unit quarter-disk."
 function count_in_disk(n)
     inside = 0
@@ -74,26 +100,31 @@ function count_in_disk(n)
     return inside
 end
 k = Threads.nthreads()          # must be > 1 — see the header if this says 1
-n = 100_000_000
+n = k * 1_000_000  # divisible by k; same total for sequential/parallel timing
 println("threads: ", k)
 
-#%% Given (just run it, 2-3 times) — every task adds into the SAME counter
+#%% Given: every task adds into the SAME counter
 function pi_race(n, k)
     per = n ÷ k
     hits = 0
     @sync for _ in 1:k
         Threads.@spawn for _ in 1:per
             x, y = rand(), rand()
-            hits += (x^2 + y^2 ≤ 1)       # ⚠ read-modify-write on a SHARED variable
+            hits += (x^2 + y^2 ≤ 1)
         end
     end
     return 4 * hits / (per * k)
 end
-for _ in 1:3
-    println("pi_race : ", pi_race(10_000_000, k), "   ← wrong, and different every run")
-end
-# A RACE CONDITION: two threads read the same `hits`, both add 1, one write is lost.
-# It does not crash — it LIES. (With k = 1 it is right: no one to race with.)
+pi_race(10_000_000, k)     # run this cell 2-3 times
+
+#%% One task on another thread: start it, then fetch its result
+t = Threads.@spawn count_in_disk(1_000_000)
+fetch(t)
+
+#%% Two tasks, two results, one sum
+t1 = Threads.@spawn count_in_disk(1_000_000)
+t2 = Threads.@spawn count_in_disk(1_000_000)
+fetch(t1) + fetch(t2)
 
 #%% Your turn: no sharing — each task counts on its own, then we add the k results
 function pi_spawn(n, k)
@@ -104,7 +135,7 @@ function pi_spawn(n, k)
     #= END =#
 end
 
-#%% Run me — correct now; and faster?
+#%% pi_spawn vs one thread
 println("pi_spawn = ", pi_spawn(n, k), "   (π = ", Float64(π), ")")   # also compiles it
 count_in_disk(1000)                                     # compile before timing
 t_seq   = @elapsed count_in_disk(n)
@@ -112,7 +143,7 @@ t_spawn = @elapsed pi_spawn(n, k)
 println("one thread : ", round(t_seq, digits=3), " s")
 println("@spawn × $k : ", round(t_spawn, digits=3), " s   → ", round(t_seq / t_spawn, digits=1), "×")
 
-#%% Given — the SAME code with @async instead of Threads.@spawn. Predict before running.
+#%% Given: the same code with @async
 function pi_async(n, k)
     per = n ÷ k
     tasks = [@async count_in_disk(per) for _ in 1:k]
@@ -121,7 +152,3 @@ end
 pi_async(1000, k)
 t_async = @elapsed pi_async(n, k)
 println("@async × $k : ", round(t_async, digits=3), " s   → ", round(t_seq / t_async, digits=1), "×")
-# Correct, but ~1×: @async tasks take turns on ONE thread. In Part A that was a huge win —
-# there they all WAITED. Here nobody waits, so there is nothing to overlap.
-# CONCURRENCY (@async) overlaps waits; PARALLELISM (@spawn) uses several cores. One word apart.
-# (In Python, threads can't do Part B: the GIL serializes CPU work — you'd need processes.)

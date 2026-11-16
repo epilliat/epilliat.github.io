@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Comparative plot of the warmup curves.
 
-Two modes:
+Three modes:
 
   python3 plot_warmup.py              # overlays every results/warmup_*.csv -> results/warmup.png
   python3 plot_warmup.py --frames DIR # cumulative frames warmup_frame_0..5.png -> DIR/
                                        # (for the progressive reveal of the reveal.js slides)
+  python3 plot_warmup.py --first FILE # two panels: first calls / later calls -> FILE
 
 Reads the `warmup_*.csv` files of the results/ subfolder (format `iteration,time_s`). Log-y scale
 (the JIT spike of the 1st call flattens a linear axis).
@@ -138,9 +139,40 @@ def make_frames(outdir):
         print(f"-> {out}")
 
 
+def make_first_vs_later(out, first=10):
+    """Two panels with a shared log axis: the first calls, then all the later ones.
+
+    On the single-axis frames the first call is squeezed against the left edge;
+    here it gets its own panel. Same figure size as the frames, to stack after them.
+    """
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(9, 5.5), sharey=True,
+                                 gridspec_kw={"width_ratios": [1, 1.6]})
+    for key, label, color in SERIES:
+        its, ts = read_csv(os.path.join(RESULTS, f"warmup_{key}.csv"))
+        ms = [t * 1e3 for t in ts]
+        a1.plot(its[:first], ms[:first], marker="o", markersize=4, linewidth=1, color=color, label=label)
+        a2.plot(its[first:], ms[first:], marker=".", markersize=2, linewidth=0.8, color=color)
+    a1.set_yscale("log")
+    a1.set_title(f"first {first} calls")
+    a2.set_title("later calls")
+    a1.set_xlabel(XLABEL)
+    a2.set_xlabel(XLABEL)
+    a1.set_ylabel(YLABEL)
+    a1.set_xticks(range(0, first, 2))
+    for ax in (a1, a2):
+        ax.grid(True, which="both", alpha=0.3)
+    a1.legend(loc="upper right", framealpha=1.0)
+    fig.tight_layout()
+    fig.savefig(out, dpi=130, facecolor="white")
+    plt.close(fig)
+    print(f"-> {out}")
+
+
 def main():
     if len(sys.argv) >= 3 and sys.argv[1] == "--frames":
         make_frames(sys.argv[2])
+    elif len(sys.argv) >= 3 and sys.argv[1] == "--first":
+        make_first_vs_later(sys.argv[2])
     elif len(sys.argv) == 1:
         plot_all()
     else:

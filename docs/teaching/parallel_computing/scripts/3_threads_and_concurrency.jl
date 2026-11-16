@@ -48,30 +48,7 @@ t_good = @elapsed @sync for i in 1:n
 end
 println("3) @sync + @async      : $(round(t_good, digits=3)) s   speedup $(round(t_seq / t_good, digits=1))x")
 
-#%% 2. Part B — @spawn on many cores: independent Markov chains
-function simulate_markov(nsteps; p_stay=0.9)
-    state = 1
-    count1 = 0
-    for _ in 1:nsteps
-        rand() > p_stay && (state = 3 - state)   # flip 1<->2
-        count1 += (state == 1)
-    end
-    return count1 / nsteps
-end
-
-markov_seq(K, L) = [simulate_markov(L) for _ in 1:K]
-markov_spawn(K, L) = fetch.([Threads.@spawn simulate_markov(L) for _ in 1:K])
-
-#%% Predict the speedup on 8 chains, then run
-let
-    K, L = 8, 20_000_000
-    t_seq = @belapsed markov_seq($K, $L)
-    t_spawn = @belapsed markov_spawn($K, $L)
-    println("markov: seq $(round(t_seq, digits=3)) s | @spawn $(round(t_spawn, digits=3)) s | " *
-            "speedup $(round(t_seq / t_spawn, digits=1))x")
-end
-
-#%% 3. Monte-Carlo π — the sequential baseline (same count as in the compilation module)
+#%% 2. Part B — computing on many cores: Monte-Carlo π, the sequential baseline
 function count_in_disk(n)
     hits = 0
     for _ in 1:n
@@ -146,4 +123,27 @@ let n = 100_000_000
     t_spawn = @belapsed pi_spawn($n)
     println("π: seq $(round(t_seq, digits=3)) s | @spawn $(round(t_spawn, digits=3)) s | " *
             "speedup $(round(t_seq / t_spawn, digits=1))x  (nthreads=$(nthreads()))")
+end
+
+#%% 3. Optional — another split: independent Markov chains
+function simulate_markov(nsteps; p_stay=0.9)
+    state = 1
+    count1 = 0
+    for _ in 1:nsteps
+        rand() > p_stay && (state = 3 - state)   # flip 1<->2
+        count1 += (state == 1)
+    end
+    return count1 / nsteps
+end
+
+markov_seq(K, L) = [simulate_markov(L) for _ in 1:K]
+markov_spawn(K, L) = fetch.([Threads.@spawn simulate_markov(L) for _ in 1:K])
+
+#%% Predict the speedup on 8 chains, then run
+let
+    K, L = 8, 20_000_000
+    t_seq = @belapsed markov_seq($K, $L)
+    t_spawn = @belapsed markov_spawn($K, $L)
+    println("markov: seq $(round(t_seq, digits=3)) s | @spawn $(round(t_spawn, digits=3)) s | " *
+            "speedup $(round(t_seq / t_spawn, digits=1))x")
 end

@@ -195,7 +195,7 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">2 — Multiple dispatch vs OOP</h1>
-  <p class="subtitle">Where the verb lives: left vs right of the data</p>
+  <p class="subtitle">Same source, different cost: when is the type known?</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -206,22 +206,53 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 
 </section>
-<section id="goals" class="slide level2">
-<h2>Goals</h2>
-<ul>
-<li>Verb <strong>after</strong> the object (OOP) vs <strong>before</strong> it (dispatch).</li>
-<li><strong>Multiple dispatch</strong>: method chosen from <strong>all</strong> argument types.</li>
-<li>Type <strong>unknown</strong> (abstract container, global): <strong>instability</strong>.</li>
-<li>A <strong>language point</strong>: no parallelism yet.</li>
-</ul>
+<section id="path" class="slide level2">
+<h2>Today’s path — 20 minutes</h2>
+<ol type="1">
+<li><strong><code>area</code></strong>: <code>shape.area()</code> vs <code>area(shape)</code>.</li>
+<li><strong>Two arguments</strong>: the method is chosen from <strong>all</strong> of them.</li>
+<li><strong>Concrete vs abstract container</strong>: same data, ~10× apart.</li>
+<li><strong>Data as arguments</strong>: the rule that keeps code fast.</li>
+</ol>
 <div class="fragment">
 <blockquote>
-<p>▶ <a href="../scripts/2_dispatch_vs_oop.jl">Script</a> · <a href="../pluto/2_dispatch_vs_oop.jl">Notebook</a> · 🐍 <a href="../python/2_dispatch_vs_oop_python.ipynb">Python</a> · ✏️ <a href="../activities/release/2_dispatch_julia_todo.jl">Activity</a></p>
+<p>Only if time: <a href="#/appendix">more on dispatch</a> · ✏️ optional <a href="../activities/release/2_dispatch_julia_todo.jl">Julia activity</a></p>
+</blockquote>
+<aside class="notes">
+<p>Session 1, minutes 150–170. Three oral predictions (the “Bet first” slides), no written activity. Nothing here needs to be memorized for the project: Visitor, <code>multipledispatch</code>, the expression problem are out of scope.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="by-the-end-you-can" class="slide level2">
+<h2>By the end, you can</h2>
+<div class="fragment">
+<blockquote>
+<p>Explain why the <strong>same source line</strong> can run 10× or 100× slower, depending on what the compiler knows.</p>
 </blockquote>
 </div>
 <div class="fragment">
 <blockquote>
-<p>⬅ <strong>Previous:</strong> <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html">1 — Interpreted vs compiled</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/3_threads_and_concurrency.html">3 — Threads &amp; concurrency</a> ➡</p>
+<p>A <strong>language point</strong>: no parallelism yet.</p>
+</blockquote>
+</div>
+<div class="fragment">
+<blockquote>
+<p>▶ <a href="../scripts/2_dispatch_vs_oop.jl">Script</a> · <a href="../pluto/2_dispatch_vs_oop.jl">Notebook</a> · 🐍 <a href="../python/2_dispatch_vs_oop_python.ipynb">Python</a></p>
+</blockquote>
+</div>
+<div class="fragment">
+<blockquote>
+<p>⬅ <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html">1 — Interpreted vs compiled</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/3_threads_and_concurrency.html">3 — Threads &amp; concurrency</a> ➡</p>
 </blockquote>
 </div>
 </section>
@@ -274,7 +305,7 @@ Emmanuel Pilliat — ENSAI 3A
 <span id="cb1-10"><a></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, L, w): <span class="va">self</span>.L, <span class="va">self</span>.w <span class="op">=</span> L, w</span>
 <span id="cb1-11"><a></a>    <span class="kw">def</span> area(<span class="va">self</span>): <span class="cf">return</span> <span class="va">self</span>.L <span class="op">*</span> <span class="va">self</span>.w</span>
 <span id="cb1-12"><a></a></span>
-<span id="cb1-13"><a></a>Circle(<span class="fl">2.0</span>).area()      <span class="co"># left of dot picks</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-13"><a></a>Circle(<span class="fl">2.0</span>).area()      <span class="co"># the object left of the dot chooses</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li class="fragment">Method <strong>owned</strong> by the class.</li>
 <li class="fragment">Chosen from <strong>one</strong> object: left of the dot.</li>
@@ -299,6 +330,8 @@ Emmanuel Pilliat — ENSAI 3A
 <blockquote>
 <p><code>area</code> lives <strong>outside</strong> the types; method picked from the <strong>argument type</strong>.</p>
 </blockquote>
+</div>
+<div class="fragment">
 <blockquote>
 <p>▶ Script: cell “1. One argument: one function, one method per type”</p>
 </blockquote>
@@ -329,113 +362,8 @@ Emmanuel Pilliat — ENSAI 3A
 <blockquote>
 <p>▶ Script: cell “2. Two arguments: dispatch on the PAIR of types”</p>
 </blockquote>
-</div>
-</section>
-<section id="the-pair-we-did-not-define" class="slide level2">
-<h2>The pair we did not define</h2>
-<div class="fragment">
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a></a><span class="fu">collide</span>(<span class="fu">Rectangle</span>(<span class="fl">1.0</span>, <span class="fl">1.0</span>), <span class="fu">Circle</span>(<span class="fl">2.0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="fragment">
-<p><strong>Bet first:</strong> what happens? Fix in <strong>one line</strong>?</p>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cells “The pair we did not define: what happens?” and “Add the missing pair in one line”</p>
-</blockquote>
 <aside class="notes">
-<p>MethodError: no method matching collide(::Rectangle, ::Circle) — Julia names the missing pair. Fix: collide(a::Rectangle, b::Circle) = collide(b, a).</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="the-missing-pair-debrief" class="slide level2">
-<h2>The missing pair — debrief</h2>
-<div class="fragment">
-<p><code>MethodError: no method matching collide(::Rectangle, ::Circle)</code></p>
-</div>
-<div class="fragment">
-<p>Fix by symmetry:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a></a><span class="fu">collide</span>(a<span class="op">::</span><span class="dt">Rectangle</span>, b<span class="op">::</span><span class="dt">Circle</span>) <span class="op">=</span> <span class="fu">collide</span>(b, a)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="fragment">
-<blockquote>
-<p>Missing method = <strong>run-time</strong> error. No coverage check.</p>
-</blockquote>
-</div>
-</section>
-<section id="a-new-operation-without-touching-the-types" class="slide level2">
-<h2>A new operation, without touching the types</h2>
-<div class="fragment">
-<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a></a><span class="fu">perimeter</span>(c<span class="op">::</span><span class="dt">Circle</span>)    <span class="op">=</span> <span class="fl">2</span>π <span class="op">*</span> c.r</span>
-<span id="cb7-2"><a></a><span class="fu">perimeter</span>(r<span class="op">::</span><span class="dt">Rectangle</span>) <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> (r.L <span class="op">+</span> r.w)</span>
-<span id="cb7-3"><a></a></span>
-<span id="cb7-4"><a></a><span class="fu">perimeter</span>.([<span class="fu">Circle</span>(<span class="fl">2.0</span>), <span class="fu">Rectangle</span>(<span class="fl">3.0</span>, <span class="fl">4.0</span>)])   <span class="co"># [12.57, 14.0]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<ul>
-<li class="fragment">Types <strong>not edited</strong>.</li>
-<li class="fragment">Python: <strong>edit every class</strong> (or <code>isinstance</code> ladder).</li>
-</ul>
-</div>
-<div class="fragment">
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th></th>
-<th>add a <strong>type</strong></th>
-<th>add an <strong>operation</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>OOP</td>
-<td>easy (new class)</td>
-<td><strong>edit every class</strong></td>
-</tr>
-<tr class="even">
-<td>dispatch</td>
-<td>easy (new <code>struct</code>)</td>
-<td>easy (new function)</td>
-</tr>
-</tbody>
-</table>
-<aside class="notes">
-<p>If someone knows the “expression problem”: dispatch solves its extensibility half only. Wadler’s version also asks for static exhaustiveness checks; Julia has none (the MethodError above is a run-time error), plus ambiguities and type piracy.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="who-knows-which-methods" class="slide level2">
-<h2>Who knows which methods?</h2>
-<div class="fragment">
-<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a></a><span class="fu">methods</span>(area)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<blockquote>
-<p>▶ Script: cell “Who knows which methods? How many for <code>area</code>?”</p>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p>A function = a <strong>collection of methods</strong>; a call picks one.</p>
-</blockquote>
-<aside class="notes">
-<p>Two methods: one for Circle, one for Rectangle.</p>
+<p>This is the same idea as the <code>x + y</code> table of the compilation module: one version per combination of concrete types.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -457,9 +385,9 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="what-container-did-we-build" class="slide level2">
 <h2>What container did we build?</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a></a>shapes <span class="op">=</span> [<span class="fu">Circle</span>(<span class="fl">2.0</span>), <span class="fu">Rectangle</span>(<span class="fl">3.0</span>, <span class="fl">4.0</span>), <span class="fu">Circle</span>(<span class="fl">1.0</span>)]</span>
-<span id="cb9-2"><a></a><span class="fu">typeof</span>(shapes)                    <span class="co"># ?</span></span>
-<span id="cb9-3"><a></a><span class="fu">isconcretetype</span>(<span class="fu">eltype</span>(shapes))    <span class="co"># ?</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a></a>shapes <span class="op">=</span> [<span class="fu">Circle</span>(<span class="fl">2.0</span>), <span class="fu">Rectangle</span>(<span class="fl">3.0</span>, <span class="fl">4.0</span>), <span class="fu">Circle</span>(<span class="fl">1.0</span>)]</span>
+<span id="cb5-2"><a></a><span class="fu">typeof</span>(shapes)                    <span class="co"># ?</span></span>
+<span id="cb5-3"><a></a><span class="fu">isconcretetype</span>(<span class="fu">eltype</span>(shapes))    <span class="co"># ?</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <p><strong>Bet first:</strong> circles <strong>and</strong> a rectangle: element type?</p>
@@ -489,10 +417,10 @@ Emmanuel Pilliat — ENSAI 3A
 <p><code>Vector{Shape}</code>: <code>Shape</code> is <strong>abstract</strong>, so which <code>area</code>?</p>
 </div>
 <div class="fragment">
-<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a></a><span class="fu">total</span>(v) <span class="op">=</span> <span class="fu">sum</span>(area, v)</span>
-<span id="cb10-2"><a></a>radii    <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">1000</span>)</span>
-<span id="cb10-3"><a></a>concrete <span class="op">=</span> [<span class="fu">Circle</span>(r) for r <span class="kw">in</span> radii]          <span class="co"># Vector{Circle}</span></span>
-<span id="cb10-4"><a></a>mixed    <span class="op">=</span> Shape[<span class="fu">Circle</span>(r) for r <span class="kw">in</span> radii]     <span class="co"># Vector{Shape}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a></a><span class="fu">total</span>(v) <span class="op">=</span> <span class="fu">sum</span>(area, v)</span>
+<span id="cb6-2"><a></a>radii    <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">1000</span>)</span>
+<span id="cb6-3"><a></a>concrete <span class="op">=</span> [<span class="fu">Circle</span>(r) for r <span class="kw">in</span> radii]          <span class="co"># Vector{Circle}</span></span>
+<span id="cb6-4"><a></a>mixed    <span class="op">=</span> Shape[<span class="fu">Circle</span>(r) for r <span class="kw">in</span> radii]     <span class="co"># Vector{Shape}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <p><strong>Bet first:</strong> which <code>total</code> is faster, by how much? Then <code>@code_typed</code>.</p>
@@ -534,24 +462,24 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="another-unknown-type-a-global" class="slide level2">
 <h2>Another unknown type: a global</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a></a>glob <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">1000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a></a>glob <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">1000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="columns">
 <div class="column" style="width:50%;">
-<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a></a><span class="kw">function</span> <span class="fu">sum_global</span>()</span>
-<span id="cb12-2"><a></a>    s <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb12-3"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(glob)</span>
-<span id="cb12-4"><a></a>        s <span class="op">+=</span> glob[i]</span>
-<span id="cb12-5"><a></a>    <span class="cf">end</span></span>
-<span id="cb12-6"><a></a>    <span class="cf">return</span> s</span>
-<span id="cb12-7"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a></a><span class="kw">function</span> <span class="fu">sum_global</span>()</span>
+<span id="cb8-2"><a></a>    s <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb8-3"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(glob)</span>
+<span id="cb8-4"><a></a>        s <span class="op">+=</span> glob[i]</span>
+<span id="cb8-5"><a></a>    <span class="cf">end</span></span>
+<span id="cb8-6"><a></a>    <span class="cf">return</span> s</span>
+<span id="cb8-7"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div><div class="column" style="width:50%;">
-<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a></a><span class="kw">function</span> <span class="fu">sum_arg</span>(x)</span>
-<span id="cb13-2"><a></a>    s <span class="op">=</span> <span class="fl">0.0</span></span>
-<span id="cb13-3"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(x)</span>
-<span id="cb13-4"><a></a>        s <span class="op">+=</span> x[i]</span>
-<span id="cb13-5"><a></a>    <span class="cf">end</span></span>
-<span id="cb13-6"><a></a>    <span class="cf">return</span> s</span>
-<span id="cb13-7"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a></a><span class="kw">function</span> <span class="fu">sum_arg</span>(x)</span>
+<span id="cb9-2"><a></a>    s <span class="op">=</span> <span class="fl">0.0</span></span>
+<span id="cb9-3"><a></a>    <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(x)</span>
+<span id="cb9-4"><a></a>        s <span class="op">+=</span> x[i]</span>
+<span id="cb9-5"><a></a>    <span class="cf">end</span></span>
+<span id="cb9-6"><a></a>    <span class="cf">return</span> s</span>
+<span id="cb9-7"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div>
 </div>
 <div class="fragment">
@@ -563,11 +491,11 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="code_warntype-spot-the-red-any" class="slide level2">
 <h2><code>@code_warntype</code>: spot the red <code>Any</code></h2>
 <div class="fragment">
-<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a></a><span class="pp">@code_warntype</span> <span class="fu">sum_global</span>()</span>
-<span id="cb14-2"><a></a><span class="pp">@code_warntype</span> <span class="fu">sum_arg</span>(glob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a></a><span class="pp">@code_warntype</span> <span class="fu">sum_global</span>()</span>
+<span id="cb10-2"><a></a><span class="pp">@code_warntype</span> <span class="fu">sum_arg</span>(glob)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
-<p><code>@code_warntype</code> = <code>@code_typed</code>, uncertain types <strong>in color</strong>.</p>
+<p><code>@code_warntype</code> shows the inferred types, uncertain ones <strong>in color</strong>.</p>
 </div>
 <div class="fragment">
 <p><strong>Bet first:</strong> which has red <code>Any</code>s? How big is the time gap?</p>
@@ -619,6 +547,11 @@ Emmanuel Pilliat — ENSAI 3A
 <p>Same reason for <code>@btime mysum($v)</code> (measuring properly): <code>$</code> makes <code>v</code> a known value.</p>
 </blockquote>
 </div>
+<div class="fragment">
+<blockquote>
+<p>Python too: <code>numba</code> and process pools both work on functions.</p>
+</blockquote>
+</div>
 </section>
 <section id="summary" class="slide level2">
 <h2>Summary</h2>
@@ -643,16 +576,11 @@ Emmanuel Pilliat — ENSAI 3A
 <td><strong>all</strong> arguments</td>
 </tr>
 <tr class="odd">
-<td>New op</td>
-<td>edit every class</td>
-<td>new function</td>
-</tr>
-<tr class="even">
 <td>2 args</td>
 <td><code>isinstance</code></td>
 <td>method per pair</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>Speed</td>
 <td>lookup per call</td>
 <td>compiled <em>if types known</em></td>
@@ -662,22 +590,165 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 <div class="fragment">
 <blockquote>
-<p>Later: same <code>*</code> picks the <strong>GPU</strong> method on <code>CuArray</code> (GPU module).</p>
+<p>Later, the same <code>*</code> picks the <strong>GPU</strong> method on a <code>CuArray</code>.</p>
 </blockquote>
 </div>
 </section>
-<section id="going-further" class="slide level2">
-<h2>Going further</h2>
-<ul>
-<li>▶ Script: <a href="../scripts/2_dispatch_vs_oop.jl">2_dispatch_vs_oop.jl</a></li>
-<li>▶ Notebook: <a href="../pluto/2_dispatch_vs_oop.jl">Multiple dispatch vs OOP</a></li>
-<li>🐍 Python: <a href="../python/2_dispatch_vs_oop_python.ipynb">2_dispatch_vs_oop_python.ipynb</a>: <code>singledispatch</code>, <code>multipledispatch</code>.</li>
-<li>🎯 Dispatch is fast <strong>only with concrete types</strong> · functions + arguments, no untyped globals.</li>
-</ul>
+<section id="ticket" class="slide level2">
+<h2>Exit ticket — session 1</h2>
+<div class="fragment">
+<ol type="1">
+<li class="fragment">A classmate writes: “I ran it once in Python on my laptop (0.31 s) and once in Julia on the server (0.004 s): Julia is 77× faster.” Give <strong>three reasons</strong> this proves nothing.</li>
+<li class="fragment"><strong>Your project:</strong> which part of the code do you think is slow? What will you time first, on which input?</li>
+</ol>
+</div>
 <div class="fragment">
 <blockquote>
-<p>⬅ <strong>Previous:</strong> <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html">1 — Interpreted vs compiled</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/3_threads_and_concurrency.html">3 — Threads &amp; concurrency</a> ➡</p>
+<p>⬅ <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html">1 — Interpreted vs compiled</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/3_threads_and_concurrency.html">3 — Threads &amp; concurrency</a> ➡</p>
 </blockquote>
+<aside class="notes">
+<p>On paper, 5 minutes, in pairs; use the measurement card. Expected: first call included (compilation), one run only, two machines, result not checked, input/type not stated. Collect the tickets: the project blocks feed session 3’s proposals.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section></section>
+<section>
+<section id="appendix" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Only if time — more on dispatch</h1>
+
+</section>
+<section id="the-pair-we-did-not-define" class="slide level2">
+<h2>The pair we did not define</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a></a><span class="fu">collide</span>(<span class="fu">Rectangle</span>(<span class="fl">1.0</span>, <span class="fl">1.0</span>), <span class="fu">Circle</span>(<span class="fl">2.0</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<p><strong>Bet first:</strong> what happens? Fix in <strong>one line</strong>?</p>
+</div>
+<div class="fragment">
+<blockquote>
+<p>▶ Script: cells “5. Optional — the pair we did not define” and “Add the missing pair in one line”</p>
+</blockquote>
+<aside class="notes">
+<p>MethodError: no method matching collide(::Rectangle, ::Circle) — Julia names the missing pair. Fix: collide(a::Rectangle, b::Circle) = collide(b, a).</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="the-missing-pair-debrief" class="slide level2">
+<h2>The missing pair — debrief</h2>
+<div class="fragment">
+<p><code>MethodError: no method matching collide(::Rectangle, ::Circle)</code></p>
+</div>
+<div class="fragment">
+<p>Fix by symmetry:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a></a><span class="fu">collide</span>(a<span class="op">::</span><span class="dt">Rectangle</span>, b<span class="op">::</span><span class="dt">Circle</span>) <span class="op">=</span> <span class="fu">collide</span>(b, a)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<blockquote>
+<p>A missing pair shows up only <strong>when the call runs</strong>: nothing checks in advance.</p>
+</blockquote>
+</div>
+</section>
+<section id="a-new-operation-without-touching-the-types" class="slide level2">
+<h2>A new operation, without touching the types</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a></a><span class="fu">perimeter</span>(c<span class="op">::</span><span class="dt">Circle</span>)    <span class="op">=</span> <span class="fl">2</span>π <span class="op">*</span> c.r</span>
+<span id="cb13-2"><a></a><span class="fu">perimeter</span>(r<span class="op">::</span><span class="dt">Rectangle</span>) <span class="op">=</span> <span class="fl">2</span> <span class="op">*</span> (r.L <span class="op">+</span> r.w)</span>
+<span id="cb13-3"><a></a></span>
+<span id="cb13-4"><a></a><span class="fu">perimeter</span>.([<span class="fu">Circle</span>(<span class="fl">2.0</span>), <span class="fu">Rectangle</span>(<span class="fl">3.0</span>, <span class="fl">4.0</span>)])   <span class="co"># [12.57, 14.0]</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li class="fragment">Types <strong>not edited</strong>.</li>
+<li class="fragment">Python: <strong>edit every class</strong> (or <code>isinstance</code> ladder).</li>
+</ul>
+</div>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th></th>
+<th>add a <strong>type</strong></th>
+<th>add an <strong>operation</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>OOP</td>
+<td>easy (new class)</td>
+<td><strong>edit every class</strong></td>
+</tr>
+<tr class="even">
+<td>dispatch</td>
+<td>easy (new <code>struct</code>)</td>
+<td>easy (new function)</td>
+</tr>
+</tbody>
+</table>
+<aside class="notes">
+<p>If someone knows the “expression problem”: dispatch solves its extensibility half only. Wadler’s version also asks for static exhaustiveness checks; Julia has none (the MethodError above is a run-time error), plus ambiguities and type piracy.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="who-knows-which-methods" class="slide level2">
+<h2>Who knows which methods?</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a></a><span class="fu">methods</span>(area)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<blockquote>
+<p>▶ Script: cell “Who knows which methods? How many for <code>area</code>?”</p>
+</blockquote>
+</div>
+<div class="fragment">
+<blockquote>
+<p>A function = a <strong>collection of methods</strong>; a call picks one.</p>
+</blockquote>
+</div>
+<div class="fragment">
+<blockquote>
+<p>🐍 <a href="../python/2_dispatch_vs_oop_python.ipynb">Python notebook</a>: <code>singledispatch</code>, <code>multipledispatch</code> · ⬅ <a href="#/path">Back to the path</a></p>
+</blockquote>
+<aside class="notes">
+<p>Two methods: one for Circle, one for Rectangle.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 
 
 </div>

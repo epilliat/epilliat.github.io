@@ -22,6 +22,23 @@ and sharing. **Python is the familiar point of comparison; Julia is the test ben
 A single **running example** runs through the course — estimating **π by Monte-Carlo** — carried from a
 plain sequential loop, to multithreading, to the GPU.
 
+## Three sessions, nine hours
+
+1. **Measure before optimizing** — warmup, timing, π, short dispatch introduction; compilation and diagnostic activities.
+2. **Overlap waits, split computation** — I/O, races, local counts and reduction; I/O and CPU-parallel activities.
+3. **Move less data** — locality, batching, CPU/GPU decisions; locality, batching and GPU activities.
+
+[Detailed 3 × 180-minute plan, activity instructions and expected outputs](sessions.qmd).
+Activities take **20–30 minutes**, including prediction, implementation and interpretation; the plan reserves debriefs and breaks.
+
+**Before class (20–30 minutes):** open a Python notebook and run a small sum. Know functions,
+loops, lists, NumPy arrays and matrix-vector products. No Julia, asyncio or CUDA prerequisite.
+Colab avoids local installation; for local Python install `numpy numba matplotlib threadpoolctl`.
+The GPU notebook also uses `torch`. Python CPU notebooks need the supplied
+[worker module](python/parallel_workers.py), placed beside a standalone downloaded notebook.
+Julia is optional: prepare `BenchmarkTools` and `UnicodePlots`; add `CUDA` only for GPU/reference notebooks.
+Use the CPU-only activities for locality without CUDA. Pluto manages its own packages.
+
 ## Modules
 
 ```{=html}
@@ -29,12 +46,12 @@ plain sequential loop, to multithreading, to the GPU.
   <div class="aurora-card">
     <span class="aurora-card__icon">🔰</span>
     <span class="aurora-card__title">0 · Julia for Python users</span>
-    <span class="aurora-card__desc">A short syntax bridge for Python programmers new to Julia: 1-based arrays, the <code>end</code> keyword, broadcasting with the dot, functions and structs, Unicode math. The onboarding before module 1 — no performance, no parallelism yet.</span>
+    <span class="aurora-card__desc">Just enough Julia to read the running example: the Monte-Carlo π loop, <code>end</code>, 1-based ranges, the dot, macros. Fifteen minutes in class; the rest of the deck is a reference.</span>
   </div>
   <div class="aurora-card">
     <span class="aurora-card__icon">🧩</span>
     <span class="aurora-card__title">1 · Compilation &amp; Types</span>
-    <span class="aurora-card__desc">How Julia specialises code on types — why a pure Python loop takes ~1&nbsp;s where Julia runs in milliseconds. Tools: <code>@code_warntype</code>, <code>@btime</code>; Python bytecode via <code>dis</code>.</span>
+    <span class="aurora-card__desc">Why a pure Python loop is ~100× slower than the same compiled loop, first call vs steady state, the measurement card, and local vs whole-program gain. Tools: <code>@btime</code>, <code>timeit</code>, <code>numba</code>.</span>
   </div>
   <div class="aurora-card">
     <span class="aurora-card__icon">🔀</span>
@@ -49,23 +66,23 @@ plain sequential loop, to multithreading, to the GPU.
   <div class="aurora-card">
     <span class="aurora-card__icon">🧠</span>
     <span class="aurora-card__title">4 · Memory &amp; Batching</span>
-    <span class="aurora-card__desc">The processor spends its time <em>waiting</em> for memory. The cache cliff, locality (Julia is column-major — the opposite of numpy), and why <strong>batching</strong> is really a conversion of a memory-bound problem into a compute-bound one — measured on the CPU, before any GPU.</span>
+    <span class="aurora-card__desc">The processor spends its time <em>waiting</em> for memory. The cache cliff, locality (Julia is column-major — the opposite of numpy), and why <strong>batching</strong> pays by reusing the data already loaded — measured on the CPU, before any GPU.</span>
   </div>
   <div class="aurora-card">
     <span class="aurora-card__icon">⚡</span>
     <span class="aurora-card__title">5 · GPU</span>
-    <span class="aurora-card__desc">Thousands of threads — provided you feed them. Coalescing, CPU vs GPU matmul, when the GPU starts paying off, and estimating π on the card (CUDA.jl; PyTorch CPU vs CUDA).</span>
+    <span class="aurora-card__desc">Thousands of threads — provided you feed them. What the transfer costs, CPU vs GPU matmul, when the GPU starts paying off, and estimating π on the card (CUDA.jl; PyTorch CPU vs CUDA). Coalescing is optional.</span>
   </div>
 </div>
 ```
 
 ## Approach
 
-Each module pairs a **common Python track** (zero-install, in Jupyter/Colab — so nobody falls
-behind) with an optional **Julia deep-dive** (`@btime`, `Threads.@spawn`, the GPU). The teaching engine is
-comparing the *numbers* between the two: a Python loop at ~1&nbsp;s next to a Julia loop in
-milliseconds makes the cost of abstraction concrete. Slides frame each session; the Pluto notebooks
-are live, executable demos.
+Python is the **common activity track**; Julia provides demonstrations and an optional hands-on route.
+Slides frame the reasoning; scripts hold selected demos; Pluto is the executable reference and optional reading.
+Use the session plan to select cells rather than running every support in full.
+Compare ratios on the **same machine**, recording data types, sizes, warmup and resource counts.
+Julia syntax catalogues, detailed SIMD, Markov and manual CUDA kernels are optional.
 
 ## Exam
 
@@ -95,14 +112,17 @@ its building blocks, and **measure precisely what you gained**. Short report (~8
 
 ## Python track (Colab)
 
-The **common track** — zero install, runs in Colab. Every module's benchmarks, in the language
-you already know.
+The **common track** — selected demonstrations in the language you already know. Open the notebook links in Colab below; local setup is described above.
 
 ::: {.resource-grid}
 [1 — Compilation &amp; Types](python/1_compilation_and_types_python.ipynb){.resource-chip}
+[Colab](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/python/1_compilation_and_types_python.ipynb){.resource-chip}
 [2 — Dispatch vs OOP](python/2_dispatch_vs_oop_python.ipynb){.resource-chip}
+[Colab](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/python/2_dispatch_vs_oop_python.ipynb){.resource-chip}
 [3 — Threads &amp; Concurrency](python/3_threads_and_concurrency_python.ipynb){.resource-chip}
+[Colab](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/python/3_threads_and_concurrency_python.ipynb){.resource-chip}
 [4–5 — Memory, batching &amp; GPU](python/4_memory_and_gpu_python.ipynb){.resource-chip}
+[Colab](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/python/4_memory_and_gpu_python.ipynb){.resource-chip}
 :::
 
 ## Pluto Notebooks
@@ -132,24 +152,55 @@ REPL, if you prefer that to Pluto.
 
 ## Activities
 
-~5-minute exercises: fill **one** blank, run, read the striking number. Same task in Python and
-Julia — run either, or both, and compare. The GPU one needs a GPU: open it in Colab
-(*Runtime ▸ Change runtime type ▸ GPU*).
+20–30 minute activities: predict, complete a small piece of code, check the result, measure and explain.
+Python covers every core objective. Julia dispatch is optional. I/O has a labelled simulation fallback;
+without a GPU, complete the [GPU analysis route](gpu-fallback.qmd).
+
+**Session 1 — measure**
 
 ::: {.resource-grid}
-[1 — Compilation (Python)](activities/release/1_warmup_python_todo.ipynb){.resource-chip}
+[A1 — Loop cost (Python)](activities/release/1_warmup_python_todo.ipynb){.resource-chip}
 [Colab](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/1_warmup_python_todo.ipynb){.resource-chip}
-[1 — Compilation (Julia)](activities/release/1_warmup_julia_todo.jl){.resource-chip}
-[2 — Dispatch (Julia)](activities/release/2_dispatch_julia_todo.jl){.resource-chip}
-[3 — Concurrency (Python)](activities/release/3_concurrency_python_todo.ipynb){.resource-chip}
+[.py](activities/release/1_warmup_python_todo.py){.resource-chip}
+[A1 (Julia)](activities/release/1_warmup_julia_todo.jl){.resource-chip}
+[A2 — Diagnosis (Python)](activities/release/1_diagnostic_python_todo.ipynb){.resource-chip}
+[Colab](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/1_diagnostic_python_todo.ipynb){.resource-chip}
+[.py](activities/release/1_diagnostic_python_todo.py){.resource-chip}
+[Optional — Dispatch (Julia)](activities/release/2_dispatch_julia_todo.jl){.resource-chip}
+:::
+
+**Session 2 — split**
+
+::: {.resource-grid}
+[A3a — Overlap waits (Python)](activities/release/3_concurrency_python_todo.ipynb){.resource-chip}
 [Colab](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/3_concurrency_python_todo.ipynb){.resource-chip}
-[3 — Concurrency (Julia)](activities/release/3_concurrency_julia_todo.jl){.resource-chip}
-[4 — Locality (Python)](activities/release/4_locality_python_todo.ipynb){.resource-chip}
+[.py](activities/release/3_concurrency_python_todo.py){.resource-chip}
+[A3c — π in lots (Python)](activities/release/3_cpu_python_todo.ipynb){.resource-chip}
+[Colab](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/3_cpu_python_todo.ipynb){.resource-chip}
+[.py](activities/release/3_cpu_python_todo.py){.resource-chip}
+[Worker module](python/parallel_workers.py){.resource-chip}
+[Optional — A3d, slow server (Python)](activities/release/3_server_python_todo.ipynb){.resource-chip}
+[Colab](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/3_server_python_todo.ipynb){.resource-chip}
+[.py](activities/release/3_server_python_todo.py){.resource-chip}
+[A3d (Julia)](activities/release/3_server_julia_todo.jl){.resource-chip}
+[A3a + A3c (Julia)](activities/release/3_concurrency_julia_todo.jl){.resource-chip}
+:::
+
+**Session 3 — move less data**
+
+::: {.resource-grid}
+[A4 — Locality (Python)](activities/release/4_locality_python_todo.ipynb){.resource-chip}
 [Colab](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/4_locality_python_todo.ipynb){.resource-chip}
-[4 — Locality (Julia)](activities/release/4_locality_julia_todo.jl){.resource-chip}
-[5 — GPU (Python)](activities/release/5_gpu_python_todo.ipynb){.resource-chip}
+[.py](activities/release/4_locality_python_todo.py){.resource-chip}
+[A4 (Julia)](activities/release/4_locality_julia_todo.jl){.resource-chip}
+[A5 — Batching (Python)](activities/release/4_batching_python_todo.ipynb){.resource-chip}
+[Colab](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/4_batching_python_todo.ipynb){.resource-chip}
+[.py](activities/release/4_batching_python_todo.py){.resource-chip}
+[A6 — GPU (Python)](activities/release/5_gpu_python_todo.ipynb){.resource-chip}
 [Colab](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/5_gpu_python_todo.ipynb){.resource-chip}
-[5 — GPU (Julia, local CUDA)](activities/release/5_gpu_julia_todo.jl){.resource-chip}
+[.py](activities/release/5_gpu_python_todo.py){.resource-chip}
+[A6 (Julia, local CUDA)](activities/release/5_gpu_julia_todo.jl){.resource-chip}
+[A6 without a GPU](gpu-fallback.qmd){.resource-chip}
 :::
 
 ## Related

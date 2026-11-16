@@ -1,15 +1,69 @@
 # Julia for Python users — a syntax bridge (no performance yet). ENSAI 3A.
 # ⚠ KEEP IN SYNC with `pluto/0_julia_basics.jl`. Cells: `#%%` (Alt+Enter in VS Code).
-# For each cell: predict the output, then run it.
+# For each cell: predict the output, then run it. Sections 1–2 are the 15-minute path; 3 is reference.
 
-#%% 1. Values — Variables & types
+#%% 1. Monte-Carlo π (the course's running example)
+"Count how many of `n` random points land inside the unit quarter-disk."
+function count_in_disk(n)
+    hits = 0
+    for _ in 1:n
+        x, y = rand(), rand()
+        if x^2 + y^2 ≤ 1
+            hits += 1
+        end
+    end
+    return hits
+end
+n = 100_000
+hits = count_in_disk(n)
+pi_estimate = 4 * hits / n
+(hits, pi_estimate)
+
+#%% 2. Reading it — Blocks close with `end`
+for i in 1:3
+    println(i)
+end
+
+#%% Functions, three forms
+function area_rect(L, w)
+    return L * w
+end
+square(x) = x^2
+cube = x -> x^3
+greet(who; punct = "!") = "Hi $who$punct"
+(area_rect(3, 4), square(5), cube(2), greet("Ada"), greet("Bob"; punct = "?"))
+
+#%% Arrays: 1-based, slices include both ends
+v = [10, 20, 30, 40, 50]
+(v[1], v[end], v[end-1], v[2:4], length(v))   # try v[0]
+
+#%% Broadcasting — the dot
+xs = [1.0, 4.0, 9.0]
+(sqrt.(xs), xs .+ 1, @. xs^2 + 1)          # try sqrt(xs)
+
+#%% Macros start with @
+@time count_in_disk(10^7)   # a macro rewrites the code that follows it
+
+#%% Cheat-sheet — Python → Julia
+# v[0] / v[-1]        →  v[1] / v[end]
+# v[1:4] (excl. 4)    →  v[2:4] (incl. 4)
+# indent + ':' / elif →  `end` / elseif
+# 2**10 / //          →  2^10 / ÷
+# "a"+"b" / f"{x}"    →  "a"*"b" / "$x"
+# np.f(x)             →  f.(x)
+# obj.method()        →  method(obj)
+# class C (self)      →  struct C (immutable, no self)
+# Python list a[:] copies; NumPy a[:] is a view. Julia: b=a aliases; copy(a) copies.
+# None                →  nothing (missing for data)
+
+#%% 3. Reference — Variables & types
 x = 3
 y = 2.5
 name = "Ada"
 (x, y, name, typeof(x), typeof(y), typeof(name))
 
 #%% Numbers
-(10 / 4, 10 ÷ 4, 10 % 4, 2^10, sqrt(2))   # ÷ is \div + TAB. Try 2**10.
+(10 / 4, 10 ÷ 4, 10 % 4, 2^10, sqrt(2))   # ÷ truncates toward zero; Python // floors (different for negatives). Try 2**10.
 
 #%% Unicode & juxtaposition
 α = 0.1                                    # \alpha + TAB
@@ -21,10 +75,6 @@ greeting = "Hello, $name"
 sum_str  = "$a + $b = $(a + b)"
 joined   = "foo" * "bar"                   # try "foo" + "bar"
 (greeting, sum_str, joined, 'a', typeof('a'))
-
-#%% 2. Collections — Arrays: 1-based, slices include both ends
-v = [10, 20, 30, 40, 50]
-(v[1], v[end], v[end-1], v[2:4], length(v))   # try v[0]
 
 #%% Ranges, comprehensions, matrices
 r  = 1:2:9
@@ -39,11 +89,6 @@ p, q, s = t
 nt = (x = 10, y = 20)
 d  = Dict("apple" => 3, "pear" => 5)
 (t[1], q, nt.x, d["apple"], haskey(d, "pear"))
-
-#%% 3. Control flow — Blocks close with `end`
-for i in 1:3
-    println(i)
-end
 
 #%% Conditionals
 grade(x) =
@@ -74,19 +119,6 @@ let
     acc                      # the last expression is the block's value
 end
 
-#%% 4. Functions & types — Functions, three forms
-function area_rect(L, w)
-    return L * w
-end
-square(x) = x^2
-cube = x -> x^3
-greet(who; punct = "!") = "Hi $who$punct"
-(area_rect(3, 4), square(5), cube(2), greet("Ada"), greet("Bob"; punct = "?"))
-
-#%% Broadcasting — the dot
-xs = [1.0, 4.0, 9.0]
-(sqrt.(xs), xs .+ 1, @. xs^2 + 1)          # try sqrt(xs)
-
 #%% Structs instead of classes
 struct Point
     x::Float64
@@ -104,32 +136,3 @@ c.n += 1
 #%% Packages
 # using Statistics            # stdlib: just `using`
 # using Pkg; Pkg.add("BenchmarkTools"); using BenchmarkTools
-
-#%% 5. Monte-Carlo π (the course's running example)
-"Count how many of `n` random points land inside the unit quarter-disk."
-function count_in_disk(n)
-    hits = 0
-    for _ in 1:n
-        x, y = rand(), rand()
-        if x^2 + y^2 ≤ 1
-            hits += 1
-        end
-    end
-    return hits
-end
-n = 100_000
-hits = count_in_disk(n)
-pi_estimate = 4 * hits / n
-(hits, pi_estimate)
-
-#%% Cheat-sheet — Python → Julia
-# v[0] / v[-1]        →  v[1] / v[end]
-# v[1:4] (excl. 4)    →  v[2:4] (incl. 4)
-# indent + ':' / elif →  `end` / elseif
-# 2**10 / //          →  2^10 / ÷
-# "a"+"b" / f"{x}"    →  "a"*"b" / "$x"
-# np.f(x)             →  f.(x)
-# obj.method()        →  method(obj)
-# class C (self)      →  struct C (immutable, no self)
-# b = a[:] (copy)     →  b = a aliases; copy(a)
-# None                →  nothing (missing for data)

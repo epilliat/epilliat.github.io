@@ -1,6 +1,6 @@
 ---
 title: "2 — Multiple dispatch vs OOP"
-subtitle: "Where the verb lives: left vs right of the data"
+subtitle: "Same source, different cost: when is the type known?"
 author: "Emmanuel Pilliat — ENSAI 3A"
 format:
   revealjs:
@@ -12,22 +12,42 @@ smaller: false
 css: ../../../styles.css
 ---
 
-## Goals
+## Today's path — 20 minutes {#path}
 
 :::{.nonincremental}
-- Verb **after** the object (OOP) vs **before** it (dispatch).
-- **Multiple dispatch**: method chosen from **all** argument types.
-- Type **unknown** (abstract container, global): **instability**.
-- A **language point**: no parallelism yet.
+1. **`area`**: `shape.area()` vs `area(shape)`.
+2. **Two arguments**: the method is chosen from **all** of them.
+3. **Concrete vs abstract container**: same data, ~10× apart.
+4. **Data as arguments**: the rule that keeps code fast.
 :::
 
 . . .
 
-> ▶ [Script](../scripts/2_dispatch_vs_oop.jl)  ·  [Notebook](../pluto/2_dispatch_vs_oop.jl)  ·  🐍 [Python](../python/2_dispatch_vs_oop_python.ipynb)  ·  ✏️ [Activity](../activities/release/2_dispatch_julia_todo.jl)
+> Only if time: [more on dispatch](#appendix) · ✏️ optional [Julia activity](../activities/release/2_dispatch_julia_todo.jl)
+
+::: {.notes}
+Session 1, minutes 150–170. Three oral predictions (the "Bet first" slides), no written activity.
+Nothing here needs to be memorized for the project: Visitor, `multipledispatch`, the expression
+problem are out of scope.
+:::
+
+## By the end, you can
 
 . . .
 
-> ⬅ **Previous:** [1 — Interpreted vs compiled](1_compilation_and_types.qmd)  ·  **Next:** [3 — Threads & concurrency](3_threads_and_concurrency.qmd) ➡
+> Explain why the **same source line** can run 10× or 100× slower, depending on what the compiler knows.
+
+. . .
+
+> A **language point**: no parallelism yet.
+
+. . .
+
+> ▶ [Script](../scripts/2_dispatch_vs_oop.jl) · [Notebook](../pluto/2_dispatch_vs_oop.jl) · 🐍 [Python](../python/2_dispatch_vs_oop_python.ipynb)
+
+. . .
+
+> ⬅ [1 — Interpreted vs compiled](1_compilation_and_types.qmd)  ·  **Next:** [3 — Threads & concurrency](3_threads_and_concurrency.qmd) ➡
 
 # One argument {style="text-align: center;"}
 
@@ -61,7 +81,7 @@ class Rectangle(Shape):
     def __init__(self, L, w): self.L, self.w = L, w
     def area(self): return self.L * self.w
 
-Circle(2.0).area()      # left of dot picks
+Circle(2.0).area()      # the object left of the dot chooses
 ```
 
 - Method **owned** by the class.
@@ -91,6 +111,8 @@ area.(shapes)                        # [12.57, 12.0, 3.14]
 
 > `area` lives **outside** the types; method picked from the **argument type**.
 
+. . .
+
 > ▶ Script: cell "1. One argument: one function, one method per type"
 
 # Two arguments {style="text-align: center;"}
@@ -118,88 +140,9 @@ collide(Circle(1.0), Rectangle(2.0, 3.0))   # "circle and rectangle"
 
 > ▶ Script: cell "2. Two arguments: dispatch on the PAIR of types"
 
-## The pair we did not define
-
-. . .
-
-```julia
-collide(Rectangle(1.0, 1.0), Circle(2.0))
-```
-
-. . .
-
-**Bet first:** what happens? Fix in **one line**?
-
-. . .
-
-> ▶ Script: cells "The pair we did not define: what happens?" and "Add the missing pair in one line"
-
 ::: {.notes}
-MethodError: no method matching collide(::Rectangle, ::Circle) — Julia names the missing pair.
-Fix: collide(a::Rectangle, b::Circle) = collide(b, a).
-:::
-
-## The missing pair — debrief
-
-. . .
-
-`MethodError: no method matching collide(::Rectangle, ::Circle)`
-
-. . .
-
-Fix by symmetry:
-
-```julia
-collide(a::Rectangle, b::Circle) = collide(b, a)
-```
-
-. . .
-
-> Missing method = **run-time** error. No coverage check.
-
-## A new operation, without touching the types
-
-. . .
-
-```julia
-perimeter(c::Circle)    = 2π * c.r
-perimeter(r::Rectangle) = 2 * (r.L + r.w)
-
-perimeter.([Circle(2.0), Rectangle(3.0, 4.0)])   # [12.57, 14.0]
-```
-
-- Types **not edited**.
-- Python: **edit every class** (or `isinstance` ladder).
-
-. . .
-
-| | add a **type** | add an **operation** |
-|---|---|---|
-| OOP | easy (new class) | **edit every class** |
-| dispatch | easy (new `struct`) | easy (new function) |
-
-::: {.notes}
-If someone knows the "expression problem": dispatch solves its extensibility half only.
-Wadler's version also asks for static exhaustiveness checks; Julia has none (the
-MethodError above is a run-time error), plus ambiguities and type piracy.
-:::
-
-## Who knows which methods?
-
-. . .
-
-```julia
-methods(area)
-```
-
-> ▶ Script: cell "Who knows which methods? How many for `area`?"
-
-. . .
-
-> A function = a **collection of methods**; a call picks one.
-
-::: {.notes}
-Two methods: one for Circle, one for Rectangle.
+This is the same idea as the `x + y` table of the compilation module: one version per
+combination of concrete types.
 :::
 
 # Dispatch and speed: when is the type known? {style="text-align: center;"}
@@ -316,7 +259,7 @@ end
 
 . . .
 
-`@code_warntype` = `@code_typed`, uncertain types **in color**.
+`@code_warntype` shows the inferred types, uncertain ones **in color**.
 
 . . .
 
@@ -350,6 +293,10 @@ Work in **functions**, data as **arguments**.
 
 > Same reason for `@btime mysum($v)` (measuring properly): `$` makes `v` a known value.
 
+. . .
+
+> Python too: `numba` and process pools both work on functions.
+
 ## Summary
 
 . . .
@@ -358,23 +305,118 @@ Work in **functions**, data as **arguments**.
 |---|---|---|
 | Method | `obj.f()`, inside | `f(obj)`, outside |
 | Chosen from | **one** object | **all** arguments |
-| New op | edit every class | new function |
 | 2 args | `isinstance` | method per pair |
 | Speed | lookup per call | compiled *if types known* |
 
 . . .
 
-> Later: same `*` picks the **GPU** method on `CuArray` (GPU module).
+> Later, the same `*` picks the **GPU** method on a `CuArray`.
 
-## Going further
-
-:::{.nonincremental}
-- ▶ Script: [2_dispatch_vs_oop.jl](../scripts/2_dispatch_vs_oop.jl)
-- ▶ Notebook: [Multiple dispatch vs OOP](../pluto/2_dispatch_vs_oop.jl)
-- 🐍 Python: [2_dispatch_vs_oop_python.ipynb](../python/2_dispatch_vs_oop_python.ipynb): `singledispatch`, `multipledispatch`.
-- 🎯 Dispatch is fast **only with concrete types** · functions + arguments, no untyped globals.
-:::
+## Exit ticket — session 1 {#ticket}
 
 . . .
 
-> ⬅ **Previous:** [1 — Interpreted vs compiled](1_compilation_and_types.qmd)  ·  **Next:** [3 — Threads & concurrency](3_threads_and_concurrency.qmd) ➡
+1. A classmate writes: "I ran it once in Python on my laptop (0.31 s) and once in Julia on the server (0.004 s): Julia is 77× faster." Give **three reasons** this proves nothing.
+2. **Your project:** which part of the code do you think is slow? What will you time first, on which input?
+
+. . .
+
+> ⬅ [1 — Interpreted vs compiled](1_compilation_and_types.qmd)  ·  **Next:** [3 — Threads & concurrency](3_threads_and_concurrency.qmd) ➡
+
+::: {.notes}
+On paper, 5 minutes, in pairs; use the measurement card.
+Expected: first call included (compilation), one run only, two machines, result not checked,
+input/type not stated. Collect the tickets: the project blocks feed session 3's proposals.
+:::
+
+# Only if time — more on dispatch {#appendix style="text-align: center;"}
+
+## The pair we did not define
+
+. . .
+
+```julia
+collide(Rectangle(1.0, 1.0), Circle(2.0))
+```
+
+. . .
+
+**Bet first:** what happens? Fix in **one line**?
+
+. . .
+
+> ▶ Script: cells "5. Optional — the pair we did not define" and "Add the missing pair in one line"
+
+::: {.notes}
+MethodError: no method matching collide(::Rectangle, ::Circle) — Julia names the missing pair.
+Fix: collide(a::Rectangle, b::Circle) = collide(b, a).
+:::
+
+## The missing pair — debrief
+
+. . .
+
+`MethodError: no method matching collide(::Rectangle, ::Circle)`
+
+. . .
+
+Fix by symmetry:
+
+```julia
+collide(a::Rectangle, b::Circle) = collide(b, a)
+```
+
+. . .
+
+> A missing pair shows up only **when the call runs**: nothing checks in advance.
+
+## A new operation, without touching the types
+
+. . .
+
+```julia
+perimeter(c::Circle)    = 2π * c.r
+perimeter(r::Rectangle) = 2 * (r.L + r.w)
+
+perimeter.([Circle(2.0), Rectangle(3.0, 4.0)])   # [12.57, 14.0]
+```
+
+- Types **not edited**.
+- Python: **edit every class** (or `isinstance` ladder).
+
+. . .
+
+| | add a **type** | add an **operation** |
+|---|---|---|
+| OOP | easy (new class) | **edit every class** |
+| dispatch | easy (new `struct`) | easy (new function) |
+
+::: {.notes}
+If someone knows the "expression problem": dispatch solves its extensibility half only.
+Wadler's version also asks for static exhaustiveness checks; Julia has none (the
+MethodError above is a run-time error), plus ambiguities and type piracy.
+:::
+
+## Who knows which methods?
+
+. . .
+
+```julia
+methods(area)
+```
+
+. . .
+
+> ▶ Script: cell "Who knows which methods? How many for `area`?"
+
+. . .
+
+> A function = a **collection of methods**; a call picks one.
+
+. . .
+
+> 🐍 [Python notebook](../python/2_dispatch_vs_oop_python.ipynb): `singledispatch`, `multipledispatch` · ⬅ [Back to the path](#path)
+
+::: {.notes}
+Two methods: one for Circle, one for Rectangle.
+:::

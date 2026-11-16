@@ -6,6 +6,8 @@ using InteractiveUtils
 
 # ╔═╡ d2000000-0000-4a00-8000-000000000001
 md"""
+**Reading guide:** follow the [three-session plan](../sessions.html). This notebook is a reference; advanced syntax, design patterns and manual GPU kernels are optional.
+
 # Multiple dispatch vs OOP
 ### Where the verb lives: left vs right of the data
 
@@ -68,7 +70,7 @@ class Rectangle(Shape):
 Circle(2.0).area()      # dispatch on the object (left of the dot)
 ```
 
-The method is **locked inside** the class. To add an operation (say `perimeter`), you must **edit every class**.
+The method is **locked inside** the class. To add an operation (say `perimeter`), class methods normally require editing each class; external functions or `singledispatch` are alternatives.
 
 !!! warning "🐍 \"No! Python can do that too\" — and you're right. Let's say it out loud now"
 	The honest answer is what makes the rest of this module land. Two counter-arguments, and what each really costs:
@@ -77,7 +79,7 @@ The method is **locked inside** the class. To add an operation (say `perimeter`)
 	```python
 	Circle.perimeter = lambda self: 2 * 3.14159 * self.r
 	```
-	It works. It also mutates a class other code shares, at run time, invisibly — and it fails outright on builtins (`int`, `list`) and on anything with `__slots__` or a C extension type. It's an escape hatch, not a design.
+	It works. It also mutates a class other code shares, at run time, invisibly — and it fails outright on builtins (`int`, `list`) and on some immutable C extension types; `__slots__` alone does not prevent class-level methods. It's an escape hatch, not a design.
 
 	**(b) `functools.singledispatch`** — a real generic function, verb on the left:
 	```python
@@ -446,6 +448,11 @@ md"""
 On to **parallelism on the CPU**: **threads**, and a classic trap — the **parallel sum that returns the wrong answer**.
 """
 
+# ╔═╡ d2000000-0000-4a00-8000-0000000000f5
+md"""
+## 5. Optional — the pair we did not define: what happens?
+"""
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
@@ -470,15 +477,6 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 # ╟─d2000000-0000-4a00-8000-000000000008
 # ╠═d2000000-0000-4a00-8000-000000000009
 # ╟─d2000000-0000-4a00-8000-00000000001e
-# ╠═d2000000-0000-4a00-8000-00000000001f
-# ╟─d2000000-0000-4a00-8000-000000000020
-# ╠═e663a7e4-bb42-4b8f-a61c-c121ba409b20
-# ╟─909b04ea-913c-4ee6-afb2-de8624244214
-# ╟─d2000000-0000-4a00-8000-00000000000a
-# ╠═d2000000-0000-4a00-8000-00000000000b
-# ╟─d2000000-0000-4a00-8000-00000000000c
-# ╟─33dc6971-3ba9-42e4-871b-491010f9d5d7
-# ╠═d2000000-0000-4a00-8000-00000000000e
 # ╟─d2000000-0000-4a00-8000-00000000000d
 # ╠═d2000000-0000-4a00-8000-000000000013
 # ╟─d2000000-0000-4a00-8000-000000000011
@@ -504,6 +502,16 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 # ╠═1c3ebba3-7520-4544-b579-de2c5f7f543b
 # ╠═5e4e8915-06a6-48ca-824f-64f3ee2645ae
 # ╟─814dc34f-c5a2-4e51-82ba-56e3a16fc55b
+# ╟─d2000000-0000-4a00-8000-0000000000f5
+# ╠═d2000000-0000-4a00-8000-00000000001f
+# ╟─d2000000-0000-4a00-8000-000000000020
+# ╠═e663a7e4-bb42-4b8f-a61c-c121ba409b20
+# ╟─909b04ea-913c-4ee6-afb2-de8624244214
+# ╟─d2000000-0000-4a00-8000-00000000000a
+# ╠═d2000000-0000-4a00-8000-00000000000b
+# ╟─d2000000-0000-4a00-8000-00000000000c
+# ╟─33dc6971-3ba9-42e4-871b-491010f9d5d7
+# ╠═d2000000-0000-4a00-8000-00000000000e
 # ╟─d2000000-0000-4a00-8000-00000000000f
 # ╟─d2000000-0000-4a00-8000-000000000010
 # ╟─00000000-0000-0000-0000-000000000001

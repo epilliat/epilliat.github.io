@@ -1,6 +1,6 @@
 ---
 title: "Parallel Computing — Overview"
-subtitle: "Why the same computation can be 100× faster"
+subtitle: "Measure, split, move less data"
 author: "Emmanuel Pilliat — ENSAI 3A"
 format:
   revealjs:
@@ -12,64 +12,94 @@ smaller: false
 css: ../../../styles.css
 ---
 
-## Course outline
+## What you will be able to do
 
 :::{.nonincremental}
-- [**0 — Julia for Python users**](0_julia_basics.qmd): syntax bridge
-- [**1 — Interpreted vs compiled**](1_compilation_and_types.qmd): JIT, type specialization
-- [**2 — Multiple dispatch vs OOP**](2_dispatch_vs_oop.qmd): dispatch, type instability
-- [**3 — Threads & concurrency**](3_threads_and_concurrency.qmd): `@async`, `@spawn`, races
-- [**4 — Memory & batching**](4_memory_and_batching.qmd): cache, locality
-- [**5 — GPU**](5_gpu.qmd): feed thousands of threads
+Make real code faster, and **prove what the whole program gained**:
+
+1. **Measure** before optimizing.
+2. **Split** the work, share as little as possible.
+3. **Move less data**, in memory and to the GPU.
 :::
 
 . . .
 
-**Running example:** Monte-Carlo π — loop → threads → GPU.
+> This is the [project](../exam.qmd).
+
+::: {.notes}
+Start from the project: every session delivers one piece of it. Session 1: a valid measurement
+and a block to target. Session 2: a split and its reduction. Session 3: a decision about memory,
+batch and GPU, checked on the whole program.
+:::
+
+## Three sessions of three hours {#sessions}
+
+:::{.nonincremental}
+| | theme | decks | activities |
+|---|---|---|---|
+| **1** | **Measure** | [0](0_julia_basics.qmd) · [1](1_compilation_and_types.qmd) · [2](2_dispatch_vs_oop.qmd) | A1 loop cost · A2 diagnosis |
+| **2** | **Split** | [3](3_threads_and_concurrency.qmd) | A3a waits · A3b race · A3c π in lots |
+| **3** | **Move less** | [4](4_memory_and_batching.qmd) · [5](5_gpu.qmd) · [synthesis](#synthesis) | A4 locality · A5 batching · A6 GPU |
+:::
 
 . . .
 
-> Julia = test bench, **Python = comparison**.
+> [Timed plan](../sessions.qmd): two 10-minute breaks per session.
 
 ::: {.notes}
-0: 1-based arrays, `end`, the dot, structs instead of classes; no performance yet.
-1: a Julia loop in milliseconds vs Python half a second — the JIT, measuring properly, type
-specialization.
-2: how Julia picks the method to run, and what it costs when the compiler can't know the type
-(abstract container ~10×, untyped global > 100×: type instability).
-3: `@async` overlaps waiting on one core; `Threads.@spawn` splits computing over many — and the
-parallel π that returns a wrong answer.
-4: the processor waits for memory. 5: the bus, and locality again on the card.
-Running example: same dart count, `count_in_disk` — loop (0–1), threads (3), GPU (5). Batching also in 4.
+0: just enough Julia to read the running example. 1: first call vs steady state, the measurement
+card, local vs whole-program gain. 2: why the same source can cost 10–100× (types known or not).
+3: overlap waits, split computing, the race, return-and-reduce, Amdahl.
+4: latency vs throughput, locality, batching. 5: the bus, synchronization, small vs large work.
+:::
+
+## One running example
+
+:::: {.columns}
+::: {.column width="38%"}
+![](../images/quarter_disk.svg){width="100%"}
+:::
+::: {.column width="62%"}
+**Monte-Carlo π**: draw points, count those in the quarter disk, multiply by 4.
+
+- Session 1: a **loop**, timed.
+- Session 2: **split** over workers.
+- Session 3: on the **GPU**.
+:::
+::::
+
+::: {.notes}
+One count, asked three times: how long does it take, who shares what, where does the data live?
 :::
 
 ## How we work
 
 :::{.nonincremental}
-- Slides **frame**; **scripts** and **notebooks** demo: predict, then run.
-- Each module: a Julia **script** + **Pluto notebook**; modules 1–5: a **Python notebook** (Colab).
-- Short [**activities**](../index.qmd) in class (5–10 min, Python or Julia).
-- We compare the **numbers** across languages.
+- Every experiment: **predict → run → explain**.
+- Slides frame, demos show, **you measure** in the activities (pairs, 20–30 min).
+- **Python** is the common track; **Julia** is the test bench, optional for you.
 :::
 
 . . .
 
 ::: {.callout-note}
-Python track = **common**; Julia track = deep dive.
+Every number comes with its **card**. We compare **ratios on the same machine**.
 :::
 
 ::: {.notes}
-Same lesson in script (VS Code) and Pluto. 6 decks but 5 Julia notebooks: modules 4 and 5 share
-one script, one notebook and one Python notebook. Activities: one or two blanks to fill, one
-striking number, handed out in class. Python track: nobody falls behind; Julia track: `@btime`,
-`@code_native`, `@spawn`, the GPU.
+Write the bet down before running. The card: result checked · input · machine · repetitions ·
+what the timer includes (deck 1). Each deck opens with "today's path"; "only if time" slides
+sit at the end of the deck.
+An explained slowdown is a valid result, in the activities and in the project.
+Numbers on the slides are observations from one laptop, not targets to reproduce.
+Each module also has a Julia script and Pluto notebook (reference), and a Python notebook.
 :::
 
 ## Start here
 
 :::{.nonincremental}
-- ▶ [0 — Julia for Python users](0_julia_basics.qmd) — the onboarding deck.
-- 📓 All scripts, notebooks and Python notebooks: [course page](../index.qmd).
+- ▶ [0 — Julia for Python users](0_julia_basics.qmd) — 15 minutes, then the first measurement.
+- 📓 All scripts, notebooks and activities: [course page](../index.qmd).
 :::
 
 . . .
@@ -78,27 +108,68 @@ striking number, handed out in class. Python track: nobody falls behind; Julia t
 
 # Synthesis {#synthesis style="text-align: center;"}
 
-## Four ideas
+## Five decisions, in this order {#decisions}
 
 :::{.nonincremental}
-1. **Compile and specialize** (1): no cost paid *per operation*.
-2. **Concrete types** (2): generic *and* fast.
-3. **Share as little as possible** (3): or the result is wrong.
-4. **Feed the hardware** (4–5): cache, batching, busy GPU.
+1. **Check and measure**: a verified result, a number with its card.
+2. **Find the dominant cost**: interpreter, waiting, memory, transfers?
+3. **Split without sharing**: pieces return, reduce once.
+4. **Move less data**: contiguous access, reuse, stay on the card.
+5. **Verify the whole-program gain**, not just the block.
 :::
 
 . . .
 
-> Not a magic language: **understand what the machine does**.
-> Type known at compile time = fast.
+> **Know where the time goes, then test your explanation.**
+
+::: {.notes}
+1: session 1 (card, tolerance for a random result). 2: A2, the decision table of session 2.
+3: race → return and reduce. 4: locality, batching, the bus. 5: Amdahl, and the project's two
+timings. Compilation and types are one answer to decision 2 ("the interpreter is the cost"),
+not the headline of the course.
+:::
+
+## Transfer: three cases, no code {#transfer .smaller}
 
 . . .
 
-> ⬅ [5 — GPU](5_gpu.qmd)  ·  [Course page](../index.qmd)
+For each: **which optimization, why, and the next measurement?**
+
+1. A script downloads 500 small files, then parses them. Parsing: 5 % of the time.
+2. A pure-Python double loop computes pairwise distances: 95 % of the time.
+3. A GPU scores requests one at a time; 200 requests arrive per second.
+
+. . .
+
+> Name the **result to preserve**, the **dominant cost**, and which measurement **could prove you wrong**.
 
 ::: {.notes}
-2: multiple dispatch is generic and fast — and the same `*` runs on the GPU.
-Performance comes from understanding the cost of each operation, who shares what, and where the
-data travels. Through the whole course: type found at run time = slow; type known at compile
-time = fast.
+In pairs, 10 minutes, on paper.
+1: waiting dominates → overlap the downloads; speeding up parsing caps at 1.05×. Next: time
+until all results are available, for a few worker counts.
+2: the interpreter dominates → vectorize or compile first; only then consider processes. Next:
+whole-program time, output compared with a tolerance.
+3: the card is mostly idle at B = 1 → batch; but a larger lot makes each request wait. Next:
+throughput and per-request latency for a few B.
+:::
+
+## From the course to your project
+
+:::{.nonincremental}
+- **Proposal:** result to preserve · first whole-program timing · target block · hypothesis.
+- **Report:** block gain **and** whole-program gain, each with its card.
+- An explained **slowdown** is a valid finding.
+:::
+
+. . .
+
+> Before leaving, each group writes **one timing and one hypothesis**. See the [example proposal](../exam.qmd#example-proposal).
+
+. . .
+
+> ⬅ [5 — GPU](5_gpu.qmd)  ·  [Course page](../index.qmd)  ·  [Project rules](../exam.qmd)
+
+::: {.notes}
+Grading weights the method: correctness 25 %, protocol and reproducibility 30 %, diagnosis 25 %,
+report and talk 20 %. Use the session-1 exit tickets (candidate blocks) to start the discussion.
 :::

@@ -6,6 +6,8 @@ using InteractiveUtils
 
 # ╔═╡ aa07d25d-4f02-4013-95a0-49f72ddf7323
 md"""
+**Reading guide:** follow the [three-session plan](../sessions.html). This notebook is a reference; advanced syntax, design patterns and manual GPU kernels are optional.
+
 # Parallel computing — Memory and GPU
 ## The memory hierarchy, batching, and the GPU
 
@@ -15,7 +17,7 @@ md"""
 
 For each cell: **predict, then run.** Sections 1–3 = memory deck, 4–7 = GPU deck.
 
-1. The cache cliff · 2. Locality · 3. Arithmetic intensity and batching · 4. The GPU · 5. Feed the GPU · 6. Coalescing · 7. Monte-Carlo π on the GPU · 8. Wrap-up
+1. The cache cliff · 2. Locality · 3. Arithmetic intensity and batching · 4. The GPU · 5. Feed the GPU · 6. Optional — coalescing · 7. Monte-Carlo π on the GPU · 8. Wrap-up
 """
 
 # ╔═╡ ee0a05ee-935e-42c3-b567-5624fb902747
@@ -79,7 +81,7 @@ end
 md"""
 ## 2. Locality — the same sum, walked two ways
 
-Julia is **column-major** (numpy is row-major). **Predict which walk is faster.**
+Same additions, two loop orders. **Predict which walk is faster, and by how much.**
 """
 
 # ╔═╡ 3218651a-5b26-42d1-b330-917d0801ed44
@@ -118,7 +120,7 @@ end
 
 # ╔═╡ 09844b2e-6544-494d-a7c1-50c3d5b9c5d6
 md"""
-**Proof it IS the cache:** shrink the matrix. At which size does the gap vanish?
+**Test the locality explanation:** shrink the matrix. At which size does the gap vanish?
 """
 
 # ╔═╡ 01d52dcd-e327-418c-9906-dddd778b01f0
@@ -136,7 +138,7 @@ end
 
 # ╔═╡ 8e4c45e6-5694-4af9-804c-4de21952feeb
 md"""
-**Allocating is memory traffic too** — note the dot on `=`. Look at time *and* allocations.
+**Optional — allocating is memory traffic too** — note the dot on `=`. Look at time *and* allocations.
 
 Same for BLAS: `A * B` allocates, `mul!(C, A, B)` reuses `C`. **Does it always pay?**
 """
@@ -159,7 +161,7 @@ end
 
 # ╔═╡ ad57f7bf-d863-4be8-b5d4-d0dfd0603b69
 md"""
-## 3. Arithmetic intensity — FLOP per byte loaded
+### Optional — arithmetic intensity: FLOP per byte loaded
 
 Both read the same n² matrix. **Don't compare the seconds: compute the GFLOP/s** (GFLOP/s = FLOP / time / 1e9; FLOP = one `+` or `*`, counts in the comments).
 """
@@ -181,21 +183,24 @@ end
 
 # ╔═╡ ba7c1100-0001-4a01-8b01-aaaaaaaa0001
 md"""
-### Batching: one layer `W`, `B` examples stacked as columns of `X`
+## 3. Batching: one layer `W`, `B` examples stacked as columns of `X`
 
-Watch **µs PER EXAMPLE**. Why does it drop, on a CPU? (Run before the GPU cells: a laptop CPU throttles after the GPU has been hammered.)
+Same examples, one `W * x` each or `B` at once. Watch **µs PER EXAMPLE**: why does it drop, on a CPU? (Run before the GPU cells: a laptop CPU throttles after the GPU has been hammered.)
 """
 
 # ╔═╡ ba7c1100-0002-4a01-8b01-aaaaaaaa0002
 let
     nb = 4096                        # W = 64 MiB Float32: past the L3, comes from RAM
     W = rand(Float32, nb, nb)
-    println("batch B | total (ms) | µs PER EXAMPLE | GFLOP/s")
+    x = rand(Float32, nb)
+    t_ref = @belapsed $W * $x seconds=1
+    println("one by one, W * x : $(round(t_ref*1e6, digits=1)) µs per example")
+    println("batch B | total (ms) | µs PER EXAMPLE | vs one by one")
     for B in (1, 8, 64, 256, 1024)
         X = rand(Float32, nb, B)
         t = @belapsed $W * $X seconds=1
         println("$(lpad(B, 6))  | $(lpad(round(t*1e3, digits=2), 10)) | " *
-                "$(lpad(round(t/B*1e6, digits=2), 14)) | $(lpad(round(2.0*nb*nb*B/t/1e9, digits=1), 7))")
+                "$(lpad(round(t/B*1e6, digits=2), 14)) | $(lpad(round(t_ref*B/t, digits=1), 6))×")
     end
 end
 
@@ -310,7 +315,7 @@ end
 
 # ╔═╡ cb000000-0000-4c00-9a00-00000000c005
 md"""
-## 6. Coalescing — locality again, at the scale of a warp (32 threads)
+## 7. Optional — coalescing: locality again, at the scale of a warp (32 threads)
 
 Same reads, different order. **Why must the index be a permutation** (`gcd(s, N) = 1`)?
 """
@@ -336,7 +341,7 @@ Smaller ratio than you expected? **Which other bytes does `a[idx]` read and writ
 
 # ╔═╡ f526773a-c8d8-46b7-b0b7-165a48f6417f
 md"""
-**Test that explanation:** compute the index in the kernel (no `idx` array to read). Prediction: the ratio must **rise**. Does it?
+**Test that explanation:** compute the index in the kernel (no `idx` array to read). Prediction: the ratio may **rise**; index arithmetic and allocations also change. Does it?
 """
 
 # ╔═╡ 18ecadcb-0926-4ef7-9b4a-547d57203342
@@ -367,7 +372,7 @@ end
 
 # ╔═╡ e85db6c9-b322-4a2f-aed6-295f21cb362d
 md"""
-## 7. Monte-Carlo π on the GPU — same count as before, 100 million threads
+## 6. Monte-Carlo π on the GPU — same count as before, 100 million points
 
 Everything stays on the card; only a scalar comes back.
 """
@@ -450,14 +455,14 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 # ╠═cdad600b-7259-4388-a83b-0a2f42f83aa1
 # ╟─09844b2e-6544-494d-a7c1-50c3d5b9c5d6
 # ╠═01d52dcd-e327-418c-9906-dddd778b01f0
+# ╟─ba7c1100-0001-4a01-8b01-aaaaaaaa0001
+# ╠═ba7c1100-0002-4a01-8b01-aaaaaaaa0002
 # ╟─8e4c45e6-5694-4af9-804c-4de21952feeb
 # ╠═9a99b467-6b9a-4353-9411-01f0e610b3e5
 # ╠═6d24a0f2-932f-47e7-a262-68c623e9ac00
 # ╟─ad57f7bf-d863-4be8-b5d4-d0dfd0603b69
 # ╠═05884f27-4254-4a8e-8177-e38454dc8aac
 # ╠═dc815f82-3a2e-40a7-b9a1-67daf6c38766
-# ╟─ba7c1100-0001-4a01-8b01-aaaaaaaa0001
-# ╠═ba7c1100-0002-4a01-8b01-aaaaaaaa0002
 # ╟─92cd196c-2cab-4aee-aecb-89f06133486c
 # ╠═7f4abed0-2b61-454d-922d-2d8eccad9c46
 # ╟─71089296-a3b6-4f51-8ecc-a4909bc66388
@@ -469,6 +474,12 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 # ╟─7663fb47-1f0c-4383-a5dd-e55f9a1b5abc
 # ╟─ba7c1100-0004-4a01-8b01-aaaaaaaa0004
 # ╠═ba7c1100-0005-4a01-8b01-aaaaaaaa0005
+# ╟─e85db6c9-b322-4a2f-aed6-295f21cb362d
+# ╠═7a6d400a-f826-4b67-9a7d-717351daa9bf
+# ╠═aa59c041-e5fa-4cb0-a8f0-43c353255569
+# ╠═324e4aa4-4012-4326-85bd-f41babd9ef0d
+# ╠═798cfc8b-51b7-4086-8b30-faa6be29c299
+# ╟─0d3be671-416b-4c2f-a605-1995a602e132
 # ╟─cb000000-0000-4c00-9a00-00000000c005
 # ╠═cb000000-0000-4c00-9a00-00000000c006
 # ╟─cb000000-0000-4c00-9a00-00000000c007
@@ -476,12 +487,6 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 # ╠═18ecadcb-0926-4ef7-9b4a-547d57203342
 # ╠═5aa43061-0c7e-4193-a1de-a4ff25d5d0ee
 # ╠═1bb4c950-c705-4c0e-8833-6636b3892e26
-# ╟─e85db6c9-b322-4a2f-aed6-295f21cb362d
-# ╠═7a6d400a-f826-4b67-9a7d-717351daa9bf
-# ╠═aa59c041-e5fa-4cb0-a8f0-43c353255569
-# ╠═324e4aa4-4012-4326-85bd-f41babd9ef0d
-# ╠═798cfc8b-51b7-4086-8b30-faa6be29c299
-# ╟─0d3be671-416b-4c2f-a605-1995a602e132
 # ╟─130f0c20-5ca5-4045-9e70-e3898789bf01
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

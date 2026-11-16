@@ -52,50 +52,7 @@ end
 @benchmark mysum($v)
 # Then try `@btime mysum(v)` without `$`: what changes? (why: with dispatch, untyped globals)
 
-#%% 3. Type specialization — step 1, lowered code
-f(x) = 2x + 1
-@code_lowered f(3.0)
-
-#%% Step 2 — typed code: compare Float64 and Int
-@code_typed f(3.0)
-
-#%% Step 2, with an Int
-@code_typed f(3)
-
-#%% Step 3 — assembly: how many instructions? float vs integer ones?
-@code_native debuginfo=:none f(3.0)
-
-#%% Step 3, with an Int
-@code_native debuginfo=:none f(3)
-
-#%% 4. Bonus (optional) — Base `sum` vs our loop (vector that fits in cache)
-vc = rand(100_000)
-@btime mysum($vc)
-
-#%% Base `sum`
-@btime sum($vc)
-
-#%% Our loop's assembly: `vaddsd` = scalar double. How many accumulators?
-@code_native debuginfo=:none mysum(vc)
-
-#%% `sum`'s assembly: look for `vaddpd`... then for the `call`
-@code_native debuginfo=:none sum(vc)
-
-#%% The kernel `sum` calls: what replaces `vaddsd`? How many accumulators?
-@code_native debuginfo=:none Base.mapreduce_impl(identity, Base.add_sum, vc, 1, length(vc), 1024)
-# Why can't the compiler do this to OUR loop? Hint: is (a+b)+c == a+(b+c) in floats?
-
-#%% @simd: permission to reassociate
-function mysum_simd(x)
-    s = zero(eltype(x))
-    @inbounds @simd for i in eachindex(x)   # @inbounds: skip bounds checks
-        s += x[i]
-    end
-    return s
-end
-@btime mysum_simd($vc)
-
-#%% 5. Monte-Carlo π — same count as in the Julia-basics module
+#%% 3. Monte-Carlo π — same count as in the Julia-basics module
 function count_in_disk(n)
     hits = 0
     for _ in 1:n
@@ -122,3 +79,46 @@ for n in (10^4, 10^5, 10^6, 10^7, 10^8)
     err = abs(estimate_pi(n) - π)
     println("n = 10^$(round(Int, log10(n)))   error = $(round(err, digits=5))")
 end
+
+#%% 4. Optional — type specialization: step 1, lowered code
+f(x) = 2x + 1
+@code_lowered f(3.0)
+
+#%% Step 2 — typed code: compare Float64 and Int
+@code_typed f(3.0)
+
+#%% Step 2, with an Int
+@code_typed f(3)
+
+#%% Step 3 — assembly: how many instructions? float vs integer ones?
+@code_native debuginfo=:none f(3.0)
+
+#%% Step 3, with an Int
+@code_native debuginfo=:none f(3)
+
+#%% 5. Optional — Base `sum` vs our loop (vector that fits in cache)
+vc = rand(100_000)
+@btime mysum($vc)
+
+#%% Base `sum`
+@btime sum($vc)
+
+#%% Our loop's assembly: `vaddsd` = scalar double. How many accumulators?
+@code_native debuginfo=:none mysum(vc)
+
+#%% `sum`'s assembly: look for `vaddpd`... then for the `call`
+@code_native debuginfo=:none sum(vc)
+
+#%% The kernel `sum` calls: what replaces `vaddsd`? How many accumulators?
+@code_native debuginfo=:none Base.mapreduce_impl(identity, Base.add_sum, vc, 1, length(vc), 1024)
+# Why can't the compiler do this to OUR loop? Hint: is (a+b)+c == a+(b+c) in floats?
+
+#%% @simd: permission to reassociate
+function mysum_simd(x)
+    s = zero(eltype(x))
+    @inbounds @simd for i in eachindex(x)   # @inbounds: skip bounds checks
+        s += x[i]
+    end
+    return s
+end
+@btime mysum_simd($vc)

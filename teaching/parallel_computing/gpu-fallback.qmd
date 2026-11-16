@@ -1,0 +1,37 @@
+---
+title: "GPU activity — analysis without a GPU"
+sidebar: false
+---
+
+[← Course](index.qmd) · [Session plan](sessions.qmd)
+
+## Same question, measurements from the course machine
+
+Complete this 30-minute activity if no CUDA runtime is available. First run the four-point
+CPU correctness check in the Python GPU activity (three points inside the quarter disk).
+Then predict, calculate and critique the comparison below.
+
+These are **rounded measurements from the course machine**, transcribed from the course GPU slides and
+measurement notes (29 October 2026), not measurements performed for this activity.
+GPU: NVIDIA RTX 1000 Ada Laptop, about 5.64 GiB. CPU: course laptop in powersave mode;
+CPU model and BLAS thread count are not recorded in this table, so it cannot support a
+reproducible hardware ranking. Raw samples are not included; identifying these limitations is part of the exercise.
+
+| Work | Input and protocol | Historical observation |
+|---|---|---|
+| Matrix multiplication | Two 4096² Float32 matrices already on device; warmed `CUDA.@sync Ag * Bg`; upload excluded | GPU ~35 ms; CPU hundreds of ms; reported ratio ~15–20× |
+| Monte-Carlo π | 100 million points, Float32 arrays generated on GPU; allocation, RNG, reduction and synchronization; no upload of point vectors | GPU ~12 ms |
+| Same π estimator, scalar CPU reference | Float64 random draws and scalar loop, different RNG/allocations | reported ratio ~25× vs GPU |
+| Same π estimator, vectorized CPU reference | Float32 arrays, allocation included, different RNG | reported ratio ~35× vs GPU |
+
+## Your task
+
+1. **Predict (5 min):** when could the GPU lose? Distinguish resident computation from a whole job with transfers.
+2. **Calculate (10 min):** derive the CPU times implied by the rounded π ratios. Label them as derived estimates, not measured samples. Why do two valid baselines give different ratios?
+3. **Critique (10 min):** identify the dtype/RNG difference, missing CPU/BLAS metadata and excluded upload in the matrix case. Describe the additional measurements needed for a hardware comparison and for a small-job break-even point.
+4. **Explain (5 min):** submit the CPU correctness check, a ratio table and a conditional recommendation. State which timings you would collect next on a GPU.
+
+A GPU reduction is parallel, although its final stages expose less parallelism. In the π activity,
+x and y are generated on the card: launches, allocations, random generation, reduction,
+synchronization and the returned scalar cost time; uploading those vectors does not.
+No numeric speedup is required to succeed in the live activity either.

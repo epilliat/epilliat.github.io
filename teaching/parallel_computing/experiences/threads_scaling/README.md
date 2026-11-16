@@ -52,10 +52,10 @@ python3 plot_threads.py     # -> results/threads_scaling.png
 
 ## Reading the result
 
-The gap between the dashed diagonal and the `spawn` curve *is* Amdahl's law: whatever stays
-sequential (splitting, spawning, `fetch`, the final reduce — plus the tasks that finish early and
-then idle) caps the gain. In the notebook the same thing shows up as the profiler's
-`Utilization: ~60%` line.
+The gap from ideal scaling can reflect sequential work, scheduling overhead, load imbalance,
+memory bandwidth and frequency changes. It does not by itself identify a sequential fraction.
+Fresh processes do not fix affinity or frequencies on a hybrid CPU. Record these limits when
+interpreting the curve; the course no longer includes the old profiler-utilization demo.
 
 Related: [`../sum_vs_size/`](../sum_vs_size/) (single-core scaling),
 [`../warmup_jit/`](../warmup_jit/) (the JIT spike).

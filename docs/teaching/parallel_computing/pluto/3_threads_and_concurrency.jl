@@ -115,7 +115,7 @@ md"""
 
 # ╔═╡ d3000000-0000-4a00-8000-00000000000d
 md"""
-## 2. Part B — `@spawn` on many cores: independent Markov chains
+## 3. Optional — another split: independent Markov chains
 
 `Threads.@spawn f()` returns a task that may run on **another thread**; `fetch` waits for its result. Julia has **no GIL**.
 """
@@ -153,7 +153,7 @@ end
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000011
 md"""
-## 3. Monte-Carlo π — the sequential baseline
+## 2. Part B — computing on many cores: Monte-Carlo π, the sequential baseline
 
 Same count as in the compilation module: π ≈ 4 × #{x² + y² ≤ 1} / n.
 """
@@ -313,11 +313,6 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 # ╠═d3000000-0000-4a00-8000-00000000000a
 # ╠═d3000000-0000-4a00-8000-00000000000b
 # ╟─d3000000-0000-4a00-8000-00000000000c
-# ╟─d3000000-0000-4a00-8000-00000000000d
-# ╠═d3000000-0000-4a00-8000-00000000000e
-# ╠═d3000000-0000-4a00-8000-00000000000f
-# ╟─c8bba89e-f531-4e2c-a426-227eb15d972f
-# ╠═d3000000-0000-4a00-8000-000000000010
 # ╟─d3000000-0000-4a00-8000-000000000011
 # ╠═d3000000-0000-4a00-8000-000000000012
 # ╟─c7120db8-ccb6-451d-aee0-a64aa117f2e9
@@ -334,6 +329,11 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 # ╠═f87a0d77-71fa-46dc-81cd-c523d9c4eb7a
 # ╟─b3e5a428-a3d4-40ed-a314-f4b6fb237ab0
 # ╠═d3000000-0000-4a00-8000-000000000017
+# ╟─d3000000-0000-4a00-8000-00000000000d
+# ╠═d3000000-0000-4a00-8000-00000000000e
+# ╠═d3000000-0000-4a00-8000-00000000000f
+# ╟─c8bba89e-f531-4e2c-a426-227eb15d972f
+# ╠═d3000000-0000-4a00-8000-000000000010
 # ╟─d3000000-0000-4a00-8000-000000000019
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

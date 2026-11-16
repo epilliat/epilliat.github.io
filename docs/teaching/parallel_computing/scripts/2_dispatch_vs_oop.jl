@@ -34,27 +34,6 @@ collide(a::Rectangle, b::Rectangle) = "two rectangles"
  collide(Circle(1.0), Rectangle(2.0, 3.0)),
  collide(Rectangle(1.0, 1.0), Rectangle(2.0, 2.0))]
 
-#%% The pair we did not define: what happens?
-# (run it BEFORE the next cell: once the method exists, the error is gone)
-try
-    collide(Rectangle(1.0, 1.0), Circle(2.0))
-catch e
-    showerror(stdout, e)
-end
-
-#%% Add the missing pair in one line
-collide(a::Rectangle, b::Circle) = collide(b, a)
-collide(Rectangle(1.0, 1.0), Circle(2.0))
-
-#%% A new operation, without touching the types
-perimeter(c::Circle)    = 2π * c.r
-perimeter(r::Rectangle) = 2 * (r.L + r.w)
-
-perimeter.([Circle(2.0), Rectangle(3.0, 4.0)])
-
-#%% Who knows which methods? How many for `area`?
-methods(area)
-
 #%% 3. Dispatch and speed: what container did `shapes` build?
 typeof(shapes)
 
@@ -106,3 +85,24 @@ end
 
 #%% The argument version
 @benchmark sum_arg($glob)
+
+#%% 5. Optional — the pair we did not define: what happens?
+# (run it BEFORE the next cell: once the method exists, the error is gone)
+try
+    collide(Rectangle(1.0, 1.0), Circle(2.0))
+catch e
+    showerror(stdout, e)
+end
+
+#%% Add the missing pair in one line
+collide(a::Rectangle, b::Circle) = collide(b, a)
+collide(Rectangle(1.0, 1.0), Circle(2.0))
+
+#%% A new operation, without touching the types
+perimeter(c::Circle)    = 2π * c.r
+perimeter(r::Rectangle) = 2 * (r.L + r.w)
+
+perimeter.([Circle(2.0), Rectangle(3.0, 4.0)])
+
+#%% Who knows which methods? How many for `area`?
+methods(area)

@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Turn an activity *with* its solution into the *student* skeleton.
 
-Activities are deliberately tiny (one hole, one payoff, ~5 min) and **not graded**. Each
+Activities use small code edits inside 20–30-minute prediction/measurement tasks and **not graded**. Each
 activity is written once, WITH the answer, wrapped in a solution marker; this script strips
 the answer to a friendly stub so the student fills one blank and immediately sees the number.
 
   python3 build_activities.py activities/1_warmup_python.ipynb
   python3 build_activities.py activities/1_warmup_julia.jl
       -> activities/release/<name>_todo.<ext>
+         (a notebook also gives <name>_todo.py, the same cells as `# %%` blocks, for local use)
 
 Marker (carries the hint shown to the student):
 
@@ -30,7 +31,7 @@ payoff, the comments. Only the answer between the markers becomes:
       <a stub that fails loudly until you replace it>
 
 The instructor file (with the answer) is committed; the generated skeleton lives in
-activities/release/ and is gitignored (regenerate anytime). No dependencies, no nbgrader.
+activities/release/ and is committed (regenerate after every source change). No dependencies, no nbgrader.
 """
 
 import argparse
@@ -95,6 +96,25 @@ def build_ipynb(path):
     return nb, holes
 
 
+PY_HEADER = """\
+# Local version of {name}: run it cell by cell (VS Code: Shift+Enter on each `# %%`).
+
+"""
+
+
+def as_py(nb, name):
+    """Percent-format script (# %% cells) for students who work locally."""
+    parts = [PY_HEADER.format(name=name)]
+    for c in nb["cells"]:
+        src = as_text(c["source"]).rstrip()
+        if c["cell_type"] == "markdown":
+            body = "\n".join(("# " + l) if l else "#" for l in src.split("\n"))
+            parts.append("# %% [markdown]\n" + body + "\n")
+        elif c["cell_type"] == "code":
+            parts.append("# %%\n" + src + "\n")
+    return "\n".join(parts)
+
+
 def build_jl(path):
     return strip(open(path).read(), JL_BEGIN, JL_END,
                  'error("remove this line and write your code")')
@@ -117,6 +137,9 @@ def main():
         nb, holes = build_ipynb(args.source)
         out = args.out or os.path.join(RELEASE, base.replace(".ipynb", "_todo.ipynb"))
         json.dump(nb, open(out, "w"), indent=1, ensure_ascii=False)
+        py_out = out[:-len(".ipynb")] + ".py"
+        open(py_out, "w").write(as_py(nb, os.path.basename(out)))
+        print(f"local script -> {py_out}")
 
     if holes == 0:
         raise SystemExit(f"⚠  no SOLUTION..END block found in {args.source} — nothing to strip")

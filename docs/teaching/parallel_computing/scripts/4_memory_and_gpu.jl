@@ -3,7 +3,7 @@
 # ⚠ KEEP IN SYNC with `pluto/4_memory_and_gpu.jl` — same lesson, two formats.
 # Cells: `#%%` (Alt+Enter in VS Code). Needs BenchmarkTools and CUDA.jl installed
 # (`Pkg.add("CUDA")`), even without a card: the GPU cells then skip.
-# For each cell: predict, then run. Sections 1–3 = memory deck, 4–7 = GPU deck.
+# For each cell: predict, then run. Sections 1–3 (+ two optional cells) = memory deck, 4–7 = GPU deck.
 # =============================================================================
 
 #%% 0. Getting started
@@ -41,7 +41,7 @@ let
 end
 
 #%% 2. Locality — the same sum, walked two ways
-# Julia is COLUMN-major (numpy is row-major). Predict which walk is faster.
+# Same additions, two loop orders. Predict which walk is faster, and by how much.
 A = rand(8_000, 8_000)   # 512 MB: far beyond any cache
 
 function sum_by_columns(M)
@@ -71,7 +71,7 @@ let
     print("rows    : "); @btime sum_by_rows($A)
 end
 
-#%% Proof it IS the cache: shrink the matrix. At which size does the gap vanish?
+#%% Test the locality explanation: shrink the matrix. At which size does the gap vanish?
 let
     println("  size  |  columns (ms) |  rows (ms) | ratio")
     for m in (100, 500, 1000, 2000, 4000)
@@ -84,7 +84,25 @@ let
     end
 end
 
-#%% Allocating is memory traffic too — note the dot on `=`. Look at time AND allocations.
+#%% 3. Batching: one layer W, B examples stacked as columns of X
+# Same examples, one `W * x` each or B at once. Watch µs PER EXAMPLE: why does it drop, on a CPU?
+# (Run before the GPU cells: a laptop CPU throttles after the GPU has been hammered.)
+let
+    nb = 4096                        # W = 64 MiB Float32: past the L3, comes from RAM
+    W = rand(Float32, nb, nb)
+    x = rand(Float32, nb)
+    t_ref = @belapsed $W * $x seconds=1
+    println("one by one, W * x : $(round(t_ref*1e6, digits=1)) µs per example")
+    println("batch B | total (ms) | µs PER EXAMPLE | vs one by one")
+    for B in (1, 8, 64, 256, 1024)
+        X = rand(Float32, nb, B)
+        t = @belapsed $W * $X seconds=1
+        println("$(lpad(B, 6))  | $(lpad(round(t*1e3, digits=2), 10)) | " *
+                "$(lpad(round(t/B*1e6, digits=2), 14)) | $(lpad(round(t_ref*B/t, digits=1), 6))×")
+    end
+end
+
+#%% Optional — allocating is memory traffic too: note the dot on `=`. Look at time AND allocations.
 let
     n = 10_000_000
     x = rand(n); y = rand(n); z = zeros(n)
@@ -99,7 +117,7 @@ let
     print("mul!(C, A, B) : "); @btime mul!($Ci, $Ai, $Bi)
 end
 
-#%% 3. Arithmetic intensity — FLOP per byte loaded
+#%% Optional — arithmetic intensity: FLOP per byte loaded
 # Both read the same n² matrix. Don't compare the seconds: compute the GFLOP/s
 # (GFLOP/s = FLOP / time / 1e9; FLOP = one `+` or `*`, counts in the comments).
 n = 2000
@@ -110,21 +128,6 @@ Mat2 = rand(n, n)
 let
     print("matrix × vector : "); @btime $Mat * $xvec    # 2n² FLOP
     print("matrix × matrix : "); @btime $Mat * $Mat2    # 2n³ FLOP
-end
-
-#%% Batching: one layer W, B examples stacked as columns of X
-# Watch µs PER EXAMPLE. Why does it drop, on a CPU? (Run before the GPU cells:
-# a laptop CPU throttles after the GPU has been hammered.)
-let
-    nb = 4096                        # W = 64 MiB Float32: past the L3, comes from RAM
-    W = rand(Float32, nb, nb)
-    println("batch B | total (ms) | µs PER EXAMPLE | GFLOP/s")
-    for B in (1, 8, 64, 256, 1024)
-        X = rand(Float32, nb, B)
-        t = @belapsed $W * $X seconds=1
-        println("$(lpad(B, 6))  | $(lpad(round(t*1e3, digits=2), 10)) | " *
-                "$(lpad(round(t/B*1e6, digits=2), 14)) | $(lpad(round(2.0*nb*nb*B/t/1e9, digits=1), 7))")
-    end
 end
 
 #%% 4. The GPU — a CuArray is NOT a CPU array
@@ -199,48 +202,7 @@ if gpu_available
     end
 end
 
-#%% 6. Coalescing — locality again, at the scale of a warp (32 threads)
-# Same reads, different order. Why must the index be a permutation (gcd(s, N) = 1)?
-if gpu_available
-    let
-        N = 20_000_000
-        a = CUDA.rand(Float32, N)
-        println("stride | gcd(s,N) |    time (ms)")
-        for s in (1, 33, 1023)
-            idx = CuArray(Int32.(((0:N-1) .* s) .% N .+ 1))
-            t = @belapsed CUDA.@sync($a[$idx]) seconds=1
-            println("$(lpad(s, 6)) | $(lpad(gcd(s, N), 8)) | $(lpad(round(t*1e3, digits=3), 12))")
-        end
-    end
-end
-# Smaller ratio than you expected? Which other bytes does `a[idx]` read and write?
-
-#%% Test that explanation: compute the index in the kernel (no idx array to read).
-# Prediction: the ratio must RISE. Does it?
-function gather_kernel!(out, a, s, n)
-    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    if i <= n
-        j = ((i - 1) * s) % n + 1        # index COMPUTED, never loaded
-        @inbounds out[i] = a[j]
-    end
-    return nothing
-end
-
-gather_run!(out, a, s, n) =
-    CUDA.@sync @cuda threads=256 blocks=cld(n, 256) gather_kernel!(out, a, s, n)
-
-if gpu_available
-    let
-        N = 20_000_000
-        a = CUDA.rand(Float32, N); out = CUDA.zeros(Float32, N)
-        t1  = @belapsed gather_run!($out, $a, 1, $N) seconds=1
-        t33 = @belapsed gather_run!($out, $a, 33, $N) seconds=1
-        println("kernel stride 1 / 33 : $(round(t1*1e3, digits=3)) / $(round(t33*1e3, digits=3)) ms" *
-                " — ratio $(round(t33/t1, digits=2))×")
-    end
-end
-
-#%% 7. Monte-Carlo π on the GPU — same count as before, 100 million threads
+#%% 6. Monte-Carlo π on the GPU — same count as before, 100 million points
 # Everything stays on the card; only a scalar comes back.
 function pi_gpu(n)
     x = CUDA.rand(Float32, n)            # drawn straight into VRAM
@@ -274,6 +236,47 @@ let
 end
 # Q3. Compare with the gain from CPU threads (threads module: 6.3× on 22 threads). Why so much bigger?
 # Q4. Amdahl again: what in pi_gpu does NOT benefit from massive parallelism?
+
+#%% 7. Optional — coalescing: locality again, at the scale of a warp (32 threads)
+# Same reads, different order. Why must the index be a permutation (gcd(s, N) = 1)?
+if gpu_available
+    let
+        N = 20_000_000
+        a = CUDA.rand(Float32, N)
+        println("stride | gcd(s,N) |    time (ms)")
+        for s in (1, 33, 1023)
+            idx = CuArray(Int32.(((0:N-1) .* s) .% N .+ 1))
+            t = @belapsed CUDA.@sync($a[$idx]) seconds=1
+            println("$(lpad(s, 6)) | $(lpad(gcd(s, N), 8)) | $(lpad(round(t*1e3, digits=3), 12))")
+        end
+    end
+end
+# Smaller ratio than you expected? Which other bytes does `a[idx]` read and write?
+
+#%% Test that explanation: compute the index in the kernel (no idx array to read).
+# Prediction: the ratio may rise; index arithmetic and allocations also change. Does it?
+function gather_kernel!(out, a, s, n)
+    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    if i <= n
+        j = ((i - 1) * s) % n + 1        # index COMPUTED, never loaded
+        @inbounds out[i] = a[j]
+    end
+    return nothing
+end
+
+gather_run!(out, a, s, n) =
+    CUDA.@sync @cuda threads=256 blocks=cld(n, 256) gather_kernel!(out, a, s, n)
+
+if gpu_available
+    let
+        N = 20_000_000
+        a = CUDA.rand(Float32, N); out = CUDA.zeros(Float32, N)
+        t1  = @belapsed gather_run!($out, $a, 1, $N) seconds=1
+        t33 = @belapsed gather_run!($out, $a, 33, $N) seconds=1
+        println("kernel stride 1 / 33 : $(round(t1*1e3, digits=3)) / $(round(t33*1e3, digits=3)) ms" *
+                " — ratio $(round(t33/t1, digits=2))×")
+    end
+end
 
 #%% 8. Wrap-up
 # Performance doesn't come from the language but from what the machine does:

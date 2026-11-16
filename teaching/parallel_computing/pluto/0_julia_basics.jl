@@ -6,6 +6,8 @@ using InteractiveUtils
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000001
 md"""
+**Reading guide:** follow the [three-session plan](../sessions.html). This notebook is a reference; advanced syntax, design patterns and manual GPU kernels are optional.
+
 # Julia for Python users
 ### A short syntax bridge — before the performance story
 
@@ -30,7 +32,7 @@ md"""
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000003
 md"""
-## 1. Values — Variables & types
+## 3. Reference — Variables & types
 
 Assign with `=`, no declaration. `typeof` is Python's `type`.
 """
@@ -51,7 +53,7 @@ md"""
 """
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000005
-(10 / 4, 10 ÷ 4, 10 % 4, 2^10, sqrt(2))   # ÷ is \div + TAB. Try 2**10.
+(10 / 4, 10 ÷ 4, 10 % 4, 2^10, sqrt(2))   # ÷ truncates toward zero; Python // floors (different for negatives). Try 2**10.
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000019
 md"""
@@ -85,7 +87,7 @@ end
 
 # ╔═╡ d0000000-0000-4a00-8000-00000000000f
 md"""
-## 2. Collections — Arrays: 1-based, slices include both ends
+## Arrays: 1-based, slices include both ends
 
 `v[1]` is the first element, `v[end]` the last, `v[2:4]` is elements 2, 3 **and** 4. Try `v[0]`.
 """
@@ -130,7 +132,7 @@ end
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000008
 md"""
-## 3. Control flow — Blocks close with `end`
+## 2. Reading it — Blocks close with `end`
 
 Indentation is ignored; no `:` after the header. Where does the output appear?
 """
@@ -195,7 +197,7 @@ end
 
 # ╔═╡ d0000000-0000-4a00-8000-00000000000b
 md"""
-## 4. Functions & types — Functions, three forms
+## Functions, three forms
 
 `return` is optional (last expression). Keyword arguments come after `;`.
 """
@@ -264,7 +266,7 @@ using Pkg; Pkg.add("BenchmarkTools"); using BenchmarkTools
 
 # ╔═╡ d0000000-0000-4a00-8000-00000000001d
 md"""
-## 5. Monte-Carlo π (the course's running example)
+## 1. Monte-Carlo π (the course's running example)
 
 `n` random points in the unit square: the fraction inside the quarter-disk is ≈ `π/4`.
 """
@@ -288,6 +290,16 @@ begin
     (hits, pi_estimate)
 end
 
+# ╔═╡ d0000000-0000-4a00-8000-00000000001f
+md"""
+## Macros start with `@`
+
+A macro rewrites the code that follows it.
+"""
+
+# ╔═╡ d0000000-0000-4a00-8000-000000000020
+@time count_in_disk(10^7)
+
 # ╔═╡ d0000000-0000-4a00-8000-00000000001c
 md"""
 ## Cheat-sheet — Python → Julia
@@ -302,7 +314,7 @@ md"""
 | `np.f(x)` | `f.(x)` |
 | `obj.method()` | `method(obj)` |
 | `class C` (`self`) | `struct C` (immutable, no `self`) |
-| `b = a[:]` (copy) | `b = a` aliases; `copy(a)` |
+| list: `a[:]` copies; ndarray: `a[:]` is a view | `b = a` aliases; `copy(a)` |
 | `None` | `nothing` (`missing` for data) |
 """
 
@@ -325,6 +337,19 @@ project_hash = "71853c6197a6a7f222db0f1978c7cb232b87c5ee"
 # ╔═╡ Cell order:
 # ╟─d0000000-0000-4a00-8000-000000000001
 # ╟─d0000000-0000-4a00-8000-000000000002
+# ╟─d0000000-0000-4a00-8000-00000000001d
+# ╠═d0000000-0000-4a00-8000-00000000001e
+# ╟─d0000000-0000-4a00-8000-000000000008
+# ╠═544357c9-2b34-41a4-98a5-e3c7090b3964
+# ╟─d0000000-0000-4a00-8000-00000000000b
+# ╠═d0000000-0000-4a00-8000-00000000000c
+# ╟─d0000000-0000-4a00-8000-00000000000f
+# ╠═d0000000-0000-4a00-8000-000000000010
+# ╟─d0000000-0000-4a00-8000-000000000012
+# ╠═d0000000-0000-4a00-8000-000000000013
+# ╟─d0000000-0000-4a00-8000-00000000001f
+# ╠═d0000000-0000-4a00-8000-000000000020
+# ╟─d0000000-0000-4a00-8000-00000000001c
 # ╟─d0000000-0000-4a00-8000-000000000003
 # ╠═d0000000-0000-4a00-8000-000000000004
 # ╟─88eba8a3-d9a5-4bda-9a9b-70ddf9539e04
@@ -333,30 +358,19 @@ project_hash = "71853c6197a6a7f222db0f1978c7cb232b87c5ee"
 # ╠═d0000000-0000-4a00-8000-00000000001a
 # ╟─d0000000-0000-4a00-8000-000000000006
 # ╠═d0000000-0000-4a00-8000-000000000007
-# ╟─d0000000-0000-4a00-8000-00000000000f
-# ╠═d0000000-0000-4a00-8000-000000000010
 # ╟─e7d7c618-df19-4c50-b667-9b1d967dcfbe
 # ╠═d0000000-0000-4a00-8000-000000000011
 # ╟─d0000000-0000-4a00-8000-000000000014
 # ╠═d0000000-0000-4a00-8000-000000000015
-# ╟─d0000000-0000-4a00-8000-000000000008
-# ╠═544357c9-2b34-41a4-98a5-e3c7090b3964
 # ╟─d0000000-0000-4a00-8000-000000000009
 # ╠═d0000000-0000-4a00-8000-00000000000a
 # ╟─d0000000-0000-4a00-8000-00000000000d
 # ╠═d0000000-0000-4a00-8000-00000000000e
 # ╟─2ac7e0ea-96d0-4ce5-901c-b16d16d8617a
 # ╠═c67cda2c-5d47-41bb-9d6c-aedafbf62960
-# ╟─d0000000-0000-4a00-8000-00000000000b
-# ╠═d0000000-0000-4a00-8000-00000000000c
-# ╟─d0000000-0000-4a00-8000-000000000012
-# ╠═d0000000-0000-4a00-8000-000000000013
 # ╟─d0000000-0000-4a00-8000-000000000016
 # ╠═d0000000-0000-4a00-8000-000000000017
 # ╠═d0000000-0000-4a00-8000-000000000018
 # ╟─d0000000-0000-4a00-8000-00000000001b
-# ╟─d0000000-0000-4a00-8000-00000000001d
-# ╠═d0000000-0000-4a00-8000-00000000001e
-# ╟─d0000000-0000-4a00-8000-00000000001c
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

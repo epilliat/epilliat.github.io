@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.22">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Parallel Computing — trois séances de 3 h – Emmanuel Pilliat</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-a5cd134f9b40a21b85be3e62cd27a8fe.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-1bbd762812305ca0fc4faf8bc4b24dd3.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Emmanuel Pilliat</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../research.html"> 
+<span class="menu-text">Research</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../teaching/teaching.html"> 
+<span class="menu-text">Teaching</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../software/software.html"> 
+<span class="menu-text">Software</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../cv.html"> 
+<span class="menu-text">CV</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/epilliat"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://fr.linkedin.com/in/emmanuel-pilliat-18ab2b180"> <i class="bi bi-linkedin" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="mailto:emmanuel.pilliat@ensai.fr"> <i class="bi bi-envelope" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#séance-1-mesurer-avant-doptimiser" id="toc-séance-1-mesurer-avant-doptimiser" class="nav-link active" data-scroll-target="#séance-1-mesurer-avant-doptimiser">Séance 1 — Mesurer avant d’optimiser</a></li>
+  <li><a href="#séance-2-attendre-ensemble-calculer-séparément" id="toc-séance-2-attendre-ensemble-calculer-séparément" class="nav-link" data-scroll-target="#séance-2-attendre-ensemble-calculer-séparément">Séance 2 — Attendre ensemble, calculer séparément</a></li>
+  <li><a href="#séance-3-localité-batching-et-décision-gpu" id="toc-séance-3-localité-batching-et-décision-gpu" class="nav-link" data-scroll-target="#séance-3-localité-batching-et-décision-gpu">Séance 3 — Localité, batching et décision GPU</a></li>
+  <li><a href="#activités-complémentaires" id="toc-activités-complémentaires" class="nav-link" data-scroll-target="#activités-complémentaires">Activités complémentaires</a></li>
+  <li><a href="#où-chaque-activité-est-lancée-dans-les-slides" id="toc-où-chaque-activité-est-lancée-dans-les-slides" class="nav-link" data-scroll-target="#où-chaque-activité-est-lancée-dans-les-slides">Où chaque activité est lancée dans les slides</a></li>
+  <li><a href="#parcours-obligatoire-et-approfondissements" id="toc-parcours-obligatoire-et-approfondissements" class="nav-link" data-scroll-target="#parcours-obligatoire-et-approfondissements">Parcours obligatoire et approfondissements</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Parallel Computing — trois séances de 3 h</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><a href="../../teaching/parallel_computing/index.html">← Course</a></p>
+<div class="callout callout-style-default callout-warning callout-titled" title="🚧 Under construction">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+🚧 Under construction
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Parcours prévisionnel : 3 × 180 minutes, dont deux pauses de dix minutes par séance. Les activités se font en binômes : prédire, modifier, vérifier, mesurer, expliquer. Préparation technique et projet/soutenances hors de ces neuf heures.</p>
+</div>
+</div>
+<section id="séance-1-mesurer-avant-doptimiser" class="level2">
+<h2 class="anchored" data-anchor-id="séance-1-mesurer-avant-doptimiser">Séance 1 — Mesurer avant d’optimiser</h2>
+<p><strong>Slides :</strong> <a href="../../teaching/parallel_computing/slides/0_julia_basics.html">0 — Julia</a> (parcours de 15 min), <a href="../../teaching/parallel_computing/slides/1_compilation_and_types.html">1 — Compilation</a>, <a href="../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html">2 — Dispatch</a>. Chaque deck s’ouvre sur « Today’s path » ; les approfondissements sont regroupés en fin de deck (« Only if time »).</p>
+<p><strong>Objectifs :</strong> distinguer compilation et exécution ; mesurer un calcul comparable ; vérifier un résultat ; choisir un premier bloc à optimiser. Julia sert de démonstration, Python reste la voie de manipulation par défaut.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 30%">
+<col style="width: 23%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Minutes</th>
+<th style="text-align: right;">Durée</th>
+<th>Séquence et consigne</th>
+<th>Résultat observable</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0–10</td>
+<td style="text-align: right;">10</td>
+<td>Montrer le parcours en trois séances et le projet final ; faire prédire pourquoi deux sommes équivalentes diffèrent en temps.</td>
+<td>Chaque binôme formule une hypothèse mesurable.</td>
+</tr>
+<tr class="even">
+<td>10–25</td>
+<td style="text-align: right;">15</td>
+<td>Julia de survie : schéma du quart de disque, lire <code>count_in_disk</code>, puis fonction/<code>end</code>, indices, dot, macro. Le reste du deck 0 est une référence non projetée.</td>
+<td>Les étudiants peuvent lire la boucle projetée et identifier entrée/sortie.</td>
+</tr>
+<tr class="odd">
+<td>25–45</td>
+<td style="text-align: right;">20</td>
+<td>Démo Python pur → NumPy → Numba et courbe de warmup ; un aperçu Julia.</td>
+<td>Distinguer coût du premier appel et temps stabilisé, sans commenter l’assembleur.</td>
+</tr>
+<tr class="even">
+<td>45–65</td>
+<td style="text-align: right;">20</td>
+<td><strong>A1 : coût d’une boucle.</strong> Compléter les deux fonctions Python, ou la fonction Julia ; valider, remplir une table des temps.</td>
+<td>Assertion correcte, trois temps Python ou deux Julia, ratios sur la même machine.</td>
+</tr>
+<tr class="odd">
+<td>65–75</td>
+<td style="text-align: right;">10</td>
+<td>Débrief A1 : comparer deux binômes, expliquer les différences de tailles/types et le warmup.</td>
+<td>Une phrase causale ; un ratio intermachines est refusé comme preuve d’effet du langage.</td>
+</tr>
+<tr class="even">
+<td>75–85</td>
+<td style="text-align: right;">10</td>
+<td><strong>Pause.</strong></td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>85–105</td>
+<td style="text-align: right;">20</td>
+<td>Protocole simple : entrée identique, répétitions, coût inclus/exclu, dispersion, résultat. <code>@btime</code> côté Julia ; outil fourni côté Python.</td>
+<td>La <strong>fiche de mesure</strong> en cinq lignes (résultat, entrée, machine, répétitions, périmètre), réutilisée dans toutes les activités.</td>
+</tr>
+<tr class="even">
+<td>105–120</td>
+<td style="text-align: right;">15</td>
+<td>π séquentiel : tirages, comptage, coût et fluctuation statistique ; puis gain local/gain global (formule et pari A/B), juste avant A2.</td>
+<td>Expliquer pourquoi on n’exige pas l’égalité exacte avec π ni entre deux exécutions.</td>
+</tr>
+<tr class="odd">
+<td>120–140</td>
+<td style="text-align: right;">20</td>
+<td><strong>A2 : diagnostic.</strong> Trois étapes d’un petit pipeline sont chronométrées ; choisir un bloc, annoncer un gain global plausible puis vérifier sur une variante fournie.</td>
+<td>Tableau temps bloc/temps total, résultat contrôlé et décision argumentée.</td>
+</tr>
+<tr class="even">
+<td>140–150</td>
+<td style="text-align: right;">10</td>
+<td><strong>Pause.</strong></td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>150–170</td>
+<td style="text-align: right;">20</td>
+<td>Dispatch, séparément : <code>area</code>, paire de types, conteneur concret/abstrait, fonctions avec arguments. Trois prédictions orales ; activité Julia 2 facultative.</td>
+<td>Comprendre que même source n’implique pas même coût, sans mémoriser Visitor ou <code>multipledispatch</code>.</td>
+</tr>
+<tr class="even">
+<td>170–180</td>
+<td style="text-align: right;">10</td>
+<td>Ticket de sortie et amorce de projet : une mesure invalide à corriger, un candidat de bloc réel.</td>
+<td>Protocole corrigé + bloc candidat.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>A1, consigne complète :</strong> « Avant d’exécuter, classez les variantes. Complétez la somme sans <code>sum</code>, vérifiez l’assertion, mesurez après warmup et notez N, type, machine, temps et ratio. Expliquez ce qui a changé. » Support : <a href="activities/release/1_warmup_python_todo.ipynb">compilation Python</a> ou <a href="activities/release/1_warmup_julia_todo.jl">Julia</a>. Les 20 minutes comprennent lecture/aide/exécution ; le débrief dispose ensuite de 10 minutes. Le notebook chronomètre maintenant le <strong>premier appel</strong> numba séparément du régime stabilisé.</p>
+<p><strong>A2, consigne complète :</strong> Ouvrir <a href="activities/release/1_diagnostic_python_todo.ipynb">le notebook diagnostic</a>. Cas de réflexion complémentaire : « Le bloc A prend 10 % du temps et pourrait être accéléré ×10 ; B prend 80 % et pourrait être accéléré ×2. Lequel choisissez-vous ? Vérifiez sur les timings donnés puis sur une version fournie. » Attendu : distinguer gain local et total, puis vérifier la sortie. Cela prépare l’examen sans restaurer le profiling retiré. Une mesure manuelle autour de grosses fonctions suffit.</p>
+</section>
+<section id="séance-2-attendre-ensemble-calculer-séparément" class="level2">
+<h2 class="anchored" data-anchor-id="séance-2-attendre-ensemble-calculer-séparément">Séance 2 — Attendre ensemble, calculer séparément</h2>
+<p><strong>Slides :</strong> <a href="../../teaching/parallel_computing/slides/3_threads_and_concurrency.html">3 — Threads &amp; concurrency</a>.</p>
+<p><strong>Objectifs :</strong> choisir concurrence ou parallélisme ; reconnaître une mise à jour partagée incorrecte ; répartir et réduire un calcul ; expliquer un speedup inférieur au nombre de workers.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 30%">
+<col style="width: 23%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Minutes</th>
+<th style="text-align: right;">Durée</th>
+<th>Séquence et consigne</th>
+<th>Résultat observable</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0–10</td>
+<td style="text-align: right;">10</td>
+<td>Rappel actif : résultat à préserver, périmètre du timer, coût du premier appel.</td>
+<td>Trois réponses courtes, sans réexpliquer tout le JIT.</td>
+</tr>
+<tr class="even">
+<td>10–25</td>
+<td style="text-align: right;">15</td>
+<td>Démo I/O : séquentiel et attente recouverte ; présenter <code>map</code>/pool Python, <code>@async/@sync</code> Julia.</td>
+<td>Classer le problème comme attente.</td>
+</tr>
+<tr class="odd">
+<td>25–45</td>
+<td style="text-align: right;">20</td>
+<td><strong>A3a : attentes I/O.</strong> Compléter la seule soumission concurrente ; repli simulé prêt si nécessaire.</td>
+<td>Mêmes 20 résultats, temps mesurés jusqu’à disponibilité, ratio.</td>
+</tr>
+<tr class="even">
+<td>45–55</td>
+<td style="text-align: right;">10</td>
+<td>Débrief : pourquoi les threads aident ici ; création de tâche ≠ travail terminé.</td>
+<td>Expliquer la différence entre départ et attente.</td>
+</tr>
+<tr class="odd">
+<td>55–65</td>
+<td style="text-align: right;">10</td>
+<td><strong>Pause.</strong></td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>65–85</td>
+<td style="text-align: right;">20</td>
+<td>Passer au calcul CPU : une boucle Python avec GIL, un calcul natif, un <code>@spawn</code> Julia sur π ; n’exécuter que les démos nécessaires (Markov est en annexe).</td>
+<td>Choisir la stratégie sans généraliser « tous les threads Python inutiles ».</td>
+</tr>
+<tr class="odd">
+<td>85–105</td>
+<td style="text-align: right;">20</td>
+<td><strong>A3b : race au tableau puis démo.</strong> Faire écrire deux lectures et deux écritures d’un même compteur ; lancer la version fautive donnée.</td>
+<td>Un entrelacement concret explique un incrément perdu.</td>
+</tr>
+<tr class="even">
+<td>105–135</td>
+<td style="text-align: right;">30</td>
+<td><strong>A3c : π en lots.</strong> Julia : partie B ; Python : activité CPU Python, workers et générateurs donnés. Compléter soumission et réduction.</td>
+<td>Estimation plausible, absence de compteur partagé, tableau 1/2/4 workers selon machine.</td>
+</tr>
+<tr class="odd">
+<td>135–145</td>
+<td style="text-align: right;">10</td>
+<td><strong>Pause.</strong></td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>145–165</td>
+<td style="text-align: right;">20</td>
+<td>Amdahl et taille des tâches ; 10 min d’interprétation en binômes d’une table de scaling.</td>
+<td>Calculer speedup et efficacité ; proposer une cause et un test, sans conclure automatiquement au séquentiel.</td>
+</tr>
+<tr class="odd">
+<td>165–175</td>
+<td style="text-align: right;">10</td>
+<td>Transfert projet : quel travail est indépendant ? quelle donnée serait partagée ?</td>
+<td>Schéma de lots, sorties et réduction pour le projet.</td>
+</tr>
+<tr class="even">
+<td>175–180</td>
+<td style="text-align: right;">5</td>
+<td>Ticket : I/O, boucle Python, NumPy natif — trois choix motivés.</td>
+<td>Chaque choix est justifié par l’endroit où part le temps.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>A3a :</strong> utiliser <a href="activities/release/3_concurrency_python_todo.ipynb">release Python 3</a> ou <a href="activities/release/3_concurrency_julia_todo.jl">release Julia 3, partie A</a>.</p>
+<p><strong>A3b :</strong> « Deux tâches lisent 7, chacune ajoute 1, puis chacune écrit : quelle valeur reste ? Où placeriez-vous la réduction pour éviter le partage ? » La démo peut ne pas produire une erreur spectaculaire sur une machine donnée ; l’explication par entrelacement reste le résultat attendu.</p>
+<p><strong>A3c :</strong> « Répartissez un nombre total annoncé de tirages ; chaque worker retourne un entier ; le parent somme. Mesurez et comparez. » Le support Python répartit aussi le reste et affiche le nombre réellement simulé ; le support Julia choisit un total divisible par le nombre de tâches. Pour π, fournir une tolérance statistique large et commenter qu’un test probabiliste peut exceptionnellement échouer. En complément, une réduction de comptes déterministes vérifie la mécanique indépendamment du RNG. Pas d’obligation de bit-à-bit entre nombres de workers.</p>
+</section>
+<section id="séance-3-localité-batching-et-décision-gpu" class="level2">
+<h2 class="anchored" data-anchor-id="séance-3-localité-batching-et-décision-gpu">Séance 3 — Localité, batching et décision GPU</h2>
+<p><strong>Slides :</strong> <a href="../../teaching/parallel_computing/slides/4_memory_and_batching.html">4 — Memory &amp; batching</a>, <a href="../../teaching/parallel_computing/slides/5_gpu.html">5 — GPU</a>, puis la <a href="../../teaching/parallel_computing/slides/course.html#/synthesis">synthèse</a>.</p>
+<p><strong>Objectifs :</strong> relier ordre des accès et temps ; distinguer latence et débit ; comparer des tailles de batch ; mesurer un calcul GPU avec un périmètre explicite ; décider si l’optimisation aide l’application entière.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 30%">
+<col style="width: 23%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Minutes</th>
+<th style="text-align: right;">Durée</th>
+<th>Séquence et consigne</th>
+<th>Résultat observable</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0–10</td>
+<td style="text-align: right;">10</td>
+<td>Rappel : partager moins ; demander maintenant où se trouvent les données.</td>
+<td>Identifier CPU RAM, caches et mémoire GPU sur un schéma simple.</td>
+</tr>
+<tr class="even">
+<td>10–30</td>
+<td style="text-align: right;">20</td>
+<td>Mémoire : cache et deux ordres de boucles ; une seule courbe/table de tailles, pas deux balayages exhaustifs.</td>
+<td>Distinguer latence d’un accès et débit d’un parcours.</td>
+</tr>
+<tr class="odd">
+<td>30–50</td>
+<td style="text-align: right;">20</td>
+<td><strong>A4 : localité.</strong> Prédire, inverser deux boucles, vérifier la somme et mesurer.</td>
+<td>Résultat correct, ratio, explication de l’indice contigu ; direction opposée Python/Julia.</td>
+</tr>
+<tr class="even">
+<td>50–65</td>
+<td style="text-align: right;">15</td>
+<td>Batching : mêmes exemples, <code>W*x</code> répété contre <code>W*X</code> ; temps total et temps par exemple.</td>
+<td>Comprendre le coût amorti sans faire un cours complet de roofline.</td>
+</tr>
+<tr class="odd">
+<td>65–75</td>
+<td style="text-align: right;">10</td>
+<td><strong>Pause.</strong></td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>75–95</td>
+<td style="text-align: right;">20</td>
+<td><strong>A5 : activité batching.</strong> Trois tailles B, même total d’exemples, référence GEMV explicite et sorties vérifiées.</td>
+<td>Tableau B/temps total/temps par exemple ; choix argumenté d’un batch.</td>
+</tr>
+<tr class="odd">
+<td>95–115</td>
+<td style="text-align: right;">20</td>
+<td>GPU : mêmes opérations, autre mémoire ; transfert et synchronisation ; un exemple petit contre grand.</td>
+<td>Distinguer temps de calcul résident et temps de bout en bout.</td>
+</tr>
+<tr class="even">
+<td>115–145</td>
+<td style="text-align: right;">30</td>
+<td><strong>A6 : π sur GPU.</strong> Prédire le seuil, remplir les tirages sur la carte, mesurer trois tailles ; option analyse de table sans GPU.</td>
+<td>Table, conclusion conditionnelle et identification de ce qui traverse le bus.</td>
+</tr>
+<tr class="odd">
+<td>145–155</td>
+<td style="text-align: right;">10</td>
+<td><strong>Pause.</strong></td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>155–170</td>
+<td style="text-align: right;">15</td>
+<td>Synthèse active : trois cas d’usage, choisir compilation, threads, localité/batch ou GPU ; réexaminer gain local/global.</td>
+<td>Chaque choix mentionne correction, coût dominant et prochaine mesure.</td>
+</tr>
+<tr class="odd">
+<td>170–180</td>
+<td style="text-align: right;">10</td>
+<td>Proposition de projet et critères d’évaluation ; une mesure et une hypothèse par groupe.</td>
+<td>Proposition concrète, faisable, vérifiable.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>A4 :</strong> <a href="activities/release/4_locality_python_todo.ipynb">release Python 4</a> ou <a href="activities/release/4_locality_julia_todo.jl">Julia 4</a>. La prédiction est écrite <strong>avant</strong> d’inspecter <code>A.strides</code> ; la slide de débrief donne la règle. Les binômes rapides testent une petite matrice. Garder une taille suffisante pour l’effet mémoire sur le matériel choisi, sans prétendre qu’un seuil de cache est universel.</p>
+<p><strong>A5 :</strong> « Pour traiter les mêmes exemples, comparez un à un et par lots. Quel B minimise le temps par exemple ? Que coûte l’attente de constitution d’un batch dans un usage interactif ? » C’est une activité de choix et de mesure, pas une nouvelle abstraction de programmation. Slides et activité utilisent la <strong>même référence</strong> : un produit matrice-vecteur par exemple, sur les mêmes exemples. Seule la taille de <code>W</code> diffère (4 MiB en activité, 64 MiB en démonstration) : c’est une prédiction à faire, sans annoncer le sens de l’écart.</p>
+<p><strong>A6 :</strong> <a href="activities/release/5_gpu_python_todo.ipynb">release Python 5</a> ou <a href="activities/release/5_gpu_julia_todo.jl">Julia 5</a>. « Où sont générés x et y ? Que faut-il attendre pour arrêter le timer ? Quel résultat revient au CPU ? » Sans GPU, même travail de prédiction et d’analyse sur mesures préenregistrées, plus vérification CPU du compteur sur un petit jeu de points. On n’invente pas une mesure de carte.</p>
+<p><strong>Total vérifié :</strong> séance 1 = 180 ; séance 2 = 180 ; séance 3 = 180. Six pauses × 10 = 60 minutes. Temps restant = 480 minutes, incluant explications, activités, débriefs, transitions et tickets de sortie. La précision minute par minute est un budget : en classe, les tickets et approfondissements servent de marge, pas les activités principales.</p>
+</section>
+<section id="activités-complémentaires" class="level2">
+<h2 class="anchored" data-anchor-id="activités-complémentaires">Activités complémentaires</h2>
+<ul>
+<li><a href="activities/release/1_diagnostic_python_todo.ipynb">Diagnostic du bloc à optimiser</a></li>
+<li><a href="activities/release/3_cpu_python_todo.ipynb">Calcul CPU en lots</a> et <a href="python/parallel_workers.py">module fourni</a></li>
+<li><a href="activities/release/4_batching_python_todo.ipynb">Batching à travail constant</a></li>
+<li><a href="../../teaching/parallel_computing/gpu-fallback.html">Parcours sans GPU</a></li>
+</ul>
+</section>
+<section id="où-chaque-activité-est-lancée-dans-les-slides" class="level2">
+<h2 class="anchored" data-anchor-id="où-chaque-activité-est-lancée-dans-les-slides">Où chaque activité est lancée dans les slides</h2>
+<p>Chaque activité a une slide de <strong>lancement</strong> (question, prédiction individuelle, travail en binôme, production attendue, liens, durée) et une slide de <strong>débrief</strong> (comparer, expliquer, tester).</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Activité</th>
+<th>Deck et ancre</th>
+<th>Placée après</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A1 — coût d’une boucle</td>
+<td><a href="../../teaching/parallel_computing/slides/1_compilation_and_types.html#/a1">1, <code>#/a1</code></a></td>
+<td>lecture des courbes de warmup</td>
+</tr>
+<tr class="even">
+<td>A2 — diagnostic</td>
+<td><a href="../../teaching/parallel_computing/slides/1_compilation_and_types.html#/a2">1, <code>#/a2</code></a></td>
+<td>fiche de mesure, π, gain local/global</td>
+</tr>
+<tr class="odd">
+<td>A3a — attentes</td>
+<td><a href="../../teaching/parallel_computing/slides/3_threads_and_concurrency.html#/a3a">3, <code>#/a3a</code></a></td>
+<td>« Three ways to fetch » et la structure <code>ThreadPoolExecutor</code></td>
+</tr>
+<tr class="even">
+<td>A3b — race au tableau</td>
+<td><a href="../../teaching/parallel_computing/slides/3_threads_and_concurrency.html#/a3b">3, <code>#/a3b</code></a></td>
+<td>le π parallèle faux</td>
+</tr>
+<tr class="odd">
+<td>A3c — π en lots</td>
+<td><a href="../../teaching/parallel_computing/slides/3_threads_and_concurrency.html#/a3c">3, <code>#/a3c</code></a></td>
+<td>« return and reduce » et son schéma</td>
+</tr>
+<tr class="even">
+<td>A3d — serveur lent (optionnelle)</td>
+<td><a href="../../teaching/parallel_computing/slides/3_threads_and_concurrency.html#/a3d">3, <code>#/a3d</code></a></td>
+<td>section « Only if time », après A3a</td>
+</tr>
+<tr class="odd">
+<td>A4 — localité</td>
+<td><a href="../../teaching/parallel_computing/slides/4_memory_and_batching.html#/a4">4, <code>#/a4</code></a></td>
+<td>les deux ordres de boucles, <strong>avant</strong> leur résultat</td>
+</tr>
+<tr class="even">
+<td>A5 — batching</td>
+<td><a href="../../teaching/parallel_computing/slides/4_memory_and_batching.html#/a5">4, <code>#/a5</code></a></td>
+<td><code>W*x</code> contre <code>W*X</code></td>
+</tr>
+<tr class="odd">
+<td>A6 — GPU ou analyse</td>
+<td><a href="../../teaching/parallel_computing/slides/5_gpu.html#/a6">5, <code>#/a6</code></a></td>
+<td>transferts, synchronisation, π sur la carte</td>
+</tr>
+</tbody>
+</table>
+<p>Tickets de sortie : <a href="../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html#/ticket">séance 1</a>, <a href="../../teaching/parallel_computing/slides/3_threads_and_concurrency.html#/ticket">séance 2</a> ; séance 3 : <a href="../../teaching/parallel_computing/slides/course.html#/transfer">exercice de transfert</a> puis proposition de projet.</p>
+</section>
+<section id="parcours-obligatoire-et-approfondissements" class="level2">
+<h2 class="anchored" data-anchor-id="parcours-obligatoire-et-approfondissements">Parcours obligatoire et approfondissements</h2>
+<p>Slides : fil du raisonnement ; scripts : démonstrations sélectionnées ; Pluto : référence et bonus. Les activités <code>release</code> sont les supports étudiants. On ne déroule pas tous les supports successivement. Le dispatch garde 20 minutes : <code>area</code>, deux arguments, conteneurs concrets/abstraits, fonctions avec arguments. Le catalogue Julia, la paire manquante et l’extensibilité du dispatch, l’inspection du compilateur, SIMD/assembleur, Markov, les coroutines paresseuses, NumPy et layout, allocations, intensité arithmétique, coalescence et noyaux CUDA manuels sont optionnels et placés <strong>en fin de deck</strong> : ni les activités principales ni l’évaluation n’en dépendent.</p>
+<p>À chaque mesure : résultat vérifié, taille et type des données, machine, workers/threads BLAS, warmup, répétitions et coûts inclus. Comparer des ratios sur une même machine, pas des temps Python/Julia obtenus sur deux ordinateurs différents. Les chiffres des slides sont des observations, pas des objectifs à reproduire.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

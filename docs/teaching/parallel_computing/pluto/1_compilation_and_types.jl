@@ -128,7 +128,7 @@ Then try `@btime mysum(v)` **without `$`**: what changes? *(The why — untyped 
 
 # ╔═╡ 22d3648b-a71a-4299-8e1b-46f032a74046
 md"""
-## 3. Type specialization — step 1, lowered code
+## 4. Optional — type specialization: step 1, lowered code
 
 The warmup spike was Julia **compiling**. Let's look at each stage, on a deliberately trivial function.
 """
@@ -168,7 +168,7 @@ One function, **one compiled version per argument type**, a few machine instruct
 
 # ╔═╡ 656f12ed-0f30-498d-8462-f58bff519eda
 md"""
-## 4. Bonus (optional) — Base `sum` vs our loop
+## 5. Optional — Base `sum` vs our loop
 
 A vector that fits in cache, to isolate the computation from memory:
 """
@@ -227,7 +227,7 @@ end
 
 # ╔═╡ 49ea0717-5e4a-44df-a895-11b9d55c747f
 md"""
-## 5. Monte-Carlo π — same count as in the Julia-basics module
+## 3. Monte-Carlo π — same count as in the Julia-basics module
 
 $$\pi \approx 4 \times \frac{\#\{x^2+y^2 \le 1\}}{n}$$
 """
@@ -650,6 +650,20 @@ version = "1.64.0+1"
 # ╠═3533f187-1da1-452b-9a63-0ea1bd69b4f6
 # ╠═ca49af93-0baa-47ee-a4ec-3849a1cacffb
 # ╟─90e32a56-6c3c-4248-86d3-74e504341707
+# ╟─49ea0717-5e4a-44df-a895-11b9d55c747f
+# ╠═e342c5aa-9ddc-46d3-8ac2-c6f90e1b855a
+# ╠═760cd379-4178-4e7f-9695-a1d709b36969
+# ╠═8adcfe41-1d0d-475a-968c-5a5a971a142b
+# ╟─855d77ed-ca4b-407a-b225-2be1a2c499f5
+# ╠═3cb6763c-dc00-4c09-94b5-289f773dc460
+# ╟─f15bd89d-47f6-4c87-a3d9-17078b722f1e
+# ╠═654b39b4-b592-4066-b519-0783a704f637
+# ╠═654b39b4-b592-4066-b519-0783a704f638
+# ╟─49546ce1-11ee-4cc8-b412-24b9e933a728
+# ╠═b7792bef-9262-42b4-98d0-407113ded36c
+# ╟─5973d547-5a91-4d4b-8696-88dfbf03a0a3
+# ╟─c687db86-e0a1-4083-ba96-d5a9af91738c
+# ╟─7f18d64c-dc08-4d31-850a-a7e3bfc4bdcf
 # ╟─22d3648b-a71a-4299-8e1b-46f032a74046
 # ╠═a51ea6fa-9f15-453f-bcea-852c7e71a354
 # ╠═26118708-e6fa-4cdb-a5e9-7a72a376b84f
@@ -673,19 +687,5 @@ version = "1.64.0+1"
 # ╟─ba010064-49f9-4872-a4fe-a42d2e754d76
 # ╠═8e0cdaff-257b-4836-8998-2cd5f0ef8044
 # ╠═0662912c-e7ab-4223-82d2-e2683543f99b
-# ╟─49ea0717-5e4a-44df-a895-11b9d55c747f
-# ╠═e342c5aa-9ddc-46d3-8ac2-c6f90e1b855a
-# ╠═760cd379-4178-4e7f-9695-a1d709b36969
-# ╠═8adcfe41-1d0d-475a-968c-5a5a971a142b
-# ╟─855d77ed-ca4b-407a-b225-2be1a2c499f5
-# ╠═3cb6763c-dc00-4c09-94b5-289f773dc460
-# ╟─f15bd89d-47f6-4c87-a3d9-17078b722f1e
-# ╠═654b39b4-b592-4066-b519-0783a704f637
-# ╠═654b39b4-b592-4066-b519-0783a704f638
-# ╟─49546ce1-11ee-4cc8-b412-24b9e933a728
-# ╠═b7792bef-9262-42b4-98d0-407113ded36c
-# ╟─5973d547-5a91-4d4b-8696-88dfbf03a0a3
-# ╟─c687db86-e0a1-4083-ba96-d5a9af91738c
-# ╟─7f18d64c-dc08-4d31-850a-a7e3bfc4bdcf
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
