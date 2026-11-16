@@ -2,7 +2,6 @@
 # Interpreted vs compiled — why the same computation can be 100× faster
 # ⚠ KEEP IN SYNC with `pluto/1_compilation_and_types.jl` (same code, two formats).
 # Cells: `#%%` (Alt+Enter in VS Code). Needs BenchmarkTools.
-# For each cell: predict, then run.
 # =============================================================================
 
 #%% 0. Getting started
@@ -22,7 +21,7 @@ function mysum(x)
     return s
 end
 mysum(v)
-# Same loop in pure Python: ~0.5 s. Bet on Julia's time (measured in §2).
+# Same loop in pure Python: ~0.5 s. Julia's time is measured in §2.
 
 #%% The warmup over 10 calls: which call is slow, and why only that one?
 let                                 # let … end = a local scope

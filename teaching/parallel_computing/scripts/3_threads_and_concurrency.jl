@@ -2,7 +2,6 @@
 # Threads & concurrency — waiting is overlapped; computing must be split
 # ⚠ KEEP IN SYNC with `pluto/3_threads_and_concurrency.jl` (same code, two formats).
 # Cells: `#%%` (Alt+Enter in VS Code). Needs BenchmarkTools and the network (Part A).
-# For each cell: predict, then run.
 # =============================================================================
 
 #%% 0. Getting started
@@ -25,7 +24,7 @@ function fetch_price(sym)
 end
 fetch_price(SYMBOLS[1])   # warm-up: compile before timing
 
-#%% Three ways to fetch — predict the three timings first (@elapsed once: don't hammer the API)
+#%% Three ways to fetch (@elapsed once: don't hammer the API)
 n = length(SYMBOLS)
 
 seq = Vector{Float64}(undef, n)
@@ -60,7 +59,7 @@ end
 
 pi_seq(n) = 4 * count_in_disk(n) / n
 
-#%% Same CPU work with @async: predict the speedup
+#%% Same CPU work with @async
 function pi_async(n; ntasks=nthreads())
     per = n ÷ ntasks
     tasks = [@async count_in_disk(per) for _ in 1:ntasks]
@@ -73,7 +72,7 @@ let n = 100_000_000
     println("π: seq $(round(t_seq, digits=3)) s | @async × $(nthreads()): $(round(t_seq / t_async, digits=1))x")
 end
 
-#%% π on all threads, one task per thread: what does it print? Spot the bug before running
+#%% π on all threads, one task per thread
 function pi_race(n; ntasks=nthreads())
     per = n ÷ ntasks
     hits = 0
@@ -117,7 +116,7 @@ let n = 100_000_000
     println("pi_atomic = $(round(pi_atomic(n), digits=5)) | $(round(t_atomic / t_seq, digits=1))x the time of pi_seq")
 end
 
-#%% Speedup vs nthreads: predict it, then explain the gap (relaunch with --threads=1, 2, 4)
+#%% Speedup vs nthreads (relaunch with --threads=1, 2, 4)
 let n = 100_000_000
     t_seq = @belapsed pi_seq($n)
     t_spawn = @belapsed pi_spawn($n)
@@ -139,7 +138,7 @@ end
 markov_seq(K, L) = [simulate_markov(L) for _ in 1:K]
 markov_spawn(K, L) = fetch.([Threads.@spawn simulate_markov(L) for _ in 1:K])
 
-#%% Predict the speedup on 8 chains, then run
+#%% Speedup on 8 chains
 let
     K, L = 8, 20_000_000
     t_seq = @belapsed markov_seq($K, $L)

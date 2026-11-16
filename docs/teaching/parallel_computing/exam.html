@@ -173,13 +173,13 @@ ul.task-list li input[type="checkbox"] {
 <div class="page-intro">
 <p><strong>Make real code faster, and prove it.</strong> In groups of <strong>2–3</strong>, take code from a real project (ENSAI, personal, or open source), speed up one or several of its building blocks, and <strong>measure precisely what you gained</strong>.</p>
 </div>
-<div class="callout callout-style-default callout-note callout-titled" title="In a nutshell">
+<div class="callout callout-style-default callout-note callout-titled" title="Summary">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-In a nutshell
+Summary
 </div>
 </div>
 <div class="callout-body-container callout-body">
@@ -195,10 +195,10 @@ In a nutshell
 <ol type="1">
 <li><strong>Present the project</strong> briefly, and how the code runs overall.</li>
 <li><strong>Find where the time goes</strong>, and pick the blocks worth optimizing.</li>
-<li><strong>Optimize them</strong>: parallelize, change the code, or both. The course’s tools apply here: types, allocations, threads, memory, and the GPU.</li>
+<li><strong>Optimize them</strong>: parallelize, change the code, or both. The course’s tools apply here: compiled or vectorized loops, concurrency and parallelism without sharing, memory locality, batching, and the GPU.</li>
 <li><strong>Measure the speedup</strong>, on the block and on the whole program.</li>
 </ol>
-<p>Choose code that runs long enough to measure and gives a result you can check. Before you start, send a <strong>short proposal</strong>: the project, the block you target, and a first timing.</p>
+<p>Choose code that runs long enough to measure and gives a result you can check. Before you start, send a <strong>short proposal</strong>: the project, the block you target, and a first timing (<a href="#example-proposal">example below</a>).</p>
 </section>
 <section id="deliverables" class="level2">
 <h2 class="anchored" data-anchor-id="deliverables">Deliverables</h2>
@@ -237,6 +237,51 @@ In a nutshell
 </tbody>
 </table>
 <p>The initial proposal states the input, result to preserve, first whole-program timing, target block, hypothesis and available hardware. Project preparation and the <strong>30-minute presentations are outside the nine teaching hours</strong> (30 minutes × number of groups). The ~8-page report format is unchanged.</p>
+</section>
+<section id="example-proposal" class="level2">
+<h2 class="anchored" data-anchor-id="example-proposal">Example proposal</h2>
+<p>An invented case, to show the expected level. <strong>The numbers are illustrative, not measurements.</strong></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Project</strong></td>
+<td>Bootstrap confidence intervals for a regression estimator (Python, NumPy).</td>
+</tr>
+<tr class="even">
+<td><strong>Input</strong></td>
+<td>50,000 rows × 20 columns, 2,000 resamples, fixed seed.</td>
+</tr>
+<tr class="odd">
+<td><strong>Result to preserve</strong></td>
+<td>The interval bounds, compared with a tolerance of 10⁻⁸ for the same seeds.</td>
+</tr>
+<tr class="even">
+<td><strong>First timing</strong></td>
+<td>Whole program 212 s; the resampling loop 187 s (88 %). Laptop, 8 cores, 1 BLAS thread, median of 3 runs after one warmup run, data loading included.</td>
+</tr>
+<tr class="odd">
+<td><strong>Target block</strong></td>
+<td>The resampling loop: each resample refits the model independently.</td>
+</tr>
+<tr class="even">
+<td><strong>Hypothesis</strong></td>
+<td>Resamples share nothing, so they can run in separate processes, each returning its estimates. With 88 % of the time in the block, 8 workers give at most 1 / (0.12 + 0.88 / 8) ≈ 4.3× on the whole program.</td>
+</tr>
+<tr class="odd">
+<td><strong>Next measurement</strong></td>
+<td>Whole-program and block times for 1, 2, 4, 8 workers, pool startup included; per-worker seeds so the result can be checked.</td>
+</tr>
+<tr class="even">
+<td><strong>What could go wrong</strong></td>
+<td>Each fit already uses several BLAS threads; copying the data to every worker costs more than expected. Either would be reported and explained.</td>
+</tr>
+</tbody>
+</table>
+<p>What makes it a good proposal: a result that can be checked, a timing of the <strong>whole</strong> program, a block chosen <strong>because</strong> it dominates, a hypothesis that predicts a number, and a measurement that could contradict it.</p>
 </section>
 <section id="rules" class="level2">
 <h2 class="anchored" data-anchor-id="rules">Rules</h2>

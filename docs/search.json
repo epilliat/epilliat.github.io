@@ -18,7 +18,7 @@
     "href": "teaching/parallel_computing/slides/course.html#how-we-work",
     "title": "Parallel Computing — Overview",
     "section": "How we work",
-    "text": "How we work\n\nEvery experiment: predict → run → explain.\nSlides frame, demos show, you measure in the activities (pairs, 20–30 min).\nPython is the common track; Julia is the test bench, optional for you.\n\n\n\n\n\nNote\n\n\nEvery number comes with its card. We compare ratios on the same machine.\n\n\n\n\nWrite the bet down before running. The card: result checked · input · machine · repetitions · what the timer includes (deck 1). Each deck opens with “today’s path”; “only if time” slides sit at the end of the deck. An explained slowdown is a valid result, in the activities and in the project. Numbers on the slides are observations from one laptop, not targets to reproduce. Each module also has a Julia script and Pluto notebook (reference), and a Python notebook."
+    "text": "How we work\n\nEvery experiment: predict → run → explain.\nSlides frame, demos show, you measure in the activities (pairs, 20–30 min).\nPython is the common track; Julia is the test bench, optional for you.\n\n\n\n\n\nNote\n\n\nEvery number comes with its card. We compare ratios on the same machine.\n\n\n\n\nStudents write their prediction down before running. The card: result checked · input · machine · repetitions · what the timer includes (deck 1). Each deck opens with “today’s path”; “only if time” slides sit at the end of the deck. An explained slowdown is a valid result, in the activities and in the project. Numbers on the slides are observations from one laptop, not targets to reproduce. Each module also has a Julia script and Pluto notebook (reference), and a Python notebook."
   },
   {
     "objectID": "teaching/parallel_computing/slides/course.html#synthesis-1",
@@ -11610,7 +11610,7 @@
     "href": "teaching/parallel_computing/slides/3_threads_and_concurrency.html#amdahl-speedup-number-of-threads",
     "title": "3 — Threads & concurrency",
     "section": "Amdahl: speedup ≠ number of threads",
-    "text": "Amdahl: speedup ≠ number of threads\n\n\nBet first: speedup on 2, 4, 22 threads? ▶ Script: cell “Speedup vs nthreads” (--threads=1, 2, 4)\n\n\n\n\n\n\nthreads\n1\n2\n4\n22\n\n\n\n\nspeedup\n1×\n1.8×\n3.1×\n6.3×\n\n\nefficiency\n100 %\n90 %\n78 %\n29 %\n\n\n\n\nAmdahl: session 1’s formula. 10 % sequential → ≤ 10×.\nSMT: 22 logical threads, 16 physical cores.\n\n\nMonte-Carlo π, @spawn, one Julia process per thread count. Sequential part here: splitting, spawning, the final reduce. SMT = simultaneous multithreading: two threads share one core. Never say “speedup ≈ number of threads”. A low efficiency is a question, not a verdict: propose a cause and a test before concluding “the code is sequential”. 1/2/4 threads: experiences/threads_scaling/ (one process per point; @async stays ~1x on the same plot). 22 threads: the @async vs @spawn table above."
+    "text": "Amdahl: speedup ≠ number of threads\n\n\nSpeedup on 2, 4, 22 threads? ▶ Script: cell “Speedup vs nthreads” (--threads=1, 2, 4)\n\n\n\n\n\n\nthreads\n1\n2\n4\n22\n\n\n\n\nspeedup\n1×\n1.8×\n3.1×\n6.3×\n\n\nefficiency\n100 %\n90 %\n78 %\n29 %\n\n\n\n\nAmdahl: session 1’s formula. 10 % sequential → ≤ 10×.\nSMT: 22 logical threads, 16 physical cores.\n\n\nMonte-Carlo π, @spawn, one Julia process per thread count. Sequential part here: splitting, spawning, the final reduce. SMT = simultaneous multithreading: two threads share one core. Never say “speedup ≈ number of threads”. A low efficiency is a question, not a verdict: propose a cause and a test before concluding “the code is sequential”. 1/2/4 threads: experiences/threads_scaling/ (one process per point; @async stays ~1x on the same plot). 22 threads: the @async vs @spawn table above."
   },
   {
     "objectID": "teaching/parallel_computing/slides/3_threads_and_concurrency.html#profiling-threads-a-different-question",
@@ -11715,7 +11715,7 @@
     "href": "teaching/parallel_computing/slides/5_gpu.html#testing-that-explanation",
     "title": "5 — GPU",
     "section": "Testing that explanation 🔬",
-    "text": "Testing that explanation 🔬\n\na[idx] also reads idx and writes out, in order: only 1/3 of the bytes are read out of order.\n\n\nIndex computed in the kernel → 1/2 read out of order. Does the ratio rise? Index arithmetic and allocations also change.\n\n\ni = (blockIdx().x - 1) * blockDim().x + threadIdx().x   # my thread\nj = ((i - 1) * s) % n + 1     # computed, never loaded\nout[i] = a[j]\n\n\n\n\n\nstride 33 vs 1\nratio\n\n\n\n\na[idx] (1/3)\n2.4×\n\n\nkernel (1/2)\n4.18×\n\n\n\n\n\n\n▶ Script: cell “Test that explanation” · ⬅ Back to the path\n\n\nKernel = a function run once per GPU thread; thread i handles element i. The prediction held: an explanation you can test, and might have lost."
+    "text": "Testing that explanation 🔬\n\na[idx] also reads idx and writes out, in order: only 1/3 of the bytes are read out of order.\n\n\nIndex computed in the kernel → 1/2 read out of order. Does the ratio rise? Index arithmetic and allocations also change.\n\n\ni = (blockIdx().x - 1) * blockDim().x + threadIdx().x   # my thread\nj = ((i - 1) * s) % n + 1     # computed, never loaded\nout[i] = a[j]\n\n\n\n\n\nstride 33 vs 1\nratio\n\n\n\n\na[idx] (1/3)\n2.4×\n\n\nkernel (1/2)\n4.18×\n\n\n\n\n\n\n▶ Script: cell “Test that explanation” · ⬅ Back to the path\n\n\nKernel = a function run once per GPU thread; thread i handles element i."
   },
   {
     "objectID": "teaching/parallel_computing/slides/5_gpu.html#the-red-thread-lands-on-the-card",
@@ -12170,7 +12170,7 @@
     "href": "teaching/parallel_computing/slides/2_dispatch_vs_oop.html#the-pair-we-did-not-define",
     "title": "2 — Multiple dispatch vs OOP",
     "section": "The pair we did not define",
-    "text": "The pair we did not define\n\ncollide(Rectangle(1.0, 1.0), Circle(2.0))\n\n\nBet first: what happens? Fix in one line?\n\n\n\n▶ Script: cells “5. Optional — the pair we did not define” and “Add the missing pair in one line”\n\n\nMethodError: no method matching collide(::Rectangle, ::Circle) — Julia names the missing pair. Fix: collide(a::Rectangle, b::Circle) = collide(b, a)."
+    "text": "The pair we did not define\n\ncollide(Rectangle(1.0, 1.0), Circle(2.0))\n\n\nWhat happens? Fix in one line?\n\n\n\n▶ Script: cells “5. Optional — the pair we did not define” and “Add the missing pair in one line”\n\n\nMethodError: no method matching collide(::Rectangle, ::Circle) — Julia names the missing pair. Fix: collide(a::Rectangle, b::Circle) = collide(b, a)."
   },
   {
     "objectID": "teaching/parallel_computing/slides/2_dispatch_vs_oop.html#a-new-operation-without-touching-the-types",
@@ -12191,14 +12191,14 @@
     "href": "teaching/parallel_computing/slides/2_dispatch_vs_oop.html#what-container-did-we-build",
     "title": "2 — Multiple dispatch vs OOP",
     "section": "What container did we build?",
-    "text": "What container did we build?\n\nshapes = [Circle(2.0), Rectangle(3.0, 4.0), Circle(1.0)]\ntypeof(shapes)                    # ?\nisconcretetype(eltype(shapes))    # ?\n\n\nBet first: circles and a rectangle: element type?\n\n\n\n▶ Script: cells “3. Dispatch and speed: what container did shapes build?” and “Is its element type concrete?”\n\n\nVector{Shape}, false: the common type is the abstract Shape."
+    "text": "What container did we build?\n\nshapes = [Circle(2.0), Rectangle(3.0, 4.0), Circle(1.0)]\ntypeof(shapes)                    # ?\nisconcretetype(eltype(shapes))    # ?\n\n\nCircles and a rectangle: element type?\n\n\n\n▶ Script: cells “3. Dispatch and speed: what container did shapes build?” and “Is its element type concrete?”\n\n\nVector{Shape}, false: the common type is the abstract Shape."
   },
   {
     "objectID": "teaching/parallel_computing/slides/2_dispatch_vs_oop.html#same-data-two-containers",
     "href": "teaching/parallel_computing/slides/2_dispatch_vs_oop.html#same-data-two-containers",
     "title": "2 — Multiple dispatch vs OOP",
     "section": "Same data, two containers",
-    "text": "Same data, two containers\n\nVector{Shape}: Shape is abstract, so which area?\n\n\ntotal(v) = sum(area, v)\nradii    = rand(1000)\nconcrete = [Circle(r) for r in radii]          # Vector{Circle}\nmixed    = Shape[Circle(r) for r in radii]     # Vector{Shape}\n\n\nBet first: which total is faster, by how much? Then @code_typed.\n\n\n\n▶ Script: cells “Same data, two containers: predict which is faster, and by how much” and “Why? Find the call to area in each”"
+    "text": "Same data, two containers\n\nVector{Shape}: Shape is abstract, so which area?\n\n\ntotal(v) = sum(area, v)\nradii    = rand(1000)\nconcrete = [Circle(r) for r in radii]          # Vector{Circle}\nmixed    = Shape[Circle(r) for r in radii]     # Vector{Shape}\n\n\nWhich total is faster, by how much? Then @code_typed.\n\n\n\n▶ Script: cells “Same data, two containers” and “Why? Find the call to area in each”"
   },
   {
     "objectID": "teaching/parallel_computing/slides/2_dispatch_vs_oop.html#why-when-is-the-type-known",
@@ -12212,7 +12212,7 @@
     "href": "teaching/parallel_computing/slides/3_threads_and_concurrency.html#three-ways-to-fetch",
     "title": "3 — Threads & concurrency",
     "section": "Three ways to fetch",
-    "text": "Three ways to fetch\n\nfor i in 1:n                         # 1) sequential\n    seq[i] = fetch_price(SYMBOLS[i])\nend\nfor i in 1:n                         # 2) @async, no @sync\n    @async bad[i] = fetch_price(SYMBOLS[i])\nend\n@sync for i in 1:n                   # 3) @sync + @async\n    @async good[i] = fetch_price(SYMBOLS[i])\nend\n\n\n\nBet first: how long does each one take?\n\n\n\n\n▶ Script: cell “Three ways to fetch”"
+    "text": "Three ways to fetch\n\nfor i in 1:n                         # 1) sequential\n    seq[i] = fetch_price(SYMBOLS[i])\nend\nfor i in 1:n                         # 2) @async, no @sync\n    @async bad[i] = fetch_price(SYMBOLS[i])\nend\n@sync for i in 1:n                   # 3) @sync + @async\n    @async good[i] = fetch_price(SYMBOLS[i])\nend\n\n\n\nHow long does each one take?\n\n\n\n\n▶ Script: cell “Three ways to fetch”"
   },
   {
     "objectID": "teaching/parallel_computing/slides/3_threads_and_concurrency.html#three-ways-to-fetch-the-timings",
@@ -12233,7 +12233,7 @@
     "href": "teaching/parallel_computing/slides/3_threads_and_concurrency.html#same-cpu-work-with-async",
     "title": "3 — Threads & concurrency",
     "section": "Same CPU work, with @async",
-    "text": "Same CPU work, with @async\n\n\nBet first: π (n = 10⁸), @async × 22: speedup? ▶ Script: cell “Same CPU work with @async”\n\n\n\n\n\n\n\n\n\n\n\n\ntime\nspeedup\n\n\n\n\npi_seq (one core)\n0.357 s\n—\n\n\n@async × 22\n0.332 s\n1.1×\n\n\n@spawn × 22\n0.057 s\n6.3×\n\n\n\n\ncount_in_disk is the same count as in the compilation module; only the macro changes (who runs it). @async: one core, nothing to overlap. @spawn: the tasks land on different cores. Script cells “Same CPU work with @async” (seq, @async) and “Speedup vs nthreads” (@spawn). @async never passed ~1.3x at any task count tried (1 -&gt; 22). No speedup-vs-ntasks curve here: in one session the OS may place few tasks on 5 GHz P-cores or 2.5 GHz LP-E cores (measured 1.3x at 4 tasks but 4.7x at 6). The honest curve needs one process per point: experiences/threads_scaling/."
+    "text": "Same CPU work, with @async\n\n\nπ (n = 10⁸), @async × 22: speedup? ▶ Script: cell “Same CPU work with @async”\n\n\n\n\n\n\n\n\n\n\n\n\ntime\nspeedup\n\n\n\n\npi_seq (one core)\n0.357 s\n—\n\n\n@async × 22\n0.332 s\n1.1×\n\n\n@spawn × 22\n0.057 s\n6.3×\n\n\n\n\ncount_in_disk is the same count as in the compilation module; only the macro changes (who runs it). @async: one core, nothing to overlap. @spawn: the tasks land on different cores. Script cells “Same CPU work with @async” (seq, @async) and “Speedup vs nthreads” (@spawn). @async never passed ~1.3x at any task count tried (1 -&gt; 22). No speedup-vs-ntasks curve here: in one session the OS may place few tasks on 5 GHz P-cores or 2.5 GHz LP-E cores (measured 1.3x at 4 tasks but 4.7x at 6). The honest curve needs one process per point: experiences/threads_scaling/."
   },
   {
     "objectID": "teaching/parallel_computing/slides/3_threads_and_concurrency.html#the-cure-return-and-reduce",
@@ -12275,7 +12275,7 @@
     "href": "teaching/parallel_computing/slides/1_compilation_and_types.html#the-experiment",
     "title": "1 — Interpreted vs compiled",
     "section": "The experiment",
-    "text": "The experiment\n\nSum 10⁶ floats, 2000 calls, time each call\n5 variants: pure Python, numba @njit, numpy, Julia mysum, Julia sum\n\n\n\nBet first: rank the five. What happens on the very first call?"
+    "text": "The experiment\n\nSum 10⁶ floats, 2000 calls, time each call\n5 variants: pure Python, numba @njit, numpy, Julia mysum, Julia sum\n\n\n\nRank the five. What happens on the very first call?"
   },
   {
     "objectID": "teaching/parallel_computing/slides/1_compilation_and_types.html#three-ways-to-run-code",
@@ -12373,14 +12373,14 @@
     "href": "teaching/parallel_computing/slides/1_compilation_and_types.html#why-not-our-loop",
     "title": "1 — Interpreted vs compiled",
     "section": "Why not our loop?",
-    "text": "Why not our loop?\n\nBet first: why can’t the compiler do this for our loop?"
+    "text": "Why not our loop?\n\nWhy can’t the compiler do this for our loop?"
   },
   {
     "objectID": "teaching/parallel_computing/slides/1_compilation_and_types.html#simd-permission-to-reorder",
     "href": "teaching/parallel_computing/slides/1_compilation_and_types.html#simd-permission-to-reorder",
     "title": "1 — Interpreted vs compiled",
     "section": "@simd: permission to reorder",
-    "text": "@simd: permission to reorder\n\nfunction mysum_simd(x)\n    s = zero(eltype(x))\n    @inbounds @simd for i in eachindex(x)   # ← @simd\n        s += x[i]\n    end\n    return s\nend\n@inbounds: no bounds checks · @simd: may reorder +\n\n\n\n\n\nvariant\ntime / call\n\n\n\n\nmysum (scalar)\n44 µs\n\n\nmysum_simd (vaddpd)\n~4 µs\n\n\nBase sum\n7.5 µs\n\n\n\n\n\n\nNot magic: the algorithm (reordering → SIMD), not the language.\n\n\n\n\n🔬 asm, @simd: sum_vs_size/reflection.jl · ⬅ Back to the path"
+    "text": "@simd: permission to reorder\n\nfunction mysum_simd(x)\n    s = zero(eltype(x))\n    @inbounds @simd for i in eachindex(x)   # ← @simd\n        s += x[i]\n    end\n    return s\nend\n@inbounds: no bounds checks · @simd: may reorder +\n\n\n\n\n\nvariant\ntime / call\n\n\n\n\nmysum (scalar)\n44 µs\n\n\nmysum_simd (vaddpd)\n~4 µs\n\n\nBase sum\n7.5 µs\n\n\n\n\n\n\nThe gain comes from the algorithm (reordering → SIMD), not from the language.\n\n\n\n\n🔬 asm, @simd: sum_vs_size/reflection.jl · ⬅ Back to the path"
   },
   {
     "objectID": "teaching/parallel_computing/slides/1_compilation_and_types.html#estimating-π",
@@ -12688,7 +12688,7 @@
     "href": "teaching/parallel_computing/exam.html#the-task",
     "title": "Parallel Computing — Exam",
     "section": "The task",
-    "text": "The task\n\nPresent the project briefly, and how the code runs overall.\nFind where the time goes, and pick the blocks worth optimizing.\nOptimize them: parallelize, change the code, or both. The course’s tools apply here: types, allocations, threads, memory, and the GPU.\nMeasure the speedup, on the block and on the whole program.\n\nChoose code that runs long enough to measure and gives a result you can check. Before you start, send a short proposal: the project, the block you target, and a first timing."
+    "text": "The task\n\nPresent the project briefly, and how the code runs overall.\nFind where the time goes, and pick the blocks worth optimizing.\nOptimize them: parallelize, change the code, or both. The course’s tools apply here: compiled or vectorized loops, concurrency and parallelism without sharing, memory locality, batching, and the GPU.\nMeasure the speedup, on the block and on the whole program.\n\nChoose code that runs long enough to measure and gives a result you can check. Before you start, send a short proposal: the project, the block you target, and a first timing (example below)."
   },
   {
     "objectID": "teaching/parallel_computing/exam.html#choosing-a-project",
@@ -13087,7 +13087,7 @@
     "href": "teaching/parallel_computing/slides/1_compilation_and_types.html#amdahl",
     "title": "1 — Interpreted vs compiled",
     "section": "Local gain ≠ whole-program gain",
-    "text": "Local gain ≠ whole-program gain\n\nA block takes a fraction \\(f\\) of the time and becomes \\(s\\)× faster:\n\n\n\\[\\text{whole-program speedup} = \\frac{1}{(1-f) + f/s}\\]\n\n\nBet first: which one helps more?\n\nA: 10 % of the time, 10× faster.\nB: 80 % of the time, 2× faster.\n\n\nA: 1/(0.9 + 0.01) = 1.10×. B: 1/(0.2 + 0.4) = 1.67×. Even an infinitely fast A caps at 1.11×. Give the numbers only in the A2 debrief. Same formula as Amdahl’s law in the threads module: there, s is the number of cores."
+    "text": "Local gain ≠ whole-program gain\n\nA block takes a fraction \\(f\\) of the time and becomes \\(s\\)× faster:\n\n\n\\[\\text{whole-program speedup} = \\frac{1}{(1-f) + f/s}\\]\n\n\nWhich one helps more?\n\nA: 10 % of the time, 10× faster.\nB: 80 % of the time, 2× faster.\n\n\nA: 1/(0.9 + 0.01) = 1.10×. B: 1/(0.2 + 0.4) = 1.67×. Even an infinitely fast A caps at 1.11×. Give the numbers only in the A2 debrief. Same formula as Amdahl’s law in the threads module: there, s is the number of cores."
   },
   {
     "objectID": "teaching/parallel_computing/slides/1_compilation_and_types.html#a2",
@@ -13115,7 +13115,7 @@
     "href": "teaching/parallel_computing/slides/2_dispatch_vs_oop.html#path",
     "title": "2 — Multiple dispatch vs OOP",
     "section": "Today’s path — 20 minutes",
-    "text": "Today’s path — 20 minutes\n\narea: shape.area() vs area(shape).\nTwo arguments: the method is chosen from all of them.\nConcrete vs abstract container: same data, ~10× apart.\nData as arguments: the rule that keeps code fast.\n\n\n\nOnly if time: more on dispatch · ✏️ optional Julia activity\n\n\nSession 1, minutes 150–170. Three oral predictions (the “Bet first” slides), no written activity. Nothing here needs to be memorized for the project: Visitor, multipledispatch, the expression problem are out of scope."
+    "text": "Today’s path — 20 minutes\n\narea: shape.area() vs area(shape).\nTwo arguments: the method is chosen from all of them.\nConcrete vs abstract container: same data, ~10× apart.\nData as arguments: the rule that keeps code fast.\n\n\n\nOnly if time: more on dispatch · ✏️ optional Julia activity\n\n\nSession 1, minutes 150–170. Three oral questions, no written activity. Nothing here needs to be memorized for the project: Visitor, multipledispatch, the expression problem are out of scope."
   },
   {
     "objectID": "teaching/parallel_computing/slides/2_dispatch_vs_oop.html#by-the-end-you-can",
@@ -13234,7 +13234,7 @@
     "href": "teaching/parallel_computing/slides/3_threads_and_concurrency.html#another-split-independent-markov-chains",
     "title": "3 — Threads & concurrency",
     "section": "Another split: independent Markov chains",
-    "text": "Another split: independent Markov chains\n\nmarkov_seq(K, L) = [simulate_markov(L) for _ in 1:K]\nmarkov_spawn(K, L) =\n    fetch.([Threads.@spawn simulate_markov(L) for _ in 1:K])\n\nK = 8 chains, L = 2×10⁷ steps, no shared state.\nBet first: speedup on 8 chains?\n\n\n\n\n▶ Script: cell “Predict the speedup on 8 chains, then run”\n\n\n\n\nSame pattern as π: each task returns, fetch collects."
+    "text": "Another split: independent Markov chains\n\nmarkov_seq(K, L) = [simulate_markov(L) for _ in 1:K]\nmarkov_spawn(K, L) =\n    fetch.([Threads.@spawn simulate_markov(L) for _ in 1:K])\n\nK = 8 chains, L = 2×10⁷ steps, no shared state.\nSpeedup on 8 chains?\n\n\n\n\n▶ Script: cell “Speedup on 8 chains”\n\n\n\n\nSame pattern as π: each task returns, fetch collects."
   },
   {
     "objectID": "teaching/parallel_computing/slides/0_julia_basics.html#path",
@@ -13255,7 +13255,7 @@
     "href": "teaching/parallel_computing/slides/0_julia_basics.html#the-loop-we-will-meet-again-and-again",
     "title": "0 — Julia for Python users",
     "section": "The loop we will meet again and again",
-    "text": "The loop we will meet again and again\n\nfunction count_in_disk(n)\n    hits = 0\n    for _ in 1:n\n        x, y = rand(), rand()\n        if x^2 + y^2 ≤ 1\n            hits += 1\n        end\n    end\n    return hits\nend\n4 * count_in_disk(100_000) / 100_000       # ≈ 3.14\n\n\n\nBet first: what goes in, what comes out, what looks new? ▶ Script: cell “1. Monte-Carlo π”\n\n\nLet them list the oddities: end, 1:n, ^, ≤, 100_000, no colon, no indentation rule. The next three slides answer exactly that list. Same function in every module: timed (1), split over threads (3), on the GPU (5)."
+    "text": "The loop we will meet again and again\n\nfunction count_in_disk(n)\n    hits = 0\n    for _ in 1:n\n        x, y = rand(), rand()\n        if x^2 + y^2 ≤ 1\n            hits += 1\n        end\n    end\n    return hits\nend\n4 * count_in_disk(100_000) / 100_000       # ≈ 3.14\n\n\n\nWhat goes in, what comes out, what looks new? ▶ Script: cell “1. Monte-Carlo π”\n\n\nLet them list the oddities: end, 1:n, ^, ≤, 100_000, no colon, no indentation rule. The next three slides answer exactly that list. Same function in every module: timed (1), split over threads (3), on the GPU (5)."
   },
   {
     "objectID": "teaching/parallel_computing/slides/0_julia_basics.html#ranges-and-indices-start-at-1",
@@ -13269,7 +13269,7 @@
     "href": "teaching/parallel_computing/slides/0_julia_basics.html#element-by-element-the-dot",
     "title": "0 — Julia for Python users",
     "section": "Element by element: the dot",
-    "text": "Element by element: the dot\n\nxs = [1.0, 4.0, 9.0]\nsqrt.(xs)       # [1.0, 2.0, 3.0]\nxs .+ 1         # [2.0, 5.0, 10.0]\nsquare.(xs)     # works on YOUR functions too\n\nBet first: sqrt(xs), without the dot?\nf.(x) is what np.f(x) does in NumPy.\n\n\n\n\n▶ Script: cell “Broadcasting — the dot” — try sqrt(xs).\n\n\nsqrt(xs) is a MethodError: sqrt takes a number. The dot says “element by element”. We need it for the GPU version of π: x.^2 .+ y.^2 .&lt;= 1."
+    "text": "Element by element: the dot\n\nxs = [1.0, 4.0, 9.0]\nsqrt.(xs)       # [1.0, 2.0, 3.0]\nxs .+ 1         # [2.0, 5.0, 10.0]\nsquare.(xs)     # works on YOUR functions too\n\nsqrt(xs), without the dot?\nf.(x) is what np.f(x) does in NumPy.\n\n\n\n\n▶ Script: cell “Broadcasting — the dot” — try sqrt(xs).\n\n\nsqrt(xs) is a MethodError: sqrt takes a number. The dot says “element by element”. We need it for the GPU version of π: x.^2 .+ y.^2 .&lt;= 1."
   },
   {
     "objectID": "teaching/parallel_computing/slides/0_julia_basics.html#macros-start-with",
@@ -13353,14 +13353,14 @@
     "href": "teaching/parallel_computing/slides/4_memory_and_batching.html#test-the-locality-explanation-debrief",
     "title": "4 — Memory & batching",
     "section": "Test the locality explanation — debrief",
-    "text": "Test the locality explanation — debrief\n\n\n\n\nsize\nfootprint\nrows / columns\n\n\n\n\n100²\n78 KB — fits in cache\n0.9×\n\n\n4000²\n122 MB — spills\n7.2×\n\n\n\n\nThe gap appears when the data outgrows the cache.\n\n\n\n\nThe gap comes from whether the next value is already in cache.\n\n\nA prediction that could have failed, and did not: that is what an explanation is worth. Small matrix: everything is already close, so the order cannot matter. Strongest argument of the module: it supports a locality explanation; cache, prefetching and TLB effects are not isolated — say “consistent with”, not “proves”. Pluto: interactive slider. Script: full table (100² → 4000²)."
+    "text": "Test the locality explanation — debrief\n\n\n\n\nsize\nfootprint\nrows / columns\n\n\n\n\n100²\n78 KB — fits in cache\n0.9×\n\n\n4000²\n122 MB — spills\n7.2×\n\n\n\n\nThe gap appears when the data outgrows the cache.\n\n\n\n\nThe gap comes from whether the next value is already in cache.\n\n\nSmall matrix: everything is already close, so the order cannot matter. Strongest argument of the module: it supports a locality explanation; cache, prefetching and TLB effects are not isolated — say “consistent with”, not “proves”. Pluto: interactive slider. Script: full table (100² → 4000²)."
   },
   {
     "objectID": "teaching/parallel_computing/slides/4_memory_and_batching.html#one-example-at-a-time-or-a-lot-at-once",
     "href": "teaching/parallel_computing/slides/4_memory_and_batching.html#one-example-at-a-time-or-a-lot-at-once",
     "title": "4 — Memory & batching",
     "section": "One example at a time, or a lot at once?",
-    "text": "One example at a time, or a lot at once?\n\nW * x: each weight loaded, used once.\nW * X, B columns: each weight used B times per load.\n\n\ny = W * x     # 1 example\nY = W * X     # B examples\n\n\n\nSame examples, same results. Batching reuses the data it loaded.\n\n\nNot a GPU trick: if the mechanism is reuse, it must already pay on the CPU. That is the bet."
+    "text": "One example at a time, or a lot at once?\n\nW * x: each weight loaded, used once.\nW * X, B columns: each weight used B times per load.\n\n\ny = W * x     # 1 example\nY = W * X     # B examples\n\n\n\nSame examples, same results. Batching reuses the data it loaded.\n\n\nNot a GPU trick: if the mechanism is reuse, it must already pay on the CPU."
   },
   {
     "objectID": "teaching/parallel_computing/slides/4_memory_and_batching.html#a5",
@@ -13402,7 +13402,7 @@
     "href": "teaching/parallel_computing/slides/5_gpu.html#path",
     "title": "5 — GPU",
     "section": "Today’s path",
-    "text": "Today’s path\n\nMoving to the card: same code, another memory; what the copy costs.\nFeed the GPU: the timer, small vs large work, the batch.\nπ on the card: the running example ends here. ✏️ A6\n\n\n\nOnly if time: coalescing · No GPU? The analysis route.\n\n\nSession 3, minutes 95–145. The batching deck ended on “reuse what you loaded”. This is the hardware that starves fastest. A GPU is not a faster CPU: it makes the opposite bet."
+    "text": "Today’s path\n\nMoving to the card: same code, another memory; what the copy costs.\nFeed the GPU: the timer, small vs large work, the batch.\nπ on the card: the running example ends here. ✏️ A6\n\n\n\nOnly if time: coalescing · No GPU? The analysis route.\n\n\nSession 3, minutes 95–145. The batching deck ended on “reuse what you loaded”. This is the hardware that starves fastest. A GPU is not a faster CPU: it is built for the opposite trade-off."
   },
   {
     "objectID": "teaching/parallel_computing/slides/5_gpu.html#by-the-end-you-can",
@@ -13494,5 +13494,54 @@
     "title": "3 — Threads & concurrency",
     "section": "✏️ A3d — who is waiting?",
     "text": "✏️ A3d — who is waiting?\n\nQuestion: one request takes 0.2 s. Two at once? Twenty?\nAlone: predict each cell before running it.\nIn pairs: write fetch_all; then swap concurrent for serial.\nWrite down: your times · where the waiting happened. 📋 card\n\n\n\n🐍 Python (Colab) · local .py · Julia · 20 min\n\n\nNo Internet: the notebook starts its own server in a background thread. Measured: one request at a time = 4.0 s whatever the client; one thread per request = 4.06 / 0.83 / 0.24 s. The point: overlapping waits only helps if the other side can serve several requests at once. Optional end, π by the class: each student’s server draws one point and answers /inside (0/1) and /name (a name or message, “” by default). Run activities/registry.py or registry.jl on your laptop, put its address on the board; students register there and fetch everyone’s address. Project http:/// : names (cut at 40 characters), each point, π; refreshes every 3 s. School Wi-Fi may isolate clients; a phone hotspot works. Not on Colab."
+  },
+  {
+    "objectID": "teaching/parallel_computing/slides/3_threads_and_concurrency.html#π-on-all-threads",
+    "href": "teaching/parallel_computing/slides/3_threads_and_concurrency.html#π-on-all-threads",
+    "title": "3 — Threads & concurrency",
+    "section": "π on all threads",
+    "text": "π on all threads\n\nπ on all 22 threads, 20 million points, one task per thread.\n\n\nhits = 0\n@sync for _ in 1:ntasks\n    Threads.@spawn for _ in 1:per\n        x = rand(); y = rand()\n        hits += (x * x + y * y &lt;= 1.0)\n    end\nend\n\n\n\nWhat does it print? ▶ Script: cell “π on all threads, one task per thread”"
+  },
+  {
+    "objectID": "teaching/parallel_computing/slides/2_dispatch_vs_oop.html#code_warntype-the-red-any",
+    "href": "teaching/parallel_computing/slides/2_dispatch_vs_oop.html#code_warntype-the-red-any",
+    "title": "2 — Multiple dispatch vs OOP",
+    "section": "@code_warntype: the red Any",
+    "text": "@code_warntype: the red Any\n\n@code_warntype sum_global()\n@code_warntype sum_arg(glob)\n\n\n@code_warntype shows the inferred types, uncertain ones in color.\n\n\nWhich has red Anys? How big is the time gap?\n\n\n\n▶ Script: cells “4. Type instability — same sum, global vs argument” to “The argument version”"
+  },
+  {
+    "objectID": "teaching/parallel_computing/slides/4_memory_and_batching.html#caches-rely-on-locality",
+    "href": "teaching/parallel_computing/slides/4_memory_and_batching.html#caches-rely-on-locality",
+    "title": "4 — Memory & batching",
+    "section": "Caches rely on locality",
+    "text": "Caches rely on locality\n\nTemporal: used now → used again soon.\nSpatial: used now → neighbors next.\nMemory moves in lines of 64 B = 8 Float64."
+  },
+  {
+    "objectID": "teaching/parallel_computing/slides/4_memory_and_batching.html#same-array-growing-size",
+    "href": "teaching/parallel_computing/slides/4_memory_and_batching.html#same-array-growing-size",
+    "title": "4 — Memory & batching",
+    "section": "Same array, growing size",
+    "text": "Same array, growing size\n\nSum the same array many times, from 8 KB to 64 MB.\n\n\nL1 ≈ 1 ns, RAM ≈ 100 ns.\n\n\n\nHow much slower per access at 64 MB?\n\n\n\n\n(~100×? Write it down.)\n\n\n\n\n▶ Script: cell “1. The memory hierarchy — the cache cliff”"
+  },
+  {
+    "objectID": "teaching/parallel_computing/slides/4_memory_and_batching.html#batching-on-the-cpu",
+    "href": "teaching/parallel_computing/slides/4_memory_and_batching.html#batching-on-the-cpu",
+    "title": "4 — Memory & batching",
+    "section": "Batching on the CPU",
+    "text": "Batching on the CPU\n\nW: 4096² Float32 = 64 MiB &gt; L3. Same examples, one W * x each, or W * X by lots of B.\n\n\n\nWhat happens to the time per example?\n\n\n\n\n▶ Script: cell “3. Batching: one layer W, B examples”"
+  },
+  {
+    "objectID": "teaching/parallel_computing/slides/5_gpu.html#matmul-cpu-vs-gpu",
+    "href": "teaching/parallel_computing/slides/5_gpu.html#matmul-cpu-vs-gpu",
+    "title": "5 — GPU",
+    "section": "Matmul, CPU vs GPU",
+    "text": "Matmul, CPU vs GPU\n\nN × N matmul, CPU vs GPU, N from 64 to 4096.\n\n\n\nDoes the GPU always win?\n\n\n\n\n▶ Script: cell “5. Feed the GPU — when does it start paying off?”"
+  },
+  {
+    "objectID": "teaching/parallel_computing/exam.html#example-proposal",
+    "href": "teaching/parallel_computing/exam.html#example-proposal",
+    "title": "Parallel Computing — Exam",
+    "section": "Example proposal",
+    "text": "Example proposal\nAn invented case, to show the expected level. The numbers are illustrative, not measurements.\n\n\n\n\n\n\n\nProject\nBootstrap confidence intervals for a regression estimator (Python, NumPy).\n\n\nInput\n50,000 rows × 20 columns, 2,000 resamples, fixed seed.\n\n\nResult to preserve\nThe interval bounds, compared with a tolerance of 10⁻⁸ for the same seeds.\n\n\nFirst timing\nWhole program 212 s; the resampling loop 187 s (88 %). Laptop, 8 cores, 1 BLAS thread, median of 3 runs after one warmup run, data loading included.\n\n\nTarget block\nThe resampling loop: each resample refits the model independently.\n\n\nHypothesis\nResamples share nothing, so they can run in separate processes, each returning its estimates. With 88 % of the time in the block, 8 workers give at most 1 / (0.12 + 0.88 / 8) ≈ 4.3× on the whole program.\n\n\nNext measurement\nWhole-program and block times for 1, 2, 4, 8 workers, pool startup included; per-worker seeds so the result can be checked.\n\n\nWhat could go wrong\nEach fit already uses several BLAS threads; copying the data to every worker costs more than expected. Either would be reported and explained.\n\n\n\nWhat makes it a good proposal: a result that can be checked, a timing of the whole program, a block chosen because it dominates, a hypothesis that predicts a number, and a measurement that could contradict it."
   }
 ]

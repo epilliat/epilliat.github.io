@@ -17,7 +17,7 @@ You know Python; Julia will feel familiar (dynamic, REPL, almost no type annotat
 is a **20-minute bridge**: only what is *different*. **No performance, no parallelism yet.**
 
 Five parts: **Values → Collections → Control flow → Functions & types → Monte-Carlo π**, then a
-cheat-sheet. For each cell: **predict the output, then run it.**
+cheat-sheet.
 """
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000002

@@ -14,7 +14,6 @@ md"""
 - **Part A — async on one core.** `@async` / `@sync` overlap **waiting** (network). Nothing computes faster.
 - **Part B — `@spawn` on many cores.** Real CPU parallelism — and the **race condition**.
 
-For each cell: **predict, then run.**
 """
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000002
@@ -67,7 +66,7 @@ fetch_price(SYMBOLS[1])   # warm-up: compile before timing
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000009
 md"""
-### Three ways to fetch — predict the three timings first
+### Three ways to fetch
 
 Sequential · `@async` without `@sync` · `@sync` + `@async`. Timed **once** with `@elapsed` (don't hammer the API).
 """
@@ -139,7 +138,7 @@ end
 
 # ╔═╡ c8bba89e-f531-4e2c-a426-227eb15d972f
 md"""
-**Predict the speedup on 8 chains**, then run.
+Speedup on 8 chains.
 """
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000010
@@ -174,7 +173,7 @@ end
 
 # ╔═╡ c7120db8-ccb6-451d-aee0-a64aa117f2e9
 md"""
-### Same CPU work with `@async`: predict the speedup
+### Same CPU work with `@async`
 """
 
 # ╔═╡ c603ac5e-eb35-4b74-88da-1171cfa44282
@@ -195,7 +194,7 @@ end
 md"""
 ### π on all threads, one task per thread
 
-What does it print? **Spot the bug before running.**
+
 """
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000013
@@ -261,7 +260,7 @@ end
 md"""
 ### Speedup vs `nthreads`
 
-Predict it, then explain the gap (relaunch with `--threads=1`, `2`, `4`).
+Relaunch with `--threads=1`, `2`, `4`.
 """
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000017

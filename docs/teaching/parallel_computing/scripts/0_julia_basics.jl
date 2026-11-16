@@ -1,6 +1,6 @@
 # Julia for Python users — a syntax bridge (no performance yet). ENSAI 3A.
 # ⚠ KEEP IN SYNC with `pluto/0_julia_basics.jl`. Cells: `#%%` (Alt+Enter in VS Code).
-# For each cell: predict the output, then run it. Sections 1–2 are the 15-minute path; 3 is reference.
+# Sections 1–2 are the 15-minute path; 3 is reference.
 
 #%% 1. Monte-Carlo π (the course's running example)
 "Count how many of `n` random points land inside the unit quarter-disk."

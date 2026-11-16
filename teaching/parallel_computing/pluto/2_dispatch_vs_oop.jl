@@ -21,7 +21,6 @@ Here we look at the **language mechanism** that makes that specialization possib
 
 > 🧭 This is a **language point**, not parallelism yet. Threads come right after — but dispatch is what will make them elegant (and what will later move a computation onto the GPU without changing the code).
 
-**For each cell: predict the output, then run it.**
 """
 
 # ╔═╡ d2000000-0000-4a00-8000-00000000001d
@@ -72,7 +71,7 @@ Circle(2.0).area()      # dispatch on the object (left of the dot)
 
 The method is **locked inside** the class. To add an operation (say `perimeter`), class methods normally require editing each class; external functions or `singledispatch` are alternatives.
 
-!!! warning "🐍 \"No! Python can do that too\" — and you're right. Let's say it out loud now"
+!!! warning "🐍 \"No! Python can do that too\" — and that is right"
 	The honest answer is what makes the rest of this module land. Two counter-arguments, and what each really costs:
 
 	**(a) Monkey-patching** — bolt the method on from outside:
@@ -189,7 +188,7 @@ No ladder, no visitor — and adding a type adds methods **without touching the 
 
 ### The pair we did not define: what happens?
 
-We wrote `collide(::Circle, ::Rectangle)`. We never wrote the mirror image. **Bet first**, then look:
+We wrote `collide(::Circle, ::Rectangle)`. We never wrote the mirror image:
 """
 
 # ╔═╡ d2000000-0000-4a00-8000-00000000001f
@@ -310,7 +309,7 @@ isconcretetype(eltype(shapes))
 md"""
 Mixing `Circle`s and `Rectangle`s forces the common supertype: **`Shape`** — an *abstract* element type. So for *this* array the method **cannot** be chosen at compile time — Julia must look it up **at run time, per element**, exactly like Python.
 
-### Same data, two containers: predict which is faster, and by how much
+### Same data, two containers
 
 Same data, same answer; the only difference is the *type of the container*.
 """
@@ -393,7 +392,7 @@ end
 
 # ╔═╡ 23601861-7f44-443f-b13a-27cd20d1ab5b
 md"""
-### Spot the red `Any`
+### The red `Any`
 
 `@code_warntype` colors in **red** the places where Julia doesn't know the type (`Any`) — code falling back to dynamic behavior, like Python.
 """
@@ -411,7 +410,7 @@ md"""
 
 # ╔═╡ 1340c246-2259-4b37-afdb-787ed4ae7678
 md"""
-### Predict the gap, then measure
+### The time gap
 """
 
 # ╔═╡ 1c3ebba3-7520-4544-b579-de2c5f7f543b
@@ -438,7 +437,7 @@ md"""
 | Two-argument dispatch | `isinstance` ladder, or the Visitor pattern | just another method |
 | Link to speed | — | **it's the engine** of specialization — *but only when the types are inferable* |
 
-> **Takeaway.** Multiple dispatch isn't just a matter of style: it's *the* mechanism that lets Julia generate specialized native code — and the one thing you must feed it is **concrete types** (an abstract container or an untyped global costs you about an order of magnitude). We'll see it again when the *same* `*` picks the **GPU** version all by itself, just because its arguments are `CuArray`.
+> Multiple dispatch isn't just a matter of style: it's *the* mechanism that lets Julia generate specialized native code — and the one thing you must feed it is **concrete types** (an abstract container or an untyped global costs you about an order of magnitude). We'll see it again when the *same* `*` picks the **GPU** version all by itself, just because its arguments are `CuArray`.
 """
 
 # ╔═╡ d2000000-0000-4a00-8000-000000000010

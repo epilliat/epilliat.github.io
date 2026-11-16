@@ -1,6 +1,5 @@
 # Multiple dispatch vs OOP — where the verb lives (a language point, no parallelism yet). ENSAI 3A.
 # ⚠ KEEP IN SYNC with `pluto/2_dispatch_vs_oop.jl`. Cells: `#%%` (Alt+Enter in VS Code). Needs BenchmarkTools.
-# For each cell: predict the output, then run it.
 using BenchmarkTools
 using InteractiveUtils   # @code_typed/_warntype (auto-loaded in the REPL only)
 
@@ -40,7 +39,7 @@ typeof(shapes)
 #%% Is its element type concrete?
 isconcretetype(eltype(shapes))
 
-#%% Same data, two containers: predict which is faster, and by how much
+#%% Same data, two containers
 total(v) = sum(area, v)
 radii    = rand(1000)
 concrete = [Circle(r) for r in radii]
@@ -74,13 +73,13 @@ function sum_arg(x)
     return s
 end
 
-#%% Spot the red `Any`
+#%% The red `Any`
 @code_warntype sum_global()
 
 #%% …and here?
 @code_warntype sum_arg(glob)
 
-#%% Predict the gap, then measure
+#%% The time gap
 @benchmark sum_global()
 
 #%% The argument version

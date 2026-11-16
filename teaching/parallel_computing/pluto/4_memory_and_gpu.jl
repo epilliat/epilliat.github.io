@@ -15,7 +15,7 @@ md"""
 
 > **The processor spends most of its time *waiting* for memory.**
 
-For each cell: **predict, then run.** Sections 1–3 = memory deck, 4–7 = GPU deck.
+Sections 1–3 = memory deck, 4–7 = GPU deck.
 
 1. The cache cliff · 2. Locality · 3. Arithmetic intensity and batching · 4. The GPU · 5. Feed the GPU · 6. Optional — coalescing · 7. Monte-Carlo π on the GPU · 8. Wrap-up
 """
@@ -81,7 +81,7 @@ end
 md"""
 ## 2. Locality — the same sum, walked two ways
 
-Same additions, two loop orders. **Predict which walk is faster, and by how much.**
+Same additions, two loop orders.
 """
 
 # ╔═╡ 3218651a-5b26-42d1-b330-917d0801ed44
@@ -265,7 +265,7 @@ end
 md"""
 ## 5. Feed the GPU — when does it start paying off?
 
-**Guess N before running.**
+
 """
 
 # ╔═╡ 36c37805-567f-4baf-b8d3-5d42d5027b88
@@ -341,7 +341,7 @@ Smaller ratio than you expected? **Which other bytes does `a[idx]` read and writ
 
 # ╔═╡ f526773a-c8d8-46b7-b0b7-165a48f6417f
 md"""
-**Test that explanation:** compute the index in the kernel (no `idx` array to read). Prediction: the ratio may **rise**; index arithmetic and allocations also change. Does it?
+**Test that explanation:** compute the index in the kernel (no `idx` array to read). The ratio may **rise**; index arithmetic and allocations also change.
 """
 
 # ╔═╡ 18ecadcb-0926-4ef7-9b4a-547d57203342

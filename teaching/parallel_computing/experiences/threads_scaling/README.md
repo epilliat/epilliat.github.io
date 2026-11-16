@@ -9,7 +9,7 @@ course's central distinction on the same plot:
   ~1×**. There is nothing to interleave in CPU work; nobody is waiting.
 
 That second curve is the point of the threads module, *measured* instead of defined. It is also
-question **Q1** of the module — students bet before they look.
+question **Q1** of the module — students answer before seeing the curve.
 
 ## ⚠️ Why one *process* per point
 

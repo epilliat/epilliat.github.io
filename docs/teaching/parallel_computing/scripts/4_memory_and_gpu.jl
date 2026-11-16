@@ -3,7 +3,7 @@
 # ⚠ KEEP IN SYNC with `pluto/4_memory_and_gpu.jl` — same lesson, two formats.
 # Cells: `#%%` (Alt+Enter in VS Code). Needs BenchmarkTools and CUDA.jl installed
 # (`Pkg.add("CUDA")`), even without a card: the GPU cells then skip.
-# For each cell: predict, then run. Sections 1–3 (+ two optional cells) = memory deck, 4–7 = GPU deck.
+# Sections 1–3 (+ two optional cells) = memory deck, 4–7 = GPU deck.
 # =============================================================================
 
 #%% 0. Getting started
@@ -41,7 +41,7 @@ let
 end
 
 #%% 2. Locality — the same sum, walked two ways
-# Same additions, two loop orders. Predict which walk is faster, and by how much.
+# Same additions, two loop orders.
 A = rand(8_000, 8_000)   # 512 MB: far beyond any cache
 
 function sum_by_columns(M)
@@ -169,7 +169,7 @@ if gpu_available
     end
 end
 
-#%% 5. Feed the GPU — when does it start paying off? Guess N before running.
+#%% 5. Feed the GPU — when does it start paying off?
 if gpu_available
     let
         println("size N |  CPU (ms) |  GPU (ms) |  speedup")
@@ -254,7 +254,7 @@ end
 # Smaller ratio than you expected? Which other bytes does `a[idx]` read and write?
 
 #%% Test that explanation: compute the index in the kernel (no idx array to read).
-# Prediction: the ratio may rise; index arithmetic and allocations also change. Does it?
+# The ratio may rise; index arithmetic and allocations also change.
 function gather_kernel!(out, a, s, n)
     i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
     if i <= n

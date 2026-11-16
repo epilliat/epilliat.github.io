@@ -21,7 +21,7 @@ md"""
 # Interpreted vs compiled
 ## Why the same computation can be 100× faster
 
-**ENSAI 3A — Julia as a test bench, Python as a point of comparison.** For each cell: **predict, then run.**
+**ENSAI 3A — Julia as a test bench, Python as a point of comparison.**
 
 Plan: the JIT warmup → measuring properly → type specialization → *(bonus)* SIMD → Monte-Carlo π.
 """
@@ -71,7 +71,7 @@ mysum(v)
 
 # ╔═╡ bb0ace77-07a4-4504-80c1-edc793f3f899
 md"""
-The same loop in pure Python (`for xi in x: s += xi`) takes **~0.5 s**. **Bet** on Julia's time — we measure it in §2.
+The same loop in pure Python (`for xi in x: s += xi`) takes **~0.5 s**. Julia's time is measured in §2.
 """
 
 # ╔═╡ 05891168-bf4c-42c6-86f1-5d038606e267
@@ -130,7 +130,7 @@ Then try `@btime mysum(v)` **without `$`**: what changes? *(The why — untyped 
 md"""
 ## 4. Optional — type specialization: step 1, lowered code
 
-The warmup spike was Julia **compiling**. Let's look at each stage, on a deliberately trivial function.
+The warmup spike was Julia **compiling**. Each stage, on a deliberately trivial function.
 """
 
 # ╔═╡ a51ea6fa-9f15-453f-bcea-852c7e71a354
