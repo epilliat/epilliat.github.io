@@ -2,7 +2,7 @@
 
 
 # %% [markdown]
-# # A1 — what does a loop cost? — 20 minutes
+# # What does a loop cost? — 20 minutes
 # The same 10⁶ numbers summed three ways: your `for` loop, `numpy`, `numba`.
 
 # %%

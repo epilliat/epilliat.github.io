@@ -2,7 +2,7 @@
 
 
 # %% [markdown]
-# # A3d — a slow server — 20 minutes
+# # A slow server — 20 minutes
 # No Internet needed: this notebook starts its own web servers (0.2 s per answer).
 
 # %%

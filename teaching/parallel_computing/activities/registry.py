@@ -1,4 +1,4 @@
-# Class registry for A3d (instructor's laptop):  python3 registry.py
+# Class registry for the slow-server activity (instructor's laptop):  python3 registry.py
 # Students register their server, then fetch the list of everyone's addresses.
 #   GET /register?port=8011  -> records http://<caller's IP>:8011, answers it
 #   GET /list                -> one address per line (one per machine)

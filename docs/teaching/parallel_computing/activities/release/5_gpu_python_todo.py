@@ -2,7 +2,7 @@
 
 
 # %% [markdown]
-# # A6 — π on a GPU — 30 minutes
+# # π on the card — 30 minutes
 # No GPU? Use the GPU fallback page of the course.
 
 # %%

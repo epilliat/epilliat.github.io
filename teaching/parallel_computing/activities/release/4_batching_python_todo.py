@@ -2,7 +2,7 @@
 
 
 # %% [markdown]
-# # A5 — batching the same workload — 20 minutes
+# # Batch the same workload — 20 minutes
 # One matrix `W` applied to 128 examples: one by one, then in batches of B. Needs NumPy and threadpoolctl.
 
 # %%

@@ -1,4 +1,4 @@
-# A4 (Julia) — two traversal orders.  20 min.
+# Two loop orders (Julia)  20 min.
 # Fill one loop, run each #%% cell.
 # Needs BenchmarkTools:  using Pkg; Pkg.add("BenchmarkTools")
 

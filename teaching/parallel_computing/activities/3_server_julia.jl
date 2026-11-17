@@ -1,4 +1,4 @@
-# A3d (Julia) — a slow server.  20 min.
+# A slow server (Julia)  20 min.
 # No Internet needed: this file starts its own web servers (0.2 s per answer). One thread.
 # Run each #%% cell; run small timings twice (the 1st run compiles).
 

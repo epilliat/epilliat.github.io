@@ -2,17 +2,17 @@
 
 See [the three-session plan](../sessions.qmd) for the exact 3 × 180-minute budget.
 Activities take 20–30 minutes including prediction, coding, verification and interpretation.
-Each one is launched and debriefed by a slide of its deck (A1–A6); files state the question, not the conclusion:
+Each one is launched and debriefed by a slide of its deck; files state the question, not the conclusion:
 the explanation is produced by the students and collected in the debrief.
 They are formative, not graded. A gain or a slowdown is acceptable when explained.
 
 | Session | Core activities | Optional alternative |
 |---|---|---|
 | 1 | Python warmup (20 min), diagnostic (20 min) | Julia warmup; dispatch extension |
-| 2 | Python I/O (20 min), CPU lots/reduction (30 min), race discussion | Julia concurrency parts A/B; A3d slow local server, Python or Julia (no Internet) |
+| 2 | Python I/O (20 min), CPU lots/reduction (30 min), race discussion | Julia concurrency parts A/B; a slow local server, Python or Julia (no Internet) |
 | 3 | Python locality (20 min), batching (20 min), GPU/analysis (30 min) | Julia locality/GPU |
 
-A3d's optional class π needs `registry.py` or `registry.jl` on the instructor's laptop (address on the board; open it in a browser to project names and points).
+The slow-server activity's optional class π needs `registry.py` or `registry.jl` on the instructor's laptop (address on the board; open it in a browser to project names and points).
 Python CPU work uses the importable `../python/parallel_workers.py`; download it alongside a standalone notebook.
 I/O supports synthetic values with controlled waits, explicitly labelled. CPU work is independent of I/O.
 A GPU is not guaranteed: use [the analysis activity](../gpu-fallback.qmd) without one.

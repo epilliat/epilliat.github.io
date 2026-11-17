@@ -1,4 +1,4 @@
-# A6 (Julia) — π on the GPU.  30 min.
+# π on the card (Julia)  30 min.
 # Fill one blank, run each #%% cell.
 # Needs an NVIDIA GPU + CUDA.jl:  using Pkg; Pkg.add("CUDA")  (the 1st `using CUDA` downloads the runtime, once)
 

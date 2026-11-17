@@ -2,7 +2,7 @@
 
 
 # %% [markdown]
-# # A2 — diagnose before optimizing — 20 minutes
+# # Diagnose before optimizing — 20 minutes
 # Time the three stages of a pipeline, then speed up one.
 
 # %%

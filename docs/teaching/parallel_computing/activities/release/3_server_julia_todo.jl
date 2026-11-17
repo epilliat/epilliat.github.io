@@ -1,4 +1,4 @@
-# A3d (Julia) — a slow server.  20 min.
+# A slow server (Julia)  20 min.
 # No Internet needed: this file starts its own web servers (0.2 s per answer). One thread.
 # Run each #%% cell; run small timings twice (the 1st run compiles).
 
@@ -81,7 +81,8 @@ x, y = rand(), rand()
 inside = x^2 + y^2 <= 1                        # in the quarter disk?
 my_name = ""                                   # optional: a name or a message
 shared = start(true; host=ip"0.0.0.0", inside=inside, name=my_name)
-registry = "http://127.0.0.1:9000"             # replace by the address on the board
+registry = "http://127.0.0.1:9000"  
+registry * "/register?port=" * split(shared, ":")[end]           # replace by the address on the board
 fetch_url(registry * "/register?port=" * split(shared, ":")[end])   # your address, as the others see it
 # Nobody reaches the registry? School Wi-Fi may block it: try a phone hotspot.
 

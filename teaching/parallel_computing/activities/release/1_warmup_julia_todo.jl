@@ -1,4 +1,4 @@
-# A1 (Julia) — what does a loop cost?  20 min.
+# What does a loop cost? (Julia)  20 min.
 # Fill the blank, run each #%% cell.
 # Needs BenchmarkTools:  using Pkg; Pkg.add("BenchmarkTools")
 

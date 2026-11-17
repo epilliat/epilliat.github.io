@@ -2,7 +2,7 @@
 
 
 # %% [markdown]
-# # A4 — two traversal orders — 20 minutes
+# # Two loop orders — 20 minutes
 # The same sum, two loop orders.
 
 # %%

@@ -2,7 +2,7 @@
 
 
 # %% [markdown]
-# # A3c — CPU work: split, compute, reduce — 30 minutes
+# # π in lots: split, compute, reduce — 30 minutes
 # Needs `parallel_workers.py` next to the notebook (the setup cell downloads it if missing).
 
 # %%

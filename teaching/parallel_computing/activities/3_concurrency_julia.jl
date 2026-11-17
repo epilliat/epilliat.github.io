@@ -1,4 +1,4 @@
-# A3a (Part A: waiting) and A3c (Part B: computing), Julia.  20 min + 30 min.
+# Overlap the waits (Part A) and π in lots (Part B), Julia.  20 min + 30 min.
 # One blank per part. Run each #%% cell; run small timings twice (the 1st run compiles).
 # Part B needs several threads: julia --threads=auto  (VS Code: "julia.NumThreads": "auto", restart the REPL)
 

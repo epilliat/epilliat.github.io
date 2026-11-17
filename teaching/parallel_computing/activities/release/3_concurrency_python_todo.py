@@ -2,7 +2,7 @@
 
 
 # %% [markdown]
-# # A3a — overlap waiting — 20 minutes
+# # Overlap the waits — 20 minutes
 # 20 archived daily closes from Binance, or labelled simulated waits if offline.
 
 # %%
