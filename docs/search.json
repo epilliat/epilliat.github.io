@@ -12723,7 +12723,7 @@
     "href": "teaching/parallel_computing/exam.html#rules",
     "title": "Parallel Computing — Exam",
     "section": "Rules",
-    "text": "Rules\n\nAny language: Julia, Python, or another one.\nOptimized libraries are allowed, as long as you explain why they are faster.\nAI assistants are allowed, if you say what you used them for.\nConfidential projects: run the block on synthetic data of the same size.\n\nDates are announced in class."
+    "text": "Rules\n\nAny language: Julia, Python, or another one.\nOptimized libraries are allowed, as long as you explain why they are faster.\nAI assistants are allowed: see below.\nConfidential projects: run the block on synthetic data of the same size."
   },
   {
     "objectID": "teaching/parallel_computing/exam.html#common-pitfalls",
@@ -13543,5 +13543,12 @@
     "title": "Parallel Computing — Exam",
     "section": "Example project",
     "text": "Example project\nAn invented case, to show what to bring when you check your project with me. The numbers are illustrative, not measurements.\n\n\n\n\n\n\n\nProject\nBootstrap confidence intervals for a regression estimator (Python, NumPy).\n\n\nInput\n50,000 rows × 20 columns, 2,000 resamples, fixed seed.\n\n\nResult to preserve\nThe interval bounds, compared with a tolerance of 10⁻⁸ for the same seeds.\n\n\nFirst timing\nWhole program 212 s; the resampling loop 187 s (88 %). Laptop, 8 cores, 1 BLAS thread, median of 3 runs after one warmup run, data loading included.\n\n\nTarget block\nThe resampling loop: each resample refits the model independently.\n\n\nHypothesis\nResamples share nothing, so they can run in separate processes, each returning its estimates. With 88 % of the time in the block, 8 workers give at most 1 / (0.12 + 0.88 / 8) ≈ 4.3× on the whole program.\n\n\nNext measurement\nWhole-program and block times for 1, 2, 4, 8 workers, pool startup included; per-worker seeds so the result can be checked.\n\n\nWhat could go wrong\nEach fit already uses several BLAS threads; copying the data to every worker costs more than expected. Either would be reported and explained.\n\n\n\nWhat makes it a good starting point: a result that can be checked, a timing of the whole program, a block chosen because it dominates, a hypothesis that predicts a number, and a measurement that could contradict it."
+  },
+  {
+    "objectID": "teaching/parallel_computing/exam.html#ai",
+    "href": "teaching/parallel_computing/exam.html#ai",
+    "title": "Parallel Computing — Exam",
+    "section": "AI assistants",
+    "text": "AI assistants\nYou may use AI tools, including code written by an agent. In the report, say how you used them: only as help while coding, or did an agent write code? If an agent wrote code, say which parts, which of them you read and checked yourselves, and which tests you ran on them. You must be able to tell which code your results rely on and to explain it during the presentation.\nDates are announced in class."
   }
 ]
