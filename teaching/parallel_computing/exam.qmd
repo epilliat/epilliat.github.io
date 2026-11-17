@@ -6,85 +6,67 @@ toc: false
 
 [← Parallel Computing](index.qmd){.back-link}
 
-::: {.callout-warning title="🚧 Under construction"}
-The course has not been taught yet: these exam rules are a draft and may change.
+::: {.callout-warning title="🚧 Draft"}
+These exam rules may change before the course begins.
 :::
 
 ::: {.page-intro}
-**Make real code faster, and prove it.** In groups of **2–3**, take code from a real project
-(ENSAI, personal, or open source), speed up one or several of its building blocks, and
-**measure precisely what you gained**.
-:::
-
-::: {.callout-note title="Summary"}
-- **Groups** of 2–3, on an ENSAI, personal, or open-source project.
-- **Deliverables**: a **report (~8 pages)** and a **30-minute presentation**.
-- **Before you start**: check your project with me, with a first timing.
+**Make real code faster, and measure the difference.** In groups of **2–3**,
+choose an ENSAI, personal, or open-source project, optimize part of its code,
+and evaluate the impact on the whole program.
 :::
 
 ## The task
 
-1. **Present the project** briefly, and how the code runs overall.
-2. **Find where the time goes**, and pick the blocks worth optimizing.
-3. **Optimize them**: parallelize, change the code, or both. The course's tools apply here: compiled or vectorized loops, concurrency and parallelism without sharing, memory locality, batching, and the GPU.
-4. **Measure the speedup**, on the block and on the whole program.
+1. **Introduce the project** and outline its computation.
+2. **Identify bottlenecks** using timings or profiling.
+3. **Optimize selected blocks** using techniques from the course:
+   compilation, vectorization, parallelism, memory locality, batching, or GPU computing.
+4. **Validate the results and measure performance**, both for the optimized
+   blocks and for the whole program.
 
-Choose code that runs long enough to measure and gives a result you can check. Before you start, **check your project with me**: the project, the block you target, and a first timing ([example below](#example-proposal)).
+Choose a workload with measurable runtime and verifiable outputs.
+**Before starting, get my approval**: bring a brief project description,
+a representative input, the output to preserve, initial timings,
+and an optimization idea suited to your hardware.
 
 ## Deliverables
 
-- A **report** of about **8 pages**.
-- A **30-minute presentation**, questions included, in which every member speaks.
+- A **report of about 8 pages** describing your diagnosis, changes, and results.
+- **Runnable code**, with dependencies and instructions to reproduce the comparison.
+- A **30-minute presentation, including questions**, with every member speaking.
 
-## Reproducibility and proposed grading
+Project work and presentations take place **outside the nine teaching hours**.
+Dates will be announced in class.
 
-Submit runnable code (script or notebook), dependencies/versions and a short command or cell sequence
-that reproduces the comparison. Record input size/type, hardware, workers/BLAS threads, warmup,
-repetitions, included costs and the correctness check. Synthetic inputs are fine for confidential projects.
-Report both block and whole-program timings; a well-explained slowdown is a valid finding.
+## Measurements and grading (indication)
+
+Compare the original and optimized code on the same workload, and check
+that their outputs agree within a justified tolerance. Document input size
+and type, hardware, worker and BLAS thread counts, warmup, repetitions,
+and which costs are included.
+
+Report both block and whole-program timings.
+**Your analysis matters more than the size of the speedup**:
+a carefully measured and explained slowdown is a valid finding.
 
 | Criterion | Weight |
 |---|---:|
 | Correctness and validation | 25% |
-| Measurement protocol and reproducibility | 25% |
-| Diagnosis and justification | 25% |
-| Clear report and presentation | 25% |
+| Measurement quality and reproducibility | 25% |
+| Bottleneck diagnosis and justification of changes | 25% |
+| Clarity of the report and presentation | 25% |
 
-When you check your project with me, bring the input, the result to preserve, a first whole-program
-timing, the target block, your hypothesis and the available hardware. Project preparation and the **30-minute presentations are outside
-the nine teaching hours** (30 minutes × number of groups). The ~8-page report format is unchanged.
-
-## Example project {#example-proposal}
-
-An invented case, to show what to bring when you check your project with me. **The numbers are illustrative, not measurements.**
-
-| | |
-|---|---|
-| **Project** | Bootstrap confidence intervals for a regression estimator (Python, NumPy). |
-| **Input** | 50,000 rows × 20 columns, 2,000 resamples, fixed seed. |
-| **Result to preserve** | The interval bounds, compared with a tolerance of 10⁻⁸ for the same seeds. |
-| **First timing** | Whole program 212 s; the resampling loop 187 s (88 %). Laptop, 8 cores, 1 BLAS thread, median of 3 runs after one warmup run, data loading included. |
-| **Target block** | The resampling loop: each resample refits the model independently. |
-| **Hypothesis** | Resamples share nothing, so they can run in separate processes, each returning its estimates. With 88 % of the time in the block, 8 workers give at most 1 / (0.12 + 0.88 / 8) ≈ 4.3× on the whole program. |
-| **Next measurement** | Whole-program and block times for 1, 2, 4, 8 workers, pool startup included; per-worker seeds so the result can be checked. |
-| **What could go wrong** | Each fit already uses several BLAS threads; copying the data to every worker costs more than expected. Either would be reported and explained. |
-
-What makes it a good starting point: a result that can be checked, a timing of the **whole** program,
-a block chosen **because** it dominates, a hypothesis that predicts a number, and a measurement
-that could contradict it.
 
 ## Rules
 
-- **Any language**: Julia, Python, or another one.
-- **Optimized libraries are allowed**, as long as you explain why they are faster.
-- **AI assistants are allowed**: see [below](#ai).
-- **Confidential projects**: run the block on synthetic data of the same size.
+- **Any programming language** is allowed.
+- **Optimized libraries** are allowed: explain how they help.
+- **Confidential projects** may use representative synthetic inputs.
+- **AI assistants** are allowed under the conditions below.
 
 ## AI assistants {#ai}
 
-You may use AI tools, including code written by an agent. In the report, say how you used them:
-only as help while coding, or did an agent write code? If an agent wrote code, say which parts,
-which of them you read and checked yourselves, and which tests you ran on them. You must be able
-to tell which code your results rely on and to explain it during the presentation.
-
-*Dates are announced in class.*
+Briefly disclose how you used AI tools, including coding agents.
+Identify any AI-generated code, what you reviewed, and how you tested it.
+You must be able to explain the code underlying your results during the presentation.
