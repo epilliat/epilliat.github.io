@@ -3,6 +3,11 @@ format:
     history: false
     # Dark-mode toggle. Applied on <html> before first paint so there is no
     # flash of light; the styling itself lives in styles.css (html.lm-dark).
+    # MathJax 2 typesets every slide at load, while reveal keeps all but the nearest
+    # ones display:none. HTML-CSS output then measures widths wrong, and CommonHTML's
+    # matchFontHeight measures the text height as 0 (equations at 50%), until F5.
+    # CommonHTML without matchFontHeight sizes math in em only; scale 109 = the size
+    # matchFontHeight gave on visible slides.
     include-in-header:
       text: |
         <script>
@@ -13,6 +18,7 @@ format:
           if (dark) document.documentElement.classList.add('lm-dark');
         })();
         </script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({menuSettings: {renderer: "CommonHTML"}, CommonHTML: {matchFontHeight: false, scale: 109}});</script>
     include-after-body:
       text: |
         <script>
