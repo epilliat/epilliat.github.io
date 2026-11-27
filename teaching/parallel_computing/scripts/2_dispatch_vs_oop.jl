@@ -35,9 +35,10 @@ total(v) = sum(area, v)
 print("Vector{Circle}: "); @btime total($concrete)
 print("Vector{Shape} : "); @btime total($abstract_elements)
 
-#%% Inspect calls inside the loop
-@code_typed total(concrete)
-@code_typed total(abstract_elements)
+#%% Are the elements stored inline?
+# Circle: radii stored one after another. Shape: one pointer per element,
+# and a type test on each element before calling the right `area`.
+isbitstype(Circle), isbitstype(Shape)
 
 #%% 4. Global variable or argument — same input, predict time and allocations
 glob = rand(1000)  # non-constant global without a type annotation

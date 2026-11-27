@@ -12,7 +12,7 @@
 #   - pi_async  : @sync + @async, same syntax, same work (only CONCURRENCY → ~1x).
 # The third one is the point of the module: concurrency ≠ parallelism, MEASURED.
 #
-# Zero dependency (Base only). CSV `threads,variant,mean_s,std_s,pi_hat` in results/.
+# Standard library only. CSV `threads,variant,mean_s,std_s,pi_hat` in results/.
 
 using Base.Threads
 using Printf

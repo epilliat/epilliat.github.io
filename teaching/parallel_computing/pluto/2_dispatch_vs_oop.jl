@@ -108,30 +108,21 @@ end
 md"""
 Historical observations on the course laptop were about 0.1 µs for `Vector{Circle}` and
 1 µs for `Vector{Shape}`, with zero allocations in both cases (warmed-up BenchmarkTools minima).
-Use the timings from your run; there is no fixed penalty for abstract types.
+Use the timings from your run.
 
-Inspect the calls to `area` in the inferred code. A concrete element type can let Julia resolve
-and inline the method inside the loop.
+Are the elements stored inline in the array?
 """
 
 # ╔═╡ d2000000-0000-4a00-8000-00000000001a
-@code_typed total(abstract_elements)
-
-# ╔═╡ 006f4b78-17e9-44bd-995e-2539ff17f17b
-md"""
-Compare with the concrete element type:
-"""
-
-# ╔═╡ d2000000-0000-4a00-8000-00000000001b
-@code_typed total(concrete)
+isbitstype(Circle), isbitstype(Shape)
 
 # ╔═╡ d2000000-0000-4a00-8000-00000000001c
 md"""
-In this example a dynamic call remains for abstract element storage; the concrete-element
-version resolves and inlines it. Abstract types remain useful for generic interfaces.
-Measure the actual use case rather than assuming that every abstract annotation is slow.
+`Vector{Circle}` stores the radii one after another. `Vector{Shape}` stores one pointer per
+element, and the loop tests the type of each element before calling the right `area`.
+There is no dynamic call here: with two `Shape` subtypes, Julia replaces the call by type tests.
+Abstract types remain useful for generic interfaces.
 """
-
 # ╔═╡ 55f08765-0106-49a5-a7d7-0abe97f4a0c4
 md"""
 ## 4. Global variable or argument?
@@ -313,7 +304,6 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 # ╠═d2000000-0000-4a00-8000-000000000018
 # ╟─d2000000-0000-4a00-8000-000000000019
 # ╠═d2000000-0000-4a00-8000-00000000001a
-# ╟─006f4b78-17e9-44bd-995e-2539ff17f17b
 # ╠═d2000000-0000-4a00-8000-00000000001b
 # ╟─d2000000-0000-4a00-8000-00000000001c
 # ╟─55f08765-0106-49a5-a7d7-0abe97f4a0c4

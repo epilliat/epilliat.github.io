@@ -102,22 +102,23 @@ are reused rather than regenerating radii. Verify the two totals before interpre
 
 Reference observation, 1000 circles, warmed-up calls on the course laptop:
 
-| Element type | Time | Calls inside the loop |
+| Element type | Time | Storage and calls |
 |---|---|---|
-| `Circle` | ~0.1 µs | Resolved and inlined in this example |
-| `Shape` | ~1 µs | Dynamic method calls remain |
+| `Circle` | ~0.1 µs | Values stored inline, `area` inlined |
+| `Shape` | ~1 µs | One pointer per element, type test on each |
 
 . . .
 
-> A concrete element type helps the compiler **resolve calls inside the loop**.
+> A concrete element type lets the compiler **store values inline and skip type tests**.
 
 ::: {.notes}
-▶ Script: cells "Measure the two containers" and "Inspect calls inside the loop".
-Historical rounded BenchmarkTools minimum timings; both versions allocated zero bytes in that
-run. The observed speedup is about 10×, not a guaranteed penalty for abstract types.
-Inspect @code_typed: a dynamic call to area survives for Vector{Shape}. Type information also
-allows inlining and other optimizations. Abstract types are useful for generic interfaces;
-this experiment concerns abstract element storage in a performance-critical loop.
+▶ Script: cells "Measure the two containers" and "Are the elements stored inline?".
+Rounded BenchmarkTools minima on the course laptop; both versions allocate zero bytes.
+isbitstype(Shape) is false: each element of Vector{Shape} is a pointer to a boxed value.
+With only two Shape subtypes, Julia replaces the call to area by type tests on each element
+(union splitting), so there is no dynamic call. With more subtypes, a real dynamic call appears.
+Abstract types are useful for generic interfaces; the cost is in abstract element storage
+inside a performance-critical loop.
 :::
 
 ## Global variable or argument?

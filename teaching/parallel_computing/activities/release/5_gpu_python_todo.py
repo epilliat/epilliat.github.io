@@ -22,7 +22,8 @@ def pi_cpu(n):
 x = torch.tensor([0., 0.5, 1., 1.], dtype=torch.float32)
 y = torch.tensor([0., 0.5, 0., 1.], dtype=torch.float32)
 assert count_in_disk(x, y).item() == 3
-assert count_in_disk(x.cuda(), y.cuda()).item() == 3
+if gpu:
+    assert count_in_disk(x.cuda(), y.cuda()).item() == 3
 
 # %% [markdown]
 # Your turn: `pi_gpu`, the same computation with the draws on the GPU (`torch.rand(n, device='cuda')`).

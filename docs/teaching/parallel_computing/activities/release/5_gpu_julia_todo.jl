@@ -13,7 +13,7 @@ count_in_disk(x, y) = sum(x.^2 .+ y.^2 .<= 1f0)
 fixed_x = Float32[0, .5, 1, 1]
 fixed_y = Float32[0, .5, 0, 1]
 @assert count_in_disk(fixed_x, fixed_y) == 3
-@assert count_in_disk(CuArray(fixed_x), CuArray(fixed_y)) == 3
+gpu_available && @assert count_in_disk(CuArray(fixed_x), CuArray(fixed_y)) == 3
 
 # CPU version, Float32 like CUDA.rand
 pi_cpu(n) = 4 * count_in_disk(rand(Float32, n), rand(Float32, n)) / n

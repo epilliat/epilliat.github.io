@@ -26,7 +26,7 @@ css: ../../../styles.css
 [Waiting activity](#a3a) · [Shared counter](#a3b) · [π in batches](#a3c) · [Optional examples](#appendix)
 
 ::: {.notes}
-Session 2, three hours. Keep the major sections but combine roadmap and objectives here.
+Session 2, three hours.
 Start with a short recall of correctness, first-call time and timed scope. Concurrency is not
 synonymous with I/O, and does not imply one core; overlapping waits is our first use case.
 By the end students should choose a mechanism, recognize a race, reduce local results and
@@ -124,7 +124,7 @@ This is the structure the activity asks for. `asyncio.gather` is the coroutine v
 ## ✏️ Overlap the waits {#a3a}
 
 :::{.nonincremental}
-- **Question:** 20 downloads, one by one or all at once. How long each?
+- **Question:** 20 downloads, one by one or all at once: how long does each option take?
 - **Predict:** both times.
 - **Do:** write the concurrent submission; check you get the **same 20 values**.
 - **Write down:** completed-work times · speedup · real or simulated · [protocol](1_compilation_and_types.qmd#/card)
@@ -176,7 +176,6 @@ bridge to Part B: let them commit to an answer before the next slide.
 ::: {.notes}
 Do not generalize to all Python builds or all native libraries. The process-pool activity
 uses a pure-Python loop. Compiling/vectorizing that loop is another optimization, as in module 1.
-This qualification belongs on the slide rather than only in notes.
 :::
 
 ## Tasks, threads and cores
@@ -227,7 +226,9 @@ The CPU comparison below uses 22 tasks on 22 Julia worker threads in the referen
 
 . . .
 
-π, 10⁸ draws, **22 tasks**. Predict the speedup before comparing:
+π, 10⁸ draws, **22 tasks**. Predict the speedup of `@async` and of `@spawn` over the sequential loop.
+
+. . .
 
 | Implementation | Time | Speedup |
 |---|---|---|
@@ -254,12 +255,15 @@ simultaneously. These are historical rounded observations, not predicted values 
 . . .
 
 ```julia
-hits = 0
-@sync for size in batch_sizes(n, ntasks)
-    Threads.@spawn for _ in 1:size
-        x, y = rand(), rand()
-        hits += (x^2 + y^2 ≤ 1)   # shared read–modify–write
+function pi_race(n; ntasks=nthreads())
+    hits = 0
+    @sync for size in batch_sizes(n, ntasks)
+        Threads.@spawn for _ in 1:size
+            x, y = rand(), rand()
+            hits += (x^2 + y^2 ≤ 1)   # shared read–modify–write
+        end
     end
+    return 4 * hits / n
 end
 ```
 
@@ -335,7 +339,7 @@ to one batch; each row reports its count. Reset and Run to see the counts accumu
 This is a schematic partition, not a scheduling or performance simulation. Real seeded tasks
 may generate different samples when the partition changes. The Python activity instead keeps
 eight seeded jobs fixed and varies only the process-worker count.
-Static alternative for teaching: ../images/lots_reduce.svg. It does not need a separate slide.
+Static version of this figure: ../images/lots_reduce.svg.
 :::
 
 ## Return local counts, then reduce {#reduce}
@@ -377,7 +381,7 @@ Threads.atomic_add!(hits, 1)   # explicit atomic increment
 
 . . .
 
-Reference observation: atomic version **~7× slower than sequential** at 22 worker threads.
+Reference observation: atomic version **5 to 7× slower than sequential** at 22 worker threads.
 
 ::: {.notes}
 ▶ Script: cell "Atomic updates or local counts". An Atomic container does not turn hits += 1
@@ -425,7 +429,7 @@ local activity files are intended to run cell by cell in VS Code/Jupyter.
 ::: {.notes}
 Python uses processes (pure-Python loop, GIL): the timer includes starting them. The Python batches and
 seeds are fixed: changing only the worker count preserves the counts in this environment. A slowdown at this size is a valid result
-if it is explained (startup, imports, too little work per lot).
+if it is explained (startup, imports, too little work per batch).
 :::
 
 ## Debrief: π in batches {#a3c-debrief}
@@ -555,7 +559,7 @@ worker resources and which data is shared. Do not equate the number of tasks and
 ## ✏️ A slow server {#a3d}
 
 :::{.nonincremental}
-- **Question:** one request takes 0.2 s. Two at once? Twenty?
+- **Question:** one request takes 0.2 s. How long do two requests at once take? Twenty?
 - **Predict:** each cell before running it.
 - **Do:** write `fetch_all`; then swap `concurrent` for `serial`.
 - **Write down:** your times · where the waiting happened. 📋 [card](1_compilation_and_types.qmd#/card)
@@ -574,7 +578,7 @@ overlapping waits only helps if the other side can serve several requests at onc
 Optional end, π by the class: each student's server draws one point and answers /inside (0/1)
 and /name (a name or message, "" by default). Before clicking "open the board", run the activity's last cell, "Instructor: the class board"
 (`start_registry()`, Python or Julia) on this laptop; without it, localhost:9000 refuses the connection. Run the cell again to restart with an empty list. The board
-shows the `registry = "…"` line students copy into cell 8, the names (cut at 40 characters),
+shows the `registry = "…"` line students copy into the cell "Optional — π by the whole class", the names (cut at 40 characters),
 each point and π; it refreshes every 3 s.
 School Wi-Fi may isolate clients; a phone hotspot works. Not on Colab.
 :::

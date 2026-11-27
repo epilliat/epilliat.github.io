@@ -13,7 +13,7 @@ Préparation technique et projet/soutenances hors de ces neuf heures.
 
 ## Séance 1 — Mesurer avant d’optimiser
 
-**Slides :** [0 — Julia](slides/0_julia_basics.qmd) (parcours de 15 min), [1 — Mesurer avant d’optimiser](slides/1_compilation_and_types.qmd), [2 — Dispatch](slides/2_dispatch_vs_oop.qmd). L’introduction Julia comporte six slides, titre compris : estimation de π, boucle, syntaxe, deux outils et aide-mémoire. Le module 1 annonce ses trois objectifs ; le module 2 commence directement par une fonction et ses méthodes. Les approfondissements sont regroupés en fin de deck.
+**Slides :** [0 — Julia](slides/0_julia_basics.qmd) (parcours de 15 min), [1 — Mesurer avant d’optimiser](slides/1_compilation_and_types.qmd), [2 — Dispatch](slides/2_dispatch_vs_oop.qmd). Les approfondissements sont en fin de deck.
 
 **Objectifs :** distinguer compilation et exécution ; mesurer un calcul comparable ; vérifier un résultat ; choisir un premier bloc à optimiser. Julia sert de démonstration, Python reste la voie de manipulation par défaut.
 
@@ -29,12 +29,12 @@ Préparation technique et projet/soutenances hors de ces neuf heures.
 | 105–120 | 15 | π séquentiel : chronométrage, points fixes au compte connu et erreur standard ; puis speedup local/global (formule et comparaison A/B), juste avant le diagnostic. | Expliquer pourquoi on n’exige pas l’égalité exacte avec π ni entre deux exécutions. |
 | 120–140 | 20 | **Diagnostic.** Trois étapes d’un petit pipeline sont chronométrées ; choisir un bloc, annoncer un gain global plausible puis vérifier sur une variante fournie. | Tableau temps bloc/temps total, résultat contrôlé et décision argumentée. |
 | 140–150 | 10 | **Pause.** | — |
-| 150–170 | 20 | Dispatch et types : une fonction, plusieurs méthodes ; paire ordonnée de types ; mêmes cercles dans deux conteneurs ; globale non constante/non typée versus argument. Huit slides de contenu, sans intercalaires ; activité Julia facultative. | Comprendre que même source n’implique pas même coût, sans mémoriser Visitor ou `multipledispatch`. |
+| 150–170 | 20 | Dispatch et types : une fonction, plusieurs méthodes ; paire ordonnée de types ; mêmes cercles dans deux conteneurs ; globale non constante/non typée versus argument. Activité Julia facultative. | Comprendre que même source n’implique pas même coût, sans mémoriser Visitor ou `multipledispatch`. |
 | 170–180 | 10 | Ticket de sortie et amorce de projet : une mesure invalide à corriger, un candidat de bloc réel. | Protocole corrigé + bloc candidat. |
 
-**Coût d’une boucle, consigne complète :** « Avant d’exécuter, classez les variantes. Complétez la somme sans `sum`, vérifiez l’assertion, mesurez après warmup et notez N, type, machine, temps et ratio. Expliquez ce qui a changé. » Support : [compilation Python](activities/release/1_warmup_python_todo.ipynb) ou [Julia](activities/release/1_warmup_julia_todo.jl). Les 20 minutes comprennent lecture/aide/exécution ; le débrief avec les courbes et l’explication dispose ensuite de 20 minutes. Le notebook chronomètre maintenant le **premier appel** numba séparément du régime stabilisé.
+**Coût d’une boucle, consigne complète :** « Avant d’exécuter, classez les variantes. Complétez la somme sans `sum`, vérifiez l’assertion, mesurez après warmup et notez N, type, machine, temps et ratio. Expliquez ce qui a changé. » Support : [compilation Python](activities/release/1_warmup_python_todo.ipynb) ou [Julia](activities/release/1_warmup_julia_todo.jl). Les 20 minutes comprennent lecture/aide/exécution ; le débrief avec les courbes et l’explication dispose ensuite de 20 minutes. Le notebook chronomètre le **premier appel** numba séparément du régime stabilisé.
 
-**Diagnostic, consigne complète :** Ouvrir [le notebook diagnostic](activities/release/1_diagnostic_python_todo.ipynb). Cas de réflexion complémentaire : « Le bloc A prend 10 % du temps et pourrait être accéléré ×10 ; B prend 80 % et pourrait être accéléré ×2. Lequel choisissez-vous ? Vérifiez sur les timings donnés puis sur une version fournie. » Attendu : distinguer gain local et total, puis vérifier la sortie. Cela prépare l’examen sans restaurer le profiling retiré. Une mesure manuelle autour de grosses fonctions suffit.
+**Diagnostic, consigne complète :** Ouvrir [le notebook diagnostic](activities/release/1_diagnostic_python_todo.ipynb). Cas de réflexion complémentaire : « Le bloc A prend 10 % du temps et pourrait être accéléré ×10 ; B prend 80 % et pourrait être accéléré ×2. Lequel choisissez-vous ? Vérifiez sur les timings donnés puis sur une version fournie. » Attendu : distinguer gain local et total, puis vérifier la sortie. Cela prépare l’examen : une mesure manuelle autour de grosses fonctions suffit.
 
 ## Séance 2 — Attendre ensemble, calculer séparément
 
@@ -85,7 +85,7 @@ Préparation technique et projet/soutenances hors de ces neuf heures.
 
 **Deux ordres de boucles :** [release Python 4](activities/release/4_locality_python_todo.ipynb) ou [Julia 4](activities/release/4_locality_julia_todo.jl). La prédiction est écrite **avant** d’inspecter `A.strides` ; la slide de débrief donne la règle. Ceux qui finissent tôt testent une petite matrice. Garder une taille suffisante pour l’effet mémoire sur le matériel choisi, sans prétendre qu’un seuil de cache est universel.
 
-**Batching :** « Pour traiter les mêmes exemples, comparez un à un et par lots. Quel B atteint le débit visé ? Que coûtent l’attente du batch et ses buffers d’entrée/sortie ? » C’est une activité de choix et de mesure, pas une nouvelle abstraction de programmation. Slides et activité utilisent la **même référence** : un produit matrice-vecteur par exemple, sur les mêmes exemples. Seule la taille de `W` diffère (4 MiB en activité, 64 MiB en démonstration) : c’est une prédiction à faire, sans annoncer le sens de l’écart.
+**Batching :** « Pour traiter les mêmes exemples, comparez un à un et par lots. Quel B atteint le débit visé ? Que coûtent l’attente du batch et ses buffers d’entrée/sortie ? » Slides et activité utilisent la **même référence** : un produit matrice-vecteur par exemple, sur les mêmes exemples. Seule la taille de `W` diffère (4 MiB en activité, 64 MiB en démonstration) : c’est une prédiction à faire, sans annoncer le sens de l’écart.
 
 **π sur la carte :** [release Python 5](activities/release/5_gpu_python_todo.ipynb) ou [Julia 5](activities/release/5_gpu_julia_todo.jl). « Où sont générés x et y ? Que faut-il attendre pour arrêter le timer ? Quel résultat revient au CPU ? La taille testée atteint-elle la précision requise ? » Sans GPU, même travail de prédiction et d’analyse sur mesures préenregistrées, plus vérification CPU du compteur sur un petit jeu de points. On n’invente pas une mesure de carte.
 

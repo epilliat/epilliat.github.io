@@ -308,29 +308,29 @@ Emmanuel Pilliat — ENSAI 3A
 <tr class="header">
 <th>Element type</th>
 <th>Time</th>
-<th>Calls inside the loop</th>
+<th>Storage and calls</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td><code>Circle</code></td>
 <td>~0.1 µs</td>
-<td>Resolved and inlined in this example</td>
+<td>Values stored inline, <code>area</code> inlined</td>
 </tr>
 <tr class="even">
 <td><code>Shape</code></td>
 <td>~1 µs</td>
-<td>Dynamic method calls remain</td>
+<td>One pointer per element, type test on each</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
 <blockquote>
-<p>A concrete element type helps the compiler <strong>resolve calls inside the loop</strong>.</p>
+<p>A concrete element type lets the compiler <strong>store values inline and skip type tests</strong>.</p>
 </blockquote>
 <aside class="notes">
-<p>▶ Script: cells “Measure the two containers” and “Inspect calls inside the loop”. Historical rounded BenchmarkTools minimum timings; both versions allocated zero bytes in that run. The observed speedup is about 10×, not a guaranteed penalty for abstract types. Inspect <span class="citation" data-cites="code_typed">@code_typed</span>: a dynamic call to area survives for Vector{Shape}. Type information also allows inlining and other optimizations. Abstract types are useful for generic interfaces; this experiment concerns abstract element storage in a performance-critical loop.</p>
+<p>▶ Script: cells “Measure the two containers” and “Are the elements stored inline?”. Rounded BenchmarkTools minima on the course laptop; both versions allocate zero bytes. isbitstype(Shape) is false: each element of Vector{Shape} is a pointer to a boxed value. With only two Shape subtypes, Julia replaces the call to area by type tests on each element (union splitting), so there is no dynamic call. With more subtypes, a real dynamic call appears. Abstract types are useful for generic interfaces; the cost is in abstract element storage inside a performance-critical loop.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

@@ -31,13 +31,13 @@ def prepare(strings):  # strings -> token ids on the GPU, padded on the left
     return tokenizer(texts, padding=True, add_special_tokens=False, return_tensors="pt").to("cuda")
 
 @torch.inference_mode()
-def answer_batch(strings, max_tokens=64):
+def answer_batch(strings, max_tokens=128):
     batch = prepare(strings)
     out = model.generate(**batch, max_new_tokens=max_tokens, do_sample=False,
                          pad_token_id=tokenizer.pad_token_id)
     return tokenizer.batch_decode(out[:, batch["input_ids"].shape[1]:], skip_special_tokens=True)
 
-def answer(string, max_tokens=64):
+def answer(string, max_tokens=128):
     return answer_batch([string], max_tokens)[0]
 
 # Timings: the same prompt B times, exactly N_TOKENS new tokens per answer.
@@ -49,9 +49,9 @@ FIXED = GenerationConfig(max_new_tokens=N_TOKENS, min_new_tokens=N_TOKENS, do_sa
 
 @torch.inference_mode()
 def generate(batch):
-    return model.generate(**batch, generation_config=FIXED)
+    return model.generate(**batch, generation_config=FIXED, use_model_defaults=False)
 
-def measure(B, repeats=3):  # -> (seconds for one call with B requests, peak GPU memory MiB)
+def measure(B, repeats=7):  # -> (seconds for one call with B requests, peak GPU memory MiB)
     batch = prepare([PROMPT] * B)
     for _ in range(3):  # warm up (the GPU clock also needs a few calls)
         generate(batch)

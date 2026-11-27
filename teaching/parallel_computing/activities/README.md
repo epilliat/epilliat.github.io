@@ -39,14 +39,14 @@ the student activity links. There is no grading framework or additional abstract
 
 `6_llm_batching_python.ipynb` is the instructor version; distribute the generated notebook/script
 in `release/`. Allow 30 minutes **after the core course, only if time remains**. Prepare
-`transformers>=4.45,<5`, matplotlib, CUDA PyTorch and the cached `Qwen/Qwen2.5-0.5B-Instruct`
+`transformers>=4.56,<5`, matplotlib, CUDA PyTorch and the cached `Qwen/Qwen2.5-0.5B-Instruct`
 weights in advance. Run the complete instructor notebook on the classroom GPU before teaching.
-The current authoring environment has no accessible CUDA GPU; no reference timings are supplied.
+The instructor notebook keeps the outputs of a run on an RTX 1000 Ada laptop GPU as reference timings.
 
-Students first edit ordinary strings through `repondre` and `repondre_batch`. Those cells work
+Students first edit ordinary strings through `answer` and `answer_batch`. Those cells work
 before the single exercise (two metric formulas). Benchmarking uses repeated equal prompts,
 fixed output length, greedy decoding, resident inputs, synchronized warm measurements and medians.
-Compare B=1…16, then equal total work (successive requests versus a batch). The model is fully on
+Compare B=1…128, then equal total work (successive requests versus a batch). The model is fully on
 GPU in FP16; no automatic CPU offload or quantization. On OOM the sweep stops at the last working
 size. If B=1 fails, restart on a suitable GPU. Without a GPU, interpret another group's recorded
 measurements and name their source; the activity has no invented GPU results.

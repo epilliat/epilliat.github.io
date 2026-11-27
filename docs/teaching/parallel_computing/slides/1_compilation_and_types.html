@@ -293,7 +293,7 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="a1" class="slide level2">
 <h2>✏️ What does a loop cost?</h2>
 <ul>
-<li><strong>Question:</strong> same sum: Python loop, <code>numpy</code>, <code>numba</code>. How far apart? What does the first call cost?</li>
+<li><strong>Question:</strong> same sum: Python loop, <code>numpy</code>, <code>numba</code>. How many times faster is each version? What does the first call cost?</li>
 <li><strong>Predict:</strong> your ranking and one speedup, <strong>before</strong> running.</li>
 <li><strong>Do:</strong> fill the two functions, check the assertion.</li>
 <li><strong>Write down:</strong> first call · warmed-up times · speedups · one sentence explaining the gap.</li>
@@ -377,7 +377,7 @@ Emmanuel Pilliat — ENSAI 3A
 <p>Compare your results. Which variants have a first-call cost? Which warmed-up speedups differ?</p>
 </blockquote>
 <aside class="notes">
-<p>Warmed-up median = median of the last 10% of calls. Values recomputed from the existing experiences/warmup_jit/results/warmup_*.csv traces; no new benchmark run. 2000 calls per fast variant; 200 for pure Python. The first-call column is the first sample. Do not compare class-machine times with the reference as evidence of a language effect. A compilation effect is compatible with the initial spikes; CPU/cache warmup also affects timings.</p>
+<p>Warmed-up median = median of the last 10% of calls. Values recomputed from the existing experiences/warmup_jit/results/warmup_*.csv traces. 2000 calls per fast variant; 200 for pure Python. The first-call column is the first sample. Do not compare class-machine times with the reference as evidence of a language effect. A compilation effect is compatible with the initial spikes; CPU/cache warmup also affects timings.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -705,7 +705,7 @@ Emmanuel Pilliat — ENSAI 3A
 </ol>
 <div class="fragment">
 <blockquote>
-<p><strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html">Multiple dispatch</a> · <a href="https://github.com/epilliat/epilliat.github.io/tree/master/teaching/parallel_computing/experiences/warmup_jit">Reference experiment</a></p>
+<p><strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html">Dispatch, types, and performance</a> · <a href="https://github.com/epilliat/epilliat.github.io/tree/master/teaching/parallel_computing/experiences/warmup_jit">Reference experiment</a></p>
 </blockquote>
 </div>
 </section></section>
@@ -784,8 +784,8 @@ add_int(%1, 1)</code></pre>
 </div></div>
 <ul>
 <li class="fragment">One line, <strong>two native functions</strong></li>
-<li class="fragment">No type check: types <strong>known at compile time</strong></li>
-<li class="fragment">Not known? <strong>Type instability</strong>, with dispatch</li>
+<li class="fragment">The types are <strong>known at compile time</strong>, so the native code has no type check</li>
+<li class="fragment">When the types are not known, the code is <strong>type-unstable</strong>: see the dispatch module</li>
 </ul>
 </div>
 </section>
@@ -847,7 +847,7 @@ add_int(%1, 1)</code></pre>
 <p>Which instructions and how many accumulators does each reduction use?</p>
 </blockquote>
 <aside class="notes">
-<p>▶ Script: cells “5. Optional — Base <code>sum</code> vs our loop” and “Base <code>sum</code>”. These historical, rounded BenchmarkTools minimum timings are from the course laptop, not new measurements. This smaller input is explicitly a separate cache-resident experiment.</p>
+<p>▶ Script: cells “5. Optional — Base <code>sum</code> vs our loop” and “Base <code>sum</code>”. Rounded BenchmarkTools minimum timings from the course laptop. This smaller input fits in cache: it is a separate experiment.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

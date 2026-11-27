@@ -30,7 +30,7 @@ end
 let
     println("footprint | average ns per element")
     for kb in (8, 24, 64, 256, 1024, 4096, 16384, 65536)
-        n = kb * 128                       # KB → number of Float64
+        n = kb * 128                       # KiB → number of Float64
         a = rand(n)
         passes = max(1, 100_000_000 ÷ n)   # ≈ constant total access volume
         t = @belapsed repeated_sum($a, $passes) seconds=1
@@ -73,14 +73,14 @@ end
 
 #%% Test the effect of matrix size: how does the loop-order ratio change?
 let
-    println("  size  |  columns (ms) |  rows (ms) | ratio")
+    println("  size  |  columns (µs) |  rows (µs) | ratio")
     for m in (100, 500, 1000, 2000, 4000)
         B = rand(m, m)
         tc = @belapsed sum_by_columns($B) seconds=1
         tr = @belapsed sum_by_rows($B) seconds=1
         kb = Base.summarysize(B) ÷ 1024
-        println("$(lpad(m, 5))² ($(lpad(kb, 6)) KB) | $(lpad(round(tc*1e3, digits=2), 8)) | " *
-                "$(lpad(round(tr*1e3, digits=2), 8)) | $(lpad(round(tr/tc, digits=1), 5))x")
+        println("$(lpad(m, 5))² ($(lpad(kb, 6)) KiB) | $(lpad(round(Int, tc*1e6), 8)) | " *
+                "$(lpad(round(Int, tr*1e6), 8)) | $(lpad(round(tr/tc, digits=1), 5))x")
     end
 end
 

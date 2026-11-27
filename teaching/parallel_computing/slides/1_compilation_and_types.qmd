@@ -79,7 +79,7 @@ are illustrative, not benchmark targets or a hardware ranking. Record the enviro
 ## ✏️ What does a loop cost? {#a1}
 
 :::{.nonincremental}
-- **Question:** same sum: Python loop, `numpy`, `numba`. How far apart? What does the first call cost?
+- **Question:** same sum: Python loop, `numpy`, `numba`. How many times faster is each version? What does the first call cost?
 - **Predict:** your ranking and one speedup, **before** running.
 - **Do:** fill the two functions, check the assertion.
 - **Write down:** first call · warmed-up times · speedups · one sentence explaining the gap.
@@ -135,7 +135,7 @@ Course laptop, **10⁶ Float64 values**: per-call elapsed times (rounded).
 
 ::: {.notes}
 Warmed-up median = median of the last 10% of calls. Values recomputed from the existing
-experiences/warmup_jit/results/warmup_*.csv traces; no new benchmark run.
+experiences/warmup_jit/results/warmup_*.csv traces.
 2000 calls per fast variant; 200 for pure Python. The first-call column is the first sample.
 Do not compare class-machine times with the reference as evidence of a language effect.
 A compilation effect is compatible with the initial spikes; CPU/cache warmup also affects timings.
@@ -336,7 +336,7 @@ allocation, changed data movement or work shifted to another stage.
 
 . . .
 
-> **Next:** [Multiple dispatch](2_dispatch_vs_oop.qmd) · [Reference experiment](https://github.com/epilliat/epilliat.github.io/tree/master/teaching/parallel_computing/experiences/warmup_jit)
+> **Next:** [Dispatch, types, and performance](2_dispatch_vs_oop.qmd) · [Reference experiment](https://github.com/epilliat/epilliat.github.io/tree/master/teaching/parallel_computing/experiences/warmup_jit)
 
 # Optional — type specialization {#appendix-compiler style="text-align: center;"}
 
@@ -407,8 +407,8 @@ lea     rax, [2*rdi + 1]
 ::::
 
 - One line, **two native functions**
-- No type check: types **known at compile time**
-- Not known? **Type instability**, with dispatch
+- The types are **known at compile time**, so the native code has no type check
+- When the types are not known, the code is **type-unstable**: see the dispatch module
 
 
 ## Inspecting the π estimator's types
@@ -448,8 +448,8 @@ Separate reference experiment: **10⁵ Float64 values**, warmed-up timings:
 
 ::: {.notes}
 ▶ Script: cells "5. Optional — Base `sum` vs our loop" and "Base `sum`".
-These historical, rounded BenchmarkTools minimum timings are from the course laptop, not new
-measurements. This smaller input is explicitly a separate cache-resident experiment.
+Rounded BenchmarkTools minimum timings from the course laptop. This smaller input fits in cache:
+it is a separate experiment.
 :::
 
 ## Scalar and SIMD reductions

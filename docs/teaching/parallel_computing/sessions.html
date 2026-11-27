@@ -186,7 +186,7 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <section id="séance-1-mesurer-avant-doptimiser" class="level2">
 <h2 class="anchored" data-anchor-id="séance-1-mesurer-avant-doptimiser">Séance 1 — Mesurer avant d’optimiser</h2>
-<p><strong>Slides :</strong> <a href="../../teaching/parallel_computing/slides/0_julia_basics.html">0 — Julia</a> (parcours de 15 min), <a href="../../teaching/parallel_computing/slides/1_compilation_and_types.html">1 — Mesurer avant d’optimiser</a>, <a href="../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html">2 — Dispatch</a>. L’introduction Julia comporte six slides, titre compris : estimation de π, boucle, syntaxe, deux outils et aide-mémoire. Le module 1 annonce ses trois objectifs ; le module 2 commence directement par une fonction et ses méthodes. Les approfondissements sont regroupés en fin de deck.</p>
+<p><strong>Slides :</strong> <a href="../../teaching/parallel_computing/slides/0_julia_basics.html">0 — Julia</a> (parcours de 15 min), <a href="../../teaching/parallel_computing/slides/1_compilation_and_types.html">1 — Mesurer avant d’optimiser</a>, <a href="../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html">2 — Dispatch</a>. Les approfondissements sont en fin de deck.</p>
 <p><strong>Objectifs :</strong> distinguer compilation et exécution ; mesurer un calcul comparable ; vérifier un résultat ; choisir un premier bloc à optimiser. Julia sert de démonstration, Python reste la voie de manipulation par défaut.</p>
 <table class="caption-top table">
 <colgroup>
@@ -267,7 +267,7 @@ ul.task-list li input[type="checkbox"] {
 <tr class="odd">
 <td>150–170</td>
 <td style="text-align: right;">20</td>
-<td>Dispatch et types : une fonction, plusieurs méthodes ; paire ordonnée de types ; mêmes cercles dans deux conteneurs ; globale non constante/non typée versus argument. Huit slides de contenu, sans intercalaires ; activité Julia facultative.</td>
+<td>Dispatch et types : une fonction, plusieurs méthodes ; paire ordonnée de types ; mêmes cercles dans deux conteneurs ; globale non constante/non typée versus argument. Activité Julia facultative.</td>
 <td>Comprendre que même source n’implique pas même coût, sans mémoriser Visitor ou <code>multipledispatch</code>.</td>
 </tr>
 <tr class="even">
@@ -278,8 +278,8 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 </tbody>
 </table>
-<p><strong>Coût d’une boucle, consigne complète :</strong> « Avant d’exécuter, classez les variantes. Complétez la somme sans <code>sum</code>, vérifiez l’assertion, mesurez après warmup et notez N, type, machine, temps et ratio. Expliquez ce qui a changé. » Support : <a href="activities/release/1_warmup_python_todo.ipynb">compilation Python</a> ou <a href="activities/release/1_warmup_julia_todo.jl">Julia</a>. Les 20 minutes comprennent lecture/aide/exécution ; le débrief avec les courbes et l’explication dispose ensuite de 20 minutes. Le notebook chronomètre maintenant le <strong>premier appel</strong> numba séparément du régime stabilisé.</p>
-<p><strong>Diagnostic, consigne complète :</strong> Ouvrir <a href="activities/release/1_diagnostic_python_todo.ipynb">le notebook diagnostic</a>. Cas de réflexion complémentaire : « Le bloc A prend 10 % du temps et pourrait être accéléré ×10 ; B prend 80 % et pourrait être accéléré ×2. Lequel choisissez-vous ? Vérifiez sur les timings donnés puis sur une version fournie. » Attendu : distinguer gain local et total, puis vérifier la sortie. Cela prépare l’examen sans restaurer le profiling retiré. Une mesure manuelle autour de grosses fonctions suffit.</p>
+<p><strong>Coût d’une boucle, consigne complète :</strong> « Avant d’exécuter, classez les variantes. Complétez la somme sans <code>sum</code>, vérifiez l’assertion, mesurez après warmup et notez N, type, machine, temps et ratio. Expliquez ce qui a changé. » Support : <a href="activities/release/1_warmup_python_todo.ipynb">compilation Python</a> ou <a href="activities/release/1_warmup_julia_todo.jl">Julia</a>. Les 20 minutes comprennent lecture/aide/exécution ; le débrief avec les courbes et l’explication dispose ensuite de 20 minutes. Le notebook chronomètre le <strong>premier appel</strong> numba séparément du régime stabilisé.</p>
+<p><strong>Diagnostic, consigne complète :</strong> Ouvrir <a href="activities/release/1_diagnostic_python_todo.ipynb">le notebook diagnostic</a>. Cas de réflexion complémentaire : « Le bloc A prend 10 % du temps et pourrait être accéléré ×10 ; B prend 80 % et pourrait être accéléré ×2. Lequel choisissez-vous ? Vérifiez sur les timings donnés puis sur une version fournie. » Attendu : distinguer gain local et total, puis vérifier la sortie. Cela prépare l’examen : une mesure manuelle autour de grosses fonctions suffit.</p>
 </section>
 <section id="séance-2-attendre-ensemble-calculer-séparément" class="level2">
 <h2 class="anchored" data-anchor-id="séance-2-attendre-ensemble-calculer-séparément">Séance 2 — Attendre ensemble, calculer séparément</h2>
@@ -468,7 +468,7 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 <p><strong>Deux ordres de boucles :</strong> <a href="activities/release/4_locality_python_todo.ipynb">release Python 4</a> ou <a href="activities/release/4_locality_julia_todo.jl">Julia 4</a>. La prédiction est écrite <strong>avant</strong> d’inspecter <code>A.strides</code> ; la slide de débrief donne la règle. Ceux qui finissent tôt testent une petite matrice. Garder une taille suffisante pour l’effet mémoire sur le matériel choisi, sans prétendre qu’un seuil de cache est universel.</p>
-<p><strong>Batching :</strong> « Pour traiter les mêmes exemples, comparez un à un et par lots. Quel B atteint le débit visé ? Que coûtent l’attente du batch et ses buffers d’entrée/sortie ? » C’est une activité de choix et de mesure, pas une nouvelle abstraction de programmation. Slides et activité utilisent la <strong>même référence</strong> : un produit matrice-vecteur par exemple, sur les mêmes exemples. Seule la taille de <code>W</code> diffère (4 MiB en activité, 64 MiB en démonstration) : c’est une prédiction à faire, sans annoncer le sens de l’écart.</p>
+<p><strong>Batching :</strong> « Pour traiter les mêmes exemples, comparez un à un et par lots. Quel B atteint le débit visé ? Que coûtent l’attente du batch et ses buffers d’entrée/sortie ? » Slides et activité utilisent la <strong>même référence</strong> : un produit matrice-vecteur par exemple, sur les mêmes exemples. Seule la taille de <code>W</code> diffère (4 MiB en activité, 64 MiB en démonstration) : c’est une prédiction à faire, sans annoncer le sens de l’écart.</p>
 <p><strong>π sur la carte :</strong> <a href="activities/release/5_gpu_python_todo.ipynb">release Python 5</a> ou <a href="activities/release/5_gpu_julia_todo.jl">Julia 5</a>. « Où sont générés x et y ? Que faut-il attendre pour arrêter le timer ? Quel résultat revient au CPU ? La taille testée atteint-elle la précision requise ? » Sans GPU, même travail de prédiction et d’analyse sur mesures préenregistrées, plus vérification CPU du compteur sur un petit jeu de points. On n’invente pas une mesure de carte.</p>
 <p><strong>Total vérifié :</strong> séance 1 = 180 ; séance 2 = 180 ; séance 3 = 180. Six pauses × 10 = 60 minutes. Temps restant = 480 minutes, incluant explications, activités, débriefs, transitions et tickets de sortie. La précision minute par minute est un budget : en classe, les tickets et approfondissements servent de marge, pas les activités principales.</p>
 </section>
