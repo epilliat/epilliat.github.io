@@ -1,4 +1,4 @@
-# Overlap the waits (Part A) and π in lots (Part B), Julia.  20 min + 30 min.
+# Overlap the waits (Part A) and π in batches (Part B), Julia.  20 min + 30 min.
 # One blank per part. Run each #%% cell; run small timings twice (the 1st run compiles).
 # Part B needs several threads: julia --threads=auto  (VS Code: "julia.NumThreads": "auto", restart the REPL)
 
@@ -86,8 +86,8 @@ println("Final cumulative ratio (optional interpretation): ", last(cum))
 # ============================================================================
 # Part B — CPU work
 # ============================================================================
-#%% setup
-"Count how many of `n` random points land inside the unit quarter-disk."
+#%% setup — task count and execution resources are distinct
+"Count how many of n random points land inside the unit quarter-disk."
 function count_in_disk(n)
     inside = 0
     for _ in 1:n
@@ -98,54 +98,68 @@ function count_in_disk(n)
     end
     return inside
 end
-k = Threads.nthreads()          # must be > 1 — see the header if this says 1
-n = k * 1_000_000  # divisible by k; same total for sequential/parallel timing
-println("threads: ", k)
+function batch_sizes(n, ntasks)
+    q, r = divrem(n, ntasks)               # q draws per batch, r left over
+    sizes = fill(q, ntasks)
+    sizes[1:r] .+= 1                       # the first r batches take one more
+    return sizes
+end
+nbatches = 8
+n = 1_000_003
+println("batches: ", nbatches, "; Julia worker threads: ", Threads.nthreads(), "; draws: ", n)
+@assert sum(batch_sizes(n, nbatches)) == n
 
-#%% Given: every task adds into the SAME counter
-function pi_race(n, k)
-    per = n ÷ k
+#%% Given: every task updates the SAME counter (intentional race)
+function pi_race(n, nbatches)
     hits = 0
-    @sync for _ in 1:k
-        Threads.@spawn for _ in 1:per
+    @sync for size in batch_sizes(n, nbatches)
+        Threads.@spawn for _ in 1:size
             x, y = rand(), rand()
             hits += (x^2 + y^2 ≤ 1)
         end
     end
-    return 4 * hits / (per * k)
+    return 4 * hits / n
 end
-pi_race(10_000_000, k)     # run this cell 2-3 times
+pi_race(n, nbatches)     # run 2–3 times; explain the race, not a specific wrong value
 
-#%% One task on another thread: start it, then fetch its result
+#%% One task: schedule it, then fetch its result
 t = Threads.@spawn count_in_disk(1_000_000)
 fetch(t)
 
-#%% Two tasks, two results, one sum
+#%% Two tasks, two local results
 t1 = Threads.@spawn count_in_disk(1_000_000)
 t2 = Threads.@spawn count_in_disk(1_000_000)
 fetch(t1) + fetch(t2)
 
-#%% Your turn: no sharing — each task counts on its own, then we add the k results
-function pi_spawn(n, k)
-    per = n ÷ k
-    # ✏️ your turn: one Threads.@spawn count_in_disk(per) per task, then 4 * (sum of the fetch-ed counts) / (per * k)
+#%% Your turn: each task returns a count; the parent sums
+function pi_spawn(n, nbatches)
+    sizes = batch_sizes(n, nbatches)
+    # ✏️ your turn: spawn count_in_disk(size) for each size; fetch and sum the returned counts, then multiply by 4/n
     error("remove this line and write your code")
 end
 
-#%% pi_spawn vs one thread
-println("pi_spawn = ", pi_spawn(n, k), "   (π = ", Float64(π), ")")   # also compiles it
-count_in_disk(1000)                                     # compile before timing
-t_seq   = @elapsed count_in_disk(n)
-t_spawn = @elapsed pi_spawn(n, k)
-println("one thread : ", round(t_seq, digits=3), " s")
-println("@spawn × $k : ", round(t_spawn, digits=3), " s   → ", round(t_seq / t_spawn, digits=1), "×")
+#%% Check counting logic separately from Monte-Carlo accuracy
+fixed_points = [(0.0, 0.0), (0.5, 0.5), (1.0, 0.0), (1.0, 1.0)]
+@assert count(p -> p[1]^2 + p[2]^2 ≤ 1, fixed_points) == 3
 
-#%% Given: the same code with @async
-function pi_async(n, k)
-    per = n ÷ k
-    tasks = [@async count_in_disk(per) for _ in 1:k]
-    return 4 * sum(fetch, tasks) / (per * k)
+#%% pi_spawn vs sequential — warm up, then repeat timings
+function fastest_time(f, args...)
+    f(args...)                                  # warm up (the 1st call compiles)
+    times = [@elapsed(f(args...)) for _ in 1:3]
+    return minimum(times)
 end
-pi_async(1000, k)
-t_async = @elapsed pi_async(n, k)
-println("@async × $k : ", round(t_async, digits=3), " s   → ", round(t_seq / t_async, digits=1), "×")
+println("pi_spawn = ", pi_spawn(n, nbatches), "   (π = ", Float64(π), ")")
+t_seq = fastest_time(count_in_disk, n)
+t_spawn = fastest_time(pi_spawn, n, nbatches)
+println("sequential: ", round(t_seq, digits=3), " s; task reduction: ", round(t_spawn, digits=3), " s; speedup: ", round(t_seq/t_spawn, digits=1))
+
+#%% Given: the same batches with @async
+function pi_async(n, nbatches)
+    sizes = batch_sizes(n, nbatches)
+    tasks = [@async count_in_disk(size) for size in sizes]
+    return 4 * sum(fetch, tasks) / n
+end
+t_async = fastest_time(pi_async, n, nbatches)
+println("@async: ", round(t_async, digits=3), " s; speedup: ", round(t_seq/t_async, digits=1))
+# The random samples are not fixed here; different estimates need not agree exactly.
+# Explain time, allocations/scheduling scope, and the difference between tasks and worker threads.

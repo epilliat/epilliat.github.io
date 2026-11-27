@@ -4,6 +4,8 @@
 # %% [markdown]
 # # What does a loop cost? — 20 minutes
 # The same 10⁶ numbers summed three ways: your `for` loop, `numpy`, `numba`.
+#
+# Before running, predict the ranking of the three variants and the first-call cost.
 
 # %%
 import time, timeit, numpy as np
@@ -37,7 +39,7 @@ t_loop = best(lambda: mysum(v_list))
 t_np   = best(lambda: np.sum(v))
 print("your Python loop :", ms(t_loop))
 print("numpy.sum        :", ms(t_np))
-print(f"ratio loop / numpy : {t_loop/t_np:.0f}×")
+print(f"speedup vs Python loop (NumPy) : {t_loop/t_np:.0f}×")
 
 # %% [markdown]
 # ## 2. Your turn — the same loop, compiled
@@ -58,12 +60,15 @@ def sum_numba(x):
     raise NotImplementedError("remove this line and write your code")
 
 # %%
-# Run me — the very first call is timed on its own, then the steady state.
+# Run me — the very first call is timed on its own, then the warmed-up calls.
 t0 = time.perf_counter(); first = sum_numba(v); t_first = time.perf_counter() - t0
 assert abs(first - np.sum(v)) < 1e-6, 'sum_numba should return the sum'
 t_nb = best(lambda: sum_numba(v))
-print("numba, 1st call  :", ms(t_first))
-print("numba, later     :", ms(t_nb))
+print("numba, first call  :", ms(t_first))
+print("numba, warmed up     :", ms(t_nb))
 print("your pure loop   :", ms(t_loop))
-print(f"ratio loop / numba (later calls) : {t_loop/t_nb:.0f}×")
-print(f"ratio 1st call / later calls     : {t_first/t_nb:.0f}×")
+print(f"speedup vs Python loop (warmed-up Numba) : {t_loop/t_nb:.0f}×")
+print(f"first-call / warmed-up time     : {t_first/t_nb:.0f}×")
+
+# %% [markdown]
+# **Explain:** report first-call and warmed-up times separately. Where does each variant execute the loop? List one difference besides compilation between the Python-list and NumPy-array paths. Record your measurement protocol.

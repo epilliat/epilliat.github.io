@@ -188,6 +188,7 @@
       margin-right: 0; 
     }
   </style>
+  <script type="text/x-mathjax-config">MathJax.Hub.Config({menuSettings: {renderer: "CommonHTML"}, CommonHTML: {matchFontHeight: false, scale: 109}});</script>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -195,7 +196,7 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">4 — Memory &amp; batching</h1>
-  <p class="subtitle">Move less data: use what you loaded, and use it again</p>
+  <p class="subtitle">Memory access patterns, data reuse, and batch-size choices</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -207,18 +208,16 @@ Emmanuel Pilliat — ENSAI 3A
 
 </section>
 <section id="path" class="slide level2">
-<h2>Today’s path</h2>
+<h2>Memory access and data reuse</h2>
 <ol type="1">
-<li><strong>The CPU waits for memory</strong>: latency vs throughput.</li>
-<li><strong>Locality</strong>: ✏️ <a href="#/a4">same sum, two loop orders</a></li>
-<li><strong>Batching</strong>: ✏️ <a href="#/a5">same examples, one by one or in lots</a></li>
+<li>Distinguish <strong>access latency</strong> from processing rate.</li>
+<li>Test <strong>loop order</strong> against the array layout. <a href="#/a4">Locality activity</a></li>
+<li>Choose a <strong>batch size</strong> using time and memory constraints. <a href="#/a5">Batching activity</a></li>
 </ol>
 <div class="fragment">
-<blockquote>
-<p>Only if time: <a href="#/appendix">NumPy and layout, allocations, FLOP per byte</a></p>
-</blockquote>
+<p><a href="../scripts/4_memory_and_gpu.jl">Script</a> · <a href="../pluto/4_memory_and_gpu.jl">Julia notebook</a> · <a href="../python/4_memory_and_gpu_python.ipynb">Python notebook</a> · <a href="#/appendix">Optional references</a></p>
 <aside class="notes">
-<p>Session 3, minutes 0–95. Open with a 10-minute recall: “share less” — and now ask <em>where the data lives</em> (RAM, caches, GPU memory) on a simple diagram. Compilation made one core fast; threads used many. Today’s enemy is the distance to the data. One script and one notebook cover this deck AND the GPU deck.</p>
+<p>Session 3, minutes 0–95, including the two activities. Start with a ten-minute recall: where are the data: caches, RAM, GPU memory? Compilation and task splitting do not remove data-movement costs. One script and one notebook cover both this chapter and the GPU chapter.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -232,79 +231,57 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="by-the-end-you-can" class="slide level2">
-<h2>By the end, you can</h2>
-<ul>
-<li>link the <strong>order of accesses</strong> to the run time;</li>
-<li>tell <strong>latency</strong> from <strong>throughput</strong>;</li>
-<li>choose a <strong>batch size</strong> from a measurement.</li>
-</ul>
-<div class="fragment">
-<blockquote>
-<p>▶ <a href="../scripts/4_memory_and_gpu.jl">Script</a> (§1–3) · <a href="../pluto/4_memory_and_gpu.jl">Notebook</a> · 🐍 <a href="../python/4_memory_and_gpu_python.ipynb">numpy</a></p>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p>⬅ <a href="../../../teaching/parallel_computing/slides/3_threads_and_concurrency.html">3 — Threads</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/5_gpu.html">5 — GPU</a> ➡</p>
-</blockquote>
-</div>
-</section>
 <section>
-<section id="the-cpu-waits-for-memory" class="title-slide slide level1 center" style="text-align: center;">
-<h1>The CPU waits for memory</h1>
+<section id="memory-and-locality" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Memory and locality</h1>
 
 </section>
 <section id="the-memory-hierarchy" class="slide level2">
 <h2>The memory hierarchy</h2>
-<ul>
-<li class="fragment">Add two floats: <strong>&lt; 1 ns</strong>. Fetch from RAM: <strong>~100 ns</strong>.</li>
-</ul>
 <div class="fragment">
 <table class="caption-top">
 <thead>
 <tr class="header">
 <th>Level</th>
-<th>Size</th>
-<th>Latency</th>
-<th>If L1 = 1 s</th>
+<th>Typical capacity</th>
+<th>Typical latency</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>registers</td>
-<td>~100s B</td>
-<td>~0</td>
-<td>instant</td>
+<td>Registers</td>
+<td>&lt; 1 KiB per core</td>
+<td>none</td>
 </tr>
 <tr class="even">
-<td><strong>L1</strong></td>
-<td>32–64 KB / core</td>
+<td>L1</td>
+<td>32–64 KiB per core</td>
 <td>~1 ns</td>
-<td>1 s</td>
 </tr>
 <tr class="odd">
-<td><strong>L2</strong></td>
-<td>256 KB–1 MB</td>
+<td>L2</td>
+<td>256 KiB–2 MiB</td>
 <td>~4 ns</td>
-<td>4 s</td>
 </tr>
 <tr class="even">
-<td><strong>L3</strong></td>
-<td>8–32 MB</td>
+<td>L3</td>
+<td>8–32 MiB</td>
 <td>~15 ns</td>
-<td>15 s</td>
 </tr>
 <tr class="odd">
-<td><strong>RAM</strong></td>
-<td>16–64 GB</td>
+<td>RAM</td>
+<td>16–64 GiB</td>
 <td>~100 ns</td>
-<td><strong>~2 min</strong></td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="fragment">
+<blockquote>
+<p>The core looks in L1, then L2, then L3, then RAM. Smaller memories are closer to the core.</p>
+</blockquote>
 <aside class="notes">
-<p>While waiting, the core could have done hundreds of operations. This machine: L1d 544 KiB total (14 instances), L2 18 MiB total (9 × 2 MiB instances, not one core’s cache), L3 24 MiB shared. Hybrid CPU (P/E/LP-E cores) — per-core L1 differs, hence “instances”. <code>lscpu</code> shows it; the script asks students to compare with their own.</p>
+<p>Indicative orders of magnitude, not specifications for every processor. Registers: x86-64 has 16 general-purpose 64-bit registers and 16 vector registers (256 bits with AVX2, as on the reference laptop). Cache sharing differs by level and core design. Reference laptop: 24 MiB shared L3; L1d 544 KiB in 14 instances, L2 18 MiB in 9 instances. Do not interpret aggregate cache sizes as a single core’s cache. Access latency is not the mean time per element in a streaming loop.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -318,81 +295,138 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="caches-rely-on-locality" class="slide level2">
-<h2>Caches rely on locality</h2>
+<section id="who-decides-where-data-live" class="slide level2">
+<h2>Who decides where data live?</h2>
 <ul>
-<li class="fragment"><strong>Temporal</strong>: used now → used again soon.</li>
-<li class="fragment"><strong>Spatial</strong>: used now → <strong>neighbors</strong> next.</li>
-<li class="fragment">Memory moves in <strong>lines</strong> of 64 B = 8 Float64.</li>
+<li class="fragment"><strong>Registers:</strong> the compiler. In <code>s += a[i]</code>, the local variable <code>s</code> stays in a register.</li>
+<li class="fragment"><strong>L1, L2, L3:</strong> the hardware, automatically. No instruction says “keep this array in L2”.</li>
+<li class="fragment"><strong>You:</strong> indirectly, through access order, data size and reuse.</li>
 </ul>
-</section>
-<section id="same-array-growing-size" class="slide level2" style="text-align: center;">
-<h2>Same array, growing size</h2>
-<div class="fragment">
-<p>Sum the <strong>same array</strong> many times, from <strong>8 KB to 64 MB</strong>.</p>
-</div>
-<div class="fragment">
-<p>L1 ≈ 1 ns, RAM ≈ 100 ns.</p>
-</div>
 <div class="fragment">
 <blockquote>
-<h3 id="how-much-slower-per-access-at-64-mb">How much slower per access at 64 MB?</h3>
+<p>On a GPU, part of this is explicit: a fast on-chip <strong>shared memory</strong> is managed by the programmer.</p>
 </blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p><em>(~100×? Write it down.)</em></p>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “1. The memory hierarchy — the cache cliff”</p>
-</blockquote>
+<aside class="notes">
+<p>When registers run out, the compiler “spills” variables to the stack, which in practice lives in L1. The compiler inspection of module 1 (optional section) shows the accumulator in a register (xmm/ymm). Expert hints exist but are out of scope: prefetch instructions, stores that bypass the cache, cache partitioning on servers. The two experiments of this deck act on access order and reuse. GPU (NVIDIA): registers per thread, shared memory per block of threads (explicit, e.g. CuStaticSharedArray in CUDA.jl), global memory = VRAM, plus automatic L1/L2 caches. Not used in this course. A warp is a group of 32 threads executing together, not a memory level.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
 </section>
-<section id="the-cache-cliff-measured" class="slide level2">
-<h2>The cache cliff, measured</h2>
+<section id="two-forms-of-locality" class="slide level2">
+<h2>Two forms of locality</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>passes                 <span class="co"># repeated_sum(a, passes)</span></span>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Locality</th>
+<th>Practical idea</th>
+<th>Experiment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Spatial</td>
+<td>Use neighboring values</td>
+<td>Loop order</td>
+</tr>
+<tr class="even">
+<td>Temporal</td>
+<td>Reuse recently accessed values</td>
+<td>Batching</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<blockquote>
+<p>On the reference machine, a 64-byte cache line holds <strong>eight Float64 values</strong>.</p>
+</blockquote>
+<aside class="notes">
+<p>A cache line is a transfer unit, not one individual array entry. Temporal reuse depends on working-set size and access order; merely repeating a computation does not ensure a cache hit.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="repeated-sums-as-the-array-grows" class="slide level2">
+<h2>Repeated sums as the array grows</h2>
+<div class="fragment">
+<p>Sum an array repeatedly, varying its footprint from <strong>8 KiB to 64 MiB</strong>.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>passes</span>
 <span id="cb1-2"><a></a>    <span class="pp">@inbounds</span> <span class="pp">@simd</span> <span class="cf">for</span> i <span class="kw">in</span> <span class="fu">eachindex</span>(a)</span>
 <span id="cb1-3"><a></a>        s <span class="op">+=</span> a[i]</span>
 <span id="cb1-4"><a></a>    <span class="cf">end</span></span>
 <span id="cb1-5"><a></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
+<blockquote>
+<p>Predict how the <strong>average time per element</strong> changes with array size.</p>
+</blockquote>
+<aside class="notes">
+<p>▶ Script: cell “1. Repeated sums as the array grows”. Keep approximately the same total number of element visits. The metric is elapsed time divided by passes × length(a). It is an aggregate processing-rate measurement, not a dependent-load latency measurement. Show selected footprints rather than the entire sweep.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="array-size-and-processing-rate" class="slide level2">
+<h2>Array size and processing rate</h2>
+<div class="fragment">
+<p>Reference observations on the course laptop:</p>
 <table class="caption-top">
 <thead>
 <tr class="header">
-<th>footprint</th>
-<th>ns / access</th>
-<th>lives in</th>
+<th>Footprint</th>
+<th>Average ns / element</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>8 KB</td>
-<td><strong>0.049</strong></td>
-<td>L1</td>
+<td>8 KiB</td>
+<td>0.049</td>
 </tr>
 <tr class="even">
-<td>4 MB</td>
-<td><strong>0.128</strong></td>
-<td>L2 / L3</td>
+<td>4 MiB</td>
+<td>0.128</td>
 </tr>
 <tr class="odd">
-<td>64 MB</td>
-<td><strong>0.317</strong></td>
-<td>RAM (&gt; 24 MiB L3)</td>
+<td>64 MiB</td>
+<td>0.317</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
 <blockquote>
-<p>Steps visible. But <span style="background-color: yellow;"><strong>6.5×, not ~100×</strong></span>. Why?</p>
+<p>A larger working set changes the processing rate. These numbers are <strong>not individual access latencies</strong>.</p>
 </blockquote>
 <aside class="notes">
-<p>Absolute values are machine- and load-sensitive: run at rest and look for the JUMPS, not the exact ns. Full sweep (8 KB → 64 MB) is in the notebook/script: show one table, not the whole sweep.</p>
+<p>Historical rounded BenchmarkTools minimum timings normalized by all processed elements. The reference L3 is 24 MiB. Cache capacity, prefetching, vectorization and other hardware behavior contribute. Do not assign every point to one cache level from timing alone.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -407,18 +441,18 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section>
 <section id="latency" class="slide level2">
-<h2>Why 6.5×? Throughput vs latency</h2>
+<h2>Latency is not time per element</h2>
 <ul>
-<li class="fragment"><strong>Latency</strong>: the wait for <strong>one unpredictable</strong> access (the table).</li>
-<li class="fragment">Our loop reads <strong>in order</strong> → hardware loads the next lines early.</li>
-<li class="fragment">We pay for the <strong>bandwidth</strong> (throughput), not for each wait.</li>
+<li class="fragment"><strong>Latency:</strong> delay until one requested value is available.</li>
+<li class="fragment"><strong>Transfer unit:</strong> RAM sends a whole cache line (64 bytes) in one burst over the <strong>bus</strong> (the wires between RAM and the chip), a few bytes per step.</li>
+<li class="fragment"><strong>Processing rate:</strong> in an in-order scan, the CPU requests the next lines before they are needed, so the waits overlap.</li>
 </ul>
 <div class="fragment">
 <blockquote>
-<p>100× is real when the next address is <span style="background-color: yellow;"><strong>unpredictable</strong></span> (linked list, random indices).</p>
+<p>Average time per element can be much smaller than access latency.</p>
 </blockquote>
 <aside class="notes">
-<p>Not “the table is wrong” nor “machine noise”. The part of the hardware that loads lines early is the <em>prefetcher</em>. Latency and bandwidth are different resources; a streaming sum is bandwidth-bound, a linked-list walk is latency-bound. The same pair comes back with batching: time per request vs examples per second.</p>
+<p>One wait of ~100 ns brings 8 Float64. At 64 MiB we measure 0.317 ns per element, i.e.&nbsp;~25 GB/s for one core; with ~100 ns latency that needs ~2.5 KB, i.e.&nbsp;~40 cache lines, in flight at once (rate × latency). The prefetchers keep that many requests going. Analogy: order many pizzas at once instead of waiting for each one; every delivery still takes 30 minutes (latency), but one arrives every minute (rate). Bus width depends on the memory type; the line is always 64 bytes. DDR4: 64-bit channel, 8 transfers per line. DDR5: 32-bit subchannels, 16 transfers. Reference laptop: LPDDR5 at 7467 MT/s, 8 channels of 16 bits, so 32 transfers of 2 bytes per line, ~120 GB/s peak over all channels. Do not confuse with a “64-bit processor”: that is the width of registers and addresses (a Float64 fits in one register). The CPU–GPU link of the GPU module (PCIe) is another link. Prefetching and multiple outstanding accesses can hide latency in a stream. A dependent pointer-chasing traversal is another experiment; random addresses alone do not necessarily prevent overlapping reads. Later, distinguish per-request latency from examples per second.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -433,12 +467,12 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section></section>
 <section>
-<section id="experiment-1-locality" class="title-slide slide level1 center" style="text-align: center;">
-<h1>Experiment 1 — locality</h1>
+<section id="experiment-1-use-neighboring-data" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Experiment 1 — use neighboring data</h1>
 
 </section>
-<section id="two-walks-same-maths" class="slide level2">
-<h2>Two walks, same maths</h2>
+<section id="two-loop-orders-the-same-sum" class="slide level2">
+<h2>Two loop orders, the same sum</h2>
 <div class="fragment">
 <p>Sum an 8000×8000 matrix, two loop orders:</p>
 </div>
@@ -462,24 +496,37 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 <div class="fragment">
 <blockquote>
-<p><strong>Which one is faster, and by how much?</strong> ▶ Script: cell “2. Locality — the same sum, walked two ways”</p>
+<p>Which order is faster? Predict before measuring.</p>
 </blockquote>
+<aside class="notes">
+<p>▶ Script: cell “2. Locality — the same sum, walked two ways”. Julia dense column-major matrix. The sum is mathematically unchanged, but floating-point rounding can depend on the addition order.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
 </section>
 <section id="a4" class="slide level2">
 <h2>✏️ Two loop orders</h2>
 <ul>
-<li><strong>Question:</strong> which index should vary fastest <strong>for your array</strong>?</li>
-<li><strong>Alone:</strong> write your prediction and a ratio (3 min); <em>then</em> look at <code>A.strides</code>.</li>
-<li><strong>In pairs:</strong> write the second loop order; check both sums agree; time both.</li>
-<li><strong>Write down:</strong> ratio · which index is contiguous, and how you know. 📋 <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html#/card">card</a></li>
+<li><strong>Question:</strong> which index should vary fastest for this array?</li>
+<li><strong>Predict:</strong> the faster order, then inspect <code>A.strides</code>.</li>
+<li><strong>Do:</strong> write the compiled loop; check within tolerance; time both.</li>
+<li><strong>Write down:</strong> speedup · contiguous index · <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html#/card">measurement protocol</a></li>
 </ul>
 <div class="fragment">
 <blockquote>
 <p>🐍 <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/4_locality_python_todo.ipynb">Python (Colab)</a> · <a href="../activities/release/4_locality_python_todo.py">local .py</a> · <a href="../activities/release/4_locality_julia_todo.jl">Julia</a> · <strong>20 min</strong></p>
 </blockquote>
 <aside class="notes">
-<p>Collect predictions on the board BEFORE anyone opens the notebook. The two tracks give opposite answers: put one Python pair and one Julia pair side by side in the debrief. Fast pairs: shrink the matrix until the gap vanishes — that is the next experiment.</p>
+<p>Collect predictions on the board BEFORE anyone opens the notebook. The two tracks give opposite answers: put one Python and one Julia result side by side in the debrief. Python uses Numba-compiled loops so the interpreter does not dominate the comparison. Compile/warm up before timing. Those who finish early: shrink the matrix and observe whether the gap decreases.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -493,43 +540,38 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="a4-debrief" class="slide level2 smaller">
-<h2>Debrief: 11.9× for swapping two loops</h2>
+<section id="a4-debrief" class="slide level2">
+<h2>Loop order and memory layout</h2>
 <div class="fragment">
-<p>Julia, 8000² Float64 = 512 MB ≫ cache:</p>
-</div>
-<div class="fragment">
+<p>Reference: Julia, <strong>8000² Float64 ≈ 488 MiB</strong>.</p>
 <table class="caption-top">
 <thead>
 <tr class="header">
-<th>walk</th>
-<th>time</th>
-<th>each 64 B line…</th>
+<th>Walk</th>
+<th>Time</th>
+<th>Access pattern</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>columns</td>
-<td><strong>30.4 ms</strong></td>
-<td><strong>fully used</strong> (8 values)</td>
+<td>Columns</td>
+<td>30.4 ms</td>
+<td>Consecutive values</td>
 </tr>
 <tr class="even">
-<td>rows</td>
-<td><strong>361.4 ms</strong></td>
-<td><strong>one</strong> value, then evicted</td>
+<td>Rows</td>
+<td>361.4 ms</td>
+<td>Large strides</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li class="fragment">Julia: <strong>column by column</strong>. NumPy default (C-contiguous): <strong>row by row</strong> — the opposite.</li>
-</ul>
 </div>
 <div class="fragment">
 <blockquote>
-<p><strong>Rule:</strong> inner loop along <span style="background-color: yellow;"><strong>contiguous memory</strong></span>. Wrong order: silently slow.</p>
+<p>Contiguous accesses make better use of cache lines and prefetching.</p>
 </blockquote>
 <aside class="notes">
-<p>Julia: M[i,j] and M[i+1,j] are neighbors; the Python track found the opposite ranking. “Row-major” is the default for the C-contiguous arrays used here; a NumPy array can also be F-contiguous or a strided view. The rule is about the layout you actually have, not the language.</p>
+<p>Historical rounded minimum timings on the course laptop: about 11.9× in this case. The timings do not establish that each noncontiguous cache line supplies exactly one value before eviction. Julia dense matrices are column-major; the Python activity uses C-contiguous arrays, so the preferred inner index differs. Array views can have other stride patterns.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -543,56 +585,40 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="test-the-locality-explanation" class="slide level2">
-<h2>Test the locality explanation 🔬</h2>
+<section id="test-the-effect-of-matrix-size" class="slide level2">
+<h2>Test the effect of matrix size</h2>
 <div class="fragment">
-<p>If Julia just “preferred columns”, the gap would show at <strong>any</strong> size.</p>
+<p>If locality matters, how should the difference change for a smaller matrix?</p>
 </div>
-<div class="fragment">
-<blockquote>
-<h3 id="shrink-the-matrix.-when-does-the-gap-vanish">Shrink the matrix. When does the gap vanish?</h3>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “Test the locality explanation”</p>
-</blockquote>
-</div>
-</section>
-<section id="test-the-locality-explanation-debrief" class="slide level2">
-<h2>Test the locality explanation — debrief</h2>
 <div class="fragment">
 <table class="caption-top">
 <thead>
 <tr class="header">
-<th>size</th>
-<th>footprint</th>
-<th>rows / columns</th>
+<th>Matrix</th>
+<th>Footprint</th>
+<th>Rows / columns</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>100²</td>
-<td>78 KB — <strong>fits</strong> in cache</td>
-<td><strong>0.9×</strong></td>
+<td>78 KiB</td>
+<td>0.9×</td>
 </tr>
 <tr class="even">
 <td>4000²</td>
-<td>122 MB — <strong>spills</strong></td>
-<td><strong>7.2×</strong></td>
+<td>122 MiB</td>
+<td>7.2×</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li class="fragment">The gap appears <strong>when the data outgrows the cache</strong>.</li>
-</ul>
 </div>
 <div class="fragment">
 <blockquote>
-<p>The gap comes from <span style="background-color: yellow;"><strong>whether the next value is already in cache</strong></span>.</p>
+<p>The difference is small <strong>here</strong> when the matrix fits in cache.</p>
 </blockquote>
 <aside class="notes">
-<p>Small matrix: everything is already close, so the order cannot matter. Strongest argument of the module: it supports a locality explanation; cache, prefetching and TLB effects are not isolated — say “consistent with”, not “proves”. Pluto: interactive slider. Script: full table (100² → 4000²).</p>
+<p>▶ Script: cell “Test the effect of matrix size”. Historical reference observations. The size-dependent gap supports a locality explanation; it does not isolate cache effects from prefetching and translation costs, or guarantee that loop order stops mattering in cache. Collect a prediction before revealing the table. Compare with smaller inputs in the activity.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -607,26 +633,23 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section></section>
 <section>
-<section id="experiment-2-batching" class="title-slide slide level1 center" style="text-align: center;">
-<h1>Experiment 2 — batching</h1>
+<section id="experiment-2-reuse-data" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Experiment 2 — reuse data</h1>
 
 </section>
-<section id="one-example-at-a-time-or-a-lot-at-once" class="slide level2">
-<h2>One example at a time, or a lot at once?</h2>
-<ul>
-<li class="fragment"><code>W * x</code>: each weight loaded, used <strong>once</strong>.</li>
-<li class="fragment"><code>W * X</code>, <strong>B</strong> columns: each weight used <strong>B times</strong> per load.</li>
-</ul>
+<section id="one-example-or-a-batch" class="slide level2">
+<h2>One example or a batch?</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a></a>y <span class="op">=</span> W <span class="op">*</span> x     <span class="co"># 1 example</span></span>
-<span id="cb4-2"><a></a>Y <span class="op">=</span> W <span class="op">*</span> X     <span class="co"># B examples</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a></a>y <span class="op">=</span> W <span class="op">*</span> x     <span class="co"># one example</span></span>
+<span id="cb4-2"><a></a>Y <span class="op">=</span> W <span class="op">*</span> X     <span class="co"># B examples, stored as columns</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Batching lets matrix multiplication <strong>reuse weights across examples</strong>.</p>
 </div>
 <div class="fragment">
 <blockquote>
-<p>Same examples, same results. Batching <span style="background-color: yellow;"><strong>reuses the data it loaded</strong></span>.</p>
+<p><code>W</code>: 4096² Float32 = <strong>64 MiB</strong>. What happens to the time per example as <code>B</code> increases?</p>
 </blockquote>
 <aside class="notes">
-<p>Not a GPU trick: if the mechanism is reuse, it must already pay on the CPU.</p>
+<p>▶ Script: cell “3. Batching: one layer W, B examples”. Actual traffic depends on tiling, caches and implementation; do not say each weight is loaded exactly once per batch. The reference is a true matrix-vector product W*x, not a one-column matrix product. The demonstration reports time per batch and per example; the activity holds the total number of examples fixed. Both compare with individual matrix-vector products.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -640,29 +663,13 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="batching-on-the-cpu" class="slide level2">
-<h2>Batching on the CPU</h2>
-<div class="fragment">
-<p><code>W</code>: 4096² Float32 = <strong>64 MiB</strong> &gt; L3. Same examples, one <code>W * x</code> each, or <code>W * X</code> by lots of <code>B</code>.</p>
-</div>
-<div class="fragment">
-<blockquote>
-<h3 id="what-happens-to-the-time-per-example">What happens to the time <strong>per example</strong>?</h3>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “3. Batching: one layer W, B examples”</p>
-</blockquote>
-</div>
-</section>
 <section id="a5" class="slide level2">
 <h2>✏️ Batch the same workload</h2>
 <ul>
-<li><strong>Question:</strong> 128 examples, one by one or in lots of <code>B</code> = 1, 8, 64. Which <code>B</code> is best per example?</li>
-<li><strong>Alone:</strong> predict (3 min). Here <code>W</code> is 4 MiB, not 64: same gain?</li>
-<li><strong>In pairs:</strong> write the batched product; check the outputs match.</li>
-<li><strong>Write down:</strong> <code>B</code> · total · per example · vs one by one · your choice of <code>B</code>. 📋 <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html#/card">card</a></li>
+<li><strong>Question:</strong> 128 examples, one by one or in batches?</li>
+<li><strong>Predict:</strong> <code>B</code> = 1, 8, 64.</li>
+<li><strong>Do:</strong> write the batched product; check within tolerance.</li>
+<li><strong>Write down:</strong> time/example · buffers · choice of <code>B</code> · <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html#/card">protocol</a></li>
 </ul>
 <div class="fragment">
 <blockquote>
@@ -683,67 +690,53 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="a5-debrief" class="slide level2 smaller">
-<h2>Debrief: batching, measured on the CPU</h2>
+<section id="a5-debrief" class="slide level2">
+<h2>Batching: measured speedups</h2>
 <div class="fragment">
-<p><code>W</code> = 64 MiB. One by one (<code>W * x</code>): <strong>1090 µs / example</strong>.</p>
-</div>
-<div class="fragment">
+<p>Reference, <code>W</code> = 64 MiB: <strong><code>W * x</code> = 1090 µs per example</strong>.</p>
 <table class="caption-top">
-<colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>B</th>
-<th>total</th>
+<th>ms / batch</th>
 <th>µs / example</th>
-<th>vs one by one</th>
+<th>Speedup vs <code>W*x</code></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>1</td>
-<td>2.55 ms</td>
-<td>2551.8</td>
-<td>0.4×</td>
-</tr>
-<tr class="even">
 <td>8</td>
-<td>5.65 ms</td>
+<td>5.65</td>
 <td>706.0</td>
 <td>1.5×</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>64</td>
-<td>11.06 ms</td>
+<td>11.06</td>
 <td>172.9</td>
 <td>6.3×</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>256</td>
-<td>39.06 ms</td>
+<td>39.06</td>
 <td>152.6</td>
 <td>7.1×</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>1024</td>
-<td>141.80 ms</td>
+<td>141.80</td>
 <td>138.5</td>
-<td><span style="background-color: yellow;"><strong>7.9×</strong></span></td>
+<td>7.9×</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
 <blockquote>
-<p><strong>Compare</strong> with your table (4 MiB <code>W</code>). Same gain? <strong>Explain</strong> why.</p>
+<p>Compare the trend with your measurements. Larger batches give <strong>diminishing returns</strong> here.</p>
 </blockquote>
 <aside class="notes">
-<p>B=1 here is a one-column matrix product (W * X[:,1:1]), slower than a true matrix-vector product (2.55 vs 1.09 ms): a lot of one is not the reference, and it is not free. Against the B=1 row of this table the ratio would read 18.4×; against the honest one-by-one reference it is 7.9×. Quote 7.9×. Activity with a 4 MiB W: do NOT expect the gain to vanish. On a test machine (1 BLAS thread) it was still ~9× at B=64: W no longer streams from RAM, but it does not fit in L1/L2 either, and one call per example pays its own overhead. Several mechanisms, one ratio: the honest debrief is “which measurement separates them?” — vary m, vary BLAS threads. numpy (python/4) gives almost the same numbers as Julia on the 64 MiB case.</p>
+<p>Historical rounded BenchmarkTools minimum timings on the course laptop, not new measurements. The reference is single-vector GEMV. B=1 as a one-column matrix product took 2551.8 µs in this run; it is intentionally omitted to avoid confusing it with the 1090-µs vector reference. The activity uses a smaller W (4 MiB), fixed BLAS threads and the same total of 128 examples. A gain can remain even if W fits in L3: cache reuse at other levels and call overhead also matter. A plateau alone does not identify the limiting resource. Vary dimensions and BLAS threads to test it.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -757,47 +750,19 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="why-b-1024-barely-helps-any-more" class="slide level2">
-<h2>Why B = 1024 barely helps any more</h2>
-<div class="fragment">
-<p>2551.8 → 172.9 (B=64) → 152.6 (B=256) → 138.5 µs: <strong>flattens</strong>.</p>
+<section id="choosing-the-batch-size" class="slide level2">
+<h2>Choosing the batch size</h2>
 <ul>
-<li class="fragment"><code>W</code> = <strong>64 MiB</strong> &gt; <strong>24 MiB L3</strong>: a <em>fixed</em> RAM stream per lot.</li>
-<li class="fragment">Batching divides it by B:</li>
-</ul>
-</div>
-<div class="fragment">
-<p><span class="math display">\[\text{time per example} \approx \text{compute} + \frac{\text{stream } W}{B}\]</span></p>
-<ul>
-<li class="fragment">B ≈ 256: second term tiny.</li>
-</ul>
-<aside class="notes">
-<p>The 1/B model fits: 138.5 µs ≈ pure compute per example; 2551.8 ≈ that plus the whole W stream. This is why python/4 uses n=4096: at 2000² W (16 MB) fits in L3 and the mechanism disappears.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="a-bigger-batch-is-not-always-better" class="slide level2">
-<h2>A bigger batch is not always better</h2>
-<ul>
-<li class="fragment"><strong>Throughput</strong>: examples per second. Grows with <code>B</code>, then flattens.</li>
-<li class="fragment"><strong>Latency</strong>: one request waits for the 63 others of its lot.</li>
+<li class="fragment"><strong>Throughput:</strong> larger batches can reduce time per example.</li>
+<li class="fragment"><strong>Latency:</strong> requests may wait for the batch to fill <strong>and finish</strong>.</li>
+<li class="fragment"><strong>Memory:</strong> larger batches need larger input/output buffers.</li>
 </ul>
 <div class="fragment">
 <blockquote>
-<p>Choose <code>B</code> for the <strong>objective</strong>: overnight job or interactive service?</p>
+<p>Choose the smallest batch that meets throughput and latency targets within the memory budget.</p>
 </blockquote>
 <aside class="notes">
-<p>Same pair as earlier today (one access vs a stream). Last question of the activity. For the project: state which of the two you optimize.</p>
+<p>For offline work choose a batch near the best observed throughput without unnecessary buffers. The activity’s input/output payload per batch is a model, not a measurement of peak process RAM: the full dataset is already resident and concatenation also allocates memory. Queueing time is not measured by the matrix-product timer. An optional simplified model is t_example ≈ t_compute + t_load/B. It suggests amortization, but does not identify which term dominates or prove compute-bound execution.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -811,64 +776,53 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="what-we-keep" class="slide level2">
-<h2>What we keep</h2>
+<section id="three-practical-choices" class="slide level2">
+<h2>Three practical choices</h2>
 <ul>
-<li><strong>Neighbors</strong> are cheap, <strong>jumps</strong> are not.</li>
-<li>Inner loop along contiguous memory: check <strong>your</strong> layout.</li>
-<li>Batching <strong>reuses loaded data</strong>, even on a CPU.</li>
-<li>Throughput and latency are <strong>different objectives</strong>.</li>
+<li>Follow the array’s <strong>memory layout</strong>.</li>
+<li><strong>Reuse data</strong> across computations.</li>
+<li>Choose batch size by measuring <strong>throughput, latency and memory use</strong>.</li>
 </ul>
 <div class="fragment">
 <blockquote>
-<p>⬅ <a href="../../../teaching/parallel_computing/slides/3_threads_and_concurrency.html">3 — Threads &amp; concurrency</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/5_gpu.html">5 — GPU</a> ➡</p>
+<p><strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/5_gpu.html">GPU</a> — data movement and reuse matter there too.</p>
 </blockquote>
 </div>
 </section></section>
 <section>
 <section id="appendix" class="title-slide slide level1 center" style="text-align: center;">
-<h1>Only if time</h1>
+<h1>Optional references</h1>
 
 </section>
-<section id="numpy-hides-the-layout-cost-doesnt-remove-it" class="slide level2">
-<h2>numpy hides the layout cost, doesn’t remove it</h2>
+<section id="library-routines-can-adapt-to-layout" class="slide level2">
+<h2>Library routines can adapt to layout</h2>
 <div class="fragment">
-<p>C-order vs F-order arrays, 8000²:</p>
-</div>
-<div class="fragment">
+<p>Compare an explicit <strong>compiled loop</strong> with a library reduction on the same array layouts.</p>
 <table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>numpy</th>
-<th>ratio</th>
-<th>why</th>
+<th>Operation</th>
+<th>Reference observation</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>A.sum(axis=0)</code></td>
-<td><strong>≈ 1×</strong></td>
-<td>numpy <strong>reorders</strong></td>
+<td>NumPy <code>A.sum(axis=0)</code>, C vs F order</td>
+<td>Similar times in this run</td>
 </tr>
 <tr class="even">
-<td>copy F→C / C→C</td>
-<td><strong>13.2×</strong> (109.5 / 8.3 ms)</td>
-<td>source/destination layouts differ</td>
+<td>Copy F→C versus C→C</td>
+<td>109.5 versus 8.3 ms</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
 <blockquote>
-<p><span style="background-color: yellow;">numpy hides the layout cost; Julia shows it. Neither removes it.</span></p>
+<p>Inspect the layout and measure the <strong>operation</strong>; library routines need not follow your loop order.</p>
 </blockquote>
 <aside class="notes">
-<p>On <code>sum</code>, someone wrote the reordering for you. A mismatched copy or a hand-written loop: the full penalty is back. Measured: sum(axis=0) C/F = 1.14× at 8000², 0.77× at 2000² — noise around 1×, and load-sensitive (0.45× seen under load). Don’t over-read either side of 1×. Demo lives in the Python notebook (python/4).</p>
+<p>Python notebook: compiled locality loops, then this optional library/layout comparison. The historical 8000² reduction ratio was about 1×; a mismatched copy was 13.2× slower. Those are observations, not properties of all NumPy reductions. A library can choose traversal and blocking strategies; the comparison is explicit loops versus optimized routines, not Python versus Julia. Views and strides still matter. Verify outputs within tolerance before timing.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -882,51 +836,39 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="allocating-is-memory-traffic-too" class="slide level2">
-<h2>Allocating is memory traffic too</h2>
+<section id="reuse-output-buffers-when-beneficial" class="slide level2">
+<h2>Reuse output buffers when beneficial</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a></a>z <span class="op">=</span> <span class="fl">2</span> <span class="op">.*</span> x <span class="op">.+</span> y      <span class="co"># NEW 76 MiB array</span></span>
-<span id="cb5-2"><a></a>z <span class="op">.=</span> <span class="fl">2</span> <span class="op">.*</span> x <span class="op">.+</span> y     <span class="co"># reuses z</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “Optional — allocating is memory traffic too”</p>
-</blockquote>
-</div>
-<div class="fragment">
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a></a>z <span class="op">=</span> <span class="fl">2</span> <span class="op">.*</span> x <span class="op">.+</span> y      <span class="co"># allocate an output array</span></span>
+<span id="cb5-2"><a></a>z <span class="op">.=</span> <span class="fl">2</span> <span class="op">.*</span> x <span class="op">.+</span> y     <span class="co"># reuse the existing output</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>n = 10⁷</th>
-<th>time</th>
-<th>allocated</th>
+<th>Reference, n = 10⁷</th>
+<th>Time</th>
+<th>Allocated</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>z = …</code></td>
+<td>New output</td>
 <td>54 ms</td>
 <td>76 MiB</td>
 </tr>
 <tr class="even">
-<td><code>z .= …</code></td>
-<td><strong>17 ms</strong></td>
-<td><span style="background-color: yellow;"><strong>0 bytes</strong></span></td>
+<td>Reused output</td>
+<td>17 ms</td>
+<td>0 bytes</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
 <blockquote>
-<p>One dot: <strong>~3×</strong>. But <strong>measure</strong>: the gain isn’t always there.</p>
+<p>Reuse avoids an allocation; the computation still <strong>reads and writes data</strong>.</p>
 </blockquote>
 <aside class="notes">
-<p>A new array is fresh memory to fetch and fill. Same for BLAS: <code>A * B</code> allocates, <code>mul!(C, A, B)</code> reuses C. At n = 2000 on this laptop the gain swings from no gain to ~3× from run to run (hybrid cores): measure. numpy gains only ~1.4× with <code>out=</code>: it can’t FUSE <code>2*x + y</code> into one pass. For matrix × VECTOR the output is tiny and the gain vanishes. Measured at rest: mul!(y, W, x) on matrix-VECTOR was actually SLOWER than W * x (760 vs 468 µs). On the GPU, in place gains nothing in Julia either (2.10 vs 1.82 ms; CUDA.jl allocates from a pool) — whereas torch in place does gain (1.35 → 0.80 ms). The law is “allocation = memory traffic”.</p>
+<p>▶ Script: cell “Optional — reuse output buffers”. Historical rounded minimum timings. Compare with mul!(C,A,B) versus A*B. Gains depend on output size, allocation strategy and traffic; pooling can make allocation cheap. Zero allocated bytes does not mean zero memory traffic. NumPy out= operations can reuse buffers, but separate calls are not generally fused.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -943,52 +885,38 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="arithmetic-intensity-flop-per-byte" class="slide level2">
 <h2>Arithmetic intensity: FLOP per byte</h2>
 <div class="fragment">
+<p>Idealized Float64 traffic, ignoring lower-order terms:</p>
 <table class="caption-top">
-<colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>n×n, Float64</th>
+<th>Operation</th>
 <th>FLOP</th>
-<th>bytes</th>
-<th>intensity</th>
+<th>Bytes</th>
+<th>FLOP / byte</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>mat × <strong>vec</strong></td>
+<td>n×n matrix × vector</td>
 <td>2n²</td>
-<td>8n²</td>
-<td><strong>0.25</strong> — constant</td>
+<td>~8n²</td>
+<td>~0.25</td>
 </tr>
 <tr class="even">
-<td>mat × <strong>mat</strong></td>
+<td>n×n matrix × matrix</td>
 <td>2n³</td>
 <td>~24n²</td>
-<td><strong>~n/12</strong> — if each matrix crosses memory once</td>
+<td>~n/12</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li class="fragment"><strong>Low</strong>: compute waits for loads → <strong>memory-bound</strong>.</li>
-<li class="fragment"><strong>High</strong>: reuse can shift the limit toward <strong>compute</strong>.</li>
-</ul>
 </div>
 <div class="fragment">
 <blockquote>
-<p>To compare sizes, compare <span style="background-color: yellow;"><strong>GFLOP/s</strong></span>, not seconds.</p>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “Optional — arithmetic intensity”</p>
+<p>Use <strong>GFLOP/s</strong> to compare computational throughput.</p>
 </blockquote>
 <aside class="notes">
-<p>Work per byte loaded; a FLOP = one <code>+</code> or <code>*</code>. Don’t compare seconds: they do different work. GFLOP/s = 10⁹ FLOP per second. The batching demo as throughput: 13.1 → 47.5 → 194.1 → 219.9 → 242.3 GFLOP/s for B = 1 … 1024. Intensity is per BYTE, not per value (8× apart for Float64) — be consistent. BLAS-3 (GEMM) tiling is what approaches reuse (ideal three-matrix Float64 traffic gives n/12 FLOP/byte): each tile is reused from cache.</p>
+<p>▶ Script: cell “Optional — arithmetic intensity”. FLOP denotes a floating-point operation. Actual traffic depends on cache reuse and the implementation. Intensity is a model of work per byte, not a measured bandwidth. Timing still matters for application latency; GFLOP/s normalizes different amounts of arithmetic for a throughput comparison.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1000,6 +928,7 @@ Emmanuel Pilliat — ENSAI 3A
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+<p><a href="#/path">Back to the chapter</a> · <a href="../../../teaching/parallel_computing/slides/5_gpu.html">Next: GPU</a></p>
 
 
 </div>

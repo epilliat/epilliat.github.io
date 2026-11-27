@@ -1,21 +1,26 @@
 # =============================================================================
-# Threads & concurrency — waiting is overlapped; computing must be split
+# Threads & concurrency — tasks, execution resources and local reductions
 # ⚠ KEEP IN SYNC with `pluto/3_threads_and_concurrency.jl` (same code, two formats).
-# Cells: `#%%` (Alt+Enter in VS Code). Needs BenchmarkTools and the network (Part A).
+# Cells: `#%%` (Alt+Enter in VS Code). Needs BenchmarkTools. COURSE_LIVE_IO=0 uses labelled simulated waits for Part A.
 # =============================================================================
 
 #%% 0. Getting started
 using Downloads
 using Base.Threads
 using BenchmarkTools
-println("nthreads = $(nthreads())")   # 1? relaunch with julia --threads=auto (VS Code: "julia.NumThreads": "auto", restart REPL)
+println("Julia worker threads = $(nthreads())")   # 1? relaunch with julia --threads=auto (VS Code: "julia.NumThreads": "auto", restart REPL)
 
-#%% 1. Part A — async on one core: waiting for the network
+#%% 1. Part A — overlap waiting
+println(get(ENV, "COURSE_LIVE_IO", "1") == "0" ? "SIMULATED waits + synthetic values" : "LIVE API prices")
 SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
     "ADAUSDT", "DOGEUSDT", "TRXUSDT", "DOTUSDT", "LTCUSDT",
     "AVAXUSDT", "LINKUSDT", "ATOMUSDT", "UNIUSDT", "ETCUSDT"]
 
 function fetch_price(sym)
+    if get(ENV, "COURSE_LIVE_IO", "1") == "0"
+        sleep(0.05)  # controlled waiting, not Internet performance
+        return 100.0 + something(findfirst(==(sym), SYMBOLS), 0)
+    end
     url = "https://api.binance.com/api/v3/ticker/price?symbol=$(sym)"
     io = IOBuffer()
     Downloads.download(url, io)
@@ -47,7 +52,14 @@ t_good = @elapsed @sync for i in 1:n
 end
 println("3) @sync + @async      : $(round(t_good, digits=3)) s   speedup $(round(t_seq / t_good, digits=1))x")
 
-#%% 2. Part B — computing on many cores: Monte-Carlo π, the sequential baseline
+#%% 2. Part B — CPU tasks and exact batch sizes
+function batch_sizes(n, ntasks)
+    q, r = divrem(n, ntasks)               # q draws per batch, r left over
+    sizes = fill(q, ntasks)
+    sizes[1:r] .+= 1                       # the first r batches take one more
+    return sizes
+end
+
 function count_in_disk(n)
     hits = 0
     for _ in 1:n
@@ -61,9 +73,9 @@ pi_seq(n) = 4 * count_in_disk(n) / n
 
 #%% Same CPU work with @async
 function pi_async(n; ntasks=nthreads())
-    per = n ÷ ntasks
-    tasks = [@async count_in_disk(per) for _ in 1:ntasks]
-    return 4 * sum(fetch, tasks) / (per * ntasks)
+    sizes = batch_sizes(n, ntasks)
+    tasks = [@async count_in_disk(size) for size in sizes]
+    return 4 * sum(fetch, tasks) / n
 end
 
 let n = 100_000_000
@@ -72,45 +84,43 @@ let n = 100_000_000
     println("π: seq $(round(t_seq, digits=3)) s | @async × $(nthreads()): $(round(t_seq / t_async, digits=1))x")
 end
 
-#%% π on all threads, one task per thread
+#%% Shared counter — predict the estimate
 function pi_race(n; ntasks=nthreads())
-    per = n ÷ ntasks
     hits = 0
-    @sync for _ in 1:ntasks
-        Threads.@spawn for _ in 1:per
+    @sync for size in batch_sizes(n, ntasks)
+        Threads.@spawn for _ in 1:size
             x = rand(); y = rand()
-            hits += (x * x + y * y <= 1.0)
+            hits += (x * x + y * y <= 1.0)  # intentionally shared: read–modify–write race
         end
     end
-    return 4 * hits / (per * ntasks)
+    return 4 * hits / n
 end
 
 nthreads() == 1 && @warn "1 thread: no race to see — restart with --threads=auto"
 println("pi_race  : ", [round(pi_race(20_000_000), digits=5) for _ in 1:4])
 
-#%% The cure: each task returns its count, reduce once. Stable now?
+#%% Return local counts, then reduce
 function pi_spawn(n; ntasks=nthreads())
-    per = n ÷ ntasks
-    tasks = [Threads.@spawn count_in_disk(per) for _ in 1:ntasks]
-    return 4 * sum(fetch, tasks) / (per * ntasks)
+    sizes = batch_sizes(n, ntasks)
+    tasks = [Threads.@spawn count_in_disk(size) for size in sizes]
+    return 4 * sum(fetch, tasks) / n
 end
 
 println("pi_spawn : ", [round(pi_spawn(20_000_000), digits=5) for _ in 1:4])
 
-#%% Why not an atomic counter? Correct? Faster than pi_seq?
+#%% Atomic updates or local counts — measure contention
 function pi_atomic(n; ntasks=nthreads())
-    per = n ÷ ntasks
     hits = Threads.Atomic{Int}(0)
-    @sync for _ in 1:ntasks
-        Threads.@spawn for _ in 1:per
+    @sync for size in batch_sizes(n, ntasks)
+        Threads.@spawn for _ in 1:size
             x = rand(); y = rand()
             (x * x + y * y <= 1.0) && Threads.atomic_add!(hits, 1)
         end
     end
-    return 4 * hits[] / (per * ntasks)
+    return 4 * hits[] / n
 end
 
-let n = 100_000_000
+let n = 40_000_000
     t_seq = @belapsed pi_seq($n)
     t_atomic = @belapsed pi_atomic($n)
     println("pi_atomic = $(round(pi_atomic(n), digits=5)) | $(round(t_atomic / t_seq, digits=1))x the time of pi_seq")
@@ -121,7 +131,7 @@ let n = 100_000_000
     t_seq = @belapsed pi_seq($n)
     t_spawn = @belapsed pi_spawn($n)
     println("π: seq $(round(t_seq, digits=3)) s | @spawn $(round(t_spawn, digits=3)) s | " *
-            "speedup $(round(t_seq / t_spawn, digits=1))x  (nthreads=$(nthreads()))")
+            "speedup $(round(t_seq / t_spawn, digits=1))x  (tasks=$(nthreads()), Julia worker threads=$(nthreads()))")
 end
 
 #%% 3. Optional — another split: independent Markov chains
@@ -129,7 +139,9 @@ function simulate_markov(nsteps; p_stay=0.9)
     state = 1
     count1 = 0
     for _ in 1:nsteps
-        rand() > p_stay && (state = 3 - state)   # flip 1<->2
+        if rand() > p_stay
+            state = 3 - state                # flip 1 <-> 2
+        end
         count1 += (state == 1)
     end
     return count1 / nsteps

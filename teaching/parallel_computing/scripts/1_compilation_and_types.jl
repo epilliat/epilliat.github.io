@@ -1,5 +1,5 @@
 # =============================================================================
-# Interpreted vs compiled — why the same computation can be 100× faster
+# Measure before optimizing — compilation, timings and whole-program speedup
 # ⚠ KEEP IN SYNC with `pluto/1_compilation_and_types.jl` (same code, two formats).
 # Cells: `#%%` (Alt+Enter in VS Code). Needs BenchmarkTools.
 # =============================================================================
@@ -9,8 +9,8 @@ using BenchmarkTools
 using InteractiveUtils   # @code_lowered/_typed/_native/_warntype
 @btime 1 + 2             # ~1 ns... yet the cell took seconds. Why?
 
-#%% 1. The JIT warmup — a hand-written loop on 10M floats
-N = 10_000_000
+#%% 1. A hand-written sum — one million Float64 values
+N = 1_000_000
 v = rand(N)
 
 function mysum(x)
@@ -21,7 +21,7 @@ function mysum(x)
     return s
 end
 mysum(v)
-# Same loop in pure Python: ~0.5 s. Julia's time is measured in §2.
+# Predict first-call and warmed-up times before executing the warmup cells.
 
 #%% The warmup over 10 calls: which call is slow, and why only that one?
 let                                 # let … end = a local scope
@@ -39,45 +39,52 @@ end
 # Full experiment (5 variants, 2000 calls): experiences/warmup_jit/.
 # numpy side (fast inside, slow in a Python loop): python/1_compilation_and_types_python.ipynb.
 
-#%% 2. Measuring properly — compare the two timings
+#%% 2. Measuring properly — first call and warmed-up call
 let
     g(x) = sum(abs2, x)
     @time g(v)
     @time g(v)
 end
 
-#%% Read the distribution: why is the minimum the number to quote?
+#%% Read the timing distribution — record the reported statistic
 @btime mysum($v)
 @benchmark mysum($v)
 # Then try `@btime mysum(v)` without `$`: what changes? (why: with dispatch, untyped globals)
 
 #%% 3. Monte-Carlo π — same count as in the Julia-basics module
+inside_disk(x, y) = x^2 + y^2 ≤ 1
+
 function count_in_disk(n)
     hits = 0
     for _ in 1:n
         x, y = rand(), rand()
-        if x^2 + y^2 ≤ 1
+        if inside_disk(x, y)
             hits += 1
         end
     end
     return hits
 end
 estimate_pi(n) = 4 * count_in_disk(n) / n
-estimate_pi(10_000_000)
+estimate_pi(1_000_000)
 
-#%% Q1 — how long? how many allocations?
-@btime estimate_pi(10_000_000)
+#%% Timing the estimator — input generation and counting are inside the timer
+@btime estimate_pi(1_000_000)
 
-#%% Q2 — type-stable? Is the yellow `Union{Nothing, Tuple…}` a problem? Why always Float64?
-# @code_warntype = @code_typed with uncertain types in color (red `Any` = unknown).
-@code_warntype count_in_disk(1000)
-Base.return_types(estimate_pi, (Int,))
+#%% Check the counting logic — fixed points, independently known count
+xs = [0.0, 0.5, 1.0, 1.0]
+ys = [0.0, 0.5, 0.0, 1.0]
+@assert sum(inside_disk.(xs, ys)) == 3
 
-#%% Q3 — how does the error shrink with n? Why is this ideal for parallelism?
-for n in (10^4, 10^5, 10^6, 10^7, 10^8)
-    err = abs(estimate_pi(n) - π)
-    println("n = 10^$(round(Int, log10(n)))   error = $(round(err, digits=5))")
+#%% Check the estimator — report error relative to its standard error
+let
+    p = π / 4
+    for n in (10^4, 10^5, 10^6)
+        estimate = estimate_pi(n)
+        se = 4 * sqrt(p * (1 - p) / n)
+        println("n=$n  estimate=$(round(estimate, digits=5))  error/SE=$(round((estimate-π)/se, digits=2))")
+    end
 end
+# A large standardized error calls for investigation; passing this check alone does not prove correctness.
 
 #%% 4. Optional — type specialization: step 1, lowered code
 f(x) = 2x + 1
@@ -95,6 +102,10 @@ f(x) = 2x + 1
 #%% Step 3, with an Int
 @code_native debuginfo=:none f(3)
 
+#%% Optional — inspect the estimator's types
+@code_warntype count_in_disk(1000)
+Base.return_types(estimate_pi, (Int,))
+
 #%% 5. Optional — Base `sum` vs our loop (vector that fits in cache)
 vc = rand(100_000)
 @btime mysum($vc)
@@ -110,7 +121,9 @@ vc = rand(100_000)
 
 #%% The kernel `sum` calls: what replaces `vaddsd`? How many accumulators?
 @code_native debuginfo=:none Base.mapreduce_impl(identity, Base.add_sum, vc, 1, length(vc), 1024)
-# Why can't the compiler do this to OUR loop? Hint: is (a+b)+c == a+(b+c) in floats?
+#%% Addition order matters
+((1e16 + (-1e16)) + 1.0, 1e16 + ((-1e16) + 1.0))
+# Different addition orders can give different floating-point results.
 
 #%% @simd: permission to reassociate
 function mysum_simd(x)
@@ -121,3 +134,5 @@ function mysum_simd(x)
     return s
 end
 @btime mysum_simd($vc)
+
+@assert mysum_simd(vc) ≈ sum(vc)

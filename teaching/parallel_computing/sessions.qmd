@@ -7,32 +7,32 @@ sidebar: false
 
 ::: {.callout-warning title="🚧 Under construction"}
 Parcours prévisionnel : 3 × 180 minutes, dont deux pauses de dix minutes par séance.
-Les activités se font en binômes : prédire, modifier, vérifier, mesurer, expliquer.
+Les activités : prédire, modifier, vérifier, mesurer, expliquer.
 Préparation technique et projet/soutenances hors de ces neuf heures.
 :::
 
 ## Séance 1 — Mesurer avant d’optimiser
 
-**Slides :** [0 — Julia](slides/0_julia_basics.qmd) (parcours de 15 min), [1 — Compilation](slides/1_compilation_and_types.qmd), [2 — Dispatch](slides/2_dispatch_vs_oop.qmd). Chaque deck s’ouvre sur « Today’s path » ; les approfondissements sont regroupés en fin de deck (« Only if time »).
+**Slides :** [0 — Julia](slides/0_julia_basics.qmd) (parcours de 15 min), [1 — Mesurer avant d’optimiser](slides/1_compilation_and_types.qmd), [2 — Dispatch](slides/2_dispatch_vs_oop.qmd). L’introduction Julia comporte six slides, titre compris : estimation de π, boucle, syntaxe, deux outils et aide-mémoire. Le module 1 annonce ses trois objectifs ; le module 2 commence directement par une fonction et ses méthodes. Les approfondissements sont regroupés en fin de deck.
 
 **Objectifs :** distinguer compilation et exécution ; mesurer un calcul comparable ; vérifier un résultat ; choisir un premier bloc à optimiser. Julia sert de démonstration, Python reste la voie de manipulation par défaut.
 
 | Minutes | Durée | Séquence et consigne | Résultat observable |
 |---|---:|---|---|
-| 0–10 | 10 | Montrer le parcours en trois séances et le projet final ; faire prédire pourquoi deux sommes équivalentes diffèrent en temps. | Chaque binôme formule une hypothèse mesurable. |
-| 10–25 | 15 | Julia de survie : schéma du quart de disque, lire `count_in_disk`, puis fonction/`end`, indices, dot, macro. Le reste du deck 0 est une référence non projetée. | Les étudiants peuvent lire la boucle projetée et identifier entrée/sortie. |
-| 25–45 | 20 | Démo Python pur → NumPy → Numba et courbe de warmup ; un aperçu Julia. | Distinguer coût du premier appel et temps stabilisé, sans commenter l’assembleur. |
-| 45–65 | 20 | **Coût d’une boucle.** Compléter les deux fonctions Python, ou la fonction Julia ; valider, remplir une table des temps. | Assertion correcte, trois temps Python ou deux Julia, ratios sur la même machine. |
-| 65–75 | 10 | Débrief du coût d’une boucle : comparer deux binômes, expliquer les différences de tailles/types et le warmup. | Une phrase causale ; un ratio intermachines est refusé comme preuve d’effet du langage. |
+| 0–10 | 10 | Montrer le parcours en trois séances et le projet final ; faire prédire pourquoi deux sommes équivalentes diffèrent en temps. | Chacun formule une hypothèse mesurable. |
+| 10–25 | 15 | Lire Julia : animation de π, `count_in_disk`, syntaxe de la même boucle, puis dot et `@time`. Aide-mémoire court ; retour à la boucle pour expliquer l’estimateur. Le reste du deck 0 est une référence. | Les étudiants peuvent lire la boucle projetée et identifier entrée/sortie. |
+| 25–35 | 10 | Présenter la somme, les variantes et le protocole sur 10⁶ Float64 ; recueillir les prédictions sans montrer les résultats. | Classement prédit et effet attendu du premier appel. |
+| 35–55 | 20 | **Coût d’une boucle.** Compléter les deux fonctions Python, ou la fonction Julia ; valider, remplir une table des temps. | Assertion correcte, trois temps Python ou deux Julia, ratios sur la même machine. |
+| 55–75 | 20 | Comparer les mesures étudiantes aux courbes de référence, puis expliquer interprétation, bibliothèque compilée et JIT sur une seule slide. | Distinguer premier appel et appels après warmup ; comparer les speedups sur une même machine. |
 | 75–85 | 10 | **Pause.** | — |
 | 85–105 | 20 | Protocole simple : entrée identique, répétitions, coût inclus/exclu, dispersion, résultat. `@btime` côté Julia ; outil fourni côté Python. | La **fiche de mesure** en cinq lignes (résultat, entrée, machine, répétitions, périmètre), réutilisée dans toutes les activités. |
-| 105–120 | 15 | π séquentiel : tirages, comptage, coût et fluctuation statistique ; puis gain local/gain global (formule et pari A/B), juste avant le diagnostic. | Expliquer pourquoi on n’exige pas l’égalité exacte avec π ni entre deux exécutions. |
+| 105–120 | 15 | π séquentiel : chronométrage, points fixes au compte connu et erreur standard ; puis speedup local/global (formule et comparaison A/B), juste avant le diagnostic. | Expliquer pourquoi on n’exige pas l’égalité exacte avec π ni entre deux exécutions. |
 | 120–140 | 20 | **Diagnostic.** Trois étapes d’un petit pipeline sont chronométrées ; choisir un bloc, annoncer un gain global plausible puis vérifier sur une variante fournie. | Tableau temps bloc/temps total, résultat contrôlé et décision argumentée. |
 | 140–150 | 10 | **Pause.** | — |
-| 150–170 | 20 | Dispatch, séparément : `area`, paire de types, conteneur concret/abstrait, fonctions avec arguments. Trois prédictions orales ; activité Julia 2 facultative. | Comprendre que même source n’implique pas même coût, sans mémoriser Visitor ou `multipledispatch`. |
+| 150–170 | 20 | Dispatch et types : une fonction, plusieurs méthodes ; paire ordonnée de types ; mêmes cercles dans deux conteneurs ; globale non constante/non typée versus argument. Huit slides de contenu, sans intercalaires ; activité Julia facultative. | Comprendre que même source n’implique pas même coût, sans mémoriser Visitor ou `multipledispatch`. |
 | 170–180 | 10 | Ticket de sortie et amorce de projet : une mesure invalide à corriger, un candidat de bloc réel. | Protocole corrigé + bloc candidat. |
 
-**Coût d’une boucle, consigne complète :** « Avant d’exécuter, classez les variantes. Complétez la somme sans `sum`, vérifiez l’assertion, mesurez après warmup et notez N, type, machine, temps et ratio. Expliquez ce qui a changé. » Support : [compilation Python](activities/release/1_warmup_python_todo.ipynb) ou [Julia](activities/release/1_warmup_julia_todo.jl). Les 20 minutes comprennent lecture/aide/exécution ; le débrief dispose ensuite de 10 minutes. Le notebook chronomètre maintenant le **premier appel** numba séparément du régime stabilisé.
+**Coût d’une boucle, consigne complète :** « Avant d’exécuter, classez les variantes. Complétez la somme sans `sum`, vérifiez l’assertion, mesurez après warmup et notez N, type, machine, temps et ratio. Expliquez ce qui a changé. » Support : [compilation Python](activities/release/1_warmup_python_todo.ipynb) ou [Julia](activities/release/1_warmup_julia_todo.jl). Les 20 minutes comprennent lecture/aide/exécution ; le débrief avec les courbes et l’explication dispose ensuite de 20 minutes. Le notebook chronomètre maintenant le **premier appel** numba séparément du régime stabilisé.
 
 **Diagnostic, consigne complète :** Ouvrir [le notebook diagnostic](activities/release/1_diagnostic_python_todo.ipynb). Cas de réflexion complémentaire : « Le bloc A prend 10 % du temps et pourrait être accéléré ×10 ; B prend 80 % et pourrait être accéléré ×2. Lequel choisissez-vous ? Vérifiez sur les timings donnés puis sur une version fournie. » Attendu : distinguer gain local et total, puis vérifier la sortie. Cela prépare l’examen sans restaurer le profiling retiré. Une mesure manuelle autour de grosses fonctions suffit.
 
@@ -51,9 +51,9 @@ Préparation technique et projet/soutenances hors de ces neuf heures.
 | 55–65 | 10 | **Pause.** | — |
 | 65–85 | 20 | Passer au calcul CPU : une boucle Python avec GIL, un calcul natif, un `@spawn` Julia sur π ; n’exécuter que les démos nécessaires (Markov est en annexe). | Choisir la stratégie sans généraliser « tous les threads Python inutiles ». |
 | 85–105 | 20 | **Qui a écrit en dernier ? Race au tableau puis démo.** Faire écrire deux lectures et deux écritures d’un même compteur ; lancer la version fautive donnée. | Un entrelacement concret explique un incrément perdu. |
-| 105–135 | 30 | **π en lots.** Julia : partie B ; Python : activité CPU Python, workers et générateurs donnés. Compléter soumission et réduction. | Estimation plausible, absence de compteur partagé, tableau 1/2/4 workers selon machine. |
+| 105–135 | 30 | **π par lots.** Julia : partie B ; Python : activité CPU Python, workers et générateurs donnés. Compléter soumission et réduction. | Estimation plausible, absence de compteur partagé, tableau 1/2/4 workers selon machine. |
 | 135–145 | 10 | **Pause.** | — |
-| 145–165 | 20 | Amdahl et taille des tâches ; 10 min d’interprétation en binômes d’une table de scaling. | Calculer speedup et efficacité ; proposer une cause et un test, sans conclure automatiquement au séquentiel. |
+| 145–165 | 20 | Amdahl et taille des tâches ; 10 min d’interprétation d’une table de scaling. | Calculer speedup et efficacité ; proposer une cause et un test, sans conclure automatiquement au séquentiel. |
 | 165–175 | 10 | Transfert projet : quel travail est indépendant ? quelle donnée serait partagée ? | Schéma de lots, sorties et réduction pour le projet. |
 | 175–180 | 5 | Ticket : I/O, boucle Python, NumPy natif — trois choix motivés. | Chaque choix est justifié par l’endroit où part le temps. |
 
@@ -61,13 +61,13 @@ Préparation technique et projet/soutenances hors de ces neuf heures.
 
 **Qui a écrit en dernier ? :** « Deux tâches lisent 7, chacune ajoute 1, puis chacune écrit : quelle valeur reste ? Où placeriez-vous la réduction pour éviter le partage ? » La démo peut ne pas produire une erreur spectaculaire sur une machine donnée ; l’explication par entrelacement reste le résultat attendu.
 
-**π en lots :** « Répartissez un nombre total annoncé de tirages ; chaque worker retourne un entier ; le parent somme. Mesurez et comparez. » Le support Python répartit aussi le reste et affiche le nombre réellement simulé ; le support Julia choisit un total divisible par le nombre de tâches. Pour π, fournir une tolérance statistique large et commenter qu’un test probabiliste peut exceptionnellement échouer. En complément, une réduction de comptes déterministes vérifie la mécanique indépendamment du RNG. Pas d’obligation de bit-à-bit entre nombres de workers.
+**π par lots :** « Répartissez le total annoncé de tirages ; chaque tâche retourne un entier ; le parent somme. Gardez les huit lots Python et leurs graines fixes en variant 1/2/4 processus workers. Mesurez et comparez. » Le support Python répartit aussi le reste et affiche le nombre réellement simulé ; le support Julia répartit également le reste entre les tâches et distingue huit lots du nombre de threads. Pour π, fournir une tolérance statistique large et commenter qu’un test probabiliste peut exceptionnellement échouer. En complément, une réduction de comptes déterministes vérifie la mécanique indépendamment du RNG. Avec les mêmes lots Python et graines, les comptes doivent être identiques entre nombres de workers dans cet environnement. Avec des échantillons différents, comparer les estimations avec une tolérance statistique.
 
 ## Séance 3 — Localité, batching et décision GPU
 
 **Slides :** [4 — Memory & batching](slides/4_memory_and_batching.qmd), [5 — GPU](slides/5_gpu.qmd), puis la [synthèse](slides/course.qmd#/synthesis).
 
-**Objectifs :** relier ordre des accès et temps ; distinguer latence et débit ; comparer des tailles de batch ; mesurer un calcul GPU avec un périmètre explicite ; décider si l’optimisation aide l’application entière.
+**Objectifs :** relier ordre des accès et temps ; distinguer latence et débit ; comparer temps et buffers selon la taille du batch ; mesurer un calcul GPU avec un périmètre explicite ; décider si l’optimisation aide l’application entière.
 
 | Minutes | Durée | Séquence et consigne | Résultat observable |
 |---|---:|---|---|
@@ -76,18 +76,18 @@ Préparation technique et projet/soutenances hors de ces neuf heures.
 | 30–50 | 20 | **Deux ordres de boucles.** Prédire, inverser deux boucles, vérifier la somme et mesurer. | Résultat correct, ratio, explication de l’indice contigu ; direction opposée Python/Julia. |
 | 50–65 | 15 | Batching : mêmes exemples, `W*x` répété contre `W*X` ; temps total et temps par exemple. | Comprendre le coût amorti sans faire un cours complet de roofline. |
 | 65–75 | 10 | **Pause.** | — |
-| 75–95 | 20 | **Batching.** Trois tailles B, même total d’exemples, référence GEMV explicite et sorties vérifiées. | Tableau B/temps total/temps par exemple ; choix argumenté d’un batch. |
+| 75–95 | 20 | **Batching.** Trois tailles B, même total d’exemples, référence GEMV explicite et sorties vérifiées. | Tableau B/temps total/temps par exemple et modèle des buffers ; choix selon débit, latence et mémoire. |
 | 95–115 | 20 | GPU : mêmes opérations, autre mémoire ; transfert et synchronisation ; un exemple petit contre grand. | Distinguer temps de calcul résident et temps de bout en bout. |
-| 115–145 | 30 | **π sur la carte.** Prédire le seuil, remplir les tirages sur la carte, mesurer trois tailles ; option analyse de table sans GPU. | Table, conclusion conditionnelle et identification de ce qui traverse le bus. |
+| 115–145 | 30 | **π sur la carte.** Prédire le seuil, remplir les tirages sur la carte, mesurer trois tailles ; option analyse de table sans GPU. | Table, cible de précision, conclusion conditionnelle et identification de ce qui traverse le bus. |
 | 145–155 | 10 | **Pause.** | — |
 | 155–170 | 15 | Synthèse active : trois cas d’usage, choisir compilation, threads, localité/batch ou GPU ; réexaminer gain local/global. | Chaque choix mentionne correction, coût dominant et prochaine mesure. |
 | 170–180 | 10 | Projet et critères d’évaluation ; une mesure et une hypothèse par groupe, à valider avec moi avant de commencer. | Projet concret, faisable, vérifiable. |
 
-**Deux ordres de boucles :** [release Python 4](activities/release/4_locality_python_todo.ipynb) ou [Julia 4](activities/release/4_locality_julia_todo.jl). La prédiction est écrite **avant** d’inspecter `A.strides` ; la slide de débrief donne la règle. Les binômes rapides testent une petite matrice. Garder une taille suffisante pour l’effet mémoire sur le matériel choisi, sans prétendre qu’un seuil de cache est universel.
+**Deux ordres de boucles :** [release Python 4](activities/release/4_locality_python_todo.ipynb) ou [Julia 4](activities/release/4_locality_julia_todo.jl). La prédiction est écrite **avant** d’inspecter `A.strides` ; la slide de débrief donne la règle. Ceux qui finissent tôt testent une petite matrice. Garder une taille suffisante pour l’effet mémoire sur le matériel choisi, sans prétendre qu’un seuil de cache est universel.
 
-**Batching :** « Pour traiter les mêmes exemples, comparez un à un et par lots. Quel B minimise le temps par exemple ? Que coûte l’attente de constitution d’un batch dans un usage interactif ? » C’est une activité de choix et de mesure, pas une nouvelle abstraction de programmation. Slides et activité utilisent la **même référence** : un produit matrice-vecteur par exemple, sur les mêmes exemples. Seule la taille de `W` diffère (4 MiB en activité, 64 MiB en démonstration) : c’est une prédiction à faire, sans annoncer le sens de l’écart.
+**Batching :** « Pour traiter les mêmes exemples, comparez un à un et par lots. Quel B atteint le débit visé ? Que coûtent l’attente du batch et ses buffers d’entrée/sortie ? » C’est une activité de choix et de mesure, pas une nouvelle abstraction de programmation. Slides et activité utilisent la **même référence** : un produit matrice-vecteur par exemple, sur les mêmes exemples. Seule la taille de `W` diffère (4 MiB en activité, 64 MiB en démonstration) : c’est une prédiction à faire, sans annoncer le sens de l’écart.
 
-**π sur la carte :** [release Python 5](activities/release/5_gpu_python_todo.ipynb) ou [Julia 5](activities/release/5_gpu_julia_todo.jl). « Où sont générés x et y ? Que faut-il attendre pour arrêter le timer ? Quel résultat revient au CPU ? » Sans GPU, même travail de prédiction et d’analyse sur mesures préenregistrées, plus vérification CPU du compteur sur un petit jeu de points. On n’invente pas une mesure de carte.
+**π sur la carte :** [release Python 5](activities/release/5_gpu_python_todo.ipynb) ou [Julia 5](activities/release/5_gpu_julia_todo.jl). « Où sont générés x et y ? Que faut-il attendre pour arrêter le timer ? Quel résultat revient au CPU ? La taille testée atteint-elle la précision requise ? » Sans GPU, même travail de prédiction et d’analyse sur mesures préenregistrées, plus vérification CPU du compteur sur un petit jeu de points. On n’invente pas une mesure de carte.
 
 **Total vérifié :** séance 1 = 180 ; séance 2 = 180 ; séance 3 = 180. Six pauses × 10 = 60 minutes. Temps restant = 480 minutes, incluant explications, activités, débriefs, transitions et tickets de sortie. La précision minute par minute est un budget : en classe, les tickets et approfondissements servent de marge, pas les activités principales.
 
@@ -101,15 +101,15 @@ Préparation technique et projet/soutenances hors de ces neuf heures.
 
 ## Où chaque activité est lancée dans les slides
 
-Chaque activité a une slide de **lancement** (question, prédiction individuelle, travail en binôme, production attendue, liens, durée) et une slide de **débrief** (comparer, expliquer, tester).
+Chaque activité a une slide de **lancement** (question, prédiction, travail à faire, production attendue, liens, durée) et une slide de **débrief** (comparer, expliquer, tester).
 
 | Activité | Deck et ancre | Placée après |
 |---|---|---|
-| Coût d’une boucle | [1, `#/a1`](slides/1_compilation_and_types.qmd#/a1) | lecture des courbes de warmup |
+| Coût d’une boucle | [1, `#/a1`](slides/1_compilation_and_types.qmd#/a1) | code et protocole, **avant** les courbes et les temps de référence |
 | Diagnostic | [1, `#/a2`](slides/1_compilation_and_types.qmd#/a2) | fiche de mesure, π, gain local/global |
 | Attentes I/O | [3, `#/a3a`](slides/3_threads_and_concurrency.qmd#/a3a) | « Three ways to fetch » et la structure `ThreadPoolExecutor` |
 | Qui a écrit en dernier ? | [3, `#/a3b`](slides/3_threads_and_concurrency.qmd#/a3b) | le π parallèle faux |
-| π en lots | [3, `#/a3c`](slides/3_threads_and_concurrency.qmd#/a3c) | « return and reduce » et son schéma |
+| π par lots | [3, `#/a3c`](slides/3_threads_and_concurrency.qmd#/a3c) | visualisation des comptes locaux, code de réduction Julia/Python et comparaison avec les atomiques |
 | Serveur lent (optionnelle) | [3, `#/a3d`](slides/3_threads_and_concurrency.qmd#/a3d) | section « Only if time », après les attentes I/O |
 | Deux ordres de boucles | [4, `#/a4`](slides/4_memory_and_batching.qmd#/a4) | les deux ordres de boucles, **avant** leur résultat |
 | Batching | [4, `#/a5`](slides/4_memory_and_batching.qmd#/a5) | `W*x` contre `W*X` |
@@ -129,3 +129,21 @@ sont optionnels et placés **en fin de deck** : ni les activités principales ni
 À chaque mesure : résultat vérifié, taille et type des données, machine, workers/threads BLAS,
 warmup, répétitions et coûts inclus. Comparer des ratios sur une même machine, pas des temps
 Python/Julia obtenus sur deux ordinateurs différents. Les chiffres des slides sont des observations, pas des objectifs à reproduire.
+
+
+## Bonus de fin — un petit modèle de langage sur GPU (30 min)
+
+Uniquement si le parcours obligatoire et la synthèse sont terminés : ce bonus ne s'ajoute pas
+au budget obligatoire de 180 minutes. Préparer l'environnement et télécharger le modèle avant la séance.
+
+[Lancement et débrief](slides/5_gpu.qmd#/a7) ·
+[Notebook étudiant](activities/release/6_llm_batching_python_todo.ipynb) ·
+[Script local](activities/release/6_llm_batching_python_todo.py)
+
+- 5 min : essayer des chaînes de caractères avec `answer`, puis une liste avec `answer_batch`.
+- 15 min : `measure(1)`, `measure(8)`, `one_by_one(8)` ; compléter `rates` (tokens/s, secondes par réponse) ; tableau et courbes pour B = 1…128.
+- 10 min : interpréter ; choisir pour un chatbot et pour du traitement hors ligne.
+
+Production : phrases essayées, une réponse, protocole et tableau, deux choix argumentés.
+Matériel : GPU CUDA, PyTorch, Transformers et poids Qwen2.5-0.5B-Instruct en cache.
+Sans GPU : analyse des mesures d'un groupe équipé, avec provenance explicite.

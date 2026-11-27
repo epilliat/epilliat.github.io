@@ -35,10 +35,14 @@ baseline = [pipeline(transform) for _ in range(3)]
 reference = baseline[0][0]
 before = np.median([times for result, times in baseline], axis=0)
 print("prepare / transform / summarize (s):", before)
-print("total (s):", before.sum(), "largest share:", before.max()/before.sum())
+before_total = np.median([times.sum() for result, times in baseline])
+print("whole-program median (s):", before_total, "largest share:", before.max()/before_total)
 
 # %% [markdown]
-# Your turn: the same squares with one NumPy operation.
+# From the baseline, justify which stage to change. **Before implementing**, write a predicted
+# whole-program speedup using an assumed local speedup; also compute the upper bound if that
+# stage took no time. The supplied candidate replaces the elementwise squares with one NumPy
+# operation. If another stage dominates, explain why this candidate may have limited impact.
 
 # %%
 def faster_transform(x):
@@ -54,8 +58,14 @@ faster_transform(np.asarray(raw, dtype=np.float64))  # warm up
 runs = [pipeline(faster_transform) for _ in range(3)]
 assert all(np.isclose(value, reference, rtol=1e-12) for value, times in runs)
 after = np.median([times for value, times in runs], axis=0)
-fraction = before[1] / before.sum()
+after_total = np.median([times.sum() for value, times in runs])
+fraction = before[1] / before_total
 local_gain = before[1] / after[1]
 predicted = 1 / (1 - fraction + fraction/local_gain)
 print("after stage times (s):", after)
-print("local gain", local_gain, "predicted total gain", predicted, "observed total gain", before.sum()/after.sum())
+print("local speedup", local_gain, "model using measured local speedup", predicted, "observed overall speedup", before_total/after_total)
+
+print("whole-program medians (s):", before_total, after_total)
+
+# %% [markdown]
+# Compare your pre-experiment prediction, the model using the measured local speedup, and the observed whole-program speedup. Record correctness, input, environment, protocol and timed scope. What dominates after the change?

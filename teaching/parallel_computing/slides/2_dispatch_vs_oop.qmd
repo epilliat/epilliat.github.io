@@ -1,6 +1,6 @@
 ---
-title: "2 — Multiple dispatch vs OOP"
-subtitle: "Same source, different cost: when is the type known?"
+title: "2 — Dispatch, types, and performance"
+subtitle: "How Julia chooses a method, and when the compiler can resolve the call"
 author: "Emmanuel Pilliat — ENSAI 3A"
 format:
   revealjs:
@@ -12,116 +12,39 @@ smaller: false
 css: ../../../styles.css
 ---
 
-## Today's path — 20 minutes {#path}
-
-:::{.nonincremental}
-1. **`area`**: `shape.area()` vs `area(shape)`.
-2. **Two arguments**: the method is chosen from **all** of them.
-3. **Concrete vs abstract container**: same data, ~10× apart.
-4. **Data as arguments**: the rule that keeps code fast.
-:::
+## One function, several methods {#path}
 
 . . .
 
-> Only if time: [more on dispatch](#appendix) · ✏️ optional [Julia activity](../activities/release/2_dispatch_julia_todo.jl)
+```julia
+abstract type Shape end
+struct Circle <: Shape
+    r::Float64
+end
+struct Rectangle <: Shape
+    L::Float64
+    w::Float64
+end
+
+area(c::Circle)    = π * c.r^2
+area(r::Rectangle) = r.L * r.w
+
+area(Circle(2.0))             # Python OOP: shape.area()
+```
+
+. . .
+
+> A function can have several **methods**. Argument types determine which method is called.
 
 ::: {.notes}
-Session 1, minutes 150–170. Three oral questions, no written activity.
-Nothing here needs to be memorized for the project: Visitor, `multipledispatch`, the expression
-problem are out of scope.
+20-minute core, session 1 minutes 150–170. Explain how type information affects compiled code.
+▶ Script: cell "1. One function, several methods". Start directly from the definitions.
+Shape is abstract: Circle and Rectangle are its concrete subtypes. Do not contrast method
+ownership or syntax as a performance explanation. Next: multiple arguments, then when a call
+can be resolved. Python exercises are optional for this short language-specific module.
 :::
 
-## By the end, you can
-
-. . .
-
-> Explain why the **same source line** can run 10× or 100× slower, depending on what the compiler knows.
-
-. . .
-
-> A **language point**: no parallelism yet.
-
-. . .
-
-> ▶ [Script](../scripts/2_dispatch_vs_oop.jl) · [Notebook](../pluto/2_dispatch_vs_oop.jl) · 🐍 [Python](../python/2_dispatch_vs_oop_python.ipynb)
-
-. . .
-
-> ⬅ [1 — Interpreted vs compiled](1_compilation_and_types.qmd)  ·  **Next:** [3 — Threads & concurrency](3_threads_and_concurrency.qmd) ➡
-
-# One argument {style="text-align: center;"}
-
-## Where does the verb go?
-
-. . .
-
-Area of a shape, two ways:
-
-. . .
-
-| | call | verb |
-|---|---|---|
-| **OOP** (Python) | `shape.area()` | **right**, after the dot |
-| **dispatch** (Julia) | `area(shape)` | **left**, in front |
-
-## OOP: the method lives in the class
-
-. . .
-
-```python
-import math
-
-class Shape: ...
-
-class Circle(Shape):
-    def __init__(self, r): self.r = r
-    def area(self): return math.pi * self.r**2
-
-class Rectangle(Shape):
-    def __init__(self, L, w): self.L, self.w = L, w
-    def area(self): return self.L * self.w
-
-Circle(2.0).area()      # the object left of the dot chooses
-```
-
-- Method **owned** by the class.
-- Chosen from **one** object: left of the dot.
-
-## Julia: data and functions are separate
-
-. . .
-
-```julia
-abstract type Shape end                # no fields
-struct Circle    <: Shape; r::Float64;             end
-struct Rectangle <: Shape; L::Float64; w::Float64; end
-```
-
-. . .
-
-```julia
-area(c::Circle)    = π * c.r^2       # one method
-area(r::Rectangle) = r.L * r.w       # per type
-
-shapes = [Circle(2.0), Rectangle(3.0, 4.0), Circle(1.0)]
-area.(shapes)                        # [12.57, 12.0, 3.14]
-```
-
-. . .
-
-> `area` lives **outside** the types; method picked from the **argument type**.
-
-. . .
-
-> ▶ Script: cell "1. One argument: one function, one method per type"
-
-# Two arguments {style="text-align: center;"}
-
-## Dispatch on two arguments
-
-. . .
-
-Collision depends on **both** shapes:
+## Dispatch uses all argument types
 
 . . .
 
@@ -130,93 +53,79 @@ collide(a::Circle,    b::Circle)    = "two circles"
 collide(a::Circle,    b::Rectangle) = "circle and rectangle"
 collide(a::Rectangle, b::Rectangle) = "two rectangles"
 
-collide(Circle(1.0), Rectangle(2.0, 3.0))   # "circle and rectangle"
-```
-
-- Method picked from the **pair** of types: [multiple dispatch]{style="background-color: yellow;"}.
-- Python `a.collide(b)` sees only `a`; `b` needs `isinstance`.
-
-. . .
-
-> ▶ Script: cell "2. Two arguments: dispatch on the PAIR of types"
-
-::: {.notes}
-This is the same idea as the `x + y` table of the compilation module: one version per
-combination of concrete types.
-:::
-
-# Dispatch and speed: when is the type known? {style="text-align: center;"}
-
-## What container did we build?
-
-. . .
-
-```julia
-shapes = [Circle(2.0), Rectangle(3.0, 4.0), Circle(1.0)]
-typeof(shapes)                    # ?
-isconcretetype(eltype(shapes))    # ?
+collide(Circle(1.0), Rectangle(2.0, 3.0))
 ```
 
 . . .
 
-Circles **and** a rectangle: element type?
-
-. . .
-
-> ▶ Script: cells "3. Dispatch and speed: what container did `shapes` build?" and "Is its element type concrete?"
+> If we swap the arguments, is the corresponding method defined?
 
 ::: {.notes}
-Vector{Shape}, false: the common type is the abstract Shape.
+▶ Script: cell "2. Dispatch uses all argument types". Argument order is significant:
+(::Rectangle, ::Circle) is distinct from (::Circle, ::Rectangle). The reverse pair is not
+currently defined; Julia does not assume symmetry. The optional appendix shows its error and fix.
+Ordinary Python method lookup for a.collide(b) uses a; handling b requires additional logic.
+That logic can be implemented with conditionals, external functions or dispatch libraries.
 :::
 
-## Same data, two containers
-
-. . .
-
-`Vector{Shape}`: `Shape` is **abstract**, so which `area`?
+## When can the compiler resolve the call?
 
 . . .
 
 ```julia
+circles = [Circle(r) for r in rand(1000)]
+concrete = circles                         # Vector{Circle}
+abstract_elements = Shape[c for c in circles]  # Vector{Shape}
+
 total(v) = sum(area, v)
-radii    = rand(1000)
-concrete = [Circle(r) for r in radii]          # Vector{Circle}
-mixed    = Shape[Circle(r) for r in radii]     # Vector{Shape}
 ```
 
 . . .
 
-Which `total` is faster, by how much? Then `@code_typed`.
+Same circles, different element types. **Which call is faster?**
 
-. . .
-
-> ▶ Script: cells "Same data, two containers" and "Why? Find the call to `area` in each"
-
-## What we saw: the abstract container
-
-. . .
-
-[`Vector{Shape}`: **~10× slower**]{style="background-color: yellow;"} than `Vector{Circle}`.
-
-- `concrete`: `area` chosen **once, at compile time**, inlined.
-- `mixed`: **run-time lookup** in the loop, like Python.
-
-. . .
-
-> Dispatch is fast **when types are concrete**.
+```julia
+total(concrete)
+total(abstract_elements)
+```
 
 ::: {.notes}
-Demo live: @code_typed total(mixed) shows a dynamic Main.area call; total(concrete) does not.
-~1 µs vs ~100 ns, 0 allocs both sides. The module's one honest measurement — don't skip it.
-Same mechanism as the x + y table in the compilation module: one native version per concrete type.
+▶ Script: cell "3. Same values, different element types". Collect predictions before running
+the timing cell. Both arrays contain only circles; abstract_elements is not heterogeneous.
+The Shape annotation changes the declared element type, not the values. The same Circle values
+are reused rather than regenerating radii. Verify the two totals before interpreting timings.
 :::
 
-## Another unknown type: a global
+## Same values, different performance
+
+. . .
+
+Reference observation, 1000 circles, warmed-up calls on the course laptop:
+
+| Element type | Time | Calls inside the loop |
+|---|---|---|
+| `Circle` | ~0.1 µs | Resolved and inlined in this example |
+| `Shape` | ~1 µs | Dynamic method calls remain |
+
+. . .
+
+> A concrete element type helps the compiler **resolve calls inside the loop**.
+
+::: {.notes}
+▶ Script: cells "Measure the two containers" and "Inspect calls inside the loop".
+Historical rounded BenchmarkTools minimum timings; both versions allocated zero bytes in that
+run. The observed speedup is about 10×, not a guaranteed penalty for abstract types.
+Inspect @code_typed: a dynamic call to area survives for Vector{Shape}. Type information also
+allows inlining and other optimizations. Abstract types are useful for generic interfaces;
+this experiment concerns abstract element storage in a performance-critical loop.
+:::
+
+## Global variable or argument?
 
 . . .
 
 ```julia
-glob = rand(1000)
+glob = rand(1000)    # non-constant global, without a type annotation
 ```
 
 :::: {.columns}
@@ -246,92 +155,86 @@ end
 
 . . .
 
-> Only difference: `glob` is a **global**, `x` an **argument**.
-
-## `@code_warntype`: the red `Any`
-
-. . .
-
-```julia
-@code_warntype sum_global()
-@code_warntype sum_arg(glob)
-```
-
-. . .
-
-`@code_warntype` shows the inferred types, uncertain ones **in color**.
-
-. . .
-
-Which has red `Any`s? How big is the time gap?
-
-. . .
-
-> ▶ Script: cells "4. Type instability — same sum, global vs argument" to "The argument version"
-
-## What we saw: type instability
-
-- `sum_global`: `glob::Any`, `s::Any`, `Body::Any` · `sum_arg`: all concrete
-- A global can change type → compiler **can't know** → `Any`
-- Every `+` = **run-time dispatch**, like `Vector{Shape}`, like Python
-- [~120 µs vs ~0.9 µs: **> 100×**]{style="background-color: yellow;"}, ~4000 allocations
+> Same data: predict the time and allocations of each version.
 
 ::: {.notes}
-Measured: sum_global ~118 µs, 3978 allocs (77.8 KiB: each s is boxed); sum_arg ~0.92 µs, 0 alloc.
-Worse than Vector{Shape} (~10×): here even s becomes Any, so every + and every getindex is dynamic.
+▶ Script: cell "4. Global variable or argument". The qualification matters: this is a
+non-constant, untyped global. Do not generalize to constants or annotated globals.
+Use sum_arg(glob) to hold the input fixed. The result must agree before comparing timings.
 :::
 
-## The golden rule
+## Which types could the compiler infer?
 
 . . .
 
-::: {.callout-note}
-Work in **functions**, data as **arguments**.
-:::
+Selected types from `@code_warntype`:
 
-. . .
-
-> Same reason for `@btime mysum($v)` (measuring properly): `$` makes `v` a known value.
-
-. . .
-
-> Python too: `numba` and process pools both work on functions.
-
-## Summary
-
-. . .
-
-| | Python (OOP) | Julia (dispatch) |
+| | `sum_global()` | `sum_arg(glob)` |
 |---|---|---|
-| Method | `obj.f()`, inside | `f(obj)`, outside |
-| Chosen from | **one** object | **all** arguments |
-| 2 args | `isinstance` | method per pair |
-| Speed | lookup per call | compiled *if types known* |
+| Input | `glob::Any` | `x::Vector{Float64}` |
+| Accumulator | `s::Any` | `s::Float64` |
+| Return | `Body::Any` | `Body::Float64` |
 
 . . .
 
-> Later, the same `*` picks the **GPU** method on a `CuArray`.
+Reference: **~118 µs, ~4000 allocations** versus **~0.92 µs, 0 allocations**.
+
+> Unknown types can require **dynamic calls inside the loop**.
+
+::: {.notes}
+▶ Script: cells "Inspect inferred types" and "Measure global and argument versions".
+Historical rounded times on the course laptop, warmed-up calls. Inspect the loop's types,
+not only the output color. The complete diagnostic stays in the script and notebook.
+In this example dynamic indexing/arithmetic and boxing contribute to both time and allocations.
+An argument lets Julia specialize for the supplied array type. The ratio is an observation,
+not a general claim about Python or about every global variable.
+:::
+
+## Keep types visible to the compiler
+
+- Pass working data as **function arguments**.
+- Prefer **concrete element types** in performance-critical loops.
+
+. . .
+
+Measure first; inspect inferred types when needed.
+
+. . .
+
+[Script](../scripts/2_dispatch_vs_oop.jl) · [Julia notebook](../pluto/2_dispatch_vs_oop.jl) · [Python examples](../python/2_dispatch_vs_oop_python.ipynb) · [Optional activity](../activities/release/2_dispatch_julia_todo.jl)
+
+::: {.notes}
+Two practical rules, not a requirement to annotate every argument with a concrete type.
+A generic method such as area(c::Shape) can still specialize on its actual argument type.
+The issue illustrated above is unknown types inside a hot loop, not generic interfaces.
+@btime mysum($v) supplies the input value rather than including global lookup in the benchmark.
+Later, array argument types select the GPU implementation of the same mathematical operation.
+:::
 
 ## Exit ticket — session 1 {#ticket}
 
 . . .
 
-1. A classmate writes: "I ran it once in Python on my laptop (0.31 s) and once in Julia on the server (0.004 s): Julia is 77× faster." Give **three reasons** this proves nothing.
-2. **Your project:** which part of the code do you think is slow? What will you time first, on which input?
+“Python: 0.31 s on my laptop. Julia: 0.004 s on a server. Julia is 77× faster.”
+
+1. Which **three checks** are needed for a fair comparison?
+2. For your project, name **one block to time** and the input you will use.
 
 . . .
 
-> ⬅ [1 — Interpreted vs compiled](1_compilation_and_types.qmd)  ·  **Next:** [3 — Threads & concurrency](3_threads_and_concurrency.qmd) ➡
+[Previous: measurement](1_compilation_and_types.qmd) · **Next:** [Threads and concurrency](3_threads_and_concurrency.qmd) · [Optional dispatch examples](#appendix)
 
 ::: {.notes}
-On paper, 5 minutes, in pairs; use the measurement card.
-Expected: first call included (compilation), one run only, two machines, result not checked,
-input/type not stated. Collect the tickets: the project blocks feed the project discussions in session 3.
+Session 1, minutes 170–180: allow 5 minutes, then collect and discuss a few answers.
+Use the measurement protocol: result/tolerance, same inputs and machine, warmup, repetitions,
+reported statistic and timer scope. Compilation is not established by the quoted figures;
+it is one of the costs whose inclusion must be checked.
+The candidate blocks will be used in the project discussion in session 3.
 :::
 
-# Only if time — more on dispatch {#appendix style="text-align: center;"}
+# Optional dispatch examples {#appendix style="text-align: center;"}
 
-## The pair we did not define
+## The missing argument pair
 
 . . .
 
@@ -339,38 +242,24 @@ input/type not stated. Collect the tickets: the project blocks feed the project 
 collide(Rectangle(1.0, 1.0), Circle(2.0))
 ```
 
-. . .
-
-What happens? Fix in **one line**?
+What happens? How would you declare symmetry?
 
 . . .
 
-> ▶ Script: cells "5. Optional — the pair we did not define" and "Add the missing pair in one line"
-
-::: {.notes}
-MethodError: no method matching collide(::Rectangle, ::Circle) — Julia names the missing pair.
-Fix: collide(a::Rectangle, b::Circle) = collide(b, a).
-:::
-
-## The missing pair — debrief
-
-. . .
-
-`MethodError: no method matching collide(::Rectangle, ::Circle)`
-
-. . .
-
-Fix by symmetry:
+`MethodError`: no method matches `(::Rectangle, ::Circle)`.
 
 ```julia
 collide(a::Rectangle, b::Circle) = collide(b, a)
 ```
 
-. . .
+::: {.notes}
+▶ Script: cells "5. Optional — the missing argument pair" and "Declare the reverse pair".
+An undefined combination fails when called. This does not provide a static coverage check.
+In Pluto the reverse-pair definition is disabled until the instructor enables it; otherwise
+reactivity would make the earlier error disappear before it can be discussed.
+:::
 
-> A missing pair shows up only **when the call runs**: nothing checks in advance.
-
-## A new operation, without touching the types
+## A new operation on existing types
 
 . . .
 
@@ -378,26 +267,21 @@ collide(a::Rectangle, b::Circle) = collide(b, a)
 perimeter(c::Circle)    = 2π * c.r
 perimeter(r::Rectangle) = 2 * (r.L + r.w)
 
-perimeter.([Circle(2.0), Rectangle(3.0, 4.0)])   # [12.57, 14.0]
+perimeter.([Circle(2.0), Rectangle(3.0, 4.0)])
 ```
-
-- Types **not edited**.
-- Python: **edit every class** (or `isinstance` ladder).
 
 . . .
 
-| | add a **type** | add an **operation** |
-|---|---|---|
-| OOP | easy (new class) | **edit every class** |
-| dispatch | easy (new `struct`) | easy (new function) |
+> Add methods for a new operation without changing the type definitions.
 
 ::: {.notes}
-If someone knows the "expression problem": dispatch solves its extensibility half only.
-Wadler's version also asks for static exhaustiveness checks; Julia has none (the
-MethodError above is a run-time error), plus ambiguities and type piracy.
+▶ Script: cell "A new operation on existing types".
+With class-defined methods, the operation is added to each relevant class. Python also offers
+external functions and singledispatch; the Python notebook gives an example. Neither arrangement
+alone establishes a performance difference. Visitor and the expression problem are out of scope.
 :::
 
-## Who knows which methods?
+## List a function's methods
 
 . . .
 
@@ -407,16 +291,11 @@ methods(area)
 
 . . .
 
-> ▶ Script: cell "Who knows which methods? How many for `area`?"
-
-. . .
-
-> A function = a **collection of methods**; a call picks one.
-
-. . .
-
-> 🐍 [Python notebook](../python/2_dispatch_vs_oop_python.ipynb): `singledispatch`, `multipledispatch` · ⬅ [Back to the path](#path)
+> Which argument types does each listed method accept?
 
 ::: {.notes}
-Two methods: one for Circle, one for Rectangle.
+▶ Script: cell "List a function's methods". Expect the Circle and Rectangle methods.
+This is a reference tool; there is no need to memorize method-table internals.
 :::
+
+[Back to the chapter](#path) · [Next module](3_threads_and_concurrency.qmd)

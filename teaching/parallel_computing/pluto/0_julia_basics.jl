@@ -6,18 +6,11 @@ using InteractiveUtils
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000001
 md"""
-**Reading guide:** follow the [three-session plan](../sessions.html). This notebook is a reference; advanced syntax, design patterns and manual GPU kernels are optional.
-
 # Julia for Python users
-### A short syntax bridge — before the performance story
 
-**ENSAI 3A — Julia as the test bench, Python as the point of comparison**
-
-You know Python; Julia will feel familiar (dynamic, REPL, almost no type annotations). This module
-is a **20-minute bridge**: only what is *different*. **No performance, no parallelism yet.**
-
-Five parts: **Values → Collections → Control flow → Functions & types → Monte-Carlo π**, then a
-cheat-sheet.
+Read the demonstrations in Julia; exercises in Python.
+The 15-minute introduction follows one Monte-Carlo loop, its syntax, and two tools for later demonstrations.
+The remaining cells are a syntax reference.
 """
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000002
@@ -49,11 +42,11 @@ end
 md"""
 ## Numbers
 
-`/` always gives a Float, `÷` (`\div` + TAB) is integer division, power is `^`. Try `2**10`.
+`÷` truncates toward zero; Python `//` floors. For integers, `fld(a, b)` uses floor division. Power is `^`.
 """
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000005
-(10 / 4, 10 ÷ 4, 10 % 4, 2^10, sqrt(2))   # ÷ truncates toward zero; Python // floors (different for negatives). Try 2**10.
+(10 / 4, 10 ÷ 4, -7 ÷ 2, fld(-7, 2), 10 % 4, 2^10, sqrt(2))   # ÷ truncates toward zero; Python // floors (different for negatives). Try 2**10.
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000019
 md"""
@@ -132,15 +125,21 @@ end
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000008
 md"""
-## 2. Reading it — Blocks close with `end`
+## 2. Reading the loop
 
-Indentation is ignored; no `:` after the header. Where does the output appear?
+```julia
+for _ in 1:n                 # repeat n times
+    x, y = rand(), rand()    # sample a uniform point
+    if x^2 + y^2 ≤ 1         # ^ means power; <= also works
+        hits += 1
+    end
+end
+```
+
+`function … end` defines the function; `return hits` returns its count.
+`1:n` includes both endpoints; `_` is unused. Indent for readability; `end` closes the block.
 """
 
-# ╔═╡ 544357c9-2b34-41a4-98a5-e3c7090b3964
-for i in 1:3
-    println(i)
-end
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000009
 md"""
@@ -197,7 +196,7 @@ end
 
 # ╔═╡ d0000000-0000-4a00-8000-00000000000b
 md"""
-## Functions, three forms
+## Functions and keyword arguments
 
 `return` is optional (last expression). Keyword arguments come after `;`.
 """
@@ -217,18 +216,18 @@ end
 md"""
 ## Broadcasting — the dot
 
-`f.(x)` applies `f` element-wise; `@.` dots every operation. Try `sqrt(xs)`.
+NumPy `np.sqrt(xs)` corresponds to `sqrt.(xs)`; NumPy `xs + 1` corresponds to `xs .+ 1`.
 """
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000013
 let
     xs = [1.0, 4.0, 9.0]
-    (sqrt.(xs), xs .+ 1, @. xs^2 + 1)          # try sqrt(xs)
+    (sqrt.(xs), xs .+ 1)
 end
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000016
 md"""
-## Structs instead of classes
+## Structs define data types
 
 No classes, no `self`: data in a `struct` (immutable by default), behaviour in functions outside.
 Try `pt.x = 5.0`.
@@ -294,7 +293,7 @@ end
 md"""
 ## Macros start with `@`
 
-A macro rewrites the code that follows it.
+`@time` runs an expression and reports its execution time. Later demonstrations use other macros.
 """
 
 # ╔═╡ d0000000-0000-4a00-8000-000000000020
@@ -302,21 +301,37 @@ A macro rewrites the code that follows it.
 
 # ╔═╡ d0000000-0000-4a00-8000-00000000001c
 md"""
-## Cheat-sheet — Python → Julia
+## Python → Julia
 
 | Python | Julia |
 |---|---|
+| `def f(x): …` | `function f(x) … end` |
+| `for _ in range(n):` | `for _ in 1:n … end` |
+| `x**2` | `x^2` |
 | `v[0]` / `v[-1]` | `v[1]` / `v[end]` |
-| `v[1:4]` (excl. 4) | `v[2:4]` (incl. 4) |
-| indent + `:` / `elif` | `end` / `elseif` |
-| `2**10` / `//` | `2^10` / `÷` |
-| `"a"+"b"` / `f"{x}"` | `"a"*"b"` / `"\$x"` |
-| `np.f(x)` | `f.(x)` |
-| `obj.method()` | `method(obj)` |
-| `class C` (`self`) | `struct C` (immutable, no `self`) |
-| list: `a[:]` copies; ndarray: `a[:]` is a view | `b = a` aliases; `copy(a)` |
-| `None` | `nothing` (`missing` for data) |
+| `np.sqrt(xs)` | `sqrt.(xs)` |
+
+Return to the loop: why does `4 * count_in_disk(n) / n` estimate π?
 """
+
+# ╔═╡ dfa73de0-59a6-48ca-ad82-3f5428bc8761
+md"""
+## Broadcasting and mutation
+
+Dotted operations apply element by element and fuse into one loop.
+The `!` naming convention indicates a function that modifies an argument.
+"""
+
+# ╔═╡ dfa73de0-59a6-48ca-ad82-3f5428bc8762
+let
+    xs = [1.0, 4.0, 9.0]
+    square(x) = x^2
+    squares = square.(xs)
+    shifted = @. xs^2 + 1
+    xs .= sqrt.(xs)
+    sort!(xs)
+    (squares, shifted, xs)
+end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -340,11 +355,6 @@ project_hash = "71853c6197a6a7f222db0f1978c7cb232b87c5ee"
 # ╟─d0000000-0000-4a00-8000-00000000001d
 # ╠═d0000000-0000-4a00-8000-00000000001e
 # ╟─d0000000-0000-4a00-8000-000000000008
-# ╠═544357c9-2b34-41a4-98a5-e3c7090b3964
-# ╟─d0000000-0000-4a00-8000-00000000000b
-# ╠═d0000000-0000-4a00-8000-00000000000c
-# ╟─d0000000-0000-4a00-8000-00000000000f
-# ╠═d0000000-0000-4a00-8000-000000000010
 # ╟─d0000000-0000-4a00-8000-000000000012
 # ╠═d0000000-0000-4a00-8000-000000000013
 # ╟─d0000000-0000-4a00-8000-00000000001f
@@ -358,6 +368,8 @@ project_hash = "71853c6197a6a7f222db0f1978c7cb232b87c5ee"
 # ╠═d0000000-0000-4a00-8000-00000000001a
 # ╟─d0000000-0000-4a00-8000-000000000006
 # ╠═d0000000-0000-4a00-8000-000000000007
+# ╟─d0000000-0000-4a00-8000-00000000000f
+# ╠═d0000000-0000-4a00-8000-000000000010
 # ╟─e7d7c618-df19-4c50-b667-9b1d967dcfbe
 # ╠═d0000000-0000-4a00-8000-000000000011
 # ╟─d0000000-0000-4a00-8000-000000000014
@@ -368,6 +380,10 @@ project_hash = "71853c6197a6a7f222db0f1978c7cb232b87c5ee"
 # ╠═d0000000-0000-4a00-8000-00000000000e
 # ╟─2ac7e0ea-96d0-4ce5-901c-b16d16d8617a
 # ╠═c67cda2c-5d47-41bb-9d6c-aedafbf62960
+# ╟─d0000000-0000-4a00-8000-00000000000b
+# ╠═d0000000-0000-4a00-8000-00000000000c
+# ╟─dfa73de0-59a6-48ca-ad82-3f5428bc8761
+# ╠═dfa73de0-59a6-48ca-ad82-3f5428bc8762
 # ╟─d0000000-0000-4a00-8000-000000000016
 # ╠═d0000000-0000-4a00-8000-000000000017
 # ╠═d0000000-0000-4a00-8000-000000000018

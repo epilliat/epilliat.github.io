@@ -12,7 +12,7 @@ They are formative, not graded. A gain or a slowdown is acceptable when explaine
 | 2 | Python I/O (20 min), CPU lots/reduction (30 min), race discussion | Julia concurrency parts A/B; a slow local server, Python or Julia (no Internet) |
 | 3 | Python locality (20 min), batching (20 min), GPU/analysis (30 min) | Julia locality/GPU |
 
-The slow-server activity's optional class π needs `registry.py` or `registry.jl` on the instructor's laptop (address on the board; open it in a browser to project names and points).
+The slow-server activity's optional class π: the instructor runs the last cell (`start_registry()`) and opens http://localhost:9000/ to project the board (the address students type, names, points, π). A student who runs it gets a board of their own.
 Python CPU work uses the importable `../python/parallel_workers.py`; download it alongside a standalone notebook.
 I/O supports synthetic values with controlled waits, explicitly labelled. CPU work is independent of I/O.
 A GPU is not guaranteed: use [the analysis activity](../gpu-fallback.qmd) without one.
@@ -34,3 +34,26 @@ python3 teaching/parallel_computing/activities/build_activities.py teaching/para
 
 Publish release notebooks and the worker module with the course page. Instructor solutions stay outside
 the student activity links. There is no grading framework or additional abstraction to learn.
+
+## Optional final activity — Qwen on GPU
+
+`6_llm_batching_python.ipynb` is the instructor version; distribute the generated notebook/script
+in `release/`. Allow 30 minutes **after the core course, only if time remains**. Prepare
+`transformers>=4.45,<5`, matplotlib, CUDA PyTorch and the cached `Qwen/Qwen2.5-0.5B-Instruct`
+weights in advance. Run the complete instructor notebook on the classroom GPU before teaching.
+The current authoring environment has no accessible CUDA GPU; no reference timings are supplied.
+
+Students first edit ordinary strings through `repondre` and `repondre_batch`. Those cells work
+before the single exercise (two metric formulas). Benchmarking uses repeated equal prompts,
+fixed output length, greedy decoding, resident inputs, synchronized warm measurements and medians.
+Compare B=1…16, then equal total work (successive requests versus a batch). The model is fully on
+GPU in FP16; no automatic CPU offload or quantization. On OOM the sweep stops at the last working
+size. If B=1 fails, restart on a suitable GPU. Without a GPU, interpret another group's recorded
+measurements and name their source; the activity has no invented GPU results.
+
+Debrief: T/B is amortized time, not user latency; the sequential comparison includes the waiting
+of requests that arrived together. A batch can reuse weights and improve throughput while each
+response still depends on its previous tokens. The benchmark includes prefill and decoding, not
+first-token latency. Do not infer utilization or a specific bottleneck from timing alone.
+For a short 15-minute demonstration, run the prepared cells, give the metric formulas and keep
+only the prediction and final discussion. No GUI/server setup is needed.

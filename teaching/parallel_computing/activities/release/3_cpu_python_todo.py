@@ -2,8 +2,10 @@
 
 
 # %% [markdown]
-# # π in lots: split, compute, reduce — 30 minutes
+# # π in batches: split, compute, reduce — 30 minutes
 # Needs `parallel_workers.py` next to the notebook (the setup cell downloads it if missing).
+#
+# Keep the eight batches and their seeds fixed; vary only the number of process workers. Counts must agree exactly in this environment. Different samples instead require a statistical comparison.
 
 # %%
 # Provided setup: workers must be importable by a fresh Python process.
@@ -32,17 +34,17 @@ expected = list(map(count_in_disk, jobs))
 t_seq = time.perf_counter() - start
 
 # %%
-# One lot: (size, seed), and its count of points in the disk
+# One batch: (size, seed), and its count of points in the disk
 jobs[0], count_in_disk(jobs[0])
 
 # %%
-# The same lot, computed by ANOTHER process
+# The same batch, computed by ANOTHER process
 with ProcessPoolExecutor(max_workers=1, mp_context=mp.get_context("spawn")) as pool:
     future = pool.submit(count_in_disk, jobs[0])
     print(future.result())
 
 # %% [markdown]
-# Your turn: submit the lots to processes, sum the counts.
+# Your turn: submit the batches to processes, sum the counts.
 
 # %%
 def parallel_hits(jobs, workers):
@@ -64,3 +66,6 @@ for workers in (1, 2, 4):
     assert hits == sum(expected)
     n = sum(size for size, seed in jobs)
     print(workers, "workers", "π ≈", 4*hits/n, "seconds", round(elapsed, 3), "speedup", round(t_seq/elapsed, 2))
+
+# %% [markdown]
+# Report batches, process workers, exact count check, elapsed time and speedup. Pool startup is included. To explain a slowdown, propose one test: larger batches or a reused pool. Record the measurement protocol.

@@ -6,14 +6,14 @@ using InteractiveUtils
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000001
 md"""
-# Threads & concurrency
-### Waiting is overlapped; computing must be split
+# Threads and concurrency
+### Overlap waiting, distribute computation, reduce local results
 
-**ENSAI 3A — Julia as the test bench, Python as the point of comparison**
-
-- **Part A — async on one core.** `@async` / `@sync` overlap **waiting** (network). Nothing computes faster.
-- **Part B — `@spawn` on many cores.** Real CPU parallelism — and the **race condition**.
-
+Concurrency means tasks progress over overlapping periods; parallelism means computations
+execute simultaneously. A task is work to schedule, a thread executes tasks, and a core
+executes instructions. These counts are not interchangeable.
+Part A overlaps I/O waits; Part B distributes CPU work, identifies a shared-counter race and
+returns local counts. Change COURSE_LIVE_IO to 0 for explicitly simulated waits.
 """
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000002
@@ -34,17 +34,18 @@ nthreads()
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000005
 md"""
-**`1`?** Part B will show no speedup. Relaunch with `julia --threads=auto`, then `import Pluto; Pluto.run()`. Part A works on one thread — that's its point.
+For CPU parallelism start Julia with `--threads=auto`, then check `Threads.nthreads()`.
+A task may execute on an available worker thread; it does not own a physical core.
+The I/O demonstration can overlap waiting on a single thread.
 """
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000006
 md"""
-## 1. Part A — async on one core: waiting for the network
+## 1. Part A — overlap waiting
 
-- `@async expr` — wrap `expr` in a **task**, schedule it, return **immediately**.
-- `@sync block` — **wait** for every `@async` task created inside.
-
-> 🐍 `asyncio.gather` **is** `@sync` + `@async`. And Python threads **do** overlap I/O: the GIL is released while waiting — it only kills **CPU** parallelism (Part B).
+`@async expr` creates and schedules a task. `@sync` waits for tasks created in its block.
+Python thread pools and asyncio provide analogous submit-and-wait patterns for I/O.
+This use case does not define concurrency as I/O-only or single-core-only.
 """
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000007
@@ -54,6 +55,10 @@ SYMBOLS = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000008
 function fetch_price(sym)
+    if get(ENV, "COURSE_LIVE_IO", "1") == "0"
+        sleep(0.05)  # controlled waiting, not Internet performance
+        return 100.0 + something(findfirst(==(sym), SYMBOLS), 0)
+    end
     url = "https://api.binance.com/api/v3/ticker/price?symbol=$(sym)"
     io = IOBuffer()
     Downloads.download(url, io)
@@ -100,16 +105,17 @@ end
 # ╔═╡ d3000000-0000-4a00-8000-00000000000b
 try
     run_async_demo()
-    md"✓ fetched live from Binance (see the printout above)"
+    get(ENV, "COURSE_LIVE_IO", "1") == "0" ? md"SIMULATED waits and synthetic values (see timings above)." : md"Live Binance API requests completed (see timings above)."
 catch e
     md"⚠️ **Part A needs internet access** (Binance API). Error: `$(sprint(showerror, e))`"
 end
 
 # ╔═╡ d3000000-0000-4a00-8000-00000000000c
 md"""
-**Case 2:** why `0/15`, then `15/15` two seconds later in an array nobody touched?
-
-> 🐍 An un-awaited Python coroutine stays at `0/15` **forever**. **Julia forgot to wait; Python forgot to start.**
+The unsynchronized timer measures task submission, not completed work. After yielding,
+requests can complete without another write by the parent. With real I/O, completion within
+two seconds is not guaranteed. An unscheduled Python coroutine is a different omission:
+calling `async def` creates a coroutine that must be scheduled or awaited.
 """
 
 # ╔═╡ d3000000-0000-4a00-8000-00000000000d
@@ -124,7 +130,9 @@ function simulate_markov(nsteps; p_stay=0.9)
     state = 1
     count1 = 0
     for _ in 1:nsteps
-        rand() > p_stay && (state = 3 - state)   # flip 1<->2
+        if rand() > p_stay
+            state = 3 - state                # flip 1 <-> 2
+        end
         count1 += (state == 1)
     end
     return count1 / nsteps
@@ -152,10 +160,20 @@ end
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000011
 md"""
-## 2. Part B — computing on many cores: Monte-Carlo π, the sequential baseline
+## 2. Part B — CPU tasks and exact batch sizes
 
-Same count as in the compilation module: π ≈ 4 × #{x² + y² ≤ 1} / n.
+The supplied helper distributes every requested point: if n is not divisible by ntasks,
+the first remainder batches receive one extra draw. Tasks are work batches; worker threads
+are execution resources. A separate process-worker count is varied in the Python activity.
 """
+
+# ╔═╡ b37c1000-0001-4000-8000-000000000001
+function batch_sizes(n, ntasks)
+    q, r = divrem(n, ntasks)               # q draws per batch, r left over
+    sizes = fill(q, ntasks)
+    sizes[1:r] .+= 1                       # the first r batches take one more
+    return sizes
+end
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000012
 begin
@@ -178,9 +196,9 @@ md"""
 
 # ╔═╡ c603ac5e-eb35-4b74-88da-1171cfa44282
 function pi_async(n; ntasks=nthreads())
-    per = n ÷ ntasks
-    tasks = [@async count_in_disk(per) for _ in 1:ntasks]
-    return 4 * sum(fetch, tasks) / (per * ntasks)
+    sizes = batch_sizes(n, ntasks)
+    tasks = [@async count_in_disk(size) for size in sizes]
+    return 4 * sum(fetch, tasks) / n
 end
 
 # ╔═╡ 56c666ff-5303-435f-9092-42efee54a4a7
@@ -192,22 +210,23 @@ end
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000015
 md"""
-### π on all threads, one task per thread
+### Shared counter: predict the estimate
 
-
+The following race is intentional. Each task updates the same hits variable using a
+non-atomic read–modify–write. Explain an interleaving that loses an increment, even if one
+execution happens to return a plausible estimate.
 """
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000013
 function pi_race(n; ntasks=nthreads())
-    per = n ÷ ntasks
     hits = 0
-    @sync for _ in 1:ntasks
-        Threads.@spawn for _ in 1:per
+    @sync for size in batch_sizes(n, ntasks)
+        Threads.@spawn for _ in 1:size
             x = rand(); y = rand()
-            hits += (x * x + y * y <= 1.0)
+            hits += (x * x + y * y <= 1.0)  # intentionally shared: read–modify–write race
         end
     end
-    return 4 * hits / (per * ntasks)
+    return 4 * hits / n
 end
 
 # ╔═╡ a5cfc431-9c5b-44f7-8120-2a41e41658f6
@@ -218,14 +237,17 @@ end
 
 # ╔═╡ 8b4a6129-8f25-4bff-8466-ca170fc146b5
 md"""
-### The cure: each task returns its count, reduce once. Stable now?
+### Return local counts, then reduce
+
+Each task returns its local count; the parent sums the results. No counter is updated
+concurrently in the reduction. The denominator is n, and the supplied sizes sum exactly to n.
 """
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000014
 function pi_spawn(n; ntasks=nthreads())
-    per = n ÷ ntasks
-    tasks = [Threads.@spawn count_in_disk(per) for _ in 1:ntasks]
-    return 4 * sum(fetch, tasks) / (per * ntasks)
+    sizes = batch_sizes(n, ntasks)
+    tasks = [Threads.@spawn count_in_disk(size) for size in sizes]
+    return 4 * sum(fetch, tasks) / n
 end
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000016
@@ -233,24 +255,27 @@ println("pi_spawn : ", [round(pi_spawn(20_000_000), digits=5) for _ in 1:4])
 
 # ╔═╡ 9b63ddf2-0642-4ede-ac6f-c2f6ea7053f4
 md"""
-### Why not an atomic counter? Correct? Faster than `pi_seq`?
+### Atomic updates or local counts?
+
+`Threads.atomic_add!(hits, 1)` performs an explicit atomic increment. Merely storing the
+counter in an Atomic container does not make `hits += 1` atomic. Compare one shared update
+per hit with one returned count per task; measure rather than assume an atomic slowdown.
 """
 
 # ╔═╡ e07dbcd8-4863-4996-97c4-cf5d738874d4
 function pi_atomic(n; ntasks=nthreads())
-    per = n ÷ ntasks
     hits = Threads.Atomic{Int}(0)
-    @sync for _ in 1:ntasks
-        Threads.@spawn for _ in 1:per
+    @sync for size in batch_sizes(n, ntasks)
+        Threads.@spawn for _ in 1:size
             x = rand(); y = rand()
             (x * x + y * y <= 1.0) && Threads.atomic_add!(hits, 1)
         end
     end
-    return 4 * hits[] / (per * ntasks)
+    return 4 * hits[] / n
 end
 
 # ╔═╡ f87a0d77-71fa-46dc-81cd-c523d9c4eb7a
-let n = 100_000_000
+let n = 40_000_000
     t_seq = @belapsed pi_seq($n)
     t_atomic = @belapsed pi_atomic($n)
     println("pi_atomic = $(round(pi_atomic(n), digits=5)) | $(round(t_atomic / t_seq, digits=1))x the time of pi_seq")
@@ -273,17 +298,17 @@ end
 
 # ╔═╡ d3000000-0000-4a00-8000-000000000019
 md"""
-## Wrap-up
+## Choose a tool for the workload
 
-| | **I/O-bound** (waiting) | **CPU-bound** (computing) |
-|---|---|---|
-| **Python** | threads or `asyncio` (GIL released during I/O) | threads useless (GIL) → processes |
-| **Julia** | `@async` / `@sync` (one core) | `@spawn` / `fetch` (many cores) |
+- Waiting: overlap it with tasks, threads or asyncio as appropriate.
+- Pure-Python CPU loops with the GIL enabled: compile/vectorize, or consider processes.
+- Native computation: check existing library threads before adding workers.
 
-- **Race condition**: shared mutable state + parallel writes = silent, wrong result. Cure: **less sharing** (return and reduce).
-- **Amdahl**: speedup < number of threads.
-
-**Next:** the memory hierarchy, batching — and the GPU, where π goes massively parallel.
+Fixed batches and seeds preserve counts when only the Python worker count changes. Different
+random samples require statistical comparison. Julia draws here are not fixed across runs.
+Use Amdahl as a reference model, then test startup overhead, uneven completion times and
+limited resources. More, smaller tasks can balance work but can also add overhead.
+Next: memory locality and batching.
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -313,6 +338,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 # ╠═d3000000-0000-4a00-8000-00000000000b
 # ╟─d3000000-0000-4a00-8000-00000000000c
 # ╟─d3000000-0000-4a00-8000-000000000011
+# ╠═b37c1000-0001-4000-8000-000000000001
 # ╠═d3000000-0000-4a00-8000-000000000012
 # ╟─c7120db8-ccb6-451d-aee0-a64aa117f2e9
 # ╠═c603ac5e-eb35-4b74-88da-1171cfa44282

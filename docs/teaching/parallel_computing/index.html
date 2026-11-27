@@ -194,13 +194,13 @@ ul.task-list li input[type="checkbox"] {
   </div>
   <div class="aurora-card">
     <span class="aurora-card__icon">🧩</span>
-    <span class="aurora-card__title">1 · Compilation &amp; Types</span>
-    <span class="aurora-card__desc">Why a pure Python loop is ~100× slower than the same compiled loop, first call vs steady state, the measurement card, and local vs whole-program gain. Tools: <code>@btime</code>, <code>timeit</code>, <code>numba</code>.</span>
+    <span class="aurora-card__title">1 · Measure before optimizing</span>
+    <span class="aurora-card__desc">Compare first-call and warmed-up timings, record a measurement protocol, check results and distinguish local from whole-program speedup. Tools: <code>@btime</code>, <code>timeit</code>, <code>numba</code>.</span>
   </div>
   <div class="aurora-card">
     <span class="aurora-card__icon">🔀</span>
-    <span class="aurora-card__title">2 · Multiple Dispatch vs OOP</span>
-    <span class="aurora-card__desc">Julia's multiple dispatch as a language idea, contrasted with Python's OOP / <code>singledispatch</code>. A language module — no parallelism yet.</span>
+    <span class="aurora-card__title">2 · Dispatch, Types, and Performance</span>
+    <span class="aurora-card__desc">Method selection by argument types, then the compiler's ability to resolve calls: same values in different containers, and global data versus function arguments.</span>
   </div>
   <div class="aurora-card">
     <span class="aurora-card__icon">🧵</span>
@@ -210,12 +210,12 @@ ul.task-list li input[type="checkbox"] {
   <div class="aurora-card">
     <span class="aurora-card__icon">🧠</span>
     <span class="aurora-card__title">4 · Memory &amp; Batching</span>
-    <span class="aurora-card__desc">The processor spends its time <em>waiting</em> for memory. The cache cliff, locality (Julia is column-major — the opposite of numpy), and why <strong>batching</strong> pays by reusing the data already loaded — measured on the CPU, before any GPU.</span>
+    <span class="aurora-card__desc">Memory access patterns and data reuse: compare compiled loop orders, then batch matrix products. Choose batch size using throughput, latency and memory constraints, before moving to the GPU.</span>
   </div>
   <div class="aurora-card">
     <span class="aurora-card__icon">⚡</span>
     <span class="aurora-card__title">5 · GPU</span>
-    <span class="aurora-card__desc">Thousands of threads — provided you feed them. What the transfer costs, CPU vs GPU matmul, when the GPU starts paying off, and estimating π on the card (CUDA.jl; PyTorch CPU vs CUDA). Coalescing is optional.</span>
+    <span class="aurora-card__desc">Assess parallel work, keep intermediate data resident, and compare the complete job at the required accuracy. Matrix products and Monte-Carlo π with CUDA.jl or PyTorch; an analysis route is available without a GPU. Coalescing is optional.</span>
   </div>
 </div>
 </section>
@@ -225,7 +225,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="exam" class="level2">
 <h2 class="anchored" data-anchor-id="exam">Exam</h2>
-<p>In groups of 2–3: take code from a real project (ENSAI, personal, or open source), speed up one of its building blocks, and <strong>measure precisely what you gained</strong>. Short report (~8 pages) and 30-minute presentation.</p>
+<p>In groups of 2–3: take code from a real project (ENSAI, personal, or open source), speed up one of its building blocks, and <strong>measure precisely what you gained</strong>. Short report (~8 pages), written as a chapter of your Quarto book portfolio, and 30-minute presentation.</p>
 <div class="resource-grid">
 <p><a href="../../teaching/parallel_computing/exam.html" class="resource-chip">Exam rules &amp; grading</a></p>
 </div>
@@ -237,25 +237,25 @@ ul.task-list li input[type="checkbox"] {
 <div class="tab-content">
 <div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
 <div class="resource-grid">
-<p><a href="../../teaching/parallel_computing/slides/course.html" class="resource-chip">Overview &amp; synthesis</a> <a href="../../teaching/parallel_computing/slides/0_julia_basics.html" class="resource-chip">0 — Julia for Python users</a> <a href="../../teaching/parallel_computing/slides/1_compilation_and_types.html" class="resource-chip">1 — Interpreted vs compiled</a> <a href="../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html" class="resource-chip">2 — Multiple dispatch vs OOP</a> <a href="../../teaching/parallel_computing/slides/3_threads_and_concurrency.html" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="../../teaching/parallel_computing/slides/4_memory_and_batching.html" class="resource-chip">4 — Memory &amp; Batching</a> <a href="../../teaching/parallel_computing/slides/5_gpu.html" class="resource-chip">5 — GPU</a></p>
+<p><a href="../../teaching/parallel_computing/slides/course.html" class="resource-chip">Overview &amp; synthesis</a> <a href="../../teaching/parallel_computing/slides/0_julia_basics.html" class="resource-chip">0 — Julia for Python users</a> <a href="../../teaching/parallel_computing/slides/1_compilation_and_types.html" class="resource-chip">1 — Measure before optimizing</a> <a href="../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html" class="resource-chip">2 — Dispatch, types, and performance</a> <a href="../../teaching/parallel_computing/slides/3_threads_and_concurrency.html" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="../../teaching/parallel_computing/slides/4_memory_and_batching.html" class="resource-chip">4 — Memory &amp; Batching</a> <a href="../../teaching/parallel_computing/slides/5_gpu.html" class="resource-chip">5 — GPU</a></p>
 </div>
 </div>
 <div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
 <p>The <strong>common track</strong> — selected demonstrations in the language you already know. Open the notebook links in Colab below; local setup is described above.</p>
 <div class="resource-grid">
-<p><a href="python/1_compilation_and_types_python.ipynb" class="resource-chip">1 — Compilation &amp; Types</a> <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/python/1_compilation_and_types_python.ipynb" class="resource-chip">Colab</a> <a href="python/2_dispatch_vs_oop_python.ipynb" class="resource-chip">2 — Dispatch vs OOP</a> <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/python/2_dispatch_vs_oop_python.ipynb" class="resource-chip">Colab</a> <a href="python/3_threads_and_concurrency_python.ipynb" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/python/3_threads_and_concurrency_python.ipynb" class="resource-chip">Colab</a> <a href="python/4_memory_and_gpu_python.ipynb" class="resource-chip">4–5 — Memory, batching &amp; GPU</a> <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/python/4_memory_and_gpu_python.ipynb" class="resource-chip">Colab</a></p>
+<p><a href="python/1_compilation_and_types_python.ipynb" class="resource-chip">1 — Measure before optimizing</a> <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/python/1_compilation_and_types_python.ipynb" class="resource-chip">Colab</a> <a href="python/2_dispatch_vs_oop_python.ipynb" class="resource-chip">2 — Dispatch, types, and performance</a> <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/python/2_dispatch_vs_oop_python.ipynb" class="resource-chip">Colab</a> <a href="python/3_threads_and_concurrency_python.ipynb" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/python/3_threads_and_concurrency_python.ipynb" class="resource-chip">Colab</a> <a href="python/4_memory_and_gpu_python.ipynb" class="resource-chip">4–5 — Memory, batching &amp; GPU</a> <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/python/4_memory_and_gpu_python.ipynb" class="resource-chip">Colab</a></p>
 </div>
 </div>
 <div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
 <p>Live, executable Julia demos — the reference solutions.</p>
 <div class="resource-grid">
-<p><a href="pluto/0_julia_basics.jl" class="resource-chip">0 — Julia for Python users</a> <a href="pluto/1_compilation_and_types.jl" class="resource-chip">1 — Compilation &amp; Types</a> <a href="pluto/2_dispatch_vs_oop.jl" class="resource-chip">2 — Dispatch vs OOP</a> <a href="pluto/3_threads_and_concurrency.jl" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="pluto/4_memory_and_gpu.jl" class="resource-chip">4–5 — Memory, batching &amp; GPU</a></p>
+<p><a href="pluto/0_julia_basics.jl" class="resource-chip">0 — Julia for Python users</a> <a href="pluto/1_compilation_and_types.jl" class="resource-chip">1 — Measure before optimizing</a> <a href="pluto/2_dispatch_vs_oop.jl" class="resource-chip">2 — Dispatch, types, and performance</a> <a href="pluto/3_threads_and_concurrency.jl" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="pluto/4_memory_and_gpu.jl" class="resource-chip">4–5 — Memory, batching &amp; GPU</a></p>
 </div>
 </div>
 <div id="tabset-1-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-4-tab">
 <p>The same lessons as plain <code>.jl</code> files with <code>#%%</code> cells — for the VS Code Julia extension or the REPL, if you prefer that to Pluto.</p>
 <div class="resource-grid">
-<p><a href="scripts/0_julia_basics.jl" class="resource-chip">0 — Julia for Python users</a> <a href="scripts/1_compilation_and_types.jl" class="resource-chip">1 — Compilation &amp; Types</a> <a href="scripts/2_dispatch_vs_oop.jl" class="resource-chip">2 — Dispatch vs OOP</a> <a href="scripts/3_threads_and_concurrency.jl" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="scripts/4_memory_and_gpu.jl" class="resource-chip">4–5 — Memory, batching &amp; GPU</a></p>
+<p><a href="scripts/0_julia_basics.jl" class="resource-chip">0 — Julia for Python users</a> <a href="scripts/1_compilation_and_types.jl" class="resource-chip">1 — Measure before optimizing</a> <a href="scripts/2_dispatch_vs_oop.jl" class="resource-chip">2 — Dispatch, types, and performance</a> <a href="scripts/3_threads_and_concurrency.jl" class="resource-chip">3 — Threads &amp; Concurrency</a> <a href="scripts/4_memory_and_gpu.jl" class="resource-chip">4–5 — Memory, batching &amp; GPU</a></p>
 </div>
 </div>
 <div id="tabset-1-5" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-5-tab">
@@ -271,6 +271,11 @@ ul.task-list li input[type="checkbox"] {
 <p><strong>Session 3 — move less data</strong></p>
 <div class="resource-grid">
 <p><a href="activities/release/4_locality_python_todo.ipynb" class="resource-chip">Two loop orders (Python)</a> <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/4_locality_python_todo.ipynb" class="resource-chip">Colab</a> <a href="activities/release/4_locality_python_todo.py" class="resource-chip">.py</a> <a href="activities/release/4_locality_julia_todo.jl" class="resource-chip">Two loop orders (Julia)</a> <a href="activities/release/4_batching_python_todo.ipynb" class="resource-chip">Batching (Python)</a> <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/4_batching_python_todo.ipynb" class="resource-chip">Colab</a> <a href="activities/release/4_batching_python_todo.py" class="resource-chip">.py</a> <a href="activities/release/5_gpu_python_todo.ipynb" class="resource-chip">π on the card (Python)</a> <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/5_gpu_python_todo.ipynb" class="resource-chip">Colab</a> <a href="activities/release/5_gpu_python_todo.py" class="resource-chip">.py</a> <a href="activities/release/5_gpu_julia_todo.jl" class="resource-chip">π on the card (Julia, local CUDA)</a> <a href="../../teaching/parallel_computing/gpu-fallback.html" class="resource-chip">π on the card, without a GPU</a></p>
+</div>
+<p><strong>Optional final activity — a small language model on GPU (30 min)</strong></p>
+<p>Try your own strings with Qwen, then compare batch latency, token throughput and GPU memory. Prepare Transformers and download the model before class; a CUDA GPU is required.</p>
+<div class="resource-grid">
+<p><a href="activities/release/6_llm_batching_python_todo.ipynb" class="resource-chip">LLM: latency and batching (Python)</a> <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/6_llm_batching_python_todo.ipynb" class="resource-chip">Colab</a> <a href="activities/release/6_llm_batching_python_todo.py" class="resource-chip">.py</a></p>
 </div>
 </div>
 <div id="tabset-1-6" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-6-tab">

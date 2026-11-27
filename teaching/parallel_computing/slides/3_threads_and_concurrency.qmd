@@ -1,6 +1,6 @@
 ---
 title: "3 — Threads & concurrency"
-subtitle: "Waiting is overlapped; computing must be split"
+subtitle: "Overlap waiting, distribute computation, reduce local results"
 author: "Emmanuel Pilliat — ENSAI 3A"
 format:
   revealjs:
@@ -12,70 +12,32 @@ smaller: false
 css: ../../../styles.css
 ---
 
-## Today's path {#path}
+## Concurrency and parallelism {#path}
 
-:::{.nonincremental}
-1. **Waiting**: ✏️ [overlap the waits](#a3a)
-2. **Computing**: the GIL, then a real split over cores.
-3. **The parallel sum that lies**: a race, step by step. ✏️ [who wrote last?](#a3b)
-4. **Return and reduce**: ✏️ [π in lots](#a3c)
-5. **Why not N× on N cores?**
-:::
+- **Concurrency:** several tasks progress over overlapping periods.
+- **Parallelism:** several computations execute simultaneously.
 
 . . .
 
-> Only if time: [Markov chains, lazy coroutines](#appendix) · ✏️ [a slow server](#a3d)
+> Overlap **I/O waits**; distribute **independent computations** across cores.
+
+. . .
+
+[Waiting activity](#a3a) · [Shared counter](#a3b) · [π in batches](#a3c) · [Optional examples](#appendix)
 
 ::: {.notes}
-Session 2, the whole three hours. Start with a 10-minute recall, no slide: what result must be
-preserved, what is inside the timer, what the first call costs.
-Parallelism starts here: compilation and dispatch made one core fast; now we use many.
+Session 2, three hours. Keep the major sections but combine roadmap and objectives here.
+Start with a short recall of correctness, first-call time and timed scope. Concurrency is not
+synonymous with I/O, and does not imply one core; overlapping waits is our first use case.
+By the end students should choose a mechanism, recognize a race, reduce local results and
+propose a test for a scaling limit. Scripts and notebook links are on the last core slide.
 :::
-
-## By the end, you can
-
-:::{.nonincremental}
-- tell **waiting** from **computing**;
-- spot a **shared update**;
-- **split and reduce** a computation;
-- explain a speedup **below** the worker count.
-:::
-
-. . .
-
-> ▶ [Script](../scripts/3_threads_and_concurrency.jl) · [Notebook](../pluto/3_threads_and_concurrency.jl) · 🐍 [Python](../python/3_threads_and_concurrency_python.ipynb)
-
-. . .
-
-> ⬅ [2 — Dispatch](2_dispatch_vs_oop.qmd)  ·  **Next:** [4 — Memory & batching](4_memory_and_batching.qmd) ➡
-
-# Two problems, two tools {style="text-align: center;"}
-
-## Concurrency ≠ parallelism
-
-. . .
-
-| | the time goes into… | fix | cores needed |
-|---|---|---|---|
-| **Concurrency** | **waiting** (network, disk) | **overlap** the waits | one is enough |
-| **Parallelism** | **computing** | **split** the work | several |
-
-. . .
-
-> **Waiting is overlapped; computing must be split.**
-
-::: {.notes}
-"One core" describes our demos, not a definition: concurrent tasks may also run on several
-cores. The idea to keep is overlapping waits versus executing computations at the same time.
-Pick the wrong one: all the complexity, none of the speed. We will measure it.
-:::
-
 # Part A — overlap the waiting {style="text-align: center;"}
 
-## Fetching 15 prices
+## Overlap independent requests
 
-- 15 HTTP requests to Binance, **~0.25 s** wait each.
-- One by one = **15 waits in a row**, CPU idle.
+- Reference example: **15 HTTP requests**, about **0.25 s** waiting per request.
+- Sequential execution waits for each response before starting the next request.
 
 . . .
 
@@ -118,24 +80,23 @@ end
 
 . . .
 
-| | time | what happened |
+Illustrative timings on the course machine:
+
+| | Time | Timed scope |
 |---|---|---|
 | 1) sequential | **~4 s** | sum of 15 waits |
-| 2) `@async` **without** `@sync` | **~10 µs** | ⚠️ timed **task creation** only |
+| 2) `@async` **without** `@sync` | **~10 µs** | **task creation** only |
 | 3) `@sync` + `@async` | **~0.3 s** | ≈ one round-trip |
-
-- Row 2: "400 000× faster" — **wrong**, data not there yet.
-- `@sync`: honest timing **and** correct result.
 
 . . .
 
-> Stop the timer when the **results are there**.
+> Compare completed work: stop the timer when **all results are available**.
 
 ::: {.notes}
 Network-dependent: your latency will differ. The shape (sum of latencies → one
 round-trip) is the lesson, not the exact seconds. Run it live if the wifi allows.
 The script prints "x/15 ready" for row 2, then again 2 s later: 15/15.
-Async overlaps waiting, not computing. Row 2 is the "Scope" line of the measurement card.
+The work in this example is mainly waiting. Row 2 illustrates a different timed scope.
 :::
 
 ## The same pattern in Python
@@ -154,20 +115,19 @@ def download_all(days):
 
 . . .
 
-> `with` + `map` = `@sync` + `@async`: **submit all, wait for all**.
+> Both patterns **submit calls and wait for the results**.
 
 ::: {.notes}
-This is the structure the activity asks for. `asyncio.gather` is the coroutine version of the
-same idea (appendix slide "Julia didn't wait; Python didn't start").
+This is the structure the activity asks for. `asyncio.gather` is the coroutine version of the same idea.
 :::
 
 ## ✏️ Overlap the waits {#a3a}
 
 :::{.nonincremental}
 - **Question:** 20 downloads, one by one or all at once. How long each?
-- **Alone:** predict both times (3 min).
-- **In pairs:** write the concurrent submission; check you get the **same 20 values**.
-- **Write down:** two times, measured until the results are there · ratio · real or simulated. 📋 [card](1_compilation_and_types.qmd#/card)
+- **Predict:** both times.
+- **Do:** write the concurrent submission; check you get the **same 20 values**.
+- **Write down:** completed-work times · speedup · real or simulated · [protocol](1_compilation_and_types.qmd#/card)
 :::
 
 . . .
@@ -182,8 +142,8 @@ Internet benchmark. Python and Julia use different endpoints: no cross-language 
 ## Debrief: overlap the waits {#a3a-debrief}
 
 :::{.nonincremental}
-- **Compare:** is the ratio close to 20? What limits it?
-- **Explain:** why do threads help here, on one core?
+- **Compare:** what limits the speedup for 20 requests?
+- **Explain:** why can waiting overlap without simultaneous computation?
 - **Test:** would this speed up a pure-Python arithmetic loop?
 :::
 
@@ -196,121 +156,142 @@ Limits: server, bandwidth, connection setup, the slowest request. The last quest
 bridge to Part B: let them commit to an answer before the next slide.
 :::
 
-# Part B — split the computing {style="text-align: center;"}
 
-## Python threads on CPU work: the GIL {#gil}
+# Part B — execute computations simultaneously {style="text-align: center;"}
 
-- GIL: one thread runs **Python bytecode** at a time.
-- **Released** while waiting, and inside many **native** routines (NumPy, BLAS).
+## Python CPU work with the GIL {#gil}
+
+**GIL** (Global Interpreter Lock): a lock in standard CPython; a thread must hold it to run Python code.
+
+- One thread executes Python bytecode at a time.
+- I/O waits and many native routines release the GIL.
 
 . . .
 
-| `ThreadPoolExecutor` on… | speedup |
+| Thread pool, course machine | Speedup |
 |---|---|
-| **I/O** (15 URLs) | **~10×** |
-| **CPU**, pure-Python loop | **~1×** |
-
-. . .
-
-> *"Threads are pointless in Python"*: [**false**]{style="background-color: yellow;"}. It depends on **where the time goes**.
+| I/O, 15 requests | ~10× |
+| Pure-Python CPU loop | ~1× |
 
 ::: {.notes}
-Same threads, same GIL; what changed is waiting vs computing.
-Pure-Python CPU loops need processes. Native NumPy work is another case: it may release the
-GIL and is often already multithreaded by BLAS — essential for a real NumPy project.
-Ageing caveat: true for default CPython. Free-threaded builds (PEP 703) are
-officially supported since 3.13/3.14 and remove the GIL — say "default CPython".
+Do not generalize to all Python builds or all native libraries. The process-pool activity
+uses a pure-Python loop. Compiling/vectorizing that loop is another optimization, as in module 1.
+This qualification belongs on the slide rather than only in notes.
 :::
 
-## Splitting the computing in Julia
+## Tasks, threads and cores
+
+- **Core**: hardware, a part of the chip that executes instructions.
+- **Thread**: software, a sequence of instructions run by the OS on one core at a time.
+- **Task**: a piece of work; Julia runs its tasks on its threads.
+
+. . .
+
+> Tasks run on threads, threads run on cores: the OS and Julia choose and change both mappings.
+
+::: {.notes}
+Cores are physical and their number is fixed (16 on the reference laptop). Threads are created
+by programs: Julia starts nthreads() worker threads, and the OS decides which core runs each
+thread, possibly moving it. With more threads than cores, they take turns.
+Caveat: with simultaneous multithreading (SMT, "hyper-threading"), one physical core can run two
+threads at once; the OS then reports "logical CPUs" (22 here, for 16 physical cores).
+A worker can be a process or a thread depending on the executor. In the Python activity it
+means a process.
+:::
+
+## Schedule a Julia task
 
 . . .
 
 ```julia
-t = Threads.@spawn f()   # may run on another core
-fetch(t)                 # wait, get the result
+t = Threads.@spawn f()   # schedule work on the thread pool
+fetch(t)                # wait and obtain its result
 ```
 
-- Needs `julia --threads=auto` (else `nthreads() = 1`).
-- Our machine: `Threads.nthreads() = 22`. Julia has no GIL.
+| | Scheduling |
+|---|---|
+| `@async` | Task on the current thread |
+| `Threads.@spawn` | Task on an available worker thread |
 
 . . .
 
-> `@async` and `@spawn` look alike. Only one uses more cores.
-
-## Same CPU work, with `@async`
-
-. . .
-
-> π (`n = 10⁸`), `@async` × 22: speedup? ▶ Script: cell "Same CPU work with @async"
-
-. . .
-
-| | time | speedup |
-|---|---|---|
-| `pi_seq` (one core) | 0.357 s | — |
-| `@async` × 22 | 0.332 s | [**1.1×**]{style="background-color: yellow;"} |
-| `@spawn` × 22 | 0.057 s | **6.3×** |
-
+> Start Julia with `--threads=auto`; check `Threads.nthreads()`.
 
 ::: {.notes}
-count_in_disk is the same count as in the compilation module; only the macro changes (who runs it).
-@async: one core, nothing to overlap. @spawn: the tasks land on different cores.
-Script cells "Same CPU work with @async" (seq, @async) and "Speedup vs nthreads" (@spawn).
-@async never passed ~1.3x at any task count tried (1 -> 22).
-No speedup-vs-ntasks curve here: in one session the OS may place few tasks on
-5 GHz P-cores or 2.5 GHz LP-E cores (measured 1.3x at 4 tasks but 4.7x at 6).
-The honest curve needs one process per point: experiences/threads_scaling/.
+This is a task count versus execution-resource distinction, not one task per core.
+@spawn permits parallel execution; it does not guarantee a dedicated core or a speedup.
+The CPU comparison below uses 22 tasks on 22 Julia worker threads in the reference run.
 :::
 
-# The parallel sum that lies {style="text-align: center;"}
-
-## π on all threads {style="text-align: center;"}
+## Same computation, different scheduling
 
 . . .
 
-π on all 22 threads, 20 million points, one task per thread.
+π, 10⁸ draws, **22 tasks**. Predict the speedup before comparing:
+
+| Implementation | Time | Speedup |
+|---|---|---|
+| Sequential | 0.357 s | 1× |
+| `@async` | 0.332 s | 1.1× |
+| `@spawn`, local counts | 0.057 s | 6.3× |
+
+. . .
+
+Illustrative timings on the course machine, **22 Julia worker threads**.
+
+::: {.notes}
+▶ Script: cells "Same CPU work with @async" and "Speedup vs nthreads".
+The corrected @spawn implementation is defined after the shared-counter experiment. This table
+previews its historical timings; do not execute the entire CPU script before the prediction.
+CPU-bound @async tasks on one thread have no waiting to overlap. @spawn can execute them
+simultaneously. These are historical rounded observations, not predicted values for other machines.
+:::
+
+# Part C — local counts and reduction {style="text-align: center;"}
+
+## A shared counter: predict the result
 
 . . .
 
 ```julia
 hits = 0
-@sync for _ in 1:ntasks
-    Threads.@spawn for _ in 1:per
-        x = rand(); y = rand()
-        hits += (x * x + y * y <= 1.0)
+@sync for size in batch_sizes(n, ntasks)
+    Threads.@spawn for _ in 1:size
+        x, y = rand(), rand()
+        hits += (x^2 + y^2 ≤ 1)   # shared read–modify–write
     end
 end
 ```
 
 . . .
 
-> **What does it print?** ▶ Script: cell "π on all threads, one task per thread"
-
-## The parallel sum that lies
-
-. . .
-
-| | run 1 | run 2 | run 3 | run 4 |
-|---|---|---|---|---|
-| `pi_race` | **0.219** | **0.361** | **0.354** | **0.393** |
-| `pi_spawn` | 3.14126 | 3.14174 | 3.14172 | 3.14146 |
-
-- **10× too small**, different every run.
-
-. . .
-
-::: {.callout-warning}
-**No error. No warning. Just a wrong number.**
-:::
+> What estimate do you expect? Does a task's increment execute as one operation?
 
 ::: {.notes}
-Your values WILL differ — that is the point (non-determinism). Never quote a fixed
-number here; run it live and let the class watch it change.
-A demo machine may not show a spectacular error: the interleaving on the next slide is the
-expected result, not the size of the error.
+▶ Script: cell "Shared counter". The supplied batch_sizes distributes all n draws, including
+any remainder. Its details are shown with the correct reduction; here focus on the shared hits.
+The race is intentional. Do not replace the example by an atomic update before discussing it.
 :::
 
+## A race can silently corrupt the result
+
+. . .
+
+Illustrative runs on the course machine, 20 million points, 22 tasks:
+
+| | Run 1 | Run 2 | Run 3 | Run 4 |
+|---|---|---|---|---|
+| Shared counter | 0.219 | 0.361 | 0.354 | 0.393 |
+
+. . .
+
+> These estimates are far from π; the program need not report an error.
+
+::: {.notes}
+The historical values illustrate the failure, not an expected output. A race may be less
+visible or absent in one execution. With one thread this shared update has no competing thread.
+Statistical randomness is not the explanation for errors of this size.
+:::
 ## ✏️ On the board: who wrote last? {#a3b .smaller}
 
 . . .
@@ -333,56 +314,108 @@ expected result, not the size of the error.
 > `hits += 1` is **three** operations: an increment is **lost**.
 
 ::: {.notes}
-5 minutes in pairs before revealing the table. Ask for a second order that gives 9 (A finishes
+5 minutes before revealing the table. Ask for a second order that gives 9 (A finishes
 before B reads): the bug is intermittent, which is why it survives testing.
-Then: where would you put the addition so that nothing is shared? → next slide.
+Then ask how each task could return a local count. The following visualization shows that reduction.
 :::
 
-## The cure: return and reduce
+
+## π: local counts and reduction {#pi-workers}
+
+. . .
+
+Each task returns a local count. The parent sums the results.
+
+{{< include _monte_carlo.qmd >}}
+
+::: {.notes}
+The colors identify work batches/tasks, not OS threads or physical cores. Keep points and n
+fixed; change the number of batches. The total count remains unchanged. Each point belongs
+to one batch; each row reports its count. Reset and Run to see the counts accumulate.
+This is a schematic partition, not a scheduling or performance simulation. Real seeded tasks
+may generate different samples when the partition changes. The Python activity instead keeps
+eight seeded jobs fixed and varies only the process-worker count.
+Static alternative for teaching: ../images/lots_reduce.svg. It does not need a separate slide.
+:::
+
+## Return local counts, then reduce {#reduce}
 
 . . .
 
 ```julia
 function pi_spawn(n; ntasks=Threads.nthreads())
-    per = n ÷ ntasks
-    tasks = [Threads.@spawn count_in_disk(per) for _ in 1:ntasks]
-    return 4 * sum(fetch, tasks) / (per * ntasks)
+    sizes = batch_sizes(n, ntasks)   # all n draws, including the remainder
+    tasks = [Threads.@spawn count_in_disk(size) for size in sizes]
+    return 4 * sum(fetch, tasks) / n
 end
 ```
 
 . . .
 
-> No shared counter in the hot loop: **correct and fast**.
+> Local counts avoid concurrent updates to a shared counter.
+
+::: {.notes}
+▶ Script: cell "Return local counts, then reduce". batch_sizes uses q, r = divrem(n, ntasks):
+r batches get q+1 draws, the rest get q. Thus n is the requested AND actual number of draws.
+An integer result returns from each task; only the parent adds the results. There is no shared
+counter updated concurrently during the reduction. The helper is supplied in the activity.
+:::
+
+## Atomic updates or local counts?
 
 . . .
 
-> ▶ Script: cell "The cure"
+```julia
+hits = Threads.Atomic{Int}(0)
+Threads.atomic_add!(hits, 1)   # explicit atomic increment
+```
 
-::: {.notes}
-Each task returns its own count; we add them up once, at the end.
-:::
-
-## Split, compute, return, reduce {#reduce}
-
-![](../images/lots_reduce.svg){width="92%"}
+| Approach | Shared updates |
+|---|---|
+| Atomic counter | One atomic update per hit |
+| Local counts + reduction | One returned count per task |
 
 . . .
 
-> Shared only at the **final sum**: once per worker, not once per draw.
+Reference observation: atomic version **~7× slower than sequential** at 22 worker threads.
 
 ::: {.notes}
-Same pattern in Python with a process pool: `sum(pool.map(count_in_disk, jobs))`.
-It is the pattern to look for in the project: which work is independent, what does each
-piece return, where is the reduction?
+▶ Script: cell "Atomic updates or local counts". An Atomic container does not turn hits += 1
+into an atomic operation. The explicit atomic_add! avoids lost increments, but tasks contend
+for one location. The historical slowdown was measured at 4×10⁷ draws; it is not a general
+property of atomics. Use atomic operations when appropriate; measure their contention costs.
 :::
 
-## ✏️ π in lots {#a3c}
+## The reduction pattern in Python
+
+. . .
+
+```python
+from concurrent.futures import ProcessPoolExecutor
+
+with ProcessPoolExecutor(max_workers=p) as pool:
+    counts = list(pool.map(count_in_disk, jobs))
+hits = sum(counts)
+```
+
+. . .
+
+> Submit **batches**, collect counts, then sum. The worker count is a separate parameter.
+
+::: {.notes}
+Here count_in_disk is the importable worker receiving a (size, seed) job, not the Julia method.
+The activity supplies the imports and explicit spawn context. Keep jobs fixed when varying p.
+Creating, importing into and stopping the pool are included in the activity's timings.
+A standalone Python file starting a process pool needs an if __name__ == "__main__" guard;
+local activity files are intended to run cell by cell in VS Code/Jupyter.
+:::
+## ✏️ π in batches {#a3c}
 
 :::{.nonincremental}
-- **Question:** split the draws into lots; each worker **returns a count**; the parent sums. Speedup on 1, 2, 4 workers?
-- **Alone:** predict the three speedups (5 min).
-- **In pairs:** write the submission and the reduction; check the count.
-- **Write down:** plausible π · table for 1 / 2 / 4 workers · a cause for any gain **or slowdown**. 📋 [card](1_compilation_and_types.qmd#/card)
+- **Question:** eight fixed batches; 1, 2, 4 process workers. What speedups do you predict?
+- **Predict:** the three speedups.
+- **Do:** write the submission and the reduction; check the count.
+- **Write down:** counts · times for 1 / 2 / 4 workers · an explanation · [protocol](1_compilation_and_types.qmd#/card)
 :::
 
 . . .
@@ -390,17 +423,17 @@ piece return, where is the reduction?
 > 🐍 [Python (Colab)](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/3_cpu_python_todo.ipynb) · [local .py](../activities/release/3_cpu_python_todo.py) · [Julia, Part B](../activities/release/3_concurrency_julia_todo.jl) · **30 min**
 
 ::: {.notes}
-Python uses processes (pure-Python loop, GIL): the timer includes starting them. Fixed lots and
-seeds, so counts agree exactly between worker counts. A slowdown at this size is a valid result
+Python uses processes (pure-Python loop, GIL): the timer includes starting them. The Python batches and
+seeds are fixed: changing only the worker count preserves the counts in this environment. A slowdown at this size is a valid result
 if it is explained (startup, imports, too little work per lot).
 :::
 
-## Debrief: π in lots {#a3c-debrief}
+## Debrief: π in batches {#a3c-debrief}
 
 :::{.nonincremental}
 - **Compare:** speedup at 4 workers. Anyone **slower** than sequential?
 - **Explain:** what is inside your timer besides the counting?
-- **Test:** more work per lot, a reused pool, fewer lots: which one helps?
+- **Test:** more work per batch or a reused pool: what would you test?
 :::
 
 . . .
@@ -408,131 +441,114 @@ if it is explained (startup, imports, too little work per lot).
 > Check the code with a **known count**; check π with a **tolerance**.
 
 ::: {.notes}
-Changing the partition changes the random samples: a different π is expected, not a bug.
-Never bit-for-bit across worker counts.
+Keep batches and seeds fixed while varying Python process workers: exact counts should agree.
+Changing samples, seeds or the partition can change the estimate; then use a statistical tolerance.
+The Julia activity uses task-local random draws without fixing seeds, so it checks a known count
+separately and assesses π statistically. Do not promise identical random samples across its runs.
 :::
 
-## Why not an atomic counter?
+
+# Part D — explain the speedup {style="text-align: center;"}
+
+## Scaling: measurements before explanations
 
 . . .
 
-`Threads.Atomic` makes `hits += 1` safe. Correct? Fast?
+Illustrative timings on the course machine:
 
-. . .
-
-> ▶ Script: cell "Why not an atomic counter?"
-
-. . .
-
-| 22 threads, vs `pi_seq` (1 core) | |
-|---|---|
-| `pi_spawn` (return + reduce) | **6.3× faster** |
-| `pi_atomic` | [**~7× slower**]{style="background-color: yellow;"} |
-
-. . .
-
-> Correct, but slower than one core. The cure is to **share less**, not to protect the sharing.
-
-::: {.notes}
-22 cores fight over one memory location, once per draw. Touch shared memory once per task instead.
-Ratio measured at n = 4e7 (7x; 8.8x in power-saver mode); it does not depend much on n.
-:::
-
-# Why not N× on N cores? {style="text-align: center;"}
-
-## Amdahl: speedup ≠ number of threads
-
-. . .
-
-> Speedup on 2, 4, 22 threads? ▶ Script: cell "Speedup vs nthreads" (`--threads=1, 2, 4`)
-
-. . .
-
-| threads | 1 | 2 | 4 | 22 |
+| Julia worker threads | 1 | 2 | 4 | 22 |
 |---|---|---|---|---|
-| speedup | 1× | **1.8×** | **3.1×** | **6.3×** |
-| efficiency | 100 % | 90 % | 78 % | 29 % |
+| Speedup | 1× | 1.8× | 3.1× | 6.3× |
+| Efficiency | 100% | 90% | 78% | 29% |
 
-- **Amdahl**: [session 1's formula](1_compilation_and_types.qmd#/amdahl). 10 % sequential → ≤ 10×.
-- **SMT**: 22 *logical* threads, **16 physical cores**.
+. . .
+
+> **22 worker threads ≠ 22 physical cores.** This machine has 16 physical cores.
 
 ::: {.notes}
-Monte-Carlo π, @spawn, one Julia process per thread count.
-Sequential part here: splitting, spawning, the final reduce.
-SMT = simultaneous multithreading: two threads share one core.
-Never say "speedup ≈ number of threads". A low efficiency is a question, not a verdict: propose
-a cause and a test before concluding "the code is sequential".
-1/2/4 threads: experiences/threads_scaling/ (one process per point; @async stays ~1x
-on the same plot). 22 threads: the @async vs @spawn table above.
+▶ Script: cell "Speedup vs nthreads". Efficiency here is speedup divided by the worker-thread
+count, not a percentage of hardware utilization. Hardware threads can share a physical core.
+1/2/4: one Julia process per point in experiences/threads_scaling/. The 22-thread observation
+comes from another reference run. These rounded observations are not one homogeneous scaling sweep.
 :::
 
-## Equal work, unequal cores
+## Amdahl: a reference model
 
 . . .
 
-6 fast (5.0 GHz), 8 medium (3.8 GHz), 2 slow (2.5 GHz) cores.
+A fraction $f$ of the work can use $p$ equivalent workers, with no additional overhead:
+
+$$S(p) = \frac{1}{(1-f)+f/p}.$$
 
 . . .
 
-22 equal π tasks, each timed (demo, not in the script):
+> 10% sequential work gives a ceiling of **10×**; real overhead and hardware can lower it.
 
-| fastest task | slowest task |
+::: {.notes}
+Link with module 1's local/whole-program speedup formula. Do not infer the serial fraction
+solely from a low observed efficiency: startup, contention, unequal cores and memory traffic
+can also reduce the speedup. This model is a reference, not an explanation of every discrepancy.
+:::
+
+## Test explanations for limited speedup
+
+. . .
+
+| Possible cause | Test |
 |---|---|
-| 0.022 s | 0.051 s (2.3×) |
+| Startup or scheduling overhead | Increase work per task; reuse the pool |
+| Uneven completion times | Try more, smaller tasks |
+| Limited hardware resources | Vary workers and library thread counts |
 
 . . .
 
-> The **slowest task sets the wall clock**. Fix: more, smaller tasks.
+> Completion time depends on the last task to finish. Smaller tasks can also add overhead.
 
 ::: {.notes}
-More, smaller tasks so the scheduler can rebalance (work stealing).
-Same trap in BLAS on this box: 8 threads -> 2.7 ms, 22 threads -> 39 ms (14x slower).
+The reference laptop has unequal cores: 6 fast, 8 medium, 2 slower physical cores. One measured
+set of 22 tasks ranged from 0.022 to 0.051 s. These details motivate a hypothesis, not a
+universal rule. Work stealing may help; smaller tasks can worsen scheduling costs. A separate
+BLAS run was slower with 22 than 8 library threads. Record BLAS threads before adding workers.
+This trade-off prepares the next module's batching discussion.
 :::
 
-## When does what help? {#decision}
+## Choose a tool for the workload {#decision}
 
 . . .
 
-| the time goes into… | Python | Julia |
-|---|---|---|
-| **waiting** | threads, `asyncio` | `@async` / `@sync` |
-| **computing**, Python bytecode | **processes** | *does not apply* |
-| **computing**, native (NumPy, BLAS) | threads *can* help | `@spawn` / `fetch` |
-
-. . .
-
-> First find out **which one you have**.
+| Workload | Options to test |
+|---|---|
+| Waiting | Python threads/`asyncio`; Julia `@async` / `@sync` |
+| Python bytecode, GIL enabled | Compile/vectorize; consider processes |
+| Native computation | Check library threads; Julia `@spawn` or Python threads |
 
 ::: {.notes}
-Efficiency = speedup / threads (previous table). Waiting is overlapped; computing must be split.
-Third row: native code is often multithreaded already. Check how many BLAS threads are already running before adding your own workers,
-or you oversubscribe the cores (the 22-thread BLAS trap). Record it on the card.
+This table gives options, not guaranteed gains. Julia @spawn is also suitable for independent
+Julia loops compiled to native code. Native Python work may already be internally threaded;
+avoid multiplying worker count by an uncontrolled BLAS thread count.
 :::
 
 ## Exit ticket — session 2 {#ticket}
 
 . . .
 
-For each: **which tool, why, what would you measure first?**
+For each case: **which tool, why, and what measurement first?**
 
 1. Calling a web API 300 times.
-2. A double `for` loop in pure Python over 10⁷ pairs.
+2. A pure-Python loop over 10⁷ pairs.
 3. `X.T @ X` on a large NumPy array.
 
 . . .
 
-**Your project:** which computations don't depend on each other? Which variable would several workers update?
-
-. . .
-
-> ⬅ [2 — Multiple dispatch vs OOP](2_dispatch_vs_oop.qmd)  ·  **Next:** [4 — Memory & batching](4_memory_and_batching.qmd) ➡
+**Your project:** identify independent work, local outputs and the final reduction.
 
 ::: {.notes}
-Project: draw lots → outputs → reduction.
-1: overlap waits (threads/asyncio). 2: compile or vectorize first, then processes. 3: already
-native and probably multithreaded — measure BLAS threads before doing anything.
-🔬 Amdahl curve, @spawn vs @async: experiences/threads_scaling/.
+Waiting: overlap it. Pure Python: compile/vectorize first, then consider processes if worthwhile.
+NumPy: inspect existing library parallelism and measure. The project sketch should name batches,
+worker resources and which data is shared. Do not equate the number of tasks and workers.
 :::
+
+[Script](../scripts/3_threads_and_concurrency.jl) · [Julia notebook](../pluto/3_threads_and_concurrency.jl) · [Python notebook](../python/3_threads_and_concurrency_python.ipynb) · **Next:** [Memory and batching](4_memory_and_batching.qmd)
 
 # Only if time {#appendix style="text-align: center;"}
 
@@ -540,8 +556,8 @@ native and probably multithreaded — measure BLAS threads before doing anything
 
 :::{.nonincremental}
 - **Question:** one request takes 0.2 s. Two at once? Twenty?
-- **Alone:** predict each cell before running it.
-- **In pairs:** write `fetch_all`; then swap `concurrent` for `serial`.
+- **Predict:** each cell before running it.
+- **Do:** write `fetch_all`; then swap `concurrent` for `serial`.
 - **Write down:** your times · where the waiting happened. 📋 [card](1_compilation_and_types.qmd#/card)
 :::
 
@@ -549,55 +565,35 @@ native and probably multithreaded — measure BLAS threads before doing anything
 
 > 🐍 [Python (Colab)](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/3_server_python_todo.ipynb) · [local .py](../activities/release/3_server_python_todo.py) · [Julia](../activities/release/3_server_julia_todo.jl) · **20 min**
 
+[π board: run the last cell of the activity, then <a href="http://localhost:9000/" target="_blank">open the board</a>]{style="font-size: 0.5em; opacity: 0.6;"}
+
 ::: {.notes}
 No Internet: the notebook starts its own server in a background thread. Measured: one request at
 a time = 4.0 s whatever the client; one thread per request = 4.06 / 0.83 / 0.24 s. The point:
 overlapping waits only helps if the other side can serve several requests at once.
 Optional end, π by the class: each student's server draws one point and answers /inside (0/1)
-and /name (a name or message, "" by default). Run `activities/registry.py` or `registry.jl` on your
-laptop, put its address on the board; students register there and fetch everyone's address.
-Project http://<that address>/ : names (cut at 40 characters), each point, π; refreshes every 3 s.
+and /name (a name or message, "" by default). Before clicking "open the board", run the activity's last cell, "Instructor: the class board"
+(`start_registry()`, Python or Julia) on this laptop; without it, localhost:9000 refuses the connection. Run the cell again to restart with an empty list. The board
+shows the `registry = "…"` line students copy into cell 8, the names (cut at 40 characters),
+each point and π; it refreshes every 3 s.
 School Wi-Fi may isolate clients; a phone hotspot works. Not on Colab.
 :::
 
-## Another split: independent Markov chains
+## Debrief: a slow server {#a3d-debrief}
+
+20 requests of 0.2 s each:
+
+| Server | 1 worker | 5 workers | 20 workers |
+|---|---:|---:|---:|
+| `serial` | 4.0 s | 4.0 s | 4.0 s |
+| `concurrent` | 4.0 s | 0.8 s | 0.2 s |
 
 . . .
 
-```julia
-markov_seq(K, L) = [simulate_markov(L) for _ in 1:K]
-markov_spawn(K, L) =
-    fetch.([Threads.@spawn simulate_markov(L) for _ in 1:K])
-```
-
-- `K = 8` chains, `L = 2×10⁷` steps, **no shared state**.
-- Speedup on 8 chains?
-
-. . .
-
-> ▶ Script: cell "Speedup on 8 chains"
-
-. . .
-
-> Same pattern as π: each task returns, `fetch` collects.
-
-## Julia didn't wait; Python didn't start
-
-. . .
-
-| | Julia `@async` | Python `async def` |
-|---|---|---|
-| the task is… | **eager**: running | **lazy**: a coroutine object |
-| ready at once | **0 / 15** | **0 / 15** |
-| 2 s later | **15 / 15** | **0 / 15**: never started |
-
-- Julia: you didn't **wait** → `@sync`.
-- Python: never **awaited** → `await` / `asyncio.gather`.
-
-. . .
-
-> `asyncio.gather` = `@sync` + `@async`.
+> Expected time ≈ ⌈20 / workers⌉ × 0.2 s, only if the server answers several requests at once.
 
 ::: {.notes}
-Same bug in both languages, from opposite causes.
+Measured on the instructor's laptop: serial 4.0 s for every worker count; concurrent
+4.05 / 0.82 / 0.24 s. Small extra time = connection setup and task scheduling. The first run can
+include compilation (Julia): run the table twice.
 :::

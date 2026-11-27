@@ -9,7 +9,8 @@ sidebar: false
 
 Complete this 30-minute activity if no CUDA runtime is available. First run the four-point
 CPU correctness check in the Python GPU activity (three points inside the quarter disk).
-Then predict, calculate and critique the comparison below.
+Then predict, calculate and critique the comparison below. State a statistical-accuracy target
+for π, using the approximate standard error $1.64/\sqrt{n}$; this is not a guaranteed absolute-error bound.
 
 These are **rounded measurements from the course machine**, transcribed from the course GPU slides and
 measurement notes (29 October 2026), not measurements performed for this activity.
@@ -27,11 +28,17 @@ reproducible hardware ranking. Raw samples are not included; identifying these l
 ## Your task
 
 1. **Predict (5 min):** when could the GPU lose? Distinguish resident computation from a whole job with transfers.
-2. **Calculate (10 min):** derive the CPU times implied by the rounded π ratios. Label them as derived estimates, not measured samples. Why do two valid baselines give different ratios?
+2. **Calculate (10 min):** derive the CPU times implied by the rounded π ratios. Label them as derived estimates, not measured samples. Why do two valid baselines give different ratios? Which tested sizes meet your accuracy target?
 3. **Critique (10 min):** identify the dtype/RNG difference, missing CPU/BLAS metadata and excluded upload in the matrix case. Describe the additional measurements needed for a hardware comparison and for a small-job break-even point.
-4. **Explain (5 min):** submit the CPU correctness check, a ratio table and a conditional recommendation. State which timings you would collect next on a GPU.
+4. **Explain (5 min):** submit the CPU correctness check, a ratio table and a conditional recommendation. Answer the three questions below and state which timings you would collect next on a GPU.
 
 A GPU reduction is parallel, although its final stages expose less parallelism. In the π activity,
 x and y are generated on the card: launches, allocations, random generation, reduction,
 synchronization and the returned scalar cost time; uploading those vectors does not.
 No numeric speedup is required to succeed in the live activity either.
+
+## Three questions for the GPU decision
+
+- Is there enough parallel work?
+- Can intermediate data stay on the GPU?
+- Is the complete job faster at the required accuracy?

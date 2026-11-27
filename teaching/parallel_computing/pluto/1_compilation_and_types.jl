@@ -18,12 +18,12 @@ end
 
 # ╔═╡ ab181e11-6516-4169-9189-fb4488f4c8d3
 md"""
-# Interpreted vs compiled
-## Why the same computation can be 100× faster
+# Measure before optimizing
+## Compilation, reliable timings, and whole-program speedup
 
-**ENSAI 3A — Julia as a test bench, Python as a point of comparison.**
-
-Plan: the JIT warmup → measuring properly → type specialization → *(bonus)* SIMD → Monte-Carlo π.
+Run the loop activity before examining the instructor's curves. Then record the measurement
+protocol, check the π estimator, and use the Python diagnostic activity to compare local and whole-program speedups.
+Type inspection and SIMD are optional appendices.
 """
 
 # ╔═╡ e4c6629b-29ce-4e63-b529-04bf1020ee4f
@@ -48,11 +48,11 @@ end
 md"""
 `@btime 1 + 2` says **~1 ns**… yet the cell took seconds. **Why?**
 
-## 1. The JIT warmup — a hand-written loop on 10M floats
+## 1. A hand-written sum — one million Float64 values
 """
 
 # ╔═╡ 5ea349ac-02a9-420c-a600-8ebfd7a81176
-N = 10_000_000
+N = 1_000_000
 
 # ╔═╡ 5ea349ac-02a9-420c-a600-8ebfd7a81177
 v = rand(N)
@@ -71,7 +71,8 @@ mysum(v)
 
 # ╔═╡ bb0ace77-07a4-4504-80c1-edc793f3f899
 md"""
-The same loop in pure Python (`for xi in x: s += xi`) takes **~0.5 s**. Julia's time is measured in §2.
+Predict first-call and warmed-up times before executing the warmup cells.
+Compare implementations on the same machine and record input size and element type.
 """
 
 # ╔═╡ 05891168-bf4c-42c6-86f1-5d038606e267
@@ -100,7 +101,7 @@ Full experiment (5 variants, 2000 calls): `experiences/warmup_jit/`. The numpy s
 
 # ╔═╡ d02cd083-dea1-417f-a941-8eac616197a6
 md"""
-## 2. Measuring properly — compare the two timings
+## 2. Measuring properly — first call and warmed-up call
 """
 
 # ╔═╡ a8128f4d-9cdc-4cd2-8025-33c5935757e0
@@ -112,7 +113,7 @@ end
 
 # ╔═╡ 46c146f1-d1e4-4797-87bc-2c03a0185daf
 md"""
-**Read the distribution:** why is the *minimum* the number to quote?
+**Read the timing distribution:** record the reported statistic. The minimum and median answer different questions.
 """
 
 # ╔═╡ 3533f187-1da1-452b-9a63-0ea1bd69b4f6
@@ -208,9 +209,12 @@ The kernel `sum` calls: what replaces `vaddsd`? How many accumulators?
 
 # ╔═╡ ba010064-49f9-4872-a4fe-a42d2e754d76
 md"""
-Why can't the compiler do this to **our** loop? Hint: is `(a+b)+c == a+(b+c)` in floats?
+Floating-point addition is not associative: `(1e16 + (-1e16)) + 1.0` gives 1.0,
+whereas `1e16 + ((-1e16) + 1.0)` gives 0.0.
 
 ### `@simd`: permission to reassociate
+
+Reordering the reduction enables SIMD and independent accumulators. Check numerical agreement.
 """
 
 # ╔═╡ 8e0cdaff-257b-4836-8998-2cd5f0ef8044
@@ -223,7 +227,10 @@ function mysum_simd(x)
 end
 
 # ╔═╡ 0662912c-e7ab-4223-82d2-e2683543f99b
-@btime mysum_simd($vc)
+begin
+    @assert mysum_simd(vc) ≈ sum(vc)
+    @btime mysum_simd($vc)
+end
 
 # ╔═╡ 49ea0717-5e4a-44df-a895-11b9d55c747f
 md"""
@@ -237,7 +244,7 @@ function count_in_disk(n)
     hits = 0
     for _ in 1:n
         x, y = rand(), rand()
-        if x^2 + y^2 ≤ 1
+        if inside_disk(x, y)
             hits += 1
         end
     end
@@ -248,21 +255,21 @@ end
 estimate_pi(n) = 4 * count_in_disk(n) / n
 
 # ╔═╡ 8adcfe41-1d0d-475a-968c-5a5a971a142b
-estimate_pi(10_000_000)
+estimate_pi(1_000_000)
 
 # ╔═╡ 855d77ed-ca4b-407a-b225-2be1a2c499f5
 md"""
-**Q1** — how long? How many allocations?
+**Timing the estimator:** input generation and counting are inside the timer.
 """
 
 # ╔═╡ 3cb6763c-dc00-4c09-94b5-289f773dc460
-@btime estimate_pi(10_000_000)
+@btime estimate_pi(1_000_000)
 
 # ╔═╡ f15bd89d-47f6-4c87-a3d9-17078b722f1e
 md"""
-**Q2** — type-stable? Is the yellow `Union{Nothing, Tuple…}` a problem? Why always `Float64`?
+### Optional — inspect the estimator's types
 
-`@code_warntype` = `@code_typed` with uncertain types in color (red `Any` = unknown).
+Which types are inferred? Iterator-related unions are not necessarily a performance problem.
 """
 
 # ╔═╡ 654b39b4-b592-4066-b519-0783a704f637
@@ -273,14 +280,17 @@ Base.return_types(estimate_pi, (Int,))
 
 # ╔═╡ 49546ce1-11ee-4cc8-b412-24b9e933a728
 md"""
-**Q3** — how does the error shrink with `n`? Why is this ideal for parallelism?
+**Check the estimator:** report the error relative to its standard error.
+A statistical check complements the fixed-point check; it does not replace it.
 """
 
 # ╔═╡ b7792bef-9262-42b4-98d0-407113ded36c
 let
-    for n in (10^4, 10^5, 10^6, 10^7, 10^8)
-        err = abs(estimate_pi(n) - π)
-        println("n = 10^$(round(Int, log10(n)))   error = $(round(err, digits=5))")
+    p = π / 4
+    for n in (10^4, 10^5, 10^6)
+        estimate = estimate_pi(n)
+        se = 4 * sqrt(p * (1 - p) / n)
+        println("n=$n  estimate=$(round(estimate, digits=5))  error/SE=$(round((estimate-π)/se, digits=2))")
     end
 end
 
@@ -288,7 +298,7 @@ end
 md"""
 ## Bonus (Pluto only) — watch π converge
 
-**Green** darts land in the quarter disk, **red** outside; the estimate is 4 × green / n. Drag the slider: does it settle like 1/√n (Q3)?
+**Green** darts land in the quarter disk, **red** outside; the estimate is 4 × green / n. Drag the slider: how do its fluctuations compare with 1/√n?
 """
 
 # ╔═╡ c687db86-e0a1-4083-ba96-d5a9af91738c
@@ -319,6 +329,22 @@ let
       </div>
     </div>
     """)
+end
+
+# ╔═╡ ca714be1-1000-4000-8000-000000000001
+inside_disk(x, y) = x^2 + y^2 ≤ 1
+
+# ╔═╡ ca714be1-1000-4000-8000-000000000002
+md"""
+**Check the counting logic:** four fixed points, with an independently known count of three.
+The same `inside_disk` predicate is used by the random counting loop.
+"""
+
+# ╔═╡ ca714be1-1000-4000-8000-000000000003
+let
+    xs = [0.0, 0.5, 1.0, 1.0]
+    ys = [0.0, 0.5, 0.0, 1.0]
+    @assert sum(inside_disk.(xs, ys)) == 3
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -651,14 +677,14 @@ version = "1.64.0+1"
 # ╠═ca49af93-0baa-47ee-a4ec-3849a1cacffb
 # ╟─90e32a56-6c3c-4248-86d3-74e504341707
 # ╟─49ea0717-5e4a-44df-a895-11b9d55c747f
+# ╠═ca714be1-1000-4000-8000-000000000001
 # ╠═e342c5aa-9ddc-46d3-8ac2-c6f90e1b855a
 # ╠═760cd379-4178-4e7f-9695-a1d709b36969
 # ╠═8adcfe41-1d0d-475a-968c-5a5a971a142b
 # ╟─855d77ed-ca4b-407a-b225-2be1a2c499f5
 # ╠═3cb6763c-dc00-4c09-94b5-289f773dc460
-# ╟─f15bd89d-47f6-4c87-a3d9-17078b722f1e
-# ╠═654b39b4-b592-4066-b519-0783a704f637
-# ╠═654b39b4-b592-4066-b519-0783a704f638
+# ╟─ca714be1-1000-4000-8000-000000000002
+# ╠═ca714be1-1000-4000-8000-000000000003
 # ╟─49546ce1-11ee-4cc8-b412-24b9e933a728
 # ╠═b7792bef-9262-42b4-98d0-407113ded36c
 # ╟─5973d547-5a91-4d4b-8696-88dfbf03a0a3
@@ -674,6 +700,9 @@ version = "1.64.0+1"
 # ╠═cf7f8128-23b8-4c2e-a122-d2705f2c43c6
 # ╠═d5000000-0000-4d00-9b00-00000000d001
 # ╟─cb125025-5a35-4e36-bf13-7efc3e29abd4
+# ╟─f15bd89d-47f6-4c87-a3d9-17078b722f1e
+# ╠═654b39b4-b592-4066-b519-0783a704f637
+# ╠═654b39b4-b592-4066-b519-0783a704f638
 # ╟─656f12ed-0f30-498d-8462-f58bff519eda
 # ╠═6f3bc084-05bc-4b17-98f6-5d306b03740e
 # ╠═c3c32bc0-9d67-46e2-bdbe-c7d3f84ee2f8

@@ -1,17 +1,12 @@
 #!/usr/bin/env julia
-# Experiment "threads scaling" — the honest Amdahl curve, one PROCESS per point.
-#
-# WHY ONE PROCESS PER POINT. The tempting version is a single session started with
-# --threads=auto, looping over ntasks = 1, 2, 4, 8… Don't: it measures PLACEMENT LUCK,
-# not scaling. On a modern hybrid CPU (P-cores at ~5 GHz, LP-E cores at ~2.5 GHz), a
-# handful of tasks may land on fast cores or slow ones — we measured 1.3x at 4 tasks
-# and 4.7x at 6 in the same session. Launching julia with --threads=k for each k gives
-# the scheduler exactly k threads and makes the points comparable.
+# Thread scaling: one fresh Julia process per worker-thread count.
+# This controls the thread-pool size. OS placement, unequal cores, load and power limits
+# can still affect timings; a new process does not isolate those hardware effects.
 #
 # This worker measures ONE point (k = Threads.nthreads()) and appends one CSV row.
 # The driver `run.sh` loops over k. Run the whole thing with:  bash run.sh
 #
-# Three variants of the same Monte-Carlo π (the course's red thread):
+# Three variants of the same Monte-Carlo π (the course's running example):
 #   - pi_seq    : plain sequential loop, the baseline;
 #   - pi_spawn  : Threads.@spawn + fetch, return-and-reduce (real PARALLELISM);
 #   - pi_async  : @sync + @async, same syntax, same work (only CONCURRENCY → ~1x).
@@ -40,21 +35,27 @@ end
 
 pi_seq(n) = 4 * pi_chunk(n) / n
 
-"Real parallelism: one task per thread, each returns its count, we reduce."
-function pi_spawn(n, ntasks)
-    per = n ÷ ntasks
-    tasks = [Threads.@spawn pi_chunk(per) for _ in 1:ntasks]
-    return 4 * sum(fetch, tasks) / (per * ntasks)
+function batch_sizes(n, ntasks)
+    n > 0 && ntasks > 0 || throw(ArgumentError("n and ntasks must be positive"))
+    q, r = divrem(n, ntasks)
+    return [q + (i <= r) for i in 1:ntasks]
 end
 
-"Concurrency only: @async tasks interleave on ONE thread. Same syntax as above."
+"Parallel tasks: task count equals worker-thread count in this experiment."
+function pi_spawn(n, ntasks)
+    sizes = batch_sizes(n, ntasks)
+    tasks = [Threads.@spawn pi_chunk(size) for size in sizes]
+    return 4 * sum(fetch, tasks) / n
+end
+
+"Concurrent tasks: @async schedules them on their current thread."
 function pi_async(n, ntasks)
-    per = n ÷ ntasks
+    sizes = batch_sizes(n, ntasks)
     hits = zeros(Int, ntasks)
     @sync for i in 1:ntasks
-        @async hits[i] = pi_chunk(per)
+        @async hits[i] = pi_chunk(sizes[i])
     end
-    return 4 * sum(hits) / (per * ntasks)
+    return 4 * sum(hits) / n
 end
 
 mean(v) = sum(v) / length(v)

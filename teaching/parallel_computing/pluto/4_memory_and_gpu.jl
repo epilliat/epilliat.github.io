@@ -6,18 +6,12 @@ using InteractiveUtils
 
 # ╔═╡ aa07d25d-4f02-4013-95a0-49f72ddf7323
 md"""
-**Reading guide:** follow the [three-session plan](../sessions.html). This notebook is a reference; advanced syntax, design patterns and manual GPU kernels are optional.
+# Memory and GPU
 
-# Parallel computing — Memory and GPU
-## The memory hierarchy, batching, and the GPU
-
-**ENSAI 3A**
-
-> **The processor spends most of its time *waiting* for memory.**
-
-Sections 1–3 = memory deck, 4–7 = GPU deck.
-
-1. The cache cliff · 2. Locality · 3. Arithmetic intensity and batching · 4. The GPU · 5. Feed the GPU · 6. Optional — coalescing · 7. Monte-Carlo π on the GPU · 8. Wrap-up
+Loop order and batch size affect access patterns and data reuse. The memory chapter covers
+1. repeated sums and processing rate, 2. loop order, and 3. batching. Layout adaptation,
+output-buffer reuse and arithmetic intensity are optional references.
+The GPU chapter follows in sections 4–7. Use selected demonstrations from the session plan.
 """
 
 # ╔═╡ ee0a05ee-935e-42c3-b567-5624fb902747
@@ -40,16 +34,14 @@ gpu_available = CUDA.functional()
 
 # ╔═╡ e60ad78b-4669-47b1-b819-443e4454f585
 md"""
-## 1. The memory hierarchy — the cache cliff
+## 1. Repeated sums as the array grows
 
-| Level | Typical size | Approx. latency |
-|---|---|---|
-| **L1** | ~32–64 KB | ~1 ns |
-| **L2** | ~1 MB | ~4 ns |
-| **L3** | ~8–32 MB | ~15 ns |
-| **RAM** | GBs | ~100 ns |
+Illustrative access latencies: L1 ~1 ns, L2 ~4 ns, L3 ~15 ns, RAM ~100 ns. Capacities and
+sharing vary by hardware. Nearby values support spatial locality; reusing recently accessed
+values supports temporal locality.
 
-Same array summed many times, growing footprint. **Where does the curve jump?** Compare with your cache sizes (`lscpu`). Is the RAM step as big as the table says?
+Time repeated sums over increasing footprints. Report elapsed time divided by the number of
+elements processed, not individual-load latency. Sequential reads can overlap memory transfers.
 """
 
 # ╔═╡ cb000000-0000-4c00-9a00-00000000c002
@@ -65,14 +57,14 @@ end
 
 # ╔═╡ cb000000-0000-4c00-9a00-00000000c003
 let
-    println("footprint | time per access (ns)")
+    println("footprint | average ns per element")
     for kb in (8, 24, 64, 256, 1024, 4096, 16384, 65536)
         n = kb * 128                       # KB → number of Float64
         a = rand(n)
         passes = max(1, 100_000_000 ÷ n)   # ≈ constant total access volume
         t = @belapsed repeated_sum($a, $passes) seconds=1
         ns = t / (passes * n) * 1e9
-        footprint = kb < 1024 ? "$(lpad(kb, 4)) KB" : "$(lpad(kb ÷ 1024, 4)) MB"
+        footprint = kb < 1024 ? "$(lpad(kb, 4)) KiB" : "$(lpad(kb ÷ 1024, 4)) MiB"
         println("$(lpad(footprint, 9)) | $(lpad(round(ns, digits=3), 14))")
     end
 end
@@ -85,7 +77,7 @@ Same additions, two loop orders.
 """
 
 # ╔═╡ 3218651a-5b26-42d1-b330-917d0801ed44
-A = rand(8_000, 8_000)   # 512 MB: far beyond any cache
+A = rand(8_000, 8_000)   # 512 MB: larger than the reference laptop’s caches
 
 # ╔═╡ 2126f361-6be9-4f14-a358-6a034213fa4f
 function sum_by_columns(M)
@@ -120,7 +112,9 @@ end
 
 # ╔═╡ 09844b2e-6544-494d-a7c1-50c3d5b9c5d6
 md"""
-**Test the locality explanation:** shrink the matrix. At which size does the gap vanish?
+**Test the effect of matrix size:** predict how the ratio changes as matrices get smaller.
+A smaller difference when the data fits in cache supports a locality explanation, without
+isolating cache, prefetching and translation effects or implying that order can never matter.
 """
 
 # ╔═╡ 01d52dcd-e327-418c-9906-dddd778b01f0
@@ -138,9 +132,10 @@ end
 
 # ╔═╡ 8e4c45e6-5694-4af9-804c-4de21952feeb
 md"""
-**Optional — allocating is memory traffic too** — note the dot on `=`. Look at time *and* allocations.
-
-Same for BLAS: `A * B` allocates, `mul!(C, A, B)` reuses `C`. **Does it always pay?**
+**Optional — reuse output buffers.** Compare time and allocated bytes.
+Reusing z avoids allocating an output, but the calculation still reads x/y and writes z.
+`mul!(C,A,B)` similarly reuses C. Whether reuse improves runtime depends on the operation,
+output size and allocation strategy; measure rather than assume.
 """
 
 # ╔═╡ 9a99b467-6b9a-4353-9411-01f0e610b3e5
@@ -161,9 +156,12 @@ end
 
 # ╔═╡ ad57f7bf-d863-4be8-b5d4-d0dfd0603b69
 md"""
-### Optional — arithmetic intensity: FLOP per byte loaded
+### Optional — arithmetic intensity: FLOP per byte
 
-Both read the same n² matrix. **Don't compare the seconds: compute the GFLOP/s** (GFLOP/s = FLOP / time / 1e9; FLOP = one `+` or `*`, counts in the comments).
+Use GFLOP/s to compare computational throughput, and elapsed time for application latency.
+Approximate Float64 intensity is 0.25 FLOP/byte for matrix-vector multiplication and n/12
+for square matrix multiplication under ideal three-matrix traffic. Actual traffic depends
+on implementation and cache reuse; the model is not a bandwidth measurement.
 """
 
 # ╔═╡ 05884f27-4254-4a8e-8177-e38454dc8aac
@@ -185,19 +183,25 @@ end
 md"""
 ## 3. Batching: one layer `W`, `B` examples stacked as columns of `X`
 
-Same examples, one `W * x` each or `B` at once. Watch **µs PER EXAMPLE**: why does it drop, on a CPU? (Run before the GPU cells: a laptop CPU throttles after the GPU has been hammered.)
+Compare `W*x` with `W*X`. Matrix multiplication can reuse weights across examples; measure time per example. (Run before the GPU cells: CPU/GPU power and thermal state can affect laptop timings.)
 """
 
 # ╔═╡ ba7c1100-0002-4a01-8b01-aaaaaaaa0002
 let
-    nb = 4096                        # W = 64 MiB Float32: past the L3, comes from RAM
+    nb = 4096                        # W = 64 MiB, larger than the reference laptop's 24 MiB L3
     W = rand(Float32, nb, nb)
-    x = rand(Float32, nb)
+    Xall = rand(Float32, nb, 1024)
+    x = Xall[:, 1]
+    println("BLAS threads: $(BLAS.get_num_threads()); Float32; W bytes: $(sizeof(W))")
     t_ref = @belapsed $W * $x seconds=1
     println("one by one, W * x : $(round(t_ref*1e6, digits=1)) µs per example")
-    println("batch B | total (ms) | µs PER EXAMPLE | vs one by one")
+    println("batch B | ms per batch | µs PER EXAMPLE | vs one by one")
     for B in (1, 8, 64, 256, 1024)
-        X = rand(Float32, nb, B)
+        X = Xall[:, 1:B]  # nested subsets of the same input examples
+        Y = W * X
+        for j in axes(X, 2)
+            @assert isapprox(Y[:, j], W * X[:, j]; rtol=1e-4)
+        end
         t = @belapsed $W * $X seconds=1
         println("$(lpad(B, 6))  | $(lpad(round(t*1e3, digits=2), 10)) | " *
                 "$(lpad(round(t/B*1e6, digits=2), 14)) | $(lpad(round(t_ref*B/t, digits=1), 6))×")
@@ -206,28 +210,31 @@ end
 
 # ╔═╡ 92cd196c-2cab-4aee-aecb-89f06133486c
 md"""
-## 4. The GPU — a `CuArray` is NOT a CPU array
+## 4. Device and precision
 
-What changed in the type? In the element type? What does `Ag[1]` do?
-
-> ⚙️ The GPU cells need an NVIDIA card; without one they skip.
+CuArray preserves the input element type while copying to device memory; cu can narrow
+Float64 to Float32. Keep the inputs and accuracy requirement explicit. A GPU thread is not
+a CPU core. The following cells run only if a CUDA device is available.
 """
 
 # ╔═╡ 7f4abed0-2b61-454d-922d-2d8eccad9c46
 if gpu_available
     let
-        A  = rand(3, 3)
-        Ag = cu(A)                      # copies to VRAM (the card's own memory)
-        println("CPU : ", typeof(A))
-        println("GPU : ", typeof(Ag), "   (CuArray(A) keeps ", eltype(CuArray(A)), ")")
-        r = try Ag[1] catch e; e end    # one element = one round trip over the bus
-        println("Ag[1] → ", r isa Exception ? "ERROR (scalar indexing disallowed)" : r)
+        A = rand(Float32, 3, 3)
+        Ag = CuArray(A)  # preserve dtype while copying to device memory
+        println("CPU: ", typeof(A), "; GPU: ", typeof(Ag))
+        println("cu(Float64 input) uses ", eltype(cu(Float64.(A))), "; CuArray preserves ", eltype(CuArray(Float64.(A))))
+        CUDA.allowscalar(false)
+        r = try Ag[1] catch e; e end
+        println("Host scalar indexing rejected: ", r isa Exception)
     end
 end
 
 # ╔═╡ 71089296-a3b6-4f51-8ecc-a4909bc66388
 md"""
-**What the copy costs** — compare the transfers with the computation they feed.
+**What the copy costs:** time uploads, resident computation and downloads separately.
+Transfer calls also allocate. Their sum is only a model of complete runtime; measure the
+complete path directly. An application requiring a full matrix must include its download.
 """
 
 # ╔═╡ c6aa25cd-9a29-4cf6-afab-ea848a9be746
@@ -236,7 +243,7 @@ if gpu_available
         N = 4096
         Ac = rand(Float32, N, N); Bc = rand(Float32, N, N)
         Ag = cu(Ac); Bg = cu(Bc)
-        t_up   = @belapsed cu($Ac) seconds=1
+        t_up   = @belapsed CUDA.@sync(CuArray($Ac)) seconds=1
         t_down = @belapsed Array($Ag) seconds=1
         t_mul  = @belapsed CUDA.@sync($Ag * $Bg) seconds=1
         println("host → device : $(round(t_up*1e3, digits=2)) ms")
@@ -247,23 +254,34 @@ end
 
 # ╔═╡ bf891e84-9d69-454a-a77b-724596266414
 md"""
-**The matrix product, CPU vs GPU** — the *same* `*` (multiple dispatch picks the method).
+**The matrix product, resident and complete.** Use identical Float32 inputs and check the
+returned host matrix against the CPU result. The example tolerance is a stated requirement,
+not a guarantee. Compare CPU time, resident GPU time and the complete host-to-host job.
 """
+
+# ╔═╡ b5d50000-0001-4000-8000-000000000001
+matmul_to_host(A, B) = CUDA.@sync Array(CuArray(A) * CuArray(B))
 
 # ╔═╡ 78901ba1-a4f3-4808-99ed-b151bab95b78
 if gpu_available
     let
         N = 4096
         Acpu = rand(Float32, N, N); Bcpu = rand(Float32, N, N)
-        Agpu = cu(Acpu);            Bgpu = cu(Bcpu)
-        print("CPU : "); @btime $Acpu * $Bcpu
-        print("GPU : "); @btime CUDA.@sync $Agpu * $Bgpu   # @sync: GPU calls are async
+        Agpu = CuArray(Acpu); Bgpu = CuArray(Bcpu)
+        reference = Acpu * Bcpu
+        result = matmul_to_host(Acpu, Bcpu)
+        rtol = 1e-4  # an example application requirement, not a universal error bound
+        println("Float32 result meets rtol=$rtol: ", isapprox(result, reference; rtol=rtol))
+        println("Relative error: ", norm(result-reference)/norm(reference))
+        print("CPU, host result: "); @btime $Acpu * $Bcpu
+        print("GPU, resident inputs/result: "); @btime CUDA.@sync $Agpu * $Bgpu
+        print("GPU, complete host-to-host job: "); @btime matmul_to_host($Acpu, $Bcpu)
     end
 end
 
 # ╔═╡ 1ed9c688-150c-423c-a086-181603547e2c
 md"""
-## 5. Feed the GPU — when does it start paying off?
+## 5. GPU workload size — when does it start paying off?
 
 
 """
@@ -285,16 +303,17 @@ end
 
 # ╔═╡ 7663fb47-1f0c-4383-a5dd-e55f9a1b5abc
 md"""
-**Q1.** Why is the GPU *slower* for small N? (Which costs don't depend on N?)
-
-**Q2.** Does the speedup keep growing, or plateau? What does the ceiling say?
+Predict small versus large resident products. Launch overhead can matter for small work;
+transfers are excluded here. The table alone does not identify every large-size limitation.
+Record dimensions, dtype, resource counts and the runtime's numerical configuration.
 """
 
 # ╔═╡ ba7c1100-0004-4a01-8b01-aaaaaaaa0004
 md"""
 ### Batching on the GPU
 
-Read the **TOTAL** column. Is the GPU busy at `B = 1`?
+Read total time and time per example. Resident inputs exclude transfer costs. Low throughput
+at B=1 is not a measured utilization percentage; choose B subject to latency and memory limits.
 """
 
 # ╔═╡ ba7c1100-0005-4a01-8b01-aaaaaaaa0005
@@ -386,8 +405,12 @@ function pi_gpu(n)
 end
 
 # ╔═╡ aa59c041-e5fa-4cb0-a8f0-43c353255569
-pi_cpu_vec(n) = (x = rand(Float32, n); y = rand(Float32, n);
-                 4 * sum((x.^2 .+ y.^2) .<= 1f0) / n)   # mirrors pi_gpu, allocates
+function pi_cpu_vec(n)                   # mirrors pi_gpu, allocates
+    x = rand(Float32, n)
+    y = rand(Float32, n)
+    inside = (x.^2 .+ y.^2) .<= 1f0
+    return 4 * sum(inside) / n
+end
 
 # ╔═╡ 324e4aa4-4012-4326-85bd-f41babd9ef0d
 function count_in_disk(n)                # the scalar loop of the earlier modules
@@ -414,16 +437,21 @@ end
 
 # ╔═╡ 0d3be671-416b-4c2f-a605-1995a602e132
 md"""
-**Q3.** Compare with the gain from CPU threads (threads module: 6.3× on 22 threads). Why so much bigger?
-
-**Q4.** Amdahl again: what in `pi_gpu` does NOT benefit from massive parallelism?
+State RNGs, precision, allocations and timed scope before comparing π implementations.
+Check fixed points for the count logic and a statistical error target for the estimator.
+Different RNGs mean CPU/GPU estimates need not be bitwise equal. A parallel reduction has
+less parallelism in its final stages; it is not entirely sequential.
 """
 
 # ╔═╡ 130f0c20-5ca5-4045-9e70-e3898789bf01
 md"""
-## 8. Wrap-up
+## 8. GPU decision
 
-> Performance doesn't come from the language but from what the machine does: **cost per operation** (compile), **what is shared** (threads), **how data moves** (cache, batching, the bus to the GPU).
+- Is there enough parallel work?
+- Can intermediate data stay on the GPU?
+- Is the complete job faster at the required accuracy?
+
+Return to the course synthesis: diagnose, choose a change, validate and measure the whole program.
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -468,6 +496,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 # ╟─71089296-a3b6-4f51-8ecc-a4909bc66388
 # ╠═c6aa25cd-9a29-4cf6-afab-ea848a9be746
 # ╟─bf891e84-9d69-454a-a77b-724596266414
+# ╠═b5d50000-0001-4000-8000-000000000001
 # ╠═78901ba1-a4f3-4808-99ed-b151bab95b78
 # ╟─1ed9c688-150c-423c-a086-181603547e2c
 # ╠═36c37805-567f-4baf-b8d3-5d42d5027b88

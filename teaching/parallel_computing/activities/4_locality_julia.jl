@@ -1,5 +1,5 @@
 # Two loop orders (Julia)  20 min.
-# Fill one loop, run each #%% cell.
+# Predict before timing. Fill one compiled loop; compare sums within numerical tolerance.
 # Needs BenchmarkTools:  using Pkg; Pkg.add("BenchmarkTools")
 
 #%% setup
@@ -34,3 +34,5 @@ end
 @assert sum_by_rows(A) ≈ sum_by_columns(A)
 print("along rows   : "); @btime sum_by_rows($A)
 print("down columns : "); @btime sum_by_columns($A)
+
+# Explain the measured ratio using the actual array layout. Try a smaller matrix; a small gap does not imply that order never matters in cache.

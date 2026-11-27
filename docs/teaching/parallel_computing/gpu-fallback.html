@@ -68,6 +68,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <link rel="stylesheet" href="../../styles.css">
 </head>
@@ -140,6 +169,7 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#same-question-measurements-from-the-course-machine" id="toc-same-question-measurements-from-the-course-machine" class="nav-link active" data-scroll-target="#same-question-measurements-from-the-course-machine">Same question, measurements from the course machine</a></li>
   <li><a href="#your-task" id="toc-your-task" class="nav-link" data-scroll-target="#your-task">Your task</a></li>
+  <li><a href="#three-questions-for-the-gpu-decision" id="toc-three-questions-for-the-gpu-decision" class="nav-link" data-scroll-target="#three-questions-for-the-gpu-decision">Three questions for the GPU decision</a></li>
   </ul>
 </nav>
     </div>
@@ -168,7 +198,7 @@ ul.task-list li input[type="checkbox"] {
 <p><a href="../../teaching/parallel_computing/index.html">← Course</a> · <a href="../../teaching/parallel_computing/sessions.html">Session plan</a></p>
 <section id="same-question-measurements-from-the-course-machine" class="level2">
 <h2 class="anchored" data-anchor-id="same-question-measurements-from-the-course-machine">Same question, measurements from the course machine</h2>
-<p>Complete this 30-minute activity if no CUDA runtime is available. First run the four-point CPU correctness check in the Python GPU activity (three points inside the quarter disk). Then predict, calculate and critique the comparison below.</p>
+<p>Complete this 30-minute activity if no CUDA runtime is available. First run the four-point CPU correctness check in the Python GPU activity (three points inside the quarter disk). Then predict, calculate and critique the comparison below. State a statistical-accuracy target for π, using the approximate standard error <span class="math inline">\(1.64/\sqrt{n}\)</span>; this is not a guaranteed absolute-error bound.</p>
 <p>These are <strong>rounded measurements from the course machine</strong>, transcribed from the course GPU slides and measurement notes (29 October 2026), not measurements performed for this activity. GPU: NVIDIA RTX 1000 Ada Laptop, about 5.64 GiB. CPU: course laptop in powersave mode; CPU model and BLAS thread count are not recorded in this table, so it cannot support a reproducible hardware ranking. Raw samples are not included; identifying these limitations is part of the exercise.</p>
 <table class="caption-top table">
 <colgroup>
@@ -211,11 +241,19 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="your-task">Your task</h2>
 <ol type="1">
 <li><strong>Predict (5 min):</strong> when could the GPU lose? Distinguish resident computation from a whole job with transfers.</li>
-<li><strong>Calculate (10 min):</strong> derive the CPU times implied by the rounded π ratios. Label them as derived estimates, not measured samples. Why do two valid baselines give different ratios?</li>
+<li><strong>Calculate (10 min):</strong> derive the CPU times implied by the rounded π ratios. Label them as derived estimates, not measured samples. Why do two valid baselines give different ratios? Which tested sizes meet your accuracy target?</li>
 <li><strong>Critique (10 min):</strong> identify the dtype/RNG difference, missing CPU/BLAS metadata and excluded upload in the matrix case. Describe the additional measurements needed for a hardware comparison and for a small-job break-even point.</li>
-<li><strong>Explain (5 min):</strong> submit the CPU correctness check, a ratio table and a conditional recommendation. State which timings you would collect next on a GPU.</li>
+<li><strong>Explain (5 min):</strong> submit the CPU correctness check, a ratio table and a conditional recommendation. Answer the three questions below and state which timings you would collect next on a GPU.</li>
 </ol>
 <p>A GPU reduction is parallel, although its final stages expose less parallelism. In the π activity, x and y are generated on the card: launches, allocations, random generation, reduction, synchronization and the returned scalar cost time; uploading those vectors does not. No numeric speedup is required to succeed in the live activity either.</p>
+</section>
+<section id="three-questions-for-the-gpu-decision" class="level2">
+<h2 class="anchored" data-anchor-id="three-questions-for-the-gpu-decision">Three questions for the GPU decision</h2>
+<ul>
+<li>Is there enough parallel work?</li>
+<li>Can intermediate data stay on the GPU?</li>
+<li>Is the complete job faster at the required accuracy?</li>
+</ul>
 
 
 </section>

@@ -1,0 +1,137 @@
+```{=html}
+<style>
+.pc-mc {text-align:center}
+.pc-mc canvas {display:block;max-width:100%;margin:0 auto;background:#fff;border:1px solid #ddd;border-radius:6px}
+.pc-mc .pc-controls {display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.4em .8em;font-size:.65em;margin:.45em 0}
+.pc-mc button,.pc-mc select {font:inherit;color:#263746;background:#f7f8fa;border:1px solid #aab4bd;border-radius:4px;padding:.3em .65em}
+.pc-mc button {cursor:pointer}
+.pc-mc input {width:160px;vertical-align:middle}
+.pc-mc .pc-summary {font-size:.6em;margin:.2em 0;font-variant-numeric:tabular-nums}
+</style>
+<div class="pc-mc" id="pcMonteCarlo">
+  <canvas width="900" height="370" aria-label="Monte-Carlo estimate of pi: points in a unit square, quarter disk and local counts for each batch"></canvas>
+  <div class="pc-controls">
+    <label>Points <input data-control="n" type="range" min="0" max="2000" step="1" value="160" autocomplete="off"> <output data-value="n">160</output></label>
+    <label>Batches <select data-control="workers" autocomplete="off"><option>1</option><option>2</option><option>4</option><option>8</option></select></label>
+    <button type="button" data-action="play">Run</button>
+    <button type="button" data-action="reset">Reset</button>
+    <button type="button" data-action="sample">New sample</button>
+  </div>
+  <p class="pc-summary" data-summary></p>
+</div>
+<script>
+(function () {
+  'use strict';
+  var wrap = document.getElementById('pcMonteCarlo');
+  if (!wrap || wrap.dataset.init) return;
+  wrap.dataset.init = '1';
+  var cv = wrap.querySelector('canvas'), c = cv.getContext('2d');
+  var nInput = wrap.querySelector('[data-control="n"]');
+  var workerInput = wrap.querySelector('[data-control="workers"]');
+  var play = wrap.querySelector('[data-action="play"]');
+  var summary = wrap.querySelector('[data-summary]');
+  var section = wrap.closest('section'), parallel = section.id === 'pi-workers';
+  var key = 'parallel-monte-carlo-v1:' + location.pathname;
+  var state = {seed:2026, n:160, workers:parallel ? 4 : 1};
+  try {
+    var saved = JSON.parse(localStorage.getItem(key));
+    if (saved && Number.isInteger(saved.seed) && saved.seed > 0 && saved.seed <= 4294967295 &&
+        Number.isInteger(saved.n) && saved.n >= 0 && saved.n <= 2000 &&
+        [1,2,4,8].indexOf(saved.workers) !== -1) state = saved;
+  } catch (_) {}
+  if (!parallel) {
+    state.workers = 1;
+    workerInput.closest('label').hidden = true;
+  }
+  wrap.dataset.mode = parallel ? 'workers' : 'introduction';
+  var colors = ['#2868a0','#bf641c','#267b60','#8558a2','#b74450','#297f91','#807126','#626e7a'];
+  var points = [], frame = null, startTime = 0, startN = 0;
+  function save() { try { localStorage.setItem(key, JSON.stringify(state)); } catch (_) {} }
+  function sample() {
+    var seed = state.seed >>> 0;
+    function uniform() { seed = (Math.imul(1664525, seed) + 1013904223) >>> 0; return seed / 4294967296; }
+    points = [];
+    for (var i=0;i<2000;i++) {
+      var x=uniform(), y=uniform();
+      points.push({x:x, y:y, inside:x*x+y*y <= 1});
+    }
+  }
+  function draw() {
+    c.clearRect(0,0,cv.width,cv.height);
+    var x0=62,y0=26,size=300,counts=[],totals=[];
+    for (var j=0;j<state.workers;j++) { counts[j]=0; totals[j]=0; }
+    c.fillStyle='#f0f5f9';
+    c.beginPath(); c.moveTo(x0,y0+size);
+    c.arc(x0,y0+size,size,-Math.PI/2,0); c.closePath(); c.fill();
+    c.strokeStyle='#738596'; c.lineWidth=1.5;
+    c.beginPath(); c.arc(x0,y0+size,size,-Math.PI/2,0); c.stroke();
+    c.strokeStyle='#8c969f'; c.lineWidth=1; c.strokeRect(x0,y0,size,size);
+    c.save(); c.beginPath(); c.rect(x0,y0,size,size); c.clip();
+    for (var i=0;i<state.n;i++) {
+      var p=points[i], w=i%state.workers;
+      totals[w]++; if(p.inside) counts[w]++;
+      c.beginPath(); c.arc(x0+p.x*size,y0+(1-p.y)*size,2.8,0,Math.PI*2);
+      c.fillStyle=colors[w]; c.strokeStyle=colors[w]; c.lineWidth=1;
+      if(p.inside) c.fill(); else c.stroke();
+    }
+    c.restore();
+    c.font='18px system-ui,sans-serif'; c.fillStyle='#334354';
+    c.fillText('0',x0-18,y0+size+5); c.fillText('1',x0+size-5,y0+size+23);
+    c.fillText('1',x0-18,y0+6); c.fillText('x',x0+size+18,y0+size+5);
+    c.fillText('y',x0-5,y0-7);
+    c.fillText('Solid: inside     Hollow: outside',x0,y0+size+35);
+    c.font='20px system-ui,sans-serif';
+    var hits=0;
+    for (var k=0;k<state.workers;k++) hits+=counts[k];
+    if (parallel) {
+      c.fillText('Batch',420,42); c.fillText('Inside / points',615,42);
+      for (var k=0;k<state.workers;k++) {
+        var yy=76+k*23;
+        c.fillStyle=colors[k]; c.fillRect(420,yy-13,12,12);
+        c.fillStyle='#263746'; c.fillText(String(k+1),445,yy);
+        c.fillText(counts[k]+' / '+totals[k],615,yy);
+      }
+    } else {
+      c.fillText('Uniform points in the unit square',420,90);
+      c.fillText('Inside the quarter disk: x² + y² ≤ 1',420,135);
+      c.fillText('hits / n estimates the area π / 4',420,195);
+    }
+    c.strokeStyle='#d6dde3'; c.beginPath(); c.moveTo(420,259); c.lineTo(850,259); c.stroke();
+    c.fillStyle='#263746'; c.font='21px system-ui,sans-serif';
+    c.fillText('Total count = '+hits+' / '+state.n,420,290);
+    c.fillText(state.n ? 'π estimate = 4 × '+hits+' / '+state.n+' = '+(4*hits/state.n).toFixed(4) : 'π estimate: no points yet',420,324);
+    nInput.value=state.n; workerInput.value=state.workers;
+    wrap.querySelector('[data-value="n"]').textContent=state.n;
+    summary.textContent=parallel ? 'Fixed sample · color = batch · schematic timing, not measured performance' : 'Increase the sample size, then draw a new sample to compare the estimates.';
+    cv.dataset.hits=hits; cv.dataset.points=state.n; cv.dataset.counts=JSON.stringify(counts);
+    cv.setAttribute('aria-label',state.n+' points, '+hits+' inside the quarter disk. '+(parallel ? state.workers+' batches. ' : '')+(state.n ? 'Pi estimate '+(4*hits/state.n).toFixed(4)+'.' : ''));
+  }
+  function stop() { if(frame !== null) cancelAnimationFrame(frame); frame=null; play.textContent='Run'; save(); }
+  function tick(now) {
+    if(document.hidden || !section.classList.contains('present')) { stop(); return; }
+    if(!startTime) startTime=now;
+    state.n=Math.min(2000,startN+Math.floor((now-startTime)*0.3)); draw();
+    if(state.n===2000) stop(); else frame=requestAnimationFrame(tick);
+  }
+  play.addEventListener('click',function () {
+    if(frame !== null) { stop(); return; }
+    if(state.n===2000) state.n=0;
+    startN=state.n; startTime=0; play.textContent='Pause'; frame=requestAnimationFrame(tick);
+  });
+  nInput.addEventListener('input',function () { stop(); state.n=+nInput.value; draw(); save(); });
+  workerInput.addEventListener('change',function () { stop(); state.workers=parallel ? +workerInput.value : 1; draw(); save(); });
+  wrap.addEventListener('keydown',function (event) {
+    if(event.target.matches('input,select,button')) event.stopPropagation();
+  });
+  wrap.querySelector('[data-action="reset"]').addEventListener('click',function () { stop(); state.n=0; draw(); save(); });
+  wrap.querySelector('[data-action="sample"]').addEventListener('click',function () { stop(); state.seed=(state.seed+1)>>>0 || 1; sample(); draw(); save(); });
+  document.addEventListener('visibilitychange',function () { if(document.hidden) stop(); });
+  function bindReveal() {
+    if(window.Reveal && typeof Reveal.on === 'function') {
+      Reveal.on('slidechanged',function (event) { if(event.currentSlide !== section) stop(); });
+    } else setTimeout(bindReveal,100);
+  }
+  sample(); draw(); bindReveal();
+})();
+</script>
+```

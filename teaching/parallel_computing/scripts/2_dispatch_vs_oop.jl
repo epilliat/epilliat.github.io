@@ -1,62 +1,46 @@
-# Multiple dispatch vs OOP — where the verb lives (a language point, no parallelism yet). ENSAI 3A.
-# ⚠ KEEP IN SYNC with `pluto/2_dispatch_vs_oop.jl`. Cells: `#%%` (Alt+Enter in VS Code). Needs BenchmarkTools.
+# Dispatch, types, and performance — method selection and compiler inference. ENSAI 3A.
+# ⚠ KEEP IN SYNC with `pluto/2_dispatch_vs_oop.jl`. Cells: `#%%` (Alt+Enter in VS Code).
 using BenchmarkTools
-using InteractiveUtils   # @code_typed/_warntype (auto-loaded in the REPL only)
+using InteractiveUtils
 
-#%% 1. One argument: one function, one method per type
+#%% 1. One function, several methods
 abstract type Shape end
-
 struct Circle <: Shape
     r::Float64
 end
-
 struct Rectangle <: Shape
     L::Float64
     w::Float64
 end
-
-area(c::Circle)    = π * c.r^2
+area(c::Circle) = π * c.r^2
 area(r::Rectangle) = r.L * r.w
+area(Circle(2.0)), area(Rectangle(3.0, 4.0))
 
-c = Circle(0.5)
-area(c)
-
-shapes = [Circle(2.0), Rectangle(3.0, 4.0), Circle(1.0)]
-area.(shapes)
-
-#%% 2. Two arguments: dispatch on the PAIR of types
-collide(a::Circle,    b::Circle)    = "two circles"
-collide(a::Circle,    b::Rectangle) = "circle and rectangle"
+#%% 2. Dispatch uses all argument types
+collide(a::Circle, b::Circle) = "two circles"
+collide(a::Circle, b::Rectangle) = "circle and rectangle"
 collide(a::Rectangle, b::Rectangle) = "two rectangles"
+collide(Circle(1.0), Rectangle(2.0, 3.0))
+# If the arguments are swapped, is the corresponding method defined?
 
-[collide(Circle(1.0), Circle(2.0)),
- collide(Circle(1.0), Rectangle(2.0, 3.0)),
- collide(Rectangle(1.0, 1.0), Rectangle(2.0, 2.0))]
-
-#%% 3. Dispatch and speed: what container did `shapes` build?
-typeof(shapes)
-
-#%% Is its element type concrete?
-isconcretetype(eltype(shapes))
-
-#%% Same data, two containers
+#%% 3. Same values, different element types — predict before timing
+circles = [Circle(r) for r in rand(1000)]
+concrete = circles
+abstract_elements = Shape[c for c in circles]
 total(v) = sum(area, v)
-radii    = rand(1000)
-concrete = [Circle(r) for r in radii]
-mixed    = Shape[Circle(r) for r in radii]
-@assert total(mixed) ≈ total(concrete)
-print("Vector{Shape}  : "); @btime total($mixed)
-print("Vector{Circle} : "); @btime total($concrete)
+@assert concrete == abstract_elements
+@assert total(concrete) ≈ total(abstract_elements)
 
-#%% Why? Find the call to `area` in each
-@code_typed total(mixed)
+#%% Measure the two containers — warmed-up minimum time and allocations
+print("Vector{Circle}: "); @btime total($concrete)
+print("Vector{Shape} : "); @btime total($abstract_elements)
 
-#%% …and here?
+#%% Inspect calls inside the loop
 @code_typed total(concrete)
+@code_typed total(abstract_elements)
 
-#%% 4. Type instability — same sum, global vs argument
-glob = rand(1000)
-
+#%% 4. Global variable or argument — same input, predict time and allocations
+glob = rand(1000)  # non-constant global without a type annotation
 function sum_global()
     s = 0.0
     for i in eachindex(glob)
@@ -64,7 +48,6 @@ function sum_global()
     end
     return s
 end
-
 function sum_arg(x)
     s = 0.0
     for i in eachindex(x)
@@ -72,36 +55,33 @@ function sum_arg(x)
     end
     return s
 end
+@assert sum_global() == sum_arg(glob)
 
-#%% The red `Any`
+#%% Inspect inferred types — focus on input, accumulator and return
 @code_warntype sum_global()
-
-#%% …and here?
 @code_warntype sum_arg(glob)
 
-#%% The time gap
-@benchmark sum_global()
+#%% Measure global and argument versions — warmed-up minimum time and allocations
+print("global  : "); @btime sum_global()
+print("argument: "); @btime sum_arg($glob)
 
-#%% The argument version
-@benchmark sum_arg($glob)
-
-#%% 5. Optional — the pair we did not define: what happens?
-# (run it BEFORE the next cell: once the method exists, the error is gone)
+#%% 5. Optional — the missing argument pair
+# Run before defining the reverse pair in the next cell.
 try
     collide(Rectangle(1.0, 1.0), Circle(2.0))
-catch e
-    showerror(stdout, e)
+catch error
+    showerror(stdout, error)
+    println()
 end
 
-#%% Add the missing pair in one line
+#%% Declare the reverse pair
 collide(a::Rectangle, b::Circle) = collide(b, a)
-collide(Rectangle(1.0, 1.0), Circle(2.0))
+@assert collide(Rectangle(1.0, 1.0), Circle(2.0)) == "circle and rectangle"
 
-#%% A new operation, without touching the types
-perimeter(c::Circle)    = 2π * c.r
+#%% A new operation on existing types
+perimeter(c::Circle) = 2π * c.r
 perimeter(r::Rectangle) = 2 * (r.L + r.w)
-
 perimeter.([Circle(2.0), Rectangle(3.0, 4.0)])
 
-#%% Who knows which methods? How many for `area`?
+#%% List a function's methods
 methods(area)

@@ -1,6 +1,6 @@
 ---
 title: "5 — GPU"
-subtitle: "Thousands of threads — provided you feed them, and count the transfers"
+subtitle: "Workload size, resident data, and complete-job speedup"
 author: "Emmanuel Pilliat — ENSAI 3A"
 format:
   revealjs:
@@ -12,417 +12,397 @@ smaller: false
 css: ../../../styles.css
 ---
 
-## Today's path {#path}
+## From arrays to a GPU decision {#path}
+
+. . .
 
 :::{.nonincremental}
-1. **Moving to the card**: same code, another memory; what the copy costs.
-2. **Feed the GPU**: the timer, small vs large work, the batch.
-3. ✏️ [**π on the card**](#a6): the running example ends here.
+1. Choose the **device and precision** explicitly.
+2. Separate **resident computation** from the **complete job**.
+3. Compare workloads at the **required accuracy**. [π activity](#a6)
 :::
 
 . . .
 
-> Only if time: [coalescing](#appendix) · No GPU? The [analysis route](../gpu-fallback.qmd).
+[Script](../scripts/4_memory_and_gpu.jl) · [Julia notebook](../pluto/4_memory_and_gpu.jl) · [Python notebook](../python/4_memory_and_gpu_python.ipynb) · [No GPU](../gpu-fallback.qmd)
 
 ::: {.notes}
-Session 3, minutes 95–145. The batching deck ended on "reuse what you loaded". This is the
-hardware that starves fastest. A GPU is not a faster CPU: it is built for the opposite trade-off.
+Session 3, minutes 95–145, including the 30-minute activity. This chapter combines dispatch,
+measurement, batching and reduction. Use library operations; manual kernels are optional.
+The decision concerns enough parallel work, reuse on the device, and full runtime at a
+specified accuracy. Do not describe GPU threads as slower CPU cores or compare their counts directly.
 :::
 
-## By the end, you can
+# Device, data and measurement {style="text-align: center;"}
 
-:::{.nonincremental}
-- say **what crosses the bus**;
-- say **what the timer includes**;
-- decide whether the GPU helps the **whole** job.
-:::
-
-. . .
-
-> ▶ [Script](../scripts/4_memory_and_gpu.jl) (§4–7) · [Notebook](../pluto/4_memory_and_gpu.jl) · 🐍 [PyTorch](../python/4_memory_and_gpu_python.ipynb)
-
-. . .
-
-> ⬅ [4 — Memory & batching](4_memory_and_batching.qmd)  ·  [Synthesis](course.qmd#/synthesis) ➡
-
-# Part A — moving to the card {style="text-align: center;"}
-
-## Two strategies for the same problem
-
-. . .
-
-Both wait for **memory**; they hide the wait differently.
-
-. . .
-
-| | **CPU** | **GPU** |
-|---|---|---|
-| threads | **few**, fast | **thousands**, slow |
-| caches | **big** (24 MiB L3) | **small** |
-| hides the wait by | **caching** | **switching** threads |
-
-. . .
-
-> CPU: big caches **avoid** the wait. GPU: another thread runs **while** one waits. Too little work: [the GPU just waits.]{style="background-color: yellow;"}
-
-::: {.notes}
-GPU: when one group of threads waits on memory, another group runs. With too little
-work there is nobody to switch to.
-:::
-
-## Same code, different hardware
+## Same operation, another array type
 
 . . .
 
 ```julia
-Ag = cu(A)          # copy to VRAM
-Bg = cu(B)
-
-A  * B              # CPU
-Ag * Bg             # GPU: the SAME `*`
+A = rand(Float32, 3, 3); B = rand(Float32, 3, 3)
+Ag = CuArray(A); Bg = CuArray(B)   # copy to GPU memory, same dtype
+A * B                            # CPU
+Ag * Bg                          # GPU method
 ```
 
-- **Multiple dispatch** picks the GPU method.
-- [**The algorithm didn't change.**]{style="background-color: yellow;"}
+. . .
+
+> Dispatch selects an implementation from the argument types; the mathematical operation is unchanged.
 
 ::: {.notes}
-VRAM = the card's own memory; the bus links RAM and VRAM. `*` is a generic function;
-its arguments are now CuArrays. That is the dispatch module's promise, cashed in.
+▶ Script: cell "4. Device and precision". RAM and GPU memory are separate here.
+CuArray(A) preserves A's element type; the convenience function cu may narrow Float64 to
+Float32. Both copies and changes in precision must be stated. The GPU has many execution lanes,
+but a CUDA thread is not comparable to a CPU core. Small workloads may not amortize overhead.
 :::
 
-## The array changed, even if the code didn't
+## Specify accuracy before comparing
+
+- Hold **input values and dtype** fixed for a deterministic comparison.
+- Check the result against a **justified numerical tolerance**.
+- For Monte-Carlo, also specify the **statistical accuracy target**.
+
+. . .
+
+> A faster Float32 calculation is useful only if its accuracy meets the requirement.
+
+::: {.notes}
+The default dtype can differ across libraries. FP32, FP64 and accelerator math modes may
+change speed and error; do not call Float32 universally the GPU's native precision.
+For π, the standard error is about 1.64/sqrt(n), as in module 1. This is not a guaranteed
+absolute-error bound. CPU/GPU RNGs may produce different samples even at the same n.
+:::
+
+## Time completed work
 
 . . .
 
 ```julia
-A  = rand(3, 3)     # Matrix{Float64}, RAM
-Ag = cu(A)          # CuArray{Float32,…}, VRAM
-CUDA.allowscalar(false)  # make the scalar-indexing error explicit
+CUDA.@sync Ag * Bg   # wait for the GPU operation before stopping the timer
 ```
 
-- `cu` **copies** across the bus: two objects, two memories.
-- Float64 → **Float32** (`CuArray(A)` keeps Float64).
-- `Ag[1]` is an **error**: one element = one bus round trip.
+Python equivalent for a resident calculation:
 
-. . .
-
-> ▶ Script: cell "4. The GPU — a CuArray is NOT a CPU array"
-
-. . .
-
-> `cu(A)` is not a conversion: [a **copy** across the bus]{style="background-color: yellow;"}.
+```python
+torch.cuda.synchronize()
+start = time.perf_counter()
+Yg = Ag @ Bg
+torch.cuda.synchronize()
+seconds = time.perf_counter() - start
+```
 
 ::: {.notes}
-Dispatch picked the GPU method because the type changed. Measured live: typeof(Ag)
-prints CuArray{Float32, 2, CUDACore.DeviceMemory}. Float32 is the card's native
-precision; the Float64 -> Float32 narrowing is the most common "why are my results
-different on GPU" question. Scalar indexing throws by design (CUDA.@allowscalar
-overrides it — mention only if asked).
+Warm up before repeated measurements. GPU operations can enqueue work and return before
+it finishes; an unsynchronized host timer can measure submission rather than completion.
+The first synchronization excludes earlier work; the second includes this product's completion.
+Returning a result to the CPU can also synchronize, but state the timed scope explicitly.
 :::
 
-## What the copy costs {.smaller}
+## What crosses the bus?
 
 . . .
 
-Two 4096² Float32 matrices (64 MiB each):
+Historical observations on the course machine, **64 MiB per Float32 matrix**:
 
-. . .
-
-| step | time |
+| Step | Time |
 |---|---|
-| host → device, `cu(A)` | 8.5 ms |
-| compute, `Ag * Bg` | **35 ms** |
-| device → host, `Array(Ag)` | [**52 ms**]{style="background-color: yellow;"} |
-
-- Round trip = **1.7× the computation**. **Back** is the expensive way.
-- **Don't ping-pong**: upload once, bring back a **scalar**.
+| Upload one matrix | 8.5 ms |
+| Product, inputs resident | 35 ms |
+| Download one matrix | 52 ms |
 
 . . .
 
-> ▶ Script: cell "What the copy costs"
+> A complete product needs **two uploads, the product, and its result download**.
 
 ::: {.notes}
-A pipeline that copies back after every step lives on the bus, not on the GPU.
-The torch twin (python/4) measures the same shape: ~10 ms up, ~50 ms down,
-~28 ms of compute.
+▶ Script: cell "What the copy costs". Historical rounded minimum timings include allocation
+for the transfer calls. Direction alone does not determine transfer cost; buffers, memory
+allocation and runtime state matter. 2×8.5+35+52 ≈104 ms is a derived estimate, not an observed
+complete-job time. Measure the complete path rather than summing independently timed minima.
 :::
 
-# Part B — feed the GPU {style="text-align: center;"}
-
-## The big matmul {.smaller}
+## Resident work and the complete job
 
 . . .
 
-Same `*`, 4096², Float32:
+```julia
+# Inputs already on the GPU; result remains there
+CUDA.@sync Ag * Bg
+
+# Host inputs → upload → product → host result
+matmul_to_host(A, B) = CUDA.@sync Array(CuArray(A) * CuArray(B))
+```
 
 . . .
 
-| | time |
-|---|---|
-| CPU, `A * B` | hundreds of ms (varies) |
-| GPU, `CUDA.@sync Ag * Bg` | **~35 ms**: [**~15–20×**]{style="background-color: yellow;"} |
-
-- `CUDA.@sync`: GPU calls return **immediately**. Without it you time the **launch**, not the work.
-- 1 **FLOP** = one float operation; this matmul = 2·4096³ ≈ 137 G.
-
-. . .
-
-> ▶ Script: cell "The matrix product, CPU vs GPU"
-
-. . .
-
-> Big, regular job: what the GPU wants. **Smaller ones?**
+> Keep intermediate data on the GPU when possible; return the **result the application requires**.
 
 ::: {.notes}
-The CPU side swings a lot on this laptop (366–942 ms seen in one session, power
-profile and hybrid cores); the GPU side is stable at ~35 ms. Quote the order of
-magnitude, not one ratio.
+▶ Script: cell "The matrix product, resident and complete". Compare both scopes with CPU A*B
+using identical Float32 inputs. Check the returned matrix, not only the runtime. The function
+includes allocations, both uploads, the operation, synchronization and the download.
+A matrix-valued application cannot replace its required result by a scalar merely to avoid transfer.
 :::
 
-## Matmul, CPU vs GPU {style="text-align: center;"}
+# Parallel work and batching {style="text-align: center;"}
+
+## Matrix size and GPU runtime
 
 . . .
 
-**N × N** matmul, CPU vs GPU, N from **64** to **4096**.
+Predict: **N = 64** versus **N = 4096**.
 
 . . .
 
-> ### Does the GPU always win?
-
-. . .
-
-> ▶ Script: cell "5. Feed the GPU — when does it start paying off?"
-
-## When does the GPU start paying off? {.smaller}
-
-. . .
-
-Float32, CPU measured **first**:
-
-. . .
-
-| N | CPU | GPU | speedup |
+| N | CPU | Resident GPU | Observed speedup |
 |---|---|---|---|
-| 64 | 0.01 ms | 0.03 ms | [**0.25×**]{style="background-color: yellow;"} loses |
-| 128 | 0.03 ms | 0.03 ms | 1.2× |
+| 64 | 0.01 ms | 0.03 ms | 0.25× |
 | 512 | 1.15 ms | 0.09 ms | 13.0× |
-| 2048 | 69.8 ms | 3.02 ms | **23.1×** |
+| 2048 | 69.8 ms | 3.02 ms | 23.1× |
 | 4096 | hundreds of ms | ~35 ms | ~15–20× |
 
-- **Q1.** Why slower for small N? Which costs don't depend on N?
-- **Q2.** Speedup: grows or plateaus? What's the ceiling?
-
-. . .
-
-> Each GPU core is slower: the gain comes from having **thousands**.
-
 ::: {.notes}
-Narrow work doesn't get faster on a wider machine.
-Q1 of the script: fixed costs (launch, sync) don't depend on N; at N = 64 the GPU
-spends its time being launched. Q2: the speedup peaks (1024–2048), then levels
-off — both sides hit their throughput ceiling (the card goes from ~18 to ~5000+
-GFLOP/s once the work fills it). The dip at 4096 is not explained here;
-plausibly a laptop power/thermal limit. Shape is robust, exact ratios are not.
-On a laptop, measure the CPU BEFORE the GPU: they share a power budget, and the
-CPU slows down after the GPU has worked (measured once: 75 ms vs 2.97 ms for the
-same gemm, throttled).
+▶ Script: cell "5. GPU workload size". Historical rounded observations from the course laptop,
+Float32, inputs already resident, synchronized GPU computation; transfers excluded.
+Ratios were computed before rounding the displayed times. These thresholds are not universal.
+Launch/synchronization overhead matters for small work. The table alone does not establish
+why throughput changes at the largest size; test power state, dimensions and library choices.
 :::
 
-## Feeding it: the batch, measured {.smaller}
+## Batching on resident GPU data
 
 . . .
 
-One layer `W` (4096²) × `B` examples, as in the batching deck:
+Reference `W`: **4096² Float32**. Inputs remain on the device.
 
-. . .
-
-| B | GPU **total** | GFLOP/s |
+| B | ms / batch | µs / example |
 |---|---|---|
-| 1 | **0.41 ms** | 82.8 |
-| 8 | **0.42 ms** | 638 |
-| 64 | **0.45 ms** | 4761 |
-| 256 | 2.23 ms | 3853 |
-
-- [**B = 1 → 64: 64× the work, < 2× the time.**]{style="background-color: yellow;"}
-- At B = 1 the card was **idle**.
+| 1 | 0.41 | 410 |
+| 8 | 0.42 | 52.5 |
+| 64 | 0.45 | 7.0 |
+| 256 | 2.23 | 8.7 |
 
 . . .
 
-> ▶ Script: cell "Batching on the GPU"
+> Larger batches can improve throughput; latency and buffer requirements still constrain the choice.
 
 ::: {.notes}
-Same GPU; we just asked more of it.
-Do NOT say "the GPU loses at B=1": measured, it still beats the CPU at B=1.
-The honest line is "you are using ~2% of what you paid for" (82.8 vs 4761
-GFLOP/s, relative to the best of this run, not the spec sheet). "It loses"
-invites "so use a CPU"; "~2%" invites "so batch". B=64 total is run-dependent
-(0.45–0.63 ms seen). Torch twin: 0.40 → 0.46 ms, B=1 → 64.
+▶ Script: cell "Batching on the GPU". Historical rounded synchronized product times; data
+generation/transfers are excluded. Per-example figures are derived from these rounded times.
+Low throughput at B=1 does not measure utilization or imply that the CPU is necessarily faster.
+The best batch is an empirical choice, as in module 4. The live code records its own resource budget.
 :::
 
-# Monte-Carlo π {style="text-align: center;"}
+# Monte-Carlo π on the GPU {style="text-align: center;"}
 
-## Monte-Carlo π on the card
+## Generate, count and reduce on the device
 
 . . .
 
 ```julia
 function pi_gpu(n)
-    x = CUDA.rand(Float32, n)            # in VRAM
+    x = CUDA.rand(Float32, n)
     y = CUDA.rand(Float32, n)
     inside = (x.^2 .+ y.^2) .<= 1f0
-    return 4 * sum(inside) / n           # one scalar back
+    return 4 * sum(inside) / n
 end
 ```
 
-- Same count as `count_in_disk`; 100 million points processed by library kernels.
-- Only **one number** crosses the bus.
-- No shared counter: `sum` **reduces**.
-
-. . .
-
-> ▶ Script: cell "6. Monte-Carlo π on the GPU"
+- The points are generated **on the GPU**, without uploading point vectors.
+- A library reduction returns **one scalar** to the host.
 
 ::: {.notes}
-1f0 = 1 as a Float32. Minimize sharing, from CPU tasks to GPU kernels processing 100 million points.
+▶ Script: cell "6. Monte-Carlo π on the GPU". The complete estimator includes allocations,
+random generation, comparison, reduction, synchronization and scalar return. The reduction
+is parallel; its final stages expose less parallelism. This is the module-3 local-count pattern
+implemented by library kernels. 1f0 is 1 represented as Float32.
 :::
 
-## ✏️ π on the card, or the GPU decision {#a6}
+## ✏️ π on the GPU, or the analysis route {#a6}
+
+. . .
 
 :::{.nonincremental}
-- **Question:** for which sizes does the GPU win on π?
-- **Alone:** predict the break-even size (5 min).
-- **In pairs:** draw the points **on the card**, time three sizes (no GPU: analyze the table).
-- **Write down:** table · "the GPU helps **when**…" · what crosses the bus. 📋 [card](1_compilation_and_types.qmd#/card)
+- **Question:** when is the complete estimator faster at the required accuracy?
+- **Predict:** the effect of the three input sizes.
+- **Do:** verify the count, then measure; without a GPU, analyze the reference data.
+- **Write down:** scope · accuracy target · timings · conditional decision · [protocol](1_compilation_and_types.qmd#/card).
 :::
 
 . . .
 
-> 🐍 [Python (Colab)](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/5_gpu_python_todo.ipynb) · [local .py](../activities/release/5_gpu_python_todo.py) · [Julia](../activities/release/5_gpu_julia_todo.jl) · [no GPU](../gpu-fallback.qmd) · **30 min**
+[Python (Colab)](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/5_gpu_python_todo.ipynb) · [local .py](../activities/release/5_gpu_python_todo.py) · [Julia](../activities/release/5_gpu_julia_todo.jl) · [No GPU](../gpu-fallback.qmd) · **30 min**
 
 ::: {.notes}
-Prediction prompts: where are x and y generated? What must finish before the timer stops?
-What comes back to the CPU? Both routes are full activities. Nobody reports a CPU timing as a
-GPU result, and nobody invents a measurement. No numeric speedup is required to succeed.
+First check the same four fixed points on CPU and GPU, then interpret random π estimates using
+SE ≈1.64/sqrt(n). Choose and state a statistical-accuracy target; a small-n speedup may be
+irrelevant if that n is insufficient. Do not demand identical random estimates across devices.
+The no-GPU route has the same reasoning objectives and does not invent device timings.
 :::
 
-## Debrief: which CPU do we compare to? {#a6-debrief .smaller}
+## A speedup depends on its baseline {#a6-debrief}
 
 . . .
 
-100 million points, `pi_gpu` ≈ **12 ms**:
+Historical example: 100 million points, GPU Float32 estimator **~12 ms**.
 
-. . .
-
-| CPU baseline | GPU gain |
+| CPU implementation | Observed speedup |
 |---|---|
-| `pi_cpu_vec` (allocates 2 × 400 MB) | ~35× |
-| `count_in_disk`, scalar loop | [**~25×**]{style="background-color: yellow;"} |
-
-- Different code on each side (Float64 loop vs Float32 arrays, different RNGs): we compare **two programs**, not two chips.
+| Float32 arrays, allocations included | ~35× |
+| Scalar loop, Float64 draws | ~25× |
 
 . . .
 
-> **Q3.** Threads module: 22 threads → 6.3×. Why is the card so far ahead?
->
-> **Q4.** What in `pi_gpu` does **not** benefit from GPU parallelism?
+> Compare implementations at an acceptable accuracy; these ratios do **not isolate hardware alone**.
 
 ::: {.notes}
-pi_cpu_vec mirrors pi_gpu but pays the allocation traffic; allocation-bound, very
-load-sensitive. Threads deck: @spawn ×22 gave 6.3×. Q3: the card runs thousands of
-threads and never leaves VRAM. Q4 answer: launches, synchronization and the tail of the reduction limit the gain. The GPU reduction itself is parallel.
+The RNGs, precision and allocation patterns differ. Ask which sizes meet the students' stated
+accuracy target, what stays on the device, and what costs are timed. A failed acceleration or
+missing GPU can still lead to a valid conditional decision with a proposed next measurement.
 :::
 
-## What we keep
+## Three questions for the GPU decision {#decision}
+
+. . .
 
 :::{.nonincremental}
-- Same code, another memory: you **pay the copy**.
-- Upload once, bring back a **scalar**.
-- **Synchronize** before stopping the timer.
-- Small jobs **lose**: batch.
-- A speedup depends on the **baseline**.
+1. **Is there enough parallel work?**
+2. **Can intermediate data stay on the GPU?**
+3. **Is the complete job faster at the required accuracy?**
 :::
 
 . . .
 
-> ⬅ [4 — Memory & batching](4_memory_and_batching.qmd)  ·  **Next:** the decisions of the course — [Synthesis](course.qmd#/synthesis) ➡
-
-# Only if time — coalescing: locality on the card {#appendix style="text-align: center;"}
-
-## What a warp wants
+> Apply the same questions to your project.
 
 . . .
 
-**Warp** = 32 threads in lockstep, loading **together**.
+**Next:** [Course synthesis](course.qmd#/synthesis) · [Optional coalescing](#appendix)
 
-- Neighboring addresses → **few** transactions. [Coalesced.]{style="background-color: yellow;"}
-- Scattered addresses → **one per thread**.
+# Optional — coalescing {#appendix style="text-align: center;"}
+
+## Neighboring threads, neighboring addresses
+
+- CUDA groups threads into **warps of 32**.
+- Neighboring addresses can be served by **fewer memory transactions**.
+- Scattered addresses can require more transactions.
 
 . . .
 
-> The **column-major lesson** again, on the card.
+> CPU locality concerns a thread's access sequence; coalescing also concerns addresses accessed by neighboring GPU threads.
 
-## Coalescing, measured {.smaller}
+::: {.notes}
+This CUDA example concerns NVIDIA warps. Do not equate a warp with 32 CPU cores or assume
+that all divergent threads progress in strict lockstep. Map thread indices to the actual layout.
+:::
+
+## Coalescing: a controlled permutation
 
 . . .
 
 ```julia
-idx = CuArray(Int32.(((0:N-1) .* s) .% N .+ 1))   # stride s
-a[idx]                                            # 20 M reads
+idx = CuArray(Int32.(((0:N-1) .* s) .% N .+ 1))
+a[idx]   # same elements in a different order when gcd(s,N) = 1
 ```
 
-. . .
-
-| stride `s` | time | |
-|---|---|---|
-| 1 | 2.24 ms | coalesced |
-| 33 | 5.40 ms | [**2.4× slower**]{style="background-color: yellow;"} |
-| 1023 | 12.3 ms | 5.5× slower |
-
-. . .
-
-> ▶ Script: cell "7. Optional — coalescing"
-
-. . .
-
-> *"Only 2.4×?"* Which **other** bytes does `a[idx]` touch?
+| Stride | Historical time |
+|---|---|
+| 1 | 2.24 ms |
+| 33 | 5.40 ms |
+| 1023 | 12.3 ms |
 
 ::: {.notes}
-Same 20 M reads, different order: i ↦ (i·s mod N) + 1.
-The stride must be COPRIME with N or it is not a permutation: gcd(32, 20_000_000)=32
-would reread only 625k slots — a cache demo, not a coalescing demo. 33 works; 65
-and 1025 do NOT (they share the factor 5). Script question: why must the index
-be a permutation?
+▶ Script: cell "7. Optional — coalescing". N=20 million; require a permutation so this does
+not merely reread a smaller subset. gcd(33,N)=gcd(1023,N)=1. This operation also reads the
+index array and writes an output. Identify all arrays before assigning the ratio to one cause.
 :::
 
-## Testing that explanation 🔬 {.smaller}
+## Test a memory-traffic explanation
 
 . . .
 
-`a[idx]` also reads `idx` and writes `out`, in order: only **1/3** of the bytes are read out of order.
-
-. . .
-
-Index computed **in the kernel** → **1/2** read out of order. Does the ratio rise? Index arithmetic and allocations also change.
-
-. . .
+Compute the index in the kernel rather than loading an index array:
 
 ```julia
-i = (blockIdx().x - 1) * blockDim().x + threadIdx().x   # my thread
-j = ((i - 1) * s) % n + 1     # computed, never loaded
+i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+j = ((i - 1) * s) % n + 1
 out[i] = a[j]
 ```
 
-. . .
-
-| stride 33 vs 1 | ratio |
-|---|---|
-| `a[idx]` (1/3) | 2.4× |
-| kernel (1/2) | [**4.18×**]{style="background-color: yellow;"} |
+Historical stride-33 / stride-1 ratios: **2.4×** with `a[idx]`, **4.18×** with computed indices.
 
 . . .
 
-> ▶ Script: cell "Test that explanation" · ⬅ [Back to the path](#path)
+> Index arithmetic and allocation also change: this comparison does not isolate one effect.
 
 ::: {.notes}
-Kernel = a function run once per GPU thread; thread i handles element i.
+▶ Script: cell "Test that explanation". The output is still written contiguously. Nominally,
+source reads are one third of the gather's bytes versus one half without an index array,
+but nominal bytes are not memory-transaction counts. Validate the permutation's output too.
 :::
+
+[Back to the GPU decision](#decision) · [Course synthesis](course.qmd#/synthesis)
+
+
+# Optional final activity — a small LLM {style="text-align: center;"}
+
+## ✏️ Your own phrases, then a batch {#a7}
+
+. . .
+
+```python
+print(answer("Explain why we use a GPU."))
+measure(1), measure(8), one_by_one(8)
+```
+
+. . .
+
+:::{.nonincremental}
+- **Predict:** does serving eight requests together make each user wait less?
+- **Do:** try strings; time B = 1, B = 8 and eight requests in a row; then B up to 128.
+- **Record:** batch time, tokens/s, memory, and a choice for chat versus offline work.
+:::
+
+. . .
+
+[Python (Colab)](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/6_llm_batching_python_todo.ipynb) · [local .py](../activities/release/6_llm_batching_python_todo.py) · **30 min, only if time remains**
+
+::: {.notes}
+After the core activities and synthesis. Prepare CUDA, Transformers and cached Qwen weights before class.
+All helpers are defined in the setup cell. Five minutes of free text, fifteen of measurement
+(one hole: tokens/s and seconds per answer), ten of discussion. No transformer architecture prerequisite.
+Without a GPU, interpret a partner group's measurements with attribution.
+:::
+
+## Eight answers in two seconds? {#a7-debrief}
+
+. . .
+
+**Hypothetical example:** B = 8, 32 generated tokens per answer, batch completed in 2 s.
+
+. . .
+
+| Quantity | Value |
+|---|---|
+| Total throughput | 128 generated tokens/s |
+| Amortized time per answer | 0.25 s |
+| Wait for each answer, returned together | 2 s |
+
+. . .
+
+> Where is the parallelism, if each token depends on the previous ones?
+
+::: {.notes}
+Discuss internal matrix operations and independent sequences; connect W*x to W*X and weight reuse.
+Successive tokens remain dependent. More throughput need not reduce batch latency. Timings alone
+identify neither utilization nor a particular bottleneck. Include memory and service waiting constraints.
+The notebook fixes output length, includes prefill and decoding, excludes text conversion and transfers,
+and compares successive requests with a single batch for equal total work. These numbers are fictitious.
+:::
+
+## Next
+
+. . .
+
+[Return to the course synthesis](course.qmd#/synthesis) and apply the measurement protocol to your project.

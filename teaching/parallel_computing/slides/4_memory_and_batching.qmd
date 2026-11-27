@@ -1,6 +1,6 @@
 ---
 title: "4 — Memory & batching"
-subtitle: "Move less data: use what you loaded, and use it again"
+subtitle: "Memory access patterns, data reuse, and batch-size choices"
 author: "Emmanuel Pilliat — ENSAI 3A"
 format:
   revealjs:
@@ -12,99 +12,97 @@ smaller: false
 css: ../../../styles.css
 ---
 
-## Today's path {#path}
+## Memory access and data reuse {#path}
 
 :::{.nonincremental}
-1. **The CPU waits for memory**: latency vs throughput.
-2. **Locality**: ✏️ [same sum, two loop orders](#a4)
-3. **Batching**: ✏️ [same examples, one by one or in lots](#a5)
+1. Distinguish **access latency** from processing rate.
+2. Test **loop order** against the array layout. [Locality activity](#a4)
+3. Choose a **batch size** using time and memory constraints. [Batching activity](#a5)
 :::
 
 . . .
 
-> Only if time: [NumPy and layout, allocations, FLOP per byte](#appendix)
+[Script](../scripts/4_memory_and_gpu.jl) · [Julia notebook](../pluto/4_memory_and_gpu.jl) · [Python notebook](../python/4_memory_and_gpu_python.ipynb) · [Optional references](#appendix)
 
 ::: {.notes}
-Session 3, minutes 0–95. Open with a 10-minute recall: "share less" — and now ask *where the
-data lives* (RAM, caches, GPU memory) on a simple diagram.
-Compilation made one core fast; threads used many. Today's enemy is the distance to the data.
-One script and one notebook cover this deck AND the GPU deck.
+Session 3, minutes 0–95, including the two activities. Start with a ten-minute recall:
+where are the data: caches, RAM, GPU memory? Compilation and task splitting do not remove
+data-movement costs. One script and one notebook cover both this chapter and the GPU chapter.
 :::
 
-## By the end, you can
-
-:::{.nonincremental}
-- link the **order of accesses** to the run time;
-- tell **latency** from **throughput**;
-- choose a **batch size** from a measurement.
-:::
-
-. . .
-
-> ▶ [Script](../scripts/4_memory_and_gpu.jl) (§1–3) · [Notebook](../pluto/4_memory_and_gpu.jl) · 🐍 [numpy](../python/4_memory_and_gpu_python.ipynb)
-
-. . .
-
-> ⬅ [3 — Threads](3_threads_and_concurrency.qmd)  ·  **Next:** [5 — GPU](5_gpu.qmd) ➡
-
-# The CPU waits for memory {style="text-align: center;"}
+# Memory and locality {style="text-align: center;"}
 
 ## The memory hierarchy
 
-- Add two floats: **< 1 ns**. Fetch from RAM: **~100 ns**.
+. . .
+
+| Level | Typical capacity | Typical latency |
+|---|---|---|
+| Registers | < 1 KiB per core | none |
+| L1 | 32–64 KiB per core | ~1 ns |
+| L2 | 256 KiB–2 MiB | ~4 ns |
+| L3 | 8–32 MiB | ~15 ns |
+| RAM | 16–64 GiB | ~100 ns |
 
 . . .
 
-| Level | Size | Latency | If L1 = 1 s |
-|---|---|---|---|
-| registers | ~100s B | ~0 | instant |
-| **L1** | 32–64 KB / core | ~1 ns | 1 s |
-| **L2** | 256 KB–1 MB | ~4 ns | 4 s |
-| **L3** | 8–32 MB | ~15 ns | 15 s |
-| **RAM** | 16–64 GB | ~100 ns | **~2 min** |
+> The core looks in L1, then L2, then L3, then RAM. Smaller memories are closer to the core.
 
 ::: {.notes}
-While waiting, the core could have done hundreds of operations.
-This machine: L1d 544 KiB total (14 instances), L2 18 MiB total (9 × 2 MiB instances, not one core's cache), L3 24 MiB
-shared. Hybrid CPU (P/E/LP-E cores) — per-core L1 differs, hence "instances".
-`lscpu` shows it; the script asks students to compare with their own.
+Indicative orders of magnitude, not specifications for every processor. Registers: x86-64 has
+16 general-purpose 64-bit registers and 16 vector registers (256 bits with AVX2, as on the
+reference laptop). Cache sharing differs by level and core design. Reference laptop: 24 MiB
+shared L3; L1d 544 KiB in 14 instances, L2 18 MiB in 9 instances. Do not interpret aggregate
+cache sizes as a single core's cache.
+Access latency is not the mean time per element in a streaming loop.
 :::
 
-## Caches rely on locality
+## Who decides where data live?
 
-- **Temporal**: used now → used again soon.
-- **Spatial**: used now → **neighbors** next.
-- Memory moves in **lines** of 64 B = 8 Float64.
-
-
-## Same array, growing size {style="text-align: center;"}
+- **Registers:** the compiler. In `s += a[i]`, the local variable `s` stays in a register.
+- **L1, L2, L3:** the hardware, automatically. No instruction says "keep this array in L2".
+- **You:** indirectly, through access order, data size and reuse.
 
 . . .
 
-Sum the **same array** many times, from **8 KB to 64 MB**.
+> On a GPU, part of this is explicit: a fast on-chip **shared memory** is managed by the programmer.
+
+::: {.notes}
+When registers run out, the compiler "spills" variables to the stack, which in practice lives in L1.
+The compiler inspection of module 1 (optional section) shows the accumulator in a register (xmm/ymm).
+Expert hints exist but are out of scope: prefetch instructions, stores that bypass the cache,
+cache partitioning on servers. The two experiments of this deck act on access order and reuse.
+GPU (NVIDIA): registers per thread, shared memory per block of threads (explicit, e.g.
+CuStaticSharedArray in CUDA.jl), global memory = VRAM, plus automatic L1/L2 caches. Not used in
+this course. A warp is a group of 32 threads executing together, not a memory level.
+:::
+
+## Two forms of locality
 
 . . .
 
-L1 ≈ 1 ns, RAM ≈ 100 ns.
+| Locality | Practical idea | Experiment |
+|---|---|---|
+| Spatial | Use neighboring values | Loop order |
+| Temporal | Reuse recently accessed values | Batching |
 
 . . .
 
-> ### How much slower per access at 64 MB?
+> On the reference machine, a 64-byte cache line holds **eight Float64 values**.
+
+::: {.notes}
+A cache line is a transfer unit, not one individual array entry. Temporal reuse depends on
+working-set size and access order; merely repeating a computation does not ensure a cache hit.
+:::
+
+## Repeated sums as the array grows
 
 . . .
 
-> *(~100×? Write it down.)*
-
-. . .
-
-> ▶ Script: cell "1. The memory hierarchy — the cache cliff"
-
-## The cache cliff, measured
-
-. . .
+Sum an array repeatedly, varying its footprint from **8 KiB to 64 MiB**.
 
 ```julia
-for _ in 1:passes                 # repeated_sum(a, passes)
+for _ in 1:passes
     @inbounds @simd for i in eachindex(a)
         s += a[i]
     end
@@ -113,42 +111,66 @@ end
 
 . . .
 
-| footprint | ns / access | lives in |
-|---|---|---|
-| 8 KB | **0.049** | L1 |
-| 4 MB | **0.128** | L2 / L3 |
-| 64 MB | **0.317** | RAM (> 24 MiB L3) |
+> Predict how the **average time per element** changes with array size.
+
+::: {.notes}
+▶ Script: cell "1. Repeated sums as the array grows". Keep approximately the same total number
+of element visits. The metric is elapsed time divided by passes × length(a). It is an
+aggregate processing-rate measurement, not a dependent-load latency measurement.
+Show selected footprints rather than the entire sweep.
+:::
+
+## Array size and processing rate
 
 . . .
 
-> Steps visible. But [**6.5×, not ~100×**]{style="background-color: yellow;"}. Why?
+Reference observations on the course laptop:
 
-::: {.notes}
-Absolute values are machine- and load-sensitive: run at rest and look for the
-JUMPS, not the exact ns. Full sweep (8 KB → 64 MB) is in the notebook/script: show one table,
-not the whole sweep.
-:::
-
-## Why 6.5×? Throughput vs latency {#latency}
-
-- **Latency**: the wait for **one unpredictable** access (the table).
-- Our loop reads **in order** → hardware loads the next lines early.
-- We pay for the **bandwidth** (throughput), not for each wait.
+| Footprint | Average ns / element |
+|---|---|
+| 8 KiB | 0.049 |
+| 4 MiB | 0.128 |
+| 64 MiB | 0.317 |
 
 . . .
 
-> 100× is real when the next address is [**unpredictable**]{style="background-color: yellow;"} (linked list, random indices).
+> A larger working set changes the processing rate. These numbers are **not individual access latencies**.
 
 ::: {.notes}
-Not "the table is wrong" nor "machine noise". The part of the hardware that
-loads lines early is the *prefetcher*. Latency and bandwidth are different
-resources; a streaming sum is bandwidth-bound, a linked-list walk is latency-bound.
-The same pair comes back with batching: time per request vs examples per second.
+Historical rounded BenchmarkTools minimum timings normalized by all processed elements.
+The reference L3 is 24 MiB. Cache capacity, prefetching, vectorization and other hardware
+behavior contribute. Do not assign every point to one cache level from timing alone.
 :::
 
-# Experiment 1 — locality {style="text-align: center;"}
+## Latency is not time per element {#latency}
 
-## Two walks, same maths
+- **Latency:** delay until one requested value is available.
+- **Transfer unit:** RAM sends a whole cache line (64 bytes) in one burst over the **bus** (the wires between RAM and the chip), a few bytes per step.
+- **Processing rate:** in an in-order scan, the CPU requests the next lines before they are needed, so the waits overlap.
+
+. . .
+
+> Average time per element can be much smaller than access latency.
+
+::: {.notes}
+One wait of ~100 ns brings 8 Float64. At 64 MiB we measure 0.317 ns per element, i.e. ~25 GB/s
+for one core; with ~100 ns latency that needs ~2.5 KB, i.e. ~40 cache lines, in flight at once
+(rate × latency). The prefetchers keep that many requests going.
+Analogy: order many pizzas at once instead of waiting for each one; every delivery still takes
+30 minutes (latency), but one arrives every minute (rate).
+Bus width depends on the memory type; the line is always 64 bytes. DDR4: 64-bit channel, 8
+transfers per line. DDR5: 32-bit subchannels, 16 transfers. Reference laptop: LPDDR5 at 7467 MT/s,
+8 channels of 16 bits, so 32 transfers of 2 bytes per line, ~120 GB/s peak over all channels.
+Do not confuse with a "64-bit processor": that is the width of registers and addresses (a Float64
+fits in one register). The CPU–GPU link of the GPU module (PCIe) is another link.
+Prefetching and multiple outstanding accesses can hide latency in a stream. A dependent
+pointer-chasing traversal is another experiment; random addresses alone do not necessarily
+prevent overlapping reads. Later, distinguish per-request latency from examples per second.
+:::
+
+# Experiment 1 — use neighboring data {style="text-align: center;"}
+
+## Two loop orders, the same sum
 
 . . .
 
@@ -181,15 +203,20 @@ end
 
 . . .
 
-> **Which one is faster, and by how much?** ▶ Script: cell "2. Locality — the same sum, walked two ways"
+> Which order is faster? Predict before measuring.
+
+::: {.notes}
+▶ Script: cell "2. Locality — the same sum, walked two ways". Julia dense column-major matrix.
+The sum is mathematically unchanged, but floating-point rounding can depend on the addition order.
+:::
 
 ## ✏️ Two loop orders {#a4}
 
 :::{.nonincremental}
-- **Question:** which index should vary fastest **for your array**?
-- **Alone:** write your prediction and a ratio (3 min); *then* look at `A.strides`.
-- **In pairs:** write the second loop order; check both sums agree; time both.
-- **Write down:** ratio · which index is contiguous, and how you know. 📋 [card](1_compilation_and_types.qmd#/card)
+- **Question:** which index should vary fastest for this array?
+- **Predict:** the faster order, then inspect `A.strides`.
+- **Do:** write the compiled loop; check within tolerance; time both.
+- **Write down:** speedup · contiguous index · [measurement protocol](1_compilation_and_types.qmd#/card)
 :::
 
 . . .
@@ -198,114 +225,90 @@ end
 
 ::: {.notes}
 Collect predictions on the board BEFORE anyone opens the notebook. The two tracks give opposite
-answers: put one Python pair and one Julia pair side by side in the debrief.
-Fast pairs: shrink the matrix until the gap vanishes — that is the next experiment.
+answers: put one Python and one Julia result side by side in the debrief.
+Python uses Numba-compiled loops so the interpreter does not dominate the comparison.
+Compile/warm up before timing. Those who finish early: shrink the matrix and observe whether the gap decreases.
 :::
 
-## Debrief: 11.9× for swapping two loops {#a4-debrief .smaller}
+
+## Loop order and memory layout {#a4-debrief}
 
 . . .
 
-Julia, 8000² Float64 = 512 MB ≫ cache:
+Reference: Julia, **8000² Float64 ≈ 488 MiB**.
 
-. . .
-
-| walk | time | each 64 B line… |
+| Walk | Time | Access pattern |
 |---|---|---|
-| columns | **30.4 ms** | **fully used** (8 values) |
-| rows | **361.4 ms** | **one** value, then evicted |
-
-- Julia: **column by column**. NumPy default (C-contiguous): **row by row** — the opposite.
+| Columns | 30.4 ms | Consecutive values |
+| Rows | 361.4 ms | Large strides |
 
 . . .
 
-> **Rule:** inner loop along [**contiguous memory**]{style="background-color: yellow;"}. Wrong order: silently slow.
+> Contiguous accesses make better use of cache lines and prefetching.
 
 ::: {.notes}
-Julia: M[i,j] and M[i+1,j] are neighbors; the Python track found the opposite ranking.
-"Row-major" is the default for the C-contiguous arrays used here; a NumPy array can also be
-F-contiguous or a strided view. The rule is about the layout you actually have, not the language.
+Historical rounded minimum timings on the course laptop: about 11.9× in this case.
+The timings do not establish that each noncontiguous cache line supplies exactly one value
+before eviction. Julia dense matrices are column-major; the Python activity uses C-contiguous
+arrays, so the preferred inner index differs. Array views can have other stride patterns.
 :::
 
-## Test the locality explanation 🔬
+## Test the effect of matrix size
 
 . . .
 
-If Julia just "preferred columns", the gap would show at **any** size.
+If locality matters, how should the difference change for a smaller matrix?
 
 . . .
 
-> ### Shrink the matrix. When does the gap vanish?
-
-. . .
-
-> ▶ Script: cell "Test the locality explanation"
-
-## Test the locality explanation — debrief
-
-. . .
-
-| size | footprint | rows / columns |
+| Matrix | Footprint | Rows / columns |
 |---|---|---|
-| 100² | 78 KB — **fits** in cache | **0.9×** |
-| 4000² | 122 MB — **spills** | **7.2×** |
-
-- The gap appears **when the data outgrows the cache**.
+| 100² | 78 KiB | 0.9× |
+| 4000² | 122 MiB | 7.2× |
 
 . . .
 
-> The gap comes from [**whether the next value is already in cache**]{style="background-color: yellow;"}.
+> The difference is small **here** when the matrix fits in cache.
 
 ::: {.notes}
-Small matrix: everything is already close, so the order cannot matter.
-Strongest argument of the module: it supports a locality explanation; cache, prefetching and TLB
-effects are not isolated — say "consistent with", not "proves". Pluto: interactive slider.
-Script: full table (100² → 4000²).
+▶ Script: cell "Test the effect of matrix size". Historical reference observations.
+The size-dependent gap supports a locality explanation; it does not isolate cache effects
+from prefetching and translation costs, or guarantee that loop order stops mattering in cache.
+Collect a prediction before revealing the table. Compare with smaller inputs in the activity.
 :::
 
-# Experiment 2 — batching {style="text-align: center;"}
+# Experiment 2 — reuse data {style="text-align: center;"}
 
-## One example at a time, or a lot at once?
-
-- `W * x`: each weight loaded, used **once**.
-- `W * X`, **B** columns: each weight used **B times** per load.
+## One example or a batch?
 
 . . .
 
 ```julia
-y = W * x     # 1 example
-Y = W * X     # B examples
+y = W * x     # one example
+Y = W * X     # B examples, stored as columns
 ```
 
+Batching lets matrix multiplication **reuse weights across examples**.
+
 . . .
 
-> Same examples, same results. Batching [**reuses the data it loaded**]{style="background-color: yellow;"}.
+> `W`: 4096² Float32 = **64 MiB**. What happens to the time per example as `B` increases?
 
 ::: {.notes}
-Not a GPU trick: if the mechanism is reuse, it must already pay on the CPU.
+▶ Script: cell "3. Batching: one layer W, B examples". Actual traffic depends on tiling, caches
+and implementation; do not say each weight is loaded exactly once per batch.
+The reference is a true matrix-vector product W*x, not a one-column matrix product.
+The demonstration reports time per batch and per example; the activity holds the total number
+of examples fixed. Both compare with individual matrix-vector products.
 :::
-
-## Batching on the CPU
-
-. . .
-
-`W`: 4096² Float32 = **64 MiB** > L3. Same examples, one `W * x` each, or `W * X` by lots of `B`.
-
-. . .
-
-> ### What happens to the time **per example**?
-
-. . .
-
-> ▶ Script: cell "3. Batching: one layer W, B examples"
 
 ## ✏️ Batch the same workload {#a5}
 
 :::{.nonincremental}
-- **Question:** 128 examples, one by one or in lots of `B` = 1, 8, 64. Which `B` is best per example?
-- **Alone:** predict (3 min). Here `W` is 4 MiB, not 64: same gain?
-- **In pairs:** write the batched product; check the outputs match.
-- **Write down:** `B` · total · per example · vs one by one · your choice of `B`. 📋 [card](1_compilation_and_types.qmd#/card)
+- **Question:** 128 examples, one by one or in batches?
+- **Predict:** `B` = 1, 8, 64.
+- **Do:** write the batched product; check within tolerance.
+- **Write down:** time/example · buffers · choice of `B` · [protocol](1_compilation_and_types.qmd#/card)
 :::
 
 . . .
@@ -317,172 +320,134 @@ Same reference as the slides: one matrix-vector product per example, BLAS thread
 and recorded. The smaller W is deliberate (time, memory on Colab). Do not announce a direction.
 :::
 
-## Debrief: batching, measured on the CPU {#a5-debrief .smaller}
+
+## Batching: measured speedups {#a5-debrief}
 
 . . .
 
-`W` = 64 MiB. One by one (`W * x`): **1090 µs / example**.
+Reference, `W` = 64 MiB: **`W * x` = 1090 µs per example**.
 
-. . .
-
-| B | total | µs / example | vs one by one |
+| B | ms / batch | µs / example | Speedup vs `W*x` |
 |---|---|---|---|
-| 1 | 2.55 ms | 2551.8 | 0.4× |
-| 8 | 5.65 ms | 706.0 | 1.5× |
-| 64 | 11.06 ms | 172.9 | 6.3× |
-| 256 | 39.06 ms | 152.6 | 7.1× |
-| 1024 | 141.80 ms | 138.5 | [**7.9×**]{style="background-color: yellow;"} |
+| 8 | 5.65 | 706.0 | 1.5× |
+| 64 | 11.06 | 172.9 | 6.3× |
+| 256 | 39.06 | 152.6 | 7.1× |
+| 1024 | 141.80 | 138.5 | 7.9× |
 
 . . .
 
-> **Compare** with your table (4 MiB `W`). Same gain? **Explain** why.
+> Compare the trend with your measurements. Larger batches give **diminishing returns** here.
 
 ::: {.notes}
-B=1 here is a one-column matrix product (W * X[:,1:1]), slower than a true matrix-vector
-product (2.55 vs 1.09 ms): a lot of one is not the reference, and it is not free.
-Against the B=1 row of this table the ratio would read 18.4×; against the honest one-by-one
-reference it is 7.9×. Quote 7.9×.
-Activity with a 4 MiB W: do NOT expect the gain to vanish. On a test machine (1 BLAS thread) it
-was still ~9× at B=64: W no longer streams from RAM, but it does not fit in L1/L2 either, and
-one call per example pays its own overhead. Several mechanisms, one ratio: the honest debrief
-is "which measurement separates them?" — vary m, vary BLAS threads.
-numpy (python/4) gives almost the same numbers as Julia on the 64 MiB case.
+Historical rounded BenchmarkTools minimum timings on the course laptop, not new measurements. The reference is
+single-vector GEMV. B=1 as a one-column matrix product took 2551.8 µs in this run; it is
+intentionally omitted to avoid confusing it with the 1090-µs vector reference.
+The activity uses a smaller W (4 MiB), fixed BLAS threads and the same total of 128 examples.
+A gain can remain even if W fits in L3: cache reuse at other levels and call overhead also matter.
+A plateau alone does not identify the limiting resource. Vary dimensions and BLAS threads to test it.
 :::
 
-## Why B = 1024 barely helps any more
+## Choosing the batch size
+
+- **Throughput:** larger batches can reduce time per example.
+- **Latency:** requests may wait for the batch to fill **and finish**.
+- **Memory:** larger batches need larger input/output buffers.
 
 . . .
 
-2551.8 → 172.9 (B=64) → 152.6 (B=256) → 138.5 µs: **flattens**.
-
-- `W` = **64 MiB** > **24 MiB L3**: a *fixed* RAM stream per lot.
-- Batching divides it by B:
-
-. . .
-
-$$\text{time per example} \approx \text{compute} + \frac{\text{stream } W}{B}$$
-
-- B ≈ 256: second term tiny.
-
+> Choose the smallest batch that meets throughput and latency targets within the memory budget.
 
 ::: {.notes}
-The 1/B model fits: 138.5 µs ≈ pure compute per example; 2551.8 ≈ that plus the whole W stream.
-This is why python/4 uses n=4096: at 2000² W (16 MB) fits in L3 and the
-mechanism disappears.
+For offline work choose a batch near the best observed throughput without unnecessary buffers.
+The activity's input/output payload per batch is a model, not a measurement of peak process RAM:
+the full dataset is already resident and concatenation also allocates memory. Queueing time is
+not measured by the matrix-product timer.
+An optional simplified model is t_example ≈ t_compute + t_load/B. It suggests amortization,
+but does not identify which term dominates or prove compute-bound execution.
 :::
 
-## A bigger batch is not always better
-
-- **Throughput**: examples per second. Grows with `B`, then flattens.
-- **Latency**: one request waits for the 63 others of its lot.
-
-. . .
-
-> Choose `B` for the **objective**: overnight job or interactive service?
-
-::: {.notes}
-Same pair as earlier today (one access vs a stream). Last question of the activity. For the project: state which of the two you optimize.
-:::
-
-## What we keep
+## Three practical choices
 
 :::{.nonincremental}
-- **Neighbors** are cheap, **jumps** are not.
-- Inner loop along contiguous memory: check **your** layout.
-- Batching **reuses loaded data**, even on a CPU.
-- Throughput and latency are **different objectives**.
+- Follow the array's **memory layout**.
+- **Reuse data** across computations.
+- Choose batch size by measuring **throughput, latency and memory use**.
 :::
 
 . . .
 
-> ⬅ [3 — Threads & concurrency](3_threads_and_concurrency.qmd)  ·  **Next:** [5 — GPU](5_gpu.qmd) ➡
+> **Next:** [GPU](5_gpu.qmd) — data movement and reuse matter there too.
 
-# Only if time {#appendix style="text-align: center;"}
+# Optional references {#appendix style="text-align: center;"}
 
-## numpy hides the layout cost, doesn't remove it
-
-. . .
-
-C-order vs F-order arrays, 8000²:
+## Library routines can adapt to layout
 
 . . .
 
-| numpy | ratio | why |
-|---|---|---|
-| `A.sum(axis=0)` | **≈ 1×** | numpy **reorders** |
-| copy F→C / C→C | **13.2×** (109.5 / 8.3 ms) | source/destination layouts differ |
+Compare an explicit **compiled loop** with a library reduction on the same array layouts.
+
+| Operation | Reference observation |
+|---|---|
+| NumPy `A.sum(axis=0)`, C vs F order | Similar times in this run |
+| Copy F→C versus C→C | 109.5 versus 8.3 ms |
 
 . . .
 
-> [numpy hides the layout cost; Julia shows it. Neither removes it.]{style="background-color: yellow;"}
+> Inspect the layout and measure the **operation**; library routines need not follow your loop order.
 
 ::: {.notes}
-On `sum`, someone wrote the reordering for you. A mismatched copy or a
-hand-written loop: the full penalty is back.
-Measured: sum(axis=0) C/F = 1.14× at 8000², 0.77× at 2000² — noise around 1×,
-and load-sensitive (0.45× seen under load). Don't over-read either side of 1×.
-Demo lives in the Python notebook (python/4).
+Python notebook: compiled locality loops, then this optional library/layout comparison.
+The historical 8000² reduction ratio was about 1×; a mismatched copy was 13.2× slower.
+Those are observations, not properties of all NumPy reductions. A library can choose traversal
+and blocking strategies; the comparison is explicit loops versus optimized routines, not Python
+versus Julia. Views and strides still matter. Verify outputs within tolerance before timing.
 :::
 
-## Allocating is memory traffic too
+## Reuse output buffers when beneficial
 
 . . .
 
 ```julia
-z = 2 .* x .+ y      # NEW 76 MiB array
-z .= 2 .* x .+ y     # reuses z
+z = 2 .* x .+ y      # allocate an output array
+z .= 2 .* x .+ y     # reuse the existing output
 ```
 
-. . .
-
-> ▶ Script: cell "Optional — allocating is memory traffic too"
-
-. . .
-
-| n = 10⁷ | time | allocated |
+| Reference, n = 10⁷ | Time | Allocated |
 |---|---|---|
-| `z = …` | 54 ms | 76 MiB |
-| `z .= …` | **17 ms** | [**0 bytes**]{style="background-color: yellow;"} |
+| New output | 54 ms | 76 MiB |
+| Reused output | 17 ms | 0 bytes |
 
 . . .
 
-> One dot: **~3×**. But **measure**: the gain isn't always there.
+> Reuse avoids an allocation; the computation still **reads and writes data**.
 
 ::: {.notes}
-A new array is fresh memory to fetch and fill.
-Same for BLAS: `A * B` allocates, `mul!(C, A, B)` reuses C. At n = 2000 on this
-laptop the gain swings from no gain to ~3× from run to run (hybrid cores):
-measure. numpy gains only ~1.4× with `out=`: it can't FUSE `2*x + y` into one
-pass. For matrix × VECTOR the output is tiny and the gain vanishes. Measured at rest: mul!(y, W, x) on matrix-VECTOR was actually SLOWER than W * x
-(760 vs 468 µs). On the GPU, in place gains nothing in Julia either (2.10 vs
-1.82 ms; CUDA.jl allocates from a pool) — whereas torch in place does gain
-(1.35 → 0.80 ms). The law is "allocation = memory traffic".
+▶ Script: cell "Optional — reuse output buffers". Historical rounded minimum timings.
+Compare with mul!(C,A,B) versus A*B. Gains depend on output size, allocation strategy and
+traffic; pooling can make allocation cheap. Zero allocated bytes does not mean zero memory
+traffic. NumPy out= operations can reuse buffers, but separate calls are not generally fused.
 :::
 
 ## Arithmetic intensity: FLOP per byte
 
 . . .
 
-| n×n, Float64 | FLOP | bytes | intensity |
+Idealized Float64 traffic, ignoring lower-order terms:
+
+| Operation | FLOP | Bytes | FLOP / byte |
 |---|---|---|---|
-| mat × **vec** | 2n² | 8n² | **0.25** — constant |
-| mat × **mat** | 2n³ | ~24n² | **~n/12** — if each matrix crosses memory once |
-
-- **Low**: compute waits for loads → **memory-bound**.
-- **High**: reuse can shift the limit toward **compute**.
+| n×n matrix × vector | 2n² | ~8n² | ~0.25 |
+| n×n matrix × matrix | 2n³ | ~24n² | ~n/12 |
 
 . . .
 
-> To compare sizes, compare [**GFLOP/s**]{style="background-color: yellow;"}, not seconds.
-
-. . .
-
-> ▶ Script: cell "Optional — arithmetic intensity"
+> Use **GFLOP/s** to compare computational throughput.
 
 ::: {.notes}
-Work per byte loaded; a FLOP = one `+` or `*`.
-Don't compare seconds: they do different work. GFLOP/s = 10⁹ FLOP per second.
-The batching demo as throughput: 13.1 → 47.5 → 194.1 → 219.9 → 242.3 GFLOP/s for B = 1 … 1024.
-Intensity is per BYTE, not per value (8× apart for Float64) — be consistent.
-BLAS-3 (GEMM) tiling is what approaches reuse (ideal three-matrix Float64 traffic gives n/12 FLOP/byte): each tile is reused from cache.
+▶ Script: cell "Optional — arithmetic intensity". FLOP denotes a floating-point operation.
+Actual traffic depends on cache reuse and the implementation. Intensity is a model of work
+per byte, not a measured bandwidth. Timing still matters for application latency; GFLOP/s
+normalizes different amounts of arithmetic for a throughput comparison.
 :::
+
+[Back to the chapter](#path) · [Next: GPU](5_gpu.qmd)

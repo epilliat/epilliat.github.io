@@ -111,3 +111,68 @@ raise NotImplementedError("remove this line and write your code")
 # %%
 # Everyone's names or messages
 list(zip(addresses, fetch_all([a + "/name" for a in addresses], len(addresses))))
+
+# %%
+# Instructor: the class board. Run it, then open http://localhost:9000/ (run by a student: a board of their own)
+import html, socket, urllib.parse
+
+def start_registry(port=9000):
+    servers = {}                                   # IP -> address of its server
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+        s.connect(("10.255.255.255", 1))           # sends nothing: finds this laptop's IP
+        me = s.getsockname()[0]
+
+    def ask(url):
+        try:
+            return fetch(url)
+        except Exception:                          # gone, or not answering
+            return None
+
+    def ask_all(addresses):                        # (name, point) of every server, all at once
+        with ThreadPoolExecutor(max_workers=max(1, len(addresses))) as pool:
+            return list(pool.map(lambda a: (ask(a + "/name") or "", ask(a + "/inside")), addresses))
+
+    def board():
+        rows = ask_all(list(servers.values()))
+        points = [p for _, p in rows if p in ("0", "1")]
+        hits = points.count("1")
+        pi_hat = f"{4 * hits / len(points):.3f}" if points else "?"
+        lines = "".join(f"<tr><td>{ {'1': '&#9679; inside', '0': '&#9675; outside'}.get(p, 'no answer') }</td>"
+                        f"<td>{html.escape(n[:40]) + ('&hellip;' if len(n) > 40 else '')}</td></tr>" for n, p in rows)
+        return f"""<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="3">
+<body style="font: 26px sans-serif; margin: 40px"><p>registry = <b>"http://{me}:{port}"</b></p>
+<h1>&pi; &asymp; {pi_hat} <small>({len(points)} points, {hits} inside)</small></h1>
+<table cellpadding="6">{lines}</table>"""
+
+    class Registry(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):
+            url = urllib.parse.urlparse(self.path)
+            kind = "text/plain"
+            student_port = urllib.parse.parse_qs(url.query).get("port", [""])[0]
+            if url.path == "/register" and student_port.isdigit():
+                ip = self.client_address[0]
+                ip = me if ip == "127.0.0.1" else ip   # the instructor's own server
+                body = servers[ip] = f"http://{ip}:{student_port}"
+            elif url.path == "/list":                  # only the servers that answer now
+                addresses = list(servers.values())
+                body = "\n".join(a for a, (_, p) in zip(addresses, ask_all(addresses)) if p in ("0", "1"))
+            else:
+                body, kind = board(), "text/html"
+            data = body.encode()
+            self.send_response(200)
+            self.send_header("Content-Type", kind + "; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+        def log_message(self, *args):
+            pass
+
+    server = http.server.ThreadingHTTPServer(("0.0.0.0", port), Registry)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    print(f'registry = "http://{me}:{port}"   board: http://localhost:{port}/')
+    return server
+
+if "class_board" in globals():                     # run again = restart (empty list)
+    class_board.shutdown()
+    class_board.server_close()
+class_board = start_registry()

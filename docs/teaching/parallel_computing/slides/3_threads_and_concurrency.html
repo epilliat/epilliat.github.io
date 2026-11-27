@@ -188,6 +188,7 @@
       margin-right: 0; 
     }
   </style>
+  <script type="text/x-mathjax-config">MathJax.Hub.Config({menuSettings: {renderer: "CommonHTML"}, CommonHTML: {matchFontHeight: false, scale: 109}});</script>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -195,7 +196,7 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">3 — Threads &amp; concurrency</h1>
-  <p class="subtitle">Waiting is overlapped; computing must be split</p>
+  <p class="subtitle">Overlap waiting, distribute computation, reduce local results</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -207,97 +208,20 @@ Emmanuel Pilliat — ENSAI 3A
 
 </section>
 <section id="path" class="slide level2">
-<h2>Today’s path</h2>
-<ol type="1">
-<li><strong>Waiting</strong>: ✏️ <a href="#/a3a">overlap the waits</a></li>
-<li><strong>Computing</strong>: the GIL, then a real split over cores.</li>
-<li><strong>The parallel sum that lies</strong>: a race, step by step. ✏️ <a href="#/a3b">who wrote last?</a></li>
-<li><strong>Return and reduce</strong>: ✏️ <a href="#/a3c">π in lots</a></li>
-<li><strong>Why not N× on N cores?</strong></li>
-</ol>
-<div class="fragment">
-<blockquote>
-<p>Only if time: <a href="#/appendix">Markov chains, lazy coroutines</a> · ✏️ <a href="#/a3d">a slow server</a></p>
-</blockquote>
-<aside class="notes">
-<p>Session 2, the whole three hours. Start with a 10-minute recall, no slide: what result must be preserved, what is inside the timer, what the first call costs. Parallelism starts here: compilation and dispatch made one core fast; now we use many.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="by-the-end-you-can" class="slide level2">
-<h2>By the end, you can</h2>
+<h2>Concurrency and parallelism</h2>
 <ul>
-<li>tell <strong>waiting</strong> from <strong>computing</strong>;</li>
-<li>spot a <strong>shared update</strong>;</li>
-<li><strong>split and reduce</strong> a computation;</li>
-<li>explain a speedup <strong>below</strong> the worker count.</li>
+<li class="fragment"><strong>Concurrency:</strong> several tasks progress over overlapping periods.</li>
+<li class="fragment"><strong>Parallelism:</strong> several computations execute simultaneously.</li>
 </ul>
 <div class="fragment">
 <blockquote>
-<p>▶ <a href="../scripts/3_threads_and_concurrency.jl">Script</a> · <a href="../pluto/3_threads_and_concurrency.jl">Notebook</a> · 🐍 <a href="../python/3_threads_and_concurrency_python.ipynb">Python</a></p>
+<p>Overlap <strong>I/O waits</strong>; distribute <strong>independent computations</strong> across cores.</p>
 </blockquote>
 </div>
 <div class="fragment">
-<blockquote>
-<p>⬅ <a href="../../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html">2 — Dispatch</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/4_memory_and_batching.html">4 — Memory &amp; batching</a> ➡</p>
-</blockquote>
-</div>
-</section>
-<section>
-<section id="two-problems-two-tools" class="title-slide slide level1 center" style="text-align: center;">
-<h1>Two problems, two tools</h1>
-
-</section>
-<section id="concurrency-parallelism" class="slide level2">
-<h2>Concurrency ≠ parallelism</h2>
-<div class="fragment">
-<table class="caption-top">
-<colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-</colgroup>
-<thead>
-<tr class="header">
-<th></th>
-<th>the time goes into…</th>
-<th>fix</th>
-<th>cores needed</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Concurrency</strong></td>
-<td><strong>waiting</strong> (network, disk)</td>
-<td><strong>overlap</strong> the waits</td>
-<td>one is enough</td>
-</tr>
-<tr class="even">
-<td><strong>Parallelism</strong></td>
-<td><strong>computing</strong></td>
-<td><strong>split</strong> the work</td>
-<td>several</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="fragment">
-<blockquote>
-<p><strong>Waiting is overlapped; computing must be split.</strong></p>
-</blockquote>
+<p><a href="#/a3a">Waiting activity</a> · <a href="#/a3b">Shared counter</a> · <a href="#/a3c">π in batches</a> · <a href="#/appendix">Optional examples</a></p>
 <aside class="notes">
-<p>“One core” describes our demos, not a definition: concurrent tasks may also run on several cores. The idea to keep is overlapping waits versus executing computations at the same time. Pick the wrong one: all the complexity, none of the speed. We will measure it.</p>
+<p>Session 2, three hours. Keep the major sections but combine roadmap and objectives here. Start with a short recall of correctness, first-call time and timed scope. Concurrency is not synonymous with I/O, and does not imply one core; overlapping waits is our first use case. By the end students should choose a mechanism, recognize a race, reduce local results and propose a test for a scaling limit. Scripts and notebook links are on the last core slide.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -310,17 +234,17 @@ Emmanuel Pilliat — ENSAI 3A
           display:block!important;
       }</style></aside>
 </div>
-</section></section>
+</section>
 <section>
 <section id="part-a-overlap-the-waiting" class="title-slide slide level1 center" style="text-align: center;">
 <h1>Part A — overlap the waiting</h1>
 
 </section>
-<section id="fetching-15-prices" class="slide level2">
-<h2>Fetching 15 prices</h2>
+<section id="overlap-independent-requests" class="slide level2">
+<h2>Overlap independent requests</h2>
 <ul>
-<li class="fragment">15 HTTP requests to Binance, <strong>~0.25 s</strong> wait each.</li>
-<li class="fragment">One by one = <strong>15 waits in a row</strong>, CPU idle.</li>
+<li class="fragment">Reference example: <strong>15 HTTP requests</strong>, about <strong>0.25 s</strong> waiting per request.</li>
+<li class="fragment">Sequential execution waits for each response before starting the next request.</li>
 </ul>
 <div class="fragment">
 <div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a><span class="pp">@async</span> expr     <span class="co"># start a task, return at once</span></span>
@@ -361,6 +285,7 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="three-ways-to-fetch-the-timings" class="slide level2">
 <h2>Three ways to fetch: the timings</h2>
 <div class="fragment">
+<p>Illustrative timings on the course machine:</p>
 <table class="caption-top">
 <colgroup>
 <col style="width: 33%">
@@ -370,8 +295,8 @@ Emmanuel Pilliat — ENSAI 3A
 <thead>
 <tr class="header">
 <th></th>
-<th>time</th>
-<th>what happened</th>
+<th>Time</th>
+<th>Timed scope</th>
 </tr>
 </thead>
 <tbody>
@@ -383,7 +308,7 @@ Emmanuel Pilliat — ENSAI 3A
 <tr class="even">
 <td>2) <code>@async</code> <strong>without</strong> <code>@sync</code></td>
 <td><strong>~10 µs</strong></td>
-<td>⚠️ timed <strong>task creation</strong> only</td>
+<td><strong>task creation</strong> only</td>
 </tr>
 <tr class="odd">
 <td>3) <code>@sync</code> + <code>@async</code></td>
@@ -392,17 +317,13 @@ Emmanuel Pilliat — ENSAI 3A
 </tr>
 </tbody>
 </table>
-<ul>
-<li class="fragment">Row 2: “400 000× faster” — <strong>wrong</strong>, data not there yet.</li>
-<li class="fragment"><code>@sync</code>: honest timing <strong>and</strong> correct result.</li>
-</ul>
 </div>
 <div class="fragment">
 <blockquote>
-<p>Stop the timer when the <strong>results are there</strong>.</p>
+<p>Compare completed work: stop the timer when <strong>all results are available</strong>.</p>
 </blockquote>
 <aside class="notes">
-<p>Network-dependent: your latency will differ. The shape (sum of latencies → one round-trip) is the lesson, not the exact seconds. Run it live if the wifi allows. The script prints “x/15 ready” for row 2, then again 2 s later: 15/15. Async overlaps waiting, not computing. Row 2 is the “Scope” line of the measurement card.</p>
+<p>Network-dependent: your latency will differ. The shape (sum of latencies → one round-trip) is the lesson, not the exact seconds. Run it live if the wifi allows. The script prints “x/15 ready” for row 2, then again 2 s later: 15/15. The work in this example is mainly waiting. Row 2 illustrates a different timed scope.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -430,10 +351,10 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 <div class="fragment">
 <blockquote>
-<p><code>with</code> + <code>map</code> = <code>@sync</code> + <code>@async</code>: <strong>submit all, wait for all</strong>.</p>
+<p>Both patterns <strong>submit calls and wait for the results</strong>.</p>
 </blockquote>
 <aside class="notes">
-<p>This is the structure the activity asks for. <code>asyncio.gather</code> is the coroutine version of the same idea (appendix slide “Julia didn’t wait; Python didn’t start”).</p>
+<p>This is the structure the activity asks for. <code>asyncio.gather</code> is the coroutine version of the same idea.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -451,9 +372,9 @@ Emmanuel Pilliat — ENSAI 3A
 <h2>✏️ Overlap the waits</h2>
 <ul>
 <li><strong>Question:</strong> 20 downloads, one by one or all at once. How long each?</li>
-<li><strong>Alone:</strong> predict both times (3 min).</li>
-<li><strong>In pairs:</strong> write the concurrent submission; check you get the <strong>same 20 values</strong>.</li>
-<li><strong>Write down:</strong> two times, measured until the results are there · ratio · real or simulated. 📋 <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html#/card">card</a></li>
+<li><strong>Predict:</strong> both times.</li>
+<li><strong>Do:</strong> write the concurrent submission; check you get the <strong>same 20 values</strong>.</li>
+<li><strong>Write down:</strong> completed-work times · speedup · real or simulated · <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html#/card">protocol</a></li>
 </ul>
 <div class="fragment">
 <blockquote>
@@ -477,8 +398,8 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="a3a-debrief" class="slide level2">
 <h2>Debrief: overlap the waits</h2>
 <ul>
-<li><strong>Compare:</strong> is the ratio close to 20? What limits it?</li>
-<li><strong>Explain:</strong> why do threads help here, on one core?</li>
+<li><strong>Compare:</strong> what limits the speedup for 20 requests?</li>
+<li><strong>Explain:</strong> why can waiting overlap without simultaneous computation?</li>
 <li><strong>Test:</strong> would this speed up a pure-Python arithmetic loop?</li>
 </ul>
 <div class="fragment">
@@ -501,42 +422,38 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section></section>
 <section>
-<section id="part-b-split-the-computing" class="title-slide slide level1 center" style="text-align: center;">
-<h1>Part B — split the computing</h1>
+<section id="part-b-execute-computations-simultaneously" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Part B — execute computations simultaneously</h1>
 
 </section>
 <section id="gil" class="slide level2">
-<h2>Python threads on CPU work: the GIL</h2>
+<h2>Python CPU work with the GIL</h2>
+<p><strong>GIL</strong> (Global Interpreter Lock): a lock in standard CPython; a thread must hold it to run Python code.</p>
 <ul>
-<li class="fragment">GIL: one thread runs <strong>Python bytecode</strong> at a time.</li>
-<li class="fragment"><strong>Released</strong> while waiting, and inside many <strong>native</strong> routines (NumPy, BLAS).</li>
+<li class="fragment">One thread executes Python bytecode at a time.</li>
+<li class="fragment">I/O waits and many native routines release the GIL.</li>
 </ul>
 <div class="fragment">
 <table class="caption-top">
 <thead>
 <tr class="header">
-<th><code>ThreadPoolExecutor</code> on…</th>
-<th>speedup</th>
+<th>Thread pool, course machine</th>
+<th>Speedup</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>I/O</strong> (15 URLs)</td>
-<td><strong>~10×</strong></td>
+<td>I/O, 15 requests</td>
+<td>~10×</td>
 </tr>
 <tr class="even">
-<td><strong>CPU</strong>, pure-Python loop</td>
-<td><strong>~1×</strong></td>
+<td>Pure-Python CPU loop</td>
+<td>~1×</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="fragment">
-<blockquote>
-<p><em>“Threads are pointless in Python”</em>: <span style="background-color: yellow;"><strong>false</strong></span>. It depends on <strong>where the time goes</strong>.</p>
-</blockquote>
 <aside class="notes">
-<p>Same threads, same GIL; what changed is waiting vs computing. Pure-Python CPU loops need processes. Native NumPy work is another case: it may release the GIL and is often already multithreaded by BLAS — essential for a real NumPy project. Ageing caveat: true for default CPython. Free-threaded builds (PEP 703) are officially supported since 3.13/3.14 and remove the GIL — say “default CPython”.</p>
+<p>Do not generalize to all Python builds or all native libraries. The process-pool activity uses a pure-Python loop. Compiling/vectorizing that loop is another optimization, as in module 1. This qualification belongs on the slide rather than only in notes.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -550,63 +467,110 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="splitting-the-computing-in-julia" class="slide level2">
-<h2>Splitting the computing in Julia</h2>
-<div class="fragment">
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a></a>t <span class="op">=</span> <span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="fu">f</span>()   <span class="co"># may run on another core</span></span>
-<span id="cb4-2"><a></a><span class="fu">fetch</span>(t)                 <span class="co"># wait, get the result</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="tasks-threads-and-cores" class="slide level2">
+<h2>Tasks, threads and cores</h2>
 <ul>
-<li class="fragment">Needs <code>julia --threads=auto</code> (else <code>nthreads() = 1</code>).</li>
-<li class="fragment">Our machine: <code>Threads.nthreads() = 22</code>. Julia has no GIL.</li>
+<li class="fragment"><strong>Core</strong>: hardware, a part of the chip that executes instructions.</li>
+<li class="fragment"><strong>Thread</strong>: software, a sequence of instructions run by the OS on one core at a time.</li>
+<li class="fragment"><strong>Task</strong>: a piece of work; Julia runs its tasks on its threads.</li>
 </ul>
-</div>
 <div class="fragment">
 <blockquote>
-<p><code>@async</code> and <code>@spawn</code> look alike. Only one uses more cores.</p>
+<p>Tasks run on threads, threads run on cores: the OS and Julia choose and change both mappings.</p>
 </blockquote>
+<aside class="notes">
+<p>Cores are physical and their number is fixed (16 on the reference laptop). Threads are created by programs: Julia starts nthreads() worker threads, and the OS decides which core runs each thread, possibly moving it. With more threads than cores, they take turns. Caveat: with simultaneous multithreading (SMT, “hyper-threading”), one physical core can run two threads at once; the OS then reports “logical CPUs” (22 here, for 16 physical cores). A worker can be a process or a thread depending on the executor. In the Python activity it means a process.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
 </section>
-<section id="same-cpu-work-with-async" class="slide level2">
-<h2>Same CPU work, with <code>@async</code></h2>
+<section id="schedule-a-julia-task" class="slide level2">
+<h2>Schedule a Julia task</h2>
 <div class="fragment">
-<blockquote>
-<p>π (<code>n = 10⁸</code>), <code>@async</code> × 22: speedup? ▶ Script: cell “Same CPU work with <span class="citation" data-cites="async">@async</span>”</p>
-</blockquote>
-</div>
-<div class="fragment">
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a></a>t <span class="op">=</span> <span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="fu">f</span>()   <span class="co"># schedule work on the thread pool</span></span>
+<span id="cb4-2"><a></a><span class="fu">fetch</span>(t)                <span class="co"># wait and obtain its result</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
 <thead>
 <tr class="header">
 <th></th>
-<th>time</th>
-<th>speedup</th>
+<th>Scheduling</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>pi_seq</code> (one core)</td>
-<td>0.357 s</td>
-<td>—</td>
+<td><code>@async</code></td>
+<td>Task on the current thread</td>
 </tr>
 <tr class="even">
-<td><code>@async</code> × 22</td>
-<td>0.332 s</td>
-<td><span style="background-color: yellow;"><strong>1.1×</strong></span></td>
-</tr>
-<tr class="odd">
-<td><code>@spawn</code> × 22</td>
-<td>0.057 s</td>
-<td><strong>6.3×</strong></td>
+<td><code>Threads.@spawn</code></td>
+<td>Task on an available worker thread</td>
 </tr>
 </tbody>
 </table>
+</div>
+<div class="fragment">
+<blockquote>
+<p>Start Julia with <code>--threads=auto</code>; check <code>Threads.nthreads()</code>.</p>
+</blockquote>
 <aside class="notes">
-<p>count_in_disk is the same count as in the compilation module; only the macro changes (who runs it). <span class="citation" data-cites="async">@async</span>: one core, nothing to overlap. <span class="citation" data-cites="spawn">@spawn</span>: the tasks land on different cores. Script cells “Same CPU work with <span class="citation" data-cites="async">@async</span>” (seq, <span class="citation" data-cites="async">@async</span>) and “Speedup vs nthreads” (<span class="citation" data-cites="spawn">@spawn</span>). <span class="citation" data-cites="async">@async</span> never passed ~1.3x at any task count tried (1 -&gt; 22). No speedup-vs-ntasks curve here: in one session the OS may place few tasks on 5 GHz P-cores or 2.5 GHz LP-E cores (measured 1.3x at 4 tasks but 4.7x at 6). The honest curve needs one process per point: experiences/threads_scaling/.</p>
+<p>This is a task count versus execution-resource distinction, not one task per core. <span class="citation" data-cites="spawn">@spawn</span> permits parallel execution; it does not guarantee a dedicated core or a speedup. The CPU comparison below uses 22 tasks on 22 Julia worker threads in the reference run.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="same-computation-different-scheduling" class="slide level2">
+<h2>Same computation, different scheduling</h2>
+<div class="fragment">
+<p>π, 10⁸ draws, <strong>22 tasks</strong>. Predict the speedup before comparing:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Implementation</th>
+<th>Time</th>
+<th>Speedup</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sequential</td>
+<td>0.357 s</td>
+<td>1×</td>
+</tr>
+<tr class="even">
+<td><code>@async</code></td>
+<td>0.332 s</td>
+<td>1.1×</td>
+</tr>
+<tr class="odd">
+<td><code>@spawn</code>, local counts</td>
+<td>0.057 s</td>
+<td>6.3×</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<p>Illustrative timings on the course machine, <strong>22 Julia worker threads</strong>.</p>
+<aside class="notes">
+<p>▶ Script: cells “Same CPU work with <span class="citation" data-cites="async">@async</span>” and “Speedup vs nthreads”. The corrected <span class="citation" data-cites="spawn">@spawn</span> implementation is defined after the shared-counter experiment. This table previews its historical timings; do not execute the entire CPU script before the prediction. CPU-bound <span class="citation" data-cites="async">@async</span> tasks on one thread have no waiting to overlap. <span class="citation" data-cites="spawn">@spawn</span> can execute them simultaneously. These are historical rounded observations, not predicted values for other machines.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -621,77 +585,71 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section></section>
 <section>
-<section id="the-parallel-sum-that-lies" class="title-slide slide level1 center" style="text-align: center;">
-<h1>The parallel sum that lies</h1>
+<section id="part-c-local-counts-and-reduction" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Part C — local counts and reduction</h1>
 
 </section>
-<section id="π-on-all-threads" class="slide level2" style="text-align: center;">
-<h2>π on all threads</h2>
-<div class="fragment">
-<p>π on all 22 threads, 20 million points, one task per thread.</p>
-</div>
+<section id="a-shared-counter-predict-the-result" class="slide level2">
+<h2>A shared counter: predict the result</h2>
 <div class="fragment">
 <div class="sourceCode" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a></a>hits <span class="op">=</span> <span class="fl">0</span></span>
-<span id="cb5-2"><a></a><span class="pp">@sync</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>ntasks</span>
-<span id="cb5-3"><a></a>    <span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>per</span>
-<span id="cb5-4"><a></a>        x <span class="op">=</span> <span class="fu">rand</span>(); y <span class="op">=</span> <span class="fu">rand</span>()</span>
-<span id="cb5-5"><a></a>        hits <span class="op">+=</span> (x <span class="op">*</span> x <span class="op">+</span> y <span class="op">*</span> y <span class="op">&lt;=</span> <span class="fl">1.0</span>)</span>
+<span id="cb5-2"><a></a><span class="pp">@sync</span> <span class="cf">for</span> size <span class="kw">in</span> <span class="fu">batch_sizes</span>(n, ntasks)</span>
+<span id="cb5-3"><a></a>    <span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="cf">for</span> _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>size</span>
+<span id="cb5-4"><a></a>        x, y <span class="op">=</span> <span class="fu">rand</span>(), <span class="fu">rand</span>()</span>
+<span id="cb5-5"><a></a>        hits <span class="op">+=</span> (x<span class="op">^</span><span class="fl">2</span> <span class="op">+</span> y<span class="op">^</span><span class="fl">2</span> <span class="op">≤</span> <span class="fl">1</span>)   <span class="co"># shared read–modify–write</span></span>
 <span id="cb5-6"><a></a>    <span class="cf">end</span></span>
 <span id="cb5-7"><a></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
 <blockquote>
-<p><strong>What does it print?</strong> ▶ Script: cell “π on all threads, one task per thread”</p>
+<p>What estimate do you expect? Does a task’s increment execute as one operation?</p>
 </blockquote>
+<aside class="notes">
+<p>▶ Script: cell “Shared counter”. The supplied batch_sizes distributes all n draws, including any remainder. Its details are shown with the correct reduction; here focus on the shared hits. The race is intentional. Do not replace the example by an atomic update before discussing it.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
 </section>
-<section id="the-parallel-sum-that-lies-1" class="slide level2">
-<h2>The parallel sum that lies</h2>
+<section id="a-race-can-silently-corrupt-the-result" class="slide level2">
+<h2>A race can silently corrupt the result</h2>
 <div class="fragment">
+<p>Illustrative runs on the course machine, 20 million points, 22 tasks:</p>
 <table class="caption-top">
 <thead>
 <tr class="header">
 <th></th>
-<th>run 1</th>
-<th>run 2</th>
-<th>run 3</th>
-<th>run 4</th>
+<th>Run 1</th>
+<th>Run 2</th>
+<th>Run 3</th>
+<th>Run 4</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>pi_race</code></td>
-<td><strong>0.219</strong></td>
-<td><strong>0.361</strong></td>
-<td><strong>0.354</strong></td>
-<td><strong>0.393</strong></td>
-</tr>
-<tr class="even">
-<td><code>pi_spawn</code></td>
-<td>3.14126</td>
-<td>3.14174</td>
-<td>3.14172</td>
-<td>3.14146</td>
+<td>Shared counter</td>
+<td>0.219</td>
+<td>0.361</td>
+<td>0.354</td>
+<td>0.393</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li class="fragment"><strong>10× too small</strong>, different every run.</li>
-</ul>
 </div>
 <div class="fragment">
-<div class="callout callout-warning no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Warning</strong></p>
-</div>
-<div class="callout-content">
-<p><strong>No error. No warning. Just a wrong number.</strong></p>
-</div>
-</div>
-</div>
+<blockquote>
+<p>These estimates are far from π; the program need not report an error.</p>
+</blockquote>
 <aside class="notes">
-<p>Your values WILL differ — that is the point (non-determinism). Never quote a fixed number here; run it live and let the class watch it change. A demo machine may not show a spectacular error: the interleaving on the next slide is the expected result, not the size of the error.</p>
+<p>The historical values illustrate the failure, not an expected output. A race may be less visible or absent in one execution. With one thread this shared update has no competing thread. Statistical randomness is not the explanation for errors of this size.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -771,7 +729,7 @@ Emmanuel Pilliat — ENSAI 3A
 <p><code>hits += 1</code> is <strong>three</strong> operations: an increment is <strong>lost</strong>.</p>
 </blockquote>
 <aside class="notes">
-<p>5 minutes in pairs before revealing the table. Ask for a second order that gives 9 (A finishes before B reads): the bug is intermittent, which is why it survives testing. Then: where would you put the addition so that nothing is shared? → next slide.</p>
+<p>5 minutes before revealing the table. Ask for a second order that gives 9 (A finishes before B reads): the bug is intermittent, which is why it survives testing. Then ask how each task could return a local count. The following visualization shows that reduction.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -785,26 +743,147 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="the-cure-return-and-reduce" class="slide level2">
-<h2>The cure: return and reduce</h2>
+<section id="pi-workers" class="slide level2">
+<h2>π: local counts and reduction</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a></a><span class="kw">function</span> <span class="fu">pi_spawn</span>(n; ntasks<span class="op">=</span><span class="bu">Threads</span>.<span class="fu">nthreads</span>())</span>
-<span id="cb6-2"><a></a>    per <span class="op">=</span> n <span class="op">÷</span> ntasks</span>
-<span id="cb6-3"><a></a>    tasks <span class="op">=</span> [<span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="fu">count_in_disk</span>(per) for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>ntasks]</span>
-<span id="cb6-4"><a></a>    <span class="cf">return</span> <span class="fl">4</span> <span class="op">*</span> <span class="fu">sum</span>(fetch, tasks) <span class="op">/</span> (per <span class="op">*</span> ntasks)</span>
-<span id="cb6-5"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Each task returns a local count. The parent sums the results.</p>
+<style>
+.pc-mc {text-align:center}
+.pc-mc canvas {display:block;max-width:100%;margin:0 auto;background:#fff;border:1px solid #ddd;border-radius:6px}
+.pc-mc .pc-controls {display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.4em .8em;font-size:.65em;margin:.45em 0}
+.pc-mc button,.pc-mc select {font:inherit;color:#263746;background:#f7f8fa;border:1px solid #aab4bd;border-radius:4px;padding:.3em .65em}
+.pc-mc button {cursor:pointer}
+.pc-mc input {width:160px;vertical-align:middle}
+.pc-mc .pc-summary {font-size:.6em;margin:.2em 0;font-variant-numeric:tabular-nums}
+</style>
+<div class="pc-mc" id="pcMonteCarlo">
+  <canvas width="900" height="370" aria-label="Monte-Carlo estimate of pi: points in a unit square, quarter disk and local counts for each batch"></canvas>
+  <div class="pc-controls">
+    <label>Points <input data-control="n" type="range" min="0" max="2000" step="1" value="160" autocomplete="off"> <output data-value="n">160</output></label>
+    <label>Batches <select data-control="workers" autocomplete="off"><option>1</option><option>2</option><option>4</option><option>8</option></select></label>
+    <button type="button" data-action="play">Run</button>
+    <button type="button" data-action="reset">Reset</button>
+    <button type="button" data-action="sample">New sample</button>
+  </div>
+  <p class="pc-summary" data-summary=""></p>
 </div>
-<div class="fragment">
-<blockquote>
-<p>No shared counter in the hot loop: <strong>correct and fast</strong>.</p>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “The cure”</p>
-</blockquote>
+<script>
+(function () {
+  'use strict';
+  var wrap = document.getElementById('pcMonteCarlo');
+  if (!wrap || wrap.dataset.init) return;
+  wrap.dataset.init = '1';
+  var cv = wrap.querySelector('canvas'), c = cv.getContext('2d');
+  var nInput = wrap.querySelector('[data-control="n"]');
+  var workerInput = wrap.querySelector('[data-control="workers"]');
+  var play = wrap.querySelector('[data-action="play"]');
+  var summary = wrap.querySelector('[data-summary]');
+  var section = wrap.closest('section'), parallel = section.id === 'pi-workers';
+  var key = 'parallel-monte-carlo-v1:' + location.pathname;
+  var state = {seed:2026, n:160, workers:parallel ? 4 : 1};
+  try {
+    var saved = JSON.parse(localStorage.getItem(key));
+    if (saved && Number.isInteger(saved.seed) && saved.seed > 0 && saved.seed <= 4294967295 &&
+        Number.isInteger(saved.n) && saved.n >= 0 && saved.n <= 2000 &&
+        [1,2,4,8].indexOf(saved.workers) !== -1) state = saved;
+  } catch (_) {}
+  if (!parallel) {
+    state.workers = 1;
+    workerInput.closest('label').hidden = true;
+  }
+  wrap.dataset.mode = parallel ? 'workers' : 'introduction';
+  var colors = ['#2868a0','#bf641c','#267b60','#8558a2','#b74450','#297f91','#807126','#626e7a'];
+  var points = [], frame = null, startTime = 0, startN = 0;
+  function save() { try { localStorage.setItem(key, JSON.stringify(state)); } catch (_) {} }
+  function sample() {
+    var seed = state.seed >>> 0;
+    function uniform() { seed = (Math.imul(1664525, seed) + 1013904223) >>> 0; return seed / 4294967296; }
+    points = [];
+    for (var i=0;i<2000;i++) {
+      var x=uniform(), y=uniform();
+      points.push({x:x, y:y, inside:x*x+y*y <= 1});
+    }
+  }
+  function draw() {
+    c.clearRect(0,0,cv.width,cv.height);
+    var x0=62,y0=26,size=300,counts=[],totals=[];
+    for (var j=0;j<state.workers;j++) { counts[j]=0; totals[j]=0; }
+    c.fillStyle='#f0f5f9';
+    c.beginPath(); c.moveTo(x0,y0+size);
+    c.arc(x0,y0+size,size,-Math.PI/2,0); c.closePath(); c.fill();
+    c.strokeStyle='#738596'; c.lineWidth=1.5;
+    c.beginPath(); c.arc(x0,y0+size,size,-Math.PI/2,0); c.stroke();
+    c.strokeStyle='#8c969f'; c.lineWidth=1; c.strokeRect(x0,y0,size,size);
+    c.save(); c.beginPath(); c.rect(x0,y0,size,size); c.clip();
+    for (var i=0;i<state.n;i++) {
+      var p=points[i], w=i%state.workers;
+      totals[w]++; if(p.inside) counts[w]++;
+      c.beginPath(); c.arc(x0+p.x*size,y0+(1-p.y)*size,2.8,0,Math.PI*2);
+      c.fillStyle=colors[w]; c.strokeStyle=colors[w]; c.lineWidth=1;
+      if(p.inside) c.fill(); else c.stroke();
+    }
+    c.restore();
+    c.font='18px system-ui,sans-serif'; c.fillStyle='#334354';
+    c.fillText('0',x0-18,y0+size+5); c.fillText('1',x0+size-5,y0+size+23);
+    c.fillText('1',x0-18,y0+6); c.fillText('x',x0+size+18,y0+size+5);
+    c.fillText('y',x0-5,y0-7);
+    c.fillText('Solid: inside     Hollow: outside',x0,y0+size+35);
+    c.font='20px system-ui,sans-serif';
+    var hits=0;
+    for (var k=0;k<state.workers;k++) hits+=counts[k];
+    if (parallel) {
+      c.fillText('Batch',420,42); c.fillText('Inside / points',615,42);
+      for (var k=0;k<state.workers;k++) {
+        var yy=76+k*23;
+        c.fillStyle=colors[k]; c.fillRect(420,yy-13,12,12);
+        c.fillStyle='#263746'; c.fillText(String(k+1),445,yy);
+        c.fillText(counts[k]+' / '+totals[k],615,yy);
+      }
+    } else {
+      c.fillText('Uniform points in the unit square',420,90);
+      c.fillText('Inside the quarter disk: x² + y² ≤ 1',420,135);
+      c.fillText('hits / n estimates the area π / 4',420,195);
+    }
+    c.strokeStyle='#d6dde3'; c.beginPath(); c.moveTo(420,259); c.lineTo(850,259); c.stroke();
+    c.fillStyle='#263746'; c.font='21px system-ui,sans-serif';
+    c.fillText('Total count = '+hits+' / '+state.n,420,290);
+    c.fillText(state.n ? 'π estimate = 4 × '+hits+' / '+state.n+' = '+(4*hits/state.n).toFixed(4) : 'π estimate: no points yet',420,324);
+    nInput.value=state.n; workerInput.value=state.workers;
+    wrap.querySelector('[data-value="n"]').textContent=state.n;
+    summary.textContent=parallel ? 'Fixed sample · color = batch · schematic timing, not measured performance' : 'Increase the sample size, then draw a new sample to compare the estimates.';
+    cv.dataset.hits=hits; cv.dataset.points=state.n; cv.dataset.counts=JSON.stringify(counts);
+    cv.setAttribute('aria-label',state.n+' points, '+hits+' inside the quarter disk. '+(parallel ? state.workers+' batches. ' : '')+(state.n ? 'Pi estimate '+(4*hits/state.n).toFixed(4)+'.' : ''));
+  }
+  function stop() { if(frame !== null) cancelAnimationFrame(frame); frame=null; play.textContent='Run'; save(); }
+  function tick(now) {
+    if(document.hidden || !section.classList.contains('present')) { stop(); return; }
+    if(!startTime) startTime=now;
+    state.n=Math.min(2000,startN+Math.floor((now-startTime)*0.3)); draw();
+    if(state.n===2000) stop(); else frame=requestAnimationFrame(tick);
+  }
+  play.addEventListener('click',function () {
+    if(frame !== null) { stop(); return; }
+    if(state.n===2000) state.n=0;
+    startN=state.n; startTime=0; play.textContent='Pause'; frame=requestAnimationFrame(tick);
+  });
+  nInput.addEventListener('input',function () { stop(); state.n=+nInput.value; draw(); save(); });
+  workerInput.addEventListener('change',function () { stop(); state.workers=parallel ? +workerInput.value : 1; draw(); save(); });
+  wrap.addEventListener('keydown',function (event) {
+    if(event.target.matches('input,select,button')) event.stopPropagation();
+  });
+  wrap.querySelector('[data-action="reset"]').addEventListener('click',function () { stop(); state.n=0; draw(); save(); });
+  wrap.querySelector('[data-action="sample"]').addEventListener('click',function () { stop(); state.seed=(state.seed+1)>>>0 || 1; sample(); draw(); save(); });
+  document.addEventListener('visibilitychange',function () { if(document.hidden) stop(); });
+  function bindReveal() {
+    if(window.Reveal && typeof Reveal.on === 'function') {
+      Reveal.on('slidechanged',function (event) { if(event.currentSlide !== section) stop(); });
+    } else setTimeout(bindReveal,100);
+  }
+  sample(); draw(); bindReveal();
+})();
+</script>
 <aside class="notes">
-<p>Each task returns its own count; we add them up once, at the end.</p>
+<p>The colors identify work batches/tasks, not OS threads or physical cores. Keep points and n fixed; change the number of batches. The total count remains unchanged. Each point belongs to one batch; each row reports its count. Reset and Run to see the counts accumulate. This is a schematic partition, not a scheduling or performance simulation. Real seeded tasks may generate different samples when the partition changes. The Python activity instead keeps eight seeded jobs fixed and varies only the process-worker count. Static alternative for teaching: ../images/lots_reduce.svg. It does not need a separate slide.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -819,14 +898,89 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section>
 <section id="reduce" class="slide level2">
-<h2>Split, compute, return, reduce</h2>
-
-<img data-src="../images/lots_reduce.svg" style="width:92.0%" class="r-stretch"><div class="fragment">
+<h2>Return local counts, then reduce</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a></a><span class="kw">function</span> <span class="fu">pi_spawn</span>(n; ntasks<span class="op">=</span><span class="bu">Threads</span>.<span class="fu">nthreads</span>())</span>
+<span id="cb6-2"><a></a>    sizes <span class="op">=</span> <span class="fu">batch_sizes</span>(n, ntasks)   <span class="co"># all n draws, including the remainder</span></span>
+<span id="cb6-3"><a></a>    tasks <span class="op">=</span> [<span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="fu">count_in_disk</span>(size) for size <span class="kw">in</span> sizes]</span>
+<span id="cb6-4"><a></a>    <span class="cf">return</span> <span class="fl">4</span> <span class="op">*</span> <span class="fu">sum</span>(fetch, tasks) <span class="op">/</span> n</span>
+<span id="cb6-5"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
 <blockquote>
-<p>Shared only at the <strong>final sum</strong>: once per worker, not once per draw.</p>
+<p>Local counts avoid concurrent updates to a shared counter.</p>
 </blockquote>
 <aside class="notes">
-<p>Same pattern in Python with a process pool: <code>sum(pool.map(count_in_disk, jobs))</code>. It is the pattern to look for in the project: which work is independent, what does each piece return, where is the reduction?</p>
+<p>▶ Script: cell “Return local counts, then reduce”. batch_sizes uses q, r = divrem(n, ntasks): r batches get q+1 draws, the rest get q. Thus n is the requested AND actual number of draws. An integer result returns from each task; only the parent adds the results. There is no shared counter updated concurrently during the reduction. The helper is supplied in the activity.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="atomic-updates-or-local-counts" class="slide level2">
+<h2>Atomic updates or local counts?</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a></a>hits <span class="op">=</span> <span class="bu">Threads</span>.<span class="fu">Atomic</span><span class="dt">{Int}</span>(<span class="fl">0</span>)</span>
+<span id="cb7-2"><a></a><span class="bu">Threads</span>.<span class="fu">atomic_add!</span>(hits, <span class="fl">1</span>)   <span class="co"># explicit atomic increment</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Approach</th>
+<th>Shared updates</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Atomic counter</td>
+<td>One atomic update per hit</td>
+</tr>
+<tr class="even">
+<td>Local counts + reduction</td>
+<td>One returned count per task</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<p>Reference observation: atomic version <strong>~7× slower than sequential</strong> at 22 worker threads.</p>
+<aside class="notes">
+<p>▶ Script: cell “Atomic updates or local counts”. An Atomic container does not turn hits += 1 into an atomic operation. The explicit atomic_add! avoids lost increments, but tasks contend for one location. The historical slowdown was measured at 4×10⁷ draws; it is not a general property of atomics. Use atomic operations when appropriate; measure their contention costs.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="the-reduction-pattern-in-python" class="slide level2">
+<h2>The reduction pattern in Python</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="im">from</span> concurrent.futures <span class="im">import</span> ProcessPoolExecutor</span>
+<span id="cb8-2"><a></a></span>
+<span id="cb8-3"><a></a><span class="cf">with</span> ProcessPoolExecutor(max_workers<span class="op">=</span>p) <span class="im">as</span> pool:</span>
+<span id="cb8-4"><a></a>    counts <span class="op">=</span> <span class="bu">list</span>(pool.<span class="bu">map</span>(count_in_disk, jobs))</span>
+<span id="cb8-5"><a></a>hits <span class="op">=</span> <span class="bu">sum</span>(counts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<blockquote>
+<p>Submit <strong>batches</strong>, collect counts, then sum. The worker count is a separate parameter.</p>
+</blockquote>
+<aside class="notes">
+<p>Here count_in_disk is the importable worker receiving a (size, seed) job, not the Julia method. The activity supplies the imports and explicit spawn context. Keep jobs fixed when varying p. Creating, importing into and stopping the pool are included in the activity’s timings. A standalone Python file starting a process pool needs an if <strong>name</strong> == “<strong>main</strong>” guard; local activity files are intended to run cell by cell in VS Code/Jupyter.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -841,19 +995,19 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section>
 <section id="a3c" class="slide level2">
-<h2>✏️ π in lots</h2>
+<h2>✏️ π in batches</h2>
 <ul>
-<li><strong>Question:</strong> split the draws into lots; each worker <strong>returns a count</strong>; the parent sums. Speedup on 1, 2, 4 workers?</li>
-<li><strong>Alone:</strong> predict the three speedups (5 min).</li>
-<li><strong>In pairs:</strong> write the submission and the reduction; check the count.</li>
-<li><strong>Write down:</strong> plausible π · table for 1 / 2 / 4 workers · a cause for any gain <strong>or slowdown</strong>. 📋 <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html#/card">card</a></li>
+<li><strong>Question:</strong> eight fixed batches; 1, 2, 4 process workers. What speedups do you predict?</li>
+<li><strong>Predict:</strong> the three speedups.</li>
+<li><strong>Do:</strong> write the submission and the reduction; check the count.</li>
+<li><strong>Write down:</strong> counts · times for 1 / 2 / 4 workers · an explanation · <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html#/card">protocol</a></li>
 </ul>
 <div class="fragment">
 <blockquote>
 <p>🐍 <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/3_cpu_python_todo.ipynb">Python (Colab)</a> · <a href="../activities/release/3_cpu_python_todo.py">local .py</a> · <a href="../activities/release/3_concurrency_julia_todo.jl">Julia, Part B</a> · <strong>30 min</strong></p>
 </blockquote>
 <aside class="notes">
-<p>Python uses processes (pure-Python loop, GIL): the timer includes starting them. Fixed lots and seeds, so counts agree exactly between worker counts. A slowdown at this size is a valid result if it is explained (startup, imports, too little work per lot).</p>
+<p>Python uses processes (pure-Python loop, GIL): the timer includes starting them. The Python batches and seeds are fixed: changing only the worker count preserves the counts in this environment. A slowdown at this size is a valid result if it is explained (startup, imports, too little work per lot).</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -868,67 +1022,18 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section>
 <section id="a3c-debrief" class="slide level2">
-<h2>Debrief: π in lots</h2>
+<h2>Debrief: π in batches</h2>
 <ul>
 <li><strong>Compare:</strong> speedup at 4 workers. Anyone <strong>slower</strong> than sequential?</li>
 <li><strong>Explain:</strong> what is inside your timer besides the counting?</li>
-<li><strong>Test:</strong> more work per lot, a reused pool, fewer lots: which one helps?</li>
+<li><strong>Test:</strong> more work per batch or a reused pool: what would you test?</li>
 </ul>
 <div class="fragment">
 <blockquote>
 <p>Check the code with a <strong>known count</strong>; check π with a <strong>tolerance</strong>.</p>
 </blockquote>
 <aside class="notes">
-<p>Changing the partition changes the random samples: a different π is expected, not a bug. Never bit-for-bit across worker counts.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="why-not-an-atomic-counter" class="slide level2">
-<h2>Why not an atomic counter?</h2>
-<div class="fragment">
-<p><code>Threads.Atomic</code> makes <code>hits += 1</code> safe. Correct? Fast?</p>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “Why not an atomic counter?”</p>
-</blockquote>
-</div>
-<div class="fragment">
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>22 threads, vs <code>pi_seq</code> (1 core)</th>
-<th></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>pi_spawn</code> (return + reduce)</td>
-<td><strong>6.3× faster</strong></td>
-</tr>
-<tr class="even">
-<td><code>pi_atomic</code></td>
-<td><span style="background-color: yellow;"><strong>~7× slower</strong></span></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="fragment">
-<blockquote>
-<p>Correct, but slower than one core. The cure is to <strong>share less</strong>, not to protect the sharing.</p>
-</blockquote>
-<aside class="notes">
-<p>22 cores fight over one memory location, once per draw. Touch shared memory once per task instead. Ratio measured at n = 4e7 (7x; 8.8x in power-saver mode); it does not depend much on n.</p>
+<p>Keep batches and seeds fixed while varying Python process workers: exact counts should agree. Changing samples, seeds or the partition can change the estimate; then use a statistical tolerance. The Julia activity uses task-local random draws without fixing seeds, so it checks a known count separately and assesses π statistically. Do not promise identical random samples across its runs.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -943,22 +1048,18 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section></section>
 <section>
-<section id="why-not-n-on-n-cores" class="title-slide slide level1 center" style="text-align: center;">
-<h1>Why not N× on N cores?</h1>
+<section id="part-d-explain-the-speedup" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Part D — explain the speedup</h1>
 
 </section>
-<section id="amdahl-speedup-number-of-threads" class="slide level2">
-<h2>Amdahl: speedup ≠ number of threads</h2>
+<section id="scaling-measurements-before-explanations" class="slide level2">
+<h2>Scaling: measurements before explanations</h2>
 <div class="fragment">
-<blockquote>
-<p>Speedup on 2, 4, 22 threads? ▶ Script: cell “Speedup vs nthreads” (<code>--threads=1, 2, 4</code>)</p>
-</blockquote>
-</div>
-<div class="fragment">
+<p>Illustrative timings on the course machine:</p>
 <table class="caption-top">
 <thead>
 <tr class="header">
-<th>threads</th>
+<th>Julia worker threads</th>
 <th>1</th>
 <th>2</th>
 <th>4</th>
@@ -967,27 +1068,28 @@ Emmanuel Pilliat — ENSAI 3A
 </thead>
 <tbody>
 <tr class="odd">
-<td>speedup</td>
+<td>Speedup</td>
 <td>1×</td>
-<td><strong>1.8×</strong></td>
-<td><strong>3.1×</strong></td>
-<td><strong>6.3×</strong></td>
+<td>1.8×</td>
+<td>3.1×</td>
+<td>6.3×</td>
 </tr>
 <tr class="even">
-<td>efficiency</td>
-<td>100 %</td>
-<td>90 %</td>
-<td>78 %</td>
-<td>29 %</td>
+<td>Efficiency</td>
+<td>100%</td>
+<td>90%</td>
+<td>78%</td>
+<td>29%</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li class="fragment"><strong>Amdahl</strong>: <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html#/amdahl">session 1’s formula</a>. 10 % sequential → ≤ 10×.</li>
-<li class="fragment"><strong>SMT</strong>: 22 <em>logical</em> threads, <strong>16 physical cores</strong>.</li>
-</ul>
+</div>
+<div class="fragment">
+<blockquote>
+<p><strong>22 worker threads ≠ 22 physical cores.</strong> This machine has 16 physical cores.</p>
+</blockquote>
 <aside class="notes">
-<p>Monte-Carlo π, <span class="citation" data-cites="spawn">@spawn</span>, one Julia process per thread count. Sequential part here: splitting, spawning, the final reduce. SMT = simultaneous multithreading: two threads share one core. Never say “speedup ≈ number of threads”. A low efficiency is a question, not a verdict: propose a cause and a test before concluding “the code is sequential”. 1/2/4 threads: experiences/threads_scaling/ (one process per point; <span class="citation" data-cites="async">@async</span> stays ~1x on the same plot). 22 threads: the <span class="citation" data-cites="async">@async</span> vs <span class="citation" data-cites="spawn">@spawn</span> table above.</p>
+<p>▶ Script: cell “Speedup vs nthreads”. Efficiency here is speedup divided by the worker-thread count, not a percentage of hardware utilization. Hardware threads can share a physical core. 1/2/4: one Julia process per point in experiences/threads_scaling/. The 22-thread observation comes from another reference run. These rounded observations are not one homogeneous scaling sweep.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1001,34 +1103,67 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="equal-work-unequal-cores" class="slide level2">
-<h2>Equal work, unequal cores</h2>
+<section id="amdahl-a-reference-model" class="slide level2">
+<h2>Amdahl: a reference model</h2>
 <div class="fragment">
-<p>6 fast (5.0 GHz), 8 medium (3.8 GHz), 2 slow (2.5 GHz) cores.</p>
+<p>A fraction <span class="math inline">\(f\)</span> of the work can use <span class="math inline">\(p\)</span> equivalent workers, with no additional overhead:</p>
+<p><span class="math display">\[S(p) = \frac{1}{(1-f)+f/p}.\]</span></p>
 </div>
 <div class="fragment">
-<p>22 equal π tasks, each timed (demo, not in the script):</p>
+<blockquote>
+<p>10% sequential work gives a ceiling of <strong>10×</strong>; real overhead and hardware can lower it.</p>
+</blockquote>
+<aside class="notes">
+<p>Link with module 1’s local/whole-program speedup formula. Do not infer the serial fraction solely from a low observed efficiency: startup, contention, unequal cores and memory traffic can also reduce the speedup. This model is a reference, not an explanation of every discrepancy.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="test-explanations-for-limited-speedup" class="slide level2">
+<h2>Test explanations for limited speedup</h2>
+<div class="fragment">
 <table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
 <thead>
 <tr class="header">
-<th>fastest task</th>
-<th>slowest task</th>
+<th>Possible cause</th>
+<th>Test</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>0.022 s</td>
-<td>0.051 s (2.3×)</td>
+<td>Startup or scheduling overhead</td>
+<td>Increase work per task; reuse the pool</td>
+</tr>
+<tr class="even">
+<td>Uneven completion times</td>
+<td>Try more, smaller tasks</td>
+</tr>
+<tr class="odd">
+<td>Limited hardware resources</td>
+<td>Vary workers and library thread counts</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
 <blockquote>
-<p>The <strong>slowest task sets the wall clock</strong>. Fix: more, smaller tasks.</p>
+<p>Completion time depends on the last task to finish. Smaller tasks can also add overhead.</p>
 </blockquote>
 <aside class="notes">
-<p>More, smaller tasks so the scheduler can rebalance (work stealing). Same trap in BLAS on this box: 8 threads -&gt; 2.7 ms, 22 threads -&gt; 39 ms (14x slower).</p>
+<p>The reference laptop has unequal cores: 6 fast, 8 medium, 2 slower physical cores. One measured set of 22 tasks ranged from 0.022 to 0.051 s. These details motivate a hypothesis, not a universal rule. Work stealing may help; smaller tasks can worsen scheduling costs. A separate BLAS run was slower with 22 than 8 library threads. Record BLAS threads before adding workers. This trade-off prepares the next module’s batching discussion.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1043,46 +1178,36 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section>
 <section id="decision" class="slide level2">
-<h2>When does what help?</h2>
+<h2>Choose a tool for the workload</h2>
 <div class="fragment">
 <table class="caption-top">
 <colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
+<col style="width: 50%">
+<col style="width: 50%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>the time goes into…</th>
-<th>Python</th>
-<th>Julia</th>
+<th>Workload</th>
+<th>Options to test</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>waiting</strong></td>
-<td>threads, <code>asyncio</code></td>
-<td><code>@async</code> / <code>@sync</code></td>
+<td>Waiting</td>
+<td>Python threads/<code>asyncio</code>; Julia <code>@async</code> / <code>@sync</code></td>
 </tr>
 <tr class="even">
-<td><strong>computing</strong>, Python bytecode</td>
-<td><strong>processes</strong></td>
-<td><em>does not apply</em></td>
+<td>Python bytecode, GIL enabled</td>
+<td>Compile/vectorize; consider processes</td>
 </tr>
 <tr class="odd">
-<td><strong>computing</strong>, native (NumPy, BLAS)</td>
-<td>threads <em>can</em> help</td>
-<td><code>@spawn</code> / <code>fetch</code></td>
+<td>Native computation</td>
+<td>Check library threads; Julia <code>@spawn</code> or Python threads</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="fragment">
-<blockquote>
-<p>First find out <strong>which one you have</strong>.</p>
-</blockquote>
 <aside class="notes">
-<p>Efficiency = speedup / threads (previous table). Waiting is overlapped; computing must be split. Third row: native code is often multithreaded already. Check how many BLAS threads are already running before adding your own workers, or you oversubscribe the cores (the 22-thread BLAS trap). Record it on the card.</p>
+<p>This table gives options, not guaranteed gains. Julia <span class="citation" data-cites="spawn">@spawn</span> is also suitable for independent Julia loops compiled to native code. Native Python work may already be internally threaded; avoid multiplying worker count by an uncontrolled BLAS thread count.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1099,22 +1224,17 @@ Emmanuel Pilliat — ENSAI 3A
 <section id="ticket" class="slide level2">
 <h2>Exit ticket — session 2</h2>
 <div class="fragment">
-<p>For each: <strong>which tool, why, what would you measure first?</strong></p>
+<p>For each case: <strong>which tool, why, and what measurement first?</strong></p>
 <ol type="1">
 <li class="fragment">Calling a web API 300 times.</li>
-<li class="fragment">A double <code>for</code> loop in pure Python over 10⁷ pairs.</li>
+<li class="fragment">A pure-Python loop over 10⁷ pairs.</li>
 <li class="fragment"><code>X.T @ X</code> on a large NumPy array.</li>
 </ol>
 </div>
 <div class="fragment">
-<p><strong>Your project:</strong> which computations don’t depend on each other? Which variable would several workers update?</p>
-</div>
-<div class="fragment">
-<blockquote>
-<p>⬅ <a href="../../../teaching/parallel_computing/slides/2_dispatch_vs_oop.html">2 — Multiple dispatch vs OOP</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/4_memory_and_batching.html">4 — Memory &amp; batching</a> ➡</p>
-</blockquote>
+<p><strong>Your project:</strong> identify independent work, local outputs and the final reduction.</p>
 <aside class="notes">
-<p>Project: draw lots → outputs → reduction. 1: overlap waits (threads/asyncio). 2: compile or vectorize first, then processes. 3: already native and probably multithreaded — measure BLAS threads before doing anything. 🔬 Amdahl curve, <span class="citation" data-cites="spawn">@spawn</span> vs <span class="citation" data-cites="async">@async</span>: experiences/threads_scaling/.</p>
+<p>Waiting: overlap it. Pure Python: compile/vectorize first, then consider processes if worthwhile. NumPy: inspect existing library parallelism and measure. The project sketch should name batches, worker resources and which data is shared. Do not equate the number of tasks and workers.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1126,6 +1246,7 @@ Emmanuel Pilliat — ENSAI 3A
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+<p><a href="../scripts/3_threads_and_concurrency.jl">Script</a> · <a href="../pluto/3_threads_and_concurrency.jl">Julia notebook</a> · <a href="../python/3_threads_and_concurrency_python.ipynb">Python notebook</a> · <strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/4_memory_and_batching.html">Memory and batching</a></p>
 </div>
 </section></section>
 <section>
@@ -1137,16 +1258,17 @@ Emmanuel Pilliat — ENSAI 3A
 <h2>✏️ A slow server</h2>
 <ul>
 <li><strong>Question:</strong> one request takes 0.2 s. Two at once? Twenty?</li>
-<li><strong>Alone:</strong> predict each cell before running it.</li>
-<li><strong>In pairs:</strong> write <code>fetch_all</code>; then swap <code>concurrent</code> for <code>serial</code>.</li>
+<li><strong>Predict:</strong> each cell before running it.</li>
+<li><strong>Do:</strong> write <code>fetch_all</code>; then swap <code>concurrent</code> for <code>serial</code>.</li>
 <li><strong>Write down:</strong> your times · where the waiting happened. 📋 <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html#/card">card</a></li>
 </ul>
 <div class="fragment">
 <blockquote>
 <p>🐍 <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/3_server_python_todo.ipynb">Python (Colab)</a> · <a href="../activities/release/3_server_python_todo.py">local .py</a> · <a href="../activities/release/3_server_julia_todo.jl">Julia</a> · <strong>20 min</strong></p>
 </blockquote>
+<p><span style="font-size: 0.5em; opacity: 0.6;">π board: run the last cell of the activity, then <a href="http://localhost:9000/" target="_blank">open the board</a></span></p>
 <aside class="notes">
-<p>No Internet: the notebook starts its own server in a background thread. Measured: one request at a time = 4.0 s whatever the client; one thread per request = 4.06 / 0.83 / 0.24 s. The point: overlapping waits only helps if the other side can serve several requests at once. Optional end, π by the class: each student’s server draws one point and answers /inside (0/1) and /name (a name or message, “” by default). Run <code>activities/registry.py</code> or <code>registry.jl</code> on your laptop, put its address on the board; students register there and fetch everyone’s address. Project http://<that address="">/ : names (cut at 40 characters), each point, π; refreshes every 3 s. School Wi-Fi may isolate clients; a phone hotspot works. Not on Colab.</that></p>
+<p>No Internet: the notebook starts its own server in a background thread. Measured: one request at a time = 4.0 s whatever the client; one thread per request = 4.06 / 0.83 / 0.24 s. The point: overlapping waits only helps if the other side can serve several requests at once. Optional end, π by the class: each student’s server draws one point and answers /inside (0/1) and /name (a name or message, “” by default). Before clicking “open the board”, run the activity’s last cell, “Instructor: the class board” (<code>start_registry()</code>, Python or Julia) on this laptop; without it, localhost:9000 refuses the connection. Run the cell again to restart with an empty list. The board shows the <code>registry = "…"</code> line students copy into cell 8, the names (cut at 40 characters), each point and π; it refreshes every 3 s. School Wi-Fi may isolate clients; a phone hotspot works. Not on Colab.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -1160,68 +1282,39 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="another-split-independent-markov-chains" class="slide level2">
-<h2>Another split: independent Markov chains</h2>
-<div class="fragment">
-<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a></a><span class="fu">markov_seq</span>(K, L) <span class="op">=</span> [<span class="fu">simulate_markov</span>(L) for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>K]</span>
-<span id="cb7-2"><a></a><span class="fu">markov_spawn</span>(K, L) <span class="op">=</span></span>
-<span id="cb7-3"><a></a>    <span class="fu">fetch</span>.([<span class="bu">Threads</span>.<span class="pp">@spawn</span> <span class="fu">simulate_markov</span>(L) for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span>K])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<ul>
-<li class="fragment"><code>K = 8</code> chains, <code>L = 2×10⁷</code> steps, <strong>no shared state</strong>.</li>
-<li class="fragment">Speedup on 8 chains?</li>
-</ul>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “Speedup on 8 chains”</p>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p>Same pattern as π: each task returns, <code>fetch</code> collects.</p>
-</blockquote>
-</div>
-</section>
-<section id="julia-didnt-wait-python-didnt-start" class="slide level2">
-<h2>Julia didn’t wait; Python didn’t start</h2>
-<div class="fragment">
+<section id="a3d-debrief" class="slide level2">
+<h2>Debrief: a slow server</h2>
+<p>20 requests of 0.2 s each:</p>
 <table class="caption-top">
 <thead>
 <tr class="header">
-<th></th>
-<th>Julia <code>@async</code></th>
-<th>Python <code>async def</code></th>
+<th>Server</th>
+<th style="text-align: right;">1 worker</th>
+<th style="text-align: right;">5 workers</th>
+<th style="text-align: right;">20 workers</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>the task is…</td>
-<td><strong>eager</strong>: running</td>
-<td><strong>lazy</strong>: a coroutine object</td>
+<td><code>serial</code></td>
+<td style="text-align: right;">4.0 s</td>
+<td style="text-align: right;">4.0 s</td>
+<td style="text-align: right;">4.0 s</td>
 </tr>
 <tr class="even">
-<td>ready at once</td>
-<td><strong>0 / 15</strong></td>
-<td><strong>0 / 15</strong></td>
-</tr>
-<tr class="odd">
-<td>2 s later</td>
-<td><strong>15 / 15</strong></td>
-<td><strong>0 / 15</strong>: never started</td>
+<td><code>concurrent</code></td>
+<td style="text-align: right;">4.0 s</td>
+<td style="text-align: right;">0.8 s</td>
+<td style="text-align: right;">0.2 s</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li class="fragment">Julia: you didn’t <strong>wait</strong> → <code>@sync</code>.</li>
-<li class="fragment">Python: never <strong>awaited</strong> → <code>await</code> / <code>asyncio.gather</code>.</li>
-</ul>
-</div>
 <div class="fragment">
 <blockquote>
-<p><code>asyncio.gather</code> = <code>@sync</code> + <code>@async</code>.</p>
+<p>Expected time ≈ ⌈20 / workers⌉ × 0.2 s, only if the server answers several requests at once.</p>
 </blockquote>
 <aside class="notes">
-<p>Same bug in both languages, from opposite causes.</p>
+<p>Measured on the instructor’s laptop: serial 4.0 s for every worker count; concurrent 4.05 / 0.82 / 0.24 s. Small extra time = connection setup and task scheduling. The first run can include compilation (Julia): run the table twice.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;

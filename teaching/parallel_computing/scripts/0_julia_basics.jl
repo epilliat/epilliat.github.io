@@ -1,4 +1,4 @@
-# Julia for Python users — a syntax bridge (no performance yet). ENSAI 3A.
+# Julia for Python users — read the demonstrations; exercises in Python. ENSAI 3A.
 # ⚠ KEEP IN SYNC with `pluto/0_julia_basics.jl`. Cells: `#%%` (Alt+Enter in VS Code).
 # Sections 1–2 are the 15-minute path; 3 is reference.
 
@@ -19,42 +19,25 @@ hits = count_in_disk(n)
 pi_estimate = 4 * hits / n
 (hits, pi_estimate)
 
-#%% 2. Reading it — Blocks close with `end`
-for i in 1:3
-    println(i)
-end
-
-#%% Functions, three forms
-function area_rect(L, w)
-    return L * w
-end
-square(x) = x^2
-cube = x -> x^3
-greet(who; punct = "!") = "Hi $who$punct"
-(area_rect(3, 4), square(5), cube(2), greet("Ada"), greet("Bob"; punct = "?"))
-
-#%% Arrays: 1-based, slices include both ends
-v = [10, 20, 30, 40, 50]
-(v[1], v[end], v[end-1], v[2:4], length(v))   # try v[0]
+#%% 2. Reading the loop
+# In count_in_disk above: function … end defines a function; return hits returns the count.
+# 1:n includes both endpoints; _ is unused; ^ means power; <= also works for ≤.
+# end closes each for/if block; indentation improves readability.
 
 #%% Broadcasting — the dot
 xs = [1.0, 4.0, 9.0]
-(sqrt.(xs), xs .+ 1, @. xs^2 + 1)          # try sqrt(xs)
+(sqrt.(xs), xs .+ 1)   # NumPy: np.sqrt(xs), xs + 1
 
 #%% Macros start with @
-@time count_in_disk(10^7)   # a macro rewrites the code that follows it
+@time count_in_disk(10^7)   # run the expression and report execution time
 
-#%% Cheat-sheet — Python → Julia
-# v[0] / v[-1]        →  v[1] / v[end]
-# v[1:4] (excl. 4)    →  v[2:4] (incl. 4)
-# indent + ':' / elif →  `end` / elseif
-# 2**10 / //          →  2^10 / ÷
-# "a"+"b" / f"{x}"    →  "a"*"b" / "$x"
-# np.f(x)             →  f.(x)
-# obj.method()        →  method(obj)
-# class C (self)      →  struct C (immutable, no self)
-# Python list a[:] copies; NumPy a[:] is a view. Julia: b=a aliases; copy(a) copies.
-# None                →  nothing (missing for data)
+#%% Python → Julia
+# def f(x): …      → function f(x) … end
+# range(n)         → 1:n for n repetitions (different loop values)
+# x**2             → x^2
+# v[0] / v[-1]     → v[1] / v[end]
+# np.sqrt(xs)      → sqrt.(xs)
+# Return to count_in_disk: why does 4 * count_in_disk(n) / n estimate π?
 
 #%% 3. Reference — Variables & types
 x = 3
@@ -63,7 +46,7 @@ name = "Ada"
 (x, y, name, typeof(x), typeof(y), typeof(name))
 
 #%% Numbers
-(10 / 4, 10 ÷ 4, 10 % 4, 2^10, sqrt(2))   # ÷ truncates toward zero; Python // floors (different for negatives). Try 2**10.
+(10 / 4, 10 ÷ 4, -7 ÷ 2, fld(-7, 2), 10 % 4, 2^10, sqrt(2))   # ÷ truncates toward zero; Python // floors (different for negatives). Try 2**10.
 
 #%% Unicode & juxtaposition
 α = 0.1                                    # \alpha + TAB
@@ -75,6 +58,10 @@ greeting = "Hello, $name"
 sum_str  = "$a + $b = $(a + b)"
 joined   = "foo" * "bar"                   # try "foo" + "bar"
 (greeting, sum_str, joined, 'a', typeof('a'))
+
+#%% Arrays: 1-based, slices include both ends
+v = [10, 20, 30, 40, 50]
+(v[1], v[end], v[end-1], v[2:4], length(v))   # try v[0]
 
 #%% Ranges, comprehensions, matrices
 r  = 1:2:9
@@ -119,7 +106,22 @@ let
     acc                      # the last expression is the block's value
 end
 
-#%% Structs instead of classes
+#%% Functions and keyword arguments
+function area_rect(L, w)
+    return L * w
+end
+square(x) = x^2
+cube = x -> x^3
+greet(who; punct = "!") = "Hi $who$punct"
+(area_rect(3, 4), square(5), cube(2), greet("Ada"), greet("Bob"; punct = "?"))
+
+#%% Broadcasting and mutation
+square.(xs)
+@. xs^2 + 1          # dot each operation; chained dots fuse into one loop
+xs .= sqrt.(xs)      # update xs
+sort!(xs)            # ! convention: modifies its argument
+
+#%% Structs define data types
 struct Point
     x::Float64
     y::Float64

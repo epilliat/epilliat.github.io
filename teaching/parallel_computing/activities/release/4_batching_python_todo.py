@@ -4,6 +4,8 @@
 # %% [markdown]
 # # Batch the same workload — 20 minutes
 # One matrix `W` applied to 128 examples: one by one, then in batches of B. Needs NumPy and threadpoolctl.
+#
+# Before running, predict which B minimizes time per example. Keep inputs, total examples and BLAS threads fixed.
 
 # %%
 import time, platform
@@ -54,8 +56,18 @@ expected = individual()
 reference_time = elapsed(individual)
 print("Float32; BLAS threads=1; same", total, "examples; W bytes:", W.nbytes)
 print("reference GEMV: seconds", reference_time, "µs/example", reference_time/total*1e6)
-print("B | total seconds | µs/example | examples/s | speedup vs GEMV")
+print("B | total seconds | µs/example | examples/s | speedup vs GEMV | batch payload KiB")
 for B in (1, 8, 64):
     assert np.allclose(batched(B), expected, rtol=1e-5, atol=1e-4)
     seconds = elapsed(lambda: batched(B))
-    print(B, seconds, seconds/total*1e6, total/seconds, reference_time/seconds)
+    batch_payload = (W.shape[0] + W.shape[1]) * B * W.dtype.itemsize  # input + output of ONE batch, excluding W
+    print(B, seconds, seconds/total*1e6, total/seconds, reference_time/seconds, batch_payload/1024)
+
+# %% [markdown]
+# **Explain:** choose a batch size from measured throughput, a latency requirement and a memory budget.
+# For an offline job, prefer a batch near the best observed throughput without unnecessary buffers.
+#
+# The payload column models one batch’s input and output, excluding W; it is **not measured peak RAM**.
+# This notebook keeps the full dataset resident and concatenates outputs. Its timer does not
+# measure the wait for a batch to fill. B=1 uses a one-column matrix product and is not the
+# individual GEMV reference. Which measurement could distinguish call overhead from data reuse?

@@ -188,6 +188,7 @@
       margin-right: 0; 
     }
   </style>
+  <script type="text/x-mathjax-config">MathJax.Hub.Config({menuSettings: {renderer: "CommonHTML"}, CommonHTML: {matchFontHeight: false, scale: 109}});</script>
 </head>
 <body class="quarto-light">
   <div class="reveal">
@@ -195,7 +196,7 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">5 — GPU</h1>
-  <p class="subtitle">Thousands of threads — provided you feed them, and count the transfers</p>
+  <p class="subtitle">Workload size, resident data, and complete-job speedup</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
@@ -207,18 +208,18 @@ Emmanuel Pilliat — ENSAI 3A
 
 </section>
 <section id="path" class="slide level2">
-<h2>Today’s path</h2>
-<ol type="1">
-<li><strong>Moving to the card</strong>: same code, another memory; what the copy costs.</li>
-<li><strong>Feed the GPU</strong>: the timer, small vs large work, the batch.</li>
-<li>✏️ <a href="#/a6"><strong>π on the card</strong></a>: the running example ends here.</li>
-</ol>
+<h2>From arrays to a GPU decision</h2>
 <div class="fragment">
-<blockquote>
-<p>Only if time: <a href="#/appendix">coalescing</a> · No GPU? The <a href="../../../teaching/parallel_computing/gpu-fallback.html">analysis route</a>.</p>
-</blockquote>
+<ol type="1">
+<li>Choose the <strong>device and precision</strong> explicitly.</li>
+<li>Separate <strong>resident computation</strong> from the <strong>complete job</strong>.</li>
+<li>Compare workloads at the <strong>required accuracy</strong>. <a href="#/a6">π activity</a></li>
+</ol>
+</div>
+<div class="fragment">
+<p><a href="../scripts/4_memory_and_gpu.jl">Script</a> · <a href="../pluto/4_memory_and_gpu.jl">Julia notebook</a> · <a href="../python/4_memory_and_gpu_python.ipynb">Python notebook</a> · <a href="../../../teaching/parallel_computing/gpu-fallback.html">No GPU</a></p>
 <aside class="notes">
-<p>Session 3, minutes 95–145. The batching deck ended on “reuse what you loaded”. This is the hardware that starves fastest. A GPU is not a faster CPU: it is built for the opposite trade-off.</p>
+<p>Session 3, minutes 95–145, including the 30-minute activity. This chapter combines dispatch, measurement, batching and reduction. Use library operations; manual kernels are optional. The decision concerns enough parallel work, reuse on the device, and full runtime at a specified accuracy. Do not describe GPU threads as slower CPU cores or compare their counts directly.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -230,189 +231,152 @@ Emmanuel Pilliat — ENSAI 3A
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
-</div>
-</section>
-<section id="by-the-end-you-can" class="slide level2">
-<h2>By the end, you can</h2>
-<ul>
-<li>say <strong>what crosses the bus</strong>;</li>
-<li>say <strong>what the timer includes</strong>;</li>
-<li>decide whether the GPU helps the <strong>whole</strong> job.</li>
-</ul>
-<div class="fragment">
-<blockquote>
-<p>▶ <a href="../scripts/4_memory_and_gpu.jl">Script</a> (§4–7) · <a href="../pluto/4_memory_and_gpu.jl">Notebook</a> · 🐍 <a href="../python/4_memory_and_gpu_python.ipynb">PyTorch</a></p>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p>⬅ <a href="../../../teaching/parallel_computing/slides/4_memory_and_batching.html">4 — Memory &amp; batching</a> · <a href="../../../teaching/parallel_computing/slides/course.html#/synthesis">Synthesis</a> ➡</p>
-</blockquote>
 </div>
 </section>
 <section>
-<section id="part-a-moving-to-the-card" class="title-slide slide level1 center" style="text-align: center;">
-<h1>Part A — moving to the card</h1>
+<section id="device-data-and-measurement" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Device, data and measurement</h1>
 
 </section>
-<section id="two-strategies-for-the-same-problem" class="slide level2">
-<h2>Two strategies for the same problem</h2>
+<section id="same-operation-another-array-type" class="slide level2">
+<h2>Same operation, another array type</h2>
 <div class="fragment">
-<p>Both wait for <strong>memory</strong>; they hide the wait differently.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a>A <span class="op">=</span> <span class="fu">rand</span>(<span class="dt">Float32</span>, <span class="fl">3</span>, <span class="fl">3</span>); B <span class="op">=</span> <span class="fu">rand</span>(<span class="dt">Float32</span>, <span class="fl">3</span>, <span class="fl">3</span>)</span>
+<span id="cb1-2"><a></a>Ag <span class="op">=</span> <span class="fu">CuArray</span>(A); Bg <span class="op">=</span> <span class="fu">CuArray</span>(B)   <span class="co"># copy to GPU memory, same dtype</span></span>
+<span id="cb1-3"><a></a>A <span class="op">*</span> B                            <span class="co"># CPU</span></span>
+<span id="cb1-4"><a></a>Ag <span class="op">*</span> Bg                          <span class="co"># GPU method</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="fragment">
+<blockquote>
+<p>Dispatch selects an implementation from the argument types; the mathematical operation is unchanged.</p>
+</blockquote>
+<aside class="notes">
+<p>▶ Script: cell “4. Device and precision”. RAM and GPU memory are separate here. CuArray(A) preserves A’s element type; the convenience function cu may narrow Float64 to Float32. Both copies and changes in precision must be stated. The GPU has many execution lanes, but a CUDA thread is not comparable to a CPU core. Small workloads may not amortize overhead.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="specify-accuracy-before-comparing" class="slide level2">
+<h2>Specify accuracy before comparing</h2>
+<ul>
+<li class="fragment">Hold <strong>input values and dtype</strong> fixed for a deterministic comparison.</li>
+<li class="fragment">Check the result against a <strong>justified numerical tolerance</strong>.</li>
+<li class="fragment">For Monte-Carlo, also specify the <strong>statistical accuracy target</strong>.</li>
+</ul>
+<div class="fragment">
+<blockquote>
+<p>A faster Float32 calculation is useful only if its accuracy meets the requirement.</p>
+</blockquote>
+<aside class="notes">
+<p>The default dtype can differ across libraries. FP32, FP64 and accelerator math modes may change speed and error; do not call Float32 universally the GPU’s native precision. For π, the standard error is about 1.64/sqrt(n), as in module 1. This is not a guaranteed absolute-error bound. CPU/GPU RNGs may produce different samples even at the same n.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="time-completed-work" class="slide level2">
+<h2>Time completed work</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a>CUDA.<span class="pp">@sync</span> Ag <span class="op">*</span> Bg   <span class="co"># wait for the GPU operation before stopping the timer</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Python equivalent for a resident calculation:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a></a>torch.cuda.synchronize()</span>
+<span id="cb3-2"><a></a>start <span class="op">=</span> time.perf_counter()</span>
+<span id="cb3-3"><a></a>Yg <span class="op">=</span> Ag <span class="op">@</span> Bg</span>
+<span id="cb3-4"><a></a>torch.cuda.synchronize()</span>
+<span id="cb3-5"><a></a>seconds <span class="op">=</span> time.perf_counter() <span class="op">-</span> start</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<aside class="notes">
+<p>Warm up before repeated measurements. GPU operations can enqueue work and return before it finishes; an unsynchronized host timer can measure submission rather than completion. The first synchronization excludes earlier work; the second includes this product’s completion. Returning a result to the CPU can also synchronize, but state the timed scope explicitly.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="what-crosses-the-bus" class="slide level2">
+<h2>What crosses the bus?</h2>
+<div class="fragment">
+<p>Historical observations on the course machine, <strong>64 MiB per Float32 matrix</strong>:</p>
 <table class="caption-top">
 <thead>
 <tr class="header">
-<th></th>
-<th><strong>CPU</strong></th>
-<th><strong>GPU</strong></th>
+<th>Step</th>
+<th>Time</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>threads</td>
-<td><strong>few</strong>, fast</td>
-<td><strong>thousands</strong>, slow</td>
-</tr>
-<tr class="even">
-<td>caches</td>
-<td><strong>big</strong> (24 MiB L3)</td>
-<td><strong>small</strong></td>
-</tr>
-<tr class="odd">
-<td>hides the wait by</td>
-<td><strong>caching</strong></td>
-<td><strong>switching</strong> threads</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="fragment">
-<blockquote>
-<p>CPU: big caches <strong>avoid</strong> the wait. GPU: another thread runs <strong>while</strong> one waits. Too little work: <span style="background-color: yellow;">the GPU just waits.</span></p>
-</blockquote>
-<aside class="notes">
-<p>GPU: when one group of threads waits on memory, another group runs. With too little work there is nobody to switch to.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="same-code-different-hardware" class="slide level2">
-<h2>Same code, different hardware</h2>
-<div class="fragment">
-<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a></a>Ag <span class="op">=</span> <span class="fu">cu</span>(A)          <span class="co"># copy to VRAM</span></span>
-<span id="cb1-2"><a></a>Bg <span class="op">=</span> <span class="fu">cu</span>(B)</span>
-<span id="cb1-3"><a></a></span>
-<span id="cb1-4"><a></a>A  <span class="op">*</span> B              <span class="co"># CPU</span></span>
-<span id="cb1-5"><a></a>Ag <span class="op">*</span> Bg             <span class="co"># GPU: the SAME `*`</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<ul>
-<li class="fragment"><strong>Multiple dispatch</strong> picks the GPU method.</li>
-<li class="fragment"><span style="background-color: yellow;"><strong>The algorithm didn’t change.</strong></span></li>
-</ul>
-<aside class="notes">
-<p>VRAM = the card’s own memory; the bus links RAM and VRAM. <code>*</code> is a generic function; its arguments are now CuArrays. That is the dispatch module’s promise, cashed in.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="the-array-changed-even-if-the-code-didnt" class="slide level2">
-<h2>The array changed, even if the code didn’t</h2>
-<div class="fragment">
-<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a></a>A  <span class="op">=</span> <span class="fu">rand</span>(<span class="fl">3</span>, <span class="fl">3</span>)     <span class="co"># Matrix{Float64}, RAM</span></span>
-<span id="cb2-2"><a></a>Ag <span class="op">=</span> <span class="fu">cu</span>(A)          <span class="co"># CuArray{Float32,…}, VRAM</span></span>
-<span id="cb2-3"><a></a>CUDA.<span class="fu">allowscalar</span>(<span class="cn">false</span>)  <span class="co"># make the scalar-indexing error explicit</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<ul>
-<li class="fragment"><code>cu</code> <strong>copies</strong> across the bus: two objects, two memories.</li>
-<li class="fragment">Float64 → <strong>Float32</strong> (<code>CuArray(A)</code> keeps Float64).</li>
-<li class="fragment"><code>Ag[1]</code> is an <strong>error</strong>: one element = one bus round trip.</li>
-</ul>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “4. The GPU — a CuArray is NOT a CPU array”</p>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p><code>cu(A)</code> is not a conversion: <span style="background-color: yellow;">a <strong>copy</strong> across the bus</span>.</p>
-</blockquote>
-<aside class="notes">
-<p>Dispatch picked the GPU method because the type changed. Measured live: typeof(Ag) prints CuArray{Float32, 2, CUDACore.DeviceMemory}. Float32 is the card’s native precision; the Float64 -&gt; Float32 narrowing is the most common “why are my results different on GPU” question. Scalar indexing throws by design (CUDA.@allowscalar overrides it — mention only if asked).</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="what-the-copy-costs" class="slide level2 smaller">
-<h2>What the copy costs</h2>
-<div class="fragment">
-<p>Two 4096² Float32 matrices (64 MiB each):</p>
-</div>
-<div class="fragment">
-<table class="caption-top">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>step</th>
-<th>time</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>host → device, <code>cu(A)</code></td>
+<td>Upload one matrix</td>
 <td>8.5 ms</td>
 </tr>
 <tr class="even">
-<td>compute, <code>Ag * Bg</code></td>
-<td><strong>35 ms</strong></td>
+<td>Product, inputs resident</td>
+<td>35 ms</td>
 </tr>
 <tr class="odd">
-<td>device → host, <code>Array(Ag)</code></td>
-<td><span style="background-color: yellow;"><strong>52 ms</strong></span></td>
+<td>Download one matrix</td>
+<td>52 ms</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li class="fragment">Round trip = <strong>1.7× the computation</strong>. <strong>Back</strong> is the expensive way.</li>
-<li class="fragment"><strong>Don’t ping-pong</strong>: upload once, bring back a <strong>scalar</strong>.</li>
-</ul>
 </div>
 <div class="fragment">
 <blockquote>
-<p>▶ Script: cell “What the copy costs”</p>
+<p>A complete product needs <strong>two uploads, the product, and its result download</strong>.</p>
 </blockquote>
 <aside class="notes">
-<p>A pipeline that copies back after every step lives on the bus, not on the GPU. The torch twin (python/4) measures the same shape: ~10 ms up, ~50 ms down, ~28 ms of compute.</p>
+<p>▶ Script: cell “What the copy costs”. Historical rounded minimum timings include allocation for the transfer calls. Direction alone does not determine transfer cost; buffers, memory allocation and runtime state matter. 2×8.5+35+52 ≈104 ms is a derived estimate, not an observed complete-job time. Measure the complete path rather than summing independently timed minima.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="resident-work-and-the-complete-job" class="slide level2">
+<h2>Resident work and the complete job</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a></a><span class="co"># Inputs already on the GPU; result remains there</span></span>
+<span id="cb4-2"><a></a>CUDA.<span class="pp">@sync</span> Ag <span class="op">*</span> Bg</span>
+<span id="cb4-3"><a></a></span>
+<span id="cb4-4"><a></a><span class="co"># Host inputs → upload → product → host result</span></span>
+<span id="cb4-5"><a></a><span class="fu">matmul_to_host</span>(A, B) <span class="op">=</span> CUDA.<span class="pp">@sync</span> <span class="fu">Array</span>(<span class="fu">CuArray</span>(A) <span class="op">*</span> <span class="fu">CuArray</span>(B))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<blockquote>
+<p>Keep intermediate data on the GPU when possible; return the <strong>result the application requires</strong>.</p>
+</blockquote>
+<aside class="notes">
+<p>▶ Script: cell “The matrix product, resident and complete”. Compare both scopes with CPU A*B using identical Float32 inputs. Check the returned matrix, not only the runtime. The function includes allocations, both uploads, the operation, synchronization and the download. A matrix-valued application cannot replace its required result by a scalar merely to avoid transfer.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -427,102 +391,23 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section></section>
 <section>
-<section id="part-b-feed-the-gpu" class="title-slide slide level1 center" style="text-align: center;">
-<h1>Part B — feed the GPU</h1>
+<section id="parallel-work-and-batching" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Parallel work and batching</h1>
 
 </section>
-<section id="the-big-matmul" class="slide level2 smaller">
-<h2>The big matmul</h2>
+<section id="matrix-size-and-gpu-runtime" class="slide level2">
+<h2>Matrix size and GPU runtime</h2>
 <div class="fragment">
-<p>Same <code>*</code>, 4096², Float32:</p>
+<p>Predict: <strong>N = 64</strong> versus <strong>N = 4096</strong>.</p>
 </div>
 <div class="fragment">
 <table class="caption-top">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th></th>
-<th>time</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>CPU, <code>A * B</code></td>
-<td>hundreds of ms (varies)</td>
-</tr>
-<tr class="even">
-<td>GPU, <code>CUDA.@sync Ag * Bg</code></td>
-<td><strong>~35 ms</strong>: <span style="background-color: yellow;"><strong>~15–20×</strong></span></td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li class="fragment"><code>CUDA.@sync</code>: GPU calls return <strong>immediately</strong>. Without it you time the <strong>launch</strong>, not the work.</li>
-<li class="fragment">1 <strong>FLOP</strong> = one float operation; this matmul = 2·4096³ ≈ 137 G.</li>
-</ul>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “The matrix product, CPU vs GPU”</p>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p>Big, regular job: what the GPU wants. <strong>Smaller ones?</strong></p>
-</blockquote>
-<aside class="notes">
-<p>The CPU side swings a lot on this laptop (366–942 ms seen in one session, power profile and hybrid cores); the GPU side is stable at ~35 ms. Quote the order of magnitude, not one ratio.</p>
-<style type="text/css">
-        span.MJX_Assistive_MathML {
-          position:absolute!important;
-          clip: rect(1px, 1px, 1px, 1px);
-          padding: 1px 0 0 0!important;
-          border: 0!important;
-          height: 1px!important;
-          width: 1px!important;
-          overflow: hidden!important;
-          display:block!important;
-      }</style></aside>
-</div>
-</section>
-<section id="matmul-cpu-vs-gpu" class="slide level2" style="text-align: center;">
-<h2>Matmul, CPU vs GPU</h2>
-<div class="fragment">
-<p><strong>N × N</strong> matmul, CPU vs GPU, N from <strong>64</strong> to <strong>4096</strong>.</p>
-</div>
-<div class="fragment">
-<blockquote>
-<h3 id="does-the-gpu-always-win">Does the GPU always win?</h3>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “5. Feed the GPU — when does it start paying off?”</p>
-</blockquote>
-</div>
-</section>
-<section id="when-does-the-gpu-start-paying-off" class="slide level2 smaller">
-<h2>When does the GPU start paying off?</h2>
-<div class="fragment">
-<p>Float32, CPU measured <strong>first</strong>:</p>
-</div>
-<div class="fragment">
-<table class="caption-top">
-<colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-</colgroup>
 <thead>
 <tr class="header">
 <th>N</th>
 <th>CPU</th>
-<th>GPU</th>
-<th>speedup</th>
+<th>Resident GPU</th>
+<th>Observed speedup</th>
 </tr>
 </thead>
 <tbody>
@@ -530,27 +415,21 @@ Emmanuel Pilliat — ENSAI 3A
 <td>64</td>
 <td>0.01 ms</td>
 <td>0.03 ms</td>
-<td><span style="background-color: yellow;"><strong>0.25×</strong></span> loses</td>
+<td>0.25×</td>
 </tr>
 <tr class="even">
-<td>128</td>
-<td>0.03 ms</td>
-<td>0.03 ms</td>
-<td>1.2×</td>
-</tr>
-<tr class="odd">
 <td>512</td>
 <td>1.15 ms</td>
 <td>0.09 ms</td>
 <td>13.0×</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>2048</td>
 <td>69.8 ms</td>
 <td>3.02 ms</td>
-<td><strong>23.1×</strong></td>
+<td>23.1×</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>4096</td>
 <td>hundreds of ms</td>
 <td>~35 ms</td>
@@ -558,17 +437,8 @@ Emmanuel Pilliat — ENSAI 3A
 </tr>
 </tbody>
 </table>
-<ul>
-<li class="fragment"><strong>Q1.</strong> Why slower for small N? Which costs don’t depend on N?</li>
-<li class="fragment"><strong>Q2.</strong> Speedup: grows or plateaus? What’s the ceiling?</li>
-</ul>
-</div>
-<div class="fragment">
-<blockquote>
-<p>Each GPU core is slower: the gain comes from having <strong>thousands</strong>.</p>
-</blockquote>
 <aside class="notes">
-<p>Narrow work doesn’t get faster on a wider machine. Q1 of the script: fixed costs (launch, sync) don’t depend on N; at N = 64 the GPU spends its time being launched. Q2: the speedup peaks (1024–2048), then levels off — both sides hit their throughput ceiling (the card goes from ~18 to ~5000+ GFLOP/s once the work fills it). The dip at 4096 is not explained here; plausibly a laptop power/thermal limit. Shape is robust, exact ratios are not. On a laptop, measure the CPU BEFORE the GPU: they share a power budget, and the CPU slows down after the GPU has worked (measured once: 75 ms vs 2.97 ms for the same gemm, throttled).</p>
+<p>▶ Script: cell “5. GPU workload size”. Historical rounded observations from the course laptop, Float32, inputs already resident, synchronized GPU computation; transfers excluded. Ratios were computed before rounding the displayed times. These thresholds are not universal. Launch/synchronization overhead matters for small work. The table alone does not establish why throughput changes at the largest size; test power state, dimensions and library choices.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -582,54 +452,48 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="feeding-it-the-batch-measured" class="slide level2 smaller">
-<h2>Feeding it: the batch, measured</h2>
+<section id="batching-on-resident-gpu-data" class="slide level2">
+<h2>Batching on resident GPU data</h2>
 <div class="fragment">
-<p>One layer <code>W</code> (4096²) × <code>B</code> examples, as in the batching deck:</p>
-</div>
-<div class="fragment">
+<p>Reference <code>W</code>: <strong>4096² Float32</strong>. Inputs remain on the device.</p>
 <table class="caption-top">
 <thead>
 <tr class="header">
 <th>B</th>
-<th>GPU <strong>total</strong></th>
-<th>GFLOP/s</th>
+<th>ms / batch</th>
+<th>µs / example</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>1</td>
-<td><strong>0.41 ms</strong></td>
-<td>82.8</td>
+<td>0.41</td>
+<td>410</td>
 </tr>
 <tr class="even">
 <td>8</td>
-<td><strong>0.42 ms</strong></td>
-<td>638</td>
+<td>0.42</td>
+<td>52.5</td>
 </tr>
 <tr class="odd">
 <td>64</td>
-<td><strong>0.45 ms</strong></td>
-<td>4761</td>
+<td>0.45</td>
+<td>7.0</td>
 </tr>
 <tr class="even">
 <td>256</td>
-<td>2.23 ms</td>
-<td>3853</td>
+<td>2.23</td>
+<td>8.7</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li class="fragment"><span style="background-color: yellow;"><strong>B = 1 → 64: 64× the work, &lt; 2× the time.</strong></span></li>
-<li class="fragment">At B = 1 the card was <strong>idle</strong>.</li>
-</ul>
 </div>
 <div class="fragment">
 <blockquote>
-<p>▶ Script: cell “Batching on the GPU”</p>
+<p>Larger batches can improve throughput; latency and buffer requirements still constrain the choice.</p>
 </blockquote>
 <aside class="notes">
-<p>Same GPU; we just asked more of it. Do NOT say “the GPU loses at B=1”: measured, it still beats the CPU at B=1. The honest line is “you are using ~2% of what you paid for” (82.8 vs 4761 GFLOP/s, relative to the best of this run, not the spec sheet). “It loses” invites “so use a CPU”; “~2%” invites “so batch”. B=64 total is run-dependent (0.45–0.63 ms seen). Torch twin: 0.40 → 0.46 ms, B=1 → 64.</p>
+<p>▶ Script: cell “Batching on the GPU”. Historical rounded synchronized product times; data generation/transfers are excluded. Per-example figures are derived from these rounded times. Low throughput at B=1 does not measure utilization or imply that the CPU is necessarily faster. The best batch is an empirical choice, as in module 4. The live code records its own resource budget.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -644,31 +508,25 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section></section>
 <section>
-<section id="monte-carlo-π" class="title-slide slide level1 center" style="text-align: center;">
-<h1>Monte-Carlo π</h1>
+<section id="monte-carlo-π-on-the-gpu" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Monte-Carlo π on the GPU</h1>
 
 </section>
-<section id="monte-carlo-π-on-the-card" class="slide level2">
-<h2>Monte-Carlo π on the card</h2>
+<section id="generate-count-and-reduce-on-the-device" class="slide level2">
+<h2>Generate, count and reduce on the device</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a></a><span class="kw">function</span> <span class="fu">pi_gpu</span>(n)</span>
-<span id="cb3-2"><a></a>    x <span class="op">=</span> CUDA.<span class="fu">rand</span>(<span class="dt">Float32</span>, n)            <span class="co"># in VRAM</span></span>
-<span id="cb3-3"><a></a>    y <span class="op">=</span> CUDA.<span class="fu">rand</span>(<span class="dt">Float32</span>, n)</span>
-<span id="cb3-4"><a></a>    inside <span class="op">=</span> (x<span class="op">.^</span><span class="fl">2</span> <span class="op">.+</span> y<span class="op">.^</span><span class="fl">2</span>) <span class="op">.&lt;=</span> <span class="fl">1f0</span></span>
-<span id="cb3-5"><a></a>    <span class="cf">return</span> <span class="fl">4</span> <span class="op">*</span> <span class="fu">sum</span>(inside) <span class="op">/</span> n           <span class="co"># one scalar back</span></span>
-<span id="cb3-6"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a></a><span class="kw">function</span> <span class="fu">pi_gpu</span>(n)</span>
+<span id="cb5-2"><a></a>    x <span class="op">=</span> CUDA.<span class="fu">rand</span>(<span class="dt">Float32</span>, n)</span>
+<span id="cb5-3"><a></a>    y <span class="op">=</span> CUDA.<span class="fu">rand</span>(<span class="dt">Float32</span>, n)</span>
+<span id="cb5-4"><a></a>    inside <span class="op">=</span> (x<span class="op">.^</span><span class="fl">2</span> <span class="op">.+</span> y<span class="op">.^</span><span class="fl">2</span>) <span class="op">.&lt;=</span> <span class="fl">1f0</span></span>
+<span id="cb5-5"><a></a>    <span class="cf">return</span> <span class="fl">4</span> <span class="op">*</span> <span class="fu">sum</span>(inside) <span class="op">/</span> n</span>
+<span id="cb5-6"><a></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
-<li class="fragment">Same count as <code>count_in_disk</code>; 100 million points processed by library kernels.</li>
-<li class="fragment">Only <strong>one number</strong> crosses the bus.</li>
-<li class="fragment">No shared counter: <code>sum</code> <strong>reduces</strong>.</li>
+<li class="fragment">The points are generated <strong>on the GPU</strong>, without uploading point vectors.</li>
+<li class="fragment">A library reduction returns <strong>one scalar</strong> to the host.</li>
 </ul>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “6. Monte-Carlo π on the GPU”</p>
-</blockquote>
 <aside class="notes">
-<p>1f0 = 1 as a Float32. Minimize sharing, from CPU tasks to GPU kernels processing 100 million points.</p>
+<p>▶ Script: cell “6. Monte-Carlo π on the GPU”. The complete estimator includes allocations, random generation, comparison, reduction, synchronization and scalar return. The reduction is parallel; its final stages expose less parallelism. This is the module-3 local-count pattern implemented by library kernels. 1f0 is 1 represented as Float32.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -683,19 +541,19 @@ Emmanuel Pilliat — ENSAI 3A
 </div>
 </section>
 <section id="a6" class="slide level2">
-<h2>✏️ π on the card, or the GPU decision</h2>
-<ul>
-<li><strong>Question:</strong> for which sizes does the GPU win on π?</li>
-<li><strong>Alone:</strong> predict the break-even size (5 min).</li>
-<li><strong>In pairs:</strong> draw the points <strong>on the card</strong>, time three sizes (no GPU: analyze the table).</li>
-<li><strong>Write down:</strong> table · “the GPU helps <strong>when</strong>…” · what crosses the bus. 📋 <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html#/card">card</a></li>
-</ul>
+<h2>✏️ π on the GPU, or the analysis route</h2>
 <div class="fragment">
-<blockquote>
-<p>🐍 <a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/5_gpu_python_todo.ipynb">Python (Colab)</a> · <a href="../activities/release/5_gpu_python_todo.py">local .py</a> · <a href="../activities/release/5_gpu_julia_todo.jl">Julia</a> · <a href="../../../teaching/parallel_computing/gpu-fallback.html">no GPU</a> · <strong>30 min</strong></p>
-</blockquote>
+<ul>
+<li><strong>Question:</strong> when is the complete estimator faster at the required accuracy?</li>
+<li><strong>Predict:</strong> the effect of the three input sizes.</li>
+<li><strong>Do:</strong> verify the count, then measure; without a GPU, analyze the reference data.</li>
+<li><strong>Write down:</strong> scope · accuracy target · timings · conditional decision · <a href="../../../teaching/parallel_computing/slides/1_compilation_and_types.html#/card">protocol</a>.</li>
+</ul>
+</div>
+<div class="fragment">
+<p><a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/5_gpu_python_todo.ipynb">Python (Colab)</a> · <a href="../activities/release/5_gpu_python_todo.py">local .py</a> · <a href="../activities/release/5_gpu_julia_todo.jl">Julia</a> · <a href="../../../teaching/parallel_computing/gpu-fallback.html">No GPU</a> · <strong>30 min</strong></p>
 <aside class="notes">
-<p>Prediction prompts: where are x and y generated? What must finish before the timer stops? What comes back to the CPU? Both routes are full activities. Nobody reports a CPU timing as a GPU result, and nobody invents a measurement. No numeric speedup is required to succeed.</p>
+<p>First check the same four fixed points on CPU and GPU, then interpret random π estimates using SE ≈1.64/sqrt(n). Choose and state a statistical-accuracy target; a small-n speedup may be irrelevant if that n is insufficient. Do not demand identical random estimates across devices. The no-GPU route has the same reasoning objectives and does not invent device timings.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -709,45 +567,35 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="a6-debrief" class="slide level2 smaller">
-<h2>Debrief: which CPU do we compare to?</h2>
+<section id="a6-debrief" class="slide level2">
+<h2>A speedup depends on its baseline</h2>
 <div class="fragment">
-<p>100 million points, <code>pi_gpu</code> ≈ <strong>12 ms</strong>:</p>
-</div>
-<div class="fragment">
+<p>Historical example: 100 million points, GPU Float32 estimator <strong>~12 ms</strong>.</p>
 <table class="caption-top">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>CPU baseline</th>
-<th>GPU gain</th>
+<th>CPU implementation</th>
+<th>Observed speedup</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>pi_cpu_vec</code> (allocates 2 × 400 MB)</td>
+<td>Float32 arrays, allocations included</td>
 <td>~35×</td>
 </tr>
 <tr class="even">
-<td><code>count_in_disk</code>, scalar loop</td>
-<td><span style="background-color: yellow;"><strong>~25×</strong></span></td>
+<td>Scalar loop, Float64 draws</td>
+<td>~25×</td>
 </tr>
 </tbody>
 </table>
-<ul>
-<li class="fragment">Different code on each side (Float64 loop vs Float32 arrays, different RNGs): we compare <strong>two programs</strong>, not two chips.</li>
-</ul>
 </div>
 <div class="fragment">
 <blockquote>
-<p><strong>Q3.</strong> Threads module: 22 threads → 6.3×. Why is the card so far ahead?</p>
-<p><strong>Q4.</strong> What in <code>pi_gpu</code> does <strong>not</strong> benefit from GPU parallelism?</p>
+<p>Compare implementations at an acceptable accuracy; these ratios do <strong>not isolate hardware alone</strong>.</p>
 </blockquote>
 <aside class="notes">
-<p>pi_cpu_vec mirrors pi_gpu but pays the allocation traffic; allocation-bound, very load-sensitive. Threads deck: <span class="citation" data-cites="spawn">@spawn</span> ×22 gave 6.3×. Q3: the card runs thousands of threads and never leaves VRAM. Q4 answer: launches, synchronization and the tail of the reduction limit the gain. The GPU reduction itself is parallel.</p>
+<p>The RNGs, precision and allocation patterns differ. Ask which sizes meet the students’ stated accuracy target, what stays on the device, and what costs are timed. A failed acceleration or missing GPU can still lead to a valid conditional decision with a proposed next measurement.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -761,86 +609,84 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="what-we-keep" class="slide level2">
-<h2>What we keep</h2>
-<ul>
-<li>Same code, another memory: you <strong>pay the copy</strong>.</li>
-<li>Upload once, bring back a <strong>scalar</strong>.</li>
-<li><strong>Synchronize</strong> before stopping the timer.</li>
-<li>Small jobs <strong>lose</strong>: batch.</li>
-<li>A speedup depends on the <strong>baseline</strong>.</li>
-</ul>
+<section id="decision" class="slide level2">
+<h2>Three questions for the GPU decision</h2>
+<div class="fragment">
+<ol type="1">
+<li><strong>Is there enough parallel work?</strong></li>
+<li><strong>Can intermediate data stay on the GPU?</strong></li>
+<li><strong>Is the complete job faster at the required accuracy?</strong></li>
+</ol>
+</div>
 <div class="fragment">
 <blockquote>
-<p>⬅ <a href="../../../teaching/parallel_computing/slides/4_memory_and_batching.html">4 — Memory &amp; batching</a> · <strong>Next:</strong> the decisions of the course — <a href="../../../teaching/parallel_computing/slides/course.html#/synthesis">Synthesis</a> ➡</p>
+<p>Apply the same questions to your project.</p>
 </blockquote>
+</div>
+<div class="fragment">
+<p><strong>Next:</strong> <a href="../../../teaching/parallel_computing/slides/course.html#/synthesis">Course synthesis</a> · <a href="#/appendix">Optional coalescing</a></p>
 </div>
 </section></section>
 <section>
 <section id="appendix" class="title-slide slide level1 center" style="text-align: center;">
-<h1>Only if time — coalescing: locality on the card</h1>
+<h1>Optional — coalescing</h1>
 
 </section>
-<section id="what-a-warp-wants" class="slide level2">
-<h2>What a warp wants</h2>
-<div class="fragment">
-<p><strong>Warp</strong> = 32 threads in lockstep, loading <strong>together</strong>.</p>
+<section id="neighboring-threads-neighboring-addresses" class="slide level2">
+<h2>Neighboring threads, neighboring addresses</h2>
 <ul>
-<li class="fragment">Neighboring addresses → <strong>few</strong> transactions. <span style="background-color: yellow;">Coalesced.</span></li>
-<li class="fragment">Scattered addresses → <strong>one per thread</strong>.</li>
+<li class="fragment">CUDA groups threads into <strong>warps of 32</strong>.</li>
+<li class="fragment">Neighboring addresses can be served by <strong>fewer memory transactions</strong>.</li>
+<li class="fragment">Scattered addresses can require more transactions.</li>
 </ul>
-</div>
 <div class="fragment">
 <blockquote>
-<p>The <strong>column-major lesson</strong> again, on the card.</p>
+<p>CPU locality concerns a thread’s access sequence; coalescing also concerns addresses accessed by neighboring GPU threads.</p>
 </blockquote>
+<aside class="notes">
+<p>This CUDA example concerns NVIDIA warps. Do not equate a warp with 32 CPU cores or assume that all divergent threads progress in strict lockstep. Map thread indices to the actual layout.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
 </div>
 </section>
-<section id="coalescing-measured" class="slide level2 smaller">
-<h2>Coalescing, measured</h2>
+<section id="coalescing-a-controlled-permutation" class="slide level2">
+<h2>Coalescing: a controlled permutation</h2>
 <div class="fragment">
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a></a>idx <span class="op">=</span> <span class="fu">CuArray</span>(<span class="fu">Int32</span>.(((<span class="fl">0</span><span class="op">:</span>N<span class="op">-</span><span class="fl">1</span>) <span class="op">.*</span> s) <span class="op">.%</span> N <span class="op">.+</span> <span class="fl">1</span>))   <span class="co"># stride s</span></span>
-<span id="cb4-2"><a></a>a[idx]                                            <span class="co"># 20 M reads</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="fragment">
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a></a>idx <span class="op">=</span> <span class="fu">CuArray</span>(<span class="fu">Int32</span>.(((<span class="fl">0</span><span class="op">:</span>N<span class="op">-</span><span class="fl">1</span>) <span class="op">.*</span> s) <span class="op">.%</span> N <span class="op">.+</span> <span class="fl">1</span>))</span>
+<span id="cb6-2"><a></a>a[idx]   <span class="co"># same elements in a different order when gcd(s,N) = 1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <table class="caption-top">
 <thead>
 <tr class="header">
-<th>stride <code>s</code></th>
-<th>time</th>
-<th></th>
+<th>Stride</th>
+<th>Historical time</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>1</td>
 <td>2.24 ms</td>
-<td>coalesced</td>
 </tr>
 <tr class="even">
 <td>33</td>
 <td>5.40 ms</td>
-<td><span style="background-color: yellow;"><strong>2.4× slower</strong></span></td>
 </tr>
 <tr class="odd">
 <td>1023</td>
 <td>12.3 ms</td>
-<td>5.5× slower</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="fragment">
-<blockquote>
-<p>▶ Script: cell “7. Optional — coalescing”</p>
-</blockquote>
-</div>
-<div class="fragment">
-<blockquote>
-<p><em>“Only 2.4×?”</em> Which <strong>other</strong> bytes does <code>a[idx]</code> touch?</p>
-</blockquote>
 <aside class="notes">
-<p>Same 20 M reads, different order: i ↦ (i·s mod N) + 1. The stride must be COPRIME with N or it is not a permutation: gcd(32, 20_000_000)=32 would reread only 625k slots — a cache demo, not a coalescing demo. 33 works; 65 and 1025 do NOT (they share the factor 5). Script question: why must the index be a permutation?</p>
+<p>▶ Script: cell “7. Optional — coalescing”. N=20 million; require a permutation so this does not merely reread a smaller subset. gcd(33,N)=gcd(1023,N)=1. This operation also reads the index array and writes an output. Identify all arrays before assigning the ratio to one cause.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -854,45 +700,21 @@ Emmanuel Pilliat — ENSAI 3A
       }</style></aside>
 </div>
 </section>
-<section id="testing-that-explanation" class="slide level2 smaller">
-<h2>Testing that explanation 🔬</h2>
+<section id="test-a-memory-traffic-explanation" class="slide level2">
+<h2>Test a memory-traffic explanation</h2>
 <div class="fragment">
-<p><code>a[idx]</code> also reads <code>idx</code> and writes <code>out</code>, in order: only <strong>1/3</strong> of the bytes are read out of order.</p>
-</div>
-<div class="fragment">
-<p>Index computed <strong>in the kernel</strong> → <strong>1/2</strong> read out of order. Does the ratio rise? Index arithmetic and allocations also change.</p>
-</div>
-<div class="fragment">
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a></a>i <span class="op">=</span> (<span class="fu">blockIdx</span>().x <span class="op">-</span> <span class="fl">1</span>) <span class="op">*</span> <span class="fu">blockDim</span>().x <span class="op">+</span> <span class="fu">threadIdx</span>().x   <span class="co"># my thread</span></span>
-<span id="cb5-2"><a></a>j <span class="op">=</span> ((i <span class="op">-</span> <span class="fl">1</span>) <span class="op">*</span> s) <span class="op">%</span> n <span class="op">+</span> <span class="fl">1</span>     <span class="co"># computed, never loaded</span></span>
-<span id="cb5-3"><a></a>out[i] <span class="op">=</span> a[j]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="fragment">
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>stride 33 vs 1</th>
-<th>ratio</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>a[idx]</code> (1/3)</td>
-<td>2.4×</td>
-</tr>
-<tr class="even">
-<td>kernel (1/2)</td>
-<td><span style="background-color: yellow;"><strong>4.18×</strong></span></td>
-</tr>
-</tbody>
-</table>
+<p>Compute the index in the kernel rather than loading an index array:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource julia number-lines code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a></a>i <span class="op">=</span> (<span class="fu">blockIdx</span>().x <span class="op">-</span> <span class="fl">1</span>) <span class="op">*</span> <span class="fu">blockDim</span>().x <span class="op">+</span> <span class="fu">threadIdx</span>().x</span>
+<span id="cb7-2"><a></a>j <span class="op">=</span> ((i <span class="op">-</span> <span class="fl">1</span>) <span class="op">*</span> s) <span class="op">%</span> n <span class="op">+</span> <span class="fl">1</span></span>
+<span id="cb7-3"><a></a>out[i] <span class="op">=</span> a[j]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Historical stride-33 / stride-1 ratios: <strong>2.4×</strong> with <code>a[idx]</code>, <strong>4.18×</strong> with computed indices.</p>
 </div>
 <div class="fragment">
 <blockquote>
-<p>▶ Script: cell “Test that explanation” · ⬅ <a href="#/path">Back to the path</a></p>
+<p>Index arithmetic and allocation also change: this comparison does not isolate one effect.</p>
 </blockquote>
 <aside class="notes">
-<p>Kernel = a function run once per GPU thread; thread i handles element i.</p>
+<p>▶ Script: cell “Test that explanation”. The output is still written contiguously. Nominally, source reads are one third of the gather’s bytes versus one half without an index array, but nominal bytes are not memory-transaction counts. Validate the permutation’s output too.</p>
 <style type="text/css">
         span.MJX_Assistive_MathML {
           position:absolute!important;
@@ -904,6 +726,96 @@ Emmanuel Pilliat — ENSAI 3A
           overflow: hidden!important;
           display:block!important;
       }</style></aside>
+<p><a href="#/decision">Back to the GPU decision</a> · <a href="../../../teaching/parallel_computing/slides/course.html#/synthesis">Course synthesis</a></p>
+</div>
+</section></section>
+<section>
+<section id="optional-final-activity-a-small-llm" class="title-slide slide level1 center" style="text-align: center;">
+<h1>Optional final activity — a small LLM</h1>
+
+</section>
+<section id="a7" class="slide level2">
+<h2>✏️ Your own phrases, then a batch</h2>
+<div class="fragment">
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource python number-lines code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a></a><span class="bu">print</span>(answer(<span class="st">"Explain why we use a GPU."</span>))</span>
+<span id="cb8-2"><a></a>measure(<span class="dv">1</span>), measure(<span class="dv">8</span>), one_by_one(<span class="dv">8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="fragment">
+<ul>
+<li><strong>Predict:</strong> does serving eight requests together make each user wait less?</li>
+<li><strong>Do:</strong> try strings; time B = 1, B = 8 and eight requests in a row; then B up to 128.</li>
+<li><strong>Record:</strong> batch time, tokens/s, memory, and a choice for chat versus offline work.</li>
+</ul>
+</div>
+<div class="fragment">
+<p><a href="https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/6_llm_batching_python_todo.ipynb">Python (Colab)</a> · <a href="../activities/release/6_llm_batching_python_todo.py">local .py</a> · <strong>30 min, only if time remains</strong></p>
+<aside class="notes">
+<p>After the core activities and synthesis. Prepare CUDA, Transformers and cached Qwen weights before class. All helpers are defined in the setup cell. Five minutes of free text, fifteen of measurement (one hole: tokens/s and seconds per answer), ten of discussion. No transformer architecture prerequisite. Without a GPU, interpret a partner group’s measurements with attribution.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="a7-debrief" class="slide level2">
+<h2>Eight answers in two seconds?</h2>
+<div class="fragment">
+<p><strong>Hypothetical example:</strong> B = 8, 32 generated tokens per answer, batch completed in 2 s.</p>
+</div>
+<div class="fragment">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Total throughput</td>
+<td>128 generated tokens/s</td>
+</tr>
+<tr class="even">
+<td>Amortized time per answer</td>
+<td>0.25 s</td>
+</tr>
+<tr class="odd">
+<td>Wait for each answer, returned together</td>
+<td>2 s</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<blockquote>
+<p>Where is the parallelism, if each token depends on the previous ones?</p>
+</blockquote>
+<aside class="notes">
+<p>Discuss internal matrix operations and independent sequences; connect W<em>x to W</em>X and weight reuse. Successive tokens remain dependent. More throughput need not reduce batch latency. Timings alone identify neither utilization nor a particular bottleneck. Include memory and service waiting constraints. The notebook fixes output length, includes prefill and decoding, excludes text conversion and transfers, and compares successive requests with a single batch for equal total work. These numbers are fictitious.</p>
+<style type="text/css">
+        span.MJX_Assistive_MathML {
+          position:absolute!important;
+          clip: rect(1px, 1px, 1px, 1px);
+          padding: 1px 0 0 0!important;
+          border: 0!important;
+          height: 1px!important;
+          width: 1px!important;
+          overflow: hidden!important;
+          display:block!important;
+      }</style></aside>
+</div>
+</section>
+<section id="next" class="slide level2">
+<h2>Next</h2>
+<div class="fragment">
+<p><a href="../../../teaching/parallel_computing/slides/course.html#/synthesis">Return to the course synthesis</a> and apply the measurement protocol to your project.</p>
 
 
 </div>

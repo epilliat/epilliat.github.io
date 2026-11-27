@@ -13,10 +13,10 @@ using CUDA                 # needs the package; a card is optional
 gpu_available = CUDA.functional()
 println("CUDA functional: $gpu_available")
 
-#%% 1. The memory hierarchy — the cache cliff
+#%% 1. Repeated sums as the array grows
 #   L1 ~32–64 KB ~1 ns · L2 ~1 MB ~4 ns · L3 ~8–32 MB ~15 ns · RAM ~100 ns
-# Same array summed many times, growing footprint. Where does the curve jump?
-# Compare with your cache sizes (`lscpu`). Is the RAM step as big as the table says?
+# Same array summed many times, growing footprint. Predict the average time per element.
+# Compare footprints with cache sizes (`lscpu`); this is processing rate, not access latency.
 function repeated_sum(a, passes)
     s = zero(eltype(a))
     for _ in 1:passes
@@ -28,21 +28,21 @@ function repeated_sum(a, passes)
 end
 
 let
-    println("footprint | time per access (ns)")
+    println("footprint | average ns per element")
     for kb in (8, 24, 64, 256, 1024, 4096, 16384, 65536)
         n = kb * 128                       # KB → number of Float64
         a = rand(n)
         passes = max(1, 100_000_000 ÷ n)   # ≈ constant total access volume
         t = @belapsed repeated_sum($a, $passes) seconds=1
         ns = t / (passes * n) * 1e9
-        footprint = kb < 1024 ? "$(lpad(kb, 4)) KB" : "$(lpad(kb ÷ 1024, 4)) MB"
+        footprint = kb < 1024 ? "$(lpad(kb, 4)) KiB" : "$(lpad(kb ÷ 1024, 4)) MiB"
         println("$(lpad(footprint, 9)) | $(lpad(round(ns, digits=3), 14))")
     end
 end
 
 #%% 2. Locality — the same sum, walked two ways
 # Same additions, two loop orders.
-A = rand(8_000, 8_000)   # 512 MB: far beyond any cache
+A = rand(8_000, 8_000)   # 512 MB: larger than the reference laptop’s caches
 
 function sum_by_columns(M)
     s = zero(eltype(M))
@@ -71,7 +71,7 @@ let
     print("rows    : "); @btime sum_by_rows($A)
 end
 
-#%% Test the locality explanation: shrink the matrix. At which size does the gap vanish?
+#%% Test the effect of matrix size: how does the loop-order ratio change?
 let
     println("  size  |  columns (ms) |  rows (ms) | ratio")
     for m in (100, 500, 1000, 2000, 4000)
@@ -85,24 +85,30 @@ let
 end
 
 #%% 3. Batching: one layer W, B examples stacked as columns of X
-# Same examples, one `W * x` each or B at once. Watch µs PER EXAMPLE: why does it drop, on a CPU?
-# (Run before the GPU cells: a laptop CPU throttles after the GPU has been hammered.)
+# Compare W*x with W*X. Matrix multiplication can reuse weights across examples; measure time per example.
+# (Run before the GPU cells: CPU/GPU power and thermal state can affect laptop timings.)
 let
-    nb = 4096                        # W = 64 MiB Float32: past the L3, comes from RAM
+    nb = 4096                        # W = 64 MiB, larger than the reference laptop's 24 MiB L3
     W = rand(Float32, nb, nb)
-    x = rand(Float32, nb)
+    Xall = rand(Float32, nb, 1024)
+    x = Xall[:, 1]
+    println("BLAS threads: $(BLAS.get_num_threads()); Float32; W bytes: $(sizeof(W))")
     t_ref = @belapsed $W * $x seconds=1
     println("one by one, W * x : $(round(t_ref*1e6, digits=1)) µs per example")
-    println("batch B | total (ms) | µs PER EXAMPLE | vs one by one")
+    println("batch B | ms per batch | µs PER EXAMPLE | vs one by one")
     for B in (1, 8, 64, 256, 1024)
-        X = rand(Float32, nb, B)
+        X = Xall[:, 1:B]  # nested subsets of the same input examples
+        Y = W * X
+        for j in axes(X, 2)
+            @assert isapprox(Y[:, j], W * X[:, j]; rtol=1e-4)
+        end
         t = @belapsed $W * $X seconds=1
         println("$(lpad(B, 6))  | $(lpad(round(t*1e3, digits=2), 10)) | " *
                 "$(lpad(round(t/B*1e6, digits=2), 14)) | $(lpad(round(t_ref*B/t, digits=1), 6))×")
     end
 end
 
-#%% Optional — allocating is memory traffic too: note the dot on `=`. Look at time AND allocations.
+#%% Optional — reuse output buffers: note the dot on `=`. Look at time AND allocations.
 let
     n = 10_000_000
     x = rand(n); y = rand(n); z = zeros(n)
@@ -118,7 +124,7 @@ let
 end
 
 #%% Optional — arithmetic intensity: FLOP per byte loaded
-# Both read the same n² matrix. Don't compare the seconds: compute the GFLOP/s
+# Use GFLOP/s to compare computational throughput; elapsed time still matters for latency
 # (GFLOP/s = FLOP / time / 1e9; FLOP = one `+` or `*`, counts in the comments).
 n = 2000
 Mat = rand(n, n)
@@ -130,26 +136,27 @@ let
     print("matrix × matrix : "); @btime $Mat * $Mat2    # 2n³ FLOP
 end
 
-#%% 4. The GPU — a CuArray is NOT a CPU array
+#%% 4. Device and precision
 # What changed in the type? In the element type? What does `Ag[1]` do?
 if gpu_available
     let
-        A  = rand(3, 3)
-        Ag = cu(A)                      # copies to VRAM (the card's own memory)
-        println("CPU : ", typeof(A))
-        println("GPU : ", typeof(Ag), "   (CuArray(A) keeps ", eltype(CuArray(A)), ")")
-        r = try Ag[1] catch e; e end    # one element = one round trip over the bus
-        println("Ag[1] → ", r isa Exception ? "ERROR (scalar indexing disallowed)" : r)
+        A = rand(Float32, 3, 3)
+        Ag = CuArray(A)  # preserve dtype while copying to device memory
+        println("CPU: ", typeof(A), "; GPU: ", typeof(Ag))
+        println("cu(Float64 input) uses ", eltype(cu(Float64.(A))), "; CuArray preserves ", eltype(CuArray(Float64.(A))))
+        CUDA.allowscalar(false)
+        r = try Ag[1] catch e; e end
+        println("Host scalar indexing rejected: ", r isa Exception)
     end
 end
 
-#%% What the copy costs — compare the transfers with the computation they feed
+#%% What the copy costs — compare the transfers with the computation
 if gpu_available
     let
         N = 4096
         Ac = rand(Float32, N, N); Bc = rand(Float32, N, N)
         Ag = cu(Ac); Bg = cu(Bc)
-        t_up   = @belapsed cu($Ac) seconds=1
+        t_up   = @belapsed CUDA.@sync(CuArray($Ac)) seconds=1
         t_down = @belapsed Array($Ag) seconds=1
         t_mul  = @belapsed CUDA.@sync($Ag * $Bg) seconds=1
         println("host → device : $(round(t_up*1e3, digits=2)) ms")
@@ -158,18 +165,26 @@ if gpu_available
     end
 end
 
-#%% The matrix product, CPU vs GPU — the SAME `*` (multiple dispatch picks the method)
+#%% The matrix product, resident and complete
+matmul_to_host(A, B) = CUDA.@sync Array(CuArray(A) * CuArray(B))
+
 if gpu_available
     let
         N = 4096
         Acpu = rand(Float32, N, N); Bcpu = rand(Float32, N, N)
-        Agpu = cu(Acpu);            Bgpu = cu(Bcpu)
-        print("CPU : "); @btime $Acpu * $Bcpu
-        print("GPU : "); @btime CUDA.@sync $Agpu * $Bgpu   # @sync: GPU calls are async
+        Agpu = CuArray(Acpu); Bgpu = CuArray(Bcpu)
+        reference = Acpu * Bcpu
+        result = matmul_to_host(Acpu, Bcpu)
+        rtol = 1e-4  # an example application requirement, not a universal error bound
+        println("Float32 result meets rtol=$rtol: ", isapprox(result, reference; rtol=rtol))
+        println("Relative error: ", norm(result-reference)/norm(reference))
+        print("CPU, host result: "); @btime $Acpu * $Bcpu
+        print("GPU, resident inputs/result: "); @btime CUDA.@sync $Agpu * $Bgpu
+        print("GPU, complete host-to-host job: "); @btime matmul_to_host($Acpu, $Bcpu)
     end
 end
 
-#%% 5. Feed the GPU — when does it start paying off?
+#%% 5. GPU workload size — when does it start paying off?
 if gpu_available
     let
         println("size N |  CPU (ms) |  GPU (ms) |  speedup")
@@ -183,10 +198,9 @@ if gpu_available
         end
     end
 end
-# Q1. Why is the GPU SLOWER for small N? (Which costs don't depend on N?)
-# Q2. Does the speedup keep growing, or plateau? What does the ceiling say?
+# Compare resident timings with full host-to-host runtime. Test overhead rather than inferring a universal threshold.
 
-#%% Batching on the GPU — read the TOTAL column. Is the GPU busy at B = 1?
+#%% Batching on the GPU — time per batch and per example, resident inputs
 if gpu_available
     let
         m = 4096
@@ -211,8 +225,12 @@ function pi_gpu(n)
     return 4 * sum(inside) / n           # reduced on the GPU
 end
 
-pi_cpu_vec(n) = (x = rand(Float32, n); y = rand(Float32, n);
-                 4 * sum((x.^2 .+ y.^2) .<= 1f0) / n)   # mirrors pi_gpu, allocates
+function pi_cpu_vec(n)                   # mirrors pi_gpu, allocates
+    x = rand(Float32, n)
+    y = rand(Float32, n)
+    inside = (x.^2 .+ y.^2) .<= 1f0
+    return 4 * sum(inside) / n
+end
 
 function count_in_disk(n)                # the scalar loop of the earlier modules
     hits = 0
@@ -234,8 +252,7 @@ let
         print("GPU             : "); @btime CUDA.@sync pi_gpu($n)
     end
 end
-# Q3. Compare with the gain from CPU threads (threads module: 6.3× on 22 threads). Why so much bigger?
-# Q4. Amdahl again: what in pi_gpu does NOT benefit from massive parallelism?
+# State the RNG/dtype, timed costs and statistical accuracy before interpreting speedup.
 
 #%% 7. Optional — coalescing: locality again, at the scale of a warp (32 threads)
 # Same reads, different order. Why must the index be a permutation (gcd(s, N) = 1)?
@@ -279,6 +296,5 @@ if gpu_available
 end
 
 #%% 8. Wrap-up
-# Performance doesn't come from the language but from what the machine does:
-# cost per operation (compile), what is shared (threads), how data moves (cache,
-# batching, the bus to the GPU).
+# Is there enough parallel work? Can intermediate data stay on the GPU?
+# Is the complete job faster at the required accuracy?

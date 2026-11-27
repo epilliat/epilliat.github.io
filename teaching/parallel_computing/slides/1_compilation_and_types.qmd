@@ -1,6 +1,6 @@
 ---
-title: "1 — Interpreted vs compiled"
-subtitle: "Measure first: what a loop costs, and which block is worth your time"
+title: "1 — Measure before optimizing"
+subtitle: "Compilation, reliable timings, and whole-program speedup"
 author: "Emmanuel Pilliat — ENSAI 3A"
 format:
   revealjs:
@@ -12,80 +12,89 @@ smaller: false
 css: ../../../styles.css
 ---
 
-## Today's path {#path}
+## Measure, verify, choose {#path}
 
 :::{.nonincremental}
-1. **The JIT warmup**: why the first call is slow. ✏️ [what does a loop cost?](#a1)
-2. **Measuring properly**: the measurement card.
-3. **π, measured**: what "correct" means when the result is random.
-4. **Which block is worth it?** ✏️ [diagnose before optimizing](#a2)
+1. Explain **first-call and warmed-up times**. [Loop activity](#a1)
+2. Record a **measurement protocol** and check the result.
+3. Choose a block using **whole-program speedup**. [Diagnostic activity](#a2)
 :::
 
 . . .
 
-> Only if time: [the compiler](#appendix-compiler) · [why `sum` beats our loop](#appendix-simd)
+[Script](../scripts/1_compilation_and_types.jl) · [Julia notebook](../pluto/1_compilation_and_types.jl) · [Python notebook](../python/1_compilation_and_types_python.ipynb)
+
+. . .
+
+[Previous: Julia syntax](0_julia_basics.qmd) · Optional: [compiler](#appendix-compiler), [SIMD](#appendix-simd)
 
 ::: {.notes}
-Session 1, minutes 25–140. The two appendices sit after the wrap-up slide: skip them unless a
-group asks. The assembly is never needed for the activities or the project.
+Session 1, minutes 25–140. The first activity precedes all curves and reference times.
+Do not run the whole script before students predict. It contains demonstrations, not the activity.
+The appendices are optional and are not required for either activity or the project.
 :::
 
-## By the end, you can
-
-:::{.nonincremental}
-- separate **compile time** from **run time**;
-- write down a **valid measurement**;
-- say which block **deserves the effort**.
-:::
-
-. . .
-
-> ▶ [Script](../scripts/1_compilation_and_types.jl) · [Notebook](../pluto/1_compilation_and_types.jl) · 🐍 [Python](../python/1_compilation_and_types_python.ipynb)
-
-. . .
-
-> ⬅ [0 — Julia for Python users](0_julia_basics.qmd)  ·  **Next:** [2 — Multiple dispatch vs OOP](2_dispatch_vs_oop.qmd) ➡
-
-# The JIT warmup {style="text-align: center;"}
-
-## Speed bolted on, or built in? {.smaller}
-
-. . .
-
-::: {.r-stack}
-![](../images/ship_python.png){width="82%"}
-
-![](../images/ship_julia.png){.fragment width="82%"}
-:::
-
-## The loop we will study
+## The loop to compare
 
 . . .
 
 ```julia
 function mysum(x)
-    s = zero(eltype(x))     # 0.0 here
-    for i in eachindex(x)
+    s = zero(eltype(x))      # 0.0 for Float64 input
+    for i in eachindex(x)   # all valid indices
         s += x[i]
     end
     return s
 end
 ```
 
-- Pure Python, 10⁷ floats: **~0.5 s**
-- Julia: a few **ms**
-- [Same loop, same machine. Why the gap?]{style="background-color: yellow;"}
+. . .
 
-## The experiment
+> Same sum of **10⁶ Float64 values**: how does execution time depend on the implementation?
 
-- Sum 10⁶ floats, **2000 calls**, time **each call**
-- 5 variants: pure Python, `numba @njit`, `numpy`, Julia `mysum`, Julia `sum`
+::: {.notes}
+▶ Script: cell "1. A hand-written sum". Do not reveal the timings yet.
+The activity uses the same array values as a Python list for the interpreted loop and as a
+NumPy array for NumPy and Numba. This is an implementation comparison, not compilation alone.
+:::
+
+## The comparison protocol
+
+- **Five reference variants:** Python loop, NumPy, Numba; Julia loop, Julia `sum`.
+- **Input:** 10⁶ Float64 values, generated before timing.
+- **Two measurements:** first call, then warmed-up calls on the same machine.
 
 . . .
 
-> Rank the five. What happens **on the very first call**?
+> Predict the ordering and the first-call effect **before running**.
 
-## Warmup: the curves appear
+::: {.notes}
+The class activity runs three Python variants or two Julia variants; the instructor's curves
+compare all five. Reference experiment: elapsed time for each call, 2000 calls for fast variants,
+200 for pure Python, on the course laptop. No input generation inside the timer.
+The historical figure does not archive complete hardware/software metadata; its rounded plateaus
+are illustrative, not benchmark targets or a hardware ranking. Record the environment for your run.
+:::
+
+## ✏️ What does a loop cost? {#a1}
+
+:::{.nonincremental}
+- **Question:** same sum: Python loop, `numpy`, `numba`. How far apart? What does the first call cost?
+- **Predict:** your ranking and one speedup, **before** running.
+- **Do:** fill the two functions, check the assertion.
+- **Write down:** first call · warmed-up times · speedups · one sentence explaining the gap.
+:::
+
+. . .
+
+> 🐍 [Python (Colab)](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/1_warmup_python_todo.ipynb) · [local .py](../activities/release/1_warmup_python_todo.py) · [Julia](../activities/release/1_warmup_julia_todo.jl) · **20 min**
+
+::: {.notes}
+Python is the common track; the Julia file is the same task for volunteers.
+Walk around: the usual blocker is `range(x.shape[0])` inside numba, not the idea.
+:::
+
+## First call and subsequent calls
 
 . . .
 
@@ -105,199 +114,120 @@ end
 ![](../images/warmup_first_vs_later.png){.fragment width="82%"}
 :::
 
-## Reading the curves
+
+## Debrief: first call and warmed-up calls {#a1-debrief}
 
 . . .
 
-| variant | **1st call** | **later calls** |
+Course laptop, **10⁶ Float64 values**: per-call elapsed times (rounded).
+
+| Variant | First call | Warmed-up median |
 |---|---|---|
-| pure Python | no spike | ~50 ms |
-| numba `@njit` | **~270 ms** | ~0.4 ms |
-| numpy | no spike | ~0.2 ms |
-| Julia `mysum` | ~7 ms | ~0.4 ms |
-| Julia `sum` | ~20 ms | ~0.1 ms |
+| Python loop | 49.7 ms | 51.2 ms |
+| NumPy | 0.236 ms | 0.186 ms |
+| Numba | 274 ms | 0.443 ms |
+| Julia loop | 7.47 ms | 0.458 ms |
+| Julia `sum` | 19.9 ms | 0.136 ms |
 
 . . .
 
-> Two numbers per variant: **first call**, **steady state**.
+> Compare your results. Which variants have a first-call cost? Which warmed-up speedups differ?
 
 ::: {.notes}
-Last frame of the plot: the first calls on their own panel. Spike then fast (numba, Julia); no spike (Python slow, numpy fast). Why? Next slide.
+Warmed-up median = median of the last 10% of calls. Values recomputed from the existing
+experiences/warmup_jit/results/warmup_*.csv traces; no new benchmark run.
+2000 calls per fast variant; 200 for pure Python. The first-call column is the first sample.
+Do not compare class-machine times with the reference as evidence of a language effect.
+A compilation effect is compatible with the initial spikes; CPU/cache warmup also affects timings.
 :::
 
-## Three ways to run code
-
-- **Interpreted** (CPython): each operation decoded again, every time → instant start, **slow**
-- **AOT** (C, `numpy` internals): compiled before you run → fast, **no warmup**
-- **JIT** (Julia, numba): compiled **on 1st call** → fast *after*
+## Where does the loop run?
 
 . . .
 
-> The spike **is** the JIT compiling. Paid once.
+| Approach | Loop execution | Compilation |
+|---|---|---|
+| Python `for` | Interpreter | No native compilation of this loop |
+| NumPy | Compiled library | Before execution |
+| Numba / Julia | Compiled code | First call for the argument types, if needed |
+
+. . .
+
+> NumPy provides compiled operations; **Julia and Numba also compile your own loops**.
 
 ::: {.notes}
-Interpreted: each operation is re-examined at run time (bytecode visible with `dis` in the Python notebook).
-AOT = ahead-of-time, JIT = just-in-time. The JIT cost is amortized over later calls.
-
-Don't say "Python can't specialize by type" — false since 3.11 (PEP 659): the adaptive
-interpreter rewrites a hot `s += x` into `BINARY_OP_ADD_FLOAT`. The point is that it
-specializes ONE bytecode and KEEPS the guard, inside the interpreter, on boxed objects.
-Julia specializes the whole function and deletes the guard. That's why the 100× survives.
+One explanation after the experiment. A Python loop over a NumPy array still executes in the
+interpreter. CPython also specializes interpreter instructions; that does not compile this
+whole loop to native code. Julia specializations may already be available; not every first call
+must compile. Type-specific machine instructions are in the compiler appendix.
 :::
 
-## What gets compiled: one version per type
+# Measuring execution time {style="text-align: center;"}
 
-. . .
-
-No single "`x + y`" instruction: it depends on the **types**.
-
-. . .
-
-| `x`, `y` | machine code for `x + y` |
-|---|---|
-| `Int, Int` | integer add |
-| `Float64, Float64` | float add |
-| `Float64, Int` | convert, then float add |
-
-. . .
-
-> **JIT**: the 1st call compiles a version **for these types**, then reuses it.
-
-::: {.notes}
-The interpreter asks "which + ?" at every iteration; the compiled version asked once.
-Instruction names (`add`, `vaddsd`, `vcvtsi2sd`) and `@code_native`: appendix, only if asked.
-Picking the version from the types of ALL arguments is multiple dispatch — next module.
-:::
-
-## numpy: fast, but only inside
-
-. . .
-
-`numpy.sum`: **the loop is compiled C**.
-
-- Python `for` over a numpy array: slow again
-- Python: **vectorize** — push loops into numpy
-- Julia, numba: [your own loop is compiled too]{style="background-color: yellow;"}
-
-::: {.notes}
-A Python `for` loop over a numpy array is slow because each element crosses back into the interpreter.
-In Julia there is no such boundary.
-:::
-
-## ✏️ What does a loop cost? {#a1}
-
-:::{.nonincremental}
-- **Question:** same sum: Python loop, `numpy`, `numba`. How far apart? What does the 1st call cost?
-- **Alone:** write your ranking and one ratio, **before** running (2 min).
-- **In pairs:** fill the two functions, check the assertion.
-- **Write down:** first call · steady times · ratios · one sentence explaining the gap.
-:::
-
-. . .
-
-> 🐍 [Python (Colab)](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/1_warmup_python_todo.ipynb) · [local .py](../activities/release/1_warmup_python_todo.py) · [Julia](../activities/release/1_warmup_julia_todo.jl) · **20 min**
-
-::: {.notes}
-Python is the common track; the Julia file is the same task for volunteers.
-Walk around: the usual blocker is `range(x.shape[0])` inside numba, not the idea.
-:::
-
-## Debrief: what does a loop cost? {#a1-debrief}
-
-:::{.nonincremental}
-- **Compare:** same ratios as your neighbors? If not: N, type, machine?
-- **Explain:** where did the interpreter cost go, in `numpy`? in `numba`?
-- **Test:** which measurement separates *compiling* from *running*?
-:::
-
-. . .
-
-> A ratio across **two machines** says nothing about a language.
-
-::: {.notes}
-Expected: the hand loop pays the interpreter at every iteration; numpy sidesteps it (compiled C),
-numba removes it (compiles your loop). The first numba call includes compilation.
-Typical orders of magnitude: loop/numpy ~70–100×.
-:::
-
-# Measuring properly {style="text-align: center;"}
-
-## Pitfall 1: timing the compiler
+## Pitfall 1: including compilation without saying so
 
 . . .
 
 ```julia
 g(x) = sum(abs2, x)
-@time g(v)   # compile + compute
-@time g(v)   # compute only
+@time g(v)   # first call: may include compilation
+@time g(v)   # warmed-up call
 ```
 
 . . .
 
-> Report the 1st call **separately**; compare **steady states**.
-
-. . .
-
-> ▶ Script: cell "0. Getting started", then "2. Measuring properly — compare the two timings"
+> Report the **first call separately** from warmed-up calls.
 
 ::: {.notes}
-The very first line of a session is slow for the same reason: everything it touches
-(here `@btime` and BenchmarkTools) gets compiled.
-The first call is not noise to hide: for a script run once, it is part of the cost.
+▶ Script: cell "2. Measuring properly". For a one-shot script, compilation is part of user-visible
+runtime. It is not noise to discard without stating the scope. The first call can also include
+library initialization, allocation and cache effects.
 :::
 
-## Pitfall 2: measuring only once
+## Pitfall 2: relying on one measurement
 
 . . .
 
 ```julia
-using BenchmarkTools
-@btime     mysum($v)   # minimum
+@btime     mysum($v)   # minimum across repeated measurements
 @benchmark mysum($v)   # distribution
 ```
 
-- Many runs, warmup **dropped**
-- `$v` **plugs the value in**: time `mysum`, not the global lookup (explained in the dispatch module)
-- Python: `timeit`, or `perf_counter` around repeated calls
-
-. . .
-
-> ▶ Script: cell "Read the distribution: why is the minimum the number to quote?"
+- Record warmup, repetitions and the **reported statistic**.
+- `$v` supplies the input value to the Julia benchmark.
+- Python: `timeit`, or repeated `perf_counter` measurements.
 
 ::: {.notes}
-`@btime` / `@benchmark` run the call many times and drop the warmup for you.
-Without `$`, we would also time the lookup of the untyped global variable `v`.
-Why an untyped global is slow: with dispatch, when the compiler cannot know the type.
+▶ Script: cell "Read the timing distribution". The minimum approximates a low-interference
+execution time; the median describes a typical observation. Report which one you use.
+BenchmarkTools performs warmup and repeated evaluations; explain globals in the dispatch module.
 :::
 
-## The measurement card {#card}
+## Record the measurement protocol {#card}
 
 . . .
 
-Every timing, here and in your project, comes with five lines:
-
-. . .
-
-| | |
+| Field | Record |
 |---|---|
-| **Result** | what was checked, and how |
-| **Input** | size and type |
-| **Machine** | hardware, workers, BLAS threads |
-| **Repetition** | warmup, number of runs, statistic |
-| **Scope** | which costs are inside the timer |
+| **Correctness** | Check and tolerance |
+| **Input** | Size and element type |
+| **Environment** | Hardware, software versions, workers/threads |
+| **Protocol** | Warmup, repetitions, reported statistic |
+| **Timed scope** | Included and excluded costs |
 
 . . .
 
-> No card, no number. Compare [**ratios on one machine**]{style="background-color: yellow;"}.
+> Use the **same machine** to compare implementations.
 
 ::: {.notes}
-Reused as is in every activity (the 📋 on the launch slides) and required in the project report.
-"Scope" is the line students forget: data generation, compilation, pool startup, transfers.
+The stable #card anchor is reused by activities throughout the course. Threads include BLAS
+threads as well as workers. Record dependencies/versions. Common scope differences: generation,
+compilation, pool startup and transfers. Record both the result check and the timing protocol.
 :::
 
-# Monte-Carlo π, measured {style="text-align: center;"}
+# Checking the result {style="text-align: center;"}
 
-## Estimating π
+## Measuring the π estimator
 
 . . .
 
@@ -305,74 +235,69 @@ Reused as is in every activity (the 📋 on the launch slides) and required in t
 estimate_pi(n) = 4 * count_in_disk(n) / n
 ```
 
-1. Time and allocations of `estimate_pi(10_000_000)`?
-2. Type-stable? `@code_warntype` shows inferred types, uncertain ones in color
-3. How does the error shrink with `n`? Why ideal for parallelism?
-
-. . .
-
-> ▶ Script: cells "3. Monte-Carlo π" to "Q3"
+1. How long does `estimate_pi(1_000_000)` take after warmup?
+2. How can we check a result that changes between runs?
 
 ::: {.notes}
-Same count as in the Julia-basics module; here we measure it and check its types.
-Q2: red `Any` = bad (none here); yellow `Union{Nothing, Tuple…}` = the `for` iterator, harmless.
-The red `Any` and its cost are shown with dispatch (global vs argument).
-Q3: every draw is independent of the others: nothing to share between workers.
+▶ Script: cells "3. Monte-Carlo π" and "Timing the estimator".
+Type inference, allocations and preparation for parallelism are not additional questions here.
+We focus on timing scope and correctness. The following slide separates two kinds of checks.
 :::
 
-## A random result: what does "correct" mean?
+## Two complementary checks
 
-- Two runs give **two different** estimates. Neither equals π.
-- Standard error ≈ $1.64/\sqrt{n}$: about **0.0016** at `n = 10⁶`.
-
-. . .
-
-> Check with a **tolerance** of a few standard errors, never with `==`.
+- **Counting logic:** fixed points with a known count.
+- **Estimator:** error consistent with its standard error, approximately $1.64/\sqrt{n}$.
 
 . . .
 
-> To check the code itself: an input whose count you know exactly.
+```julia
+x = [0.0, 0.5, 1.0, 1.0]
+y = [0.0, 0.5, 0.0, 1.0]
+# Three points satisfy x² + y² ≤ 1.
+```
+
+. . .
+
+> A statistical tolerance complements the code check; it does **not replace it**.
 
 ::: {.notes}
-Standard error = 4·sqrt(p(1−p)/n) with p = π/4; 100× more draws for one more digit.
-A known count: fixed points or a fixed seed.
-This is the "Result" line of the card for the whole running example. It comes back with
-threads (a wrong parallel π is 10× off, far outside any tolerance) and on the GPU (four fixed
-points with a known count of 3).
+▶ Script: cells "Check the counting logic" and "Check the estimator".
+Use the same inside_disk predicate in the random loop and the fixed-point check.
+With p = π/4, SE = 4 sqrt(p(1−p)/n). At n = 10⁶ it is about 0.00164.
+A single error can increase as n increases. A check at several standard errors can occasionally
+fail for a correct estimator, and passing it does not establish correctness.
+A fixed seed supports repeatability; an independently known count supports correctness.
 :::
 
-# Which block is worth it? {style="text-align: center;"}
+# Which block should we optimize? {style="text-align: center;"}
 
-## Local gain ≠ whole-program gain {#amdahl}
-
-. . .
-
-A block takes a fraction $f$ of the time and becomes $s$× faster:
+## Local speedup and whole-program speedup {#amdahl}
 
 . . .
+
+A block takes a fraction $f$ of the time and becomes $s$ times faster:
 
 $$\text{whole-program speedup} = \frac{1}{(1-f) + f/s}$$
 
-. . .
+Which change helps more?
 
-Which one helps more?
-
-- **A**: 10 % of the time, **10×** faster.
-- **B**: 80 % of the time, **2×** faster.
+- **A:** 10% of the time, **10×** faster.
+- **B:** 80% of the time, **2×** faster.
 
 ::: {.notes}
-A: 1/(0.9 + 0.01) = 1.10×. B: 1/(0.2 + 0.4) = 1.67×. Even an infinitely fast A caps at 1.11×.
-Give the numbers only in the diagnosis debrief. Same formula as Amdahl's law in the threads module:
-there, s is the number of cores.
+Assume unchanged work and unchanged costs outside the block. A: 1.10×; B: 1.67×.
+Even an instantaneous A gives at most 1.11×. Reveal answers in the diagnostic debrief.
+The same model is used later for parallel work in Amdahl's law.
 :::
 
 ## ✏️ Diagnose before optimizing {#a2}
 
 :::{.nonincremental}
-- **Question:** three timed stages. Which one to change? What does the **whole** job gain?
-- **Alone:** predict the overall gain (3 min).
-- **In pairs:** time the stages, replace one, check the output is unchanged.
-- **Write down:** stage table · local gain · predicted vs observed gain. 📋 [card](#card)
+- **Question:** which stage should we optimize?
+- **Predict:** the whole-program speedup from the baseline timings.
+- **Do:** implement, check the output, then measure.
+- **Write down:** stage times · local/overall speedups · [protocol](#card).
 :::
 
 . . .
@@ -380,40 +305,54 @@ there, s is the number of cores.
 > 🐍 [Python (Colab)](https://colab.research.google.com/github/epilliat/epilliat.github.io/blob/master/docs/teaching/parallel_computing/activities/release/1_diagnostic_python_todo.ipynb) · [local .py](../activities/release/1_diagnostic_python_todo.py) · **20 min**
 
 ::: {.notes}
-Coarse timers around big functions are enough: this is not a profiling lesson.
+Three minutes to inspect the baseline and write the prediction.
+Coarse timing around stages is sufficient; this does not reintroduce profiling.
+The notebook supplies a vectorized candidate; choosing the target must be justified from timings.
 :::
 
-## Debrief: diagnose before optimizing {#a2-debrief}
+## Debrief: local and overall speedups {#a2-debrief}
 
-:::{.nonincremental}
-- **Compare:** predicted vs observed overall gain.
-- **Explain:** A gives **1.10×**, B gives **1.67×**; even an instantaneous A gives at most 1.11×.
-- **Test:** which stage would you time next?
-:::
+- Compare the **predicted and observed** whole-program speedups.
+- Explain the A/B example: **1.10×** versus **1.67×**.
+- Identify the next stage to investigate **after** the change.
 
 . . .
 
-> Your project reports both: [**gain on the block, gain on the whole program**]{style="background-color: yellow;"}.
+> Report speedup on the **block** and on the **whole program**.
 
 ::: {.notes}
-After the change the dominant stage is usually a different one: the diagnosis has to be redone.
-Differences between model and measurement: noise, allocations, costs that moved.
+The dominant stage may change. Differences from the model can come from measurement noise,
+allocation, changed data movement or work shifted to another stage.
 :::
 
-## What we keep
+## Four rules for reliable comparisons
 
 :::{.nonincremental}
-- First call ≠ steady state: report both.
-- A number comes with its **card**.
-- A random result is checked with a **tolerance**.
-- Optimize what **dominates**; verify on the **whole** program.
+1. Distinguish **first-call and warmed-up times**.
+2. Report the **measurement protocol**.
+3. Check the **code** and the **statistical result**.
+4. Measure **whole-program speedup**, not only the block.
 :::
 
 . . .
 
-> **Next:** [2 — Multiple dispatch vs OOP](2_dispatch_vs_oop.qmd) ➡ · 🔬 [`warmup_jit/`](https://github.com/epilliat/epilliat.github.io/tree/master/teaching/parallel_computing/experiences/warmup_jit)
+> **Next:** [Multiple dispatch](2_dispatch_vs_oop.qmd) · [Reference experiment](https://github.com/epilliat/epilliat.github.io/tree/master/teaching/parallel_computing/experiences/warmup_jit)
 
-# Only if time — watching the compiler {#appendix-compiler style="text-align: center;"}
+# Optional — type specialization {#appendix-compiler style="text-align: center;"}
+
+## Specialization by argument types
+
+. . .
+
+| Arguments | Machine operation for `x + y` |
+|---|---|
+| `Int, Int` | Integer addition |
+| `Float64, Float64` | Floating-point addition |
+| `Float64, Int` | Conversion, then floating-point addition |
+
+. . .
+
+> A compiled specialization can resolve operations using the **argument types**.
 
 ## Watching the compiler
 
@@ -471,107 +410,126 @@ lea     rax, [2*rdi + 1]
 - No type check: types **known at compile time**
 - Not known? **Type instability**, with dispatch
 
-# Only if time — why `sum` beats `mysum` {#appendix-simd style="text-align: center;"}
 
-## The gap to explain
-
-. . .
-
-10⁵ floats (fits in cache):
+## Inspecting the π estimator's types
 
 . . .
 
-| | time / call |
-|---|---|
-| `mysum` | **44 µs** |
-| Base `sum` | **7.5 µs** |
-
-. . .
-
-> **~6× apart**. `@code_native` tells why.
-
-. . .
-
-> ▶ Script: cells "5. Optional — Base `sum` vs our loop" to "The kernel `sum` calls"
-
-## `mysum`: what to look for
-
-. . .
-
-```asm
-vaddsd  xmm0, xmm0, [rcx + 8*rdx]
-vaddsd  xmm0, xmm0, [rcx + 8*rdx + 8]
-...
+```julia
+@code_warntype count_in_disk(1000)
+Base.return_types(estimate_pi, (Int,))
 ```
 
-- `vaddsd` = **S**calar **D**ouble → [1 float / instruction]{style="background-color: yellow;"}
-- Always `xmm0` → **one accumulator**: each `+` waits for the previous
-
-## `sum`: what to look for
-
 . . .
 
-`@code_native sum(vc)` is mostly a `call`; the work is in `Base.mapreduce_impl`:
+> Which types are inferred? The dispatch module examines the cost of unknown types.
 
-. . .
-
-```asm
-vaddpd  ymm0, ymm0, [r8 + 8*r9 - 96]
-vaddpd  ymm1, ymm1, [r8 + 8*r9 - 64]
-vaddpd  ymm2, ymm2, [r8 + 8*r9 - 32]
-vaddpd  ymm3, ymm3, [r8 + 8*r9]
-```
-
-- `vaddpd` = **P**acked **D**ouble → [4 floats / instruction (SIMD)]{style="background-color: yellow;"}
-- **4 accumulators** `ymm0…ymm3` → 4 independent chains
-
-## Why not our loop?
-
-. . .
-
-Why can't the compiler do this for *our* loop?
-
-## What we saw: the order of the additions
-
-. . .
-
-::: {.callout-warning}
-Float `+` is **not associative**: `(a+b)+c ≠ a+(b+c)`.
-The compiler **must** keep our order → scalar.
+::: {.notes}
+▶ Script: cell "Optional — inspect the estimator's types".
+Do not treat every colored union as a performance problem; iterator-related unions can be harmless.
 :::
 
+# Optional — SIMD reductions {#appendix-simd style="text-align: center;"}
+
+## Why is `sum` faster?
+
 . . .
 
-`sum` allows reordering → vectorized.
+Separate reference experiment: **10⁵ Float64 values**, warmed-up timings:
 
-## `@simd`: permission to reorder {.smaller}
+| Implementation | Time per call |
+|---|---|
+| `mysum` | 44 µs |
+| Base `sum` | 7.5 µs |
+
+. . .
+
+> Which instructions and how many accumulators does each reduction use?
+
+::: {.notes}
+▶ Script: cells "5. Optional — Base `sum` vs our loop" and "Base `sum`".
+These historical, rounded BenchmarkTools minimum timings are from the course laptop, not new
+measurements. This smaller input is explicitly a separate cache-resident experiment.
+:::
+
+## Scalar and SIMD reductions
+
+. . .
+
+:::: {.columns}
+::: {.column width="48%"}
+**Scalar: one accumulator**
+
+```asm
+vaddsd xmm0, xmm0, [a]
+vaddsd xmm0, xmm0, [b]
+```
+
+One Float64 addition per instruction; a dependency chain.
+:::
+::: {.column width="48%"}
+**SIMD: several accumulators**
+
+```asm
+vaddpd ymm0, ymm0, [a]
+vaddpd ymm1, ymm1, [b]
+```
+
+Four Float64 additions per instruction here; independent chains.
+:::
+::::
+
+::: {.notes}
+▶ Script: cells "Our loop's assembly" to "The kernel `sum` calls".
+Excerpts are schematic; register widths depend on the target. vaddsd is scalar double;
+vaddpd is packed double. sum's work may be in Base.mapreduce_impl rather than its wrapper.
+:::
+
+## Addition order matters
+
+. . .
+
+Why does the compiler preserve the order of our floating-point reduction?
+
+. . .
+
+```julia
+(1e16 + (-1e16)) + 1.0   # 1.0
+1e16 + ((-1e16) + 1.0)   # 0.0
+```
+
+. . .
+
+> Floating-point addition is **not associative**. Reordering can change the result.
+
+::: {.notes}
+▶ Script: cell "Addition order matters".
+Independent accumulators and SIMD reductions alter the addition order. This matters to the
+correctness specification; bitwise equality is not generally the appropriate check.
+:::
+
+## Allowing SIMD {#simd}
 
 . . .
 
 ```julia
 function mysum_simd(x)
     s = zero(eltype(x))
-    @inbounds @simd for i in eachindex(x)   # ← @simd
+    @inbounds @simd for i in eachindex(x)
         s += x[i]
     end
     return s
 end
 ```
 
-`@inbounds`: no bounds checks · `@simd`: may reorder `+`
+`@simd` permits reordering; `@inbounds` skips bounds checks.
 
-. . .
+Reference: **44 µs → ~4 µs**. Check `mysum_simd(vc) ≈ sum(vc)`.
 
-| variant | time / call |
-|---|---|
-| `mysum` (scalar) | **44 µs** |
-| `mysum_simd` (`vaddpd`) | **~4 µs** |
-| Base `sum` | 7.5 µs |
+::: {.notes}
+▶ Script: cell "@simd: permission to reassociate". Benchmark the same vc as in the previous table.
+Reordering the reduction enables SIMD and independent accumulators. The assertion is a check
+on this input; numerical tolerances must be justified for the application.
+:::
 
-. . .
-
-> The gain comes from **the algorithm** (reordering → SIMD), not from the language.
-
-. . .
-
-> 🔬 asm, `@simd`: [`sum_vs_size/reflection.jl`](../experiences/sum_vs_size/reflection.jl) · ⬅ [Back to the path](#path)
+[Reflection script](../experiences/sum_vs_size/reflection.jl) · [Back to the chapter](#path)
